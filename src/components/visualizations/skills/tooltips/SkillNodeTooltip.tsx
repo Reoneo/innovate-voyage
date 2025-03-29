@@ -22,17 +22,29 @@ interface SkillNodeTooltipProps {
  * Tooltip component for skill nodes
  */
 const SkillNodeTooltip: React.FC<SkillNodeTooltipProps> = ({ data, position }) => {
-  const tooltipHeight = data.issuer ? 150 : 130;
+  const tooltipHeight = data.issuer ? 180 : 160;
+  const xOffset = position.x > 200 ? -210 : 10; // Prevent tooltip from going off-screen
 
   return (
-    <g className="tooltip" transform={`translate(${position.x + 10},${position.y - 10})`}>
+    <g className="tooltip" transform={`translate(${position.x + xOffset},${position.y - 90})`}>
       {/* Tooltip background */}
       <rect
         width={200}
         height={tooltipHeight}
-        rx={5}
-        ry={5}
-        fill="rgba(0,0,0,0.8)"
+        rx={6}
+        ry={6}
+        fill="rgba(15, 23, 42, 0.9)" // Darker background for better contrast
+        stroke={data.verified ? "#10b981" : "#6b7280"}
+        strokeWidth={2}
+      />
+      
+      {/* Header background */}
+      <rect
+        width={200}
+        height={32}
+        rx={6}
+        ry={6}
+        fill={data.verified ? "#10b981" : "#6b7280"}
       />
       
       {/* Skill name */}
@@ -41,28 +53,59 @@ const SkillNodeTooltip: React.FC<SkillNodeTooltipProps> = ({ data, position }) =
         y={20}
         fill="white"
         fontWeight="bold"
-        fontSize="12px"
+        fontSize="14px"
         textAnchor="start"
       >
         {data.name}
       </text>
       
+      {/* Verification status */}
+      <text
+        x={190}
+        y={20}
+        fill="white"
+        fontSize="12px"
+        textAnchor="end"
+      >
+        {data.verified ? "✓ Verified" : "Unverified"}
+      </text>
+      
       {/* Project details */}
       <text
         x={10}
-        y={40}
-        fill="#10b981"
-        fontSize="10px"
+        y={50}
+        fill="#a5f3fc" // Light blue for headers
+        fontSize="12px"
+        fontWeight="medium"
         textAnchor="start"
       >
-        {`Project: ${data.projectMetadata.project}`}
+        Project Information
       </text>
       
       <text
         x={10}
-        y={60}
+        y={70}
         fill="white"
-        fontSize="10px"
+        fontSize="12px"
+        textAnchor="start"
+      >
+        {`${data.projectMetadata.project}`}
+      </text>
+      
+      <line
+        x1={10}
+        y1={80}
+        x2={190}
+        y2={80}
+        stroke="#475569"
+        strokeWidth={1}
+      />
+      
+      <text
+        x={10}
+        y={100}
+        fill="white"
+        fontSize="11px"
         textAnchor="start"
       >
         {`Role: ${data.projectMetadata.role}`}
@@ -70,9 +113,9 @@ const SkillNodeTooltip: React.FC<SkillNodeTooltipProps> = ({ data, position }) =
       
       <text
         x={10}
-        y={80}
+        y={120}
         fill="white"
-        fontSize="10px"
+        fontSize="11px"
         textAnchor="start"
       >
         {`Period: ${data.projectMetadata.timeframe}`}
@@ -80,34 +123,29 @@ const SkillNodeTooltip: React.FC<SkillNodeTooltipProps> = ({ data, position }) =
       
       <text
         x={10}
-        y={100}
+        y={140}
         fill="white"
-        fontSize="10px"
+        fontSize="11px"
         textAnchor="start"
       >
-        {`Status: ${data.projectMetadata.status}`}
-      </text>
-      
-      <text
-        x={10}
-        y={120}
-        fill="white"
-        fontSize="10px"
-        textAnchor="start"
-      >
-        {`Connections: ${data.projectMetadata.connections}`}
+        {`Status: `}
+        <tspan fill={data.projectMetadata.status === "Active" ? "#10b981" : 
+                     data.projectMetadata.status === "Completed" ? "#3b82f6" : "#f59e0b"}>
+          {data.projectMetadata.status}
+        </tspan>
       </text>
       
       {/* Issuer information if available */}
       {data.issuer && (
         <text
           x={10}
-          y={140}
-          fill="#3b82f6"
-          fontSize="10px"
+          y={165}
+          fill="#a5f3fc"
+          fontSize="12px"
+          fontWeight="medium"
           textAnchor="start"
         >
-          {`Verified by: ${data.issuer}`}
+          {`Issued by: ${data.issuer}`}
         </text>
       )}
     </g>
