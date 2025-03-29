@@ -7,13 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { truncateAddress } from '@/lib/utils';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
-import { PassportSkill } from '@/api/types/web3Types';
 
 interface ResumeTabProps {
   passport: {
     passport_id: string;
     owner_address: string;
-    skills: PassportSkill[];
+    skills: Array<{ name: string; proof?: string }>;
     score: number;
     category: string;
     socials?: {
@@ -105,7 +104,7 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
               </div>
             </div>
             
-            <div className="resumetab-socials">
+            <div>
               <h3 className="text-lg font-medium">Contact Information</h3>
               <div className="mt-2 space-y-2">
                 {passport.socials?.email && (
