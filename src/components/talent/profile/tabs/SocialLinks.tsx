@@ -3,6 +3,7 @@ import SocialLinkItem from './social/SocialLinkItem';
 import EnsLink from './social/EnsLink';
 import WebLink from './social/WebLink';
 import NoLinks from './social/NoLinks';
+import SocialMediaLinks from './social/SocialMediaLinks';
 
 interface SocialLinksProps {
   ensName?: string;
@@ -24,37 +25,7 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ ensName, links, socials }) =>
       ))}
       
       {/* Social media links */}
-      {socials.github && (
-        <SocialLinkItem platformType="github" url={socials.github} />
-      )}
-      
-      {socials.twitter && (
-        <SocialLinkItem platformType="twitter" url={socials.twitter} />
-      )}
-      
-      {socials.linkedin && (
-        <SocialLinkItem platformType="linkedin" url={socials.linkedin} />
-      )}
-      
-      {socials.facebook && (
-        <SocialLinkItem platformType="facebook" url={socials.facebook} />
-      )}
-      
-      {socials.instagram && (
-        <SocialLinkItem platformType="instagram" url={socials.instagram} />
-      )}
-      
-      {socials.youtube && (
-        <SocialLinkItem platformType="youtube" url={socials.youtube} />
-      )}
-      
-      {socials.bluesky && (
-        <SocialLinkItem platformType="bluesky" url={socials.bluesky} />
-      )}
-      
-      {socials.website && (
-        <SocialLinkItem platformType="globe" url={socials.website} />
-      )}
+      <SocialMediaLinks socials={socials} />
       
       {/* Show a message if no links are available */}
       {!hasSocialLinks && <NoLinks />}
