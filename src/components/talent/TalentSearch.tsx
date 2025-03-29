@@ -8,14 +8,6 @@ import { isValidEthereumAddress } from '@/lib/utils';
 import { toast } from '@/components/ui/use-toast';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
-import { 
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList
-} from "@/components/ui/command";
 
 interface TalentSearchProps {
   onSearch: (query: string) => void;
@@ -25,11 +17,10 @@ interface TalentSearchProps {
 
 const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSearching }) => {
   const [searchInput, setSearchInput] = useState('');
-  const [open, setOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<Array<{name: string, address?: string, avatar?: string}>>([]);
   
   // ENS resolver for the current search input
-  const { resolvedAddress, resolvedEns, avatarUrl } = useEnsResolver(
+  const { resolvedAddress, resolvedEns, avatarUrl, isLoading } = useEnsResolver(
     searchInput.includes('.eth') ? searchInput : undefined,
     isValidEthereumAddress(searchInput) ? searchInput : undefined
   );
@@ -63,21 +54,12 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
     }
     
     onSearch(searchInput.trim());
-    setOpen(false);
   };
 
-  // Handle keyboard shortcut to open command dialog
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((open) => !open);
-      }
-    };
-    
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, []);
+  const handleResultClick = (result: {name: string, address?: string}) => {
+    setSearchInput(result.name);
+    handleSearch();
+  };
   
   return (
     <Card>
@@ -99,7 +81,6 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSearch();
                 }}
-                onClick={() => setOpen(true)}
               />
               <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
@@ -134,41 +115,48 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
           </div>
         </div>
         
-        {/* Search command dialog */}
-        <CommandDialog open={open} onOpenChange={setOpen}>
-          <CommandInput 
-            placeholder="Search ENS or address..." 
-            value={searchInput} 
-            onValueChange={setSearchInput}
-          />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup heading="Results">
+        {/* Inline search results */}
+        {searchInput && searchResults.length > 0 && (
+          <div className="mt-4 border rounded-md overflow-hidden">
+            <div className="p-3 bg-muted font-medium">
+              Search Results
+            </div>
+            <div className="divide-y">
               {searchResults.map((result, index) => (
-                <CommandItem 
-                  key={index}
-                  onSelect={() => {
-                    setSearchInput(result.name);
-                    handleSearch();
-                  }}
+                <div 
+                  key={index} 
+                  className="p-3 hover:bg-muted/50 cursor-pointer flex items-center gap-3"
+                  onClick={() => handleResultClick(result)}
                 >
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage src={result.avatar || '/placeholder.svg'} />
-                      <AvatarFallback>{result.name.substring(0, 2)}</AvatarFallback>
-                    </Avatar>
-                    <span>{result.name}</span>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={result.avatar || '/placeholder.svg'} alt={result.name} />
+                    <AvatarFallback>{result.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-medium">{result.name}</div>
                     {result.address && (
-                      <span className="text-xs text-muted-foreground ml-2">
+                      <div className="text-xs text-muted-foreground">
                         {result.address.substring(0, 6)}...{result.address.substring(result.address.length - 4)}
-                      </span>
+                      </div>
                     )}
                   </div>
-                </CommandItem>
+                </div>
               ))}
-            </CommandGroup>
-          </CommandList>
-        </CommandDialog>
+            </div>
+          </div>
+        )}
+        
+        {searchInput && isLoading && (
+          <div className="mt-4 p-3 text-center text-muted-foreground">
+            Searching...
+          </div>
+        )}
+        
+        {searchInput && !isLoading && searchResults.length === 0 && (
+          <div className="mt-4 p-3 text-center text-muted-foreground">
+            No results found. Try a different search term.
+          </div>
+        )}
       </CardContent>
     </Card>
   );
