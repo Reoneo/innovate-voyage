@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useBlockchainProfile, useLatestTransactions, useTokenTransfers } from '@/hooks/useEtherscan';
 import { useWeb3BioProfile } from '@/hooks/useWeb3';
@@ -13,7 +14,7 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
   const [blockchainExtendedData, setBlockchainExtendedData] = useState({
     mirrorPosts: 0,
     lensActivity: 0,
-    boxDomains: [],
+    boxDomains: [] as string[],
     snsActive: false,
     description: undefined as string | undefined
   });
@@ -30,7 +31,14 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
       if (resolvedAddress) {
         try {
           const data = await fetchBlockchainData(resolvedAddress);
-          setBlockchainExtendedData(data);
+          // Make sure we maintain the structure expected by our state
+          setBlockchainExtendedData({
+            mirrorPosts: data.mirrorPosts,
+            lensActivity: data.lensActivity,
+            boxDomains: data.boxDomains,
+            snsActive: data.snsActive,
+            description: data.description
+          });
         } catch (error) {
           console.error('Error fetching blockchain data:', error);
         }

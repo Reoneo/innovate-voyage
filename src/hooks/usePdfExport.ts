@@ -46,6 +46,9 @@ export function usePdfExport() {
         format: 'a4'
       });
       
+      // Get image data from canvas
+      const imgData = canvas.toDataURL('image/png');
+      
       // Split the image into pages if it's too long
       let heightLeft = imgHeight;
       let position = 0;
