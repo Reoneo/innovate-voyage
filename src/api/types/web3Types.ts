@@ -35,4 +35,9 @@ export interface Web3BioProfile {
   displayName: string;
   avatar: string | null;
   description: string | null;
+  github?: string;
+  twitter?: string;
+  linkedin?: string;
+  website?: string;
+  email?: string;
 }
