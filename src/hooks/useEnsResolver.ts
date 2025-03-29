@@ -3,9 +3,9 @@ import { useAddressByEns, useEnsByAddress, useRealAvatar } from '@/hooks/useWeb3
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
-// Initialize Ethereum providers with public endpoints
-const mainnetProvider = new ethers.JsonRpcProvider("https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"); // Free tier Infura endpoint
-const optimismProvider = new ethers.JsonRpcProvider("https://optimism-mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"); // Optimism endpoint
+// Initialize Ethereum providers with more reliable public endpoints
+const mainnetProvider = new ethers.JsonRpcProvider("https://eth.llamarpc.com"); // Public RPC aggregator
+const optimismProvider = new ethers.JsonRpcProvider("https://mainnet.optimism.io"); // Public Optimism endpoint
 
 /**
  * Hook to resolve ENS name and Ethereum address bidirectionally with ethers.js support
@@ -72,7 +72,8 @@ export function useEnsResolver(ensName?: string, address?: string) {
         }
       } catch (error) {
         console.error(`Error resolving ${ensName}:`, error);
-        setError(`Error resolving ${ensName}: ${(error as Error).message}`);
+        // More user-friendly error message
+        setError(`Network issue while resolving ${ensName}. Please try again later.`);
       } finally {
         setIsLoading(false);
       }
@@ -137,7 +138,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
         }
       } catch (error) {
         console.error(`Error looking up ENS for address ${address}:`, error);
-        setError(`Error looking up ENS: ${(error as Error).message}`);
+        setError(`Network issue while looking up ENS. Please try again later.`);
       } finally {
         setIsLoading(false);
       }

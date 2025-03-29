@@ -46,9 +46,9 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
   useEffect(() => {
     if (error && searchInput) {
       toast({
-        title: "Resolution Error",
+        title: "Resolution Notice",
         description: error,
-        variant: "destructive"
+        variant: "default"
       });
     }
   }, [error, searchInput]);
@@ -74,6 +74,71 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
   const handleResultClick = (result: {name: string, address?: string}) => {
     setSearchInput(result.name);
     handleSearch();
+  };
+  
+  // Determine what to display in the results section
+  const renderResultsSection = () => {
+    if (!searchInput) {
+      return null;
+    }
+    
+    if (isLoading) {
+      return (
+        <div className="mt-4 p-3 text-center text-muted-foreground">
+          {searchInput.includes('.box') ? 'Searching on Optimism network...' : 'Searching...'}
+        </div>
+      );
+    }
+    
+    if (error) {
+      return (
+        <div className="mt-4 p-3 text-center text-muted-foreground">
+          {error} Using fallback API...
+        </div>
+      );
+    }
+    
+    if (searchResults.length > 0) {
+      return (
+        <div className="mt-4 border rounded-md overflow-hidden">
+          <div className="p-3 bg-muted font-medium">
+            Search Results
+          </div>
+          <div className="divide-y">
+            {searchResults.map((result, index) => (
+              <div 
+                key={index} 
+                className="p-3 hover:bg-muted/50 cursor-pointer flex items-center gap-3"
+                onClick={() => handleResultClick(result)}
+              >
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={result.avatar || '/placeholder.svg'} alt={result.name} />
+                  <AvatarFallback>{result.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-medium">{result.name}</div>
+                  {result.address && (
+                    <div className="text-xs text-muted-foreground">
+                      {result.address.substring(0, 6)}...{result.address.substring(result.address.length - 4)}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    
+    if (searchInput && !isLoading && searchResults.length === 0) {
+      return (
+        <div className="mt-4 p-3 text-center text-muted-foreground">
+          No results found. Try a different search term.
+        </div>
+      );
+    }
+    
+    return null;
   };
   
   return (
@@ -134,48 +199,8 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
           </div>
         </div>
         
-        {/* Inline search results */}
-        {searchInput && searchResults.length > 0 && (
-          <div className="mt-4 border rounded-md overflow-hidden">
-            <div className="p-3 bg-muted font-medium">
-              Search Results
-            </div>
-            <div className="divide-y">
-              {searchResults.map((result, index) => (
-                <div 
-                  key={index} 
-                  className="p-3 hover:bg-muted/50 cursor-pointer flex items-center gap-3"
-                  onClick={() => handleResultClick(result)}
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={result.avatar || '/placeholder.svg'} alt={result.name} />
-                    <AvatarFallback>{result.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium">{result.name}</div>
-                    {result.address && (
-                      <div className="text-xs text-muted-foreground">
-                        {result.address.substring(0, 6)}...{result.address.substring(result.address.length - 4)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        {searchInput && isLoading && (
-          <div className="mt-4 p-3 text-center text-muted-foreground">
-            {searchInput.includes('.box') ? 'Searching on Optimism network...' : 'Searching...'}
-          </div>
-        )}
-        
-        {searchInput && !isLoading && searchResults.length === 0 && (
-          <div className="mt-4 p-3 text-center text-muted-foreground">
-            No results found. Try a different search term.
-          </div>
-        )}
+        {/* Unified results section */}
+        {renderResultsSection()}
       </CardContent>
     </Card>
   );
