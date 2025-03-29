@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks } from '@/utils/ensResolution';
 import { useAddressByEns, useEnsByAddress, useRealAvatar } from '@/hooks/useWeb3';
@@ -13,7 +12,11 @@ export function useEnsResolver(ensName?: string, address?: string) {
   const [resolvedAddressState, setResolvedAddress] = useState<string | undefined>(address);
   const [resolvedEnsState, setResolvedEns] = useState<string | undefined>(ensName);
   const [avatarUrlState, setAvatarUrl] = useState<string | undefined>(undefined);
-  const [ensLinksState, setEnsLinks] = useState<{ socials: Record<string, string>, ensLinks: string[] }>({
+  const [ensLinksState, setEnsLinks] = useState<{ 
+    socials: Record<string, string>, 
+    ensLinks: string[], 
+    description?: string 
+  }>({
     socials: {},
     ensLinks: []
   });

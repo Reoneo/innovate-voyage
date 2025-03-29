@@ -1,10 +1,10 @@
-
 // Types for Web3 data structures
 export interface ENSRecord {
   address: string;
   ensName: string;
   avatar: string;
   skills: string[];
+  description?: string; // Add description field for ENS bio
   socialProfiles: {
     twitter?: string;
     github?: string;

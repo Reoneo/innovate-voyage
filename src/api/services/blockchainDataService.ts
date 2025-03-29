@@ -1,4 +1,3 @@
-
 import { delay } from '../jobsApi';
 
 interface BlockchainData {
@@ -6,6 +5,7 @@ interface BlockchainData {
   lensActivity: number;
   boxDomains: string[];
   snsActive: boolean;
+  description?: string;
 }
 
 // Mock data for demonstration - this would be replaced with actual API calls
@@ -15,14 +15,16 @@ const mockBlockchainData: Record<string, BlockchainData> = {
     mirrorPosts: 3,
     lensActivity: 12,
     boxDomains: ["vitalik.box", "ethereum.box", "web3.box"],
-    snsActive: true
+    snsActive: true,
+    description: "Ethereum co-founder and blockchain researcher"
   },
   // Default data for any other address
   "default": {
     mirrorPosts: 0,
     lensActivity: 0,
     boxDomains: [],
-    snsActive: false
+    snsActive: false,
+    description: undefined
   }
 };
 

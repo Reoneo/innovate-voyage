@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useBlockchainProfile, useLatestTransactions, useTokenTransfers } from '@/hooks/useEtherscan';
 import { useWeb3BioProfile } from '@/hooks/useWeb3';
@@ -15,7 +14,8 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     mirrorPosts: 0,
     lensActivity: 0,
     boxDomains: [],
-    snsActive: false
+    snsActive: false,
+    description: undefined as string | undefined
   });
 
   // Fetch blockchain data

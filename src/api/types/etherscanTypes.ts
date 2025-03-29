@@ -1,4 +1,3 @@
-
 // Types for Etherscan API responses
 export interface BlockchainProfile {
   address: string;
@@ -16,6 +15,8 @@ export interface BlockchainProfile {
     email?: string;
   };
   ensLinks?: string[];
+  // Add description field for user bio
+  description?: string;
   // Add new fields for extended data
   mirrorPosts?: number;
   lensActivity?: number;
