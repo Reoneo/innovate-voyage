@@ -33,6 +33,44 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   const links = blockchainProfile?.ensLinks || [];
   const socials = blockchainProfile?.socials || {};
 
+  // Helper function to extract username from social media URLs
+  const extractHandle = (url: string, platform: string): string => {
+    try {
+      const urlObj = new URL(url);
+      switch (platform) {
+        case 'github':
+          return '@' + urlObj.pathname.split('/')[1];
+        case 'twitter':
+          return '@' + urlObj.pathname.split('/')[1];
+        case 'linkedin':
+          if (urlObj.pathname.includes('/in/')) {
+            return '@' + urlObj.pathname.split('/in/')[1].split('/')[0];
+          }
+          return url;
+        case 'facebook':
+          return '@' + urlObj.pathname.split('/')[1];
+        case 'instagram':
+          return '@' + urlObj.pathname.split('/')[1];
+        case 'youtube':
+          if (urlObj.pathname.includes('/c/')) {
+            return '@' + urlObj.pathname.split('/c/')[1];
+          } else if (urlObj.pathname.includes('/channel/')) {
+            return urlObj.pathname.split('/channel/')[1];
+          }
+          return 'YouTube Channel';
+        case 'bluesky':
+          return '@' + (urlObj.pathname.split('/').filter(p => p)[0] || '');
+        case 'website':
+          return urlObj.hostname;
+        default:
+          return url;
+      }
+    } catch (e) {
+      // If URL parsing fails, just return the original URL
+      return url;
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Links */}
@@ -85,7 +123,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"
                 >
-                  GitHub
+                  {extractHandle(socials.github, 'github')}
                 </a>
               </div>
             )}
@@ -99,7 +137,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"
                 >
-                  Twitter
+                  {extractHandle(socials.twitter, 'twitter')}
                 </a>
               </div>
             )}
@@ -113,7 +151,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"
                 >
-                  LinkedIn
+                  {extractHandle(socials.linkedin, 'linkedin')}
                 </a>
               </div>
             )}
@@ -127,7 +165,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"
                 >
-                  Facebook
+                  {extractHandle(socials.facebook, 'facebook')}
                 </a>
               </div>
             )}
@@ -141,7 +179,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"
                 >
-                  Instagram
+                  {extractHandle(socials.instagram, 'instagram')}
                 </a>
               </div>
             )}
@@ -155,7 +193,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"
                 >
-                  YouTube
+                  {extractHandle(socials.youtube, 'youtube')}
                 </a>
               </div>
             )}
@@ -169,7 +207,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"
                 >
-                  Bluesky
+                  {extractHandle(socials.bluesky, 'bluesky')}
                 </a>
               </div>
             )}
@@ -183,7 +221,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"
                 >
-                  Website
+                  {extractHandle(socials.website, 'website')}
                 </a>
               </div>
             )}
