@@ -2,11 +2,12 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Download, Briefcase, Award, Activity } from 'lucide-react';
+import { FileText, Download, Briefcase, Award, Activity, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { truncateAddress } from '@/lib/utils';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import { SocialIcon } from '@/components/ui/social-icon';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ResumeTabProps {
   passport: {
@@ -41,8 +42,14 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
     ? new Date(Math.min(...blockchainProfile.latestTransactions.map(tx => parseInt(tx.timeStamp) * 1000))).getFullYear()
     : 'recent years';
 
-  // Filter verified skills (from TalentProtocol.com)
-  const verifiedSkills = passport.skills.filter(skill => skill.proof && skill.proof.includes('talentprotocol.com'));
+  // Function to format URLs properly
+  const formatUrl = (url: string | undefined) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return `https://${url}`;
+  };
 
   return (
     <>
@@ -78,22 +85,22 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
               {/* Social Media Icons */}
               <div className="flex gap-3">
                 {passport.socials?.github && (
-                  <a href={passport.socials.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                  <a href={formatUrl(passport.socials.github)} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                     <SocialIcon type="github" size={24} />
                   </a>
                 )}
                 {passport.socials?.twitter && (
-                  <a href={passport.socials.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                  <a href={formatUrl(passport.socials.twitter)} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
                     <SocialIcon type="twitter" size={24} />
                   </a>
                 )}
                 {passport.socials?.linkedin && (
-                  <a href={passport.socials.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                  <a href={formatUrl(passport.socials.linkedin)} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                     <SocialIcon type="linkedin" size={24} />
                   </a>
                 )}
                 {passport.socials?.website && (
-                  <a href={passport.socials.website} target="_blank" rel="noopener noreferrer" aria-label="Website">
+                  <a href={formatUrl(passport.socials.website)} target="_blank" rel="noopener noreferrer" aria-label="Website">
                     <SocialIcon type="globe" size={24} />
                   </a>
                 )}
@@ -119,32 +126,121 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
               </div>
             </div>
             
-            {/* Skills Section - Only showing TalentProtocol skills */}
+            {/* Links Section - Replacing Skills & Expertise */}
             <div className="space-y-2">
               <h3 className="text-xl font-semibold flex items-center gap-2">
-                <Award className="h-5 w-5 text-blue-500" />
-                Skills & Expertise
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">
-                  TalentProtocol Verified
-                </span>
+                <LinkIcon className="h-5 w-5 text-blue-500" />
+                Links
               </h3>
-              {verifiedSkills.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {verifiedSkills.map((skill, idx) => (
-                    <Badge 
-                      key={`${skill.name}-${idx}`} 
-                      variant="secondary"
-                      className="text-sm py-1 px-3 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                    >
-                      {skill.name}
-                    </Badge>
-                  ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* ENS Domain Links */}
+                {resolvedEns && (
+                  <div>
+                    <h4 className="font-medium text-sm mb-2">ENS Domains</h4>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <a 
+                            href={`https://app.ens.domains/name/${resolvedEns}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors mb-2 mr-2"
+                          >
+                            <Badge className="bg-blue-200 text-blue-800">.eth</Badge>
+                            {resolvedEns}
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>View on ENS App</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    {blockchainProfile?.boxDomains && blockchainProfile.boxDomains.length > 0 && (
+                      blockchainProfile.boxDomains.map((domain, idx) => (
+                        <TooltipProvider key={idx}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <a 
+                                href={`https://optimism.ens.domains/name/${domain}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-md transition-colors mb-2 mr-2"
+                              >
+                                <Badge className="bg-red-200 text-red-800">.box</Badge>
+                                {domain}
+                              </a>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>View on Optimism ENS</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ))
+                    )}
+                  </div>
+                )}
+
+                {/* Social Links */}
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Social Profiles</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {passport.socials?.github && (
+                      <a 
+                        href={formatUrl(passport.socials.github)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                      >
+                        <SocialIcon type="github" size={16} />
+                        GitHub
+                      </a>
+                    )}
+                    {passport.socials?.twitter && (
+                      <a 
+                        href={formatUrl(passport.socials.twitter)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+                      >
+                        <SocialIcon type="twitter" size={16} />
+                        Twitter
+                      </a>
+                    )}
+                    {passport.socials?.linkedin && (
+                      <a 
+                        href={formatUrl(passport.socials.linkedin)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+                      >
+                        <SocialIcon type="linkedin" size={16} />
+                        LinkedIn
+                      </a>
+                    )}
+                    {passport.socials?.website && (
+                      <a 
+                        href={formatUrl(passport.socials.website)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 hover:bg-green-100 rounded-md transition-colors"
+                      >
+                        <SocialIcon type="globe" size={16} />
+                        Website
+                      </a>
+                    )}
+                    {passport.socials?.email && (
+                      <a 
+                        href={`mailto:${passport.socials.email}`}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors"
+                      >
+                        <SocialIcon type="mail" size={16} />
+                        Email
+                      </a>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <p className="text-muted-foreground italic">
-                  No TalentProtocol verified skills available
-                </p>
-              )}
+              </div>
             </div>
             
             {/* Blockchain Metrics */}

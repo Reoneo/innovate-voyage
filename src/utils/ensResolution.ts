@@ -35,7 +35,7 @@ export async function resolveAddressToEns(address: string) {
     
     if (ensName) {
       console.log(`Found ENS name for ${address}: ${ensName}`);
-      return { ensName, network: 'mainnet' };
+      return { ensName, network: 'mainnet' as const };
     }
     
     // Try Optimism network
@@ -44,7 +44,7 @@ export async function resolveAddressToEns(address: string) {
     
     if (optimismEns) {
       console.log(`Found .box name for ${address}: ${optimismEns}`);
-      return { ensName: optimismEns, network: 'optimism' };
+      return { ensName: optimismEns, network: 'optimism' as const };
     }
     
     return null;

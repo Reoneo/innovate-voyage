@@ -35,8 +35,8 @@ export function useEnsResolver(ensName?: string, address?: string) {
           setResolvedAddress(resolvedAddress);
           
           // Try to get avatar
-          const network = isBoxDomain ? 'optimism' : 'mainnet';
-          const avatar = await getEnsAvatar(ensName, network);
+          const networkType = isBoxDomain ? 'optimism' : 'mainnet';
+          const avatar = await getEnsAvatar(ensName, networkType);
           if (avatar) {
             setAvatarUrl(avatar);
           }
