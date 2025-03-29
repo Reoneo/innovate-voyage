@@ -44,7 +44,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
   
   // Show error toast if resolution fails
   useEffect(() => {
-    if (error && searchInput) {
+    if (error && searchInput && !error.includes('Using fallback')) {
       toast({
         title: "Resolution Notice",
         description: error,
@@ -91,11 +91,14 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
     }
     
     if (error) {
-      return (
-        <div className="mt-4 p-3 text-center text-muted-foreground">
-          {error} Using fallback API...
-        </div>
-      );
+      // Only show error if we don't have results to display
+      if (searchResults.length === 0) {
+        return (
+          <div className="mt-4 p-3 text-center text-muted-foreground">
+            {error}
+          </div>
+        );
+      }
     }
     
     if (searchResults.length > 0) {
@@ -199,7 +202,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
           </div>
         </div>
         
-        {/* Unified results section */}
+        {/* Single unified results section */}
         {renderResultsSection()}
       </CardContent>
     </Card>
