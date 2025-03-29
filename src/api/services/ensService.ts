@@ -78,6 +78,9 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
 // Reverse lookup address by ENS name
 export async function getAddressByEns(ensName: string): Promise<ENSRecord | null> {
   try {
+    // Check if this is a .box domain
+    const isBoxDomain = ensName.toLowerCase().includes('.box');
+    
     // Try to fetch from web3.bio API first
     const profile = await fetchWeb3BioProfile(ensName);
     
@@ -85,7 +88,7 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
       // Create ENS record from profile data
       const record: ENSRecord = {
         address: profile.address,
-        ensName: profile.identity,
+        ensName: profile.identity || ensName,
         avatar: profile.avatar || generateFallbackAvatar(),
         skills: [], // Will be populated later in the app
         socialProfiles: {
@@ -98,6 +101,33 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
       };
       
       return record;
+    }
+    
+    // Special handling for .box domains which may not be in web3.bio
+    if (isBoxDomain) {
+      // In a real implementation, we would query a specific .box resolver service
+      // For now, we'll try to find in our mock data or use a placeholder address
+      await delay(300);
+      
+      // Try to find in mock data
+      const mockBoxRecord = mockEnsRecords.find(record => 
+        record.ensName.toLowerCase() === ensName.toLowerCase()
+      );
+      
+      if (mockBoxRecord) {
+        return mockBoxRecord;
+      }
+      
+      // If not in mock data, use a placeholder Ethereum address for demo purposes
+      // In a real app, this would come from a .box resolver
+      const boxNameWithoutDomain = ensName.split('.')[0];
+      return {
+        address: "0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF", // Demo address for .box domains
+        ensName: ensName,
+        avatar: generateFallbackAvatar(),
+        skills: [],
+        socialProfiles: {}
+      };
     }
     
     // Fallback to mock data if API doesn't return a valid result
@@ -163,8 +193,15 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
     const profile = await fetchWeb3BioProfile(address);
     let domains: string[] = [];
     
-    if (profile && profile.identity && profile.identity.includes('.eth')) {
-      domains.push(profile.identity);
+    if (profile && profile.identity) {
+      if (profile.identity.includes('.eth')) {
+        domains.push(profile.identity);
+      }
+      
+      // Add .box domains if applicable
+      if (profile.identity.includes('.box')) {
+        domains.push(profile.identity);
+      }
     }
     
     // For demonstration purposes, let's add some mock domains for specific addresses
@@ -179,13 +216,19 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
         'crypto.eth',
         'blockchain.eth',
         'defi.eth',
-        'nft.eth'
+        'nft.eth',
+        'vitalik.box',    // Added .box domains
+        'ethereum.box',
+        'blockchain.box'
       ];
     } else if (address.toLowerCase() === '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF'.toLowerCase()) {
       domains = [
         'crypto.eth',
         'hodl.eth',
-        'trader.eth'
+        'trader.eth',
+        'recruitment.box',   // Added .box domains
+        'hiring.box',
+        'jobs.box'
       ];
     }
     
@@ -195,3 +238,4 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
     return [];
   }
 }
+
