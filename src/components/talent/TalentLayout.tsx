@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Users, BarChart } from 'lucide-react';
+import { BarChart } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface TalentLayoutProps {
   profileCount: number;
@@ -13,14 +14,19 @@ const TalentLayout: React.FC<TalentLayoutProps> = ({ profileCount, transactionCo
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 px-4 sm:px-6">
         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              <Users className="h-8 w-8 text-primary" />
-              Web3 Talent Network
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Discover blockchain-verified professionals with on-chain credentials
-            </p>
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" alt="Logo" />
+              <AvatarFallback>RB</AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Web3 Talent Network
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Discover blockchain-verified professionals
+              </p>
+            </div>
           </div>
           
           <div className="flex flex-wrap items-center gap-2">
