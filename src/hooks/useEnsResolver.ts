@@ -3,7 +3,7 @@ import { useAddressByEns, useEnsByAddress, useRealAvatar } from '@/hooks/useWeb3
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
-// Initialize Ethereum providers
+// Initialize Ethereum providers with public endpoints
 const mainnetProvider = new ethers.JsonRpcProvider("https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"); // Free tier Infura endpoint
 const optimismProvider = new ethers.JsonRpcProvider("https://optimism-mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"); // Optimism endpoint
 
@@ -18,6 +18,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
   const [resolvedEnsState, setResolvedEns] = useState<string | undefined>(ensName);
   const [avatarUrlState, setAvatarUrl] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Determine if we're dealing with an ENS name (.eth or .box)
   const isEns = ensName?.includes('.eth') || ensName?.includes('.box');
@@ -29,16 +30,20 @@ export function useEnsResolver(ensName?: string, address?: string) {
     
     const resolveEns = async () => {
       setIsLoading(true);
+      setError(null);
       try {
         // Choose the provider based on domain type
         const provider = isBoxDomain ? optimismProvider : mainnetProvider;
         
         if (isBoxDomain) {
-          console.log(`Resolving .box domain: ${ensName} using Optimistic Etherscan`);
+          console.log(`Resolving .box domain: ${ensName} using Optimism provider`);
+        } else {
+          console.log(`Resolving .eth domain: ${ensName} using Mainnet provider`);
         }
         
         // Try to resolve the ENS name to an address
         const resolvedAddress = await provider.resolveName(ensName);
+        console.log(`Resolution result for ${ensName}:`, resolvedAddress);
         
         if (resolvedAddress) {
           setResolvedAddress(resolvedAddress);
@@ -47,17 +52,27 @@ export function useEnsResolver(ensName?: string, address?: string) {
           try {
             const resolver = await provider.getResolver(ensName);
             if (resolver) {
+              console.log(`Got resolver for ${ensName}`);
               const avatar = await resolver.getText('avatar');
               if (avatar) {
+                console.log(`Got avatar for ${ensName}:`, avatar);
                 setAvatarUrl(avatar);
+              } else {
+                console.log(`No avatar found for ${ensName} in resolver`);
               }
+            } else {
+              console.log(`No resolver found for ${ensName}`);
             }
-          } catch (error) {
-            console.error(`Error fetching avatar for ${ensName}:`, error);
+          } catch (avatarError) {
+            console.error(`Error fetching avatar for ${ensName}:`, avatarError);
           }
+        } else {
+          console.warn(`No address found for ${ensName}`);
+          setError(`Could not resolve ${ensName}`);
         }
       } catch (error) {
         console.error(`Error resolving ${ensName}:`, error);
+        setError(`Error resolving ${ensName}: ${(error as Error).message}`);
       } finally {
         setIsLoading(false);
       }
@@ -65,6 +80,71 @@ export function useEnsResolver(ensName?: string, address?: string) {
     
     resolveEns();
   }, [ensName, isEns, isBoxDomain]);
+  
+  // Resolve address to ENS using ethers.js
+  useEffect(() => {
+    if (!address || isEns) return;
+    
+    const lookupAddress = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Try mainnet first
+        console.log(`Looking up ENS for address: ${address} on Mainnet`);
+        const ensName = await mainnetProvider.lookupAddress(address);
+        
+        if (ensName) {
+          console.log(`Found ENS name for ${address}: ${ensName}`);
+          setResolvedEns(ensName);
+          
+          // Try to get avatar
+          try {
+            const resolver = await mainnetProvider.getResolver(ensName);
+            if (resolver) {
+              const avatar = await resolver.getText('avatar');
+              if (avatar) {
+                setAvatarUrl(avatar);
+              }
+            }
+          } catch (avatarError) {
+            console.error(`Error fetching avatar for ${address}:`, avatarError);
+          }
+        } else {
+          // Try Optimism network
+          console.log(`No ENS found on Mainnet, trying Optimism for address: ${address}`);
+          try {
+            const optimismEns = await optimismProvider.lookupAddress(address);
+            if (optimismEns) {
+              console.log(`Found .box name for ${address}: ${optimismEns}`);
+              setResolvedEns(optimismEns);
+              
+              // Try to get avatar from optimism
+              try {
+                const resolver = await optimismProvider.getResolver(optimismEns);
+                if (resolver) {
+                  const avatar = await resolver.getText('avatar');
+                  if (avatar) {
+                    setAvatarUrl(avatar);
+                  }
+                }
+              } catch (avatarError) {
+                console.error(`Error fetching avatar for ${optimismEns}:`, avatarError);
+              }
+            }
+          } catch (optimismError) {
+            console.error(`Error looking up .box domain for ${address}:`, optimismError);
+          }
+        }
+      } catch (error) {
+        console.error(`Error looking up ENS for address ${address}:`, error);
+        setError(`Error looking up ENS: ${(error as Error).message}`);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    lookupAddress();
+  }, [address, isEns]);
   
   // Fallback to API for handling address resolution and additional data
   const { data: addressData, isLoading: isLoadingAddress } = useAddressByEns(
@@ -115,6 +195,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
     resolvedAddress: resolvedAddressState,
     resolvedEns: resolvedEnsState,
     avatarUrl: avatarUrlState,
-    isLoading: isLoading || isLoadingAddress || isLoadingEns || isLoadingAvatar
+    isLoading: isLoading || isLoadingAddress || isLoadingEns || isLoadingAvatar,
+    error
   };
 }

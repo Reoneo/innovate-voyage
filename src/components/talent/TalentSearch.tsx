@@ -20,7 +20,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
   const [searchResults, setSearchResults] = useState<Array<{name: string, address?: string, avatar?: string}>>([]);
   
   // ENS resolver for the current search input
-  const { resolvedAddress, resolvedEns, avatarUrl, isLoading } = useEnsResolver(
+  const { resolvedAddress, resolvedEns, avatarUrl, isLoading, error } = useEnsResolver(
     searchInput.includes('.eth') || searchInput.includes('.box') ? searchInput : undefined,
     isValidEthereumAddress(searchInput) ? searchInput : undefined
   );
@@ -33,10 +33,25 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
         address: resolvedAddress,
         avatar: avatarUrl
       }]);
-    } else {
+    } else if (!isLoading && searchInput && (searchInput.includes('.eth') || searchInput.includes('.box') || isValidEthereumAddress(searchInput))) {
+      // No results found after loading finished
+      setSearchResults([]);
+    } else if (!searchInput) {
+      // Clear results when input is empty
       setSearchResults([]);
     }
-  }, [resolvedEns, resolvedAddress, avatarUrl, searchInput]);
+  }, [resolvedEns, resolvedAddress, avatarUrl, searchInput, isLoading]);
+  
+  // Show error toast if resolution fails
+  useEffect(() => {
+    if (error && searchInput) {
+      toast({
+        title: "Resolution Error",
+        description: error,
+        variant: "destructive"
+      });
+    }
+  }, [error, searchInput]);
   
   const handleSearch = () => {
     if (!searchInput.trim()) return;
@@ -90,7 +105,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
                   {searchInput.includes('.eth') ? 
                     'Searching for ENS name on Ethereum Mainnet' : 
                     searchInput.includes('.box') ?
-                      'Searching for .box domain on Optimistic Etherscan' :
+                      'Searching for .box domain on Optimism network' :
                       isValidEthereumAddress(searchInput) ? 
                         'Valid Ethereum address' : 
                         'Enter a valid ENS name (.eth or .box) or Ethereum address'}
@@ -101,12 +116,12 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
           <div className="flex flex-col md:flex-row gap-2">
             <Button 
               onClick={handleSearch} 
-              disabled={isSearching || !searchInput.trim() || 
+              disabled={isSearching || isLoading || !searchInput.trim() || 
                 (!searchInput.includes('.eth') && !searchInput.includes('.box') && 
                  !isValidEthereumAddress(searchInput))}
               className="w-full"
             >
-              {isSearching ? 'Searching...' : 'Search'}
+              {isSearching || isLoading ? 'Searching...' : 'Search'}
             </Button>
             <Button 
               variant="outline" 
