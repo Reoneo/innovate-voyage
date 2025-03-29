@@ -3,6 +3,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import ProfileHeader from '@/components/talent/profile/ProfileHeader';
@@ -14,15 +15,16 @@ const TalentProfile = () => {
   const { ensName, address } = useParams<{ ensName: string; address: string }>();
   const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl } = useProfileData(ensName, address);
   const { profileRef, exportAsPDF } = usePdfExport();
+  const isMobile = useIsMobile();
 
   return (
-    <div className="container mx-auto py-8 max-w-5xl">
+    <div className={`container mx-auto py-4 md:py-8 ${isMobile ? 'px-2' : 'max-w-5xl'}`}>
       <ProfileNavigationBar onExportPdf={exportAsPDF} />
       
       {loading ? (
         <ProfileSkeleton />
       ) : passport ? (
-        <div ref={profileRef} className="space-y-6" id="resume-pdf">
+        <div ref={profileRef} className="space-y-4 md:space-y-6" id="resume-pdf">
           <ProfileHeader passport={{
             passport_id: passport.passport_id,
             owner_address: passport.owner_address,

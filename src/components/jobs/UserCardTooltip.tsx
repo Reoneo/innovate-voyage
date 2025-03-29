@@ -10,6 +10,7 @@ import SkillsNodeLeafD3 from '@/components/visualizations/skills/SkillsNodeLeafD
 import BlockchainActivity from './user-profile/BlockchainActivity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface UserCardTooltipProps {
   passport: BlockchainPassport & {
@@ -20,8 +21,10 @@ interface UserCardTooltipProps {
 }
 
 const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <HoverCardContent className="w-96 p-4">
+    <HoverCardContent className={`${isMobile ? 'w-[calc(100vw-40px)] max-w-full' : 'w-96'} p-4`}>
       <div className="space-y-4">
         <UserInfo passport={passport} />
 
@@ -34,7 +37,7 @@ const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
               <FileText className="h-3 w-3 mr-1" /> Contributions
             </TabsTrigger>
             <TabsTrigger value="skills" className="text-xs">
-              <Network className="h-3 w-3 mr-1" /> Skills Graph
+              <Network className="h-3 w-3 mr-1" /> Skills
             </TabsTrigger>
             <TabsTrigger value="blockchain" className="text-xs">
               <Coins className="h-3 w-3 mr-1" /> Blockchain
@@ -52,7 +55,7 @@ const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
           </TabsContent>
           <TabsContent value="skills" className="pt-2">
             <h4 className="text-sm font-medium mb-2">Skills Visualization</h4>
-            <div className="h-60">
+            <div className={`${isMobile ? 'h-40' : 'h-60'}`}>
               <TooltipProvider>
                 <SkillsNodeLeafD3 skills={passport.skills} name={passport.name} />
               </TooltipProvider>
