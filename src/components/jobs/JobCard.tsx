@@ -11,8 +11,14 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, MapPin, Briefcase } from 'lucide-react';
+import { Calendar, MapPin, Briefcase, Shield, Check } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface JobCardProps {
   job: Job;
@@ -28,8 +34,54 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
     }
   })();
 
+  // Random CVB verification level for demonstration
+  const verificationLevel = Math.floor(Math.random() * 100);
+  const getVerificationClass = () => {
+    if (verificationLevel >= 90) return "bg-purple-500";
+    if (verificationLevel >= 75) return "bg-indigo-500";
+    if (verificationLevel >= 60) return "bg-blue-500";
+    if (verificationLevel >= 45) return "bg-emerald-500";
+    if (verificationLevel >= 30) return "bg-amber-500";
+    return "bg-gray-400";
+  };
+
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-md glass-card">
+    <Card className="overflow-hidden transition-all hover:shadow-md glass-card relative">
+      {/* CVB Badge */}
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="absolute top-3 right-3 z-10 flex items-center gap-1 p-1 rounded-full bg-secondary/80 backdrop-blur-sm">
+              <Shield className={`h-4 w-4 ${verificationLevel >= 75 ? "text-indigo-500" : verificationLevel >= 50 ? "text-blue-500" : "text-gray-500"}`} />
+              <span className="flex items-center">
+                <span className={`text-xs font-semibold ${verificationLevel >= 75 ? "text-indigo-500" : verificationLevel >= 50 ? "text-blue-500" : "text-gray-500"}`}>CVB</span>
+              </span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="w-56">
+            <div className="space-y-2">
+              <h4 className="font-medium">Cryptographic Verification Badge</h4>
+              <div className="bg-secondary/50 rounded-full h-2 mb-1">
+                <div 
+                  className={`h-2 rounded-full ${getVerificationClass()}`} 
+                  style={{ width: `${verificationLevel}%` }}
+                ></div>
+              </div>
+              <div className="flex text-xs text-muted-foreground gap-3">
+                <div className="flex items-center gap-1">
+                  <Check className="h-3 w-3 text-green-500" />
+                  <span>On-chain data</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Check className="h-3 w-3 text-green-500" />
+                  <span>Verified issuer</span>
+                </div>
+              </div>
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Star, Award, Shield, Globe } from 'lucide-react';
+import { Star, Award, Shield, Globe, Check } from 'lucide-react';
 import { HoverCardContent } from '@/components/ui/hover-card';
 import { BlockchainPassport, PassportSkill } from '@/lib/utils';
 import { SkillsVisualization } from '../visualizations/SkillsVisualization';
@@ -25,9 +25,9 @@ const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
               {passport.owner_address.substring(0, 6)}...{passport.owner_address.substring(passport.owner_address.length - 4)}
             </p>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 p-1 rounded-full bg-secondary/80 backdrop-blur-sm">
             <Shield className={`h-4 w-4 ${passport.colorClass}`} />
-            <span className={`font-bold ${passport.colorClass}`}>{passport.score}</span>
+            <span className={`text-xs font-semibold ${passport.colorClass}`}>CVB {passport.score}</span>
           </div>
         </div>
 
@@ -47,7 +47,19 @@ const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
               style={{ width: `${passport.score}%` }}
             ></div>
           </div>
-          <p className="text-xs text-muted-foreground">{passport.category}</p>
+          <div className="flex justify-between">
+            <p className="text-xs text-muted-foreground">{passport.category}</p>
+            <div className="flex text-xs text-muted-foreground gap-2">
+              <div className="flex items-center gap-1">
+                <Check className="h-3 w-3 text-green-500" />
+                <span>On-chain</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Check className="h-3 w-3 text-green-500" />
+                <span>Verified</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {passport.socials && Object.values(passport.socials).some(Boolean) && (
