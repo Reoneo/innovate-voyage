@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
 import { Network, Link as LinkIcon, Globe, Github, Twitter, Linkedin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface OverviewTabProps {
   skills: Array<{ name: string; proof?: string }>;
@@ -155,7 +154,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               name={name} 
               avatarUrl={avatarUrl}
               ensName={ensName}
-              address={ensName?.includes('.eth') ? undefined : ensName}
+              address={address}
             />
           </div>
         </CardContent>
