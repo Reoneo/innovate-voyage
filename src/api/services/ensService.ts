@@ -31,7 +31,7 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
     // Try to fetch from web3.bio API first
     const profile = await fetchWeb3BioProfile(address);
     
-    if (profile && profile.identity && profile.identity.includes('.eth')) {
+    if (profile && profile.identity && (profile.identity.includes('.eth') || profile.identity.includes('.box'))) {
       // Create ENS record from profile data
       const record: ENSRecord = {
         address: profile.address,
@@ -102,7 +102,9 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
     
     // Fallback to mock data if API doesn't return a valid result
     await delay(300); // Simulate network delay
-    const mockRecord = mockEnsRecords.find(record => record.ensName.toLowerCase() === ensName.toLowerCase());
+    const mockRecord = mockEnsRecords.find(record => 
+      record.ensName.toLowerCase() === ensName.toLowerCase()
+    );
     
     if (mockRecord && !mockRecord.avatar) {
       // Try to fetch real avatar if not already set
@@ -120,7 +122,9 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
     
     // Fallback to mock data on error
     await delay(300);
-    const mockRecord = mockEnsRecords.find(record => record.ensName.toLowerCase() === ensName.toLowerCase());
+    const mockRecord = mockEnsRecords.find(record => 
+      record.ensName.toLowerCase() === ensName.toLowerCase()
+    );
     return mockRecord || null;
   }
 }

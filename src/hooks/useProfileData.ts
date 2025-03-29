@@ -10,7 +10,7 @@ import { usePassportGenerator } from '@/hooks/usePassportGenerator';
  * @returns Object containing profile data including passport, blockchain data, and loading state
  */
 export function useProfileData(ensName?: string, address?: string) {
-  // Resolve ENS and address
+  // Resolve ENS and address - now supports both .eth and .box domains
   const { resolvedAddress, resolvedEns } = useEnsResolver(ensName, address);
   
   // Fetch blockchain data

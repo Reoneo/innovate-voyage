@@ -22,13 +22,11 @@ const Talent = () => {
   const { data: ensRecords, isLoading: isLoadingEns } = useAllEnsRecords();
   const { data: skillNfts, isLoading: isLoadingNfts } = useAllSkillNfts();
   
-  // Search specific address or ENS
   const { data: ensDataByAddress } = useEnsByAddress(searchMode === 'specific' ? addressSearch : undefined);
   const { data: addressDataByEns } = useAddressByEns(
     searchMode === 'specific' && addressSearch.includes('.eth') ? addressSearch : undefined
   );
 
-  // Effect to fetch data when address search changes
   useEffect(() => {
     const fetchEtherscanData = async () => {
       if (searchMode !== 'specific' || !addressSearch) return;
@@ -38,46 +36,39 @@ const Talent = () => {
       let ensName = '';
       
       try {
-        // If ENS name is provided, try to resolve address
-        if (addressSearch.includes('.eth')) {
+        if (addressSearch.includes('.eth') || addressSearch.includes('.box')) {
           if (addressDataByEns) {
             address = addressDataByEns.address;
             ensName = addressDataByEns.ensName;
           } else {
-            // Wait for addressDataByEns to resolve
             return;
           }
         } 
-        // If address is provided, try to resolve ENS name
         else if (ensDataByAddress) {
           ensName = ensDataByAddress.ensName;
         }
         
-        // If no ENS name, use a placeholder
         if (!ensName) {
           ensName = address.substring(0, 6) + '...' + address.substring(address.length - 4);
         }
         
-        // Fetch blockchain data
         const [balance, txCount, latestTxs] = await Promise.all([
           getAccountBalance(address),
           getTransactionCount(address),
           getLatestTransactions(address, 5)
         ]);
         
-        // Create skills array from transaction data
         const skills = [];
         if (Number(balance) > 0) skills.push('ETH Holder');
         if (txCount > 10) skills.push('Active Trader');
         if (txCount > 50) skills.push('Power User');
         if (ensName.includes('.eth')) skills.push('ENS Owner');
+        if (ensName.includes('.box')) skills.push('.box Domain Owner');
         
-        // Add transaction-based skills
         if (latestTxs && latestTxs.length > 0) {
           const hasContractInteractions = latestTxs.some(tx => tx.input && tx.input !== '0x');
           if (hasContractInteractions) skills.push('Smart Contract User');
           
-          // Check if they've done transactions recently (within last 30 days)
           const recentTx = latestTxs.some(tx => {
             const txDate = new Date(parseInt(tx.timeStamp) * 1000);
             const now = new Date();
@@ -88,11 +79,10 @@ const Talent = () => {
           if (recentTx) skills.push('Recently Active');
         }
         
-        // Create new passport from Etherscan data
         const newPassport: BlockchainPassport = {
           passport_id: ensName,
           owner_address: address,
-          avatar_url: '/placeholder.svg', // Use placeholder for now
+          avatar_url: '/placeholder.svg',
           name: ensName.split('.')[0],
           issued: new Date().toISOString(),
           skills: skills.map(skill => ({
@@ -123,9 +113,7 @@ const Talent = () => {
     fetchEtherscanData();
   }, [addressSearch, searchMode, addressDataByEns, ensDataByAddress]);
 
-  // Process passport data and apply filters
   const passportData = useMemo(() => {
-    // If we're in specific search mode, use the search results
     if (searchMode === 'specific' && searchResults.length > 0) {
       return searchResults.map(passport => {
         const { score, category } = calculateHumanScore(passport);
@@ -140,10 +128,8 @@ const Talent = () => {
       });
     }
     
-    // Otherwise use the full ENS records data
     if (!ensRecords) return [];
     
-    // Create full passport objects with scores
     const passports = ensRecords.map(record => {
       const passport: BlockchainPassport = {
         passport_id: record.ensName,
@@ -170,10 +156,8 @@ const Talent = () => {
       };
     });
 
-    // Apply filters
     return passports
       .filter(passport => {
-        // Search filter
         if (searchTerm) {
           const searchLower = searchTerm.toLowerCase();
           const matchesSearch = 
@@ -184,7 +168,6 @@ const Talent = () => {
           if (!matchesSearch) return false;
         }
         
-        // Skills filter
         if (selectedSkills.length > 0) {
           const hasSelectedSkills = selectedSkills.some(skill => 
             passport.skills.some(s => s.name === skill)
@@ -196,7 +179,6 @@ const Talent = () => {
         return true;
       })
       .sort((a, b) => {
-        // Sorting
         if (sortBy === 'score') {
           return b.score - a.score;
         } else if (sortBy === 'name') {
@@ -207,15 +189,12 @@ const Talent = () => {
       });
   }, [ensRecords, searchTerm, selectedSkills, sortBy, searchMode, searchResults]);
 
-  // Calculate total transactions
   const [totalTransactions, setTotalTransactions] = useState<number>(0);
 
   useEffect(() => {
     if (passportData.length > 0) {
-      // Take the first 5 profiles to avoid too many API calls
       const sampleAddresses = passportData.slice(0, 5).map(p => p.owner_address);
       
-      // Count total transactions from these sample addresses
       let txCount = 0;
       
       const fetchTransactionCounts = async () => {
@@ -260,18 +239,15 @@ const Talent = () => {
     setSearchResults([]);
   };
 
-  // Extract all unique skills for filters
   const allSkills = useMemo(() => {
     if (!ensRecords) return [];
     
     const skillsSet = new Set<string>();
     
-    // Add skills from ENS records
     ensRecords.forEach(record => {
       record.skills.forEach(skill => skillsSet.add(skill));
     });
     
-    // Add skills from search results
     searchResults.forEach(passport => {
       passport.skills?.forEach(skill => skillsSet.add(skill.name));
     });
@@ -284,7 +260,6 @@ const Talent = () => {
       profileCount={passportData.length}
       transactionCount={totalTransactions}
     >
-      {/* Search & Tabs */}
       <div className="lg:col-span-4 mb-6">
         <TalentSearch 
           onSearch={handleAddressSearch} 
@@ -300,7 +275,6 @@ const Talent = () => {
         </Tabs>
       </div>
       
-      {/* Filters Sidebar */}
       <div className="lg:col-span-1">
         <TalentFilters
           searchTerm={searchTerm}
@@ -314,7 +288,6 @@ const Talent = () => {
         />
       </div>
 
-      {/* Talent Grid */}
       <div className="lg:col-span-3">
         <TalentGrid
           isLoading={isLoadingEns || isSearching}

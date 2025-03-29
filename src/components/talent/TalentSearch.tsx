@@ -19,13 +19,13 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
   const handleSearch = () => {
     if (!searchInput.trim()) return;
     
-    // Validate input before searching
-    const isValidInput = searchInput.includes('.eth') || isValidEthereumAddress(searchInput);
+    // Validate input before searching - now accepts both .eth and .box domains
+    const isValidInput = searchInput.includes('.eth') || searchInput.includes('.box') || isValidEthereumAddress(searchInput);
     
     if (!isValidInput) {
       toast({
         title: "Invalid input",
-        description: "Please enter a valid ENS name or Ethereum address",
+        description: "Please enter a valid ENS name (.eth or .box) or Ethereum address",
         variant: "destructive"
       });
       return;
@@ -42,12 +42,12 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
             <div className="space-y-2">
               <h2 className="text-xl font-semibold">Find Web3 Talent</h2>
               <p className="text-sm text-muted-foreground">
-                Search by ENS name (.eth) or Ethereum wallet address
+                Search by ENS name (.eth or .box) or Ethereum wallet address
               </p>
             </div>
             <div className="relative mt-2">
               <Input
-                placeholder="vitalik.eth or 0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+                placeholder="vitalik.eth, username.box or 0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="pr-10"
@@ -62,9 +62,11 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
                 <>
                   {searchInput.includes('.eth') ? 
                     'Searching for ENS name' : 
-                    isValidEthereumAddress(searchInput) ? 
-                      'Valid Ethereum address' : 
-                      'Enter a valid ENS name or Ethereum address'}
+                    searchInput.includes('.box') ?
+                      'Searching for .box domain' :
+                      isValidEthereumAddress(searchInput) ? 
+                        'Valid Ethereum address' : 
+                        'Enter a valid ENS name (.eth or .box) or Ethereum address'}
                 </>
               )}
             </div>
@@ -72,7 +74,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
           <div className="flex flex-col md:flex-row gap-2">
             <Button 
               onClick={handleSearch} 
-              disabled={isSearching || !searchInput.trim() || (!searchInput.includes('.eth') && !isValidEthereumAddress(searchInput))}
+              disabled={isSearching || !searchInput.trim() || (!searchInput.includes('.eth') && !searchInput.includes('.box') && !isValidEthereumAddress(searchInput))}
               className="w-full"
             >
               {isSearching ? 'Searching...' : 'Search'}
