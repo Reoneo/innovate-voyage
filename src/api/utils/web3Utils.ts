@@ -8,7 +8,18 @@ export const avatarCache: Record<string, string> = {};
 // Function to fetch profile from Web3.bio API
 export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProfile | null> {
   try {
-    const response = await fetch(`https://api.web3.bio/profile/ens/${identity}`);
+    // Determine the right endpoint based on the domain (.eth or .box)
+    let endpoint = `https://api.web3.bio/profile/ens/${identity}`;
+    
+    if (identity.includes('.box')) {
+      endpoint = `https://api.web3.bio/profile/box/${identity}`;
+    } else if (!identity.includes('.') && identity.startsWith('0x')) {
+      endpoint = `https://api.web3.bio/profile/eth/${identity}`;
+    }
+    
+    console.log(`Fetching profile for ${identity} from ${endpoint}`);
+    const response = await fetch(endpoint);
+    
     if (!response.ok) {
       console.warn(`Failed to fetch Web3.bio profile for ${identity}`);
       return null;

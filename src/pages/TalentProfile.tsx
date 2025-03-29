@@ -12,7 +12,7 @@ import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
 
 const TalentProfile = () => {
   const { ensName, address } = useParams<{ ensName: string; address: string }>();
-  const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData } = useProfileData(ensName, address);
+  const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl } = useProfileData(ensName, address);
   const { profileRef, exportAsPDF } = usePdfExport();
 
   return (
@@ -26,7 +26,7 @@ const TalentProfile = () => {
           <ProfileHeader passport={{
             passport_id: passport.passport_id,
             owner_address: passport.owner_address,
-            avatar_url: passport.avatar_url || '/placeholder.svg',
+            avatar_url: avatarUrl || passport.avatar_url || '/placeholder.svg',
             name: passport.name,
             score: passport.score,
             category: passport.category,
@@ -39,6 +39,7 @@ const TalentProfile = () => {
             resolvedEns={resolvedEns}
             onExportPdf={exportAsPDF}
             blockchainExtendedData={blockchainExtendedData}
+            avatarUrl={avatarUrl}
           />
         </div>
       ) : (

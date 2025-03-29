@@ -25,6 +25,7 @@ interface ProfileTabsContainerProps {
     boxDomains: string[];
     snsActive: boolean;
   };
+  avatarUrl?: string;
 }
 
 const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({ 
@@ -33,7 +34,8 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   transactions,
   resolvedEns,
   onExportPdf,
-  blockchainExtendedData
+  blockchainExtendedData,
+  avatarUrl
 }) => {
   // Ensure skills and socials are properly passed as non-null values
   const normalizedPassport = {
@@ -74,6 +76,8 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
           <SkillsTab 
             skills={normalizedPassport.skills}
             name={normalizedPassport.name}
+            avatarUrl={avatarUrl || normalizedPassport.avatar_url}
+            ensName={resolvedEns}
           />
         </TabsContent>
         
@@ -83,6 +87,7 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
             blockchainProfile={blockchainProfile}
             resolvedEns={resolvedEns}
             onExportPdf={onExportPdf}
+            avatarUrl={avatarUrl}
           />
         </TabsContent>
       </Tabs>

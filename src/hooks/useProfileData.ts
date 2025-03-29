@@ -11,7 +11,7 @@ import { usePassportGenerator } from '@/hooks/usePassportGenerator';
  */
 export function useProfileData(ensName?: string, address?: string) {
   // Resolve ENS and address
-  const { resolvedAddress, resolvedEns } = useEnsResolver(ensName, address);
+  const { resolvedAddress, resolvedEns, avatarUrl } = useEnsResolver(ensName, address);
   
   // Fetch blockchain data
   const blockchainData = useBlockchainData(resolvedAddress, resolvedEns);
@@ -20,7 +20,7 @@ export function useProfileData(ensName?: string, address?: string) {
   const { passport, loading } = usePassportGenerator(
     resolvedAddress, 
     resolvedEns, 
-    blockchainData
+    {...blockchainData, avatarUrl}
   );
 
   return {
@@ -29,6 +29,7 @@ export function useProfileData(ensName?: string, address?: string) {
     blockchainProfile: blockchainData.blockchainProfile,
     transactions: blockchainData.transactions,
     resolvedEns,
-    blockchainExtendedData: blockchainData.blockchainExtendedData
+    blockchainExtendedData: blockchainData.blockchainExtendedData,
+    avatarUrl
   };
 }

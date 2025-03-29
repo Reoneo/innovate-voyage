@@ -8,9 +8,11 @@ import SkillsNetworkGraph from '@/components/visualizations/skills/SkillsNetwork
 interface SkillsTabProps {
   skills: Array<{ name: string; proof?: string; issued_by?: string }>;
   name: string;
+  avatarUrl?: string;
+  ensName?: string;
 }
 
-const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name }) => {
+const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name, avatarUrl, ensName }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <Card className="overflow-hidden">
@@ -35,6 +37,8 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name }) => {
             <SkillsNodeLeafD3 
               skills={skills} 
               name={name} 
+              avatarUrl={avatarUrl}
+              ensName={ensName}
             />
           </div>
           <div className="mt-4 border-t pt-3">
@@ -79,6 +83,8 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name }) => {
             <SkillsNetworkGraph 
               skills={skills} 
               name={name} 
+              avatarUrl={avatarUrl}
+              ensName={ensName}
             />
           </div>
           <div className="mt-4 border-t pt-3">

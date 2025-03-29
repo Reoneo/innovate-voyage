@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { BlockchainPassport, calculateHumanScore } from '@/lib/utils';
 import { truncateAddress } from '@/lib/utils';
@@ -22,6 +21,7 @@ export function usePassportGenerator(
       boxDomains: string[];
       snsActive: boolean;
     };
+    avatarUrl?: string;
   }
 ) {
   const [passport, setPassport] = useState<BlockchainPassport | null>(null);
@@ -41,7 +41,8 @@ export function usePassportGenerator(
           transactions, 
           tokenTransfers, 
           web3BioProfile,
-          blockchainExtendedData
+          blockchainExtendedData,
+          avatarUrl
         } = blockchainData || {};
         
         if (blockchainProfile) {
@@ -96,7 +97,6 @@ export function usePassportGenerator(
           skills.push({ name: 'SNS.ID User', proof: 'sns.id' });
         }
         
-        // Ensure socials is always an object (never undefined)
         const socials = {
           github: web3BioProfile?.github || undefined,
           twitter: web3BioProfile?.twitter || undefined,
@@ -108,11 +108,11 @@ export function usePassportGenerator(
         const newPassport: BlockchainPassport = {
           passport_id: resolvedEns || truncateAddress(resolvedAddress),
           owner_address: resolvedAddress,
-          avatar_url: web3BioProfile?.avatar || '/placeholder.svg',
+          avatar_url: avatarUrl || web3BioProfile?.avatar || '/placeholder.svg',
           name: resolvedEns ? resolvedEns.split('.')[0] : truncateAddress(resolvedAddress),
           issued: new Date().toISOString(),
           skills: skills,
-          socials: socials // Always defined now, never optional
+          socials: socials
         };
         
         setPassport(newPassport);
@@ -123,14 +123,12 @@ export function usePassportGenerator(
       }
     };
     
-    // Only run this effect once per address to prevent infinite loops
     if (resolvedAddress && !initialized.current) {
       initialized.current = true;
       createPassport();
     }
   }, [resolvedAddress, resolvedEns, blockchainData]);
 
-  // Calculate passport with score
   const passportWithScore = passport ? {
     ...passport,
     ...calculateHumanScore(passport)
