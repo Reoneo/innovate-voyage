@@ -1,3 +1,4 @@
+
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -47,6 +48,9 @@ export interface BlockchainPassport {
     discord?: string;
     telegram?: string;
     twitter?: string;
+    linkedin?: string;
+    website?: string;
+    email?: string;
   };
   skills?: PassportSkill[];
 }
