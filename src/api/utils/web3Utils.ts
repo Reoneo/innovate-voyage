@@ -1,4 +1,5 @@
 
+import { Web3BioProfile } from '../types/web3Types';
 import { delay } from '../jobsApi';
 
 // Cache for storing already fetched avatars to reduce API calls
@@ -8,7 +9,7 @@ export const avatarCache: Record<string, string> = {
 };
 
 // Function to fetch profile from Web3.bio API
-export async function fetchWeb3BioProfile(identity: string) {
+export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProfile | null> {
   try {
     const response = await fetch(`https://api.web3.bio/profile/${identity}`);
     if (!response.ok) {
@@ -19,7 +20,14 @@ export async function fetchWeb3BioProfile(identity: string) {
     const data = await response.json();
     if (Array.isArray(data) && data.length > 0) {
       // Return the first profile in the array
-      return data[0];
+      return {
+        address: data[0].address || '',
+        identity: identity,
+        platform: data[0].platform || 'ens',
+        displayName: data[0].display_name || identity,
+        avatar: data[0].avatar || null,
+        description: data[0].description || null
+      };
     } else if (data.error) {
       console.warn(`Web3.bio error for ${identity}:`, data.error);
       return null;

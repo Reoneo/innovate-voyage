@@ -6,7 +6,7 @@ import { BlockchainPassport } from '@/lib/utils';
 import UserInfo from './user-profile/UserInfo';
 import ContributionChart from './visualizations/ContributionChart';
 import ProjectNetwork from './visualizations/ProjectNetwork';
-import SkillsNodeLeafGraph from '@/components/visualizations/skills/SkillsNodeLeafGraph';
+import SkillsNodeLeafD3 from '@/components/visualizations/skills/SkillsNodeLeafD3';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface UserCardTooltipProps {
@@ -46,7 +46,7 @@ const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
           <TabsContent value="skills" className="pt-2">
             <h4 className="text-sm font-medium mb-2">Skills Visualization</h4>
             <div className="h-60">
-              <SkillsNodeLeafGraph skills={passport.skills} name={passport.name} />
+              <SkillsNodeLeafD3 skills={passport.skills} name={passport.name} />
             </div>
           </TabsContent>
         </Tabs>
