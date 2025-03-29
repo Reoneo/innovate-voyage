@@ -57,6 +57,61 @@ const mockEnsRecords = [
       github: 'brantlymillegan',
       linkedin: 'brantlymillegan'
     }
+  },
+  { 
+    address: '0x6860f1A0eF0AB11d762DAe619457Eb54143f849c', 
+    ensName: 'sassal.eth',
+    avatar: 'https://pbs.twimg.com/profile_images/1632824745887141891/c_v1xwOC_400x400.jpg',
+    skills: ['Ethereum Research', 'DeFi Analytics', 'Staking', 'Protocol Design'],
+    socialProfiles: {
+      twitter: '@sassal0x',
+      github: 'sassal',
+      linkedin: 'anthony-sassano',
+      discord: 'sassal#1337'
+    }
+  },
+  { 
+    address: '0x21FB4411FA5828344c2788aB07D4cc12a12571b9', 
+    ensName: 'punk6529.eth',
+    avatar: 'https://pbs.twimg.com/profile_images/1466503263888621574/RJ4qw8jt_400x400.jpg',
+    skills: ['NFT Investment', 'Digital Art', 'Crypto Philosophy', 'Open Metaverse'],
+    socialProfiles: {
+      twitter: '@punk6529',
+      discord: 'punk6529#6529'
+    }
+  },
+  { 
+    address: '0x983110309620D911731Ac0932219af06091b6744', 
+    ensName: 'trent.eth',
+    avatar: 'https://pbs.twimg.com/profile_images/1698127275076673536/x1NeF7yW_400x400.jpg',
+    skills: ['MEV', 'ZK Proofs', 'Ethereum Infrastructure', 'Crypto UX'],
+    socialProfiles: {
+      twitter: '@trent_vanepps',
+      github: 'tvanepps',
+      discord: 'trent#4269'
+    }
+  },
+  { 
+    address: '0x20fFeD7d3Ec1f10074159D59C53DaD137d7EFb1C', 
+    ensName: 'hayden.eth',
+    avatar: 'https://pbs.twimg.com/profile_images/1553109938570248192/vJriw9L9_400x400.jpg',
+    skills: ['DeFi Protocol Design', 'AMMs', 'Governance', 'Tokenomics'],
+    socialProfiles: {
+      twitter: '@haydenzadams',
+      github: 'haydenadams',
+      discord: 'hayden#1234'
+    }
+  },
+  { 
+    address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c799C5', 
+    ensName: 'nickjohnson.eth',
+    avatar: 'https://pbs.twimg.com/profile_images/1318657593712771073/2xyHgQqz_400x400.jpg',
+    skills: ['ENS Development', 'Ethereum Internals', 'Smart Contract Security', 'DNS'],
+    socialProfiles: {
+      twitter: '@nicksdjohnson',
+      github: 'arachnid',
+      linkedin: 'nicksdjohnson'
+    }
   }
 ];
 
@@ -87,7 +142,7 @@ const mockSkillNfts = [
     issuedDate: '2023-05-10',
     description: 'Expertise in developing DeFi protocols',
     image: 'https://ipfs.io/ipfs/QmTiqc23TibYLcvVxZK2FS6LLqBRFzkGsjQST5ER7B3JzX',
-    owners: ['0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF']
+    owners: ['0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', '0x20fFeD7d3Ec1f10074159D59C53DaD137d7EFb1C']
   },
   {
     tokenId: '4',
@@ -96,7 +151,7 @@ const mockSkillNfts = [
     issuedDate: '2023-06-18',
     description: 'Accomplished NFT artist and creator',
     image: 'https://ipfs.io/ipfs/QmRPJKEJmKmHYkA7L3iVuswijzD3yzjXbnjw3xrc1GvpNK',
-    owners: ['0x99C85bb64564D9eF9A99621301f22C9993Cb4E3F']
+    owners: ['0x99C85bb64564D9eF9A99621301f22C9993Cb4E3F', '0x21FB4411FA5828344c2788aB07D4cc12a12571b9']
   },
   {
     tokenId: '5',
@@ -105,7 +160,52 @@ const mockSkillNfts = [
     issuedDate: '2023-07-29',
     description: 'Mastery in DAO governance mechanisms',
     image: 'https://ipfs.io/ipfs/QmPSZVVRWTwXU8VYrGUqZhQNGVYwc8CbBY3eexpwsQsVhN',
-    owners: ['0x5c6B0f7Bf3E7ce046039Bd8FABdfD3f9F5021678']
+    owners: ['0x5c6B0f7Bf3E7ce046039Bd8FABdfD3f9F5021678', '0x20fFeD7d3Ec1f10074159D59C53DaD137d7EFb1C']
+  },
+  {
+    tokenId: '6',
+    name: 'ZK Proof Engineer',
+    issuer: 'StarkWare',
+    issuedDate: '2023-08-15',
+    description: 'Expert in zero-knowledge proof systems',
+    image: 'https://ipfs.io/ipfs/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR',
+    owners: ['0x983110309620D911731Ac0932219af06091b6744', '0x3e6c8431A2f091Fbd55cB9888B789f29B1c799C5']
+  },
+  {
+    tokenId: '7',
+    name: 'Ethereum Educator',
+    issuer: 'Blockchain Education Network',
+    issuedDate: '2023-04-12',
+    description: 'Recognized for outstanding contribution to blockchain education',
+    image: 'https://ipfs.io/ipfs/QmTHfkHAjCkpz2SbpKbQdmeu8k5h4mh5DSCAbgQd8CBz86',
+    owners: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F', '0x6860f1A0eF0AB11d762DAe619457Eb54143f849c']
+  },
+  {
+    tokenId: '8',
+    name: 'ENS Domain Specialist',
+    issuer: 'ENS DAO',
+    issuedDate: '2023-02-28',
+    description: 'Expert in Ethereum Name Service domains and infrastructure',
+    image: 'https://ipfs.io/ipfs/QmUQKFQnHDJGgCvpxU9iQjt3j8iZtELDDMvwpDsfdGGJtW',
+    owners: ['0x5c6B0f7Bf3E7ce046039Bd8FABdfD3f9F5021678', '0x3e6c8431A2f091Fbd55cB9888B789f29B1c799C5']
+  },
+  {
+    tokenId: '9',
+    name: 'Crypto Economics Researcher',
+    issuer: 'Crypto Economics Lab',
+    issuedDate: '2023-09-05',
+    description: 'Contributor to advanced blockchain economic models',
+    image: 'https://ipfs.io/ipfs/QmXwrZMUC3jXDtRvoBdKCZadK6dGJFLUSJQQiM5DEbRZkD',
+    owners: ['0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', '0x9C4eb242AcEbc6bfC068Ca16B8c851920Dd7BF11']
+  },
+  {
+    tokenId: '10',
+    name: 'MEV Specialist',
+    issuer: 'Flashbots',
+    issuedDate: '2023-07-14',
+    description: 'Expert in miner extractable value research and implementation',
+    image: 'https://ipfs.io/ipfs/QmRDvLwMMxe5SewdVy8gpgqtQscxQsEUQyGbYyrANxKZpK',
+    owners: ['0x983110309620D911731Ac0932219af06091b6744']
   }
 ];
 

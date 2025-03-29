@@ -7,6 +7,7 @@ export function useEnsByAddress(address: string | undefined) {
     queryKey: ['ens', 'address', address],
     queryFn: () => address ? web3Api.getEnsByAddress(address) : null,
     enabled: !!address,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
@@ -15,6 +16,7 @@ export function useAddressByEns(ensName: string | undefined) {
     queryKey: ['ens', 'name', ensName],
     queryFn: () => ensName ? web3Api.getAddressByEns(ensName) : null,
     enabled: !!ensName,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
@@ -23,6 +25,7 @@ export function useSkillNfts(address: string | undefined) {
     queryKey: ['skillNfts', address],
     queryFn: () => address ? web3Api.getSkillNftsByAddress(address) : [],
     enabled: !!address,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
@@ -31,6 +34,7 @@ export function useWeb3Credentials(address: string | undefined) {
     queryKey: ['web3Credentials', address],
     queryFn: () => address ? web3Api.getWeb3CredentialsByAddress(address) : { ensRecord: null, skillNfts: [] },
     enabled: !!address,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
@@ -38,6 +42,7 @@ export function useAllEnsRecords() {
   return useQuery({
     queryKey: ['ensRecords'],
     queryFn: web3Api.getAllEnsRecords,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
@@ -45,5 +50,6 @@ export function useAllSkillNfts() {
   return useQuery({
     queryKey: ['skillNfts'],
     queryFn: web3Api.getAllSkillNfts,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
