@@ -42,7 +42,7 @@ export interface BlockchainPassport {
   avatar_url: string;
   name: string;
   issued: string;
-  socials?: {
+  socials: {  // Changed from optional to required
     github?: string;
     discord?: string;
     telegram?: string;

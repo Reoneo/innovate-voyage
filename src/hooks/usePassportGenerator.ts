@@ -95,6 +95,15 @@ export function usePassportGenerator(
           skills.push({ name: 'SNS.ID User', proof: 'sns.id' });
         }
         
+        // Ensure socials is always an object (never undefined)
+        const socials = {
+          github: web3BioProfile?.github || undefined,
+          twitter: web3BioProfile?.twitter || undefined,
+          linkedin: web3BioProfile?.linkedin || undefined,
+          website: web3BioProfile?.website || undefined,
+          email: web3BioProfile?.email || undefined
+        };
+        
         const newPassport: BlockchainPassport = {
           passport_id: resolvedEns || truncateAddress(resolvedAddress),
           owner_address: resolvedAddress,
@@ -102,13 +111,7 @@ export function usePassportGenerator(
           name: resolvedEns ? resolvedEns.split('.')[0] : truncateAddress(resolvedAddress),
           issued: new Date().toISOString(),
           skills: skills,
-          socials: {
-            github: web3BioProfile?.github,
-            twitter: web3BioProfile?.twitter,
-            linkedin: web3BioProfile?.linkedin,
-            website: web3BioProfile?.website,
-            email: web3BioProfile?.email
-          }
+          socials: socials // Always defined now, never optional
         };
         
         setPassport(newPassport);
