@@ -1,7 +1,10 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { PassportSkill } from '@/lib/utils';
+import { createDragBehavior, createTooltip } from './utils/networkGraphUtils';
+import NetworkNode from './components/NetworkNode';
+import NetworkLink from './components/NetworkLink';
+import NetworkTooltip from './components/NetworkTooltip';
 
 interface SkillsNetworkGraphProps {
   skills: PassportSkill[];
@@ -13,6 +16,7 @@ interface SkillsNetworkGraphProps {
 const SkillsNetworkGraph: React.FC<SkillsNetworkGraphProps> = ({ skills, name, avatarUrl, ensName }) => {
   const networkRef = useRef<SVGSVGElement>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [tooltipData, setTooltipData] = useState<{ type: 'node' | 'link', data: any, position: { x: number, y: number } } | null>(null);
 
   // Generate network graph
   useEffect(() => {
@@ -39,9 +43,9 @@ const SkillsNetworkGraph: React.FC<SkillsNetworkGraphProps> = ({ skills, name, a
       verified: true
     } : null;
 
-    // Create nodes for sankey
+    // Create nodes for graph
     const nodes = [
-      { id: 0, name, type: 'user' },
+      { id: 0, name, type: 'user', avatarUrl },
       ...(ensNode ? [ensNode] : []),
       ...skills.slice(0, Math.min(7, skills.length)).map((skill, idx) => ({
         id: idx + 1 + (ensNode ? 1 : 0),
@@ -62,17 +66,16 @@ const SkillsNetworkGraph: React.FC<SkillsNetworkGraphProps> = ({ skills, name, a
       }))
     ];
 
-    // Create forceSimulation with more space between nodes
+    // Create forceSimulation
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id((d: any) => d.id).distance(100))
       .force("charge", d3.forceManyBody().strength(-200))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collision", d3.forceCollide().radius(30));
 
-    // Add links with gradient colors
-    const link = svg.append("g")
-      .attr("class", "links")
-      .selectAll("line")
+    // Create a group for links
+    const linkGroup = svg.append("g").attr("class", "links");
+    const link = linkGroup.selectAll("line")
       .data(links)
       .join("line")
         .attr("stroke", (d: any) => {
@@ -83,15 +86,14 @@ const SkillsNetworkGraph: React.FC<SkillsNetworkGraphProps> = ({ skills, name, a
         .attr("stroke-width", (d: any) => Math.sqrt(d.value) * 1.5);
 
     // Create a group for nodes
-    const node = svg.append("g")
-      .attr("class", "nodes")
-      .selectAll(".node")
+    const nodeGroup = svg.append("g").attr("class", "nodes");
+    const node = nodeGroup.selectAll(".node")
       .data(nodes)
       .join("g")
         .attr("class", "node")
         .attr("data-id", (d: any) => d.id)
         .attr("data-name", (d: any) => d.name)
-        .call(drag(simulation) as any)
+        .call(createDragBehavior(simulation) as any)
         .on("click", (event, d: any) => {
           // Toggle node selection
           setSelectedNode(prev => prev === d.name ? null : d.name);
@@ -116,30 +118,6 @@ const SkillsNetworkGraph: React.FC<SkillsNetworkGraphProps> = ({ skills, name, a
           }
         });
 
-    // Add circles to nodes with clearer visuals
-    node.append("circle")
-      .attr("r", (d: any) => {
-        if (d.type === "user") return 30;
-        if (d.type === "ens") return 25;
-        return 20;
-      })
-      .attr("fill", (d: any) => {
-        if (d.type === "user") {
-          if (avatarUrl) {
-            return `url(#user-avatar)`;
-          }
-          return "#3b82f6"; 
-        }
-        if (d.type === "ens") return "#6366f1";
-        return (d as any).verified ? "#10b981" : "#9ca3af";
-      })
-      .attr("stroke", (d: any) => {
-        if (d.type === "user") return "#1d4ed8";
-        if (d.type === "ens") return "#4f46e5";
-        return (d as any).verified ? "#059669" : "#6b7280";
-      })
-      .attr("stroke-width", 1.5);
-
     // If we have an avatar URL, create pattern for the user node
     if (avatarUrl) {
       const defs = svg.append("defs");
@@ -156,7 +134,42 @@ const SkillsNetworkGraph: React.FC<SkillsNetworkGraphProps> = ({ skills, name, a
         .attr("preserveAspectRatio", "xMidYMid slice");
     }
 
-    // Add labels with better positioning and visibility
+    // Add circles to nodes
+    node.append("circle")
+      .attr("r", (d: any) => {
+        if (d.type === "user") return 30;
+        if (d.type === "ens") return 25;
+        return 20;
+      })
+      .attr("fill", (d: any) => {
+        if (d.type === "user") {
+          return avatarUrl ? `url(#user-avatar)` : "#3b82f6"; 
+        }
+        if (d.type === "ens") return "#6366f1";
+        return (d as any).verified ? "#10b981" : "#9ca3af";
+      })
+      .attr("stroke", (d: any) => {
+        if (d.type === "user") return "#1d4ed8";
+        if (d.type === "ens") return "#4f46e5";
+        return (d as any).verified ? "#059669" : "#6b7280";
+      })
+      .attr("stroke-width", 1.5);
+
+    // Add text background for better readability
+    node.insert("circle", "text")
+      .attr("r", (d: any) => {
+        if (d.type === "user") return 25;
+        if (d.type === "ens") return 22;
+        return 18;
+      })
+      .attr("fill", (d: any) => {
+        if (d.type === "user") return avatarUrl ? "transparent" : "#3b82f6";
+        if (d.type === "ens") return "#6366f1";
+        return (d as any).verified ? "#10b981" : "#9ca3af";
+      })
+      .attr("opacity", (d: any) => d.type === "user" && avatarUrl ? 0 : 0.9);
+
+    // Add labels
     node.append("text")
       .attr("dy", (d: any) => d.type === "user" ? 0 : 0)
       .attr("text-anchor", "middle")
@@ -186,21 +199,7 @@ const SkillsNetworkGraph: React.FC<SkillsNetworkGraphProps> = ({ skills, name, a
         }
       });
 
-    // Add background to text for better readability
-    node.insert("circle", "text")
-      .attr("r", (d: any) => {
-        if (d.type === "user") return 25;
-        if (d.type === "ens") return 22;
-        return 18;
-      })
-      .attr("fill", (d: any) => {
-        if (d.type === "user") return avatarUrl ? "transparent" : "#3b82f6";
-        if (d.type === "ens") return "#6366f1";
-        return (d as any).verified ? "#10b981" : "#9ca3af";
-      })
-      .attr("opacity", (d: any) => d.type === "user" && avatarUrl ? 0 : 0.9);
-
-    // Add verification badges for verified skills and ENS
+    // Add verification badges
     node.filter((d: any) => (d.type !== "user" && (d as any).verified) || d.type === "ens")
       .append("circle")
       .attr("cx", 12)
@@ -221,6 +220,9 @@ const SkillsNetworkGraph: React.FC<SkillsNetworkGraphProps> = ({ skills, name, a
       .attr("font-size", "10px")
       .text((d: any) => d.type === "ens" ? "E" : "✓");
 
+    // Add tooltip for additional information
+    const tooltip = createTooltip();
+
     // Update positions on simulation tick
     simulation.on("tick", () => {
       link
@@ -237,45 +239,7 @@ const SkillsNetworkGraph: React.FC<SkillsNetworkGraphProps> = ({ skills, name, a
       });
     });
 
-    // Function to handle drag
-    function drag(simulation: any) {
-      function dragstarted(event: any) {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        event.subject.fx = event.subject.x;
-        event.subject.fy = event.subject.y;
-      }
-      
-      function dragged(event: any) {
-        event.subject.fx = event.x;
-        event.subject.fy = event.y;
-      }
-      
-      function dragended(event: any) {
-        if (!event.active) simulation.alphaTarget(0);
-        event.subject.fx = null;
-        event.subject.fy = null;
-      }
-      
-      return d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended);
-    }
-
-    // Add tooltip for additional information
-    const tooltip = d3.select("body")
-      .append("div")
-      .attr("class", "network-tooltip")
-      .style("position", "absolute")
-      .style("visibility", "hidden")
-      .style("background-color", "rgba(0,0,0,0.8)")
-      .style("color", "white")
-      .style("padding", "5px 10px")
-      .style("border-radius", "4px")
-      .style("font-size", "12px")
-      .style("pointer-events", "none");
-
-    // Add tooltip behavior
+    // Add tooltip behavior for nodes
     node.on("mouseover", function(event, d: any) {
       tooltip.style("visibility", "visible")
         .html(() => {
@@ -301,6 +265,7 @@ const SkillsNetworkGraph: React.FC<SkillsNetworkGraphProps> = ({ skills, name, a
       tooltip.style("visibility", "hidden");
     });
 
+    // Add tooltip behavior for links
     link.on("mouseover", function(event, d: any) {
       tooltip.style("visibility", "visible")
         .html(() => {
