@@ -30,7 +30,7 @@ const SkillsNodeLeafD3: React.FC<SkillsNodeLeafD3Props> = ({ skills, name }) => 
   });
 
   // Use the D3 hook for rendering
-  useSkillsD3(d3Container, skills, name);
+  const cleanup = useSkillsD3(d3Container, skills, name);
 
   // Set up event listeners for tooltips
   useEffect(() => {
@@ -74,12 +74,17 @@ const SkillsNodeLeafD3: React.FC<SkillsNodeLeafD3Props> = ({ skills, name }) => 
 
     // Clean up
     return () => {
-      svgElement.removeEventListener('skillnodemouseover', handleSkillNodeMouseOver);
-      svgElement.removeEventListener('skillnodemouseout', handleSkillNodeMouseOut);
-      svgElement.removeEventListener('connectionmouseover', handleConnectionMouseOver);
-      svgElement.removeEventListener('connectionmouseout', handleConnectionMouseOut);
+      if (svgElement) {
+        svgElement.removeEventListener('skillnodemouseover', handleSkillNodeMouseOver);
+        svgElement.removeEventListener('skillnodemouseout', handleSkillNodeMouseOut);
+        svgElement.removeEventListener('connectionmouseover', handleConnectionMouseOver);
+        svgElement.removeEventListener('connectionmouseout', handleConnectionMouseOut);
+      }
+      
+      // Call cleanup from useSkillsD3 hook
+      if (cleanup) cleanup();
     };
-  }, []);
+  }, [cleanup]);
 
   return (
     <TooltipProvider>
@@ -92,7 +97,7 @@ const SkillsNodeLeafD3: React.FC<SkillsNodeLeafD3Props> = ({ skills, name }) => 
           viewBox="0 0 400 300"
           preserveAspectRatio="xMidYMid meet"
         >
-          {/* Render tooltips inside SVG */}
+          {/* Render tooltips inside SVG only when visible */}
           {skillTooltip.visible && skillTooltip.data && (
             <SkillNodeTooltip 
               data={skillTooltip.data} 

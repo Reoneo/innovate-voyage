@@ -97,10 +97,12 @@ const TalentProfile = () => {
         if (web3BioProfile) {
           if (web3BioProfile.github) skills.push({ name: 'GitHub User', proof: web3BioProfile.github });
           if (web3BioProfile.twitter) skills.push({ name: 'Twitter User', proof: web3BioProfile.twitter });
+          
+          // Check for linkedin property before using it
           if (web3BioProfile.linkedin) skills.push({ name: 'LinkedIn User', proof: web3BioProfile.linkedin });
         }
         
-        // Create passport object
+        // Create passport object with required fields
         const newPassport: BlockchainPassport = {
           passport_id: resolvedEns || truncateAddress(resolvedAddress),
           owner_address: resolvedAddress,
@@ -108,12 +110,14 @@ const TalentProfile = () => {
           name: resolvedEns ? resolvedEns.split('.')[0] : truncateAddress(resolvedAddress),
           issued: new Date().toISOString(),
           skills: skills,
+          // Ensure socials object exists and includes all possible properties
           socials: {
             github: web3BioProfile?.github,
             twitter: web3BioProfile?.twitter,
-            linkedin: web3BioProfile?.linkedin,
             website: web3BioProfile?.website,
-            email: web3BioProfile?.email
+            email: web3BioProfile?.email,
+            // Add linkedin if it exists in web3BioProfile
+            ...(web3BioProfile?.linkedin ? { linkedin: web3BioProfile.linkedin } : {})
           }
         };
         
@@ -178,11 +182,21 @@ const TalentProfile = () => {
     }
   };
 
-  // If we have a valid passport, calculate score
+  // If we have a valid passport, calculate score and ensure all required properties
   const passportWithScore = passport ? {
     ...passport,
     ...calculateHumanScore(passport),
-    hasMoreSkills: passport.skills.length > 4
+    hasMoreSkills: passport.skills.length > 4,
+    // Ensure skills is not undefined for components that require it
+    skills: passport.skills || [],
+    // Ensure socials is not undefined for components that require it
+    socials: passport.socials || {
+      github: undefined,
+      twitter: undefined,
+      linkedin: undefined,
+      website: undefined,
+      email: undefined
+    }
   } : null;
 
   return (

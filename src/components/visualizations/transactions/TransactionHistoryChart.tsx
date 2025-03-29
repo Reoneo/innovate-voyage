@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import { useTooltip, TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 interface Transaction {
   timeStamp: string;
@@ -112,6 +112,70 @@ const TransactionHistoryChart: React.FC<TransactionHistoryChartProps> = ({
         .tickFormat(() => '')
       );
 
+    // Function to handle tooltip creation and removal
+    const showTooltip = (event: any, d: any) => {
+      // Remove any existing tooltips first
+      svg.selectAll('.tooltip').remove();
+      
+      // Create the tooltip
+      const tooltip = svg.append('g')
+        .attr('class', 'tooltip')
+        .attr('transform', `translate(${xScale(d.date) + margin.left + 10},${yScale(d.value) + margin.top - 20})`);
+        
+      // Add background rectangle
+      tooltip.append('rect')
+        .attr('width', 180)
+        .attr('height', 80)
+        .attr('rx', 5)
+        .attr('fill', 'rgba(0,0,0,0.8)');
+        
+      // Add transaction details
+      tooltip.append('text')
+        .attr('x', 5)
+        .attr('y', 15)
+        .attr('fill', 'white')
+        .attr('font-size', '10px')
+        .text(`${d.value.toFixed(4)} ETH ${d.type.toUpperCase()}`);
+        
+      tooltip.append('text')
+        .attr('x', 5)
+        .attr('y', 30)
+        .attr('fill', 'white')
+        .attr('font-size', '10px')
+        .text(`Date: ${d.date.toLocaleDateString()}`);
+
+      // Add address info
+      tooltip.append('text')
+        .attr('x', 5)
+        .attr('y', 45)
+        .attr('fill', 'white')
+        .attr('font-size', '10px')
+        .text(`From: ${d.from.substring(0, 6)}...${d.from.substring(d.from.length - 4)}`);
+
+      tooltip.append('text')
+        .attr('x', 5)
+        .attr('y', 60)
+        .attr('fill', 'white')
+        .attr('font-size', '10px')
+        .text(`To: ${d.to.substring(0, 6)}...${d.to.substring(d.to.length - 4)}`);
+
+      // Add transaction hash
+      tooltip.append('text')
+        .attr('x', 5)
+        .attr('y', 75)
+        .attr('fill', '#3b82f6')
+        .attr('font-size', '10px')
+        .text(`View on Etherscan`)
+        .style('cursor', 'pointer')
+        .on('click', () => {
+          window.open(`https://etherscan.io/tx/${d.hash}`, '_blank');
+        });
+    };
+
+    const hideTooltip = () => {
+      svg.selectAll('.tooltip').remove();
+    };
+
     // Add scatter plot points
     g.selectAll('.transaction-point')
       .data(data)
@@ -128,67 +192,15 @@ const TransactionHistoryChart: React.FC<TransactionHistoryChartProps> = ({
         d3.select(this)
           .attr('r', 7)
           .attr('stroke-width', 2);
-          
-        // Show enhanced tooltip
-        const tooltip = svg.append('g')
-          .attr('class', 'tooltip')
-          .attr('transform', `translate(${xScale(d.date) + margin.left + 10},${yScale(d.value) + margin.top - 20})`);
-          
-        // Add background rectangle
-        tooltip.append('rect')
-          .attr('width', 180)
-          .attr('height', 80)
-          .attr('rx', 5)
-          .attr('fill', 'rgba(0,0,0,0.8)');
-          
-        // Add transaction details
-        tooltip.append('text')
-          .attr('x', 5)
-          .attr('y', 15)
-          .attr('fill', 'white')
-          .attr('font-size', '10px')
-          .text(`${d.value.toFixed(4)} ETH ${d.type.toUpperCase()}`);
-          
-        tooltip.append('text')
-          .attr('x', 5)
-          .attr('y', 30)
-          .attr('fill', 'white')
-          .attr('font-size', '10px')
-          .text(`Date: ${d.date.toLocaleDateString()}`);
-
-        // Add address info
-        tooltip.append('text')
-          .attr('x', 5)
-          .attr('y', 45)
-          .attr('fill', 'white')
-          .attr('font-size', '10px')
-          .text(`From: ${d.from.substring(0, 6)}...${d.from.substring(d.from.length - 4)}`);
-
-        tooltip.append('text')
-          .attr('x', 5)
-          .attr('y', 60)
-          .attr('fill', 'white')
-          .attr('font-size', '10px')
-          .text(`To: ${d.to.substring(0, 6)}...${d.to.substring(d.to.length - 4)}`);
-
-        // Add transaction hash
-        tooltip.append('text')
-          .attr('x', 5)
-          .attr('y', 75)
-          .attr('fill', '#3b82f6')
-          .attr('font-size', '10px')
-          .text(`View on Etherscan`)
-          .style('cursor', 'pointer')
-          .on('click', () => {
-            window.open(`https://etherscan.io/tx/${d.hash}`, '_blank');
-          });
+        
+        showTooltip(event, d);
       })
       .on('mouseout', function() {
         d3.select(this)
           .attr('r', 5)
           .attr('stroke-width', 1);
-          
-        svg.selectAll('.tooltip').remove();
+        
+        hideTooltip();
       })
       .style('cursor', 'pointer')
       .on('click', function(event, d) {
@@ -259,6 +271,12 @@ const TransactionHistoryChart: React.FC<TransactionHistoryChartProps> = ({
       .attr('stroke-dasharray', '3,3')
       .attr('class', 'highlight-circle');
 
+    // Return cleanup function
+    return () => {
+      if (chartRef.current) {
+        d3.select(chartRef.current).selectAll("*").remove();
+      }
+    };
   }, [transactions, address, showLabels]);
 
   return (
