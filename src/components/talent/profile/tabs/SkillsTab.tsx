@@ -3,9 +3,10 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import SkillsNodeLeafD3 from '@/components/visualizations/skills/SkillsNodeLeafD3';
 import SkillsNetworkGraph from '@/components/visualizations/skills/SkillsNetworkGraph';
+import { PassportSkill } from '@/api/types/web3Types';
 
 interface SkillsTabProps {
-  skills: Array<{ name: string; proof?: string; issued_by?: string }>;
+  skills: PassportSkill[];
   name: string;
 }
 

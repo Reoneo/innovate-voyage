@@ -20,12 +20,16 @@ import BlockchainTab from '@/components/talent/profile/tabs/BlockchainTab';
 import SkillsTab from '@/components/talent/profile/tabs/SkillsTab';
 import ResumeTab from '@/components/talent/profile/tabs/ResumeTab';
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
+import PDFExport from '@/components/talent/profile/PDFExport';
+import { TalentProfileData, PassportSkill } from '@/api/types/web3Types';
 
 const TalentProfile = () => {
   const { ensName, address } = useParams<{ ensName: string; address: string }>();
   const [passport, setPassport] = useState<BlockchainPassport | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const pdfContentRef = useRef<HTMLDivElement>(null);
   
   // Fetch data based on ENS or address
   const { data: addressData } = useAddressByEns(
@@ -53,7 +57,7 @@ const TalentProfile = () => {
       
       try {
         // Create skills from available data
-        const skills = [];
+        const skills = [] as PassportSkill[];
         
         // Add skills based on blockchain activity
         if (blockchainProfile) {
@@ -137,39 +141,83 @@ const TalentProfile = () => {
 
   // Export profile as PDF
   const exportAsPDF = async () => {
-    if (!profileRef.current) return;
-    
     try {
       toast({
         title: 'Generating PDF',
         description: 'Please wait while we generate your PDF...'
       });
       
-      const canvas = await html2canvas(profileRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false
-      });
+      // Show PDF preview first
+      setShowPdfPreview(true);
       
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
+      // Wait for the PDF content to render
+      setTimeout(async () => {
+        if (!pdfContentRef.current) {
+          toast({
+            title: 'PDF Generation Failed',
+            description: 'Could not find PDF content element',
+            variant: 'destructive'
+          });
+          return;
+        }
+        
+        const canvas = await html2canvas(pdfContentRef.current, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        
+        // Use A4 size with proper margins (2.54cm ~ 1 inch ~ 72 points)
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'pt',
+          format: 'a4'
+        });
+        
+        // A4 size is 595 × 842 points
+        const pageWidth = 595;
+        const pageHeight = 842;
+        
+        // Convert margin from cm to points (1cm = 28.35 points)
+        const margin = 72; // 2.54cm ~ 72 points
+        
+        const contentWidth = pageWidth - (margin * 2);
+        const contentHeight = pageHeight - (margin * 2);
+        
+        // Scale image to fit within the margins
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        
+        let scaleFactor = Math.min(
+          contentWidth / imgWidth,
+          contentHeight / imgHeight
+        );
+        
+        const scaledWidth = imgWidth * scaleFactor;
+        const scaledHeight = imgHeight * scaleFactor;
+        
+        // Center the image on the page
+        const x = margin + (contentWidth - scaledWidth) / 2;
+        const y = margin + (contentHeight - scaledHeight) / 2;
+        
+        pdf.addImage(imgData, 'PNG', x, y, scaledWidth, scaledHeight);
+        pdf.save(`${passport?.passport_id || 'blockchain-profile'}.pdf`);
+        
+        // Hide PDF preview after generation
+        setShowPdfPreview(false);
+        
+        toast({
+          title: 'PDF Generated',
+          description: 'Your PDF has been successfully generated!'
+        });
+      }, 500);
       
-      const imgWidth = 210;
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`${passport?.passport_id || 'blockchain-profile'}.pdf`);
-      
-      toast({
-        title: 'PDF Generated',
-        description: 'Your PDF has been successfully generated!'
-      });
     } catch (error) {
       console.error('Error generating PDF:', error);
+      setShowPdfPreview(false);
       toast({
         title: 'PDF Generation Failed',
         description: 'There was an error generating your PDF',
@@ -183,6 +231,21 @@ const TalentProfile = () => {
     ...passport,
     ...calculateHumanScore(passport),
     hasMoreSkills: passport.skills.length > 4
+  } : null;
+
+  // Prepare data for PDF export
+  const pdfData: TalentProfileData | null = passportWithScore ? {
+    passport_id: passportWithScore.passport_id,
+    owner_address: passportWithScore.owner_address,
+    avatar_url: passportWithScore.avatar_url,
+    name: passportWithScore.name,
+    issued: passportWithScore.issued,
+    score: passportWithScore.score,
+    category: passportWithScore.category,
+    socials: passportWithScore.socials,
+    skills: passportWithScore.skills || [],
+    blockchainProfile: blockchainProfile,
+    resolvedEns: resolvedEns
   } : null;
 
   return (
@@ -246,7 +309,14 @@ const TalentProfile = () => {
               {/* Resume Tab */}
               <TabsContent value="resume" className="space-y-6 mt-6">
                 <ResumeTab 
-                  passport={passportWithScore}
+                  passport={{
+                    passport_id: passportWithScore.passport_id,
+                    owner_address: passportWithScore.owner_address,
+                    skills: passportWithScore.skills,
+                    score: passportWithScore.score,
+                    category: passportWithScore.category,
+                    socials: passportWithScore.socials
+                  }}
                   blockchainProfile={blockchainProfile}
                   resolvedEns={resolvedEns}
                   onExportPdf={exportAsPDF}
@@ -254,6 +324,15 @@ const TalentProfile = () => {
               </TabsContent>
             </Tabs>
           </TooltipProvider>
+
+          {/* Hidden PDF content for export */}
+          {showPdfPreview && pdfData && (
+            <div className="fixed top-0 left-0 w-0 h-0 overflow-hidden">
+              <div ref={pdfContentRef} style={{ width: '1240px' }}>
+                <PDFExport data={pdfData} />
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="text-center py-20">

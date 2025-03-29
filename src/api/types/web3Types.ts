@@ -41,3 +41,37 @@ export interface Web3BioProfile {
   website?: string;
   email?: string;
 }
+
+// Extended version of BlockchainPassport for PDF export
+export interface TalentProfileData {
+  passport_id: string;
+  owner_address: string;
+  avatar_url: string;
+  name: string;
+  issued: string;
+  score?: number;
+  category?: string;
+  socials?: {
+    github?: string;
+    twitter?: string;
+    linkedin?: string;
+    website?: string;
+    email?: string;
+    discord?: string;
+    telegram?: string;
+  };
+  skills: PassportSkill[];
+  blockchainProfile?: {
+    balance?: string;
+    transactionCount?: number;
+    latestTransactions?: any[];
+  };
+  resolvedEns?: string;
+}
+
+export interface PassportSkill {
+  name: string;
+  proof?: string;
+  issued_by?: string;
+  level?: number;
+}
