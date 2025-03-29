@@ -60,5 +60,16 @@ export function useRealAvatar(ensName: string | undefined) {
     queryFn: () => ensName ? web3Api.getRealAvatar(ensName) : null,
     enabled: !!ensName,
     staleTime: 30 * 60 * 1000, // 30 minutes
+    retry: 1, // Reduce retries for avatars since some might not exist
+  });
+}
+
+export function useWeb3BioProfile(identity: string | undefined) {
+  return useQuery({
+    queryKey: ['web3bio', identity],
+    queryFn: () => identity ? web3Api.fetchWeb3BioProfile(identity) : null,
+    enabled: !!identity,
+    staleTime: 60 * 60 * 1000, // 1 hour
+    retry: 1,
   });
 }
