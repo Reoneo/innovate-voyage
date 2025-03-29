@@ -4,7 +4,6 @@ import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Copy } from 'lucide-react';
 import { truncateAddress } from '@/lib/utils';
-import { toast } from '@/hooks/use-toast';
 import { SocialIcon } from '@/components/ui/social-icon';
 import { socialPlatforms } from '@/constants/socialPlatforms';
 
@@ -23,10 +22,7 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
 }) => {
   const copyAddressToClipboard = () => {
     navigator.clipboard.writeText(ownerAddress);
-    toast({
-      title: "Address copied",
-      description: "Wallet address copied to clipboard"
-    });
+    // Toast notification removed
   };
 
   return (

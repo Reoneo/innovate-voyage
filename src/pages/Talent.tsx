@@ -6,7 +6,6 @@ import TalentLayout from '@/components/talent/TalentLayout';
 import TalentGrid from '@/components/talent/TalentGrid';
 import TalentSearch from '@/components/talent/TalentSearch';
 import { useBlockchainProfile } from '@/hooks/useEtherscan';
-import { toast } from '@/components/ui/use-toast';
 import { getAccountBalance, getTransactionCount, getLatestTransactions } from '@/api/services/etherscanService';
 import { fetchAllEnsDomains } from '@/api/services/ensService';
 
@@ -45,14 +44,9 @@ const Talent = () => {
             ensName = addressDataByEns.ensName;
             avatar = addressDataByEns.avatar || avatarData || '/placeholder.svg';
           } else {
-            // No data found, show error and return early
+            // No data found, but don't show error toast
             setIsSearching(false);
             setSearchResults([]);
-            toast({
-              title: "Domain not found",
-              description: `Could not find information for ${addressSearch}`,
-              variant: "destructive"
-            });
             return;
           }
         } 
@@ -120,14 +114,10 @@ const Talent = () => {
         };
         
         setSearchResults([newPassport]);
-        // Removed the success toast that was here
+        // Success toast removed
       } catch (error) {
         console.error('Error fetching Etherscan data:', error);
-        toast({
-          title: "Error",
-          description: "Could not fetch blockchain data. Please try again.",
-          variant: "destructive"
-        });
+        // Error toast removed
         setSearchResults([]);
       } finally {
         setIsSearching(false);

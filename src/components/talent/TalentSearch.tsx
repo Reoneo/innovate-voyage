@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { isValidEthereumAddress } from '@/lib/utils';
-import { toast } from '@/components/ui/use-toast';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { Alert } from '@/components/ui/alert';
@@ -33,11 +32,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
     const isValidInput = searchInput.includes('.eth') || searchInput.includes('.box') || isValidEthereumAddress(searchInput);
     
     if (!isValidInput) {
-      toast({
-        title: "Invalid input",
-        description: "Please enter a valid ENS name (.eth or .box) or Ethereum address",
-        variant: "destructive"
-      });
+      // Removed toast notification
       return;
     }
     
@@ -112,8 +107,6 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
             )}
           </div>
         </div>
-        
-        {/* Search results section removed */}
       </CardContent>
     </Card>
   );
