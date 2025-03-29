@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -12,11 +11,32 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from '@/components/ui/navigation-menu';
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 sm:px-6 py-16">
+      <div className="container mx-auto px-4 sm:px-6 py-8">
+        {/* Navigation */}
+        <div className="flex justify-center mb-12">
+          <NavigationMenu>
+            <NavigationMenuList className="flex gap-6">
+              <NavigationMenuItem>
+                <Link to="/talent" className="text-lg font-medium flex items-center gap-2 px-4 py-2 rounded-md hover:bg-secondary transition-colors">
+                  <Users className="h-5 w-5" />
+                  Web3 Talent
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link to="/jobs" className="text-lg font-medium flex items-center gap-2 px-4 py-2 rounded-md hover:bg-secondary transition-colors">
+                  <Briefcase className="h-5 w-5" />
+                  Web3 Jobs
+                </Link>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+
         {/* Hero Section */}
         <div className="flex flex-col items-center text-center mb-20">
           <motion.div
@@ -40,15 +60,16 @@ const Index = () => {
             transition={{ delay: 0.3, duration: 0.5 }}
           >
             <Button size="lg" asChild>
-              <Link to="/jobs">
-                Browse Jobs
+              <Link to="/talent">
+                Browse Talent
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <a href="#features">
-                Learn More
-              </a>
+              <Link to="/jobs">
+                Browse Jobs
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </motion.div>
         </div>
@@ -124,15 +145,15 @@ const Index = () => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button size="lg" asChild>
-                <Link to="/jobs">
-                  <Briefcase className="mr-2 h-5 w-5" />
-                  Explore Jobs
+                <Link to="/talent">
+                  <Users className="mr-2 h-5 w-5" />
+                  Explore Talent
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link to="/profile">
-                  <Users className="mr-2 h-5 w-5" />
-                  Create Web3 CV
+                <Link to="/jobs">
+                  <Briefcase className="mr-2 h-5 w-5" />
+                  Explore Jobs
                 </Link>
               </Button>
             </div>
