@@ -1,19 +1,45 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useAllEnsRecords, useAllSkillNfts } from '@/hooks/useWeb3';
 import { calculateHumanScore, getScoreColorClass, BlockchainPassport } from '@/lib/utils';
 import TalentLayout from '@/components/talent/TalentLayout';
 import TalentFilters from '@/components/talent/TalentFilters';
 import TalentGrid from '@/components/talent/TalentGrid';
+import TalentSearch from '@/components/talent/TalentSearch';
 import { useBlockchainProfile } from '@/hooks/useEtherscan';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAddressByEns, useEnsByAddress } from '@/hooks/useWeb3';
+import { toast } from '@/components/ui/use-toast';
 
 const Talent = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState('score');
+  const [addressSearch, setAddressSearch] = useState('');
+  const [searchMode, setSearchMode] = useState<'all' | 'specific'>('all');
 
   const { data: ensRecords, isLoading: isLoadingEns } = useAllEnsRecords();
   const { data: skillNfts, isLoading: isLoadingNfts } = useAllSkillNfts();
+  
+  // Search specific address or ENS
+  const { data: ensDataByAddress } = useEnsByAddress(searchMode === 'specific' ? addressSearch : undefined);
+  const { data: addressDataByEns } = useAddressByEns(
+    searchMode === 'specific' && addressSearch.includes('.eth') ? addressSearch : undefined
+  );
+
+  // Effect to set appropriate search term after address search
+  useEffect(() => {
+    if (searchMode === 'specific' && (ensDataByAddress || addressDataByEns)) {
+      const record = ensDataByAddress || addressDataByEns;
+      if (record) {
+        setSearchTerm(record.ensName);
+        toast({
+          title: "Profile found!",
+          description: `Found record for ${record.ensName}`,
+        });
+      }
+    }
+  }, [ensDataByAddress, addressDataByEns, searchMode]);
 
   // Extract all unique skills from passports
   const allSkills = useMemo(() => {
@@ -142,11 +168,34 @@ const Talent = () => {
     setSelectedSkills([]);
   };
 
+  const handleAddressSearch = (input: string) => {
+    setAddressSearch(input);
+    setSearchMode('specific');
+  };
+
+  const handleViewAll = () => {
+    setAddressSearch('');
+    setSearchTerm('');
+    setSearchMode('all');
+  };
+
   return (
     <TalentLayout 
       profileCount={passportData.length}
       transactionCount={totalTransactions}
     >
+      {/* Search & Tabs */}
+      <div className="lg:col-span-4 mb-6">
+        <TalentSearch onSearch={handleAddressSearch} onViewAll={handleViewAll} />
+        
+        <Tabs value={searchMode} onValueChange={(v) => setSearchMode(v as 'all' | 'specific')} className="mt-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="all">All Talent</TabsTrigger>
+            <TabsTrigger value="specific">Search Results</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+      
       {/* Filters Sidebar */}
       <div className="lg:col-span-1">
         <TalentFilters

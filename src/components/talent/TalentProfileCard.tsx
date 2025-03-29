@@ -147,7 +147,7 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
                         <TableCell className="p-1">{formatTimeStamp(tx.timeStamp)}</TableCell>
                         <TableCell className="p-1 font-medium">{formatEther(tx.value)} ETH</TableCell>
                         <TableCell className="p-1">
-                          <Badge variant={tx.from.toLowerCase() === passport.owner_address.toLowerCase() ? "destructive" : "success"} className="text-xs">
+                          <Badge variant={tx.from.toLowerCase() === passport.owner_address.toLowerCase() ? "destructive" : "default"} className="text-xs">
                             {tx.from.toLowerCase() === passport.owner_address.toLowerCase() ? 'Sent' : 'Received'}
                           </Badge>
                         </TableCell>

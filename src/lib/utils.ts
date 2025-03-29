@@ -7,6 +7,15 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Validates if a string is a valid Ethereum address
+ * @param address The string to check
+ * @returns boolean indicating if the address is valid
+ */
+export function isValidEthereumAddress(address: string): boolean {
+  return /^0x[a-fA-F0-9]{40}$/.test(address);
+}
+
+/**
  * Truncates an Ethereum address to show first 5 and last 5 characters
  * @param address The full Ethereum address
  * @returns Truncated address with ellipsis in the middle
