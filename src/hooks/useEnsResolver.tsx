@@ -1,91 +1,140 @@
 
 import { useState, useEffect } from 'react';
-import { getAddressByEns, getEnsByAddress, getRealAvatar } from '@/api/services/ensService';
-import { isValidEthereumAddress } from '@/lib/utils';
+import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar } from '@/utils/ensResolution';
+import { useAddressByEns, useEnsByAddress, useRealAvatar } from '@/hooks/useWeb3';
 
 /**
- * Hook for resolving ENS names to addresses and vice versa
+ * Hook to resolve ENS name and Ethereum address bidirectionally
+ * @param ensName Optional ENS name to resolve
+ * @param address Optional Ethereum address to resolve
+ * @returns Object containing resolved address and ENS name
  */
 export function useEnsResolver(ensName?: string, address?: string) {
-  const [resolvedAddress, setResolvedAddress] = useState<string | null>(null);
-  const [resolvedEns, setResolvedEns] = useState<string | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [resolvedAddressState, setResolvedAddress] = useState<string | undefined>(address);
+  const [resolvedEnsState, setResolvedEns] = useState<string | undefined>(ensName);
+  const [avatarUrlState, setAvatarUrl] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  
+  // Determine if we're dealing with an ENS name (.eth or .box)
+  const isEns = ensName?.includes('.eth') || ensName?.includes('.box');
+  const isBoxDomain = ensName?.includes('.box');
+  
+  // Resolve ENS name to address
   useEffect(() => {
-    let isMounted = true;
-    setIsLoading(true);
-    setError(null);
-
-    const resolveIdentifier = async () => {
+    if (!isEns || !ensName) return;
+    
+    const resolveEns = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
-        if (ensName) {
-          console.log(`Resolving ${ensName.includes('.box') ? '.box domain' : '.eth domain'}: ${ensName} using ${ensName.includes('.box') ? 'Optimism network' : 'Mainnet provider'}`);
-          const result = await getAddressByEns(ensName);
-          if (!result) {
-            if (isMounted) {
-              setError(`Could not resolve ${ensName}`);
-              setIsLoading(false);
-            }
-            return;
+        // Resolve ENS name to address
+        const resolvedAddress = await resolveEnsToAddress(ensName);
+        
+        if (resolvedAddress) {
+          setResolvedAddress(resolvedAddress);
+          
+          // Try to get avatar
+          const network = isBoxDomain ? 'optimism' : 'mainnet';
+          const avatar = await getEnsAvatar(ensName, network);
+          if (avatar) {
+            setAvatarUrl(avatar);
           }
-
-          if (isMounted) {
-            setResolvedAddress(result.address);
-            setResolvedEns(result.ensName);
-            setAvatarUrl(result.avatar || null);
-          }
-        } else if (address && isValidEthereumAddress(address)) {
-          const result = await getEnsByAddress(address);
-          if (!result) {
-            if (isMounted) {
-              // Don't set an error here, just don't show resolved data
-              setIsLoading(false);
-            }
-            return;
-          }
-
-          if (isMounted) {
-            setResolvedAddress(result.address);
-            setResolvedEns(result.ensName);
-            setAvatarUrl(result.avatar || null);
-          }
+        } else {
+          console.warn(`No address found for ${ensName}`);
+          setError(`Could not resolve ${ensName}`);
         }
-      } catch (err) {
-        if (isMounted) {
-          // Convert error to a more user-friendly message
-          const errorMessage = err instanceof Error 
-            ? "Unable to resolve name. Please try again later."
-            : "An unknown error occurred";
-          setError(errorMessage);
-        }
+      } catch (error) {
+        console.error(`Error resolving ${ensName}:`, error);
+        setError(`Error resolving ${ensName}: ${(error as Error).message}`);
       } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
-
-    if (ensName || address) {
-      resolveIdentifier();
-    } else {
-      setIsLoading(false);
-      setResolvedAddress(null);
-      setResolvedEns(null);
-      setAvatarUrl(null);
-    }
-
-    return () => {
-      isMounted = false;
+    
+    resolveEns();
+  }, [ensName, isEns, isBoxDomain]);
+  
+  // Resolve address to ENS
+  useEffect(() => {
+    if (!address || isEns) return;
+    
+    const lookupAddress = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = await resolveAddressToEns(address);
+        
+        if (result) {
+          setResolvedEns(result.ensName);
+          
+          // Try to get avatar
+          const avatar = await getEnsAvatar(result.ensName, result.network);
+          if (avatar) {
+            setAvatarUrl(avatar);
+          }
+        }
+      } catch (error) {
+        console.error(`Error looking up ENS for address ${address}:`, error);
+        setError(`Error looking up ENS: ${(error as Error).message}`);
+      } finally {
+        setIsLoading(false);
+      }
     };
-  }, [ensName, address]);
-
+    
+    lookupAddress();
+  }, [address, isEns]);
+  
+  // Fallback to API for handling address resolution and additional data
+  const { data: addressData, isLoading: isLoadingAddress } = useAddressByEns(
+    isEns ? ensName : undefined
+  );
+  
+  // Resolve address to ENS name
+  const { data: ensData, isLoading: isLoadingEns } = useEnsByAddress(
+    !isEns ? address : undefined
+  );
+  
+  // Get avatar for the ENS name
+  const { data: avatarData, isLoading: isLoadingAvatar } = useRealAvatar(
+    ensName || ensData?.ensName
+  );
+  
+  // Update the state based on all data sources
+  useEffect(() => {
+    // First, prioritize ethers.js resolution for addresses
+    if (resolvedAddressState && !address) {
+      // We already have an address from ethers.js
+    } else if (addressData?.address) {
+      setResolvedAddress(addressData.address);
+    } else if (address) {
+      setResolvedAddress(address);
+    }
+    
+    // For ENS names
+    if (ensName) {
+      setResolvedEns(ensName);
+    } else if (ensData?.ensName) {
+      setResolvedEns(ensData.ensName);
+    }
+    
+    // Set avatar with priority: ethers.js avatar > avatarData > addressData.avatar > ensData.avatar
+    if (avatarUrlState) {
+      // We already have an avatar from ethers.js
+    } else if (avatarData) {
+      setAvatarUrl(avatarData);
+    } else if (addressData?.avatar) {
+      setAvatarUrl(addressData.avatar);
+    } else if (ensData?.avatar) {
+      setAvatarUrl(ensData.avatar);
+    }
+  }, [addressData, ensData, avatarData, address, ensName, avatarUrlState, resolvedAddressState]);
+  
   return {
-    resolvedAddress,
-    resolvedEns,
-    avatarUrl,
-    isLoading,
+    resolvedAddress: resolvedAddressState,
+    resolvedEns: resolvedEnsState,
+    avatarUrl: avatarUrlState,
+    isLoading: isLoading || isLoadingAddress || isLoadingEns || isLoadingAvatar,
     error
   };
 }
