@@ -6,11 +6,12 @@ const mockEnsRecords = [
     address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F', 
     ensName: 'vitalik.eth',
     avatar: 'https://storage.googleapis.com/ethereum-hackmd/upload_7a91319e830e3961cc56e1bfeb4926b5.png',
-    skills: ['Ethereum', 'Solidity', 'Smart Contracts', 'Blockchain Architecture'],
+    skills: ['Ethereum Grandmaster', 'Solidity', 'Smart Contracts', 'Blockchain Architecture', 'Cryptoeconomics', 'Proof-of-Stake'],
     socialProfiles: {
       twitter: '@VitalikButerin',
       github: 'vbuterin',
-      linkedin: 'vitalik-buterin'
+      linkedin: 'vitalik-buterin',
+      discord: 'vitalik#1337'
     }
   },
   { 
@@ -63,10 +64,10 @@ const mockEnsRecords = [
 const mockSkillNfts = [
   {
     tokenId: '1',
-    name: 'Solidity Expert',
+    name: 'Ethereum Grandmaster',
     issuer: 'Ethereum Foundation',
-    issuedDate: '2023-01-15',
-    description: 'Awarded for exceptional Solidity programming skills',
+    issuedDate: '2015-07-30',
+    description: 'Creator and lead architect of Ethereum',
     image: 'https://storage.opensea.io/files/fc916076f64c9a2d18afe16b9b611a33.svg',
     owners: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
   },
@@ -117,6 +118,7 @@ export interface ENSRecord {
     twitter?: string;
     github?: string;
     linkedin?: string;
+    discord?: string;
   };
 }
 
