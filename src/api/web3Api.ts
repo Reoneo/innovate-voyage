@@ -1,4 +1,3 @@
-
 import { delay } from './jobsApi';
 
 // Mock data for ENS records

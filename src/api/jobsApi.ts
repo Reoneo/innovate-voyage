@@ -3,7 +3,7 @@ import { Job } from "@/types/job";
 import { jobListings, getJobById, filterJobs } from "@/data/jobListings";
 
 // Simulate API latency
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const jobsApi = {
   // Get all jobs
@@ -66,3 +66,4 @@ export const jobsApi = {
     return [...locationsSet].sort();
   }
 };
+
