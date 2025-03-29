@@ -12,11 +12,6 @@ import {
 } from './services/nftService';
 import { fetchWeb3BioProfile } from './utils/web3Utils';
 
-// Initialize the mockEnsRecords with real avatars
-(async function initializeRealAvatars() {
-  // This is now handled in getAllEnsRecords
-})();
-
 // Get all Web3 credentials (ENS + Skill NFTs) by address
 async function getWeb3CredentialsByAddress(address: string): Promise<Web3Credentials> {
   const [ensRecord, skillNfts] = await Promise.all([
@@ -40,3 +35,6 @@ export const web3Api = {
   getAllSkillNfts,
   fetchWeb3BioProfile
 };
+
+// Re-export types for convenience
+export type { ENSRecord, SkillNFT, Web3Credentials, Web3BioProfile };

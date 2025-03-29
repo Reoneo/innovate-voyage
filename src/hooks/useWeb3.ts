@@ -1,6 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query';
-import { web3Api, ENSRecord, SkillNFT, Web3Credentials } from '@/api/web3Api';
+import { web3Api } from '@/api/web3Api';
+import type { ENSRecord, SkillNFT, Web3Credentials } from '@/api/types/web3Types';
 
 export function useEnsByAddress(address: string | undefined) {
   return useQuery({
