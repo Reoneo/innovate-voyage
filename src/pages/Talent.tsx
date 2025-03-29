@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useAllEnsRecords, useAllSkillNfts, useEnsByAddress, useAddressByEns, useRealAvatar } from '@/hooks/useWeb3';
+import { useEnsByAddress, useAddressByEns, useRealAvatar } from '@/hooks/useWeb3';
 import { calculateHumanScore, getScoreColorClass, BlockchainPassport } from '@/lib/utils';
 import TalentLayout from '@/components/talent/TalentLayout';
 import TalentFilters from '@/components/talent/TalentFilters';
@@ -18,9 +18,7 @@ const Talent = () => {
   const [searchMode, setSearchMode] = useState<'all' | 'specific'>('all');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<BlockchainPassport[]>([]);
-
-  const { data: ensRecords, isLoading: isLoadingEns } = useAllEnsRecords();
-  const { data: skillNfts, isLoading: isLoadingNfts } = useAllSkillNfts();
+  const [allProfiles, setAllProfiles] = useState<BlockchainPassport[]>([]);
   
   // Search specific address or ENS
   const { data: ensDataByAddress } = useEnsByAddress(searchMode === 'specific' ? addressSearch : undefined);
@@ -131,6 +129,112 @@ const Talent = () => {
     fetchEtherscanData();
   }, [addressSearch, searchMode, addressDataByEns, ensDataByAddress, avatarData]);
 
+  // Generate dynamic profiles on component mount
+  useEffect(() => {
+    const generateDynamicProfiles = async () => {
+      setIsSearching(true);
+      
+      try {
+        // Generate some example wallet addresses
+        const exampleAddresses = [
+          '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+          '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF',
+          '0x9C4eb242AcEbc6bfC068Ca16B8c851920Dd7BF11',
+          '0x99C85bb64564D9eF9A99621301f22C9993Cb4E3F',
+          '0x983110309620D911731Ac0932219af06091b6744'
+        ];
+        
+        const generatedProfiles: BlockchainPassport[] = [];
+        
+        for (const address of exampleAddresses) {
+          try {
+            // For each address, generate a profile with blockchain data
+            const [balance, txCount, latestTxs] = await Promise.all([
+              getAccountBalance(address),
+              getTransactionCount(address),
+              getLatestTransactions(address, 3)
+            ]);
+            
+            // Create a display name from the address
+            const displayName = `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+            
+            // Generate skills based on blockchain data
+            const skills = [];
+            if (Number(balance) > 0) skills.push('ETH Holder');
+            if (txCount > 10) skills.push('Active Trader');
+            if (txCount > 50) skills.push('Power User');
+            
+            // Add relevant skills based on transaction history
+            if (latestTxs && latestTxs.length > 0) {
+              const hasContractInteractions = latestTxs.some(tx => tx.input && tx.input !== '0x');
+              if (hasContractInteractions) skills.push('Smart Contract User');
+              
+              const recentTx = latestTxs.some(tx => {
+                const txDate = new Date(parseInt(tx.timeStamp) * 1000);
+                const now = new Date();
+                const daysDiff = (now.getTime() - txDate.getTime()) / (1000 * 3600 * 24);
+                return daysDiff < 30;
+              });
+              
+              if (recentTx) skills.push('Recently Active');
+            }
+            
+            // Add some random additional skills
+            const additionalSkills = [
+              'DeFi Explorer', 
+              'NFT Creator', 
+              'DAO Governor', 
+              'Blockchain Developer',
+              'Web3 Enthusiast',
+              'Crypto Investor',
+              'Tokenomics Expert'
+            ];
+            
+            // Add 1-3 random skills
+            const numAdditionalSkills = Math.floor(Math.random() * 3) + 1;
+            for (let i = 0; i < numAdditionalSkills; i++) {
+              const randomSkill = additionalSkills[Math.floor(Math.random() * additionalSkills.length)];
+              if (!skills.includes(randomSkill)) {
+                skills.push(randomSkill);
+              }
+            }
+            
+            // Create the passport
+            const passport: BlockchainPassport = {
+              passport_id: displayName,
+              owner_address: address,
+              avatar_url: '/placeholder.svg', // Default avatar
+              name: displayName.split('.')[0],
+              issued: new Date(Date.now() - Math.random() * 63072000000).toISOString(),
+              skills: skills.map(skill => ({
+                name: skill,
+                proof: `etherscan://${address}`,
+              })),
+              socials: {}
+            };
+            
+            generatedProfiles.push(passport);
+          } catch (error) {
+            console.error(`Error generating profile for ${address}:`, error);
+          }
+        }
+        
+        setAllProfiles(generatedProfiles);
+      } catch (error) {
+        console.error('Error generating dynamic profiles:', error);
+        toast({
+          title: "Error",
+          description: "Could not generate profiles. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSearching(false);
+      }
+    };
+    
+    generateDynamicProfiles();
+  }, []);
+
   // Process passport data and apply filters
   const passportData = useMemo(() => {
     // If we're in specific search mode, use the search results
@@ -148,25 +252,11 @@ const Talent = () => {
       });
     }
     
-    // Otherwise use the full ENS records data
-    if (!ensRecords) return [];
+    // Otherwise use the dynamically generated profiles
+    if (allProfiles.length === 0) return [];
     
     // Create full passport objects with scores
-    const passports = ensRecords.map(record => {
-      const passport: BlockchainPassport = {
-        passport_id: record.ensName,
-        owner_address: record.address,
-        avatar_url: record.avatar,
-        name: record.ensName.split('.')[0],
-        issued: new Date(Date.now() - Math.random() * 63072000000).toISOString(),
-        socials: record.socialProfiles,
-        skills: record.skills.map(skill => ({
-          name: skill,
-          proof: Math.random() > 0.5 ? `ipfs://QmProof${skill.replace(/\s/g, '')}` : undefined,
-          issued_by: Math.random() > 0.7 ? ['Ethereum Foundation', 'Encode Club', 'Consensys', 'ETHGlobal'][Math.floor(Math.random() * 4)] : undefined
-        }))
-      };
-
+    const passports = allProfiles.map(passport => {
       const { score, category } = calculateHumanScore(passport);
       
       return {
@@ -213,7 +303,7 @@ const Talent = () => {
           return b.score - a.score; // Default
         }
       });
-  }, [ensRecords, searchTerm, selectedSkills, sortBy, searchMode, searchResults]);
+  }, [allProfiles, searchTerm, selectedSkills, sortBy, searchMode, searchResults]);
 
   // Calculate total transactions
   const [totalTransactions, setTotalTransactions] = useState<number>(0);
@@ -270,13 +360,13 @@ const Talent = () => {
 
   // Extract all unique skills for filters
   const allSkills = useMemo(() => {
-    if (!ensRecords) return [];
+    if (allProfiles.length === 0 && searchResults.length === 0) return [];
     
     const skillsSet = new Set<string>();
     
-    // Add skills from ENS records
-    ensRecords.forEach(record => {
-      record.skills.forEach(skill => skillsSet.add(skill));
+    // Add skills from all profiles
+    allProfiles.forEach(profile => {
+      profile.skills?.forEach(skill => skillsSet.add(skill.name));
     });
     
     // Add skills from search results
@@ -285,7 +375,7 @@ const Talent = () => {
     });
     
     return Array.from(skillsSet).sort();
-  }, [ensRecords, searchResults]);
+  }, [allProfiles, searchResults]);
 
   return (
     <TalentLayout 
@@ -325,7 +415,7 @@ const Talent = () => {
       {/* Talent Grid */}
       <div className="lg:col-span-3">
         <TalentGrid
-          isLoading={isLoadingEns || isSearching}
+          isLoading={isSearching}
           passportData={passportData}
           clearFilters={clearFilters}
         />
