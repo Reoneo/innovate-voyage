@@ -5,7 +5,7 @@ import { HoverCardContent } from '@/components/ui/hover-card';
 import { BlockchainPassport } from '@/lib/utils';
 import UserInfo from './user-profile/UserInfo';
 import ContributionChart from './visualizations/ContributionChart';
-import ProjectNetwork from './visualizations/ProjectNetwork';
+import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
 import SkillsNodeLeafD3 from '@/components/visualizations/skills/SkillsNodeLeafD3';
 import BlockchainActivity from './user-profile/BlockchainActivity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,9 +44,14 @@ const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="connections" className="pt-2">
-            <h4 className="text-sm font-medium mb-2">Project Connections</h4>
+            <h4 className="text-sm font-medium mb-2">ID Network</h4>
             <TooltipProvider>
-              <ProjectNetwork passport={passport} />
+              <IdNetworkGraph 
+                name={passport.name} 
+                avatarUrl={passport.avatar_url} 
+                ensName={passport.passport_id.includes('.eth') ? passport.passport_id : undefined}
+                address={passport.owner_address}
+              />
             </TooltipProvider>
           </TabsContent>
           <TabsContent value="contributions" className="pt-2">
