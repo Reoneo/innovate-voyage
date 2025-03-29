@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar } from '@/utils/ensResolution';
+import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks } from '@/utils/ensResolution';
 import { useAddressByEns, useEnsByAddress, useRealAvatar } from '@/hooks/useWeb3';
 
 /**
@@ -13,6 +13,10 @@ export function useEnsResolver(ensName?: string, address?: string) {
   const [resolvedAddressState, setResolvedAddress] = useState<string | undefined>(address);
   const [resolvedEnsState, setResolvedEns] = useState<string | undefined>(ensName);
   const [avatarUrlState, setAvatarUrl] = useState<string | undefined>(undefined);
+  const [ensLinksState, setEnsLinks] = useState<{ socials: Record<string, string>, ensLinks: string[] }>({
+    socials: {},
+    ensLinks: []
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -34,8 +38,12 @@ export function useEnsResolver(ensName?: string, address?: string) {
         if (resolvedAddress) {
           setResolvedAddress(resolvedAddress);
           
-          // Try to get avatar
+          // Get ENS links and socials
           const networkType = isBoxDomain ? 'optimism' : 'mainnet';
+          const links = await getEnsLinks(ensName, networkType);
+          setEnsLinks(links);
+          
+          // Try to get avatar
           const avatar = await getEnsAvatar(ensName, networkType);
           if (avatar) {
             setAvatarUrl(avatar);
@@ -67,6 +75,10 @@ export function useEnsResolver(ensName?: string, address?: string) {
         
         if (result) {
           setResolvedEns(result.ensName);
+          
+          // Get ENS links and socials
+          const links = await getEnsLinks(result.ensName, result.network);
+          setEnsLinks(links);
           
           // Try to get avatar
           const avatar = await getEnsAvatar(result.ensName, result.network);
@@ -128,12 +140,31 @@ export function useEnsResolver(ensName?: string, address?: string) {
     } else if (ensData?.avatar) {
       setAvatarUrl(ensData.avatar);
     }
-  }, [addressData, ensData, avatarData, address, ensName, avatarUrlState, resolvedAddressState]);
-  
+    
+    // Set social profiles from API data if not already set from ethers.js
+    if (!Object.keys(ensLinksState.socials).length && addressData?.socialProfiles) {
+      setEnsLinks(prev => ({
+        ...prev,
+        socials: {
+          ...addressData.socialProfiles
+        }
+      }));
+    } else if (!Object.keys(ensLinksState.socials).length && ensData?.socialProfiles) {
+      setEnsLinks(prev => ({
+        ...prev,
+        socials: {
+          ...ensData.socialProfiles
+        }
+      }));
+    }
+    
+  }, [addressData, ensData, avatarData, address, ensName, avatarUrlState, resolvedAddressState, ensLinksState]);
+
   return {
     resolvedAddress: resolvedAddressState,
     resolvedEns: resolvedEnsState,
     avatarUrl: avatarUrlState,
+    ensLinks: ensLinksState,
     isLoading: isLoading || isLoadingAddress || isLoadingEns || isLoadingAvatar,
     error
   };

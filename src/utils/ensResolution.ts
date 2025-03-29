@@ -82,3 +82,73 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
     return null;
   }
 }
+
+/**
+ * Gets all ENS-related links and data from resolver
+ */
+export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
+  try {
+    const provider = network === 'mainnet' ? mainnetProvider : optimismProvider;
+    const resolver = await provider.getResolver(ensName);
+    
+    if (!resolver) {
+      console.log(`No resolver found for ${ensName}`);
+      return {
+        socials: {},
+        ensLinks: []
+      };
+    }
+
+    // Try to get social media links
+    const socials: Record<string, string> = {};
+    
+    // Common ENS text records for social media
+    const socialKeys = ['com.github', 'com.twitter', 'com.linkedin', 'url', 'email'];
+    
+    // Try to get each social media link
+    await Promise.all(socialKeys.map(async (key) => {
+      try {
+        const value = await resolver.getText(key);
+        if (value) {
+          switch (key) {
+            case 'com.github':
+              socials.github = value;
+              break;
+            case 'com.twitter':
+              socials.twitter = value;
+              break;
+            case 'com.linkedin':
+              socials.linkedin = value;
+              break;
+            case 'url':
+              socials.website = value;
+              break;
+            case 'email':
+              socials.email = value;
+              break;
+          }
+        }
+      } catch (error) {
+        console.warn(`Failed to get ${key} for ${ensName}:`, error);
+      }
+    }));
+
+    // Try to get additional ENS names
+    // This is a simplified implementation - in a real app you would query an ENS indexer
+    // For demonstration, we'll just return the current ENS name
+    const ensLinks = [ensName];
+
+    console.log(`Got ENS links for ${ensName}:`, { socials, ensLinks });
+    
+    return {
+      socials,
+      ensLinks
+    };
+  } catch (error) {
+    console.error(`Error getting ENS links for ${ensName}:`, error);
+    return {
+      socials: {},
+      ensLinks: []
+    };
+  }
+}

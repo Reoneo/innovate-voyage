@@ -1,24 +1,42 @@
 
 // Types for Etherscan API responses
+export interface BlockchainProfile {
+  address: string;
+  balance: string;
+  transactionCount: number;
+  latestTransactions?: any[];
+  tokenTransfers?: any[];
+  boxDomains?: string[];
+  snsActive?: boolean;
+  socials?: {
+    github?: string;
+    twitter?: string;
+    linkedin?: string;
+    website?: string;
+    email?: string;
+  };
+  ensLinks?: string[];
+}
+
 export interface Transaction {
   blockNumber: string;
   timeStamp: string;
   hash: string;
   nonce: string;
   blockHash: string;
-  transactionIndex: string;
   from: string;
   to: string;
   value: string;
   gas: string;
   gasPrice: string;
   isError: string;
-  txreceipt_status: string;
   input: string;
   contractAddress: string;
   cumulativeGasUsed: string;
   gasUsed: string;
   confirmations: string;
+  methodId: string;
+  functionName: string;
 }
 
 export interface TokenTransfer {
@@ -41,17 +59,4 @@ export interface TokenTransfer {
   cumulativeGasUsed: string;
   input: string;
   confirmations: string;
-}
-
-export interface BlockchainProfile {
-  address: string;
-  balance: string;
-  transactionCount: number;
-  latestTransactions?: Transaction[];
-  tokenTransfers?: TokenTransfer[];
-  // New properties for additional blockchain data
-  mirrorPosts?: number;
-  lensActivity?: number;
-  boxDomains?: string[];
-  snsActive?: boolean;
 }

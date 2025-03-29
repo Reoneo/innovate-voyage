@@ -11,22 +11,35 @@ import { usePassportGenerator } from '@/hooks/usePassportGenerator';
  */
 export function useProfileData(ensName?: string, address?: string) {
   // Resolve ENS and address
-  const { resolvedAddress, resolvedEns, avatarUrl } = useEnsResolver(ensName, address);
+  const { resolvedAddress, resolvedEns, avatarUrl, ensLinks } = useEnsResolver(ensName, address);
   
   // Fetch blockchain data
   const blockchainData = useBlockchainData(resolvedAddress, resolvedEns);
+  
+  // Enhance blockchain profile with ENS links
+  const enhancedBlockchainProfile = blockchainData.blockchainProfile 
+    ? {
+        ...blockchainData.blockchainProfile,
+        socials: ensLinks?.socials || {},
+        ensLinks: ensLinks?.ensLinks || []
+      }
+    : null;
   
   // Generate passport
   const { passport, loading } = usePassportGenerator(
     resolvedAddress, 
     resolvedEns, 
-    {...blockchainData, avatarUrl}
+    {
+      ...blockchainData,
+      blockchainProfile: enhancedBlockchainProfile,
+      avatarUrl
+    }
   );
 
   return {
     loading,
     passport,
-    blockchainProfile: blockchainData.blockchainProfile,
+    blockchainProfile: enhancedBlockchainProfile,
     transactions: blockchainData.transactions,
     resolvedEns,
     blockchainExtendedData: blockchainData.blockchainExtendedData,

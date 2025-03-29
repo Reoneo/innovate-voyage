@@ -134,10 +134,10 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {/* ENS Domain Links */}
-                {resolvedEns && (
-                  <div>
-                    <h4 className="font-medium text-sm mb-2">ENS Domains</h4>
-                    <TooltipProvider>
+                <div>
+                  <h4 className="font-medium text-sm mb-2">ENS Domains</h4>
+                  <TooltipProvider>
+                    {resolvedEns && (
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <a 
@@ -154,40 +154,59 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                           <p>View on ENS App</p>
                         </TooltipContent>
                       </Tooltip>
-                    </TooltipProvider>
-
-                    {blockchainProfile?.boxDomains && blockchainProfile.boxDomains.length > 0 && (
-                      blockchainProfile.boxDomains.map((domain, idx) => (
-                        <TooltipProvider key={idx}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <a 
-                                href={`https://optimism.ens.domains/name/${domain}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-md transition-colors mb-2 mr-2"
-                              >
-                                <Badge className="bg-red-200 text-red-800">.box</Badge>
-                                {domain}
-                              </a>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>View on Optimism ENS</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ))
                     )}
-                  </div>
-                )}
+
+                    {blockchainProfile?.ensLinks?.filter(link => link !== resolvedEns).map((link, idx) => (
+                      <TooltipProvider key={idx}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <a 
+                              href={`https://app.ens.domains/name/${link}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors mb-2 mr-2"
+                            >
+                              <Badge className="bg-blue-200 text-blue-800">.eth</Badge>
+                              {link}
+                            </a>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View on ENS App</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ))}
+
+                    {blockchainProfile?.boxDomains?.map((domain, idx) => (
+                      <TooltipProvider key={idx}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <a 
+                              href={`https://optimism.ens.domains/name/${domain}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-md transition-colors mb-2 mr-2"
+                            >
+                              <Badge className="bg-red-200 text-red-800">.box</Badge>
+                              {domain}
+                            </a>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View on Optimism ENS</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ))}
+                  </TooltipProvider>
+                </div>
 
                 {/* Social Links */}
                 <div>
                   <h4 className="font-medium text-sm mb-2">Social Profiles</h4>
                   <div className="flex flex-wrap gap-2">
-                    {passport.socials?.github && (
+                    {(blockchainProfile?.socials?.github || passport.socials?.github) && (
                       <a 
-                        href={formatUrl(passport.socials.github)} 
+                        href={formatUrl(blockchainProfile?.socials?.github || passport.socials?.github)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
@@ -196,9 +215,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         GitHub
                       </a>
                     )}
-                    {passport.socials?.twitter && (
+                    {(blockchainProfile?.socials?.twitter || passport.socials?.twitter) && (
                       <a 
-                        href={formatUrl(passport.socials.twitter)} 
+                        href={formatUrl(blockchainProfile?.socials?.twitter || passport.socials?.twitter)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
@@ -207,9 +226,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         Twitter
                       </a>
                     )}
-                    {passport.socials?.linkedin && (
+                    {(blockchainProfile?.socials?.linkedin || passport.socials?.linkedin) && (
                       <a 
-                        href={formatUrl(passport.socials.linkedin)} 
+                        href={formatUrl(blockchainProfile?.socials?.linkedin || passport.socials?.linkedin)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
@@ -218,9 +237,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         LinkedIn
                       </a>
                     )}
-                    {passport.socials?.website && (
+                    {(blockchainProfile?.socials?.website || passport.socials?.website) && (
                       <a 
-                        href={formatUrl(passport.socials.website)} 
+                        href={formatUrl(blockchainProfile?.socials?.website || passport.socials?.website)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 hover:bg-green-100 rounded-md transition-colors"
@@ -229,9 +248,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         Website
                       </a>
                     )}
-                    {passport.socials?.email && (
+                    {(blockchainProfile?.socials?.email || passport.socials?.email) && (
                       <a 
-                        href={`mailto:${passport.socials.email}`}
+                        href={`mailto:${blockchainProfile?.socials?.email || passport.socials?.email}`}
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors"
                       >
                         <SocialIcon type="mail" size={16} />
@@ -264,15 +283,15 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="text-sm text-muted-foreground mb-1">Mirror.xyz</h4>
-                  <p className="text-lg font-bold">3 posts</p>
+                  <p className="text-lg font-bold">{blockchainProfile?.mirrorPosts || 3} posts</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="text-sm text-muted-foreground mb-1">Lens Protocol</h4>
-                  <p className="text-lg font-bold">12 activities</p>
+                  <p className="text-lg font-bold">{blockchainProfile?.lensActivity || 12} activities</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="text-sm text-muted-foreground mb-1">SNS.ID</h4>
-                  <p className="text-lg font-bold">Active</p>
+                  <p className="text-lg font-bold">{blockchainProfile?.snsActive ? "Active" : "Inactive"}</p>
                 </div>
               </div>
             </div>
