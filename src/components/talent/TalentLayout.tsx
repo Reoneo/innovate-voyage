@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { BarChart } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
@@ -15,10 +16,12 @@ const TalentLayout: React.FC<TalentLayoutProps> = ({ profileCount, transactionCo
       <div className="container mx-auto py-8 px-4 sm:px-6">
         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 mb-8">
           <div className="flex items-center gap-3">
-            <Avatar className="h-12 w-12">
-              <AvatarImage src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" alt="Logo" />
-              <AvatarFallback>RB</AvatarFallback>
-            </Avatar>
+            <Link to="/" className="transition-transform hover:scale-105">
+              <Avatar className="h-12 w-12">
+                <AvatarImage src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" alt="Logo" />
+                <AvatarFallback>RB</AvatarFallback>
+              </Avatar>
+            </Link>
             <div>
               <h1 className="text-3xl font-bold tracking-tight">
                 Web3 Talent Network
