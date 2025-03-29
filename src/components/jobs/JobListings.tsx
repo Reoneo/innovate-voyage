@@ -3,13 +3,29 @@ import React from 'react';
 import { Job } from '@/types/job';
 import JobCard from './JobCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from '@/components/ui/button';
+import { SlidersHorizontal } from 'lucide-react';
 
 interface JobListingsProps {
   jobs: Job[];
   isLoading: boolean;
+  sortBy?: string;
+  onSortChange?: (value: string) => void;
 }
 
-const JobListings: React.FC<JobListingsProps> = ({ jobs, isLoading }) => {
+const JobListings: React.FC<JobListingsProps> = ({ 
+  jobs, 
+  isLoading, 
+  sortBy = 'recent',
+  onSortChange 
+}) => {
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -40,10 +56,35 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, isLoading }) => {
   }
 
   return (
-    <div className="space-y-4">
-      {jobs.map((job) => (
-        <JobCard key={job.job_id} job={job} />
-      ))}
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-sm text-muted-foreground">
+          Showing <span className="font-medium text-foreground">{jobs.length}</span> results
+        </p>
+        
+        <div className="flex items-center gap-2">
+          <Select 
+            value={sortBy} 
+            onValueChange={onSortChange}
+          >
+            <SelectTrigger className="w-[180px] h-9">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Most Recent</SelectItem>
+              <SelectItem value="salary-high">Highest Salary</SelectItem>
+              <SelectItem value="salary-low">Lowest Salary</SelectItem>
+              <SelectItem value="relevance">Relevance</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="space-y-4">
+        {jobs.map((job) => (
+          <JobCard key={job.job_id} job={job} />
+        ))}
+      </div>
     </div>
   );
 };
