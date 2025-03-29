@@ -1,7 +1,6 @@
 
-// Types for Etherscan API data
-
-export interface EtherscanTransaction {
+// Types for Etherscan API responses
+export interface Transaction {
   blockNumber: string;
   timeStamp: string;
   hash: string;
@@ -48,6 +47,11 @@ export interface BlockchainProfile {
   address: string;
   balance: string;
   transactionCount: number;
-  latestTransactions: EtherscanTransaction[];
-  tokenTransfers: TokenTransfer[];
+  latestTransactions?: Transaction[];
+  tokenTransfers?: TokenTransfer[];
+  // New properties for additional blockchain data
+  mirrorPosts?: number;
+  lensActivity?: number;
+  boxDomains?: string[];
+  snsActive?: boolean;
 }

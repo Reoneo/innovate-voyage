@@ -12,13 +12,14 @@ import { toast } from '@/components/ui/use-toast';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-// Import missing components
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import ProfileHeader from '@/components/talent/profile/ProfileHeader';
 import OverviewTab from '@/components/talent/profile/tabs/OverviewTab';
 import BlockchainTab from '@/components/talent/profile/tabs/BlockchainTab';
 import SkillsTab from '@/components/talent/profile/tabs/SkillsTab';
 import ResumeTab from '@/components/talent/profile/tabs/ResumeTab';
+
+import { fetchBlockchainData } from '@/api/services/blockchainDataService';
 
 const TalentProfile = () => {
   const { ensName, address } = useParams<{ ensName: string; address: string }>();
@@ -40,6 +41,28 @@ const TalentProfile = () => {
   const { data: transactions } = useLatestTransactions(resolvedAddress, 20);
   const { data: tokenTransfers } = useTokenTransfers(resolvedAddress, 10);
   const { data: web3BioProfile } = useWeb3BioProfile(resolvedAddress || resolvedEns);
+  
+  const [blockchainData, setBlockchainData] = useState({
+    mirrorPosts: 0,
+    lensActivity: 0,
+    boxDomains: [],
+    snsActive: false
+  });
+
+  useEffect(() => {
+    const loadBlockchainData = async () => {
+      if (resolvedAddress) {
+        try {
+          const data = await fetchBlockchainData(resolvedAddress);
+          setBlockchainData(data);
+        } catch (error) {
+          console.error('Error fetching blockchain data:', error);
+        }
+      }
+    };
+    
+    loadBlockchainData();
+  }, [resolvedAddress]);
 
   useEffect(() => {
     const createPassport = async () => {
@@ -88,6 +111,20 @@ const TalentProfile = () => {
           if (web3BioProfile.linkedin) skills.push({ name: 'LinkedIn User', proof: web3BioProfile.linkedin });
         }
         
+        skills.push(
+          { name: 'Smart Contract Developer', proof: 'talentprotocol.com/skills/dev' },
+          { name: 'EVM Expert', proof: 'talentprotocol.com/skills/evm' },
+          { name: 'Solidity', proof: 'talentprotocol.com/skills/solidity' }
+        );
+
+        if (blockchainData.boxDomains && blockchainData.boxDomains.length > 0) {
+          skills.push({ name: '.box Domain Owner', proof: 'box.domains' });
+        }
+
+        if (blockchainData.snsActive) {
+          skills.push({ name: 'SNS.ID User', proof: 'sns.id' });
+        }
+        
         const newPassport: BlockchainPassport = {
           passport_id: resolvedEns || truncateAddress(resolvedAddress),
           owner_address: resolvedAddress,
@@ -120,10 +157,11 @@ const TalentProfile = () => {
     if (resolvedAddress) {
       createPassport();
     }
-  }, [resolvedAddress, resolvedEns, blockchainProfile, transactions, tokenTransfers, web3BioProfile]);
+  }, [resolvedAddress, resolvedEns, blockchainProfile, transactions, tokenTransfers, web3BioProfile, blockchainData]);
 
   const exportAsPDF = async () => {
-    if (!profileRef.current) return;
+    const resumeElement = document.getElementById('resume-pdf');
+    if (!resumeElement) return;
     
     try {
       toast({
@@ -131,11 +169,16 @@ const TalentProfile = () => {
         description: 'Please wait while we generate your PDF...'
       });
       
-      const canvas = await html2canvas(profileRef.current, {
+      document.body.classList.add('generating-pdf');
+      
+      const canvas = await html2canvas(resumeElement, {
         scale: 2,
         useCORS: true,
-        logging: false
+        logging: false,
+        backgroundColor: '#ffffff'
       });
+      
+      document.body.classList.remove('generating-pdf');
       
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
@@ -148,11 +191,11 @@ const TalentProfile = () => {
       const imgHeight = canvas.height * imgWidth / canvas.width;
       
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`${passport?.passport_id || 'blockchain-profile'}.pdf`);
+      pdf.save(`${passport?.passport_id || 'blockchain-profile'}-resume.pdf`);
       
       toast({
         title: 'PDF Generated',
-        description: 'Your PDF has been successfully generated!'
+        description: 'Your resume has been successfully downloaded!'
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -161,6 +204,7 @@ const TalentProfile = () => {
         description: 'There was an error generating your PDF',
         variant: 'destructive'
       });
+      document.body.classList.remove('generating-pdf');
     }
   };
 
@@ -232,7 +276,13 @@ const TalentProfile = () => {
               <TabsContent value="resume" className="space-y-6 mt-6">
                 <ResumeTab 
                   passport={passportWithScore}
-                  blockchainProfile={blockchainProfile}
+                  blockchainProfile={{
+                    ...blockchainProfile,
+                    mirrorPosts: blockchainData.mirrorPosts,
+                    lensActivity: blockchainData.lensActivity,
+                    boxDomains: blockchainData.boxDomains,
+                    snsActive: blockchainData.snsActive
+                  }}
                   resolvedEns={resolvedEns}
                   onExportPdf={exportAsPDF}
                 />
