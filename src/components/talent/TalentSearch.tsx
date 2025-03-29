@@ -5,24 +5,33 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { isValidEthereumAddress } from '@/lib/utils';
+import { toast } from '@/components/ui/use-toast';
 
 interface TalentSearchProps {
   onSearch: (query: string) => void;
   onViewAll: () => void;
+  isSearching: boolean;
 }
 
-const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll }) => {
+const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSearching }) => {
   const [searchInput, setSearchInput] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
   
   const handleSearch = () => {
     if (!searchInput.trim()) return;
     
-    setIsSearching(true);
-    onSearch(searchInput.trim());
+    // Validate input before searching
+    const isValidInput = searchInput.includes('.eth') || isValidEthereumAddress(searchInput);
     
-    // Reset searching state after a delay
-    setTimeout(() => setIsSearching(false), 1500);
+    if (!isValidInput) {
+      toast({
+        title: "Invalid input",
+        description: "Please enter a valid ENS name or Ethereum address",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    onSearch(searchInput.trim());
   };
   
   return (

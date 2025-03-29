@@ -1,4 +1,3 @@
-
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -13,6 +12,15 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function isValidEthereumAddress(address: string): boolean {
   return /^0x[a-fA-F0-9]{40}$/.test(address);
+}
+
+/**
+ * Checks if a string is a valid ENS name
+ * @param name The string to check
+ * @returns boolean indicating if the name is a valid ENS name
+ */
+export function isValidEnsName(name: string): boolean {
+  return /^[a-zA-Z0-9-]+\.eth$/.test(name);
 }
 
 /**
