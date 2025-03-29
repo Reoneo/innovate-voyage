@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { SearchIcon, Users } from 'lucide-react';
+import { SearchIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,15 +8,14 @@ import { isValidEthereumAddress } from '@/lib/utils';
 import { toast } from '@/components/ui/use-toast';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
-import { Alert, AlertTitle } from '@/components/ui/alert';
+import { Alert } from '@/components/ui/alert';
 
 interface TalentSearchProps {
   onSearch: (query: string) => void;
-  onViewAll: () => void;
   isSearching: boolean;
 }
 
-const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSearching }) => {
+const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) => {
   const [searchInput, setSearchInput] = useState('');
   const [searchResults, setSearchResults] = useState<Array<{name: string, address?: string, avatar?: string}>>([]);
   
@@ -78,19 +77,20 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
   };
   
   return (
-    <Card>
+    <Card className="mb-6">
       <CardContent className="pt-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-          <div className="md:col-span-2">
-            <div className="space-y-2">
-              <h2 className="text-xl font-semibold">Find Web3 Talent</h2>
-              <p className="text-sm text-muted-foreground">
-                Search by ENS name (.eth or .box) or Ethereum wallet address
-              </p>
-            </div>
-            <div className="relative mt-2">
+        <div className="space-y-4 max-w-4xl mx-auto">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">Web3 Talent Network</h2>
+            <p className="text-muted-foreground">
+              Search by ENS name (.eth or .box) or Ethereum wallet address
+            </p>
+          </div>
+          
+          <div className="flex gap-2">
+            <div className="relative flex-grow">
               <Input
-                placeholder="vitalik.eth, recruitment.box or 0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+                placeholder="vitalik.eth, recruitment.box or 0x71C7..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="pr-10"
@@ -98,95 +98,101 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
                   if (e.key === 'Enter') handleSearch();
                 }}
               />
-              <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <SearchIcon className="h-4 w-4 text-muted-foreground" />
+              </div>
             </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              {searchInput && (
-                <>
-                  {searchInput.includes('.eth') ? 
-                    'Searching for ENS name on Ethereum Mainnet' : 
-                    searchInput.includes('.box') ?
-                      'Searching for .box domain on Optimism network' :
-                      isValidEthereumAddress(searchInput) ? 
-                        'Valid Ethereum address' : 
-                        'Enter a valid ENS name (.eth or .box) or Ethereum address'}
-                </>
-              )}
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row gap-2">
             <Button 
               onClick={handleSearch} 
               disabled={isSearching || isLoading || !searchInput.trim() || 
                 (!searchInput.includes('.eth') && !searchInput.includes('.box') && 
                  !isValidEthereumAddress(searchInput))}
-              className="w-full"
             >
               {isSearching || isLoading ? 'Searching...' : 'Search'}
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={onViewAll}
-              className="w-full"
-            >
-              <Users className="h-4 w-4 mr-2" />
-              View All
-            </Button>
+          </div>
+          
+          <div className="text-xs text-center text-muted-foreground">
+            {searchInput && (
+              <>
+                {searchInput.includes('.eth') ? 
+                  'Searching for ENS name on Ethereum Mainnet' : 
+                  searchInput.includes('.box') ?
+                    'Searching for .box domain on Optimism network' :
+                    isValidEthereumAddress(searchInput) ? 
+                      'Valid Ethereum address' : 
+                      'Enter a valid ENS name (.eth or .box) or Ethereum address'}
+              </>
+            )}
           </div>
         </div>
         
-        {/* Inline search results - Only show if we have results and not currently searching */}
-        {searchInput && searchResults.length > 0 && !isSearching && (
-          <div className="mt-4 border rounded-md overflow-hidden">
-            <div className="p-3 bg-muted font-medium">
-              Search Results
-            </div>
-            <div className="divide-y">
-              {searchResults.map((result, index) => (
-                <div 
-                  key={index} 
-                  className="p-3 hover:bg-muted/50 cursor-pointer flex items-center gap-3"
-                  onClick={() => handleResultClick(result)}
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={result.avatar || '/placeholder.svg'} alt={result.name} />
-                    <AvatarFallback>{result.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium">{result.name}</div>
-                    {result.address && (
-                      <div className="text-xs text-muted-foreground">
-                        {result.address.substring(0, 6)}...{result.address.substring(result.address.length - 4)}
-                      </div>
-                    )}
-                  </div>
+        {/* Search results section - modern look */}
+        {searchInput && (
+          <div className="mt-6">
+            {/* Loading state */}
+            {isLoading && (
+              <div className="p-4 text-center">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                <p className="mt-2 text-muted-foreground">
+                  {searchInput.includes('.box') ? 'Searching on Optimism network...' : 'Searching...'}
+                </p>
+              </div>
+            )}
+            
+            {/* Results found */}
+            {!isLoading && searchResults.length > 0 && !error && !isSearching && (
+              <div className="rounded-lg overflow-hidden bg-accent/50 backdrop-blur-sm">
+                <div className="p-3 bg-muted/70 font-medium border-b flex justify-between items-center">
+                  <span>Search Results</span>
+                  <span className="text-xs text-muted-foreground">{searchResults.length} found</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        {/* Loading state - Only show if we're actively loading */}
-        {searchInput && isLoading && (
-          <div className="mt-4 p-3 text-center text-muted-foreground">
-            {searchInput.includes('.box') ? 'Searching on Optimism network...' : 'Searching...'}
-          </div>
-        )}
-        
-        {/* No results state - Only show if search is complete and yielded no results */}
-        {searchInput && !isLoading && searchResults.length === 0 && !error && !isSearching && (
-          <div className="mt-4 p-3 text-center text-muted-foreground">
-            No results found. Try a different search term.
-          </div>
-        )}
-        
-        {/* Error state - Only show user-friendly error message */}
-        {error && !isLoading && searchInput && !isSearching && (
-          <div className="mt-4">
-            <Alert variant="destructive" className="bg-destructive/10">
-              <AlertTitle>Unable to resolve name</AlertTitle>
-              Please try again later or check if the ENS name exists.
-            </Alert>
+                <div>
+                  {searchResults.map((result, index) => (
+                    <div 
+                      key={index} 
+                      className="p-4 hover:bg-muted/30 cursor-pointer flex items-center gap-4 transition-colors"
+                      onClick={() => handleResultClick(result)}
+                    >
+                      <Avatar className="h-12 w-12 ring-2 ring-background/50">
+                        <AvatarImage src={result.avatar || '/placeholder.svg'} alt={result.name} />
+                        <AvatarFallback className="bg-primary/10 text-primary">
+                          {result.name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium text-lg">{result.name}</div>
+                        {result.address && (
+                          <div className="text-sm text-muted-foreground font-mono">
+                            {result.address.substring(0, 8)}...{result.address.substring(result.address.length - 6)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* No results state */}
+            {!isLoading && searchResults.length === 0 && !error && !isSearching && (
+              <Alert className="bg-muted/50 border">
+                <div className="flex flex-col items-center p-2">
+                  <p className="text-center">No results found for "{searchInput}"</p>
+                  <p className="text-sm text-muted-foreground mt-1">Try a different search term</p>
+                </div>
+              </Alert>
+            )}
+            
+            {/* Error state */}
+            {error && !isLoading && searchInput && !isSearching && (
+              <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+                <div className="flex flex-col">
+                  <p className="font-medium">Unable to resolve name</p>
+                  <p className="text-sm mt-1">Please try again later or check if the ENS name exists.</p>
+                </div>
+              </Alert>
+            )}
           </div>
         )}
       </CardContent>

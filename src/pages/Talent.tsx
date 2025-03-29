@@ -3,39 +3,33 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useEnsByAddress, useAddressByEns, useRealAvatar } from '@/hooks/useWeb3';
 import { calculateHumanScore, getScoreColorClass, BlockchainPassport } from '@/lib/utils';
 import TalentLayout from '@/components/talent/TalentLayout';
-import TalentFilters from '@/components/talent/TalentFilters';
 import TalentGrid from '@/components/talent/TalentGrid';
 import TalentSearch from '@/components/talent/TalentSearch';
 import { useBlockchainProfile } from '@/hooks/useEtherscan';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from '@/components/ui/use-toast';
 import { getAccountBalance, getTransactionCount, getLatestTransactions } from '@/api/services/etherscanService';
 import { fetchAllEnsDomains } from '@/api/services/ensService';
 
 const Talent = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState('score');
   const [addressSearch, setAddressSearch] = useState('');
-  const [searchMode, setSearchMode] = useState<'all' | 'specific'>('specific');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<BlockchainPassport[]>([]);
   
   // Search specific address or ENS
-  const { data: ensDataByAddress } = useEnsByAddress(searchMode === 'specific' ? addressSearch : undefined);
+  const { data: ensDataByAddress } = useEnsByAddress(addressSearch);
   const { data: addressDataByEns } = useAddressByEns(
-    searchMode === 'specific' && addressSearch.includes('.eth') ? addressSearch : undefined
+    addressSearch.includes('.eth') ? addressSearch : undefined
   );
   
   // Get avatar for searched ENS
   const { data: avatarData } = useRealAvatar(
-    searchMode === 'specific' && addressSearch.includes('.eth') ? addressSearch : undefined
+    addressSearch.includes('.eth') ? addressSearch : undefined
   );
 
   // Effect to fetch data when address search changes
   useEffect(() => {
     const fetchEtherscanData = async () => {
-      if (searchMode !== 'specific' || !addressSearch) return;
+      if (!addressSearch) return;
       
       setIsSearching(true);
       let address = addressSearch;
@@ -137,15 +131,11 @@ const Talent = () => {
     };
     
     fetchEtherscanData();
-  }, [addressSearch, searchMode, addressDataByEns, ensDataByAddress, avatarData]);
+  }, [addressSearch, addressDataByEns, ensDataByAddress, avatarData]);
 
-  // Calculate total transactions
-  const [totalTransactions, setTotalTransactions] = useState<number>(0);
-
-  // Process passport data and apply filters
+  // Process passport data
   const passportData = useMemo(() => {
-    // If we're in specific search mode, use the search results
-    if (searchMode === 'specific' && searchResults.length > 0) {
+    if (searchResults.length > 0) {
       return searchResults.map(passport => {
         const { score, category } = calculateHumanScore(passport);
         
@@ -159,83 +149,32 @@ const Talent = () => {
       });
     }
     
-    // No default profiles, return empty array
     return [];
-  }, [searchResults, searchMode]);
-
-  const handleSkillToggle = (skill: string) => {
-    setSelectedSkills(prev => 
-      prev.includes(skill)
-        ? prev.filter(s => s !== skill)
-        : [...prev, skill]
-    );
-  };
-
-  const clearFilters = () => {
-    setSearchTerm('');
-    setSelectedSkills([]);
-  };
+  }, [searchResults]);
 
   const handleAddressSearch = (input: string) => {
     setAddressSearch(input);
-    setSearchMode('specific');
   };
-
-  const handleViewAll = () => {
-    setAddressSearch('');
-    setSearchTerm('');
-    setSearchMode('specific');
-    setSearchResults([]);
-  };
-
-  // Extract all unique skills for filters
-  const allSkills = useMemo(() => {
-    if (searchResults.length === 0) return [];
-    
-    const skillsSet = new Set<string>();
-    
-    // Add skills from search results
-    searchResults.forEach(passport => {
-      passport.skills?.forEach(skill => skillsSet.add(skill.name));
-    });
-    
-    return Array.from(skillsSet).sort();
-  }, [searchResults]);
 
   return (
     <TalentLayout 
       profileCount={passportData.length}
-      transactionCount={totalTransactions}
+      transactionCount={0}
     >
-      {/* Search & Tabs */}
-      <div className="lg:col-span-4 mb-6">
+      {/* Full-width search bar */}
+      <div className="lg:col-span-4">
         <TalentSearch 
-          onSearch={handleAddressSearch} 
-          onViewAll={handleViewAll} 
+          onSearch={handleAddressSearch}
           isSearching={isSearching}
         />
       </div>
-      
-      {/* Filters Sidebar */}
-      <div className="lg:col-span-1">
-        <TalentFilters
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          selectedSkills={selectedSkills}
-          handleSkillToggle={handleSkillToggle}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          clearFilters={clearFilters}
-          allSkills={allSkills}
-        />
-      </div>
 
-      {/* Talent Grid */}
-      <div className="lg:col-span-3">
+      {/* Talent Grid - now full width */}
+      <div className="lg:col-span-4">
         <TalentGrid
           isLoading={isSearching}
           passportData={passportData}
-          clearFilters={clearFilters}
+          clearFilters={() => {}}
         />
       </div>
     </TalentLayout>
