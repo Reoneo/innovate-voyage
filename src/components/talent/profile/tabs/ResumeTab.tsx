@@ -26,13 +26,15 @@ interface ResumeTabProps {
   blockchainProfile?: BlockchainProfile | null;
   resolvedEns?: string;
   onExportPdf: () => void;
+  avatarUrl?: string;
 }
 
 const ResumeTab: React.FC<ResumeTabProps> = ({ 
   passport, 
   blockchainProfile, 
   resolvedEns,
-  onExportPdf 
+  onExportPdf,
+  avatarUrl
 }) => {
   // Calculate first transaction date if available
   const firstTransactionDate = blockchainProfile?.latestTransactions?.length 

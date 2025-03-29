@@ -8,9 +8,11 @@ import ConnectionTooltip from './tooltips/ConnectionTooltip';
 interface SkillsNodeLeafD3Props {
   skills: Array<{ name: string; proof?: string; issued_by?: string }>;
   name: string;
+  avatarUrl?: string;
+  ensName?: string;
 }
 
-const SkillsNodeLeafD3: React.FC<SkillsNodeLeafD3Props> = ({ skills, name }) => {
+const SkillsNodeLeafD3: React.FC<SkillsNodeLeafD3Props> = ({ skills, name, avatarUrl, ensName }) => {
   const d3Container = useRef<SVGSVGElement>(null);
   const [skillTooltip, setSkillTooltip] = useState<{
     visible: boolean;
