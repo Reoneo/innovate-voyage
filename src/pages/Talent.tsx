@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useAllEnsRecords, useAllSkillNfts, useEnsByAddress, useAddressByEns } from '@/hooks/useWeb3';
+import { useAllEnsRecords, useAllSkillNfts, useEnsByAddress, useAddressByEns, useRealAvatar } from '@/hooks/useWeb3';
 import { calculateHumanScore, getScoreColorClass, BlockchainPassport } from '@/lib/utils';
 import TalentLayout from '@/components/talent/TalentLayout';
 import TalentFilters from '@/components/talent/TalentFilters';
@@ -27,6 +27,11 @@ const Talent = () => {
   const { data: addressDataByEns } = useAddressByEns(
     searchMode === 'specific' && addressSearch.includes('.eth') ? addressSearch : undefined
   );
+  
+  // Get avatar for searched ENS
+  const { data: avatarData } = useRealAvatar(
+    searchMode === 'specific' && addressSearch.includes('.eth') ? addressSearch : undefined
+  );
 
   // Effect to fetch data when address search changes
   useEffect(() => {
@@ -36,6 +41,7 @@ const Talent = () => {
       setIsSearching(true);
       let address = addressSearch;
       let ensName = '';
+      let avatar = '/placeholder.svg';
       
       try {
         // If ENS name is provided, try to resolve address
@@ -43,6 +49,7 @@ const Talent = () => {
           if (addressDataByEns) {
             address = addressDataByEns.address;
             ensName = addressDataByEns.ensName;
+            avatar = addressDataByEns.avatar || avatarData || '/placeholder.svg';
           } else {
             // Wait for addressDataByEns to resolve
             return;
@@ -51,6 +58,7 @@ const Talent = () => {
         // If address is provided, try to resolve ENS name
         else if (ensDataByAddress) {
           ensName = ensDataByAddress.ensName;
+          avatar = ensDataByAddress.avatar || '/placeholder.svg';
         }
         
         // If no ENS name, use a placeholder
@@ -92,7 +100,7 @@ const Talent = () => {
         const newPassport: BlockchainPassport = {
           passport_id: ensName,
           owner_address: address,
-          avatar_url: '/placeholder.svg', // Use placeholder for now
+          avatar_url: avatar, // Use resolved avatar
           name: ensName.split('.')[0],
           issued: new Date().toISOString(),
           skills: skills.map(skill => ({
@@ -121,7 +129,7 @@ const Talent = () => {
     };
     
     fetchEtherscanData();
-  }, [addressSearch, searchMode, addressDataByEns, ensDataByAddress]);
+  }, [addressSearch, searchMode, addressDataByEns, ensDataByAddress, avatarData]);
 
   // Process passport data and apply filters
   const passportData = useMemo(() => {

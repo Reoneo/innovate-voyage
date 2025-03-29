@@ -1,5 +1,6 @@
 
 import { useAddressByEns, useEnsByAddress, useRealAvatar } from '@/hooks/useWeb3';
+import { useState, useEffect } from 'react';
 
 /**
  * Hook to resolve ENS name and Ethereum address bidirectionally
@@ -8,31 +9,55 @@ import { useAddressByEns, useEnsByAddress, useRealAvatar } from '@/hooks/useWeb3
  * @returns Object containing resolved address and ENS name
  */
 export function useEnsResolver(ensName?: string, address?: string) {
+  const [resolvedAddressState, setResolvedAddress] = useState<string | undefined>(address);
+  const [resolvedEnsState, setResolvedEns] = useState<string | undefined>(ensName);
+  const [avatarUrlState, setAvatarUrl] = useState<string | undefined>(undefined);
+  
   // Determine if we're dealing with an ENS name (.eth or .box)
   const isEns = ensName?.includes('.eth') || ensName?.includes('.box');
   
   // Resolve ENS name to address
-  const { data: addressData } = useAddressByEns(
+  const { data: addressData, isLoading: isLoadingAddress } = useAddressByEns(
     isEns ? ensName : undefined
   );
   
   // Resolve address to ENS name
-  const { data: ensData } = useEnsByAddress(
+  const { data: ensData, isLoading: isLoadingEns } = useEnsByAddress(
     !isEns ? address : undefined
   );
   
   // Get avatar for the ENS name
-  const { data: avatarData } = useRealAvatar(
+  const { data: avatarData, isLoading: isLoadingAvatar } = useRealAvatar(
     ensName || ensData?.ensName
   );
   
-  const resolvedAddress = addressData?.address || address;
-  const resolvedEns = ensName || ensData?.ensName;
-  const avatarUrl = avatarData || addressData?.avatar || ensData?.avatar;
+  useEffect(() => {
+    if (addressData?.address) {
+      setResolvedAddress(addressData.address);
+    } else if (address) {
+      setResolvedAddress(address);
+    }
+    
+    if (ensName) {
+      setResolvedEns(ensName);
+    } else if (ensData?.ensName) {
+      setResolvedEns(ensData.ensName);
+    }
+    
+    // Set avatar with priority: avatarData > addressData.avatar > ensData.avatar
+    if (avatarData) {
+      setAvatarUrl(avatarData);
+    } else if (addressData?.avatar) {
+      setAvatarUrl(addressData.avatar);
+    } else if (ensData?.avatar) {
+      setAvatarUrl(ensData.avatar);
+    }
+  }, [addressData, ensData, avatarData, address, ensName]);
   
   return {
-    resolvedAddress,
-    resolvedEns,
-    avatarUrl
+    resolvedAddress: resolvedAddressState,
+    resolvedEns: resolvedEnsState,
+    avatarUrl: avatarUrlState,
+    isLoading: isLoadingAddress || isLoadingEns || isLoadingAvatar
   };
 }
