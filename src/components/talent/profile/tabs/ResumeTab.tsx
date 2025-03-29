@@ -22,6 +22,15 @@ interface ResumeTabProps {
       twitter?: string;
       linkedin?: string;
       website?: string;
+      facebook?: string;
+      whatsapp?: string;
+      bluesky?: string;
+      instagram?: string;
+      youtube?: string;
+      discord?: string;
+      telegram?: string;
+      reddit?: string;
+      messenger?: string;
     };
   };
   blockchainProfile?: BlockchainProfile | null;
@@ -49,6 +58,21 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
       return url;
     }
     return `https://${url}`;
+  };
+
+  // Format WhatsApp numbers
+  const formatWhatsAppUrl = (number: string | undefined) => {
+    if (!number) return '';
+    // Remove any non-numeric characters
+    const cleanNumber = number.replace(/\D/g, '');
+    return `https://wa.me/${cleanNumber}`;
+  };
+
+  // Format Bluesky handle
+  const formatBlueskyUrl = (handle: string | undefined) => {
+    if (!handle) return '';
+    if (handle.startsWith('http')) return handle;
+    return `https://bsky.app/profile/${handle.startsWith('@') ? handle.substring(1) : handle}`;
   };
 
   return (
@@ -83,7 +107,7 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
               </div>
               
               {/* Social Media Icons */}
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 {passport.socials?.github && (
                   <a href={formatUrl(passport.socials.github)} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                     <SocialIcon type="github" size={24} />
@@ -94,9 +118,34 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                     <SocialIcon type="twitter" size={24} />
                   </a>
                 )}
+                {passport.socials?.facebook && (
+                  <a href={formatUrl(passport.socials.facebook)} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                    <SocialIcon type="facebook" size={24} />
+                  </a>
+                )}
                 {passport.socials?.linkedin && (
                   <a href={formatUrl(passport.socials.linkedin)} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                     <SocialIcon type="linkedin" size={24} />
+                  </a>
+                )}
+                {passport.socials?.bluesky && (
+                  <a href={formatBlueskyUrl(passport.socials.bluesky)} target="_blank" rel="noopener noreferrer" aria-label="Bluesky">
+                    <SocialIcon type="bluesky" size={24} />
+                  </a>
+                )}
+                {passport.socials?.whatsapp && (
+                  <a href={formatWhatsAppUrl(passport.socials.whatsapp)} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+                    <SocialIcon type="whatsapp" size={24} />
+                  </a>
+                )}
+                {passport.socials?.instagram && (
+                  <a href={formatUrl(passport.socials.instagram)} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                    <SocialIcon type="instagram" size={24} />
+                  </a>
+                )}
+                {passport.socials?.youtube && (
+                  <a href={formatUrl(passport.socials.youtube)} target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                    <SocialIcon type="youtube" size={24} />
                   </a>
                 )}
                 {passport.socials?.website && (
@@ -226,6 +275,17 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         Twitter
                       </a>
                     )}
+                    {(blockchainProfile?.socials?.facebook || passport.socials?.facebook) && (
+                      <a 
+                        href={formatUrl(blockchainProfile?.socials?.facebook || passport.socials?.facebook)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+                      >
+                        <SocialIcon type="facebook" size={16} />
+                        Facebook
+                      </a>
+                    )}
                     {(blockchainProfile?.socials?.linkedin || passport.socials?.linkedin) && (
                       <a 
                         href={formatUrl(blockchainProfile?.socials?.linkedin || passport.socials?.linkedin)} 
@@ -235,6 +295,50 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                       >
                         <SocialIcon type="linkedin" size={16} />
                         LinkedIn
+                      </a>
+                    )}
+                    {(blockchainProfile?.socials?.bluesky || passport.socials?.bluesky) && (
+                      <a 
+                        href={formatBlueskyUrl(blockchainProfile?.socials?.bluesky || passport.socials?.bluesky)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-sky-50 hover:bg-sky-100 rounded-md transition-colors"
+                      >
+                        <SocialIcon type="bluesky" size={16} />
+                        Bluesky
+                      </a>
+                    )}
+                    {(blockchainProfile?.socials?.whatsapp || passport.socials?.whatsapp) && (
+                      <a 
+                        href={formatWhatsAppUrl(blockchainProfile?.socials?.whatsapp || passport.socials?.whatsapp)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 hover:bg-green-100 rounded-md transition-colors"
+                      >
+                        <SocialIcon type="whatsapp" size={16} />
+                        WhatsApp
+                      </a>
+                    )}
+                    {(blockchainProfile?.socials?.instagram || passport.socials?.instagram) && (
+                      <a 
+                        href={formatUrl(blockchainProfile?.socials?.instagram || passport.socials?.instagram)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-pink-50 hover:bg-pink-100 rounded-md transition-colors"
+                      >
+                        <SocialIcon type="instagram" size={16} />
+                        Instagram
+                      </a>
+                    )}
+                    {(blockchainProfile?.socials?.youtube || passport.socials?.youtube) && (
+                      <a 
+                        href={formatUrl(blockchainProfile?.socials?.youtube || passport.socials?.youtube)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
+                      >
+                        <SocialIcon type="youtube" size={16} />
+                        YouTube
                       </a>
                     )}
                     {(blockchainProfile?.socials?.website || passport.socials?.website) && (

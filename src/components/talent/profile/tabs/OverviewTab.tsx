@@ -39,6 +39,21 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     return `https://${url}`;
   };
   
+  // Format WhatsApp numbers
+  const formatWhatsAppUrl = (number: string | undefined) => {
+    if (!number) return '';
+    // Remove any non-numeric characters
+    const cleanNumber = number.replace(/\D/g, '');
+    return `https://wa.me/${cleanNumber}`;
+  };
+
+  // Format Bluesky handle
+  const formatBlueskyUrl = (handle: string | undefined) => {
+    if (!handle) return '';
+    if (handle.startsWith('http')) return handle;
+    return `https://bsky.app/profile/${handle.startsWith('@') ? handle.substring(1) : handle}`;
+  };
+  
   const socials = blockchainProfile?.socials || {};
   const ensLinks = blockchainProfile?.ensLinks || [];
   const hasSocials = socials && Object.values(socials).some(Boolean);
@@ -132,6 +147,17 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                       Twitter
                     </a>
                   )}
+                  {socials?.facebook && (
+                    <a 
+                      href={formatUrl(socials.facebook)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+                    >
+                      <SocialIcon type="facebook" size={16} />
+                      Facebook
+                    </a>
+                  )}
                   {socials?.linkedin && (
                     <a 
                       href={formatUrl(socials.linkedin)} 
@@ -141,6 +167,83 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     >
                       <SocialIcon type="linkedin" size={16} />
                       LinkedIn
+                    </a>
+                  )}
+                  {socials?.whatsapp && (
+                    <a 
+                      href={formatWhatsAppUrl(socials.whatsapp)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 hover:bg-green-100 rounded-md transition-colors"
+                    >
+                      <SocialIcon type="whatsapp" size={16} />
+                      WhatsApp
+                    </a>
+                  )}
+                  {socials?.bluesky && (
+                    <a 
+                      href={formatBlueskyUrl(socials.bluesky)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-sky-50 hover:bg-sky-100 rounded-md transition-colors"
+                    >
+                      <SocialIcon type="bluesky" size={16} />
+                      Bluesky
+                    </a>
+                  )}
+                  {socials?.instagram && (
+                    <a 
+                      href={formatUrl(socials.instagram)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-pink-50 hover:bg-pink-100 rounded-md transition-colors"
+                    >
+                      <SocialIcon type="instagram" size={16} />
+                      Instagram
+                    </a>
+                  )}
+                  {socials?.youtube && (
+                    <a 
+                      href={formatUrl(socials.youtube)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
+                    >
+                      <SocialIcon type="youtube" size={16} />
+                      YouTube
+                    </a>
+                  )}
+                  {socials?.discord && (
+                    <a 
+                      href={formatUrl(socials.discord)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors"
+                    >
+                      <SocialIcon type="discord" size={16} />
+                      Discord
+                    </a>
+                  )}
+                  {socials?.telegram && (
+                    <a 
+                      href={formatUrl(socials.telegram)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+                    >
+                      <SocialIcon type="telegram" size={16} />
+                      Telegram
+                    </a>
+                  )}
+                  {socials?.reddit && (
+                    <a 
+                      href={formatUrl(socials.reddit)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 rounded-md transition-colors"
+                    >
+                      <SocialIcon type="reddit" size={16} />
+                      Reddit
                     </a>
                   )}
                   {socials?.website && (

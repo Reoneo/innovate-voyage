@@ -1,3 +1,4 @@
+
 import { ENSRecord } from '../types/web3Types';
 import { mockEnsRecords } from '../data/mockWeb3Data';
 import { avatarCache, fetchWeb3BioProfile, generateFallbackAvatar } from '../utils/web3Utils';
@@ -53,7 +54,16 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
           github: profile.github,
           linkedin: profile.linkedin,
           website: profile.website,
-          email: profile.email
+          email: profile.email,
+          facebook: profile.facebook,
+          whatsapp: profile.whatsapp,
+          bluesky: profile.bluesky,
+          instagram: profile.instagram,
+          youtube: profile.youtube,
+          telegram: profile.telegram,
+          reddit: profile.reddit,
+          discord: profile.discord,
+          messenger: profile.messenger
         }
       };
       
@@ -107,7 +117,16 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
             github: profile.github,
             linkedin: profile.linkedin,
             website: profile.website,
-            email: profile.email
+            email: profile.email,
+            facebook: profile.facebook,
+            whatsapp: profile.whatsapp,
+            bluesky: profile.bluesky,
+            instagram: profile.instagram,
+            youtube: profile.youtube,
+            telegram: profile.telegram,
+            reddit: profile.reddit,
+            discord: profile.discord,
+            messenger: profile.messenger
           }
         };
         

@@ -12,6 +12,14 @@ export interface ENSRecord {
     discord?: string;
     website?: string;
     email?: string;
+    facebook?: string;
+    whatsapp?: string;
+    messenger?: string;
+    reddit?: string;
+    telegram?: string;
+    instagram?: string;
+    youtube?: string;
+    bluesky?: string;
   };
 }
 
@@ -46,6 +54,14 @@ export interface Web3BioProfile {
   linkedin?: string;
   website?: string;
   email?: string;
+  facebook?: string;
+  whatsapp?: string;
+  messenger?: string;
+  reddit?: string;
+  telegram?: string;
+  instagram?: string;
+  youtube?: string;
+  bluesky?: string;
   links?: {
     website?: {
       link: string;
@@ -60,6 +76,18 @@ export interface Web3BioProfile {
       handle: string;
     };
     linkedin?: {
+      link: string;
+      handle: string;
+    };
+    facebook?: {
+      link: string;
+      handle: string;
+    };
+    whatsapp?: {
+      link: string;
+      handle: string;
+    };
+    bluesky?: {
       link: string;
       handle: string;
     };

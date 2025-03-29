@@ -103,7 +103,22 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
     const socials: Record<string, string> = {};
     
     // Common ENS text records for social media
-    const socialKeys = ['com.github', 'com.twitter', 'com.linkedin', 'url', 'email'];
+    const socialKeys = [
+      'com.github', 
+      'com.twitter', 
+      'com.linkedin', 
+      'url', 
+      'email', 
+      'com.facebook',  // Added Facebook
+      'org.whatsapp.phone',  // Added WhatsApp
+      'com.facebook.messenger', // Added Facebook Messenger
+      'com.discord',  // Added Discord
+      'com.reddit',  // Added Reddit
+      'org.telegram', // Added Telegram
+      'com.instagram', // Added Instagram
+      'com.youtube',  // Added YouTube
+      'bsky.app',  // Added Bluesky
+    ];
     
     // Try to get each social media link
     await Promise.all(socialKeys.map(async (key) => {
@@ -125,6 +140,33 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
               break;
             case 'email':
               socials.email = value;
+              break;
+            case 'com.facebook':
+              socials.facebook = value;
+              break;
+            case 'org.whatsapp.phone':
+              socials.whatsapp = value;
+              break;
+            case 'com.facebook.messenger':
+              socials.messenger = value;
+              break;
+            case 'com.discord':
+              socials.discord = value;
+              break;
+            case 'com.reddit':
+              socials.reddit = value;
+              break;
+            case 'org.telegram':
+              socials.telegram = value;
+              break;
+            case 'com.instagram':
+              socials.instagram = value;
+              break;
+            case 'com.youtube':
+              socials.youtube = value;
+              break;
+            case 'bsky.app':
+              socials.bluesky = value;
               break;
           }
         }
