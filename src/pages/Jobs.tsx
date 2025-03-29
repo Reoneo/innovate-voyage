@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { jobsApi } from '@/api/jobsApi';
 import JobListings from '@/components/jobs/JobListings';
 import JobFilters from '@/components/jobs/JobFilters';
 import { toast } from 'sonner';
-import { Briefcase, Database, Building, MapPin, Globe, Award } from 'lucide-react';
+import { Briefcase, Database, Building, MapPin, Globe, Award, Shield, Star } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -15,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAllEnsRecords, useAllSkillNfts } from '@/hooks/useWeb3';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { truncateAddress } from '@/lib/utils';
+import { truncateAddress, calculateHumanScore, getScoreColorClass, BlockchainPassport, PassportSkill } from '@/lib/utils';
 
 const Jobs = () => {
   const [sortBy, setSortBy] = useState('recent');
@@ -77,6 +78,39 @@ const Jobs = () => {
   const handleSortChange = (value: string) => {
     setSortBy(value);
   };
+
+  // Convert ENS records to passport format for scoring
+  const passportData = React.useMemo(() => {
+    if (!ensRecords) return [];
+    
+    return ensRecords.map(record => {
+      // Create a passport object from ENS record data
+      const passport: BlockchainPassport = {
+        passport_id: record.ensName,
+        owner_address: record.address,
+        avatar_url: record.avatar,
+        name: record.ensName.split('.')[0], // Extract name from ENS
+        issued: new Date(Date.now() - Math.random() * 63072000000).toISOString(), // Random date within last 2 years
+        socials: record.socialProfiles,
+        skills: record.skills.map(skill => ({ 
+          name: skill,
+          // Random proof for some skills
+          proof: Math.random() > 0.5 ? `ipfs://QmProof${skill.replace(/\s/g, '')}` : undefined,
+          issued_by: Math.random() > 0.7 ? ['Ethereum Foundation', 'Encode Club', 'Consensys', 'ETHGlobal'][Math.floor(Math.random() * 4)] : undefined
+        }))
+      };
+      
+      // Calculate score
+      const { score, category } = calculateHumanScore(passport);
+      
+      return {
+        ...passport,
+        score,
+        category,
+        colorClass: getScoreColorClass(score)
+      };
+    }).sort((a, b) => b.score - a.score); // Sort by score (highest first)
+  }, [ensRecords]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -150,30 +184,59 @@ const Jobs = () => {
             {isLoadingEns ? (
               <p>Loading profiles...</p>
             ) : (
-              ensRecords?.slice(0, 3).map((record) => (
-                <Card key={record.address}>
-                  <CardHeader className="flex flex-row items-center gap-4">
+              passportData.slice(0, 3).map((passport) => (
+                <Card key={passport.owner_address} className="overflow-hidden">
+                  <CardHeader className="flex flex-row items-center gap-4 pb-2">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={record.avatar} alt={record.ensName} />
-                      <AvatarFallback>{record.ensName.substring(0, 2)}</AvatarFallback>
+                      <AvatarImage src={passport.avatar_url} alt={passport.passport_id} />
+                      <AvatarFallback>{passport.passport_id.substring(0, 2)}</AvatarFallback>
                     </Avatar>
-                    <div>
-                      <CardTitle>{record.ensName}</CardTitle>
-                      <CardDescription className="truncate">{truncateAddress(record.address)}</CardDescription>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <CardTitle>{passport.passport_id}</CardTitle>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-1">
+                                <Shield className={`h-4 w-4 ${passport.colorClass}`} />
+                                <span className={`font-bold ${passport.colorClass}`}>{passport.score}</span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p><span className="font-bold">{passport.category}</span> - Human Reliability Score</p>
+                              <p className="text-xs text-muted-foreground">Based on blockchain credentials</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <CardDescription className="truncate">{truncateAddress(passport.owner_address)}</CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="mb-2">
-                      <h4 className="text-sm font-medium flex items-center gap-1">
+                      <h4 className="text-sm font-medium flex items-center gap-1 mb-1">
                         <Award className="h-4 w-4" /> Skills
                       </h4>
                       <div className="flex flex-wrap gap-1 mt-1">
-                        {record.skills.map((skill) => (
-                          <Badge key={skill} variant="secondary" className="text-xs">
-                            {skill}
+                        {passport.skills?.slice(0, 4).map((skill, idx) => (
+                          <Badge 
+                            key={`${skill.name}-${idx}`} 
+                            variant={skill.proof ? "default" : "secondary"} 
+                            className="text-xs"
+                          >
+                            {skill.proof && <Star className="h-3 w-3 mr-1" />}
+                            {skill.name}
                           </Badge>
                         ))}
+                        {passport.skills && passport.skills.length > 4 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{passport.skills.length - 4} more
+                          </Badge>
+                        )}
                       </div>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      <span className="font-medium">Human Score:</span> {passport.category}
                     </div>
                   </CardContent>
                 </Card>
