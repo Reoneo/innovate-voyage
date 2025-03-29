@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Download } from 'lucide-react';
@@ -11,6 +12,14 @@ import { BlockchainPassport } from '@/lib/utils';
 import { toast } from '@/components/ui/use-toast';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+
+// Import missing components
+import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
+import ProfileHeader from '@/components/talent/profile/ProfileHeader';
+import OverviewTab from '@/components/talent/profile/tabs/OverviewTab';
+import BlockchainTab from '@/components/talent/profile/tabs/BlockchainTab';
+import SkillsTab from '@/components/talent/profile/tabs/SkillsTab';
+import ResumeTab from '@/components/talent/profile/tabs/ResumeTab';
 
 const TalentProfile = () => {
   const { ensName, address } = useParams<{ ensName: string; address: string }>();
@@ -77,7 +86,6 @@ const TalentProfile = () => {
         if (web3BioProfile) {
           if (web3BioProfile.github) skills.push({ name: 'GitHub User', proof: web3BioProfile.github });
           if (web3BioProfile.twitter) skills.push({ name: 'Twitter User', proof: web3BioProfile.twitter });
-          
           if (web3BioProfile.linkedin) skills.push({ name: 'LinkedIn User', proof: web3BioProfile.linkedin });
         }
         
@@ -91,9 +99,9 @@ const TalentProfile = () => {
           socials: {
             github: web3BioProfile?.github,
             twitter: web3BioProfile?.twitter,
+            linkedin: web3BioProfile?.linkedin,
             website: web3BioProfile?.website,
-            email: web3BioProfile?.email,
-            linkedin: web3BioProfile?.linkedin
+            email: web3BioProfile?.email
           }
         };
         

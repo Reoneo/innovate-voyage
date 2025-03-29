@@ -38,7 +38,6 @@ export interface Web3BioProfile {
   avatar: string | null;
   description: string | null;
   status?: string | null;
-  email?: string | null;
   location?: string | null;
   header?: string | null;
   contenthash?: string | null;
@@ -46,7 +45,7 @@ export interface Web3BioProfile {
   twitter?: string;
   linkedin?: string;
   website?: string;
-  email?: string;
+  // Removed duplicate email property
   links?: {
     website?: {
       link: string;
