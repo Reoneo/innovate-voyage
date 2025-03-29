@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { SearchIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -56,25 +57,11 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
         avatar: avatarUrl
       }]);
     } else if (hasExecutedSearch && !isLoading && !resolvedEns && !resolvedAddress) {
-      // Clear results if nothing found
+      // Clear results if nothing found but don't show toast
       setSearchResults([]);
-      
-      // Only show toast if we've actually searched and found nothing
-      if (hasExecutedSearch && !isLoading) {
-        toast({
-          title: "No results found",
-          description: `Could not find any information for '${searchInput}'`,
-          variant: "destructive"
-        });
-      }
     }
   }, [resolvedEns, resolvedAddress, avatarUrl, isLoading, searchInput, hasExecutedSearch]);
 
-  const handleResultClick = (result: {name: string, address?: string}) => {
-    setSearchInput(result.name);
-    onSearch(result.name);
-  };
-  
   return (
     <Card className="mb-6">
       <CardContent className="pt-6">

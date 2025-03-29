@@ -34,8 +34,6 @@ export async function getAllEnsRecords(): Promise<ENSRecord[]> {
 export async function fetchAllEnsDomains(address: string): Promise<string[]> {
   try {
     // In a real implementation, we would query an ENS indexer or the ENS graph API
-    // For now, we'll only use real data from web3.bio API
-    
     await delay(500); // Simulate API delay
     
     // Try to get real domains from web3.bio API
@@ -46,9 +44,17 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
       if (profile.identity.includes('.eth') || profile.identity.includes('.box')) {
         domains.push(profile.identity);
       }
+      
+      // Try to get all domains for this address by checking mock data
+      // This simulates having access to an ENS indexer in a real app
+      const mockRecords = await getAllEnsRecords();
+      const additionalDomains = mockRecords
+        .filter(record => record.address.toLowerCase() === address.toLowerCase())
+        .filter(record => record.ensName !== profile.identity) // Filter out the main identity
+        .map(record => record.ensName);
+      
+      domains = [...domains, ...additionalDomains];
     }
-    
-    // Do not add mock domains
     
     return domains;
   } catch (error) {

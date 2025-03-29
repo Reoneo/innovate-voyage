@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { useQuery } from '@tanstack/react-query';
@@ -20,8 +21,8 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
   const networkRef = useRef<SVGSVGElement>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   
-  // Get resolved address
-  const resolvedAddress = address || (ensName && !ensName.includes('.eth')) ? ensName : undefined;
+  // Get resolved address - consider both .eth and .box domains
+  const resolvedAddress = address || (ensName && !ensName.includes('.eth') && !ensName.includes('.box')) ? ensName : undefined;
   
   // Fetch all ENS domains for this address
   const { data: ensDomainsData } = useQuery({
@@ -30,7 +31,11 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
       if (!resolvedAddress) return [];
       try {
         // Get all ENS domains owned by this address
+        const domains = await web3Api.fetchAllEnsDomains(resolvedAddress);
         const records = await web3Api.getAllEnsRecords();
+        
+        // Filter records to include only those belonging to the address
+        // and ensure we include both .eth and .box domains
         return records.filter(record => 
           record.address.toLowerCase() === resolvedAddress.toLowerCase()
         );
@@ -80,21 +85,23 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
     // Create nodes for the identity network
     const centralNode = { id: 'central', name, type: 'user', avatar: avatarUrl };
     
-    // Main ENS domain node
+    // Main ENS domain node - could be .eth or .box
     const mainEnsNode = ensName ? { 
       id: 'main-ens', 
       name: ensName, 
-      type: 'ens-main' 
+      type: 'ens-main',
+      isDotBox: ensName.includes('.box') 
     } : null;
     
-    // Additional ENS domains
+    // Additional ENS domains - both .eth and .box
     const ensNodes = ensDomainsData?.filter(domain => 
       domain.ensName !== ensName
     ).map((domain, idx) => ({
       id: `ens-${idx}`,
       name: domain.ensName,
       type: 'ens-other',
-      avatar: domain.avatar
+      avatar: domain.avatar,
+      isDotBox: domain.ensName.includes('.box')
     })) || [];
     
     // Identity-related NFTs
@@ -168,8 +175,8 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
       .join("line")
         .attr("stroke", (d: any) => {
           const target = nodes.find(n => n.id === d.target);
-          if (target?.type === 'ens-main') return "#6366f1";
-          if (target?.type === 'ens-other') return "#818cf8"; 
+          if (target?.type === 'ens-main') return target.isDotBox ? "#8b5cf6" : "#6366f1";
+          if (target?.type === 'ens-other') return target.isDotBox ? "#a78bfa" : "#818cf8"; 
           if (target?.type === 'identity-nft') return "#10b981";
           if (target?.type === 'platform') return "#f59e0b";
           return "#9ca3af";
@@ -224,16 +231,24 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
           if (d.avatar) return `url(#user-avatar)`;
           return "#3b82f6"; 
         }
-        if (d.type === "ens-main") return "#6366f1";
-        if (d.type === "ens-other") return "#818cf8";
+        if (d.type === "ens-main") {
+          return d.isDotBox ? "#8b5cf6" : "#6366f1"; // Different color for .box domains
+        }
+        if (d.type === "ens-other") {
+          return d.isDotBox ? "#a78bfa" : "#818cf8"; // Different color for .box domains
+        }
         if (d.type === "identity-nft") return "#10b981";
         if (d.type === "platform") return "#f59e0b";
         return "#9ca3af";
       })
       .attr("stroke", (d: any) => {
         if (d.type === "user") return "#1d4ed8";
-        if (d.type === "ens-main") return "#4f46e5";
-        if (d.type === "ens-other") return "#4338ca";
+        if (d.type === "ens-main") {
+          return d.isDotBox ? "#7c3aed" : "#4f46e5"; // Different color for .box domains
+        }
+        if (d.type === "ens-other") {
+          return d.isDotBox ? "#7c3aed" : "#4338ca"; // Different color for .box domains
+        }
         if (d.type === "identity-nft") return "#059669";
         if (d.type === "platform") return "#b45309";
         return "#6b7280";
@@ -296,8 +311,12 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
       })
       .attr("fill", (d: any) => {
         if (d.type === "user") return avatarUrl ? "transparent" : "#3b82f6";
-        if (d.type === "ens-main") return "#6366f1";
-        if (d.type === "ens-other") return "#818cf8";
+        if (d.type === "ens-main") {
+          return d.isDotBox ? "#8b5cf6" : "#6366f1"; // Different color for .box domains
+        }
+        if (d.type === "ens-other") {
+          return d.isDotBox ? "#a78bfa" : "#818cf8"; // Different color for .box domains
+        }
         if (d.type === "identity-nft") return "#10b981";
         if (d.type === "platform") return "#f59e0b";
         return "#9ca3af";
@@ -314,7 +333,7 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
       .attr("fill", "white")
       .attr("font-weight", "bold")
       .attr("font-size", "10px")
-      .text("ENS");
+      .text((d: any) => d.isDotBox ? "BOX" : "ENS");
 
     // Update positions on simulation tick
     simulation.on("tick", () => {
@@ -377,9 +396,9 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
           if (d.type === "user") {
             return `<strong>${d.name}</strong><br>Main profile`;
           } else if (d.type === "ens-main") {
-            return `<strong>${d.name}</strong><br>Primary ENS Domain`;
+            return `<strong>${d.name}</strong><br>Primary ${d.isDotBox ? '.box' : '.eth'} Domain`;
           } else if (d.type === "ens-other") {
-            return `<strong>${d.name}</strong><br>Owned ENS Domain`;
+            return `<strong>${d.name}</strong><br>Owned ${d.isDotBox ? '.box' : '.eth'} Domain`;
           } else if (d.type === "identity-nft") {
             return `<strong>${d.name}</strong><br>Identity NFT`;
           } else if (d.type === "platform") {

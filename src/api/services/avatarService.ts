@@ -2,7 +2,7 @@
 import { avatarCache, fetchWeb3BioProfile, generateFallbackAvatar } from '../utils/web3Utils';
 import { delay } from '../jobsApi';
 
-// Get real avatar for an ENS name
+// Get real avatar for an ENS name (both .eth and .box domains)
 export async function getRealAvatar(ensName: string): Promise<string | null> {
   // Check cache first
   if (avatarCache[ensName]) {

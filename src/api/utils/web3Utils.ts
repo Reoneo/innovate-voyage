@@ -1,4 +1,3 @@
-
 import { Web3BioProfile } from '../types/web3Types';
 import { delay } from '../jobsApi';
 
@@ -11,14 +10,10 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     // Determine the right endpoint based on the domain type (.eth or .box)
     let endpoint;
     
-    if (identity.includes('.box')) {
-      // For .box domains, use the ens endpoint but with the .box domain
-      // This works because web3.bio API supports .box domains through the ens endpoint
+    if (identity.includes('.box') || identity.includes('.eth')) {
+      // For both .box and .eth domains, use the ens endpoint
       endpoint = `https://api.web3.bio/profile/ens/${identity}`;
-      console.log(`Fetching .box domain profile via ENS endpoint: ${identity}`);
-    } else if (identity.includes('.eth')) {
-      endpoint = `https://api.web3.bio/profile/ens/${identity}`;
-      console.log(`Fetching .eth domain profile: ${identity}`);
+      console.log(`Fetching domain profile: ${identity}`);
     } else if (!identity.includes('.') && identity.startsWith('0x')) {
       endpoint = `https://api.web3.bio/profile/eth/${identity}`;
       console.log(`Fetching address profile: ${identity}`);
