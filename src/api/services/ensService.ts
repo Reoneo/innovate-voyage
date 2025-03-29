@@ -150,3 +150,48 @@ export async function getAllEnsRecords(): Promise<ENSRecord[]> {
   
   return [...mockEnsRecords];
 }
+
+// Fetch all ENS domains associated with an address
+export async function fetchAllEnsDomains(address: string): Promise<string[]> {
+  try {
+    // In a real implementation, we would query an ENS indexer or the ENS graph API
+    // For demonstration, we'll simulate a response with a mix of real and mock data
+    
+    await delay(500); // Simulate API delay
+    
+    // Try to get real domains from web3.bio API
+    const profile = await fetchWeb3BioProfile(address);
+    let domains: string[] = [];
+    
+    if (profile && profile.identity && profile.identity.includes('.eth')) {
+      domains.push(profile.identity);
+    }
+    
+    // For demonstration purposes, let's add some mock domains for specific addresses
+    if (address.toLowerCase() === '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'.toLowerCase()) {
+      domains = [
+        'vitalik.eth',
+        'ethereum.eth',
+        'king.eth',
+        'v.eth', 
+        'vitalikbuterin.eth',
+        'web3.eth',
+        'crypto.eth',
+        'blockchain.eth',
+        'defi.eth',
+        'nft.eth'
+      ];
+    } else if (address.toLowerCase() === '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF'.toLowerCase()) {
+      domains = [
+        'crypto.eth',
+        'hodl.eth',
+        'trader.eth'
+      ];
+    }
+    
+    return domains;
+  } catch (error) {
+    console.error(`Error fetching ENS domains for address ${address}:`, error);
+    return [];
+  }
+}
