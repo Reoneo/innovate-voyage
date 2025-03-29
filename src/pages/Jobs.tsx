@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { jobsApi } from '@/api/jobsApi';
@@ -11,11 +12,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { 
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent
+} from "@/components/ui/hover-card";
 import { Badge } from '@/components/ui/badge';
 import { useAllEnsRecords, useAllSkillNfts } from '@/hooks/useWeb3';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { truncateAddress, calculateHumanScore, getScoreColorClass, BlockchainPassport, PassportSkill } from '@/lib/utils';
+import UserCardTooltip from '@/components/jobs/UserCardTooltip';
 
 const Jobs = () => {
   const [sortBy, setSortBy] = useState('recent');
@@ -190,20 +197,15 @@ const Jobs = () => {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <CardTitle>{passport.passport_id}</CardTitle>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="flex items-center gap-1">
-                                <Shield className={`h-4 w-4 ${passport.colorClass}`} />
-                                <span className={`font-bold ${passport.colorClass}`}>{passport.score}</span>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p><span className="font-bold">{passport.category}</span> - Human Reliability Score</p>
-                              <p className="text-xs text-muted-foreground">Based on blockchain credentials</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <HoverCard>
+                          <HoverCardTrigger asChild>
+                            <div className="flex items-center gap-1 cursor-help">
+                              <Shield className={`h-4 w-4 ${passport.colorClass}`} />
+                              <span className={`font-bold ${passport.colorClass}`}>{passport.score}</span>
+                            </div>
+                          </HoverCardTrigger>
+                          <UserCardTooltip passport={passport} />
+                        </HoverCard>
                       </div>
                       <CardDescription className="truncate">{truncateAddress(passport.owner_address)}</CardDescription>
                     </div>
