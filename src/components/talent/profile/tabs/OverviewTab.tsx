@@ -22,6 +22,23 @@ interface OverviewTabProps {
   };
 }
 
+interface SocialProfiles {
+  twitter?: string;
+  github?: string;
+  linkedin?: string;
+  discord?: string;
+  website?: string;
+  email?: string;
+  facebook?: string;
+  whatsapp?: string;
+  messenger?: string;
+  reddit?: string;
+  telegram?: string;
+  instagram?: string;
+  youtube?: string;
+  bluesky?: string;
+}
+
 const OverviewTab: React.FC<OverviewTabProps> = ({ 
   skills, 
   name, 
@@ -54,7 +71,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     return `https://bsky.app/profile/${handle.startsWith('@') ? handle.substring(1) : handle}`;
   };
   
-  const socials = blockchainProfile?.socials || {};
+  const socials = blockchainProfile?.socials as SocialProfiles || {};
   const ensLinks = blockchainProfile?.ensLinks || [];
   const hasSocials = socials && Object.values(socials).some(Boolean);
   const hasEnsLinks = ensLinks && ensLinks.length > 0;

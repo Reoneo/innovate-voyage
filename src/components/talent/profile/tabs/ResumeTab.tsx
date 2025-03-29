@@ -39,6 +39,23 @@ interface ResumeTabProps {
   avatarUrl?: string;
 }
 
+interface SocialProfiles {
+  twitter?: string;
+  github?: string;
+  linkedin?: string;
+  discord?: string;
+  website?: string;
+  email?: string;
+  facebook?: string;
+  whatsapp?: string;
+  messenger?: string;
+  reddit?: string;
+  telegram?: string;
+  instagram?: string;
+  youtube?: string;
+  bluesky?: string;
+}
+
 const ResumeTab: React.FC<ResumeTabProps> = ({ 
   passport, 
   blockchainProfile, 
@@ -74,6 +91,8 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
     if (handle.startsWith('http')) return handle;
     return `https://bsky.app/profile/${handle.startsWith('@') ? handle.substring(1) : handle}`;
   };
+
+  const blockchainProfileSocials = blockchainProfile?.socials as SocialProfiles || {};
 
   return (
     <>
@@ -253,9 +272,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                 <div>
                   <h4 className="font-medium text-sm mb-2">Social Profiles</h4>
                   <div className="flex flex-wrap gap-2">
-                    {(blockchainProfile?.socials?.github || passport.socials?.github) && (
+                    {(blockchainProfileSocials?.github || passport.socials?.github) && (
                       <a 
-                        href={formatUrl(blockchainProfile?.socials?.github || passport.socials?.github)} 
+                        href={formatUrl(blockchainProfileSocials?.github || passport.socials?.github)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
@@ -264,9 +283,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         GitHub
                       </a>
                     )}
-                    {(blockchainProfile?.socials?.twitter || passport.socials?.twitter) && (
+                    {(blockchainProfileSocials?.twitter || passport.socials?.twitter) && (
                       <a 
-                        href={formatUrl(blockchainProfile?.socials?.twitter || passport.socials?.twitter)} 
+                        href={formatUrl(blockchainProfileSocials?.twitter || passport.socials?.twitter)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
@@ -275,9 +294,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         Twitter
                       </a>
                     )}
-                    {(blockchainProfile?.socials?.facebook || passport.socials?.facebook) && (
+                    {(blockchainProfileSocials?.facebook || passport.socials?.facebook) && (
                       <a 
-                        href={formatUrl(blockchainProfile?.socials?.facebook || passport.socials?.facebook)} 
+                        href={formatUrl(blockchainProfileSocials?.facebook || passport.socials?.facebook)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
@@ -286,9 +305,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         Facebook
                       </a>
                     )}
-                    {(blockchainProfile?.socials?.linkedin || passport.socials?.linkedin) && (
+                    {(blockchainProfileSocials?.linkedin || passport.socials?.linkedin) && (
                       <a 
-                        href={formatUrl(blockchainProfile?.socials?.linkedin || passport.socials?.linkedin)} 
+                        href={formatUrl(blockchainProfileSocials?.linkedin || passport.socials?.linkedin)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
@@ -297,9 +316,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         LinkedIn
                       </a>
                     )}
-                    {(blockchainProfile?.socials?.bluesky || passport.socials?.bluesky) && (
+                    {(blockchainProfileSocials?.bluesky || passport.socials?.bluesky) && (
                       <a 
-                        href={formatBlueskyUrl(blockchainProfile?.socials?.bluesky || passport.socials?.bluesky)} 
+                        href={formatBlueskyUrl(blockchainProfileSocials?.bluesky || passport.socials?.bluesky)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-sky-50 hover:bg-sky-100 rounded-md transition-colors"
@@ -308,9 +327,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         Bluesky
                       </a>
                     )}
-                    {(blockchainProfile?.socials?.whatsapp || passport.socials?.whatsapp) && (
+                    {(blockchainProfileSocials?.whatsapp || passport.socials?.whatsapp) && (
                       <a 
-                        href={formatWhatsAppUrl(blockchainProfile?.socials?.whatsapp || passport.socials?.whatsapp)} 
+                        href={formatWhatsAppUrl(blockchainProfileSocials?.whatsapp || passport.socials?.whatsapp)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 hover:bg-green-100 rounded-md transition-colors"
@@ -319,9 +338,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         WhatsApp
                       </a>
                     )}
-                    {(blockchainProfile?.socials?.instagram || passport.socials?.instagram) && (
+                    {(blockchainProfileSocials?.instagram || passport.socials?.instagram) && (
                       <a 
-                        href={formatUrl(blockchainProfile?.socials?.instagram || passport.socials?.instagram)} 
+                        href={formatUrl(blockchainProfileSocials?.instagram || passport.socials?.instagram)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-pink-50 hover:bg-pink-100 rounded-md transition-colors"
@@ -330,9 +349,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         Instagram
                       </a>
                     )}
-                    {(blockchainProfile?.socials?.youtube || passport.socials?.youtube) && (
+                    {(blockchainProfileSocials?.youtube || passport.socials?.youtube) && (
                       <a 
-                        href={formatUrl(blockchainProfile?.socials?.youtube || passport.socials?.youtube)} 
+                        href={formatUrl(blockchainProfileSocials?.youtube || passport.socials?.youtube)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
@@ -341,9 +360,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         YouTube
                       </a>
                     )}
-                    {(blockchainProfile?.socials?.website || passport.socials?.website) && (
+                    {(blockchainProfileSocials?.website || passport.socials?.website) && (
                       <a 
-                        href={formatUrl(blockchainProfile?.socials?.website || passport.socials?.website)} 
+                        href={formatUrl(blockchainProfileSocials?.website || passport.socials?.website)} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 hover:bg-green-100 rounded-md transition-colors"
@@ -352,9 +371,9 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                         Website
                       </a>
                     )}
-                    {(blockchainProfile?.socials?.email || passport.socials?.email) && (
+                    {(blockchainProfileSocials?.email || passport.socials?.email) && (
                       <a 
-                        href={`mailto:${blockchainProfile?.socials?.email || passport.socials?.email}`}
+                        href={`mailto:${blockchainProfileSocials?.email || passport.socials?.email}`}
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors"
                       >
                         <SocialIcon type="mail" size={16} />
