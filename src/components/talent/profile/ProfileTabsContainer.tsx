@@ -71,6 +71,7 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
             name={passport.name}
             avatarUrl={avatarUrl}
             ensName={resolvedEns}
+            ownerAddress={passport.owner_address}
           />
         </TabsContent>
       </Tabs>

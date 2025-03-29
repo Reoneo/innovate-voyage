@@ -1,6 +1,8 @@
 
 import React from 'react';
-import { Users, BarChart } from 'lucide-react';
+import { Users, Home, Wallet } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 interface TalentLayoutProps {
   profileCount: number;
@@ -23,16 +25,17 @@ const TalentLayout: React.FC<TalentLayoutProps> = ({ profileCount, transactionCo
             </p>
           </div>
           
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="text-sm text-muted-foreground bg-secondary/50 backdrop-blur-sm p-2 rounded-lg">
-              <span>{profileCount} profiles</span>
-            </div>
-            {transactionCount !== undefined && (
-              <div className="text-sm text-muted-foreground bg-secondary/50 backdrop-blur-sm p-2 rounded-lg flex items-center gap-1">
-                <BarChart className="h-4 w-4" />
-                <span>{transactionCount} transactions</span>
-              </div>
-            )}
+          <div className="flex items-center gap-2">
+            <Link to="/">
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Home className="h-4 w-4" />
+                <span>Home</span>
+              </Button>
+            </Link>
+            <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={() => window.connectWalletModal.showModal()}>
+              <Wallet className="h-4 w-4" />
+              <span>Connect Wallet</span>
+            </Button>
           </div>
         </div>
 

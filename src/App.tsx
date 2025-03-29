@@ -10,28 +10,41 @@ import Talent from "./pages/Talent";
 import JobDetail from "./pages/JobDetail";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
+import WalletConnectModal from "./components/wallet/WalletConnectModal";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/jobs" element={<Jobs />} />
-          <Route path="/talent" element={<Talent />} />
-          <Route path="/jobs/:jobId" element={<JobDetail />} />
-          <Route path="/talent/:ensName" element={<TalentProfile />} />
-          <Route path="/address/:address" element={<TalentProfile />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // Initialize connected wallet from localStorage on app load
+  useEffect(() => {
+    const storedAddress = localStorage.getItem('connectedWalletAddress');
+    if (storedAddress) {
+      window.connectedWalletAddress = storedAddress;
+    }
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/jobs" element={<Jobs />} />
+            <Route path="/talent" element={<Talent />} />
+            <Route path="/jobs/:jobId" element={<JobDetail />} />
+            <Route path="/talent/:ensName" element={<TalentProfile />} />
+            <Route path="/address/:address" element={<TalentProfile />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <WalletConnectModal />
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
