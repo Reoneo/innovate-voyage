@@ -1,3 +1,4 @@
+
 import { delay } from './jobsApi';
 
 // Mock data for ENS records
@@ -16,101 +17,193 @@ const mockEnsRecords = [
   },
   { 
     address: '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', 
-    ensName: 'cdixon.eth',
-    avatar: 'https://pbs.twimg.com/profile_images/697435015398657024/nT39NRRv_400x400.jpg',
-    skills: ['Web3', 'Venture Capital', 'Crypto Economics', 'DeFi'],
+    ensName: 'ohms.box',
+    avatar: 'https://i.pravatar.cc/150?img=8',
+    skills: ['Community Management', 'Web3', 'Digital Marketing', 'Content Creation'],
     socialProfiles: {
-      twitter: '@cdixon',
-      github: 'cdixon',
-      linkedin: 'chrisdixon'
+      twitter: '@ohms_box',
+      github: 'ohmsbox',
+      linkedin: 'ohmsbox'
     }
   },
   { 
     address: '0x9C4eb242AcEbc6bfC068Ca16B8c851920Dd7BF11', 
-    ensName: 'naval.eth',
-    avatar: 'https://pbs.twimg.com/profile_images/1627829933296627712/jgxkmNW9_400x400.jpg',
-    skills: ['Angel Investing', 'Crypto', 'Startups', 'Philosophy'],
+    ensName: 'black.box',
+    avatar: 'https://i.pravatar.cc/150?img=12',
+    skills: ['DeFi', 'NFTs', 'DAO Governance', 'Smart Contract Development'],
     socialProfiles: {
-      twitter: '@naval',
-      github: 'naval',
-      linkedin: 'navalr'
+      twitter: '@black_box',
+      github: 'blackbox',
+      discord: 'blackbox#1234'
     }
   },
   { 
     address: '0x99C85bb64564D9eF9A99621301f22C9993Cb4E3F', 
-    ensName: 'jessewldn.eth',
-    avatar: 'https://pbs.twimg.com/profile_images/1607385686160293888/FeAzCiBF_400x400.jpg',
-    skills: ['Crypto UX', 'Product Design', 'NFTs', 'DeFi'],
+    ensName: 'hax.box',
+    avatar: 'https://i.pravatar.cc/150?img=13',
+    skills: ['Security Auditing', 'Penetration Testing', 'Bug Bounty', 'Blockchain Security'],
     socialProfiles: {
-      twitter: '@jessewldn',
-      github: 'jwolden',
-      linkedin: 'jessewolden'
+      twitter: '@hax_box',
+      github: 'haxbox',
+      discord: 'haxbox#5678'
     }
   },
   { 
     address: '0x5c6B0f7Bf3E7ce046039Bd8FABdfD3f9F5021678', 
-    ensName: 'brantly.eth',
-    avatar: 'https://pbs.twimg.com/profile_images/1718396752026128384/oVMy4IgI_400x400.jpg',
-    skills: ['ENS', 'Identity', 'Web3 Governance', 'Blockchain Domains'],
+    ensName: 'phantom.box',
+    avatar: 'https://i.pravatar.cc/150?img=15',
+    skills: ['Privacy Solutions', 'Zero-Knowledge Proofs', 'Anonymity Networks', 'Cryptography'],
     socialProfiles: {
-      twitter: '@brantlymillegan',
-      github: 'brantlymillegan',
-      linkedin: 'brantlymillegan'
+      twitter: '@phantom_box',
+      github: 'phantombox',
+      discord: 'phantom#9012'
     }
   },
   { 
     address: '0x6860f1A0eF0AB11d762DAe619457Eb54143f849c', 
-    ensName: 'sassal.eth',
-    avatar: 'https://pbs.twimg.com/profile_images/1632824745887141891/c_v1xwOC_400x400.jpg',
-    skills: ['Ethereum Research', 'DeFi Analytics', 'Staking', 'Protocol Design'],
+    ensName: 'bing.box',
+    avatar: 'https://i.pravatar.cc/150?img=18',
+    skills: ['Search Algorithms', 'Data Analytics', 'AI Integration', 'Web Services'],
     socialProfiles: {
-      twitter: '@sassal0x',
-      github: 'sassal',
-      linkedin: 'anthony-sassano',
-      discord: 'sassal#1337'
+      twitter: '@bing_box',
+      github: 'bingbox',
+      linkedin: 'bingbox',
+      discord: 'bing#3456'
     }
   },
   { 
     address: '0x21FB4411FA5828344c2788aB07D4cc12a12571b9', 
-    ensName: 'punk6529.eth',
-    avatar: 'https://pbs.twimg.com/profile_images/1466503263888621574/RJ4qw8jt_400x400.jpg',
-    skills: ['NFT Investment', 'Digital Art', 'Crypto Philosophy', 'Open Metaverse'],
+    ensName: 'hunter.box',
+    avatar: 'https://i.pravatar.cc/150?img=20',
+    skills: ['Airdrop Hunting', 'Token Research', 'DeFi Strategies', 'Alpha Finding'],
     socialProfiles: {
-      twitter: '@punk6529',
-      discord: 'punk6529#6529'
+      twitter: '@hunter_box',
+      discord: 'hunter#7890'
     }
   },
   { 
     address: '0x983110309620D911731Ac0932219af06091b6744', 
-    ensName: 'trent.eth',
-    avatar: 'https://pbs.twimg.com/profile_images/1698127275076673536/x1NeF7yW_400x400.jpg',
-    skills: ['MEV', 'ZK Proofs', 'Ethereum Infrastructure', 'Crypto UX'],
+    ensName: 'mike.box',
+    avatar: 'https://i.pravatar.cc/150?img=22',
+    skills: ['Web Development', 'Digital Marketing', 'Drone Piloting', 'Content Creation'],
     socialProfiles: {
-      twitter: '@trent_vanepps',
-      github: 'tvanepps',
-      discord: 'trent#4269'
+      twitter: '@mike_box',
+      github: 'mikebox',
+      linkedin: 'mikebox'
     }
   },
   { 
     address: '0x20fFeD7d3Ec1f10074159D59C53DaD137d7EFb1C', 
-    ensName: 'hayden.eth',
-    avatar: 'https://pbs.twimg.com/profile_images/1553109938570248192/vJriw9L9_400x400.jpg',
-    skills: ['DeFi Protocol Design', 'AMMs', 'Governance', 'Tokenomics'],
+    ensName: 'smith.box',
+    avatar: 'https://i.pravatar.cc/150?img=25',
+    skills: ['Multichain ID Services', 'Cross-Chain Solutions', 'Identity Verification', 'DID Standards'],
     socialProfiles: {
-      twitter: '@haydenzadams',
-      github: 'haydenadams',
-      discord: 'hayden#1234'
+      twitter: '@smith_box',
+      github: 'smithbox',
+      discord: 'smith#2345'
     }
   },
   { 
     address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c799C5', 
-    ensName: 'nickjohnson.eth',
-    avatar: 'https://pbs.twimg.com/profile_images/1318657593712771073/2xyHgQqz_400x400.jpg',
-    skills: ['ENS Development', 'Ethereum Internals', 'Smart Contract Security', 'DNS'],
+    ensName: 'blockchaineazy.box',
+    avatar: 'https://i.pravatar.cc/150?img=28',
+    skills: ['Community Management', 'Web Design', 'Social Media Strategy', 'Content Creation'],
     socialProfiles: {
-      twitter: '@nicksdjohnson',
-      github: 'arachnid',
-      linkedin: 'nicksdjohnson'
+      twitter: '@blockchaineazy',
+      github: 'blockchaineazy',
+      linkedin: 'blockchaineazy'
+    }
+  },
+  { 
+    address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c799D6', 
+    ensName: 'stars.box',
+    avatar: 'https://i.pravatar.cc/150?img=30',
+    skills: ['NFT Collecting', 'Virtual Worlds', 'Metaverse Design', 'Digital Art'],
+    socialProfiles: {
+      twitter: '@stars_box',
+      discord: 'stars#1111'
+    }
+  },
+  { 
+    address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c799E7', 
+    ensName: 'mystic.box',
+    avatar: 'https://i.pravatar.cc/150?img=31',
+    skills: ['Oracle Development', 'Prediction Markets', 'Forecasting Systems', 'Randomness'],
+    socialProfiles: {
+      twitter: '@mystic_box',
+      github: 'mysticbox',
+      discord: 'mystic#2222'
+    }
+  },
+  { 
+    address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c799F8', 
+    ensName: 'doom.box',
+    avatar: 'https://i.pravatar.cc/150?img=32',
+    skills: ['Gaming', 'Game Economics', 'Play-to-Earn', 'eSports'],
+    socialProfiles: {
+      twitter: '@doom_box',
+      discord: 'doom#3333'
+    }
+  },
+  { 
+    address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A001', 
+    ensName: 'seansky.box',
+    avatar: 'https://i.pravatar.cc/150?img=33',
+    skills: ['Airdrop Hunting', 'Node Setup', 'Crypto Tutorials', 'Token Research'],
+    socialProfiles: {
+      twitter: '@seansky_box',
+      discord: 'seansky#4444'
+    }
+  },
+  { 
+    address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A112', 
+    ensName: 'onigiri.box',
+    avatar: 'https://i.pravatar.cc/150?img=34',
+    skills: ['DeFi Protocol Design', 'Yield Farming', 'Liquidity Provision', 'Tokenomics'],
+    socialProfiles: {
+      twitter: '@onigiri_box',
+      github: 'onigiribox',
+      discord: 'onigiri#5555'
+    }
+  },
+  { 
+    address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A223', 
+    ensName: 'cypherpunk.box',
+    avatar: 'https://i.pravatar.cc/150?img=35',
+    skills: ['Privacy Tech', 'Cryptography', 'Decentralized Identity', 'Security'],
+    socialProfiles: {
+      twitter: '@cypherpunk_box',
+      github: 'cypherpunkbox'
+    }
+  },
+  { 
+    address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A334', 
+    ensName: 'yx.box',
+    avatar: 'https://i.pravatar.cc/150?img=36',
+    skills: ['Blockchain Gaming', 'Game Development', 'Smart Contract Gaming', 'Tokenized Games'],
+    socialProfiles: {
+      twitter: '@yx_box',
+      discord: 'yx#6666'
+    }
+  },
+  { 
+    address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A445', 
+    ensName: 'dude.box',
+    avatar: 'https://i.pravatar.cc/150?img=37',
+    skills: ['Community Building', 'Men\'s Support Networks', 'Content Creation', 'Social Media'],
+    socialProfiles: {
+      twitter: '@dude_box',
+      discord: 'dude#7777'
+    }
+  },
+  { 
+    address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A556', 
+    ensName: 'pen.box',
+    avatar: 'https://i.pravatar.cc/150?img=38',
+    skills: ['Investment Analysis', 'Entrepreneurship', 'Business Strategy', 'Financial Writing'],
+    socialProfiles: {
+      twitter: '@pen_box',
+      linkedin: 'penbox'
     }
   }
 ];
