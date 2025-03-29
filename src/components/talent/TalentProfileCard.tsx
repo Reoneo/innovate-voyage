@@ -4,7 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
-import { Shield, Award, Info, Star, ArrowDownUp } from 'lucide-react';
+import { Shield, Award, Info, Star, ArrowDownUp, ExternalLink } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { truncateAddress, BlockchainPassport } from '@/lib/utils';
 import UserCardTooltip from '@/components/jobs/UserCardTooltip';
 import { useBlockchainProfile } from '@/hooks/useEtherscan';
+import { Link } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface TalentProfileCardProps {
@@ -173,6 +174,16 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
               )}
             </div>
           )}
+        </div>
+        
+        {/* View Profile Button */}
+        <div className="mt-4">
+          <Link to={`/talent/profile/${encodeURIComponent(passport.passport_id)}/${encodeURIComponent(passport.owner_address)}`}>
+            <Button variant="outline" className="w-full">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              View Full Profile
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>
