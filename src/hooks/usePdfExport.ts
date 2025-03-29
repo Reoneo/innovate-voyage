@@ -23,27 +23,66 @@ export function usePdfExport() {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        onclone: (document) => {
+          // Make all links in the cloned document blue and underlined
+          const links = document.getElementsByTagName('a');
+          for (let i = 0; i < links.length; i++) {
+            links[i].style.color = '#0000EE';
+            links[i].style.textDecoration = 'underline';
+          }
+        }
       });
       
       document.body.classList.remove('generating-pdf');
       
-      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
       
-      const imgWidth = 210;
-      const imgHeight = canvas.height * imgWidth / canvas.width;
+      // Split the image into pages if it's too long
+      let heightLeft = imgHeight;
+      let position = 0;
+      let pageNumber = 1;
+
+      while (heightLeft >= 0) {
+        if (pageNumber > 1) {
+          pdf.addPage();
+        }
+        
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        position -= pageHeight;
+        pageNumber++;
+      }
+
+      // Add hyperlinks to the PDF
+      const links = resumeElement.getElementsByTagName('a');
+      for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+        const rect = link.getBoundingClientRect();
+        const scaleFactor = imgWidth / canvas.width;
+        
+        pdf.link(
+          rect.left * scaleFactor,
+          rect.top * scaleFactor,
+          rect.width * scaleFactor,
+          rect.height * scaleFactor,
+          { url: link.href }
+        );
+      }
       
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`blockchain-profile-resume.pdf`);
+      pdf.save('blockchain-profile.pdf');
       
       toast({
         title: 'PDF Generated',
-        description: 'Your resume has been successfully downloaded!'
+        description: 'Your profile has been successfully downloaded!'
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
