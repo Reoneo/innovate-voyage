@@ -120,10 +120,7 @@ const Talent = () => {
         };
         
         setSearchResults([newPassport]);
-        toast({
-          title: "Profile found!",
-          description: `Found blockchain data for ${ensName}${additionalEnsDomains.length > 0 ? ` and ${additionalEnsDomains.length} additional ENS domains` : ''}`,
-        });
+        // Removed the success toast that was here
       } catch (error) {
         console.error('Error fetching Etherscan data:', error);
         toast({
