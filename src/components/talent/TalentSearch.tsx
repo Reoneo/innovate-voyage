@@ -8,6 +8,7 @@ import { isValidEthereumAddress } from '@/lib/utils';
 import { toast } from '@/components/ui/use-toast';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 
 interface TalentSearchProps {
   onSearch: (query: string) => void;
@@ -134,8 +135,8 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
           </div>
         </div>
         
-        {/* Inline search results */}
-        {searchInput && searchResults.length > 0 && (
+        {/* Inline search results - Only show if we have results and not currently searching */}
+        {searchInput && searchResults.length > 0 && !isSearching && (
           <div className="mt-4 border rounded-md overflow-hidden">
             <div className="p-3 bg-muted font-medium">
               Search Results
@@ -165,15 +166,27 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
           </div>
         )}
         
+        {/* Loading state - Only show if we're actively loading */}
         {searchInput && isLoading && (
           <div className="mt-4 p-3 text-center text-muted-foreground">
             {searchInput.includes('.box') ? 'Searching on Optimism network...' : 'Searching...'}
           </div>
         )}
         
-        {searchInput && !isLoading && searchResults.length === 0 && (
+        {/* No results state - Only show if search is complete and yielded no results */}
+        {searchInput && !isLoading && searchResults.length === 0 && !error && !isSearching && (
           <div className="mt-4 p-3 text-center text-muted-foreground">
             No results found. Try a different search term.
+          </div>
+        )}
+        
+        {/* Error state - Only show user-friendly error message */}
+        {error && !isLoading && searchInput && !isSearching && (
+          <div className="mt-4">
+            <Alert variant="destructive" className="bg-destructive/10">
+              <AlertTitle>Unable to resolve name</AlertTitle>
+              Please try again later or check if the ENS name exists.
+            </Alert>
           </div>
         )}
       </CardContent>
