@@ -45,8 +45,8 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
     <Card className="overflow-hidden">
       <CardHeader className="flex flex-row items-center gap-4 pb-2">
         <Avatar className="h-12 w-12">
-          <AvatarImage src={passport.avatar_url} alt={passport.passport_id} />
-          <AvatarFallback>{passport.passport_id.substring(0, 2)}</AvatarFallback>
+          <AvatarImage src={passport.avatar_url || '/placeholder.svg'} alt={passport.passport_id} />
+          <AvatarFallback>{passport.passport_id?.substring(0, 2) || 'BP'}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
           <div className="flex items-center justify-between">

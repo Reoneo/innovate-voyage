@@ -2,10 +2,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Award, Coins } from 'lucide-react';
+import { Award, ExternalLink } from 'lucide-react';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import SkillsNodeLeafD3 from '@/components/visualizations/skills/SkillsNodeLeafD3';
-import TransactionHistoryChart from '@/components/visualizations/transactions/TransactionHistoryChart';
+import { Button } from '@/components/ui/button';
 
 interface OverviewTabProps {
   skills: Array<{ name: string; proof?: string; issued_by?: string }>;
@@ -13,6 +13,12 @@ interface OverviewTabProps {
   blockchainProfile?: BlockchainProfile | null;
   transactions?: any[] | null;
   address: string;
+  blockchainExtendedData?: {
+    mirrorPosts: number;
+    lensActivity: number;
+    boxDomains: string[];
+    snsActive: boolean;
+  };
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ 
@@ -20,7 +26,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   name, 
   blockchainProfile, 
   transactions, 
-  address 
+  address,
+  blockchainExtendedData
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -52,27 +59,71 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         </CardContent>
       </Card>
       
-      {/* Blockchain Activity */}
+      {/* Web3 Social Activity */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <Coins className="h-5 w-5" /> Blockchain Activity
+            <ExternalLink className="h-5 w-5" /> Web3 Social Activity
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex justify-between">
-              <div className="text-sm text-muted-foreground">ETH Balance</div>
-              <div className="font-medium">{blockchainProfile?.balance || "0"} ETH</div>
-            </div>
-            <div className="flex justify-between">
-              <div className="text-sm text-muted-foreground">Transactions</div>
-              <div className="font-medium">{blockchainProfile?.transactionCount || "0"}</div>
+            {/* Mirror.xyz Activity */}
+            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div>
+                <h3 className="font-medium">Mirror.xyz</h3>
+                <p className="text-sm text-muted-foreground">
+                  {blockchainExtendedData?.mirrorPosts || 0} posts published
+                </p>
+              </div>
+              <a href={`https://mirror.xyz/${address}`} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm">
+                  <ExternalLink className="h-4 w-4 mr-1" /> View
+                </Button>
+              </a>
             </div>
             
-            {transactions && transactions.length > 0 && (
-              <div className="h-48 mt-6">
-                <TransactionHistoryChart transactions={transactions} address={address} />
+            {/* Lens Protocol Activity */}
+            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div>
+                <h3 className="font-medium">Lens Protocol</h3>
+                <p className="text-sm text-muted-foreground">
+                  {blockchainExtendedData?.lensActivity || 0} activities
+                </p>
+              </div>
+              <a href={`https://hey.xyz/u/${address}`} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm">
+                  <ExternalLink className="h-4 w-4 mr-1" /> View
+                </Button>
+              </a>
+            </div>
+            
+            {/* Farcaster Activity */}
+            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div>
+                <h3 className="font-medium">Farcaster</h3>
+                <p className="text-sm text-muted-foreground">
+                  Active user
+                </p>
+              </div>
+              <a href={`https://warpcast.com/${address}`} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm">
+                  <ExternalLink className="h-4 w-4 mr-1" /> View
+                </Button>
+              </a>
+            </div>
+
+            {blockchainExtendedData?.snsActive && (
+              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div>
+                  <h3 className="font-medium">SNS.ID</h3>
+                  <p className="text-sm text-muted-foreground">Active user</p>
+                </div>
+                <a href={`https://sns.id/${address}`} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" size="sm">
+                    <ExternalLink className="h-4 w-4 mr-1" /> View
+                  </Button>
+                </a>
               </div>
             )}
           </div>

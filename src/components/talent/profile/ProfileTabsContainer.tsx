@@ -19,6 +19,12 @@ interface ProfileTabsContainerProps {
   transactions?: any[] | null;
   resolvedEns?: string;
   onExportPdf: () => void;
+  blockchainExtendedData?: {
+    mirrorPosts: number;
+    lensActivity: number;
+    boxDomains: string[];
+    snsActive: boolean;
+  };
 }
 
 const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({ 
@@ -26,7 +32,8 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   blockchainProfile, 
   transactions,
   resolvedEns,
-  onExportPdf 
+  onExportPdf,
+  blockchainExtendedData
 }) => {
   // Ensure skills and socials are properly passed as non-null values
   const normalizedPassport = {
@@ -52,6 +59,7 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
             blockchainProfile={blockchainProfile}
             transactions={transactions}
             address={normalizedPassport.owner_address}
+            blockchainExtendedData={blockchainExtendedData}
           />
         </TabsContent>
         

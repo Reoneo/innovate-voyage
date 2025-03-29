@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Download, Briefcase, ChevronRight, Award, Activity, Box } from 'lucide-react';
+import { FileText, Download, Briefcase, Award, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { truncateAddress } from '@/lib/utils';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
@@ -41,9 +41,6 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
 
   // Filter verified skills (from TalentProtocol.com)
   const verifiedSkills = passport.skills.filter(skill => skill.proof && skill.proof.includes('talentprotocol.com'));
-  
-  // Get featured .box usernames
-  const boxUsernames = ['vitalik.box', 'ethereum.box', 'web3.box']; // This would be replaced with actual API data
 
   return (
     <>
@@ -54,8 +51,13 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
               <FileText className="h-6 w-6" />
               Blockchain Resume
             </CardTitle>
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full text-sm">
-              {passport.score} • {passport.category}
+            <div className="flex items-center gap-2">
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full text-sm">
+                {passport.score} • {passport.category}
+              </div>
+              <div className="bg-gradient-to-r from-green-500 to-teal-600 text-white px-3 py-1 rounded-full text-sm">
+                TP Score: 85
+              </div>
             </div>
           </div>
           <CardDescription className="text-base">
@@ -141,25 +143,6 @@ const ResumeTab: React.FC<ResumeTabProps> = ({
                   No TalentProtocol verified skills available
                 </p>
               )}
-            </div>
-            
-            {/* Featured Box Usernames */}
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold flex items-center gap-2">
-                <Box className="h-5 w-5 text-blue-500" />
-                Featured .box Domains
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {boxUsernames.map((username, idx) => (
-                  <div key={idx} className="flex items-center gap-2 bg-gray-50 p-3 rounded-md">
-                    <div className="bg-blue-100 p-2 rounded-md">
-                      <Box className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <span className="font-medium">{username}</span>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground ml-auto" />
-                  </div>
-                ))}
-              </div>
             </div>
             
             {/* Blockchain Metrics */}

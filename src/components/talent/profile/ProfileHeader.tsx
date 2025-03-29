@@ -32,8 +32,8 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
       <CardHeader className="pb-4">
         <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
           <Avatar className="h-24 w-24">
-            <AvatarImage src={passport.avatar_url} />
-            <AvatarFallback>{passport.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarImage src={passport.avatar_url || '/placeholder.svg'} alt={passport.name} />
+            <AvatarFallback>{passport.name?.substring(0, 2)?.toUpperCase() || 'BP'}</AvatarFallback>
           </Avatar>
           
           <div className="flex-1 text-center md:text-left">
@@ -84,10 +84,22 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
               </div>
               
               <div className="flex flex-col items-center">
-                <div className={`text-5xl font-bold ${getScoreColorClass(passport.score)}`}>
-                  {passport.score}
+                <div className="flex gap-3">
+                  <div className="flex flex-col items-center">
+                    <div className={`text-5xl font-bold ${getScoreColorClass(passport.score)}`}>
+                      {passport.score}
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">Human Score</div>
+                  </div>
+                  
+                  <div className="flex flex-col items-center">
+                    <div className="text-5xl font-bold text-green-500">
+                      85
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">TP Score</div>
+                  </div>
                 </div>
-                <div className="text-sm text-muted-foreground mt-1">Human Score</div>
+                
                 <div className="mt-2">
                   <Badge className="text-xs">{passport.category}</Badge>
                 </div>
