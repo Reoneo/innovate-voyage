@@ -100,7 +100,7 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name, avatarUrl, ensName 
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 rounded-full bg-indigo-400 mr-1.5"></div>
-                <span>Other ENS Domains</span>
+                <span>Box Domain</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 rounded-full bg-emerald-500 mr-1.5"></div>

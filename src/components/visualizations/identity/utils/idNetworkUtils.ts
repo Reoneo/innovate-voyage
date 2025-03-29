@@ -50,11 +50,9 @@ export function createTooltip() {
  */
 export function getNodeColor(nodeType: string, isDotBox?: boolean) {
   if (nodeType === "user") return "#3b82f6";
-  if (nodeType === "ens-main") {
+  if (nodeType === "ens-domain") {
+    // Updated color handling for all ENS domains (both main and others)
     return isDotBox ? "#8b5cf6" : "#6366f1";
-  }
-  if (nodeType === "ens-other") {
-    return isDotBox ? "#a78bfa" : "#818cf8";
   }
   if (nodeType === "identity-nft") return "#10b981";
   if (nodeType === "platform") return "#f59e0b";
@@ -66,11 +64,9 @@ export function getNodeColor(nodeType: string, isDotBox?: boolean) {
  */
 export function getNodeStrokeColor(nodeType: string, isDotBox?: boolean) {
   if (nodeType === "user") return "#1d4ed8";
-  if (nodeType === "ens-main") {
+  if (nodeType === "ens-domain") {
+    // Updated stroke color handling for all ENS domains
     return isDotBox ? "#7c3aed" : "#4f46e5";
-  }
-  if (nodeType === "ens-other") {
-    return isDotBox ? "#7c3aed" : "#4338ca";
   }
   if (nodeType === "identity-nft") return "#059669";
   if (nodeType === "platform") return "#b45309";
@@ -83,10 +79,10 @@ export function getNodeStrokeColor(nodeType: string, isDotBox?: boolean) {
 export function getTooltipContent(node: any) {
   if (node.type === "user") {
     return `<strong>${node.name}</strong><br>Main profile`;
-  } else if (node.type === "ens-main") {
-    return `<strong>${node.name}</strong><br>Primary ${node.isDotBox ? '.box' : '.eth'} Domain`;
-  } else if (node.type === "ens-other") {
-    return `<strong>${node.name}</strong><br>Owned ${node.isDotBox ? '.box' : '.eth'} Domain`;
+  } else if (node.type === "ens-domain") {
+    // Updated tooltip for all ENS domains
+    const domainType = node.isDotBox ? '.box' : '.eth';
+    return `<strong>${node.name}</strong><br>${domainType} ENS Domain`;
   } else if (node.type === "identity-nft") {
     return `<strong>${node.name}</strong><br>Identity NFT`;
   } else if (node.type === "platform") {

@@ -115,20 +115,22 @@ function useNetworkGraphData(
     const centralNode: NetworkNode = { id: 'central', name, type: 'user', avatar: avatarUrl };
     
     // Main ENS domain node - could be .eth or .box
+    // Now directly connected to central node
     const mainEnsNode = ensName ? { 
       id: 'main-ens', 
       name: ensName, 
-      type: 'ens-main',
+      type: 'ens-domain', // Changed from 'ens-main' to 'ens-domain'
       isDotBox: ensName.includes('.box') 
     } : null;
     
     // Additional ENS domains - both .eth and .box
+    // Now all directly connected to central node
     const ensNodes = ensRecords?.filter(domain => 
       domain.ensName !== ensName
     ).map((domain, idx) => ({
       id: `ens-${idx}`,
       name: domain.ensName,
-      type: 'ens-other',
+      type: 'ens-domain', // Changed from 'ens-other' to 'ens-domain'
       avatar: domain.avatar,
       isDotBox: domain.ensName.includes('.box')
     })) || [];
@@ -163,11 +165,12 @@ function useNetworkGraphData(
     ];
 
     // Create links between central node and other identity elements
+    // All ENS domains now directly connect to central node
     const links = [
       // Link to main ENS
       ...(mainEnsNode ? [{ source: 'central', target: 'main-ens', value: 5 }] : []),
       
-      // Links to other ENS domains
+      // Links to other ENS domains - now directly to central node
       ...ensNodes.map(node => ({
         source: 'central',
         target: node.id,
