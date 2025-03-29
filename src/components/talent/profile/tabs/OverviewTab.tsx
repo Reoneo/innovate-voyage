@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
-import { Network, Link as LinkIcon, Globe, Github, Twitter, Linkedin, Facebook, Youtube, Instagram } from 'lucide-react';
+import { Network, Link as LinkIcon, Globe } from 'lucide-react';
 import { SocialIcon } from '@/components/ui/social-icon';
 
 interface OverviewTabProps {
@@ -78,7 +78,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             {/* Social links */}
             {socials.github && (
               <div className="flex items-center gap-2">
-                <Github className="h-4 w-4" />
+                <SocialIcon type="github" size={16} />
                 <a 
                   href={socials.github} 
                   target="_blank" 
@@ -92,7 +92,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             
             {socials.twitter && (
               <div className="flex items-center gap-2">
-                <Twitter className="h-4 w-4" />
+                <SocialIcon type="twitter" size={16} />
                 <a 
                   href={socials.twitter} 
                   target="_blank" 
@@ -106,7 +106,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             
             {socials.linkedin && (
               <div className="flex items-center gap-2">
-                <Linkedin className="h-4 w-4" />
+                <SocialIcon type="linkedin" size={16} />
                 <a 
                   href={socials.linkedin} 
                   target="_blank" 
@@ -120,7 +120,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             
             {socials.facebook && (
               <div className="flex items-center gap-2">
-                <Facebook className="h-4 w-4" />
+                <SocialIcon type="facebook" size={16} />
                 <a 
                   href={socials.facebook} 
                   target="_blank" 
@@ -134,7 +134,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             
             {socials.instagram && (
               <div className="flex items-center gap-2">
-                <Instagram className="h-4 w-4" />
+                <SocialIcon type="instagram" size={16} />
                 <a 
                   href={socials.instagram} 
                   target="_blank" 
@@ -148,7 +148,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             
             {socials.youtube && (
               <div className="flex items-center gap-2">
-                <Youtube className="h-4 w-4" />
+                <SocialIcon type="youtube" size={16} />
                 <a 
                   href={socials.youtube} 
                   target="_blank" 
@@ -176,7 +176,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             
             {socials.website && (
               <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4" />
+                <SocialIcon type="globe" size={16} />
                 <a 
                   href={socials.website} 
                   target="_blank" 
