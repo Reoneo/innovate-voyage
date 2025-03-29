@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Github, Linkedin, Twitter, Globe, Mail, Info, Copy } from 'lucide-react';
+import { Info, Copy } from 'lucide-react';
 import { truncateAddress } from '@/lib/utils';
 import { getScoreColorClass } from '@/lib/utils';
 import {
@@ -15,6 +14,8 @@ import {
 } from "@/components/ui/tooltip";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
+import { SocialIcon } from '@/components/ui/social-icon';
+import { socialPlatforms } from '@/constants/socialPlatforms';
 
 interface ProfileHeaderProps {
   passport: {
@@ -30,6 +31,11 @@ interface ProfileHeaderProps {
       linkedin?: string;
       website?: string;
       email?: string;
+      facebook?: string;
+      instagram?: string;
+      youtube?: string;
+      bluesky?: string;
+      telegram?: string;
     };
     bio?: string; // Add bio field
   };
@@ -59,62 +65,49 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
             <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
               <div>
                 <CardTitle className="text-2xl">{passport.passport_id}</CardTitle>
-                <CardDescription className="text-base flex items-center gap-1">
-                  {truncateAddress(passport.owner_address)}
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-6 w-6 p-0" 
-                    onClick={copyAddressToClipboard}
-                  >
-                    <Copy className="h-3.5 w-3.5" />
-                  </Button>
-                </CardDescription>
+                <div className="flex items-center gap-2">
+                  <CardDescription className="text-base flex items-center gap-1">
+                    {truncateAddress(passport.owner_address)}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 w-6 p-0" 
+                      onClick={copyAddressToClipboard}
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  </CardDescription>
+                  
+                  <div className="flex items-center gap-1.5">
+                    {socialPlatforms.map((platform) => 
+                      passport.socials[platform.key] && (
+                        <a 
+                          key={platform.key}
+                          href={passport.socials[platform.key]} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="hover:opacity-80 transition-opacity"
+                        >
+                          <SocialIcon type={platform.type as any} size={18} className="text-muted-foreground hover:text-foreground" />
+                        </a>
+                      )
+                    )}
+                    {passport.socials?.email && (
+                      <a 
+                        href={`mailto:${passport.socials.email}`}
+                        className="hover:opacity-80 transition-opacity"
+                      >
+                        <SocialIcon type="mail" size={18} className="text-muted-foreground hover:text-foreground" />
+                      </a>
+                    )}
+                  </div>
+                </div>
                 
-                {/* Add ENS bio if available */}
                 {passport.bio && (
                   <p className="text-sm mt-1.5 text-muted-foreground">
                     {passport.bio}
                   </p>
                 )}
-                
-                <div className="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
-                  {passport.socials?.github && (
-                    <a href={passport.socials.github} target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" size="sm">
-                        <Github className="h-4 w-4" />
-                      </Button>
-                    </a>
-                  )}
-                  {passport.socials?.twitter && (
-                    <a href={passport.socials.twitter} target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" size="sm">
-                        <Twitter className="h-4 w-4" />
-                      </Button>
-                    </a>
-                  )}
-                  {passport.socials?.linkedin && (
-                    <a href={passport.socials.linkedin} target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" size="sm">
-                        <Linkedin className="h-4 w-4" />
-                      </Button>
-                    </a>
-                  )}
-                  {passport.socials?.website && (
-                    <a href={passport.socials.website} target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" size="sm">
-                        <Globe className="h-4 w-4" />
-                      </Button>
-                    </a>
-                  )}
-                  {passport.socials?.email && (
-                    <a href={`mailto:${passport.socials.email}`}>
-                      <Button variant="outline" size="sm">
-                        <Mail className="h-4 w-4" />
-                      </Button>
-                    </a>
-                  )}
-                </div>
               </div>
               
               <div className="flex flex-col items-center">

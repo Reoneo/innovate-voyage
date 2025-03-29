@@ -9,7 +9,7 @@ export const socialPlatforms = [
   { key: 'youtube', type: 'youtube' },
   { key: 'bluesky', type: 'bluesky' },
   { key: 'website', type: 'globe' },
-  { key: 'telegram', type: 'message-circle' }
+  { key: 'telegram', type: 'telegram' }
 ];
 
 // Define social platform interface
