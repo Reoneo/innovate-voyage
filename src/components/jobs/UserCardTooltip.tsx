@@ -1,12 +1,13 @@
 
 import React from 'react';
-import { FileText, Box, Network } from 'lucide-react';
+import { FileText, Box, Network, Coins } from 'lucide-react';
 import { HoverCardContent } from '@/components/ui/hover-card';
 import { BlockchainPassport } from '@/lib/utils';
 import UserInfo from './user-profile/UserInfo';
 import ContributionChart from './visualizations/ContributionChart';
 import ProjectNetwork from './visualizations/ProjectNetwork';
 import SkillsNodeLeafD3 from '@/components/visualizations/skills/SkillsNodeLeafD3';
+import BlockchainActivity from './user-profile/BlockchainActivity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface UserCardTooltipProps {
@@ -34,6 +35,9 @@ const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
             <TabsTrigger value="skills" className="text-xs">
               <Network className="h-3 w-3 mr-1" /> Skills Graph
             </TabsTrigger>
+            <TabsTrigger value="blockchain" className="text-xs">
+              <Coins className="h-3 w-3 mr-1" /> Blockchain
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="connections" className="pt-2">
             <h4 className="text-sm font-medium mb-2">Project Connections</h4>
@@ -48,6 +52,10 @@ const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
             <div className="h-60">
               <SkillsNodeLeafD3 skills={passport.skills} name={passport.name} />
             </div>
+          </TabsContent>
+          <TabsContent value="blockchain" className="pt-2">
+            <h4 className="text-sm font-medium mb-2">Blockchain Activity</h4>
+            <BlockchainActivity address={passport.owner_address} />
           </TabsContent>
         </Tabs>
       </div>
