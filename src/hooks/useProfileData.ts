@@ -21,7 +21,10 @@ export function useProfileData(ensName?: string, address?: string) {
     ? {
         ...blockchainData.blockchainProfile,
         socials: ensLinks?.socials || {},
-        ensLinks: ensLinks?.ensLinks || []
+        ensLinks: ensLinks?.ensLinks || [],
+        description: blockchainData.blockchainProfile.description || 
+                     ensLinks?.description || 
+                     blockchainData.blockchainExtendedData?.description
       }
     : null;
   

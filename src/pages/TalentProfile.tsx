@@ -50,7 +50,8 @@ const TalentProfile = () => {
             name: passport.name,
             score: passport.score,
             category: passport.category,
-            socials: passport.socials || {}
+            socials: passport.socials || {},
+            bio: blockchainProfile?.description || blockchainExtendedData?.description || null
           }} />
           <ProfileTabsContainer 
             passport={passport}
