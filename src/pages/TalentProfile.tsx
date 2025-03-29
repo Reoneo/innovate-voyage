@@ -25,7 +25,11 @@ const TalentProfile = () => {
         <div ref={profileRef} className="space-y-6">
           <ProfileHeader passport={passport} />
           <ProfileTabsContainer 
-            passport={passport}
+            passport={{
+              ...passport,
+              skills: passport.skills || [],
+              socials: passport.socials || {}
+            }}
             blockchainProfile={blockchainProfile}
             transactions={transactions}
             resolvedEns={resolvedEns}
