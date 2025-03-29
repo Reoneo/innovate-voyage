@@ -1,3 +1,4 @@
+
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -9,7 +10,11 @@ export function cn(...inputs: ClassValue[]) {
 export interface Skill {
   name: string;
   proof: string;
+  issued_by?: string;
 }
+
+// Use PassportSkill as an alias for Skill to fix the import errors
+export type PassportSkill = Skill;
 
 // Type for blockchain passport
 export interface BlockchainPassport {
@@ -50,6 +55,11 @@ export interface JobPosting {
 export function truncateAddress(address: string): string {
   if (!address) return '';
   return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+}
+
+// Helper function to validate Ethereum addresses
+export function isValidEthereumAddress(address: string): boolean {
+  return /^0x[a-fA-F0-9]{40}$/.test(address);
 }
 
 // Function to calculate a human score based on blockchain activity
