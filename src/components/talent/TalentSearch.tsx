@@ -88,7 +88,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
               {searchInput && (
                 <>
                   {searchInput.includes('.eth') ? 
-                    'Searching for ENS name (.eth)' : 
+                    'Searching for ENS name on Ethereum Mainnet' : 
                     searchInput.includes('.box') ?
                       'Searching for .box domain on Optimistic Etherscan' :
                       isValidEthereumAddress(searchInput) ? 
@@ -152,7 +152,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
         
         {searchInput && isLoading && (
           <div className="mt-4 p-3 text-center text-muted-foreground">
-            Searching...
+            {searchInput.includes('.box') ? 'Searching on Optimism network...' : 'Searching...'}
           </div>
         )}
         
