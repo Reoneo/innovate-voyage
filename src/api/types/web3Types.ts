@@ -45,7 +45,7 @@ export interface Web3BioProfile {
   twitter?: string;
   linkedin?: string;
   website?: string;
-  // Removed duplicate email property
+  email?: string;
   links?: {
     website?: {
       link: string;

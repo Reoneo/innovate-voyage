@@ -47,6 +47,9 @@ export interface BlockchainPassport {
     discord?: string;
     telegram?: string;
     twitter?: string;
+    linkedin?: string;
+    website?: string;
+    email?: string;
   };
   skills?: PassportSkill[];
 }
