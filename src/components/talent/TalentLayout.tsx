@@ -1,13 +1,14 @@
 
 import React from 'react';
-import { Users } from 'lucide-react';
+import { Users, BarChart } from 'lucide-react';
 
 interface TalentLayoutProps {
   profileCount: number;
+  transactionCount?: number;
   children: React.ReactNode;
 }
 
-const TalentLayout: React.FC<TalentLayoutProps> = ({ profileCount, children }) => {
+const TalentLayout: React.FC<TalentLayoutProps> = ({ profileCount, transactionCount, children }) => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 px-4 sm:px-6">
@@ -26,6 +27,12 @@ const TalentLayout: React.FC<TalentLayoutProps> = ({ profileCount, children }) =
             <div className="text-sm text-muted-foreground bg-secondary/50 backdrop-blur-sm p-2 rounded-lg">
               <span>{profileCount} profiles</span>
             </div>
+            {transactionCount !== undefined && (
+              <div className="text-sm text-muted-foreground bg-secondary/50 backdrop-blur-sm p-2 rounded-lg flex items-center gap-1">
+                <BarChart className="h-4 w-4" />
+                <span>{transactionCount} transactions</span>
+              </div>
+            )}
           </div>
         </div>
 

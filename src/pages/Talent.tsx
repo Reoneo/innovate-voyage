@@ -5,6 +5,7 @@ import { calculateHumanScore, getScoreColorClass, BlockchainPassport } from '@/l
 import TalentLayout from '@/components/talent/TalentLayout';
 import TalentFilters from '@/components/talent/TalentFilters';
 import TalentGrid from '@/components/talent/TalentGrid';
+import { useBlockchainProfile } from '@/hooks/useEtherscan';
 
 const Talent = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -94,6 +95,40 @@ const Talent = () => {
       });
   }, [ensRecords, searchTerm, selectedSkills, sortBy]);
 
+  // Sum up total transactions across all profiles (for those with data)
+  const [totalTransactions, setTotalTransactions] = useState<number>(0);
+
+  // Fetch blockchain data for the first few profiles to show some transaction stats
+  React.useEffect(() => {
+    if (passportData.length > 0) {
+      // Take the first 5 profiles to avoid too many API calls
+      const sampleAddresses = passportData.slice(0, 5).map(p => p.owner_address);
+      
+      // Count total transactions from these sample addresses
+      let txCount = 0;
+      
+      const fetchTransactionCounts = async () => {
+        for (const address of sampleAddresses) {
+          try {
+            const response = await fetch(`https://api.etherscan.io/api?module=proxy&action=eth_getTransactionCount&address=${address}&tag=latest&apikey=5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM`);
+            const data = await response.json();
+            
+            if (data.result) {
+              // Convert hex to decimal and add to total
+              txCount += parseInt(data.result, 16);
+            }
+          } catch (error) {
+            console.error('Error fetching transaction count:', error);
+          }
+        }
+        
+        setTotalTransactions(txCount);
+      };
+      
+      fetchTransactionCounts();
+    }
+  }, [passportData]);
+
   const handleSkillToggle = (skill: string) => {
     setSelectedSkills(prev => 
       prev.includes(skill)
@@ -108,7 +143,10 @@ const Talent = () => {
   };
 
   return (
-    <TalentLayout profileCount={passportData.length}>
+    <TalentLayout 
+      profileCount={passportData.length}
+      transactionCount={totalTransactions}
+    >
       {/* Filters Sidebar */}
       <div className="lg:col-span-1">
         <TalentFilters
