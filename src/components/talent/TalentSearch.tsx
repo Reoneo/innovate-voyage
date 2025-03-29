@@ -162,15 +162,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
               </div>
             )}
             
-            {/* No results state - without error message */}
-            {!isLoading && searchResults.length === 0 && !isSearching && (
-              <Alert className="bg-muted/50 border">
-                <div className="flex flex-col items-center p-2">
-                  <p className="text-center">No results found for "{searchInput}"</p>
-                  <p className="text-sm text-muted-foreground mt-1">Try a different search term</p>
-                </div>
-              </Alert>
-            )}
+            {/* No results state - removed as requested */}
           </div>
         )}
       </CardContent>
