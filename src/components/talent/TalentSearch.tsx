@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SearchIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -127,63 +126,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
           </div>
         </div>
         
-        {/* Search results section - only show if search was executed */}
-        {hasExecutedSearch && searchInput && (
-          <div className="mt-6">
-            {/* Loading state */}
-            {isLoading && (
-              <div className="p-4 text-center">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-                <p className="mt-2 text-muted-foreground">
-                  Searching on Ethereum Mainnet...
-                </p>
-              </div>
-            )}
-            
-            {/* Results found */}
-            {!isLoading && searchResults.length > 0 && !isSearching && (
-              <div className="rounded-lg overflow-hidden bg-accent/50 backdrop-blur-sm">
-                <div className="p-3 bg-muted/70 font-medium border-b flex justify-between items-center">
-                  <span>Search Results</span>
-                  <span className="text-xs text-muted-foreground">{searchResults.length} found</span>
-                </div>
-                <div>
-                  {searchResults.map((result, index) => (
-                    <div 
-                      key={index} 
-                      className="p-4 hover:bg-muted/30 cursor-pointer flex items-center gap-4 transition-colors"
-                      onClick={() => handleResultClick(result)}
-                    >
-                      <Avatar className="h-12 w-12 ring-2 ring-background/50">
-                        <AvatarImage src={result.avatar || '/placeholder.svg'} alt={result.name} />
-                        <AvatarFallback className="bg-primary/10 text-primary">
-                          {result.name.substring(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium text-lg">{result.name}</div>
-                        {result.address && (
-                          <div className="text-sm text-muted-foreground font-mono">
-                            {result.address.substring(0, 8)}...{result.address.substring(result.address.length - 6)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {/* No results found */}
-            {!isLoading && searchResults.length === 0 && !isSearching && (
-              <div className="p-4 bg-muted/30 rounded-lg text-center">
-                <p className="text-muted-foreground">
-                  No results found for "{searchInput}"
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Search results section removed */}
       </CardContent>
     </Card>
   );
