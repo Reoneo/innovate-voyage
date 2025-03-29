@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { isValidEthereumAddress } from '@/lib/utils';
 
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import ProfileHeader from '@/components/talent/profile/ProfileHeader';
@@ -12,8 +13,21 @@ import ProfileTabsContainer from '@/components/talent/profile/ProfileTabsContain
 import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
 
 const TalentProfile = () => {
-  const { ensName, address } = useParams<{ ensName: string; address: string }>();
-  const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl } = useProfileData(ensName, address);
+  const { ensName } = useParams<{ ensName: string }>();
+  const [address, setAddress] = useState<string | undefined>(undefined);
+  
+  // Determine if the ensName param is actually an address
+  useEffect(() => {
+    if (ensName && isValidEthereumAddress(ensName)) {
+      setAddress(ensName);
+    }
+  }, [ensName]);
+
+  const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl } = useProfileData(
+    (ensName && !isValidEthereumAddress(ensName)) ? ensName : undefined, 
+    address || (ensName && isValidEthereumAddress(ensName) ? ensName : undefined)
+  );
+  
   const { profileRef, exportAsPDF } = usePdfExport();
   const isMobile = useIsMobile();
 
