@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Github, Twitter, Linkedin, Globe, Mail, Facebook, MessageCircle, Smartphone, Instagram, Youtube } from 'lucide-react';
+import { Github, Twitter, Linkedin, Globe, Mail, Facebook, MessageCircle, Smartphone, Instagram, Youtube, Butterfly } from 'lucide-react';
 
 type SocialIconType = 'github' | 'twitter' | 'linkedin' | 'globe' | 'mail' | 'facebook' | 'whatsapp' | 'messenger' | 'bluesky' | 'instagram' | 'youtube' | 'telegram' | 'reddit' | 'discord';
 
@@ -35,12 +35,7 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
     case 'messenger':
       return <MessageCircle size={size} className={`text-blue-500 ${iconClasses}`} />;
     case 'bluesky':
-      return (
-        <div className={`relative flex items-center justify-center ${iconClasses}`}>
-          <div className="bg-sky-500 rounded-full" style={{ width: `${size}px`, height: `${size}px` }}></div>
-          <span className="absolute text-white font-bold" style={{ fontSize: `${size * 0.5}px` }}>𐃂</span>
-        </div>
-      );
+      return <Butterfly size={size} className={`text-gray-800 ${iconClasses}`} />;
     case 'instagram':
       return <Instagram size={size} className={`text-pink-600 ${iconClasses}`} />;
     case 'youtube':
