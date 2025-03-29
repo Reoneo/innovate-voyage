@@ -8,6 +8,7 @@ import { isValidEthereumAddress } from '@/lib/utils';
 import { toast } from '@/components/ui/use-toast';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 
 interface TalentSearchProps {
   onSearch: (query: string) => void;
@@ -44,11 +45,11 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
   
   // Show error toast if resolution fails
   useEffect(() => {
-    if (error && searchInput && !error.includes('Using fallback')) {
+    if (error && searchInput) {
       toast({
-        title: "Resolution Notice",
+        title: "Resolution Error",
         description: error,
-        variant: "default"
+        variant: "destructive"
       });
     }
   }, [error, searchInput]);
@@ -74,74 +75,6 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
   const handleResultClick = (result: {name: string, address?: string}) => {
     setSearchInput(result.name);
     handleSearch();
-  };
-  
-  // Determine what to display in the results section
-  const renderResultsSection = () => {
-    if (!searchInput) {
-      return null;
-    }
-    
-    if (isLoading) {
-      return (
-        <div className="mt-4 p-3 text-center text-muted-foreground">
-          {searchInput.includes('.box') ? 'Searching on Optimism network...' : 'Searching...'}
-        </div>
-      );
-    }
-    
-    if (error) {
-      // Only show error if we don't have results to display
-      if (searchResults.length === 0) {
-        return (
-          <div className="mt-4 p-3 text-center text-muted-foreground">
-            {error}
-          </div>
-        );
-      }
-    }
-    
-    if (searchResults.length > 0) {
-      return (
-        <div className="mt-4 border rounded-md overflow-hidden">
-          <div className="p-3 bg-muted font-medium">
-            Search Results
-          </div>
-          <div className="divide-y">
-            {searchResults.map((result, index) => (
-              <div 
-                key={index} 
-                className="p-3 hover:bg-muted/50 cursor-pointer flex items-center gap-3"
-                onClick={() => handleResultClick(result)}
-              >
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={result.avatar || '/placeholder.svg'} alt={result.name} />
-                  <AvatarFallback>{result.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">{result.name}</div>
-                  {result.address && (
-                    <div className="text-xs text-muted-foreground">
-                      {result.address.substring(0, 6)}...{result.address.substring(result.address.length - 4)}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-    
-    if (searchInput && !isLoading && searchResults.length === 0) {
-      return (
-        <div className="mt-4 p-3 text-center text-muted-foreground">
-          No results found. Try a different search term.
-        </div>
-      );
-    }
-    
-    return null;
   };
   
   return (
@@ -202,8 +135,60 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
           </div>
         </div>
         
-        {/* Single unified results section */}
-        {renderResultsSection()}
+        {/* Inline search results - Only show if we have results and not currently searching */}
+        {searchInput && searchResults.length > 0 && !isSearching && (
+          <div className="mt-4 border rounded-md overflow-hidden">
+            <div className="p-3 bg-muted font-medium">
+              Search Results
+            </div>
+            <div className="divide-y">
+              {searchResults.map((result, index) => (
+                <div 
+                  key={index} 
+                  className="p-3 hover:bg-muted/50 cursor-pointer flex items-center gap-3"
+                  onClick={() => handleResultClick(result)}
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={result.avatar || '/placeholder.svg'} alt={result.name} />
+                    <AvatarFallback>{result.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-medium">{result.name}</div>
+                    {result.address && (
+                      <div className="text-xs text-muted-foreground">
+                        {result.address.substring(0, 6)}...{result.address.substring(result.address.length - 4)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Loading state - Only show if we're actively loading */}
+        {searchInput && isLoading && (
+          <div className="mt-4 p-3 text-center text-muted-foreground">
+            {searchInput.includes('.box') ? 'Searching on Optimism network...' : 'Searching...'}
+          </div>
+        )}
+        
+        {/* No results state - Only show if search is complete and yielded no results */}
+        {searchInput && !isLoading && searchResults.length === 0 && !error && !isSearching && (
+          <div className="mt-4 p-3 text-center text-muted-foreground">
+            No results found. Try a different search term.
+          </div>
+        )}
+        
+        {/* Error state - Only show user-friendly error message */}
+        {error && !isLoading && searchInput && !isSearching && (
+          <div className="mt-4">
+            <Alert variant="destructive" className="bg-destructive/10">
+              <AlertTitle>Unable to resolve name</AlertTitle>
+              Please try again later or check if the ENS name exists.
+            </Alert>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
