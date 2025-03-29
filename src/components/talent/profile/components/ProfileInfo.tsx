@@ -40,30 +40,6 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
             <Copy className="h-3.5 w-3.5" />
           </Button>
         </CardDescription>
-        
-        <div className="flex items-center gap-1.5">
-          {socialPlatforms.map((platform) => 
-            socials[platform.key] && (
-              <a 
-                key={platform.key}
-                href={socials[platform.key]} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-              >
-                <SocialIcon type={platform.type as any} size={18} className="text-muted-foreground hover:text-foreground" />
-              </a>
-            )
-          )}
-          {socials?.email && (
-            <a 
-              href={`mailto:${socials.email}`}
-              className="hover:opacity-80 transition-opacity"
-            >
-              <SocialIcon type="mail" size={18} className="text-muted-foreground hover:text-foreground" />
-            </a>
-          )}
-        </div>
       </div>
       
       {bio && (
