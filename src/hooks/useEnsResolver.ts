@@ -8,17 +8,14 @@ import { useAddressByEns, useEnsByAddress } from '@/hooks/useWeb3';
  * @returns Object containing resolved address and ENS name
  */
 export function useEnsResolver(ensName?: string, address?: string) {
-  // Determine if the input is a domain (either .eth or .box)
-  const isDomain = ensName && (ensName.includes('.eth') || ensName.includes('.box'));
-  
-  // Resolve domain name to address
+  // Resolve ENS name to address
   const { data: addressData } = useAddressByEns(
-    isDomain ? ensName : undefined
+    ensName?.includes('.eth') ? ensName : undefined
   );
   
-  // Resolve address to domain name
+  // Resolve address to ENS name
   const { data: ensData } = useEnsByAddress(
-    !isDomain ? address : undefined
+    !ensName?.includes('.eth') ? address : undefined
   );
   
   const resolvedAddress = addressData?.address || address;
