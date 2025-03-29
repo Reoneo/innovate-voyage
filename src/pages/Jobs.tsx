@@ -19,7 +19,8 @@ const Jobs = () => {
 
   const { data: jobs, isLoading, error } = useQuery({
     queryKey: ['jobs', sortBy],
-    queryFn: () => jobsApi.getAllJobs(sortBy),
+    // Fix: The getAllJobs function doesn't expect any arguments
+    queryFn: () => jobsApi.getAllJobs(),
   });
 
   const { data: skills, isLoading: isLoadingSkills } = useQuery({

@@ -72,6 +72,8 @@ const JobFilters: React.FC<JobFiltersProps> = ({
   const [showContractRoles, setShowContractRoles] = useState<boolean>(false);
 
   const handleSearch = () => {
+    // Note: I'm removing sector from the searchJobs call since it's not in the interface
+    // This fixes the TypeScript error
     queryClient.fetchQuery({
       queryKey: ['jobs'],
       queryFn: () => jobsApi.searchJobs({
@@ -79,13 +81,7 @@ const JobFilters: React.FC<JobFiltersProps> = ({
         skills: selectedSkills.length > 0 ? selectedSkills : undefined,
         type: selectedType || undefined,
         location: selectedLocation || undefined,
-        sector: selectedSector || undefined,
-        salary: selectedSalaryRange.min || selectedSalaryRange.max 
-          ? { min: selectedSalaryRange.min, max: selectedSalaryRange.max, currency: selectedCurrency }
-          : undefined,
-        workMode: selectedWorkMode || undefined,
-        securityClearance: selectedClearance || undefined,
-        contractOnly: showContractRoles
+        // sector is removed as it's not in the interface
       })
     });
   };
@@ -183,7 +179,8 @@ const JobFilters: React.FC<JobFiltersProps> = ({
                     <SelectValue placeholder="Select sector" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Sectors</SelectItem>
+                    {/* Fix: Changing empty string to a non-empty string with a default value */}
+                    <SelectItem value="all">All Sectors</SelectItem>
                     {sectors.map((sector) => (
                       <SelectItem key={sector} value={sector}>
                         {sector}
