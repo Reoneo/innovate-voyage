@@ -1,5 +1,5 @@
 
-import { SkillsVisualization } from './skills';
+import { SkillsVisualization } from './skills/SkillsVisualization';
 
 // Re-export for backward compatibility
 export { SkillsVisualization };

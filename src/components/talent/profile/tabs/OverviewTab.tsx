@@ -1,9 +1,9 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import { Activity, Link as LinkIcon } from 'lucide-react';
 import TransactionHistoryChart from '@/components/visualizations/transactions/TransactionHistoryChart';
-import { SkillsVisualization } from '@/components/visualizations/SkillsVisualization';
 import { Badge } from '@/components/ui/badge';
 import { SocialIcon } from '@/components/ui/social-icon';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -47,7 +47,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Links Section - Replaced Skills & Expertise */}
+      {/* Links Section */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-xl flex items-center gap-2">
@@ -163,16 +163,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                       Email
                     </a>
                   )}
-                </div>
-              </div>
-            )}
-
-            {/* Show skills visualization if there are skills */}
-            {skills && skills.length > 0 && (
-              <div className="mt-6">
-                <h4 className="font-medium text-sm mb-3">Skills Graph</h4>
-                <div className="h-[240px] w-full">
-                  <SkillsVisualization skills={skills} name={name} />
                 </div>
               </div>
             )}

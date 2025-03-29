@@ -13,15 +13,19 @@ import ProfileTabsContainer from '@/components/talent/profile/ProfileTabsContain
 import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
 
 const TalentProfile = () => {
-  const { ensName } = useParams<{ ensName: string }>();
+  const { ensName, address: routeAddress } = useParams<{ ensName: string; address: string }>();
   const [address, setAddress] = useState<string | undefined>(undefined);
   
-  // Determine if the ensName param is actually an address
+  // Determine if we're using an address or an ENS name
   useEffect(() => {
-    if (ensName && isValidEthereumAddress(ensName)) {
+    if (routeAddress) {
+      // We're on the /address/:address route
+      setAddress(routeAddress);
+    } else if (ensName && isValidEthereumAddress(ensName)) {
+      // We're on the /talent/:ensName route but it's actually an address
       setAddress(ensName);
     }
-  }, [ensName]);
+  }, [ensName, routeAddress]);
 
   const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl } = useProfileData(
     (ensName && !isValidEthereumAddress(ensName)) ? ensName : undefined, 
