@@ -1,7 +1,8 @@
 import React from 'react';
-import { Globe } from 'lucide-react';
-import { SocialIcon } from '@/components/ui/social-icon';
-import { BlockchainProfile } from '@/api/types/etherscanTypes';
+import SocialLinkItem from './social/SocialLinkItem';
+import EnsLink from './social/EnsLink';
+import WebLink from './social/WebLink';
+import NoLinks from './social/NoLinks';
 
 interface SocialLinksProps {
   ensName?: string;
@@ -9,196 +10,54 @@ interface SocialLinksProps {
   socials: Record<string, string>;
 }
 
-// Helper function to extract username from social media URLs
-const extractHandle = (url: string, platform: string): string => {
-  try {
-    const urlObj = new URL(url);
-    switch (platform) {
-      case 'github':
-        return '@' + urlObj.pathname.split('/')[1];
-      case 'twitter':
-        return '@' + urlObj.pathname.split('/')[1];
-      case 'linkedin':
-        if (urlObj.pathname.includes('/in/')) {
-          return '@' + urlObj.pathname.split('/in/')[1].split('/')[0];
-        }
-        return url;
-      case 'facebook':
-        return '@' + urlObj.pathname.split('/')[1];
-      case 'instagram':
-        return '@' + urlObj.pathname.split('/')[1];
-      case 'youtube':
-        if (urlObj.pathname.includes('/c/')) {
-          return '@' + urlObj.pathname.split('/c/')[1];
-        } else if (urlObj.pathname.includes('/channel/')) {
-          return urlObj.pathname.split('/channel/')[1];
-        }
-        return 'YouTube Channel';
-      case 'bluesky':
-        return '@' + (urlObj.pathname.split('/').filter(p => p)[0] || '');
-      case 'website':
-        return urlObj.hostname;
-      default:
-        return url;
-    }
-  } catch (e) {
-    // If URL parsing fails, just return the original URL
-    return url;
-  }
-};
-
 const SocialLinks: React.FC<SocialLinksProps> = ({ ensName, links, socials }) => {
+  const hasSocialLinks = ensName || links.length > 0 || Object.keys(socials).length > 0;
+  
   return (
     <div className="space-y-4">
       {/* ENS Domains */}
-      {ensName && (
-        <div className="flex items-center gap-2">
-          <Globe className="h-4 w-4" />
-          <a 
-            href={`https://app.ens.domains/name/${ensName}`}
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            {ensName}
-          </a>
-        </div>
-      )}
+      {ensName && <EnsLink ensName={ensName} />}
       
       {/* Other links */}
       {links.map((link, index) => (
-        <div key={index} className="flex items-center gap-2">
-          <Globe className="h-4 w-4" />
-          <a 
-            href={link} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            {new URL(link).hostname}
-          </a>
-        </div>
+        <WebLink key={index} url={link} />
       ))}
       
-      {/* Social links */}
+      {/* Social media links */}
       {socials.github && (
-        <div className="flex items-center gap-2">
-          <SocialIcon type="github" size={16} />
-          <a 
-            href={socials.github} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            {extractHandle(socials.github, 'github')}
-          </a>
-        </div>
+        <SocialLinkItem platformType="github" url={socials.github} />
       )}
       
       {socials.twitter && (
-        <div className="flex items-center gap-2">
-          <SocialIcon type="twitter" size={16} />
-          <a 
-            href={socials.twitter} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            {extractHandle(socials.twitter, 'twitter')}
-          </a>
-        </div>
+        <SocialLinkItem platformType="twitter" url={socials.twitter} />
       )}
       
       {socials.linkedin && (
-        <div className="flex items-center gap-2">
-          <SocialIcon type="linkedin" size={16} />
-          <a 
-            href={socials.linkedin} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            {extractHandle(socials.linkedin, 'linkedin')}
-          </a>
-        </div>
+        <SocialLinkItem platformType="linkedin" url={socials.linkedin} />
       )}
       
       {socials.facebook && (
-        <div className="flex items-center gap-2">
-          <SocialIcon type="facebook" size={16} />
-          <a 
-            href={socials.facebook} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            {extractHandle(socials.facebook, 'facebook')}
-          </a>
-        </div>
+        <SocialLinkItem platformType="facebook" url={socials.facebook} />
       )}
       
       {socials.instagram && (
-        <div className="flex items-center gap-2">
-          <SocialIcon type="instagram" size={16} />
-          <a 
-            href={socials.instagram} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            {extractHandle(socials.instagram, 'instagram')}
-          </a>
-        </div>
+        <SocialLinkItem platformType="instagram" url={socials.instagram} />
       )}
       
       {socials.youtube && (
-        <div className="flex items-center gap-2">
-          <SocialIcon type="youtube" size={16} />
-          <a 
-            href={socials.youtube} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            {extractHandle(socials.youtube, 'youtube')}
-          </a>
-        </div>
+        <SocialLinkItem platformType="youtube" url={socials.youtube} />
       )}
       
       {socials.bluesky && (
-        <div className="flex items-center gap-2">
-          <SocialIcon type="bluesky" size={16} />
-          <a 
-            href={socials.bluesky} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            {extractHandle(socials.bluesky, 'bluesky')}
-          </a>
-        </div>
+        <SocialLinkItem platformType="bluesky" url={socials.bluesky} />
       )}
       
       {socials.website && (
-        <div className="flex items-center gap-2">
-          <SocialIcon type="globe" size={16} />
-          <a 
-            href={socials.website} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            {extractHandle(socials.website, 'website')}
-          </a>
-        </div>
+        <SocialLinkItem platformType="globe" url={socials.website} />
       )}
       
       {/* Show a message if no links are available */}
-      {!ensName && links.length === 0 && Object.keys(socials).length === 0 && (
-        <div className="text-muted-foreground text-sm py-4">
-          No web3 links available for this profile
-        </div>
-      )}
+      {!hasSocialLinks && <NoLinks />}
     </div>
   );
 };
