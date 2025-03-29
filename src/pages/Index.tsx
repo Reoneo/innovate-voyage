@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -11,33 +12,13 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from '@/components/ui/navigation-menu';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 sm:px-6 py-8">
-        {/* Navigation */}
-        <div className="flex justify-center mb-12">
-          <NavigationMenu>
-            <NavigationMenuList className="flex gap-6">
-              <NavigationMenuItem>
-                <Link to="/talent" className="text-lg font-medium flex items-center gap-2 px-4 py-2 rounded-md hover:bg-secondary transition-colors">
-                  <Users className="h-5 w-5" />
-                  Web3 Talent
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link to="/jobs" className="text-lg font-medium flex items-center gap-2 px-4 py-2 rounded-md hover:bg-secondary transition-colors">
-                  <Briefcase className="h-5 w-5" />
-                  Web3 Jobs
-                </Link>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-        </div>
-
-        {/* Hero Section */}
+        {/* Hero Section with Logo */}
         <div className="flex flex-col items-center text-center mb-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -45,6 +26,14 @@ const Index = () => {
             transition={{ duration: 0.6 }}
             className="mb-8"
           >
+            {/* Logo Avatar */}
+            <div className="flex justify-center mb-6">
+              <Avatar className="h-32 w-32 border-4 border-primary shadow-lg">
+                <AvatarImage src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" alt="Profile Logo" />
+                <AvatarFallback>RB</AvatarFallback>
+              </Avatar>
+            </div>
+            
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gradient mb-4">
               Recruitment.box
             </h1>
