@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { jobsApi } from '@/api/jobsApi';
@@ -16,13 +15,13 @@ import { Badge } from '@/components/ui/badge';
 import { useAllEnsRecords, useAllSkillNfts } from '@/hooks/useWeb3';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { truncateAddress } from '@/lib/utils';
 
 const Jobs = () => {
   const [sortBy, setSortBy] = useState('recent');
 
   const { data: jobs, isLoading, error } = useQuery({
     queryKey: ['jobs', sortBy],
-    // Fix: The getAllJobs function doesn't expect any arguments
     queryFn: () => jobsApi.getAllJobs(),
   });
 
@@ -55,7 +54,6 @@ const Jobs = () => {
     ]),
   });
 
-  // Web3 credentials data
   const { data: ensRecords, isLoading: isLoadingEns } = useAllEnsRecords();
   const { data: skillNfts, isLoading: isLoadingNfts } = useAllSkillNfts();
 
@@ -63,7 +61,6 @@ const Jobs = () => {
     toast.error('Failed to load job listings');
   }
 
-  // Stats for jobs
   const statsData = React.useMemo(() => {
     if (!jobs) return null;
     
@@ -144,7 +141,6 @@ const Jobs = () => {
           </div>
         </div>
 
-        {/* Web3 Credentials Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
             <Globe className="h-6 w-6 text-primary" />
@@ -163,7 +159,7 @@ const Jobs = () => {
                     </Avatar>
                     <div>
                       <CardTitle>{record.ensName}</CardTitle>
-                      <CardDescription className="truncate">{record.address}</CardDescription>
+                      <CardDescription className="truncate">{truncateAddress(record.address)}</CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent>
