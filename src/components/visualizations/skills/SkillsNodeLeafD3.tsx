@@ -29,13 +29,16 @@ const SkillsNodeLeafD3: React.FC<SkillsNodeLeafD3Props> = ({ skills, name }) => 
     position: { x: 0, y: 0 }
   });
 
-  // Use the D3 hook for rendering
-  const cleanup = useSkillsD3(d3Container, skills, name);
-
-  // Set up event listeners for tooltips
+  // Use the D3 hook for rendering - with proper cleanup
   useEffect(() => {
+    // Make sure we have the skills data before rendering
+    if (!skills || skills.length === 0 || !d3Container.current) return;
+
+    // Call the D3 hook to set up the visualization
+    const cleanup = useSkillsD3(d3Container, skills, name);
+    
+    // Set up event listeners for tooltips
     const svgElement = d3Container.current;
-    if (!svgElement) return;
 
     const handleSkillNodeMouseOver = (event: Event) => {
       const detail = (event as CustomEvent).detail;
@@ -72,47 +75,60 @@ const SkillsNodeLeafD3: React.FC<SkillsNodeLeafD3Props> = ({ skills, name }) => 
     svgElement.addEventListener('connectionmouseover', handleConnectionMouseOver);
     svgElement.addEventListener('connectionmouseout', handleConnectionMouseOut);
 
-    // Clean up
+    // Return cleanup function that will run when component unmounts or when dependencies change
     return () => {
-      if (svgElement) {
-        svgElement.removeEventListener('skillnodemouseover', handleSkillNodeMouseOver);
-        svgElement.removeEventListener('skillnodemouseout', handleSkillNodeMouseOut);
-        svgElement.removeEventListener('connectionmouseover', handleConnectionMouseOver);
-        svgElement.removeEventListener('connectionmouseout', handleConnectionMouseOut);
-      }
+      // Remove event listeners
+      svgElement.removeEventListener('skillnodemouseover', handleSkillNodeMouseOver);
+      svgElement.removeEventListener('skillnodemouseout', handleSkillNodeMouseOut);
+      svgElement.removeEventListener('connectionmouseover', handleConnectionMouseOver);
+      svgElement.removeEventListener('connectionmouseout', handleConnectionMouseOut);
       
-      // Call cleanup from useSkillsD3 hook
+      // Call cleanup from useSkillsD3 hook if it exists
       if (cleanup) cleanup();
     };
-  }, [cleanup]);
+  }, [skills, name]); // Only re-run if skills or name changes
 
   return (
-    <TooltipProvider>
-      <div className="w-full h-full">
-        <svg 
-          className="w-full h-full" 
-          ref={d3Container}
-          width="100%"
-          height="100%"
-          viewBox="0 0 400 300"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          {/* Render tooltips inside SVG only when visible */}
-          {skillTooltip.visible && skillTooltip.data && (
+    <div className="w-full h-full">
+      <svg 
+        className="w-full h-full" 
+        ref={d3Container}
+        width="100%"
+        height="100%"
+        viewBox="0 0 400 300"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {/* Only render tooltips when they're visible to avoid React/D3 conflicts */}
+        {skillTooltip.visible && skillTooltip.data && (
+          <foreignObject
+            x={skillTooltip.position.x}
+            y={skillTooltip.position.y}
+            width="200"
+            height="80"
+            style={{ overflow: 'visible' }}
+          >
             <SkillNodeTooltip 
               data={skillTooltip.data} 
               position={skillTooltip.position} 
             />
-          )}
-          
-          {connectionTooltip.visible && (
+          </foreignObject>
+        )}
+        
+        {connectionTooltip.visible && (
+          <foreignObject
+            x={connectionTooltip.position.x}
+            y={connectionTooltip.position.y}
+            width="200"
+            height="80"
+            style={{ overflow: 'visible' }}
+          >
             <ConnectionTooltip 
               position={connectionTooltip.position} 
             />
-          )}
-        </svg>
-      </div>
-    </TooltipProvider>
+          </foreignObject>
+        )}
+      </svg>
+    </div>
   );
 };
 

@@ -14,15 +14,6 @@ interface ProfileTabsContainerProps {
   passport: BlockchainPassport & {
     score: number;
     category: string;
-    skills: { name: string; proof?: string; issued_by?: string }[];
-    socials: {
-      github?: string;
-      twitter?: string;
-      linkedin?: string;
-      website?: string;
-      email?: string;
-    };
-    hasMoreSkills?: boolean;
   };
   blockchainProfile?: BlockchainProfile;
   transactions?: any[] | null;
@@ -37,6 +28,13 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   resolvedEns,
   onExportPdf 
 }) => {
+  // Ensure skills and socials are properly passed as non-null values
+  const normalizedPassport = {
+    ...passport,
+    skills: passport.skills || [],
+    socials: passport.socials || {}
+  };
+  
   return (
     <TooltipProvider>
       <Tabs defaultValue="overview" className="w-full">
@@ -49,31 +47,31 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
         
         <TabsContent value="overview" className="space-y-6 mt-6">
           <OverviewTab 
-            skills={passport.skills}
-            name={passport.name}
+            skills={normalizedPassport.skills}
+            name={normalizedPassport.name}
             blockchainProfile={blockchainProfile}
             transactions={transactions}
-            address={passport.owner_address}
+            address={normalizedPassport.owner_address}
           />
         </TabsContent>
         
         <TabsContent value="blockchain" className="space-y-6 mt-6">
           <BlockchainTab 
             transactions={transactions}
-            address={passport.owner_address}
+            address={normalizedPassport.owner_address}
           />
         </TabsContent>
         
         <TabsContent value="skills" className="space-y-6 mt-6">
           <SkillsTab 
-            skills={passport.skills}
-            name={passport.name}
+            skills={normalizedPassport.skills}
+            name={normalizedPassport.name}
           />
         </TabsContent>
         
         <TabsContent value="resume" className="space-y-6 mt-6">
           <ResumeTab 
-            passport={passport}
+            passport={normalizedPassport}
             blockchainProfile={blockchainProfile}
             resolvedEns={resolvedEns}
             onExportPdf={onExportPdf}

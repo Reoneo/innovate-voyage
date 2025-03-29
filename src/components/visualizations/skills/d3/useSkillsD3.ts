@@ -15,13 +15,14 @@ export function useSkillsD3(
   skills: Array<{ name: string; proof?: string; issued_by?: string }>,
   centerName: string
 ) {
-  const d3Container = svgRef;
   const cleanupRef = useRef<(() => void) | null>(null);
   
   useEffect(() => {
-    if (!d3Container.current || !skills || skills.length === 0) return;
+    if (!svgRef.current || !skills || skills.length === 0) return;
     
-    const svg = d3.select(d3Container.current);
+    const svg = d3.select(svgRef.current);
+    
+    // Clear any existing visualization first to avoid conflicts
     svg.selectAll("*").remove();
     
     const width = 400;
@@ -90,6 +91,9 @@ export function useSkillsD3(
       };
     };
     
+    // Store created elements for proper cleanup
+    const allElements: d3.Selection<any, any, any, any>[] = [];
+    
     // Draw skill nodes
     const nodes = svg.append("g")
       .selectAll("g")
@@ -100,6 +104,8 @@ export function useSkillsD3(
         ${centerX + (d.x - width/2) * 0.8}, 
         ${centerY + (d.y - height/2) * 0.8}
       )`);
+    
+    allElements.push(nodes);
     
     // Add circles for each node
     nodes.append("circle")
@@ -135,8 +141,13 @@ export function useSkillsD3(
           x: event.pageX || rect.x + rect.width/2,
           y: event.pageY || rect.y
         };
-        const customEvent = new CustomEvent("skillnodemouseover", { detail });
-        d3Container.current?.dispatchEvent(customEvent);
+        
+        try {
+          const customEvent = new CustomEvent("skillnodemouseover", { detail });
+          svgRef.current?.dispatchEvent(customEvent);
+        } catch (e) {
+          console.error("Error dispatching skillnodemouseover event:", e);
+        }
       })
       .on("mouseout", function(event, nodeData) {
         d3.select(this)
@@ -145,8 +156,12 @@ export function useSkillsD3(
           .attr("opacity", 0.8)
           .attr("r", nodeData.r);
         
-        const customEvent = new CustomEvent("skillnodemouseout");
-        d3Container.current?.dispatchEvent(customEvent);
+        try {
+          const customEvent = new CustomEvent("skillnodemouseout");
+          svgRef.current?.dispatchEvent(customEvent);
+        } catch (e) {
+          console.error("Error dispatching skillnodemouseout event:", e);
+        }
       });
     
     // Add text to each node
@@ -161,7 +176,7 @@ export function useSkillsD3(
       });
     
     // Add connections between center and nodes
-    svg.insert("g", ":first-child")
+    const connections = svg.insert("g", ":first-child")
       .selectAll("line")
       .data(root.descendants().slice(1))
       .enter()
@@ -173,7 +188,11 @@ export function useSkillsD3(
       .attr("stroke", d => d.data.proof ? "#4f46e5" : "#9ca3af")
       .attr("stroke-width", d => d.data.proof ? 2 : 1)
       .attr("stroke-dasharray", d => d.data.proof ? "none" : "3,3")
-      .attr("opacity", 0.6)
+      .attr("opacity", 0.6);
+    
+    allElements.push(connections);
+    
+    connections
       .on("mouseover", function(event, nodeData) {
         d3.select(this)
           .transition()
@@ -182,13 +201,17 @@ export function useSkillsD3(
           .attr("stroke-width", nodeData.data.proof ? 3 : 2);
         
         // Dispatch custom event for tooltip
-        const rect = event.target.getBoundingClientRect();
-        const detail = {
-          x: event.pageX || rect.x + rect.width/2,
-          y: event.pageY || rect.y
-        };
-        const customEvent = new CustomEvent("connectionmouseover", { detail });
-        d3Container.current?.dispatchEvent(customEvent);
+        try {
+          const rect = event.target.getBoundingClientRect();
+          const detail = {
+            x: event.pageX || rect.x + rect.width/2,
+            y: event.pageY || rect.y
+          };
+          const customEvent = new CustomEvent("connectionmouseover", { detail });
+          svgRef.current?.dispatchEvent(customEvent);
+        } catch (e) {
+          console.error("Error dispatching connectionmouseover event:", e);
+        }
       })
       .on("mouseout", function(event, nodeData) {
         d3.select(this)
@@ -197,21 +220,35 @@ export function useSkillsD3(
           .attr("opacity", 0.6)
           .attr("stroke-width", nodeData.data.proof ? 2 : 1);
         
-        const customEvent = new CustomEvent("connectionmouseout");
-        d3Container.current?.dispatchEvent(customEvent);
+        try {
+          const customEvent = new CustomEvent("connectionmouseout");
+          svgRef.current?.dispatchEvent(customEvent);
+        } catch (e) {
+          console.error("Error dispatching connectionmouseout event:", e);
+        }
       });
     
-    // Set up cleanup function
-    cleanupRef.current = () => {
-      svg.selectAll("*").remove();
-    };
-    
-    return () => {
-      if (cleanupRef.current) {
-        cleanupRef.current();
+    // Set up proper cleanup function for D3
+    const cleanup = () => {
+      if (svgRef.current) {
+        // First, remove event handlers to prevent memory leaks
+        allElements.forEach(selection => {
+          selection.on("mouseover", null).on("mouseout", null);
+        });
+        
+        // Then remove all elements from the SVG
+        svg.selectAll("*").remove();
       }
     };
-  }, [d3Container, skills, centerName]);
+    
+    // Store the cleanup function
+    cleanupRef.current = cleanup;
+    
+    // Return cleanup to be used by the component
+    return () => {
+      cleanup();
+    };
+  }, [svgRef, skills, centerName]);
   
   return cleanupRef.current;
 }

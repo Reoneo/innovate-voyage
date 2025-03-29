@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BlockchainPassport, calculateHumanScore } from '@/lib/utils';
 import { truncateAddress } from '@/lib/utils';
 
@@ -26,6 +26,7 @@ export function usePassportGenerator(
 ) {
   const [passport, setPassport] = useState<BlockchainPassport | null>(null);
   const [loading, setLoading] = useState(true);
+  const initialized = useRef(false);
 
   useEffect(() => {
     const createPassport = async () => {
@@ -122,7 +123,9 @@ export function usePassportGenerator(
       }
     };
     
-    if (resolvedAddress) {
+    // Only run this effect once per address to prevent infinite loops
+    if (resolvedAddress && !initialized.current) {
+      initialized.current = true;
       createPassport();
     }
   }, [resolvedAddress, resolvedEns, blockchainData]);

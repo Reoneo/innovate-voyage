@@ -22,14 +22,18 @@ const TalentProfile = () => {
       {loading ? (
         <ProfileSkeleton />
       ) : passport ? (
-        <div ref={profileRef} className="space-y-6">
-          <ProfileHeader passport={passport} />
+        <div ref={profileRef} className="space-y-6" id="resume-pdf">
+          <ProfileHeader passport={{
+            passport_id: passport.passport_id,
+            owner_address: passport.owner_address,
+            avatar_url: passport.avatar_url,
+            name: passport.name,
+            score: passport.score,
+            category: passport.category,
+            socials: passport.socials || {}
+          }} />
           <ProfileTabsContainer 
-            passport={{
-              ...passport,
-              skills: passport.skills || [],
-              socials: passport.socials || {}
-            }}
+            passport={passport}
             blockchainProfile={blockchainProfile}
             transactions={transactions}
             resolvedEns={resolvedEns}
