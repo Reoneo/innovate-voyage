@@ -1,12 +1,12 @@
 
 import { delay } from './jobsApi';
 
-// Mock data for ENS records
+// Mock data for ENS records with the real identity names
 const mockEnsRecords = [
   { 
     address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F', 
     ensName: 'vitalik.eth',
-    avatar: 'https://storage.googleapis.com/ethereum-hackmd/upload_7a91319e830e3961cc56e1bfeb4926b5.png',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Ethereum Grandmaster', 'Solidity', 'Smart Contracts', 'Blockchain Architecture', 'Cryptoeconomics', 'Proof-of-Stake'],
     socialProfiles: {
       twitter: '@VitalikButerin',
@@ -18,7 +18,7 @@ const mockEnsRecords = [
   { 
     address: '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', 
     ensName: 'ohms.box',
-    avatar: 'https://i.pravatar.cc/150?img=8',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Community Management', 'Web3', 'Digital Marketing', 'Content Creation'],
     socialProfiles: {
       twitter: '@ohms_box',
@@ -29,7 +29,7 @@ const mockEnsRecords = [
   { 
     address: '0x9C4eb242AcEbc6bfC068Ca16B8c851920Dd7BF11', 
     ensName: 'black.box',
-    avatar: 'https://i.pravatar.cc/150?img=12',
+    avatar: '', // We'll fetch the real avatar
     skills: ['DeFi', 'NFTs', 'DAO Governance', 'Smart Contract Development'],
     socialProfiles: {
       twitter: '@black_box',
@@ -40,7 +40,7 @@ const mockEnsRecords = [
   { 
     address: '0x99C85bb64564D9eF9A99621301f22C9993Cb4E3F', 
     ensName: 'hax.box',
-    avatar: 'https://i.pravatar.cc/150?img=13',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Security Auditing', 'Penetration Testing', 'Bug Bounty', 'Blockchain Security'],
     socialProfiles: {
       twitter: '@hax_box',
@@ -51,7 +51,7 @@ const mockEnsRecords = [
   { 
     address: '0x5c6B0f7Bf3E7ce046039Bd8FABdfD3f9F5021678', 
     ensName: 'phantom.box',
-    avatar: 'https://i.pravatar.cc/150?img=15',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Privacy Solutions', 'Zero-Knowledge Proofs', 'Anonymity Networks', 'Cryptography'],
     socialProfiles: {
       twitter: '@phantom_box',
@@ -62,7 +62,7 @@ const mockEnsRecords = [
   { 
     address: '0x6860f1A0eF0AB11d762DAe619457Eb54143f849c', 
     ensName: 'bing.box',
-    avatar: 'https://i.pravatar.cc/150?img=18',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Search Algorithms', 'Data Analytics', 'AI Integration', 'Web Services'],
     socialProfiles: {
       twitter: '@bing_box',
@@ -74,7 +74,7 @@ const mockEnsRecords = [
   { 
     address: '0x21FB4411FA5828344c2788aB07D4cc12a12571b9', 
     ensName: 'hunter.box',
-    avatar: 'https://i.pravatar.cc/150?img=20',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Airdrop Hunting', 'Token Research', 'DeFi Strategies', 'Alpha Finding'],
     socialProfiles: {
       twitter: '@hunter_box',
@@ -84,7 +84,7 @@ const mockEnsRecords = [
   { 
     address: '0x983110309620D911731Ac0932219af06091b6744', 
     ensName: 'mike.box',
-    avatar: 'https://i.pravatar.cc/150?img=22',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Web Development', 'Digital Marketing', 'Drone Piloting', 'Content Creation'],
     socialProfiles: {
       twitter: '@mike_box',
@@ -95,7 +95,7 @@ const mockEnsRecords = [
   { 
     address: '0x20fFeD7d3Ec1f10074159D59C53DaD137d7EFb1C', 
     ensName: 'smith.box',
-    avatar: 'https://i.pravatar.cc/150?img=25',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Multichain ID Services', 'Cross-Chain Solutions', 'Identity Verification', 'DID Standards'],
     socialProfiles: {
       twitter: '@smith_box',
@@ -106,7 +106,7 @@ const mockEnsRecords = [
   { 
     address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c799C5', 
     ensName: 'blockchaineazy.box',
-    avatar: 'https://i.pravatar.cc/150?img=28',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Community Management', 'Web Design', 'Social Media Strategy', 'Content Creation'],
     socialProfiles: {
       twitter: '@blockchaineazy',
@@ -117,7 +117,7 @@ const mockEnsRecords = [
   { 
     address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c799D6', 
     ensName: 'stars.box',
-    avatar: 'https://i.pravatar.cc/150?img=30',
+    avatar: '', // We'll fetch the real avatar
     skills: ['NFT Collecting', 'Virtual Worlds', 'Metaverse Design', 'Digital Art'],
     socialProfiles: {
       twitter: '@stars_box',
@@ -127,7 +127,7 @@ const mockEnsRecords = [
   { 
     address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c799E7', 
     ensName: 'mystic.box',
-    avatar: 'https://i.pravatar.cc/150?img=31',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Oracle Development', 'Prediction Markets', 'Forecasting Systems', 'Randomness'],
     socialProfiles: {
       twitter: '@mystic_box',
@@ -138,7 +138,7 @@ const mockEnsRecords = [
   { 
     address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c799F8', 
     ensName: 'doom.box',
-    avatar: 'https://i.pravatar.cc/150?img=32',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Gaming', 'Game Economics', 'Play-to-Earn', 'eSports'],
     socialProfiles: {
       twitter: '@doom_box',
@@ -148,7 +148,7 @@ const mockEnsRecords = [
   { 
     address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A001', 
     ensName: 'seansky.box',
-    avatar: 'https://i.pravatar.cc/150?img=33',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Airdrop Hunting', 'Node Setup', 'Crypto Tutorials', 'Token Research'],
     socialProfiles: {
       twitter: '@seansky_box',
@@ -158,7 +158,7 @@ const mockEnsRecords = [
   { 
     address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A112', 
     ensName: 'onigiri.box',
-    avatar: 'https://i.pravatar.cc/150?img=34',
+    avatar: '', // We'll fetch the real avatar
     skills: ['DeFi Protocol Design', 'Yield Farming', 'Liquidity Provision', 'Tokenomics'],
     socialProfiles: {
       twitter: '@onigiri_box',
@@ -169,7 +169,7 @@ const mockEnsRecords = [
   { 
     address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A223', 
     ensName: 'cypherpunk.box',
-    avatar: 'https://i.pravatar.cc/150?img=35',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Privacy Tech', 'Cryptography', 'Decentralized Identity', 'Security'],
     socialProfiles: {
       twitter: '@cypherpunk_box',
@@ -179,7 +179,7 @@ const mockEnsRecords = [
   { 
     address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A334', 
     ensName: 'yx.box',
-    avatar: 'https://i.pravatar.cc/150?img=36',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Blockchain Gaming', 'Game Development', 'Smart Contract Gaming', 'Tokenized Games'],
     socialProfiles: {
       twitter: '@yx_box',
@@ -189,7 +189,7 @@ const mockEnsRecords = [
   { 
     address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A445', 
     ensName: 'dude.box',
-    avatar: 'https://i.pravatar.cc/150?img=37',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Community Building', 'Men\'s Support Networks', 'Content Creation', 'Social Media'],
     socialProfiles: {
       twitter: '@dude_box',
@@ -199,7 +199,7 @@ const mockEnsRecords = [
   { 
     address: '0x3e6c8431A2f091Fbd55cB9888B789f29B1c7A556', 
     ensName: 'pen.box',
-    avatar: 'https://i.pravatar.cc/150?img=38',
+    avatar: '', // We'll fetch the real avatar
     skills: ['Investment Analysis', 'Entrepreneurship', 'Business Strategy', 'Financial Writing'],
     socialProfiles: {
       twitter: '@pen_box',
@@ -330,11 +330,112 @@ export interface Web3Credentials {
   skillNfts: SkillNFT[];
 }
 
+export interface Web3BioProfile {
+  address: string;
+  identity: string;
+  platform: string;
+  displayName: string;
+  avatar: string | null;
+  description: string | null;
+}
+
+// Functions to fetch data from Web3.bio API
+async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProfile | null> {
+  try {
+    const response = await fetch(`https://api.web3.bio/profile/${identity}`);
+    if (!response.ok) {
+      console.warn(`Failed to fetch Web3.bio profile for ${identity}`);
+      return null;
+    }
+    
+    const data = await response.json();
+    if (Array.isArray(data) && data.length > 0) {
+      // Return the first profile in the array
+      return data[0] as Web3BioProfile;
+    } else if (data.error) {
+      console.warn(`Web3.bio error for ${identity}:`, data.error);
+      return null;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error(`Error fetching Web3.bio profile for ${identity}:`, error);
+    return null;
+  }
+}
+
+// Cache for storing already fetched avatars to reduce API calls
+const avatarCache: Record<string, string> = {
+  // Pre-populate with some fallbacks
+  'vitalik.eth': 'https://storage.googleapis.com/ethereum-hackmd/upload_7a91319e830e3961cc56e1bfeb4926b5.png',
+};
+
+// Initialize the mockEnsRecords with real avatars
+(async function initializeRealAvatars() {
+  for (const record of mockEnsRecords) {
+    if (avatarCache[record.ensName]) {
+      record.avatar = avatarCache[record.ensName];
+      continue;
+    }
+    
+    try {
+      const profile = await fetchWeb3BioProfile(record.ensName);
+      if (profile && profile.avatar) {
+        record.avatar = profile.avatar;
+        avatarCache[record.ensName] = profile.avatar;
+      } else {
+        // Use a random avatar from pravatar or other service as fallback
+        const fallbackIdx = Math.floor(Math.random() * 30) + 1;
+        record.avatar = `https://i.pravatar.cc/300?img=${fallbackIdx}`;
+      }
+    } catch (error) {
+      console.error(`Error initializing avatar for ${record.ensName}:`, error);
+      // Use a random avatar as fallback
+      const fallbackIdx = Math.floor(Math.random() * 30) + 1;
+      record.avatar = `https://i.pravatar.cc/300?img=${fallbackIdx}`;
+    }
+  }
+})();
+
 export const web3Api = {
+  // Get real avatar for an ENS name
+  getRealAvatar: async (ensName: string): Promise<string | null> => {
+    // Check cache first
+    if (avatarCache[ensName]) {
+      return avatarCache[ensName];
+    }
+    
+    // If not in cache, fetch from API
+    try {
+      const profile = await fetchWeb3BioProfile(ensName);
+      if (profile && profile.avatar) {
+        avatarCache[ensName] = profile.avatar;
+        return profile.avatar;
+      }
+    } catch (error) {
+      console.error(`Error fetching avatar for ${ensName}:`, error);
+    }
+    
+    return null;
+  },
+  
   // Lookup ENS record by address
   getEnsByAddress: async (address: string): Promise<ENSRecord | null> => {
     await delay(300); // Simulate network delay
     const record = mockEnsRecords.find(record => record.address.toLowerCase() === address.toLowerCase());
+    
+    if (record && !record.avatar) {
+      // Try to fetch real avatar if not already set
+      const avatar = await web3Api.getRealAvatar(record.ensName);
+      if (avatar) {
+        record.avatar = avatar;
+      } else {
+        // Use a random avatar as fallback
+        const fallbackIdx = Math.floor(Math.random() * 30) + 1;
+        record.avatar = `https://i.pravatar.cc/300?img=${fallbackIdx}`;
+      }
+    }
+    
     return record || null;
   },
   
@@ -342,6 +443,19 @@ export const web3Api = {
   getAddressByEns: async (ensName: string): Promise<ENSRecord | null> => {
     await delay(300); // Simulate network delay
     const record = mockEnsRecords.find(record => record.ensName.toLowerCase() === ensName.toLowerCase());
+    
+    if (record && !record.avatar) {
+      // Try to fetch real avatar if not already set
+      const avatar = await web3Api.getRealAvatar(record.ensName);
+      if (avatar) {
+        record.avatar = avatar;
+      } else {
+        // Use a random avatar as fallback
+        const fallbackIdx = Math.floor(Math.random() * 30) + 1;
+        record.avatar = `https://i.pravatar.cc/300?img=${fallbackIdx}`;
+      }
+    }
+    
     return record || null;
   },
   
@@ -371,6 +485,23 @@ export const web3Api = {
   // Get all available ENS records (for demo purposes)
   getAllEnsRecords: async (): Promise<ENSRecord[]> => {
     await delay(400);
+    
+    // Make sure all records have avatars
+    await Promise.all(
+      mockEnsRecords.map(async (record) => {
+        if (!record.avatar) {
+          const avatar = await web3Api.getRealAvatar(record.ensName);
+          if (avatar) {
+            record.avatar = avatar;
+          } else {
+            // Use a random avatar as fallback
+            const fallbackIdx = Math.floor(Math.random() * 30) + 1;
+            record.avatar = `https://i.pravatar.cc/300?img=${fallbackIdx}`;
+          }
+        }
+      })
+    );
+    
     return [...mockEnsRecords];
   },
   

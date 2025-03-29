@@ -53,3 +53,12 @@ export function useAllSkillNfts() {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
+
+export function useRealAvatar(ensName: string | undefined) {
+  return useQuery({
+    queryKey: ['avatar', ensName],
+    queryFn: () => ensName ? web3Api.getRealAvatar(ensName) : null,
+    enabled: !!ensName,
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+}
