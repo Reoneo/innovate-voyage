@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { useSkillsD3 } from './d3/useSkillsD3';
+import { createSkillsVisualization } from './d3/useSkillsD3';
 import SkillNodeTooltip from './tooltips/SkillNodeTooltip';
 import ConnectionTooltip from './tooltips/ConnectionTooltip';
 
@@ -29,13 +29,13 @@ const SkillsNodeLeafD3: React.FC<SkillsNodeLeafD3Props> = ({ skills, name }) => 
     position: { x: 0, y: 0 }
   });
 
-  // Use the D3 hook for rendering - with proper cleanup
+  // Set up D3 visualization and event handlers
   useEffect(() => {
-    // Make sure we have the skills data before rendering
+    // Make sure we have the skills data and DOM element before rendering
     if (!skills || skills.length === 0 || !d3Container.current) return;
 
-    // Call the D3 hook to set up the visualization
-    const cleanup = useSkillsD3(d3Container, skills, name);
+    // Use our regular function to set up D3
+    const cleanup = createSkillsVisualization(d3Container.current, skills, name);
     
     // Set up event listeners for tooltips
     const svgElement = d3Container.current;
@@ -83,7 +83,7 @@ const SkillsNodeLeafD3: React.FC<SkillsNodeLeafD3Props> = ({ skills, name }) => 
       svgElement.removeEventListener('connectionmouseover', handleConnectionMouseOver);
       svgElement.removeEventListener('connectionmouseout', handleConnectionMouseOut);
       
-      // Call cleanup from useSkillsD3 hook if it exists
+      // Call cleanup from createSkillsVisualization if it exists
       if (cleanup) cleanup();
     };
   }, [skills, name]); // Only re-run if skills or name changes
