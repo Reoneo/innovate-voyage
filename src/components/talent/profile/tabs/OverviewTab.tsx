@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
-import { Network, Link as LinkIcon, Globe, Github, Twitter, Linkedin } from 'lucide-react';
+import { Network, Link as LinkIcon, Globe, Github, Twitter, Linkedin, Facebook, Youtube, Instagram } from 'lucide-react';
+import { SocialIcon } from '@/components/ui/social-icon';
 
 interface OverviewTabProps {
   skills: Array<{ name: string; proof?: string }>;
@@ -112,6 +114,62 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   className="text-blue-500 hover:underline"
                 >
                   LinkedIn
+                </a>
+              </div>
+            )}
+            
+            {socials.facebook && (
+              <div className="flex items-center gap-2">
+                <Facebook className="h-4 w-4" />
+                <a 
+                  href={socials.facebook} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  Facebook
+                </a>
+              </div>
+            )}
+            
+            {socials.instagram && (
+              <div className="flex items-center gap-2">
+                <Instagram className="h-4 w-4" />
+                <a 
+                  href={socials.instagram} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  Instagram
+                </a>
+              </div>
+            )}
+            
+            {socials.youtube && (
+              <div className="flex items-center gap-2">
+                <Youtube className="h-4 w-4" />
+                <a 
+                  href={socials.youtube} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  YouTube
+                </a>
+              </div>
+            )}
+            
+            {socials.bluesky && (
+              <div className="flex items-center gap-2">
+                <SocialIcon type="bluesky" size={16} />
+                <a 
+                  href={socials.bluesky} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  Bluesky
                 </a>
               </div>
             )}
