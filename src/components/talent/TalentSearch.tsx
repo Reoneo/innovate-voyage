@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SearchIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,40 +18,13 @@ interface TalentSearchProps {
 const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) => {
   const [searchInput, setSearchInput] = useState('');
   const [searchResults, setSearchResults] = useState<Array<{name: string, address?: string, avatar?: string}>>([]);
+  const [hasExecutedSearch, setHasExecutedSearch] = useState(false);
   
-  // ENS resolver for the current search input
+  // Initialize resolver but don't trigger it automatically
   const { resolvedAddress, resolvedEns, avatarUrl, isLoading, error } = useEnsResolver(
-    searchInput.includes('.eth') || searchInput.includes('.box') ? searchInput : undefined,
-    isValidEthereumAddress(searchInput) ? searchInput : undefined
+    hasExecutedSearch && searchInput.includes('.eth') ? searchInput : undefined,
+    hasExecutedSearch && isValidEthereumAddress(searchInput) ? searchInput : undefined
   );
-  
-  // Update search results when ENS is resolved
-  useEffect(() => {
-    if (resolvedEns || resolvedAddress) {
-      setSearchResults([{
-        name: resolvedEns || searchInput,
-        address: resolvedAddress,
-        avatar: avatarUrl
-      }]);
-    } else if (!isLoading && searchInput && (searchInput.includes('.eth') || searchInput.includes('.box') || isValidEthereumAddress(searchInput))) {
-      // No results found after loading finished
-      setSearchResults([]);
-    } else if (!searchInput) {
-      // Clear results when input is empty
-      setSearchResults([]);
-    }
-  }, [resolvedEns, resolvedAddress, avatarUrl, searchInput, isLoading]);
-  
-  // Show error toast if resolution fails
-  useEffect(() => {
-    if (error && searchInput) {
-      toast({
-        title: "Resolution Error",
-        description: error,
-        variant: "destructive"
-      });
-    }
-  }, [error, searchInput]);
   
   const handleSearch = () => {
     if (!searchInput.trim()) return;
@@ -68,12 +41,27 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
       return;
     }
     
+    // Set flag to execute the search
+    setHasExecutedSearch(true);
+    
+    // Update results only when search is executed
+    if (resolvedEns || resolvedAddress) {
+      setSearchResults([{
+        name: resolvedEns || searchInput,
+        address: resolvedAddress,
+        avatar: avatarUrl
+      }]);
+    } else {
+      // Clear results if nothing found
+      setSearchResults([]);
+    }
+    
     onSearch(searchInput.trim());
   };
 
   const handleResultClick = (result: {name: string, address?: string}) => {
     setSearchInput(result.name);
-    handleSearch();
+    onSearch(result.name);
   };
   
   return (
@@ -127,8 +115,8 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
           </div>
         </div>
         
-        {/* Search results section - modern look */}
-        {searchInput && (
+        {/* Search results section - only show if search was executed */}
+        {hasExecutedSearch && searchInput && (
           <div className="mt-6">
             {/* Loading state */}
             {isLoading && (
@@ -141,7 +129,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
             )}
             
             {/* Results found */}
-            {!isLoading && searchResults.length > 0 && !error && !isSearching && (
+            {!isLoading && searchResults.length > 0 && !isSearching && (
               <div className="rounded-lg overflow-hidden bg-accent/50 backdrop-blur-sm">
                 <div className="p-3 bg-muted/70 font-medium border-b flex justify-between items-center">
                   <span>Search Results</span>
@@ -174,22 +162,12 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
               </div>
             )}
             
-            {/* No results state */}
-            {!isLoading && searchResults.length === 0 && !error && !isSearching && (
+            {/* No results state - without error message */}
+            {!isLoading && searchResults.length === 0 && !isSearching && (
               <Alert className="bg-muted/50 border">
                 <div className="flex flex-col items-center p-2">
                   <p className="text-center">No results found for "{searchInput}"</p>
                   <p className="text-sm text-muted-foreground mt-1">Try a different search term</p>
-                </div>
-              </Alert>
-            )}
-            
-            {/* Error state */}
-            {error && !isLoading && searchInput && !isSearching && (
-              <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
-                <div className="flex flex-col">
-                  <p className="font-medium">Unable to resolve name</p>
-                  <p className="text-sm mt-1">Please try again later or check if the ENS name exists.</p>
                 </div>
               </Alert>
             )}
