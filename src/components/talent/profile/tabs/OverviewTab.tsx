@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import { Activity, Link as LinkIcon } from 'lucide-react';
 import TransactionHistoryChart from '@/components/visualizations/transactions/TransactionHistoryChart';
-import SkillsVisualization from '@/components/visualizations/SkillsVisualization';
+import { SkillsVisualization } from '@/components/visualizations/SkillsVisualization';
 import { Badge } from '@/components/ui/badge';
 import { SocialIcon } from '@/components/ui/social-icon';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -191,7 +190,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
-            <TransactionHistoryChart transactions={transactions || []} />
+            <TransactionHistoryChart transactions={transactions || []} address={address} />
           </div>
         </CardContent>
       </Card>

@@ -16,6 +16,9 @@ export interface BlockchainProfile {
     email?: string;
   };
   ensLinks?: string[];
+  // Add new fields for extended data
+  mirrorPosts?: number;
+  lensActivity?: number;
 }
 
 export interface Transaction {
