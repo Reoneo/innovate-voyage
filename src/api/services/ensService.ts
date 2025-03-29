@@ -78,15 +78,14 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
 // Reverse lookup address by ENS name
 export async function getAddressByEns(ensName: string): Promise<ENSRecord | null> {
   try {
-    // Handle both .eth and .box domains through web3.bio API
-    // Use the direct API path without 'ens/' prefix to work with all domain types
+    // Try to fetch from web3.bio API first
     const profile = await fetchWeb3BioProfile(ensName);
     
     if (profile && profile.address) {
       // Create ENS record from profile data
       const record: ENSRecord = {
         address: profile.address,
-        ensName: profile.identity || ensName,
+        ensName: profile.identity,
         avatar: profile.avatar || generateFallbackAvatar(),
         skills: [], // Will be populated later in the app
         socialProfiles: {
@@ -98,7 +97,6 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
         }
       };
       
-      console.log(`Resolved ${ensName} to address:`, profile.address);
       return record;
     }
     

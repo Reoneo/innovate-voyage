@@ -47,7 +47,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
             </div>
             <div className="relative mt-2">
               <Input
-                placeholder="vitalik.eth, smith.box or 0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+                placeholder="vitalik.eth, username.box or 0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="pr-10"
