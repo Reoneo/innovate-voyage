@@ -11,7 +11,7 @@ export async function getRealAvatar(ensName: string): Promise<string | null> {
   
   // If not in cache, fetch from API
   try {
-    // Try Web3Bio API first
+    // Try Web3Bio API first - works for both .eth and .box domains
     const profile = await fetchWeb3BioProfile(ensName);
     if (profile && profile.avatar) {
       avatarCache[ensName] = profile.avatar;

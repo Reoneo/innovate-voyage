@@ -31,28 +31,34 @@ export function useEnsResolver(ensName?: string, address?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        // Resolve ENS name to address
-        const resolvedAddress = await resolveEnsToAddress(ensName);
-        
-        if (resolvedAddress) {
-          setResolvedAddress(resolvedAddress);
-          
-          // Get ENS links and socials
-          const links = await getEnsLinks(ensName, 'mainnet');
-          setEnsLinks(links);
-          
-          // Try to get avatar
-          const avatar = await getEnsAvatar(ensName, 'mainnet');
-          if (avatar) {
-            setAvatarUrl(avatar);
-          }
+        // For .box domains, we'll rely more on web3.bio API through our services
+        if (ensName.includes('.box')) {
+          // Get address using our services that use web3.bio API
+          // This will be handled by the API hooks below
         } else {
-          console.warn(`No address found for ${ensName}`);
-          setError(`Could not resolve ${ensName}`);
+          // Resolve ENS name to address using ethers.js
+          const resolvedAddress = await resolveEnsToAddress(ensName);
+          
+          if (resolvedAddress) {
+            setResolvedAddress(resolvedAddress);
+            
+            // Get ENS links and socials
+            const links = await getEnsLinks(ensName, 'mainnet');
+            setEnsLinks(links);
+            
+            // Try to get avatar
+            const avatar = await getEnsAvatar(ensName, 'mainnet');
+            if (avatar) {
+              setAvatarUrl(avatar);
+            }
+          } else {
+            console.warn(`No address found for ${ensName}`);
+            // Don't set error yet, let the API try
+          }
         }
       } catch (error) {
         console.error(`Error resolving ${ensName}:`, error);
-        setError(`Error resolving ${ensName}: ${(error as Error).message}`);
+        // Don't set error yet, let the API try
       } finally {
         setIsLoading(false);
       }
@@ -86,7 +92,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
         }
       } catch (error) {
         console.error(`Error looking up ENS for address ${address}:`, error);
-        setError(`Error looking up ENS: ${(error as Error).message}`);
+        // Don't set error yet, let the API try
       } finally {
         setIsLoading(false);
       }

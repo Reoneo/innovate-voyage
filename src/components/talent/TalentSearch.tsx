@@ -115,11 +115,13 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
           <div className="text-xs text-center text-muted-foreground">
             {searchInput && (
               <>
-                {searchInput.includes('.eth') || searchInput.includes('.box') ? 
+                {searchInput.includes('.eth') ? 
                   'Searching for ENS name on Ethereum Mainnet' : 
-                  isValidEthereumAddress(searchInput) ? 
-                    'Valid Ethereum address' : 
-                    'Enter a valid ENS name (.eth or .box) or Ethereum address'}
+                  searchInput.includes('.box') ?
+                    'Searching for Box domain via Web3.bio API' :
+                    isValidEthereumAddress(searchInput) ? 
+                      'Valid Ethereum address' : 
+                      'Enter a valid ENS name (.eth or .box) or Ethereum address'}
               </>
             )}
           </div>

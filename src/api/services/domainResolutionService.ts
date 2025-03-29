@@ -51,8 +51,7 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
 // Reverse lookup address by ENS name
 export async function getAddressByEns(ensName: string): Promise<ENSRecord | null> {
   try {
-    // Treat all domains (.eth and .box) as mainnet domains
-    // Try to fetch from web3.bio API first
+    // Handle both .eth and .box domains through web3.bio API
     const profile = await fetchWeb3BioProfile(ensName);
     
     if (profile && profile.address) {
@@ -83,16 +82,7 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
       return record;
     }
     
-    // For .box domains, use the same handling as .eth domains (mainnet)
-    if (ensName.includes('.box')) {
-      console.log(`Resolving .box domain: ${ensName} using Ethereum Mainnet`);
-      
-      // We should not generate mock data for .box domains
-      // Return null to indicate no data was found
-      return null;
-    }
-    
-    // Don't fallback to mock data, just return null
+    // No mock data fallback - return null if no data found
     return null;
   } catch (error) {
     console.error(`Error fetching address for ENS ${ensName}:`, error);

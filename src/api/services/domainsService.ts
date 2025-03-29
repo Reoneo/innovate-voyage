@@ -43,12 +43,7 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
     let domains: string[] = [];
     
     if (profile && profile.identity) {
-      if (profile.identity.includes('.eth')) {
-        domains.push(profile.identity);
-      }
-      
-      // Add .box domains if applicable, treating them as mainnet domains
-      if (profile.identity.includes('.box')) {
+      if (profile.identity.includes('.eth') || profile.identity.includes('.box')) {
         domains.push(profile.identity);
       }
     }

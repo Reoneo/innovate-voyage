@@ -8,14 +8,23 @@ export const avatarCache: Record<string, string> = {};
 // Function to fetch profile from Web3.bio API
 export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProfile | null> {
   try {
-    // Determine the right endpoint based on the domain (.eth or .box)
-    let endpoint = `https://api.web3.bio/profile/ens/${identity}`;
+    // Determine the right endpoint based on the domain type (.eth or .box)
+    let endpoint;
     
     if (identity.includes('.box')) {
-      console.log(`Fetching .box domain profile: ${identity}`);
-      endpoint = `https://api.web3.bio/profile/box/${identity}`;
+      // For .box domains, use the ens endpoint but with the .box domain
+      // This works because web3.bio API supports .box domains through the ens endpoint
+      endpoint = `https://api.web3.bio/profile/ens/${identity}`;
+      console.log(`Fetching .box domain profile via ENS endpoint: ${identity}`);
+    } else if (identity.includes('.eth')) {
+      endpoint = `https://api.web3.bio/profile/ens/${identity}`;
+      console.log(`Fetching .eth domain profile: ${identity}`);
     } else if (!identity.includes('.') && identity.startsWith('0x')) {
       endpoint = `https://api.web3.bio/profile/eth/${identity}`;
+      console.log(`Fetching address profile: ${identity}`);
+    } else {
+      // Try with ENS endpoint as a fallback
+      endpoint = `https://api.web3.bio/profile/ens/${identity}`;
     }
     
     console.log(`Fetching profile for ${identity} from ${endpoint}`);
