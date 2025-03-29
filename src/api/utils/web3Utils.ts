@@ -3,31 +3,92 @@ import { Web3BioProfile } from '../types/web3Types';
 import { delay } from '../jobsApi';
 
 // Cache for storing already fetched avatars to reduce API calls
-export const avatarCache: Record<string, string> = {
-  // Pre-populate with some fallbacks
-  'vitalik.eth': 'https://storage.googleapis.com/ethereum-hackmd/upload_7a91319e830e3961cc56e1bfeb4926b5.png',
-};
+export const avatarCache: Record<string, string> = {};
 
 // Function to fetch profile from Web3.bio API
 export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProfile | null> {
   try {
-    const response = await fetch(`https://api.web3.bio/profile/${identity}`);
+    const response = await fetch(`https://api.web3.bio/profile/ens/${identity}`);
     if (!response.ok) {
       console.warn(`Failed to fetch Web3.bio profile for ${identity}`);
       return null;
     }
     
     const data = await response.json();
-    if (Array.isArray(data) && data.length > 0) {
-      // Return the first profile in the array
-      return {
-        address: data[0].address || '',
-        identity: identity,
-        platform: data[0].platform || 'ens',
-        displayName: data[0].display_name || identity,
-        avatar: data[0].avatar || null,
-        description: data[0].description || null
+    
+    // Check if we got a valid response
+    if (data && data.identity) {
+      // Format response to match our internal Web3BioProfile structure
+      const profile: Web3BioProfile = {
+        address: data.address || '',
+        identity: data.identity || identity,
+        platform: data.platform || 'ens',
+        displayName: data.displayName || identity,
+        avatar: data.avatar || null,
+        description: data.description || null,
+        status: data.status || null,
+        email: data.email || null,
+        location: data.location || null,
+        header: data.header || null,
+        contenthash: data.contenthash || null
       };
+      
+      // Extract social links from links object if available
+      if (data.links) {
+        if (data.links.github) {
+          profile.github = data.links.github.link;
+        }
+        if (data.links.twitter) {
+          profile.twitter = data.links.twitter.link;
+        }
+        if (data.links.linkedin) {
+          profile.linkedin = data.links.linkedin.link;
+        }
+        if (data.links.website) {
+          profile.website = data.links.website.link;
+        }
+      }
+      
+      // Cache the avatar if available
+      if (profile.avatar && identity) {
+        avatarCache[identity] = profile.avatar;
+      }
+      
+      return profile;
+    } else if (Array.isArray(data) && data.length > 0) {
+      // Handle array response format
+      const firstProfile = data[0];
+      
+      const profile: Web3BioProfile = {
+        address: firstProfile.address || '',
+        identity: firstProfile.identity || identity,
+        platform: firstProfile.platform || 'ens',
+        displayName: firstProfile.display_name || firstProfile.displayName || identity,
+        avatar: firstProfile.avatar || null,
+        description: firstProfile.description || null
+      };
+      
+      // Extract other fields if present
+      if (firstProfile.links) {
+        if (firstProfile.links.github) {
+          profile.github = firstProfile.links.github.link;
+        }
+        if (firstProfile.links.twitter) {
+          profile.twitter = firstProfile.links.twitter.link;
+        }
+        if (firstProfile.links.linkedin) {
+          profile.linkedin = firstProfile.links.linkedin.link;
+        }
+        if (firstProfile.links.website) {
+          profile.website = firstProfile.links.website.link;
+        }
+      }
+      
+      if (profile.avatar && identity) {
+        avatarCache[identity] = profile.avatar;
+      }
+      
+      return profile;
     } else if (data.error) {
       console.warn(`Web3.bio error for ${identity}:`, data.error);
       return null;

@@ -1,187 +1,186 @@
 
-import { useEffect, RefObject, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import { PassportSkill } from '@/lib/utils';
 
-export const useSkillsD3 = (
-  containerRef: RefObject<SVGSVGElement>,
+type SkillsData = {
+  name: string;
+  children?: SkillsData[];
+  value?: number;
+  proof?: string;
+  issued_by?: string;
+};
+
+export function useSkillsD3(
+  svgRef: React.RefObject<SVGSVGElement>,
   skills: Array<{ name: string; proof?: string; issued_by?: string }>,
-  name: string
-): (() => void) => {
-  // Memoize cleanup function to avoid unnecessary re-renders
-  const cleanup = useCallback(() => {
-    if (!containerRef.current) return;
-    
-    // Properly clean up all D3 elements and listeners
-    const svg = d3.select(containerRef.current);
-    
-    // Remove all elements within the SVG
-    svg.selectAll('*').remove();
-    
-    // Remove any tooltips that might have been created outside the SVG
-    d3.selectAll('.d3-tooltip').remove();
-  }, [containerRef]);
-
+  centerName: string
+) {
+  const d3Container = svgRef;
+  const cleanupRef = useRef<(() => void) | null>(null);
+  
   useEffect(() => {
-    if (!containerRef.current || skills.length === 0) return cleanup;
-
-    const margin = { top: 20, right: 20, bottom: 20, left: 20 };
-    const width = 400 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
-
-    // Clear previous visualization
-    cleanup();
-
-    const svg = d3.select(containerRef.current)
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom);
-
-    const g = svg.append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
-
-    // Create hierarchical data structure
-    const root = {
-      name: name,
+    if (!d3Container.current || !skills || skills.length === 0) return;
+    
+    const svg = d3.select(d3Container.current);
+    svg.selectAll("*").remove();
+    
+    const width = 400;
+    const height = 300;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    
+    // Create data hierarchy
+    const data: SkillsData = {
+      name: centerName || "Skills",
       children: skills.map(skill => ({
         name: skill.name,
-        value: skill.proof ? 2 : 1,
-        verified: !!skill.proof,
+        value: 1,
+        proof: skill.proof,
         issued_by: skill.issued_by
       }))
     };
-
-    const hierarchyData = d3.hierarchy(root)
+    
+    const hierarchyData = d3.hierarchy(data)
       .sum(d => (d as any).value || 1);
-
+    
     // Create pack layout
     const pack = d3.pack()
-      .size([width, height])
-      .padding(3);
-
-    const packedData = pack(hierarchyData);
-
-    // Create nodes
-    const node = g.selectAll(".node")
-      .data(packedData.descendants())
+      .size([width - 50, height - 50])
+      .padding(10);
+    
+    const root = pack(hierarchyData);
+    
+    // Define colors
+    const colors = d3.scaleOrdinal(d3.schemeTableau10);
+    
+    // Draw center node
+    const center = svg.append("g")
+      .attr("transform", `translate(${centerX}, ${centerY})`);
+    
+    center.append("circle")
+      .attr("r", 40)
+      .attr("fill", "#4f46e5")
+      .attr("stroke", "#1e1b4b")
+      .attr("stroke-width", 2);
+    
+    center.append("text")
+      .attr("text-anchor", "middle")
+      .attr("dy", "0.3em")
+      .attr("font-size", "12px")
+      .attr("fill", "white")
+      .text(centerName);
+    
+    // Draw skill nodes
+    const nodes = svg.append("g")
+      .selectAll("g")
+      .data(root.descendants().slice(1))
       .enter()
       .append("g")
-      .attr("class", "node")
-      .attr("transform", d => `translate(${d.x},${d.y})`);
-
-    // Add circles for nodes
-    node.append("circle")
+      .attr("transform", d => `translate(
+        ${centerX + (d.x - width/2) * 0.8}, 
+        ${centerY + (d.y - height/2) * 0.8}
+      )`);
+    
+    // Add circles for each node
+    nodes.append("circle")
       .attr("r", d => d.r)
-      .attr("fill", (d: any) => {
-        if (d.depth === 0) return "#3b82f6";
-        return d.data.verified ? "#10b981" : "#9ca3af";
-      })
-      .attr("opacity", d => d.depth === 0 ? 1 : 0.8)
-      .attr("stroke", (d: any) => {
-        if (d.depth === 0) return "#1d4ed8";
-        return d.data.verified ? "#059669" : "#6b7280";
-      })
+      .attr("fill", (d, i) => d.data.proof ? "#4f46e5" : colors(i.toString()))
+      .attr("stroke", d => d.data.proof ? "#1e1b4b" : "#6b7280")
       .attr("stroke-width", 1.5)
-      .on("mouseover", function(event: MouseEvent, d: any) {
+      .attr("stroke-dasharray", d => d.data.proof ? "none" : "2,2")
+      .attr("opacity", 0.8)
+      .on("mouseover", function(event, nodeData) {
         d3.select(this)
-          .attr("stroke-width", 2)
-          .attr("opacity", 1);
-
-        // Dispatch custom event for React component to handle
-        const customEvent = new CustomEvent("skillnodemouseover", {
-          detail: { node: d, x: event.offsetX, y: event.offsetY }
-        });
-        containerRef.current?.dispatchEvent(customEvent);
-      })
-      .on("mouseout", function(event: MouseEvent, d: any) {
-        d3.select(this)
-          .attr("stroke-width", 1.5)
-          .attr("opacity", d.depth === 0 ? 1 : 0.8);
-
-        // Dispatch custom event
-        const customEvent = new CustomEvent("skillnodemouseout", {
-          detail: { node: d }
-        });
-        containerRef.current?.dispatchEvent(customEvent);
-      });
-
-    // Add text labels
-    node.append("text")
-      .attr("dy", d => d.depth === 0 ? "0.35em" : "0.3em")
-      .attr("text-anchor", "middle")
-      .attr("font-size", d => d.depth === 0 ? "12px" : "10px")
-      .attr("fill", d => d.depth === 0 ? "white" : "#374151")
-      .attr("pointer-events", "none")
-      .text(d => {
-        if (d.depth === 0) {
-          return d.data.name.length > 10 ? d.data.name.substring(0, 10) + "..." : d.data.name;
-        }
+          .transition()
+          .duration(300)
+          .attr("opacity", 1)
+          .attr("r", nodeData.r * 1.1);
         
-        const skillName = d.data.name;
-        if (skillName.length > 8) {
-          return skillName.substring(0, 8) + "...";
-        }
-        return skillName;
-      });
-
-    // Draw connections between the main node and skill nodes
-    const connections = g.selectAll(".connection")
-      .data(packedData.descendants().filter(d => d.depth === 1))
-      .enter()
-      .append("line")
-      .attr("class", "connection")
-      .attr("x1", packedData.x)
-      .attr("y1", packedData.y)
-      .attr("x2", d => d.x)
-      .attr("y2", d => d.y)
-      .attr("stroke", d => (d.data as any).verified ? "#10b981" : "#9ca3af")
-      .attr("stroke-width", d => (d.data as any).verified ? 1.5 : 1)
-      .attr("stroke-opacity", 0.6)
-      .attr("stroke-dasharray", d => (d.data as any).verified ? "none" : "4,2")
-      .on("mouseover", function(event: MouseEvent) {
-        d3.select(this)
-          .attr("stroke-width", d => (d.data as any).verified ? 2.5 : 2)
-          .attr("stroke-opacity", 1);
-
-        // Dispatch custom event
-        const customEvent = new CustomEvent("connectionmouseover", {
-          detail: { x: event.offsetX, y: event.offsetY }
-        });
-        containerRef.current?.dispatchEvent(customEvent);
+        // Dispatch custom event for tooltip
+        const currentTarget = event.currentTarget;
+        const rect = currentTarget.getBoundingClientRect();
+        const detail = {
+          node: nodeData,
+          x: event.pageX || rect.x + rect.width/2,
+          y: event.pageY || rect.y
+        };
+        const customEvent = new CustomEvent("skillnodemouseover", { detail });
+        d3Container.current?.dispatchEvent(customEvent);
       })
-      .on("mouseout", function() {
+      .on("mouseout", function(event, nodeData) {
         d3.select(this)
-          .attr("stroke-width", d => (d.data as any).verified ? 1.5 : 1)
-          .attr("stroke-opacity", 0.6);
-
-        // Dispatch custom event
-        const customEvent = new CustomEvent("connectionmouseout", {});
-        containerRef.current?.dispatchEvent(customEvent);
+          .transition()
+          .duration(300)
+          .attr("opacity", 0.8)
+          .attr("r", nodeData.r);
+        
+        const customEvent = new CustomEvent("skillnodemouseout");
+        d3Container.current?.dispatchEvent(customEvent);
       });
     
-    // Add verification badges for verified skills
-    node.filter((d: any) => d.depth === 1 && d.data.verified)
-      .append("circle")
-      .attr("cx", d => d.r * 0.6)
-      .attr("cy", -d.r * 0.6)
-      .attr("r", d => d.r * 0.3)
-      .attr("fill", "#10b981")
-      .attr("stroke", "white")
-      .attr("stroke-width", 1.5);
-
-    // Add checkmark to verification badges
-    node.filter((d: any) => d.depth === 1 && d.data.verified)
-      .append("text")
-      .attr("x", d => d.r * 0.6)
-      .attr("y", -d.r * 0.6)
+    // Add text to each node
+    nodes.append("text")
       .attr("text-anchor", "middle")
-      .attr("dominant-baseline", "middle")
-      .attr("fill", "white")
-      .attr("font-size", d => Math.max(8, d.r * 0.3) + "px")
-      .attr("pointer-events", "none")
-      .text("✓");
-
-    return cleanup;
-  }, [skills, name, cleanup]);
-
-  return cleanup;
-};
+      .attr("dy", "0.3em")
+      .attr("font-size", "10px")
+      .attr("fill", "#fff")
+      .text(d => {
+        const name = d.data.name as string;
+        return name.length > 10 ? name.substring(0, 8) + "..." : name;
+      });
+    
+    // Add connections between center and nodes
+    svg.insert("g", ":first-child")
+      .selectAll("line")
+      .data(root.descendants().slice(1))
+      .enter()
+      .append("line")
+      .attr("x1", centerX)
+      .attr("y1", centerY)
+      .attr("x2", d => centerX + (d.x - width/2) * 0.8)
+      .attr("y2", d => centerY + (d.y - height/2) * 0.8)
+      .attr("stroke", d => d.data.proof ? "#4f46e5" : "#9ca3af")
+      .attr("stroke-width", d => d.data.proof ? 2 : 1)
+      .attr("stroke-dasharray", d => d.data.proof ? "none" : "3,3")
+      .attr("opacity", 0.6)
+      .on("mouseover", function(event, nodeData) {
+        d3.select(this)
+          .transition()
+          .duration(300)
+          .attr("opacity", 1)
+          .attr("stroke-width", nodeData.data.proof ? 3 : 2);
+        
+        // Dispatch custom event for tooltip
+        const rect = event.target.getBoundingClientRect();
+        const detail = {
+          x: event.pageX || rect.x + rect.width/2,
+          y: event.pageY || rect.y
+        };
+        const customEvent = new CustomEvent("connectionmouseover", { detail });
+        d3Container.current?.dispatchEvent(customEvent);
+      })
+      .on("mouseout", function(event, nodeData) {
+        d3.select(this)
+          .transition()
+          .duration(300)
+          .attr("opacity", 0.6)
+          .attr("stroke-width", nodeData.data.proof ? 2 : 1);
+        
+        const customEvent = new CustomEvent("connectionmouseout");
+        d3Container.current?.dispatchEvent(customEvent);
+      });
+    
+    // Set up cleanup function
+    cleanupRef.current = () => {
+      svg.selectAll("*").remove();
+    };
+    
+    return () => {
+      if (cleanupRef.current) {
+        cleanupRef.current();
+      }
+    };
+  }, [d3Container, skills, centerName]);
+  
+  return cleanupRef.current;
+}

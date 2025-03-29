@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Download } from 'lucide-react';
@@ -13,21 +12,12 @@ import { toast } from '@/components/ui/use-toast';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-// Import components
-import ProfileHeader from '@/components/talent/profile/ProfileHeader';
-import OverviewTab from '@/components/talent/profile/tabs/OverviewTab';
-import BlockchainTab from '@/components/talent/profile/tabs/BlockchainTab';
-import SkillsTab from '@/components/talent/profile/tabs/SkillsTab';
-import ResumeTab from '@/components/talent/profile/tabs/ResumeTab';
-import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
-
 const TalentProfile = () => {
   const { ensName, address } = useParams<{ ensName: string; address: string }>();
   const [passport, setPassport] = useState<BlockchainPassport | null>(null);
   const [loading, setLoading] = useState(true);
   const profileRef = useRef<HTMLDivElement>(null);
   
-  // Fetch data based on ENS or address
   const { data: addressData } = useAddressByEns(
     ensName?.includes('.eth') ? ensName : undefined
   );
@@ -35,7 +25,6 @@ const TalentProfile = () => {
     !ensName?.includes('.eth') ? address : undefined
   );
   
-  // Get blockchain data
   const resolvedAddress = addressData?.address || address;
   const resolvedEns = ensName || ensData?.ensName;
   
@@ -44,7 +33,6 @@ const TalentProfile = () => {
   const { data: tokenTransfers } = useTokenTransfers(resolvedAddress, 10);
   const { data: web3BioProfile } = useWeb3BioProfile(resolvedAddress || resolvedEns);
 
-  // Create passport from gathered data
   useEffect(() => {
     const createPassport = async () => {
       if (!resolvedAddress) return;
@@ -52,25 +40,20 @@ const TalentProfile = () => {
       setLoading(true);
       
       try {
-        // Create skills from available data
         const skills = [];
         
-        // Add skills based on blockchain activity
         if (blockchainProfile) {
           if (parseFloat(blockchainProfile.balance) > 0) skills.push({ name: 'ETH Holder', proof: `etherscan://${resolvedAddress}` });
           if (blockchainProfile.transactionCount > 10) skills.push({ name: 'Active Trader', proof: `etherscan://${resolvedAddress}` });
           if (blockchainProfile.transactionCount > 50) skills.push({ name: 'Power User', proof: `etherscan://${resolvedAddress}` });
         }
         
-        // Add ENS-related skill
         if (resolvedEns?.includes('.eth')) skills.push({ name: 'ENS Owner', proof: `ens://${resolvedEns}` });
         
-        // Add skills from transactions
         if (transactions && transactions.length > 0) {
           const hasContractInteractions = transactions.some(tx => tx.input && tx.input !== '0x');
           if (hasContractInteractions) skills.push({ name: 'Smart Contract User', proof: `etherscan://${resolvedAddress}` });
           
-          // Check for recent activity
           const recentTx = transactions.some(tx => {
             const txDate = new Date(parseInt(tx.timeStamp) * 1000);
             const now = new Date();
@@ -81,28 +64,23 @@ const TalentProfile = () => {
           if (recentTx) skills.push({ name: 'Recently Active', proof: `etherscan://${resolvedAddress}` });
         }
         
-        // Add token holder skills
         if (tokenTransfers && tokenTransfers.length > 0) {
           const uniqueTokens = new Set(tokenTransfers.map(tx => tx.tokenSymbol));
           if (uniqueTokens.size > 0) skills.push({ name: 'Token Holder', proof: `etherscan://${resolvedAddress}` });
           if (uniqueTokens.size > 5) skills.push({ name: 'Token Collector', proof: `etherscan://${resolvedAddress}` });
           
-          // Check for specific tokens
           if (Array.from(uniqueTokens).some(token => token === 'UNI')) {
             skills.push({ name: 'Uniswap User', proof: `etherscan://${resolvedAddress}` });
           }
         }
         
-        // Add web3bio skills
         if (web3BioProfile) {
           if (web3BioProfile.github) skills.push({ name: 'GitHub User', proof: web3BioProfile.github });
           if (web3BioProfile.twitter) skills.push({ name: 'Twitter User', proof: web3BioProfile.twitter });
           
-          // Check for linkedin property before using it
           if (web3BioProfile.linkedin) skills.push({ name: 'LinkedIn User', proof: web3BioProfile.linkedin });
         }
         
-        // Create passport object with required fields
         const newPassport: BlockchainPassport = {
           passport_id: resolvedEns || truncateAddress(resolvedAddress),
           owner_address: resolvedAddress,
@@ -110,14 +88,12 @@ const TalentProfile = () => {
           name: resolvedEns ? resolvedEns.split('.')[0] : truncateAddress(resolvedAddress),
           issued: new Date().toISOString(),
           skills: skills,
-          // Ensure socials object exists and includes all possible properties
           socials: {
             github: web3BioProfile?.github,
             twitter: web3BioProfile?.twitter,
             website: web3BioProfile?.website,
             email: web3BioProfile?.email,
-            // Add linkedin if it exists in web3BioProfile
-            ...(web3BioProfile?.linkedin ? { linkedin: web3BioProfile.linkedin } : {})
+            linkedin: web3BioProfile?.linkedin
           }
         };
         
@@ -139,7 +115,6 @@ const TalentProfile = () => {
     }
   }, [resolvedAddress, resolvedEns, blockchainProfile, transactions, tokenTransfers, web3BioProfile]);
 
-  // Export profile as PDF
   const exportAsPDF = async () => {
     if (!profileRef.current) return;
     
@@ -182,14 +157,11 @@ const TalentProfile = () => {
     }
   };
 
-  // If we have a valid passport, calculate score and ensure all required properties
   const passportWithScore = passport ? {
     ...passport,
     ...calculateHumanScore(passport),
     hasMoreSkills: passport.skills.length > 4,
-    // Ensure skills is not undefined for components that require it
     skills: passport.skills || [],
-    // Ensure socials is not undefined for components that require it
     socials: passport.socials || {
       github: undefined,
       twitter: undefined,
@@ -201,7 +173,6 @@ const TalentProfile = () => {
 
   return (
     <div className="container mx-auto py-8 max-w-5xl">
-      {/* Header with navigation */}
       <div className="flex justify-between items-center mb-6">
         <Link to="/talent" className="flex items-center text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -217,10 +188,7 @@ const TalentProfile = () => {
         <ProfileSkeleton />
       ) : passportWithScore ? (
         <div ref={profileRef} className="space-y-6">
-          {/* Profile Header */}
           <ProfileHeader passport={passportWithScore} />
-          
-          {/* Tabs for different sections */}
           <TooltipProvider>
             <Tabs defaultValue="overview" className="w-full">
               <TabsList className="grid grid-cols-4 md:w-[600px] mx-auto">
@@ -230,7 +198,6 @@ const TalentProfile = () => {
                 <TabsTrigger value="resume">Resume</TabsTrigger>
               </TabsList>
               
-              {/* Overview Tab */}
               <TabsContent value="overview" className="space-y-6 mt-6">
                 <OverviewTab 
                   skills={passportWithScore.skills}
@@ -241,7 +208,6 @@ const TalentProfile = () => {
                 />
               </TabsContent>
               
-              {/* Blockchain Tab */}
               <TabsContent value="blockchain" className="space-y-6 mt-6">
                 <BlockchainTab 
                   transactions={transactions}
@@ -249,7 +215,6 @@ const TalentProfile = () => {
                 />
               </TabsContent>
               
-              {/* Skills Tab */}
               <TabsContent value="skills" className="space-y-6 mt-6">
                 <SkillsTab 
                   skills={passportWithScore.skills}
@@ -257,7 +222,6 @@ const TalentProfile = () => {
                 />
               </TabsContent>
               
-              {/* Resume Tab */}
               <TabsContent value="resume" className="space-y-6 mt-6">
                 <ResumeTab 
                   passport={passportWithScore}

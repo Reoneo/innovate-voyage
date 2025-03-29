@@ -10,6 +10,8 @@ export interface ENSRecord {
     github?: string;
     linkedin?: string;
     discord?: string;
+    website?: string;
+    email?: string;
   };
 }
 
@@ -35,9 +37,33 @@ export interface Web3BioProfile {
   displayName: string;
   avatar: string | null;
   description: string | null;
+  status?: string | null;
+  email?: string | null;
+  location?: string | null;
+  header?: string | null;
+  contenthash?: string | null;
   github?: string;
   twitter?: string;
   linkedin?: string;
   website?: string;
   email?: string;
+  links?: {
+    website?: {
+      link: string;
+      handle: string;
+    };
+    github?: {
+      link: string;
+      handle: string;
+    };
+    twitter?: {
+      link: string;
+      handle: string;
+    };
+    linkedin?: {
+      link: string;
+      handle: string;
+    };
+  };
+  social?: Record<string, any>;
 }
