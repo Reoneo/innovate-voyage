@@ -31,7 +31,7 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
     // Try to fetch from web3.bio API first
     const profile = await fetchWeb3BioProfile(address);
     
-    if (profile && profile.identity && profile.identity.includes('.eth')) {
+    if (profile && profile.identity && (profile.identity.includes('.eth') || profile.identity.includes('.box'))) {
       // Create ENS record from profile data
       const record: ENSRecord = {
         address: profile.address,

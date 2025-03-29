@@ -65,7 +65,7 @@ export function isValidEthereumAddress(address: string): boolean {
 // Function to calculate a human score based on blockchain activity
 export function calculateHumanScore(passport: BlockchainPassport): { score: number, category: string } {
   // Base score for having an ENS name
-  let score = passport.passport_id.includes('.eth') ? 40 : 20;
+  let score = passport.passport_id.includes('.eth') || passport.passport_id.includes('.box') ? 40 : 20;
   
   // Add points for each skill
   score += Math.min(passport.skills?.length * 5, 30);

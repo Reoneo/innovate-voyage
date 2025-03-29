@@ -45,7 +45,7 @@ const Talent = () => {
       
       try {
         // If ENS name is provided, try to resolve address
-        if (addressSearch.includes('.eth')) {
+        if (addressSearch.includes('.eth') || addressSearch.includes('.box')) {
           if (addressDataByEns) {
             address = addressDataByEns.address;
             ensName = addressDataByEns.ensName;
@@ -85,7 +85,7 @@ const Talent = () => {
         if (Number(balance) > 0) skills.push('ETH Holder');
         if (txCount > 10) skills.push('Active Trader');
         if (txCount > 50) skills.push('Power User');
-        if (ensName.includes('.eth')) skills.push('ENS Owner');
+        if (ensName.includes('.eth') || ensName.includes('.box')) skills.push('ENS Owner');
         
         // Add transaction-based skills
         if (latestTxs && latestTxs.length > 0) {
