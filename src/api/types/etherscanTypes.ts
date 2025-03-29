@@ -1,3 +1,4 @@
+
 // Types for Etherscan API responses
 export interface BlockchainProfile {
   address: string;
@@ -13,6 +14,10 @@ export interface BlockchainProfile {
     linkedin?: string;
     website?: string;
     email?: string;
+    facebook?: string;
+    instagram?: string;
+    youtube?: string;
+    bluesky?: string;
   };
   ensLinks?: string[];
   // Add description field for user bio
