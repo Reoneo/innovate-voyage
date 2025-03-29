@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { jobsApi } from '@/api/jobsApi';
 import JobListings from '@/components/jobs/JobListings';
 import JobFilters from '@/components/jobs/JobFilters';
 import { toast } from 'sonner';
-import { Briefcase, Database, Building, MapPin, Globe, Award, Shield, Star } from 'lucide-react';
+import { Briefcase, Database, Building, MapPin, Globe, Award, Shield, Star, Info } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -79,37 +78,34 @@ const Jobs = () => {
     setSortBy(value);
   };
 
-  // Convert ENS records to passport format for scoring
   const passportData = React.useMemo(() => {
     if (!ensRecords) return [];
     
     return ensRecords.map(record => {
-      // Create a passport object from ENS record data
       const passport: BlockchainPassport = {
         passport_id: record.ensName,
         owner_address: record.address,
         avatar_url: record.avatar,
-        name: record.ensName.split('.')[0], // Extract name from ENS
-        issued: new Date(Date.now() - Math.random() * 63072000000).toISOString(), // Random date within last 2 years
+        name: record.ensName.split('.')[0],
+        issued: new Date(Date.now() - Math.random() * 63072000000).toISOString(),
         socials: record.socialProfiles,
-        skills: record.skills.map(skill => ({ 
+        skills: record.skills.map(skill => ({
           name: skill,
-          // Random proof for some skills
           proof: Math.random() > 0.5 ? `ipfs://QmProof${skill.replace(/\s/g, '')}` : undefined,
           issued_by: Math.random() > 0.7 ? ['Ethereum Foundation', 'Encode Club', 'Consensys', 'ETHGlobal'][Math.floor(Math.random() * 4)] : undefined
         }))
       };
-      
-      // Calculate score
+
       const { score, category } = calculateHumanScore(passport);
       
       return {
         ...passport,
         score,
         category,
-        colorClass: getScoreColorClass(score)
+        colorClass: getScoreColorClass(score),
+        hasMoreSkills: passport.skills.length > 4
       };
-    }).sort((a, b) => b.score - a.score); // Sort by score (highest first)
+    }).sort((a, b) => b.score - a.score);
   }, [ensRecords]);
 
   return (
@@ -228,10 +224,32 @@ const Jobs = () => {
                             {skill.name}
                           </Badge>
                         ))}
-                        {passport.skills && passport.skills.length > 4 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{passport.skills.length - 4} more
-                          </Badge>
+                        {passport.hasMoreSkills && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge variant="outline" className="text-xs cursor-help">
+                                  <Info className="h-3 w-3 mr-1" />
+                                  +{passport.skills.length - 4} more
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent className="w-64 p-2">
+                                <p className="font-medium mb-1">Additional Skills:</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {passport.skills?.slice(4).map((skill, idx) => (
+                                    <Badge 
+                                      key={`more-${skill.name}-${idx}`} 
+                                      variant={skill.proof ? "default" : "secondary"} 
+                                      className="text-xs"
+                                    >
+                                      {skill.proof && <Star className="h-3 w-3 mr-1" />}
+                                      {skill.name}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )}
                       </div>
                     </div>
