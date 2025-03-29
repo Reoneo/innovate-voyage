@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { NetworkData, NetworkNode } from '../hooks/useIdNetworkData';
@@ -77,7 +78,9 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
         .call(createDragBehavior(simulation) as any)
         .on("click", (event, d: any) => {
           // Toggle node selection
-          setSelectedNode(prev => prev === d.name ? null : d.name);
+          // Fix: We need to set the actual node name string, not use a function here
+          const nodeName = d.name;
+          setSelectedNode(selectedNode === nodeName ? null : nodeName);
           
           // Reset all nodes and links
           node.selectAll("circle").attr("stroke-width", 1.5);
