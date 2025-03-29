@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import { useTooltip, TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 interface Transaction {
   timeStamp: string;
@@ -39,7 +40,10 @@ const TransactionHistoryChart: React.FC<TransactionHistoryChartProps> = ({
         date,
         value,
         type: isSent ? 'sent' : 'received',
-        hash: tx.hash
+        hash: tx.hash,
+        from: tx.from,
+        to: tx.to,
+        rawValue: tx.value
       };
     }).sort((a, b) => a.date.getTime() - b.date.getTime());
 
@@ -125,30 +129,59 @@ const TransactionHistoryChart: React.FC<TransactionHistoryChartProps> = ({
           .attr('r', 7)
           .attr('stroke-width', 2);
           
-        // Show tooltip
+        // Show enhanced tooltip
         const tooltip = svg.append('g')
           .attr('class', 'tooltip')
           .attr('transform', `translate(${xScale(d.date) + margin.left + 10},${yScale(d.value) + margin.top - 20})`);
           
+        // Add background rectangle
         tooltip.append('rect')
-          .attr('width', 130)
-          .attr('height', 50)
+          .attr('width', 180)
+          .attr('height', 80)
           .attr('rx', 5)
           .attr('fill', 'rgba(0,0,0,0.8)');
           
+        // Add transaction details
         tooltip.append('text')
           .attr('x', 5)
           .attr('y', 15)
           .attr('fill', 'white')
           .attr('font-size', '10px')
-          .text(`${d.value.toFixed(4)} ETH ${d.type}`);
+          .text(`${d.value.toFixed(4)} ETH ${d.type.toUpperCase()}`);
           
         tooltip.append('text')
           .attr('x', 5)
-          .attr('y', 35)
+          .attr('y', 30)
           .attr('fill', 'white')
           .attr('font-size', '10px')
-          .text(`${d.date.toLocaleDateString()}`);
+          .text(`Date: ${d.date.toLocaleDateString()}`);
+
+        // Add address info
+        tooltip.append('text')
+          .attr('x', 5)
+          .attr('y', 45)
+          .attr('fill', 'white')
+          .attr('font-size', '10px')
+          .text(`From: ${d.from.substring(0, 6)}...${d.from.substring(d.from.length - 4)}`);
+
+        tooltip.append('text')
+          .attr('x', 5)
+          .attr('y', 60)
+          .attr('fill', 'white')
+          .attr('font-size', '10px')
+          .text(`To: ${d.to.substring(0, 6)}...${d.to.substring(d.to.length - 4)}`);
+
+        // Add transaction hash
+        tooltip.append('text')
+          .attr('x', 5)
+          .attr('y', 75)
+          .attr('fill', '#3b82f6')
+          .attr('font-size', '10px')
+          .text(`View on Etherscan`)
+          .style('cursor', 'pointer')
+          .on('click', () => {
+            window.open(`https://etherscan.io/tx/${d.hash}`, '_blank');
+          });
       })
       .on('mouseout', function() {
         d3.select(this)
@@ -156,6 +189,10 @@ const TransactionHistoryChart: React.FC<TransactionHistoryChartProps> = ({
           .attr('stroke-width', 1);
           
         svg.selectAll('.tooltip').remove();
+      })
+      .style('cursor', 'pointer')
+      .on('click', function(event, d) {
+        window.open(`https://etherscan.io/tx/${d.hash}`, '_blank');
       });
 
     // Add a line chart connecting the points
@@ -164,13 +201,26 @@ const TransactionHistoryChart: React.FC<TransactionHistoryChartProps> = ({
       .y(d => yScale(d.value))
       .curve(d3.curveMonotoneX);
 
+    // Add the path with interactive features
     g.append('path')
       .datum(data)
       .attr('fill', 'none')
       .attr('stroke', '#3b82f6')
       .attr('stroke-width', 1.5)
       .attr('stroke-opacity', 0.6)
-      .attr('d', line);
+      .attr('d', line)
+      .attr('class', 'transaction-line')
+      .style('pointer-events', 'stroke') // Enable events on the stroke
+      .on('mouseover', function() {
+        d3.select(this)
+          .attr('stroke-width', 2.5)
+          .attr('stroke-opacity', 1);
+      })
+      .on('mouseout', function() {
+        d3.select(this)
+          .attr('stroke-width', 1.5)
+          .attr('stroke-opacity', 0.6);
+      });
 
     // Add transaction type labels if requested
     if (showLabels) {
@@ -195,6 +245,19 @@ const TransactionHistoryChart: React.FC<TransactionHistoryChartProps> = ({
       .attr('font-size', '12px')
       .attr('font-weight', 'bold')
       .text('ETH Transaction History');
+
+    // Add annotations for significant transactions
+    const significantTx = data.reduce((max, tx) => tx.value > max.value ? tx : max, data[0]);
+    
+    g.append('circle')
+      .attr('cx', xScale(significantTx.date))
+      .attr('cy', yScale(significantTx.value))
+      .attr('r', 8)
+      .attr('fill', 'none')
+      .attr('stroke', '#8b5cf6')
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '3,3')
+      .attr('class', 'highlight-circle');
 
   }, [transactions, address, showLabels]);
 

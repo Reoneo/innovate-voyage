@@ -9,6 +9,7 @@ import ProjectNetwork from './visualizations/ProjectNetwork';
 import SkillsNodeLeafD3 from '@/components/visualizations/skills/SkillsNodeLeafD3';
 import BlockchainActivity from './user-profile/BlockchainActivity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 interface UserCardTooltipProps {
   passport: BlockchainPassport & {
@@ -41,7 +42,9 @@ const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
           </TabsList>
           <TabsContent value="connections" className="pt-2">
             <h4 className="text-sm font-medium mb-2">Project Connections</h4>
-            <ProjectNetwork passport={passport} />
+            <TooltipProvider>
+              <ProjectNetwork passport={passport} />
+            </TooltipProvider>
           </TabsContent>
           <TabsContent value="contributions" className="pt-2">
             <h4 className="text-sm font-medium mb-2">Contribution Metrics</h4>
@@ -50,7 +53,9 @@ const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
           <TabsContent value="skills" className="pt-2">
             <h4 className="text-sm font-medium mb-2">Skills Visualization</h4>
             <div className="h-60">
-              <SkillsNodeLeafD3 skills={passport.skills} name={passport.name} />
+              <TooltipProvider>
+                <SkillsNodeLeafD3 skills={passport.skills} name={passport.name} />
+              </TooltipProvider>
             </div>
           </TabsContent>
           <TabsContent value="blockchain" className="pt-2">
