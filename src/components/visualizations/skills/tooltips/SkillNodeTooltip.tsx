@@ -6,7 +6,7 @@ interface SkillNodeTooltipProps {
     name: string;
     verified: boolean;
     issuer?: string;
-    projectMetadata: {
+    projectMetadata?: {
       project: string;
       description: string;
       role: string;
@@ -22,7 +22,10 @@ interface SkillNodeTooltipProps {
  * Tooltip component for skill nodes
  */
 const SkillNodeTooltip: React.FC<SkillNodeTooltipProps> = ({ data, position }) => {
-  const tooltipHeight = data.issuer ? 180 : 160;
+  // Determine tooltip height based on available data
+  const hasIssuer = !!data.issuer;
+  const hasProjectMetadata = !!data.projectMetadata;
+  const tooltipHeight = hasIssuer ? (hasProjectMetadata ? 180 : 100) : (hasProjectMetadata ? 160 : 80);
   const xOffset = position.x > 200 ? -210 : 10; // Prevent tooltip from going off-screen
 
   return (
@@ -70,82 +73,99 @@ const SkillNodeTooltip: React.FC<SkillNodeTooltipProps> = ({ data, position }) =
         {data.verified ? "✓ Verified" : "Unverified"}
       </text>
       
-      {/* Project details */}
-      <text
-        x={10}
-        y={50}
-        fill="#a5f3fc" // Light blue for headers
-        fontSize="12px"
-        fontWeight="medium"
-        textAnchor="start"
-      >
-        Project Information
-      </text>
-      
-      <text
-        x={10}
-        y={70}
-        fill="white"
-        fontSize="12px"
-        textAnchor="start"
-      >
-        {`${data.projectMetadata.project}`}
-      </text>
-      
-      <line
-        x1={10}
-        y1={80}
-        x2={190}
-        y2={80}
-        stroke="#475569"
-        strokeWidth={1}
-      />
-      
-      <text
-        x={10}
-        y={100}
-        fill="white"
-        fontSize="11px"
-        textAnchor="start"
-      >
-        {`Role: ${data.projectMetadata.role}`}
-      </text>
-      
-      <text
-        x={10}
-        y={120}
-        fill="white"
-        fontSize="11px"
-        textAnchor="start"
-      >
-        {`Period: ${data.projectMetadata.timeframe}`}
-      </text>
-      
-      <text
-        x={10}
-        y={140}
-        fill="white"
-        fontSize="11px"
-        textAnchor="start"
-      >
-        {`Status: `}
-        <tspan fill={data.projectMetadata.status === "Active" ? "#10b981" : 
-                     data.projectMetadata.status === "Completed" ? "#3b82f6" : "#f59e0b"}>
-          {data.projectMetadata.status}
-        </tspan>
-      </text>
+      {/* Project details - Only render if projectMetadata exists */}
+      {data.projectMetadata && (
+        <>
+          <text
+            x={10}
+            y={50}
+            fill="#a5f3fc" // Light blue for headers
+            fontSize="12px"
+            fontWeight="medium"
+            textAnchor="start"
+          >
+            Project Information
+          </text>
+          
+          <text
+            x={10}
+            y={70}
+            fill="white"
+            fontSize="12px"
+            textAnchor="start"
+          >
+            {data.projectMetadata.project}
+          </text>
+          
+          <line
+            x1={10}
+            y1={80}
+            x2={190}
+            y2={80}
+            stroke="#475569"
+            strokeWidth={1}
+          />
+          
+          <text
+            x={10}
+            y={100}
+            fill="white"
+            fontSize="11px"
+            textAnchor="start"
+          >
+            {`Role: ${data.projectMetadata.role}`}
+          </text>
+          
+          <text
+            x={10}
+            y={120}
+            fill="white"
+            fontSize="11px"
+            textAnchor="start"
+          >
+            {`Period: ${data.projectMetadata.timeframe}`}
+          </text>
+          
+          <text
+            x={10}
+            y={140}
+            fill="white"
+            fontSize="11px"
+            textAnchor="start"
+          >
+            {`Status: `}
+            <tspan fill={data.projectMetadata.status === "Active" ? "#10b981" : 
+                      data.projectMetadata.status === "Completed" ? "#3b82f6" : "#f59e0b"}>
+              {data.projectMetadata.status}
+            </tspan>
+          </text>
+        </>
+      )}
       
       {/* Issuer information if available */}
       {data.issuer && (
         <text
           x={10}
-          y={165}
+          y={hasProjectMetadata ? 165 : 60}
           fill="#a5f3fc"
           fontSize="12px"
           fontWeight="medium"
           textAnchor="start"
         >
           {`Issued by: ${data.issuer}`}
+        </text>
+      )}
+
+      {/* If neither project nor issuer info is available, show basic info */}
+      {!data.projectMetadata && !data.issuer && (
+        <text
+          x={10}
+          y={60}
+          fill="white"
+          fontSize="12px"
+          textAnchor="start"
+        >
+          No additional information available
         </text>
       )}
     </g>

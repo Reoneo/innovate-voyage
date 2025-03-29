@@ -70,6 +70,26 @@ export function useSkillsD3(
       .attr("fill", "white")
       .text(centerName);
     
+    // Generate sample project metadata for nodes
+    const generateProjectMetadata = (skillName: string, index: number) => {
+      // Not all skills will have project metadata - add some randomness
+      if (Math.random() > 0.7) return undefined;
+      
+      const projects = ["DAO", "Protocol", "DApp", "Smart Contract", "Token"];
+      const roles = ["Developer", "Contributor", "Auditor", "Creator", "Researcher"];
+      const timeframes = ["2022-Present", "2021-2022", "2023-Present", "2020-2021", "2022-2023"];
+      const statuses = ["Active", "Completed", "In Progress", "Maintenance", "Planning"];
+      
+      return {
+        project: `${skillName} ${projects[index % projects.length]}`,
+        description: `A project related to ${skillName}`,
+        role: roles[index % roles.length],
+        timeframe: timeframes[index % timeframes.length],
+        status: statuses[index % statuses.length],
+        connections: Math.floor(Math.random() * 10) + 1
+      };
+    };
+    
     // Draw skill nodes
     const nodes = svg.append("g")
       .selectAll("g")
@@ -96,11 +116,22 @@ export function useSkillsD3(
           .attr("opacity", 1)
           .attr("r", nodeData.r * 1.1);
         
-        // Dispatch custom event for tooltip
+        // Dispatch custom event for tooltip with enhanced data
         const currentTarget = event.currentTarget;
         const rect = currentTarget.getBoundingClientRect();
+        
+        // Enhance node data with projectMetadata if needed
+        const enhancedNodeData = {
+          ...nodeData,
+          data: {
+            ...nodeData.data,
+            verified: !!nodeData.data.proof,
+            projectMetadata: generateProjectMetadata(nodeData.data.name, nodeData.depth)
+          }
+        };
+        
         const detail = {
-          node: nodeData,
+          node: enhancedNodeData,
           x: event.pageX || rect.x + rect.width/2,
           y: event.pageY || rect.y
         };
