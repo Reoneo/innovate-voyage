@@ -62,6 +62,7 @@ export interface Web3BioProfile {
   instagram?: string;
   youtube?: string;
   bluesky?: string;
+  discord?: string;
   links?: {
     website?: {
       link: string;

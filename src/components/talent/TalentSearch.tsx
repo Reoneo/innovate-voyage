@@ -22,7 +22,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
   
   // Initialize resolver but don't trigger it automatically
   const { resolvedAddress, resolvedEns, avatarUrl, isLoading, error } = useEnsResolver(
-    hasExecutedSearch && searchInput.includes('.eth') ? searchInput : undefined,
+    hasExecutedSearch && (searchInput.includes('.eth') || searchInput.includes('.box')) ? searchInput : undefined,
     hasExecutedSearch && isValidEthereumAddress(searchInput) ? searchInput : undefined
   );
   
@@ -103,13 +103,11 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
           <div className="text-xs text-center text-muted-foreground">
             {searchInput && (
               <>
-                {searchInput.includes('.eth') ? 
+                {searchInput.includes('.eth') || searchInput.includes('.box') ? 
                   'Searching for ENS name on Ethereum Mainnet' : 
-                  searchInput.includes('.box') ?
-                    'Searching for .box domain on Optimism network' :
-                    isValidEthereumAddress(searchInput) ? 
-                      'Valid Ethereum address' : 
-                      'Enter a valid ENS name (.eth or .box) or Ethereum address'}
+                  isValidEthereumAddress(searchInput) ? 
+                    'Valid Ethereum address' : 
+                    'Enter a valid ENS name (.eth or .box) or Ethereum address'}
               </>
             )}
           </div>
@@ -123,7 +121,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
               <div className="p-4 text-center">
                 <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
                 <p className="mt-2 text-muted-foreground">
-                  {searchInput.includes('.box') ? 'Searching on Optimism network...' : 'Searching...'}
+                  Searching on Ethereum Mainnet...
                 </p>
               </div>
             )}
@@ -161,8 +159,6 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
                 </div>
               </div>
             )}
-            
-            {/* No results state - removed as requested */}
           </div>
         )}
       </CardContent>

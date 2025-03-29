@@ -20,15 +20,11 @@ export async function getRealAvatar(ensName: string): Promise<string | null> {
       return profile.avatar;
     }
     
-    // If it's a .box domain, try to get avatar from Optimistic Etherscan
-    // This is a simulated implementation - in a real app, you would fetch from actual API
-    if (ensName.includes('.box')) {
-      // Generate a consistent avatar based on the name
-      const randomSeed = ensName.split('.')[0].length * 3 + 10;
-      const avatarUrl = `https://i.pravatar.cc/300?img=${randomSeed}`;
-      avatarCache[ensName] = avatarUrl;
-      return avatarUrl;
-    }
+    // Generate a fallback avatar for all domains
+    const randomSeed = ensName.split('.')[0].length * 3 + 10;
+    const avatarUrl = `https://i.pravatar.cc/300?img=${randomSeed}`;
+    avatarCache[ensName] = avatarUrl;
+    return avatarUrl;
   } catch (error) {
     console.error(`Error fetching avatar for ${ensName}:`, error);
   }
@@ -98,55 +94,47 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
 // Reverse lookup address by ENS name
 export async function getAddressByEns(ensName: string): Promise<ENSRecord | null> {
   try {
-    // Check if this is a .box domain
-    const isBoxDomain = ensName.toLowerCase().includes('.box');
+    // Treat all domains (.eth and .box) as mainnet domains
+    // Try to fetch from web3.bio API first
+    const profile = await fetchWeb3BioProfile(ensName);
     
-    // Try to fetch from web3.bio API first (for .eth domains)
-    if (!isBoxDomain) {
-      const profile = await fetchWeb3BioProfile(ensName);
+    if (profile && profile.address) {
+      // Create ENS record from profile data
+      const record: ENSRecord = {
+        address: profile.address,
+        ensName: profile.identity || ensName,
+        avatar: profile.avatar || await getRealAvatar(ensName) || generateFallbackAvatar(),
+        skills: [], // Will be populated later in the app
+        socialProfiles: {
+          twitter: profile.twitter,
+          github: profile.github,
+          linkedin: profile.linkedin,
+          website: profile.website,
+          email: profile.email,
+          facebook: profile.facebook,
+          whatsapp: profile.whatsapp,
+          bluesky: profile.bluesky,
+          instagram: profile.instagram,
+          youtube: profile.youtube,
+          telegram: profile.telegram,
+          reddit: profile.reddit,
+          discord: profile.discord,
+          messenger: profile.messenger
+        }
+      };
       
-      if (profile && profile.address) {
-        // Create ENS record from profile data
-        const record: ENSRecord = {
-          address: profile.address,
-          ensName: profile.identity || ensName,
-          avatar: profile.avatar || await getRealAvatar(ensName) || generateFallbackAvatar(),
-          skills: [], // Will be populated later in the app
-          socialProfiles: {
-            twitter: profile.twitter,
-            github: profile.github,
-            linkedin: profile.linkedin,
-            website: profile.website,
-            email: profile.email,
-            facebook: profile.facebook,
-            whatsapp: profile.whatsapp,
-            bluesky: profile.bluesky,
-            instagram: profile.instagram,
-            youtube: profile.youtube,
-            telegram: profile.telegram,
-            reddit: profile.reddit,
-            discord: profile.discord,
-            messenger: profile.messenger
-          }
-        };
-        
-        return record;
-      }
+      return record;
     }
     
-    // Special handling for .box domains using "Optimistic Etherscan"
-    if (isBoxDomain) {
-      console.log(`Resolving .box domain: ${ensName} using Optimistic Etherscan`);
+    // For .box domains, use the same handling as .eth domains (mainnet)
+    if (ensName.includes('.box')) {
+      console.log(`Resolving .box domain: ${ensName} using Ethereum Mainnet`);
       
-      // In a real implementation, we would query the Optimistic Etherscan API
-      // For demonstration purposes, we're creating a deterministic address based on domain name
-      // and assigning a consistent avatar
-      
-      // Get the name part without .box
+      // Generate a deterministic address based on the domain name
+      // This is just for demonstration - real implementation would query ENS on mainnet
       const boxNameWithoutDomain = ensName.split('.')[0];
       
       // Generate a deterministic address based on the domain name
-      // This is just for demonstration - real implementation would query Optimistic Etherscan
       const hexString = Array.from(boxNameWithoutDomain).reduce(
         (acc, char) => acc + char.charCodeAt(0).toString(16),
         ''
@@ -235,7 +223,7 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
         domains.push(profile.identity);
       }
       
-      // Add .box domains if applicable
+      // Add .box domains if applicable, treating them as mainnet domains
       if (profile.identity.includes('.box')) {
         domains.push(profile.identity);
       }
@@ -254,7 +242,7 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
         'blockchain.eth',
         'defi.eth',
         'nft.eth',
-        'vitalik.box',    // Added .box domains
+        'vitalik.box',    // Added .box domains - now treated as mainnet domains
         'ethereum.box',
         'blockchain.box'
       ];
@@ -263,7 +251,7 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
         'crypto.eth',
         'hodl.eth',
         'trader.eth',
-        'recruitment.box',   // Added .box domains
+        'recruitment.box',   // Added .box domains - now treated as mainnet domains
         'hiring.box',
         'jobs.box'
       ];

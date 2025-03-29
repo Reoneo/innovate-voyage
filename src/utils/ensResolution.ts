@@ -5,14 +5,10 @@ import { mainnetProvider, optimismProvider } from './ethereumProviders';
  * Resolves an ENS name to an address
  */
 export async function resolveEnsToAddress(ensName: string) {
-  const isBoxDomain = ensName.includes('.box');
-  const provider = isBoxDomain ? optimismProvider : mainnetProvider;
+  // Treat all domains as mainnet domains
+  const provider = mainnetProvider;
   
-  if (isBoxDomain) {
-    console.log(`Resolving .box domain: ${ensName} using Optimism provider`);
-  } else {
-    console.log(`Resolving .eth domain: ${ensName} using Mainnet provider`);
-  }
+  console.log(`Resolving domain: ${ensName} using Mainnet provider`);
   
   try {
     const resolvedAddress = await provider.resolveName(ensName);
@@ -38,15 +34,6 @@ export async function resolveAddressToEns(address: string) {
       return { ensName, network: 'mainnet' as const };
     }
     
-    // Try Optimism network
-    console.log(`No ENS found on Mainnet, trying Optimism for address: ${address}`);
-    const optimismEns = await optimismProvider.lookupAddress(address);
-    
-    if (optimismEns) {
-      console.log(`Found .box name for ${address}: ${optimismEns}`);
-      return { ensName: optimismEns, network: 'optimism' as const };
-    }
-    
     return null;
   } catch (error) {
     console.error(`Error looking up ENS for address ${address}:`, error);
@@ -59,7 +46,8 @@ export async function resolveAddressToEns(address: string) {
  */
 export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
   try {
-    const provider = network === 'mainnet' ? mainnetProvider : optimismProvider;
+    // Always use mainnet provider regardless of network param
+    const provider = mainnetProvider;
     const resolver = await provider.getResolver(ensName);
     
     if (resolver) {
@@ -88,7 +76,8 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
  */
 export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
   try {
-    const provider = network === 'mainnet' ? mainnetProvider : optimismProvider;
+    // Always use mainnet provider regardless of network param
+    const provider = mainnetProvider;
     const resolver = await provider.getResolver(ensName);
     
     if (!resolver) {

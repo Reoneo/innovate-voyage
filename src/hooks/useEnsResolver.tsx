@@ -22,7 +22,6 @@ export function useEnsResolver(ensName?: string, address?: string) {
   
   // Determine if we're dealing with an ENS name (.eth or .box)
   const isEns = ensName?.includes('.eth') || ensName?.includes('.box');
-  const isBoxDomain = ensName?.includes('.box');
   
   // Resolve ENS name to address
   useEffect(() => {
@@ -39,12 +38,11 @@ export function useEnsResolver(ensName?: string, address?: string) {
           setResolvedAddress(resolvedAddress);
           
           // Get ENS links and socials
-          const networkType = isBoxDomain ? 'optimism' : 'mainnet';
-          const links = await getEnsLinks(ensName, networkType);
+          const links = await getEnsLinks(ensName, 'mainnet');
           setEnsLinks(links);
           
           // Try to get avatar
-          const avatar = await getEnsAvatar(ensName, networkType);
+          const avatar = await getEnsAvatar(ensName, 'mainnet');
           if (avatar) {
             setAvatarUrl(avatar);
           }
@@ -61,7 +59,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
     };
     
     resolveEns();
-  }, [ensName, isEns, isBoxDomain]);
+  }, [ensName, isEns]);
   
   // Resolve address to ENS
   useEffect(() => {
@@ -77,11 +75,11 @@ export function useEnsResolver(ensName?: string, address?: string) {
           setResolvedEns(result.ensName);
           
           // Get ENS links and socials
-          const links = await getEnsLinks(result.ensName, result.network);
+          const links = await getEnsLinks(result.ensName, 'mainnet');
           setEnsLinks(links);
           
           // Try to get avatar
-          const avatar = await getEnsAvatar(result.ensName, result.network);
+          const avatar = await getEnsAvatar(result.ensName, 'mainnet');
           if (avatar) {
             setAvatarUrl(avatar);
           }

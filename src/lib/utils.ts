@@ -31,6 +31,14 @@ export interface BlockchainPassport {
     discord?: string;
     website?: string;
     email?: string;
+    facebook?: string;
+    whatsapp?: string;
+    messenger?: string;
+    reddit?: string;
+    telegram?: string;
+    instagram?: string;
+    youtube?: string;
+    bluesky?: string;
   };
   additionalEnsDomains?: string[]; // Add this property
 }
