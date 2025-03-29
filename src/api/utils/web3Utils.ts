@@ -8,7 +8,23 @@ export const avatarCache: Record<string, string> = {};
 // Function to fetch profile from Web3.bio API
 export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProfile | null> {
   try {
-    const response = await fetch(`https://api.web3.bio/profile/ens/${identity}`);
+    // Determine the appropriate endpoint based on whether it's an Ethereum address or domain
+    const isEthAddress = identity.startsWith('0x') && identity.length === 42;
+    const isDomain = identity.includes('.eth') || identity.includes('.box');
+    
+    // Construct the appropriate API URL
+    let apiUrl = `https://api.web3.bio/profile/`;
+    if (isDomain) {
+      apiUrl += identity; // For domains like vitalik.eth or smith.box
+    } else if (isEthAddress) {
+      apiUrl += identity; // For Ethereum addresses
+    } else {
+      apiUrl += identity; // Default case
+    }
+    
+    console.log(`Fetching Web3.bio profile from: ${apiUrl}`);
+    const response = await fetch(apiUrl);
+    
     if (!response.ok) {
       console.warn(`Failed to fetch Web3.bio profile for ${identity}`);
       return null;

@@ -15,20 +15,24 @@ export function useEnsResolver(ensName?: string, address?: string) {
   const isDomain = ensName && (ensName.includes('.eth') || ensName.includes('.box'));
   const isBoxDomain = ensName && ensName.includes('.box');
   
-  // Effect to resolve .box domains via etherscan API
+  // Effect to resolve .box domains via web3.bio API
   useEffect(() => {
     const resolveBoxDomain = async () => {
       if (isBoxDomain) {
         try {
           // Fetch the address for the .box domain
-          const response = await fetch(`https://api.web3.bio/profile/ens/${ensName}`);
+          const response = await fetch(`https://api.web3.bio/profile/${ensName}`);
           if (response.ok) {
             const data = await response.json();
             if (data && data.address) {
+              console.log(`Resolved .box domain ${ensName} to:`, data.address);
               setResolvedBoxDomain({
                 address: data.address,
                 ensName: ensName
               });
+            } else {
+              console.error("No address found for .box domain:", ensName);
+              setResolvedBoxDomain(null);
             }
           } else {
             console.error("Failed to resolve .box domain");
