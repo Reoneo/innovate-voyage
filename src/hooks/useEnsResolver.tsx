@@ -110,53 +110,78 @@ export function useEnsResolver(ensName?: string, address?: string) {
     ensName || ensData?.ensName
   );
   
-  // Update the state based on all data sources
+  // Update the state based on all data sources - fix infinite loop
   useEffect(() => {
+    let shouldUpdate = false;
+    let newState = {
+      address: resolvedAddressState,
+      ens: resolvedEnsState,
+      avatar: avatarUrlState,
+      socials: ensLinksState.socials
+    };
+
     // First, prioritize ethers.js resolution for addresses
-    if (resolvedAddressState && !address) {
-      // We already have an address from ethers.js
-    } else if (addressData?.address) {
-      setResolvedAddress(addressData.address);
-    } else if (address) {
-      setResolvedAddress(address);
+    if (!resolvedAddressState && addressData?.address) {
+      newState.address = addressData.address;
+      shouldUpdate = true;
+    } else if (!resolvedAddressState && address) {
+      newState.address = address;
+      shouldUpdate = true;
     }
     
     // For ENS names
-    if (ensName) {
-      setResolvedEns(ensName);
-    } else if (ensData?.ensName) {
-      setResolvedEns(ensData.ensName);
+    if (!resolvedEnsState && ensName) {
+      newState.ens = ensName;
+      shouldUpdate = true;
+    } else if (!resolvedEnsState && ensData?.ensName) {
+      newState.ens = ensData.ensName;
+      shouldUpdate = true;
     }
     
     // Set avatar with priority: ethers.js avatar > avatarData > addressData.avatar > ensData.avatar
-    if (avatarUrlState) {
-      // We already have an avatar from ethers.js
-    } else if (avatarData) {
-      setAvatarUrl(avatarData);
-    } else if (addressData?.avatar) {
-      setAvatarUrl(addressData.avatar);
-    } else if (ensData?.avatar) {
-      setAvatarUrl(ensData.avatar);
+    if (!avatarUrlState) {
+      if (avatarData) {
+        newState.avatar = avatarData;
+        shouldUpdate = true;
+      } else if (addressData?.avatar) {
+        newState.avatar = addressData.avatar;
+        shouldUpdate = true;
+      } else if (ensData?.avatar) {
+        newState.avatar = ensData.avatar;
+        shouldUpdate = true;
+      }
     }
     
     // Set social profiles from API data if not already set from ethers.js
-    if (!Object.keys(ensLinksState.socials).length && addressData?.socialProfiles) {
-      setEnsLinks(prev => ({
-        ...prev,
-        socials: {
-          ...addressData.socialProfiles
-        }
-      }));
-    } else if (!Object.keys(ensLinksState.socials).length && ensData?.socialProfiles) {
-      setEnsLinks(prev => ({
-        ...prev,
-        socials: {
-          ...ensData.socialProfiles
-        }
-      }));
+    if (!Object.keys(ensLinksState.socials).length) {
+      if (addressData?.socialProfiles && Object.keys(addressData.socialProfiles).length) {
+        newState.socials = addressData.socialProfiles;
+        shouldUpdate = true;
+      } else if (ensData?.socialProfiles && Object.keys(ensData.socialProfiles).length) {
+        newState.socials = ensData.socialProfiles;
+        shouldUpdate = true;
+      }
     }
     
-  }, [addressData, ensData, avatarData, address, ensName, avatarUrlState, resolvedAddressState, ensLinksState]);
+    // Only update state if there are changes
+    if (shouldUpdate) {
+      if (newState.address !== resolvedAddressState) {
+        setResolvedAddress(newState.address);
+      }
+      if (newState.ens !== resolvedEnsState) {
+        setResolvedEns(newState.ens);
+      }
+      if (newState.avatar !== avatarUrlState) {
+        setAvatarUrl(newState.avatar);
+      }
+      if (Object.keys(newState.socials).length && !Object.keys(ensLinksState.socials).length) {
+        setEnsLinks(prev => ({
+          ...prev,
+          socials: newState.socials
+        }));
+      }
+    }
+  }, [addressData, ensData, avatarData]);
 
   return {
     resolvedAddress: resolvedAddressState,

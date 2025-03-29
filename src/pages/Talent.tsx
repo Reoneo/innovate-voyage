@@ -18,12 +18,12 @@ const Talent = () => {
   // Search specific address or ENS
   const { data: ensDataByAddress } = useEnsByAddress(addressSearch);
   const { data: addressDataByEns } = useAddressByEns(
-    addressSearch.includes('.eth') ? addressSearch : undefined
+    addressSearch.includes('.eth') || addressSearch.includes('.box') ? addressSearch : undefined
   );
   
   // Get avatar for searched ENS
   const { data: avatarData } = useRealAvatar(
-    addressSearch.includes('.eth') ? addressSearch : undefined
+    addressSearch.includes('.eth') || addressSearch.includes('.box') ? addressSearch : undefined
   );
 
   // Effect to fetch data when address search changes
@@ -45,7 +45,14 @@ const Talent = () => {
             ensName = addressDataByEns.ensName;
             avatar = addressDataByEns.avatar || avatarData || '/placeholder.svg';
           } else {
-            // Wait for addressDataByEns to resolve
+            // No data found, show error and return early
+            setIsSearching(false);
+            setSearchResults([]);
+            toast({
+              title: "Domain not found",
+              description: `Could not find information for ${addressSearch}`,
+              variant: "destructive"
+            });
             return;
           }
         } 
@@ -60,7 +67,7 @@ const Talent = () => {
           ensName = address.substring(0, 6) + '...' + address.substring(address.length - 4);
         }
         
-        // Fetch ALL ENS domains for this address
+        // Fetch ALL ENS domains for this address - only real ones, no mocks
         const allDomains = await fetchAllEnsDomains(address);
         if (allDomains && allDomains.length > 0) {
           // Remove the primary domain that we already have

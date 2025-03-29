@@ -44,20 +44,32 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
     // Set flag to execute the search
     setHasExecutedSearch(true);
     
-    // Update results only when search is executed
-    if (resolvedEns || resolvedAddress) {
+    // Pass the input to the parent component for searching
+    onSearch(searchInput.trim());
+  };
+
+  // Update results only when resolver finishes and finds something
+  React.useEffect(() => {
+    if (hasExecutedSearch && !isLoading && (resolvedEns || resolvedAddress)) {
       setSearchResults([{
         name: resolvedEns || searchInput,
         address: resolvedAddress,
         avatar: avatarUrl
       }]);
-    } else {
+    } else if (hasExecutedSearch && !isLoading && !resolvedEns && !resolvedAddress) {
       // Clear results if nothing found
       setSearchResults([]);
+      
+      // Only show toast if we've actually searched and found nothing
+      if (hasExecutedSearch && !isLoading) {
+        toast({
+          title: "No results found",
+          description: `Could not find any information for '${searchInput}'`,
+          variant: "destructive"
+        });
+      }
     }
-    
-    onSearch(searchInput.trim());
-  };
+  }, [resolvedEns, resolvedAddress, avatarUrl, isLoading, searchInput, hasExecutedSearch]);
 
   const handleResultClick = (result: {name: string, address?: string}) => {
     setSearchInput(result.name);
@@ -78,7 +90,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
           <div className="flex gap-2">
             <div className="relative flex-grow">
               <Input
-                placeholder="vitalik.eth, recruitment.box or 0x71C7..."
+                placeholder="vitalik.eth, smith.box or 0x71C7..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="pr-10"
@@ -157,6 +169,15 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+            
+            {/* No results found */}
+            {!isLoading && searchResults.length === 0 && !isSearching && (
+              <div className="p-4 bg-muted/30 rounded-lg text-center">
+                <p className="text-muted-foreground">
+                  No results found for "{searchInput}"
+                </p>
               </div>
             )}
           </div>

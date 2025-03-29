@@ -12,6 +12,7 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     let endpoint = `https://api.web3.bio/profile/ens/${identity}`;
     
     if (identity.includes('.box')) {
+      console.log(`Fetching .box domain profile: ${identity}`);
       endpoint = `https://api.web3.bio/profile/box/${identity}`;
     } else if (!identity.includes('.') && identity.startsWith('0x')) {
       endpoint = `https://api.web3.bio/profile/eth/${identity}`;
@@ -21,7 +22,7 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     const response = await fetch(endpoint);
     
     if (!response.ok) {
-      console.warn(`Failed to fetch Web3.bio profile for ${identity}`);
+      console.warn(`Failed to fetch Web3.bio profile for ${identity}: Status ${response.status}`);
       return null;
     }
     
@@ -58,6 +59,30 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
         if (data.links.website) {
           profile.website = data.links.website.link;
         }
+        if (data.links.facebook) {
+          profile.facebook = data.links.facebook.link;
+        }
+        if (data.links.whatsapp) {
+          profile.whatsapp = data.links.whatsapp.link;
+        }
+        if (data.links.bluesky) {
+          profile.bluesky = data.links.bluesky.link;
+        }
+        if (data.links.instagram) {
+          profile.instagram = data.links.instagram.link;
+        }
+        if (data.links.youtube) {
+          profile.youtube = data.links.youtube.link;
+        }
+        if (data.links.discord) {
+          profile.discord = data.links.discord.link;
+        }
+        if (data.links.telegram) {
+          profile.telegram = data.links.telegram.link;
+        }
+        if (data.links.reddit) {
+          profile.reddit = data.links.reddit.link;
+        }
       }
       
       // Cache the avatar if available
@@ -92,6 +117,30 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
         }
         if (firstProfile.links.website) {
           profile.website = firstProfile.links.website.link;
+        }
+        if (firstProfile.links.facebook) {
+          profile.facebook = firstProfile.links.facebook.link;
+        }
+        if (firstProfile.links.whatsapp) {
+          profile.whatsapp = firstProfile.links.whatsapp.link;
+        }
+        if (firstProfile.links.bluesky) {
+          profile.bluesky = firstProfile.links.bluesky.link;
+        }
+        if (firstProfile.links.instagram) {
+          profile.instagram = firstProfile.links.instagram.link;
+        }
+        if (firstProfile.links.youtube) {
+          profile.youtube = firstProfile.links.youtube.link;
+        }
+        if (firstProfile.links.discord) {
+          profile.discord = firstProfile.links.discord.link;
+        }
+        if (firstProfile.links.telegram) {
+          profile.telegram = firstProfile.links.telegram.link;
+        }
+        if (firstProfile.links.reddit) {
+          profile.reddit = firstProfile.links.reddit.link;
         }
       }
       

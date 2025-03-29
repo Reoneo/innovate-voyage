@@ -66,28 +66,12 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
       return record;
     }
     
-    // Fallback to mock data if API doesn't return a valid result
+    // Don't fallback to mock data, just return null if no real data found
     await delay(300); // Simulate network delay
-    const mockRecord = mockEnsRecords.find(record => record.address.toLowerCase() === address.toLowerCase());
-    
-    if (mockRecord && !mockRecord.avatar) {
-      // Try to fetch real avatar if not already set
-      const avatar = await getRealAvatar(mockRecord.ensName);
-      if (avatar) {
-        mockRecord.avatar = avatar;
-      } else {
-        mockRecord.avatar = generateFallbackAvatar();
-      }
-    }
-    
-    return mockRecord || null;
+    return null;
   } catch (error) {
     console.error(`Error fetching ENS for address ${address}:`, error);
-    
-    // Fallback to mock data on error
-    await delay(300);
-    const mockRecord = mockEnsRecords.find(record => record.address.toLowerCase() === address.toLowerCase());
-    return mockRecord || null;
+    return null;
   }
 }
 
@@ -130,53 +114,16 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
     if (ensName.includes('.box')) {
       console.log(`Resolving .box domain: ${ensName} using Ethereum Mainnet`);
       
-      // Generate a deterministic address based on the domain name
-      // This is just for demonstration - real implementation would query ENS on mainnet
-      const boxNameWithoutDomain = ensName.split('.')[0];
-      
-      // Generate a deterministic address based on the domain name
-      const hexString = Array.from(boxNameWithoutDomain).reduce(
-        (acc, char) => acc + char.charCodeAt(0).toString(16),
-        ''
-      );
-      
-      const paddedHex = hexString.padEnd(40, '0').substring(0, 40);
-      const address = `0x${paddedHex}`;
-      
-      // Get avatar (or generate one)
-      const avatar = await getRealAvatar(ensName);
-      
-      return {
-        address: address,
-        ensName: ensName,
-        avatar: avatar || generateFallbackAvatar(),
-        skills: [],
-        socialProfiles: {}
-      };
+      // We should not generate mock data for .box domains
+      // Return null to indicate no data was found
+      return null;
     }
     
-    // Fallback to mock data if API doesn't return a valid result
-    await delay(300); // Simulate network delay
-    const mockRecord = mockEnsRecords.find(record => record.ensName.toLowerCase() === ensName.toLowerCase());
-    
-    if (mockRecord && !mockRecord.avatar) {
-      // Try to fetch real avatar if not already set
-      const avatar = await getRealAvatar(mockRecord.ensName);
-      if (avatar) {
-        mockRecord.avatar = avatar;
-      } else {
-        mockRecord.avatar = generateFallbackAvatar();
-      }
-    }
-    
-    return mockRecord || null;
+    // Don't fallback to mock data, just return null
+    return null;
   } catch (error) {
     console.error(`Error fetching address for ENS ${ensName}:`, error);
-    
-    // Fallback to mock data on error
-    await delay(300);
-    const mockRecord = mockEnsRecords.find(record => record.ensName.toLowerCase() === ensName.toLowerCase());
-    return mockRecord || null;
+    return null;
   }
 }
 
@@ -210,7 +157,7 @@ export async function getAllEnsRecords(): Promise<ENSRecord[]> {
 export async function fetchAllEnsDomains(address: string): Promise<string[]> {
   try {
     // In a real implementation, we would query an ENS indexer or the ENS graph API
-    // For demonstration, we'll simulate a response with a mix of real and mock data
+    // For now, we'll only use real data from web3.bio API
     
     await delay(500); // Simulate API delay
     
@@ -229,33 +176,7 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
       }
     }
     
-    // For demonstration purposes, let's add some mock domains for specific addresses
-    if (address.toLowerCase() === '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'.toLowerCase()) {
-      domains = [
-        'vitalik.eth',
-        'ethereum.eth',
-        'king.eth',
-        'v.eth', 
-        'vitalikbuterin.eth',
-        'web3.eth',
-        'crypto.eth',
-        'blockchain.eth',
-        'defi.eth',
-        'nft.eth',
-        'vitalik.box',    // Added .box domains - now treated as mainnet domains
-        'ethereum.box',
-        'blockchain.box'
-      ];
-    } else if (address.toLowerCase() === '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF'.toLowerCase()) {
-      domains = [
-        'crypto.eth',
-        'hodl.eth',
-        'trader.eth',
-        'recruitment.box',   // Added .box domains - now treated as mainnet domains
-        'hiring.box',
-        'jobs.box'
-      ];
-    }
+    // Do not add mock domains
     
     return domains;
   } catch (error) {
