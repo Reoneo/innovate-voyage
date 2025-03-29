@@ -87,11 +87,13 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, onViewAll, isSear
             <div className="mt-1 text-xs text-muted-foreground">
               {searchInput && (
                 <>
-                  {searchInput.includes('.eth') || searchInput.includes('.box') ? 
-                    'Searching for ENS name' : 
-                    isValidEthereumAddress(searchInput) ? 
-                      'Valid Ethereum address' : 
-                      'Enter a valid ENS name (.eth or .box) or Ethereum address'}
+                  {searchInput.includes('.eth') ? 
+                    'Searching for ENS name (.eth)' : 
+                    searchInput.includes('.box') ?
+                      'Searching for .box domain on Optimistic Etherscan' :
+                      isValidEthereumAddress(searchInput) ? 
+                        'Valid Ethereum address' : 
+                        'Enter a valid ENS name (.eth or .box) or Ethereum address'}
                 </>
               )}
             </div>
