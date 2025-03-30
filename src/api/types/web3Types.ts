@@ -1,3 +1,4 @@
+
 // Types for Web3 data structures
 export interface ENSRecord {
   address: string;
@@ -89,6 +90,18 @@ export interface Web3BioProfile {
       handle: string;
     };
     bluesky?: {
+      link: string;
+      handle: string;
+    };
+    instagram?: {
+      link: string;
+      handle: string;
+    };
+    youtube?: {
+      link: string;
+      handle: string;
+    };
+    telegram?: {
       link: string;
       handle: string;
     };

@@ -40,15 +40,22 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
             const newSocials: Record<string, string> = {};
             
             // Map the web3.bio links to our social format
+            // Check if each property exists before accessing it
             if (profile.links.website?.link) newSocials.website = profile.links.website.link;
             if (profile.links.github?.link) newSocials.github = profile.links.github.link;
             if (profile.links.twitter?.link) newSocials.twitter = profile.links.twitter.link;
             if (profile.links.linkedin?.link) newSocials.linkedin = profile.links.linkedin.link;
             if (profile.links.facebook?.link) newSocials.facebook = profile.links.facebook.link;
-            if (profile.links.instagram?.link) newSocials.instagram = profile.links.instagram.link;
-            if (profile.links.youtube?.link) newSocials.youtube = profile.links.youtube.link;
-            if (profile.links.bluesky?.link) newSocials.bluesky = profile.links.bluesky.link;
-            if (profile.links.telegram?.link) newSocials.telegram = profile.links.telegram.link;
+            
+            // Safely access properties that might not be in the type
+            // Use optional chaining and type assertion for these properties
+            const anyLinks = profile.links as any;
+            if (anyLinks.instagram?.link) newSocials.instagram = anyLinks.instagram.link;
+            if (anyLinks.youtube?.link) newSocials.youtube = anyLinks.youtube.link;
+            if (anyLinks.telegram?.link) newSocials.telegram = anyLinks.telegram.link;
+            if (anyLinks.bluesky?.link) newSocials.bluesky = anyLinks.bluesky.link;
+            
+            // Email is directly on the profile object
             if (profile.email) newSocials.email = profile.email;
             
             console.log("Mapped social links:", newSocials);
