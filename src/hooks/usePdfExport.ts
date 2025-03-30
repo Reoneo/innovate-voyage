@@ -54,9 +54,8 @@ export function usePdfExport() {
         (skillsSection as HTMLElement).style.display = 'block';
       }
       
-      // Create canvas at higher resolution (4x scale for high definition)
       const canvas = await html2canvas(resumeElement, {
-        scale: 4, // Increased for higher resolution
+        scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
@@ -93,23 +92,8 @@ export function usePdfExport() {
               font-size: 14px;
               line-height: 1.5;
             }
-            .social-icon-pdf {
-              display: inline-block;
-              width: 16px;
-              height: 16px;
-              margin-right: 5px;
-            }
           `;
           document.head.appendChild(style);
-          
-          // Apply two-column layout based on the image
-          const container = document.getElementById('resume-pdf');
-          if (container) {
-            container.style.display = 'grid';
-            container.style.gridTemplateColumns = '8.6cm 8.6cm'; // Width from image (8.6cm per column)
-            container.style.gridGap = '1.25cm'; // Spacing from image (1.25cm)
-            container.style.width = '18.45cm'; // Total width (8.6 + 8.6 + 1.25)
-          }
         }
       });
       
@@ -124,14 +108,10 @@ export function usePdfExport() {
       
       document.body.classList.remove('generating-pdf');
       
-      // A4 dimensions
       const imgWidth = 210; // A4 width in mm
       const pageHeight = 297; // A4 height in mm
-      
-      // Calculate aspect ratio to maintain proportions
       const imgHeight = canvas.height * imgWidth / canvas.width;
       
-      // Create PDF with A4 dimensions
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -139,7 +119,7 @@ export function usePdfExport() {
       });
       
       // Get image data from canvas
-      const imgData = canvas.toDataURL('image/png', 1.0); // Higher quality
+      const imgData = canvas.toDataURL('image/png');
       
       // Split the image into pages if it's too long
       let heightLeft = imgHeight;
@@ -151,7 +131,7 @@ export function usePdfExport() {
           pdf.addPage();
         }
         
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
         position -= pageHeight;
         pageNumber++;

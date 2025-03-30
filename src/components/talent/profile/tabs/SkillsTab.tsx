@@ -1,239 +1,236 @@
-
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Network, ListChecks, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
 import AddSkillForm from '../components/AddSkillForm';
 import { useToast } from '@/hooks/use-toast';
 
-interface Skill {
-  name: string;
-  proof?: string;
-  level?: string;
-  verified?: boolean;
-}
-
-export interface BlockchainSkill {
-  name: string;
-  source: string;
-  timestamp: number;
-}
-
 interface SkillsTabProps {
-  skills: Skill[];
-  blockchain_skills?: BlockchainSkill[];
+  skills: Array<{ name: string; proof?: string; issued_by?: string }>;
+  name: string;
+  avatarUrl?: string;
   ensName?: string;
-  address?: string;
-  isOwner?: boolean;
   ownerAddress?: string;
 }
 
-const SkillsTab: React.FC<SkillsTabProps> = ({ skills, blockchain_skills, isOwner, ownerAddress }) => {
-  const [showForm, setShowForm] = useState(false);
-  const [userSkills, setUserSkills] = useState<Skill[]>([]);
-  const [blockchainSkills, setBlockchainSkills] = useState<BlockchainSkill[]>([]);
+const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name, avatarUrl, ensName, ownerAddress }) => {
+  const [userSkills, setUserSkills] = useState(skills);
+  const [isOwner, setIsOwner] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (skills) {
-      setUserSkills(skills);
+    const connectedAddress = localStorage.getItem('connectedWalletAddress');
+    
+    if (connectedAddress && ownerAddress && 
+        connectedAddress.toLowerCase() === ownerAddress.toLowerCase()) {
+      setIsOwner(true);
+    } else {
+      setIsOwner(false);
     }
-    
-    if (blockchain_skills) {
-      setBlockchainSkills(blockchain_skills);
-    }
-  }, [skills, blockchain_skills]);
 
-  // Handle adding a new skill
-  const handleAddSkill = (skillName: string) => {
-    const newSkill: Skill = {
-      name: skillName,
-      verified: false,
-    };
-    
-    setUserSkills([...userSkills, newSkill]);
-    
-    // Hide form after adding
-    setShowForm(false);
-    
-    // Show success message
-    toast({
-      title: "Skill Added",
-      description: "Your skill has been added successfully",
-    });
-
-    // Save to localStorage
     if (ownerAddress) {
       const storageKey = `user_skills_${ownerAddress}`;
-      const savedSkills = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      localStorage.setItem(storageKey, JSON.stringify([...savedSkills, newSkill]));
+      try {
+        const savedSkills = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        if (savedSkills.length > 0) {
+          const existingSkillNames = new Set(skills.map(skill => skill.name));
+          const newSkills = savedSkills.filter(skill => !existingSkillNames.has(skill.name));
+          setUserSkills([...skills, ...newSkills]);
+        }
+      } catch (error) {
+        console.error('Error loading skills from localStorage:', error);
+      }
     }
+  }, [ownerAddress, skills]);
+
+  const handleAddSkill = (skillName: string) => {
+    const newSkill = {
+      name: skillName,
+      proof: undefined,
+      issued_by: undefined
+    };
+    
+    setUserSkills(prevSkills => {
+      const existingSkillNames = new Set(prevSkills.map(skill => skill.name));
+      if (!existingSkillNames.has(skillName)) {
+        const updatedSkills = [...prevSkills, newSkill];
+        saveSkillsToLocalStorage(updatedSkills);
+        return updatedSkills;
+      }
+      return prevSkills;
+    });
+    
+    toast({
+      title: "Skill added",
+      description: `${skillName} has been added to your profile.`
+    });
   };
 
-  // Handle removing a skill
-  const handleRemoveSkill = (index: number) => {
-    const updatedSkills = [...userSkills];
-    updatedSkills.splice(index, 1);
+  const handleRemoveSkill = (skillName: string) => {
+    const updatedSkills = userSkills.filter(skill => 
+      skill.name !== skillName || skill.proof
+    );
+    
     setUserSkills(updatedSkills);
     
-    // Save to localStorage
-    if (ownerAddress) {
-      const storageKey = `user_skills_${ownerAddress}`;
-      localStorage.setItem(storageKey, JSON.stringify(updatedSkills));
-    }
+    saveSkillsToLocalStorage(updatedSkills);
     
     toast({
-      title: "Skill Removed",
-      description: "The skill has been removed from your profile",
+      title: "Skill removed",
+      description: `${skillName} has been removed from your profile.`
     });
   };
 
-  // Function to organize skills by category
-  const organizeSkillsByCategory = () => {
-    const categories: Record<string, Skill[]> = {
-      'Technical': [],
-      'Blockchain': [],
-      'Design': [],
-      'Management': [],
-      'Soft Skills': [],
-      'Other': []
-    };
-    
-    userSkills.forEach(skill => {
-      const name = skill.name.toLowerCase();
-      if (name.includes('solidity') || name.includes('web3') || name.includes('blockchain') || 
-          name.includes('crypto') || name.includes('nft') || name.includes('token')) {
-        categories['Blockchain'].push(skill);
-      } else if (name.includes('react') || name.includes('javascript') || name.includes('python') || 
-                name.includes('code') || name.includes('dev') || name.includes('programming')) {
-        categories['Technical'].push(skill);
-      } else if (name.includes('design') || name.includes('ui') || name.includes('ux') || 
-                name.includes('graphic') || name.includes('illustration')) {
-        categories['Design'].push(skill);
-      } else if (name.includes('manage') || name.includes('lead') || name.includes('project') || 
-                name.includes('agile') || name.includes('scrum')) {
-        categories['Management'].push(skill);
-      } else if (name.includes('communication') || name.includes('teamwork') || 
-                name.includes('collaboration') || name.includes('critical')) {
-        categories['Soft Skills'].push(skill);
-      } else {
-        categories['Other'].push(skill);
-      }
-    });
-    
-    // Remove empty categories
-    Object.keys(categories).forEach(key => {
-      if (categories[key].length === 0) {
-        delete categories[key];
-      }
-    });
-    
-    return categories;
+  const saveSkillsToLocalStorage = (skills: Array<{ name: string; proof?: string; issued_by?: string }>) => {
+    try {
+      const storageKey = `user_skills_${ownerAddress}`;
+      localStorage.setItem(storageKey, JSON.stringify(skills));
+    } catch (error) {
+      console.error('Error saving skills to localStorage:', error);
+    }
   };
 
-  const skillCategories = organizeSkillsByCategory();
+  const verifiedSkills = userSkills.filter(skill => skill.proof);
+  const unverifiedSkills = userSkills.filter(skill => !skill.proof);
 
-  // Get blockchain verified skills
-  const getBlockchainSkills = () => {
-    return blockchainSkills.map(skill => ({
-      name: skill.name,
-      source: skill.source,
-      verified: true
-    }));
-  };
-
-  // Render the content
   return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <Card className="overflow-hidden" id="skills-section">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Skills</CardTitle>
-              <CardDescription>Skills you've added to your profile</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <ListChecks className="h-5 w-5 text-primary" />
+                Skills List
+              </CardTitle>
+              <CardDescription className="mt-1">
+                Your verified and unverified skills
+              </CardDescription>
             </div>
-            {isOwner && (
-              <Button 
-                size="sm" 
-                onClick={() => setShowForm(true)} 
-                className="ml-auto flex gap-1"
-                disabled={showForm}
-              >
-                <PlusCircle className="h-4 w-4" />
-                Add Skill
-              </Button>
-            )}
+            <div className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
+              {userSkills.length} skills
+            </div>
           </div>
         </CardHeader>
         <CardContent>
-          {showForm && (
-            <AddSkillForm 
-              onAddSkill={handleAddSkill} 
-              onCancel={() => setShowForm(false)}
-            />
-          )}
-          
-          {!showForm && (
-            <div className="space-y-6">
-              {Object.keys(skillCategories).length > 0 ? (
-                Object.entries(skillCategories).map(([category, skills]) => (
-                  <div key={category} className="space-y-2">
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{category}</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {skills.map((skill, index) => (
-                        <div key={`${skill.name}-${index}`} className="relative group">
-                          <Badge variant={skill.verified ? "default" : "outline"} className="py-1">
-                            {skill.name}
-                            {skill.verified && (
-                              <span className="ml-1 text-xs">✓</span>
-                            )}
-                          </Badge>
-                          {isOwner && (
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-4 w-4 absolute -top-2 -right-2 bg-gray-800 rounded-full hidden group-hover:flex items-center justify-center p-0"
-                              onClick={() => handleRemoveSkill(index)}
-                            >
-                              <X className="h-2.5 w-2.5" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-6">No skills added yet</p>
-              )}
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-medium mb-2">Verified Skills</h4>
+              <div className="flex flex-wrap gap-2">
+                {verifiedSkills.length > 0 ? (
+                  verifiedSkills.map((skill, index) => (
+                    <Badge key={`verified-${index}`} variant="default" className="bg-green-500 hover:bg-green-600">
+                      {skill.name}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No verified skills yet</p>
+                )}
+              </div>
             </div>
-          )}
+            
+            <div>
+              <h4 className="text-sm font-medium mb-2">Unverified Skills</h4>
+              <div className="flex flex-wrap gap-2">
+                {unverifiedSkills.length > 0 ? (
+                  unverifiedSkills.map((skill, index) => (
+                    <div key={`unverified-${index}`} className="relative group">
+                      <Badge variant="outline" className="text-gray-600 border-gray-400 pr-7">
+                        {skill.name}
+                      </Badge>
+                      {isOwner && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="absolute right-0 top-1/2 transform -translate-y-1/2 h-5 w-5 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRemoveSkill(skill.name)}
+                          aria-label={`Remove ${skill.name} skill`}
+                        >
+                          <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No unverified skills yet</p>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-4 border-t pt-3">
+            <h4 className="text-sm font-medium mb-2">Legend:</h4>
+            <div className="flex flex-wrap gap-3 text-xs">
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-green-500 mr-1.5"></div>
+                <span>Verified Skill</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-gray-400 mr-1.5"></div>
+                <span>Unverified Skill</span>
+              </div>
+            </div>
+          </div>
         </CardContent>
-        <CardFooter className="text-xs text-gray-500 flex flex-col items-start">
-          <p>Skills marked with "✓" are verified through on-chain activity</p>
-        </CardFooter>
       </Card>
       
-      {blockchainSkills.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Blockchain Verified Skills</CardTitle>
-            <CardDescription>Skills verified through on-chain data</CardDescription>
+      <div className="space-y-8">
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Network className="h-5 w-5 text-primary" />
+                  ID Network
+                </CardTitle>
+                <CardDescription className="mt-1">
+                  ENS Domains & Identity connections
+                </CardDescription>
+              </div>
+              <div className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
+                Interactive
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {getBlockchainSkills().map((skill, index) => (
-                <Badge key={index} className="py-1">
-                  {skill.name}
-                  <span className="ml-1 text-xs">✓</span>
-                </Badge>
-              ))}
+            <div className="h-[400px] w-full pt-4">
+              <IdNetworkGraph 
+                name={name} 
+                avatarUrl={avatarUrl}
+                ensName={ensName}
+                address={ensName?.includes('.eth') ? undefined : ensName}
+              />
+            </div>
+            <div className="mt-4 border-t pt-3">
+              <h4 className="text-sm font-medium mb-2">Legend:</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-blue-500 mr-1.5"></div>
+                  <span>Main Identity</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-violet-500 mr-1.5"></div>
+                  <span>ENS Domain</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-indigo-400 mr-1.5"></div>
+                  <span>Box Domain</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-emerald-500 mr-1.5"></div>
+                  <span>Other ID Protocol</span>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
-      )}
+        
+        {isOwner && (
+          <AddSkillForm onAddSkill={handleAddSkill} />
+        )}
+      </div>
     </div>
   );
 };
