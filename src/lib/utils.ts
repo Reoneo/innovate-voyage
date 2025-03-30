@@ -24,6 +24,7 @@ export interface BlockchainPassport {
   name: string;
   issued: string;
   skills: Skill[];
+  bio?: string; // Adding bio property as optional
   socials: {
     twitter?: string;
     github?: string;

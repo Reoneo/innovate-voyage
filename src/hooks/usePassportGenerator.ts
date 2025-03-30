@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { BlockchainPassport, calculateHumanScore } from '@/lib/utils';
 import { truncateAddress } from '@/lib/utils';
@@ -20,6 +21,7 @@ export function usePassportGenerator(
     blockchainExtendedData: {
       boxDomains: string[];
       snsActive: boolean;
+      description?: string;
     };
     avatarUrl?: string;
   }
@@ -105,6 +107,12 @@ export function usePassportGenerator(
           email: web3BioProfile?.email || undefined
         };
         
+        // Get bio from blockchain data or web3 bio profile
+        const bio = blockchainProfile?.description || 
+                   blockchainExtendedData?.description || 
+                   web3BioProfile?.description || 
+                   '';
+        
         const newPassport: BlockchainPassport = {
           passport_id: resolvedEns || truncateAddress(resolvedAddress),
           owner_address: resolvedAddress,
@@ -112,7 +120,8 @@ export function usePassportGenerator(
           name: resolvedEns ? resolvedEns.split('.')[0] : truncateAddress(resolvedAddress),
           issued: new Date().toISOString(),
           skills: skills,
-          socials: socials
+          socials: socials,
+          bio: bio  // Add the bio property
         };
         
         setPassport(newPassport);
