@@ -5,9 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AddSkillForm from '../components/AddSkillForm';
+import { Skill } from '@/lib/utils';
 
 interface SkillsTabProps {
-  skills?: string[];
+  skills?: string[] | Skill[];
   name?: string;
   avatarUrl?: string;
   ensName?: string;
@@ -15,7 +16,7 @@ interface SkillsTabProps {
 }
 
 const SkillsTab: React.FC<SkillsTabProps> = ({ skills: initialSkills = [], name, avatarUrl, ensName, ownerAddress }) => {
-  const [skills, setSkills] = useState<string[]>(initialSkills);
+  const [skills, setSkills] = useState<string[]>([]);
   const [showAddSkillForm, setShowAddSkillForm] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
 
@@ -30,17 +31,39 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills: initialSkills = [], name,
     }
 
     try {
+      // First try to load from localStorage
       const savedSkills = JSON.parse(localStorage.getItem(`user_skills_${ownerAddress}`) || '[]');
+      
       if (Array.isArray(savedSkills) && savedSkills.length > 0) {
         setSkills(savedSkills);
       } else if (initialSkills.length > 0) {
-        setSkills(initialSkills);
-        localStorage.setItem(`user_skills_${ownerAddress}`, JSON.stringify(initialSkills));
+        // Convert Skill[] to string[] if needed
+        const formattedSkills = initialSkills.map((skill) => {
+          if (typeof skill === 'string') {
+            return skill;
+          } else if (typeof skill === 'object' && skill.name) {
+            return skill.name;
+          }
+          return '';
+        }).filter(Boolean);
+        
+        setSkills(formattedSkills);
+        localStorage.setItem(`user_skills_${ownerAddress}`, JSON.stringify(formattedSkills));
       }
     } catch (error) {
       console.error('Error loading skills from localStorage:', error);
       if (initialSkills.length > 0) {
-        setSkills(initialSkills);
+        // Convert Skill[] to string[] as a fallback
+        const formattedSkills = initialSkills.map((skill) => {
+          if (typeof skill === 'string') {
+            return skill;
+          } else if (typeof skill === 'object' && skill.name) {
+            return skill.name;
+          }
+          return '';
+        }).filter(Boolean);
+        
+        setSkills(formattedSkills);
       }
     }
   }, [ownerAddress, initialSkills]);

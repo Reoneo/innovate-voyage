@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
-import { BlockchainPassport } from '@/lib/utils';
+import { BlockchainPassport, Skill } from '@/lib/utils';
 
 import BlockchainTab from './tabs/BlockchainTab';
 import SkillsTab from './tabs/SkillsTab';
