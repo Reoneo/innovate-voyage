@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Network, ListChecks, Grid2x2 } from 'lucide-react';
+import { Network, ListChecks, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
 import AddSkillForm from '../components/AddSkillForm';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +20,6 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name, avatarUrl, ensName,
   const [isOwner, setIsOwner] = useState(false);
   const { toast } = useToast();
 
-  // Check if the connected wallet matches the profile address
   useEffect(() => {
     const connectedAddress = localStorage.getItem('connectedWalletAddress');
     
@@ -31,13 +30,11 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name, avatarUrl, ensName,
       setIsOwner(false);
     }
 
-    // Load any stored skills from localStorage
     if (ownerAddress) {
       const storageKey = `user_skills_${ownerAddress}`;
       try {
         const savedSkills = JSON.parse(localStorage.getItem(storageKey) || '[]');
         if (savedSkills.length > 0) {
-          // Combine platform skills with user-added skills
           const existingSkillNames = new Set(skills.map(skill => skill.name));
           const newSkills = savedSkills.filter(skill => !existingSkillNames.has(skill.name));
           setUserSkills([...skills, ...newSkills]);
@@ -51,24 +48,15 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name, avatarUrl, ensName,
   const handleAddSkill = (skillName: string) => {
     const newSkill = {
       name: skillName,
-      proof: undefined,  // No proof = unverified
+      proof: undefined,
       issued_by: undefined
     };
     
     setUserSkills(prevSkills => {
       const existingSkillNames = new Set(prevSkills.map(skill => skill.name));
-      // Only add if the skill isn't already there
       if (!existingSkillNames.has(skillName)) {
         const updatedSkills = [...prevSkills, newSkill];
-        
-        // Save to localStorage for persistence
-        try {
-          const storageKey = `user_skills_${ownerAddress}`;
-          localStorage.setItem(storageKey, JSON.stringify(updatedSkills));
-        } catch (error) {
-          console.error('Error saving skill to localStorage:', error);
-        }
-        
+        saveSkillsToLocalStorage(updatedSkills);
         return updatedSkills;
       }
       return prevSkills;
@@ -80,13 +68,36 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name, avatarUrl, ensName,
     });
   };
 
-  // Separate verified and unverified skills
+  const handleRemoveSkill = (skillName: string) => {
+    const updatedSkills = userSkills.filter(skill => 
+      skill.name !== skillName || skill.proof
+    );
+    
+    setUserSkills(updatedSkills);
+    
+    saveSkillsToLocalStorage(updatedSkills);
+    
+    toast({
+      title: "Skill removed",
+      description: `${skillName} has been removed from your profile.`
+    });
+  };
+
+  const saveSkillsToLocalStorage = (skills: Array<{ name: string; proof?: string; issued_by?: string }>) => {
+    try {
+      const storageKey = `user_skills_${ownerAddress}`;
+      localStorage.setItem(storageKey, JSON.stringify(skills));
+    } catch (error) {
+      console.error('Error saving skills to localStorage:', error);
+    }
+  };
+
   const verifiedSkills = userSkills.filter(skill => skill.proof);
   const unverifiedSkills = userSkills.filter(skill => !skill.proof);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden" id="skills-section">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div>
@@ -125,9 +136,22 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name, avatarUrl, ensName,
               <div className="flex flex-wrap gap-2">
                 {unverifiedSkills.length > 0 ? (
                   unverifiedSkills.map((skill, index) => (
-                    <Badge key={`unverified-${index}`} variant="outline" className="text-gray-600 border-gray-400">
-                      {skill.name}
-                    </Badge>
+                    <div key={`unverified-${index}`} className="relative group">
+                      <Badge variant="outline" className="text-gray-600 border-gray-400 pr-7">
+                        {skill.name}
+                      </Badge>
+                      {isOwner && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="absolute right-0 top-1/2 transform -translate-y-1/2 h-5 w-5 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRemoveSkill(skill.name)}
+                          aria-label={`Remove ${skill.name} skill`}
+                        >
+                          <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                        </Button>
+                      )}
+                    </div>
                   ))
                 ) : (
                   <p className="text-sm text-muted-foreground">No unverified skills yet</p>

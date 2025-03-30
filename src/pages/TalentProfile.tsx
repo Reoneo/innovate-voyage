@@ -134,6 +134,7 @@ const TalentProfile = () => {
             onExportPdf={exportAsPDF}
             blockchainExtendedData={blockchainExtendedData}
             avatarUrl={avatarUrl}
+            ownerAddress={passport.owner_address}
           />
         </div>
       ) : (

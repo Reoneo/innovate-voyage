@@ -36,6 +36,24 @@ export function usePdfExport() {
         (tabsList as HTMLElement).style.display = 'none';
       }
       
+      // Show the bio section if it exists but is currently hidden
+      const bioSection = resumeElement.querySelector('[id^="bio-section"]');
+      if (bioSection) {
+        (bioSection as HTMLElement).style.display = 'block';
+      }
+      
+      // Show work experience if it exists but is currently hidden
+      const workExperience = resumeElement.querySelector('[id^="work-experience-section"]');
+      if (workExperience) {
+        (workExperience as HTMLElement).style.display = 'block';
+      }
+      
+      // Show skills section if it exists but is currently hidden
+      const skillsSection = resumeElement.querySelector('[id^="skills-section"]');
+      if (skillsSection) {
+        (skillsSection as HTMLElement).style.display = 'block';
+      }
+      
       const canvas = await html2canvas(resumeElement, {
         scale: 2,
         useCORS: true,
@@ -48,6 +66,34 @@ export function usePdfExport() {
             links[i].style.color = '#0000EE';
             links[i].style.textDecoration = 'underline';
           }
+          
+          // Hide the blockchain tab content in the PDF
+          const blockchainTab = document.querySelector('[data-tab="blockchain"]');
+          if (blockchainTab) {
+            (blockchainTab as HTMLElement).style.display = 'none';
+          }
+          
+          // Add a professional layout styling for PDF
+          const style = document.createElement('style');
+          style.innerHTML = `
+            .pdf-section {
+              margin-bottom: 20px;
+              page-break-inside: avoid;
+            }
+            .pdf-section-title {
+              font-size: 18px;
+              font-weight: bold;
+              margin-bottom: 10px;
+              color: #333;
+              border-bottom: 1px solid #ddd;
+              padding-bottom: 5px;
+            }
+            .pdf-content {
+              font-size: 14px;
+              line-height: 1.5;
+            }
+          `;
+          document.head.appendChild(style);
         }
       });
       
@@ -107,7 +153,20 @@ export function usePdfExport() {
         );
       }
       
-      pdf.save('blockchain-profile.pdf');
+      // Get custom name if available
+      const ownerAddress = resumeElement.querySelector('[data-owner-address]')?.getAttribute('data-owner-address');
+      let customName = '';
+      
+      if (ownerAddress) {
+        customName = localStorage.getItem(`user_name_${ownerAddress}`) || '';
+      }
+      
+      // Generate filename with custom name if available
+      const fileName = customName ? 
+        `${customName.replace(/\s+/g, '-')}-blockchain-profile.pdf` : 
+        'blockchain-profile.pdf';
+      
+      pdf.save(fileName);
       
       toast({
         title: 'PDF Generated',

@@ -7,6 +7,8 @@ import { BlockchainPassport } from '@/lib/utils';
 
 import BlockchainTab from './tabs/BlockchainTab';
 import SkillsTab from './tabs/SkillsTab';
+import BioSection from './components/BioSection';
+import WorkExperienceSection from './components/WorkExperienceSection';
 
 interface ProfileTabsContainerProps {
   passport: BlockchainPassport & {
@@ -24,6 +26,7 @@ interface ProfileTabsContainerProps {
     snsActive: boolean;
   };
   avatarUrl?: string;
+  ownerAddress: string;
 }
 
 const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({ 
@@ -33,7 +36,8 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   resolvedEns,
   onExportPdf,
   blockchainExtendedData,
-  avatarUrl
+  avatarUrl,
+  ownerAddress
 }) => {
   return (
     <TooltipProvider>
@@ -44,19 +48,28 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6 mt-6">
+          <BioSection 
+            ownerAddress={ownerAddress}
+            initialBio={passport.bio || ''}
+          />
+          
+          <WorkExperienceSection 
+            ownerAddress={ownerAddress}
+          />
+          
           <SkillsTab 
             skills={passport.skills}
             name={passport.name}
             avatarUrl={avatarUrl}
             ensName={resolvedEns}
-            ownerAddress={passport.owner_address}
+            ownerAddress={ownerAddress}
           />
         </TabsContent>
         
         <TabsContent value="blockchain" className="space-y-6 mt-6">
           <BlockchainTab 
             transactions={transactions}
-            address={passport.owner_address}
+            address={ownerAddress}
           />
         </TabsContent>
       </Tabs>
