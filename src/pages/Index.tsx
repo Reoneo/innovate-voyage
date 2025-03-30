@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Briefcase, 
@@ -15,6 +14,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const Index = () => {
+  const navigate = useNavigate();
+  
+  const handleNavigation = (path: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(path);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 sm:px-6 py-8">
@@ -26,7 +32,6 @@ const Index = () => {
             transition={{ duration: 0.6 }}
             className="mb-8"
           >
-            {/* Logo Avatar */}
             <div className="flex justify-center mb-6">
               <Avatar className="h-32 w-32 border-4 border-primary shadow-lg">
                 <AvatarImage src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" alt="Profile Logo" />
@@ -48,11 +53,12 @@ const Index = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <Button size="lg" asChild>
-              <Link to="/talent">
-                Browse Talent
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+            <Button 
+              size="lg" 
+              onClick={(e) => handleNavigation('/talent', e)}
+            >
+              Browse Talent
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button size="lg" variant="outline" disabled title="Coming soon">
               <span className="flex items-center">
