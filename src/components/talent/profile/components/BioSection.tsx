@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,7 +55,6 @@ const BioSection: React.FC<BioSectionProps> = ({ ownerAddress, initialBio = '' }
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Bio</CardTitle>
-            <CardDescription>Tell others about yourself</CardDescription>
           </div>
           {isOwner && !isEditing && (
             <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
