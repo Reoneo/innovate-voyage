@@ -5,13 +5,15 @@ import { jobsApi } from '@/api/jobsApi';
 import JobListings from '@/components/jobs/JobListings';
 import JobFilters from '@/components/jobs/JobFilters';
 import { toast } from 'sonner';
-import { Briefcase, Database, Building, MapPin } from 'lucide-react';
+import { Briefcase, Database, Building, MapPin, Home } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const Jobs = () => {
   const [sortBy, setSortBy] = useState('recent');
@@ -85,52 +87,61 @@ const Jobs = () => {
             </p>
           </div>
           
-          <div className="flex flex-wrap items-center gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/50 backdrop-blur-sm p-2 rounded-lg">
-                    <Database className="h-4 w-4" />
-                    <span>{statsData?.total || 0} positions</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Total available positions</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+          <div className="flex items-center gap-4">
+            <Link to="/">
+              <Button variant="outline" className="flex items-center gap-2">
+                <Home className="h-4 w-4" />
+                Home
+              </Button>
+            </Link>
+            
+            <div className="flex flex-wrap items-center gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/50 backdrop-blur-sm p-2 rounded-lg">
+                      <Database className="h-4 w-4" />
+                      <span>{statsData?.total || 0} positions</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Total available positions</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-            {statsData && (
-              <>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/50 backdrop-blur-sm p-2 rounded-lg">
-                        <MapPin className="h-4 w-4" />
-                        <span>{statsData.remoteJobs} remote</span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Remote positions available</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+              {statsData && (
+                <>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/50 backdrop-blur-sm p-2 rounded-lg">
+                          <MapPin className="h-4 w-4" />
+                          <span>{statsData.remoteJobs} remote</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Remote positions available</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/50 backdrop-blur-sm p-2 rounded-lg">
-                        <Building className="h-4 w-4" />
-                        <span>{statsData.companiesCount} companies</span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Unique companies hiring</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </>
-            )}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/50 backdrop-blur-sm p-2 rounded-lg">
+                          <Building className="h-4 w-4" />
+                          <span>{statsData.companiesCount} companies</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Unique companies hiring</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </>
+              )}
+            </div>
           </div>
         </div>
 

@@ -77,10 +77,6 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
     toast.success("Address copied to clipboard");
   };
 
-  // Filter out empty social links
-  const filteredSocialLinks = Object.entries(socialLinks || {}).filter(([_, url]) => url && url.trim() !== '');
-  const hasSocialLinks = filteredSocialLinks.length > 0;
-
   return (
     <div>
       <CardTitle className="text-2xl">{passportId}</CardTitle>
@@ -127,7 +123,7 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
           </a>
         )}
         
-        {!hasSocialLinks && !loading && (
+        {Object.keys(socialLinks).length === 0 && !loading && (
           <span className="text-sm text-muted-foreground">No social links available</span>
         )}
         
