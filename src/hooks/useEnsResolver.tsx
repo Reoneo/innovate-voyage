@@ -33,13 +33,13 @@ export function useEnsResolver(ensName?: string, address?: string) {
 
   // Effect to handle ENS resolution
   useEffect(() => {
-    if (!isEns || !ensName) return;
+    if (!ensName) return;
     
     setIsLoading(true);
     setError(null);
     
     resolveEns(ensName).finally(() => setIsLoading(false));
-  }, [ensName, isEns]);
+  }, [ensName]);
 
   // Effect to handle address resolution
   useEffect(() => {

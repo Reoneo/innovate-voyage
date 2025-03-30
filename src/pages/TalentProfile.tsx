@@ -38,7 +38,15 @@ const TalentProfile = () => {
   useEffect(() => {
     if (userId) {
       // We're on the /recruitment.box/:userId route
-      setAddress(userId);
+      // Check if it's an ENS or address
+      if (isValidEthereumAddress(userId)) {
+        setAddress(userId);
+      } else {
+        // If it's not a valid address, treat it as an ENS
+        // If no .eth suffix is provided, add it (for short ENS names)
+        const ensValue = userId.includes('.') ? userId : `${userId}.eth`;
+        setEns(ensValue);
+      }
     } else if (routeAddress) {
       // We're on the /address/:address route
       setAddress(routeAddress);
@@ -47,13 +55,17 @@ const TalentProfile = () => {
       setAddress(ensName);
     } else if (ensName) {
       // We're on the /talent/:ensName route with an actual ENS name
-      setEns(ensName);
+      // If no .eth suffix is provided, add it
+      const ensValue = ensName.includes('.') ? ensName : `${ensName}.eth`;
+      setEns(ensValue);
     } else if (ensNameOrAddress) {
       // We're on the /:ensNameOrAddress route
       if (isValidEthereumAddress(ensNameOrAddress)) {
         setAddress(ensNameOrAddress);
       } else {
-        setEns(ensNameOrAddress);
+        // If no .eth suffix is provided, add it
+        const ensValue = ensNameOrAddress.includes('.') ? ensNameOrAddress : `${ensNameOrAddress}.eth`;
+        setEns(ensValue);
       }
     }
 

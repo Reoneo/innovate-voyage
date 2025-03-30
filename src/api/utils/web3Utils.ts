@@ -6,27 +6,35 @@ export const avatarCache: Record<string, string> = {};
 
 // Function to fetch profile from Web3.bio API
 export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProfile | null> {
+  if (!identity) return null;
+  
   try {
+    // Normalize the identity parameter - add .eth if no extension is present
+    let normalizedIdentity = identity;
+    if (!identity.includes('.') && !identity.startsWith('0x')) {
+      normalizedIdentity = `${identity}.eth`;
+    }
+    
     // Determine the right endpoint based on the domain type (.eth or .box)
     let endpoint;
     
-    if (identity.includes('.box') || identity.includes('.eth')) {
+    if (normalizedIdentity.includes('.box') || normalizedIdentity.includes('.eth')) {
       // For both .box and .eth domains, use the ens endpoint
-      endpoint = `https://api.web3.bio/profile/ens/${identity}`;
-      console.log(`Fetching domain profile: ${identity}`);
-    } else if (!identity.includes('.') && identity.startsWith('0x')) {
-      endpoint = `https://api.web3.bio/profile/eth/${identity}`;
-      console.log(`Fetching address profile: ${identity}`);
+      endpoint = `https://api.web3.bio/profile/ens/${normalizedIdentity}`;
+      console.log(`Fetching domain profile: ${normalizedIdentity}`);
+    } else if (!normalizedIdentity.includes('.') && normalizedIdentity.startsWith('0x')) {
+      endpoint = `https://api.web3.bio/profile/eth/${normalizedIdentity}`;
+      console.log(`Fetching address profile: ${normalizedIdentity}`);
     } else {
       // Try with ENS endpoint as a fallback
-      endpoint = `https://api.web3.bio/profile/ens/${identity}`;
+      endpoint = `https://api.web3.bio/profile/ens/${normalizedIdentity}`;
     }
     
-    console.log(`Fetching profile for ${identity} from ${endpoint}`);
+    console.log(`Fetching profile for ${normalizedIdentity} from ${endpoint}`);
     const response = await fetch(endpoint);
     
     if (!response.ok) {
-      console.warn(`Failed to fetch Web3.bio profile for ${identity}: Status ${response.status}`);
+      console.warn(`Failed to fetch Web3.bio profile for ${normalizedIdentity}: Status ${response.status}`);
       return null;
     }
     
@@ -37,9 +45,9 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
       // Format response to match our internal Web3BioProfile structure
       const profile: Web3BioProfile = {
         address: data.address || '',
-        identity: data.identity || identity,
+        identity: data.identity || normalizedIdentity,
         platform: data.platform || 'ens',
-        displayName: data.displayName || identity,
+        displayName: data.displayName || normalizedIdentity,
         avatar: data.avatar || null,
         description: data.description || null,
         status: data.status || null,
@@ -90,8 +98,8 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
       }
       
       // Cache the avatar if available
-      if (profile.avatar && identity) {
-        avatarCache[identity] = profile.avatar;
+      if (profile.avatar && normalizedIdentity) {
+        avatarCache[normalizedIdentity] = profile.avatar;
       }
       
       return profile;
@@ -101,9 +109,9 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
       
       const profile: Web3BioProfile = {
         address: firstProfile.address || '',
-        identity: firstProfile.identity || identity,
+        identity: firstProfile.identity || normalizedIdentity,
         platform: firstProfile.platform || 'ens',
-        displayName: firstProfile.display_name || firstProfile.displayName || identity,
+        displayName: firstProfile.display_name || firstProfile.displayName || normalizedIdentity,
         avatar: firstProfile.avatar || null,
         description: firstProfile.description || null
       };
@@ -148,13 +156,13 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
         }
       }
       
-      if (profile.avatar && identity) {
-        avatarCache[identity] = profile.avatar;
+      if (profile.avatar && normalizedIdentity) {
+        avatarCache[normalizedIdentity] = profile.avatar;
       }
       
       return profile;
     } else if (data.error) {
-      console.warn(`Web3.bio error for ${identity}:`, data.error);
+      console.warn(`Web3.bio error for ${normalizedIdentity}:`, data.error);
       return null;
     }
     
