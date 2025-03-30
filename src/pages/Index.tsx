@@ -54,11 +54,11 @@ const Index = () => {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link to="/jobs">
+            <Button size="lg" variant="outline" disabled title="Coming soon">
+              <span className="flex items-center">
                 Browse Jobs
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+              </span>
             </Button>
           </motion.div>
         </div>
@@ -139,11 +139,11 @@ const Index = () => {
                   Explore Talent
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link to="/jobs">
+              <Button size="lg" variant="outline" disabled title="Coming soon">
+                <span className="flex items-center">
                   <Briefcase className="mr-2 h-5 w-5" />
                   Explore Jobs
-                </Link>
+                </span>
               </Button>
             </div>
           </div>
