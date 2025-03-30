@@ -38,7 +38,7 @@ const Index = () => {
               Recruitment.box
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
-              A decentralized CV & recruitment engine powered by blockchain identity
+              A decentralized CV & recruitment engine powered by blockchain data
             </p>
           </motion.div>
 
