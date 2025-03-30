@@ -5,7 +5,6 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import { BlockchainPassport } from '@/lib/utils';
 
-import OverviewTab from './tabs/OverviewTab';
 import BlockchainTab from './tabs/BlockchainTab';
 import SkillsTab from './tabs/SkillsTab';
 
@@ -38,32 +37,11 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
 }) => {
   return (
     <TooltipProvider>
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid grid-cols-3 md:w-[400px] mx-auto">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="blockchain">Blockchain</TabsTrigger>
+      <Tabs defaultValue="skills" className="w-full">
+        <TabsList className="grid grid-cols-2 md:w-[400px] mx-auto">
           <TabsTrigger value="skills">Skills</TabsTrigger>
+          <TabsTrigger value="blockchain">Blockchain</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="overview" className="space-y-6 mt-6">
-          <OverviewTab 
-            skills={passport.skills}
-            name={passport.name}
-            blockchainProfile={blockchainProfile}
-            transactions={transactions}
-            address={passport.owner_address}
-            blockchainExtendedData={blockchainExtendedData}
-            avatarUrl={avatarUrl}
-            ensName={resolvedEns}
-          />
-        </TabsContent>
-        
-        <TabsContent value="blockchain" className="space-y-6 mt-6">
-          <BlockchainTab 
-            transactions={transactions}
-            address={passport.owner_address}
-          />
-        </TabsContent>
         
         <TabsContent value="skills" className="space-y-6 mt-6">
           <SkillsTab 
@@ -72,6 +50,13 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
             avatarUrl={avatarUrl}
             ensName={resolvedEns}
             ownerAddress={passport.owner_address}
+          />
+        </TabsContent>
+        
+        <TabsContent value="blockchain" className="space-y-6 mt-6">
+          <BlockchainTab 
+            transactions={transactions}
+            address={passport.owner_address}
           />
         </TabsContent>
       </Tabs>
