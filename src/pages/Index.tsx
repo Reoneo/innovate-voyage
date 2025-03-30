@@ -132,20 +132,6 @@ const Index = () => {
               Join the future of decentralized recruitment where your blockchain identity
               becomes your verified career passport.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button size="lg" asChild>
-                <Link to="/talent">
-                  <Users className="mr-2 h-5 w-5" />
-                  Explore Talent
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" disabled title="Coming soon">
-                <span className="flex items-center">
-                  <Briefcase className="mr-2 h-5 w-5" />
-                  Explore Jobs
-                </span>
-              </Button>
-            </div>
           </div>
         </div>
       </div>
