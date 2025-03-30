@@ -28,38 +28,54 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
   // Fetch ENS social links directly from web3.bio if needed
   useEffect(() => {
     const fetchSocialLinks = async () => {
-      // Only fetch if we have an ENS name and no social links
-      if (passportId?.includes('.eth') && Object.keys(socialLinks).length === 0) {
+      // Only fetch if we have an ENS name
+      if (passportId?.includes('.eth') || passportId?.includes('.box')) {
         setLoading(true);
         try {
           console.log("Fetching social links for", passportId);
           const profile = await fetchWeb3BioProfile(passportId);
           
-          if (profile?.links) {
+          if (profile) {
             console.log("Received profile:", profile);
             const newSocials: Record<string, string> = {};
             
-            // Map the web3.bio links to our social format
-            // Check if each property exists before accessing it
-            if (profile.links.website?.link) newSocials.website = profile.links.website.link;
-            if (profile.links.github?.link) newSocials.github = profile.links.github.link;
-            if (profile.links.twitter?.link) newSocials.twitter = profile.links.twitter.link;
-            if (profile.links.linkedin?.link) newSocials.linkedin = profile.links.linkedin.link;
-            if (profile.links.facebook?.link) newSocials.facebook = profile.links.facebook.link;
-            
-            // Safely access properties that might not be in the type
-            // Use optional chaining and type assertion for these properties
-            const anyLinks = profile.links as any;
-            if (anyLinks.instagram?.link) newSocials.instagram = anyLinks.instagram.link;
-            if (anyLinks.youtube?.link) newSocials.youtube = anyLinks.youtube.link;
-            if (anyLinks.telegram?.link) newSocials.telegram = anyLinks.telegram.link;
-            if (anyLinks.bluesky?.link) newSocials.bluesky = anyLinks.bluesky.link;
-            
-            // Email is directly on the profile object
+            // Direct properties from the profile
+            if (profile.github) newSocials.github = profile.github;
+            if (profile.twitter) newSocials.twitter = profile.twitter;
+            if (profile.linkedin) newSocials.linkedin = profile.linkedin;
+            if (profile.website) newSocials.website = profile.website;
+            if (profile.facebook) newSocials.facebook = profile.facebook;
+            if (profile.instagram) newSocials.instagram = profile.instagram;
+            if (profile.youtube) newSocials.youtube = profile.youtube;
+            if (profile.telegram) newSocials.telegram = profile.telegram;
+            if (profile.bluesky) newSocials.bluesky = profile.bluesky;
             if (profile.email) newSocials.email = profile.email;
             
+            // Also check the links object if available
+            if (profile.links) {
+              if (profile.links.website?.link) newSocials.website = profile.links.website.link;
+              if (profile.links.github?.link) newSocials.github = profile.links.github.link;
+              if (profile.links.twitter?.link) newSocials.twitter = profile.links.twitter.link;
+              if (profile.links.linkedin?.link) newSocials.linkedin = profile.links.linkedin.link;
+              if (profile.links.facebook?.link) newSocials.facebook = profile.links.facebook.link;
+              
+              // Use type assertion for properties that might not be in the type definition
+              const anyLinks = profile.links as any;
+              if (anyLinks.instagram?.link) newSocials.instagram = anyLinks.instagram.link;
+              if (anyLinks.youtube?.link) newSocials.youtube = anyLinks.youtube.link;
+              if (anyLinks.telegram?.link) newSocials.telegram = anyLinks.telegram.link;
+              if (anyLinks.bluesky?.link) newSocials.bluesky = anyLinks.bluesky.link;
+            }
+            
             console.log("Mapped social links:", newSocials);
-            setSocialLinks(newSocials);
+            
+            // Only update if we found any links
+            if (Object.keys(newSocials).length > 0) {
+              setSocialLinks(prevLinks => ({
+                ...prevLinks,
+                ...newSocials
+              }));
+            }
           }
         } catch (error) {
           console.error("Error fetching social links:", error);
@@ -70,7 +86,7 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
     };
     
     fetchSocialLinks();
-  }, [passportId, socialLinks]);
+  }, [passportId]);
 
   const copyAddressToClipboard = () => {
     navigator.clipboard.writeText(ownerAddress);
