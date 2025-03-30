@@ -23,8 +23,14 @@ import ProfileTabsContainer from '@/components/talent/profile/ProfileTabsContain
 import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
 
 const TalentProfile = () => {
-  const { ensName, address: routeAddress, userId } = useParams<{ ensName: string; address: string; userId: string }>();
+  const { ensName, address: routeAddress, userId, ensNameOrAddress } = useParams<{ 
+    ensName: string; 
+    address: string; 
+    userId: string;
+    ensNameOrAddress: string;
+  }>();
   const [address, setAddress] = useState<string | undefined>(undefined);
+  const [ens, setEns] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   
@@ -39,15 +45,25 @@ const TalentProfile = () => {
     } else if (ensName && isValidEthereumAddress(ensName)) {
       // We're on the /talent/:ensName route but it's actually an address
       setAddress(ensName);
+    } else if (ensName) {
+      // We're on the /talent/:ensName route with an actual ENS name
+      setEns(ensName);
+    } else if (ensNameOrAddress) {
+      // We're on the /:ensNameOrAddress route
+      if (isValidEthereumAddress(ensNameOrAddress)) {
+        setAddress(ensNameOrAddress);
+      } else {
+        setEns(ensNameOrAddress);
+      }
     }
 
     // Get connected wallet from localStorage
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
-  }, [ensName, routeAddress, userId]);
+  }, [ensName, routeAddress, userId, ensNameOrAddress]);
 
   const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl } = useProfileData(
-    (ensName && !isValidEthereumAddress(ensName)) ? ensName : undefined, 
+    ens || ((ensName && !isValidEthereumAddress(ensName)) ? ensName : undefined), 
     address || (ensName && isValidEthereumAddress(ensName) ? ensName : undefined)
   );
   
@@ -82,7 +98,7 @@ const TalentProfile = () => {
   const getShareableUrl = () => {
     const baseUrl = window.location.origin;
     const profileId = passport?.passport_id || passport?.owner_address;
-    return `${baseUrl}/recruitment.box/${profileId}`;
+    return `${baseUrl}/${profileId}`;
   };
 
   return (

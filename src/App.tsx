@@ -73,6 +73,7 @@ const App = () => {
             <Route path="/talent" element={<Talent />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
             <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+            <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
             <Route path="/talent/:ensName" element={<TalentProfile />} />
             <Route path="/address/:address" element={<TalentProfile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
