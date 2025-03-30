@@ -3,7 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Jobs from "./pages/Jobs";
 import Talent from "./pages/Talent";
@@ -11,10 +12,17 @@ import JobDetail from "./pages/JobDetail";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
 import WalletConnectModal from "./components/wallet/WalletConnectModal";
-import { useEffect } from "react";
 
 // Create a new QueryClient instance
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 30000,
+    },
+  },
+});
 
 // Check for any hard-coded API keys in the codebase
 if (import.meta.env.DEV) {
@@ -22,13 +30,33 @@ if (import.meta.env.DEV) {
 }
 
 const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  
   // Initialize connected wallet from localStorage on app load
   useEffect(() => {
     const storedAddress = localStorage.getItem('connectedWalletAddress');
     if (storedAddress) {
       window.connectedWalletAddress = storedAddress;
     }
+    
+    // Simulate initialization process
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 200);
+    
+    return () => clearTimeout(timer);
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-muted-foreground">Loading application...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
