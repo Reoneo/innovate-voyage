@@ -5,8 +5,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import ProfileAvatar from './components/ProfileAvatar';
 import ProfileInfo from './components/ProfileInfo';
 import ProfileScores from './components/ProfileScores';
-import { SocialIcon } from '@/components/ui/social-icon';
-import { socialPlatforms } from '@/constants/socialPlatforms';
 
 interface ProfileHeaderProps {
   passport: {
@@ -57,38 +55,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
                 humanScore={passport.score}
                 category={passport.category}
               />
-            </div>
-            
-            {/* Social Icons Bar - Moved to below the profile info */}
-            <div className="w-full mt-4 border-t pt-3">
-              <div className="flex items-center gap-3 justify-center md:justify-start">
-                {socialPlatforms.map((platform) => 
-                  passport.socials[platform.key] && (
-                    <a 
-                      key={platform.key}
-                      href={passport.socials[platform.key]} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="hover:opacity-80 transition-opacity"
-                      aria-label={`Visit ${platform.key}`}
-                    >
-                      <SocialIcon 
-                        type={platform.type as any} 
-                        size={20}
-                      />
-                    </a>
-                  )
-                )}
-                {passport.socials?.email && (
-                  <a 
-                    href={`mailto:${passport.socials.email}`}
-                    className="hover:opacity-80 transition-opacity"
-                    aria-label="Send email"
-                  >
-                    <SocialIcon type="mail" size={20} />
-                  </a>
-                )}
-              </div>
             </div>
           </div>
         </div>

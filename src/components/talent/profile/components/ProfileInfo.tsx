@@ -42,8 +42,38 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
         </CardDescription>
       </div>
       
+      {/* Social Icons in a horizontal row */}
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        {socialPlatforms.map((platform) => 
+          socials[platform.key] && (
+            <a 
+              key={platform.key}
+              href={socials[platform.key]} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:opacity-80 transition-opacity"
+              aria-label={`Visit ${platform.key}`}
+            >
+              <SocialIcon 
+                type={platform.type as any} 
+                size={20}
+              />
+            </a>
+          )
+        )}
+        {socials?.email && (
+          <a 
+            href={`mailto:${socials.email}`}
+            className="hover:opacity-80 transition-opacity"
+            aria-label="Send email"
+          >
+            <SocialIcon type="mail" size={20} />
+          </a>
+        )}
+      </div>
+      
       {bio && (
-        <p className="text-sm mt-1.5 text-muted-foreground">
+        <p className="text-sm mt-3 text-muted-foreground">
           {bio}
         </p>
       )}
