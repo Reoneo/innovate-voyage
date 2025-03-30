@@ -19,6 +19,23 @@ export function usePdfExport() {
       
       document.body.classList.add('generating-pdf');
       
+      // Hide tab content during PDF generation
+      const tabsContainer = resumeElement.querySelector('[role="tabpanel"]');
+      let tabContainerDisplay = '';
+      
+      if (tabsContainer) {
+        tabContainerDisplay = window.getComputedStyle(tabsContainer).display;
+        (tabsContainer as HTMLElement).style.display = 'none';
+      }
+      
+      // Hide the tabs list itself
+      const tabsList = document.querySelector('[role="tablist"]');
+      let tabsListDisplay = '';
+      if (tabsList) {
+        tabsListDisplay = window.getComputedStyle(tabsList).display;
+        (tabsList as HTMLElement).style.display = 'none';
+      }
+      
       const canvas = await html2canvas(resumeElement, {
         scale: 2,
         useCORS: true,
@@ -33,6 +50,15 @@ export function usePdfExport() {
           }
         }
       });
+      
+      // Restore elements display after canvas capture
+      if (tabsContainer) {
+        (tabsContainer as HTMLElement).style.display = tabContainerDisplay;
+      }
+      
+      if (tabsList) {
+        (tabsList as HTMLElement).style.display = tabsListDisplay;
+      }
       
       document.body.classList.remove('generating-pdf');
       

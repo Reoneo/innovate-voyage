@@ -6,7 +6,7 @@ import { usePdfExport } from '@/hooks/usePdfExport';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { Wallet, LogOut, Save } from 'lucide-react';
+import { Wallet, LogOut, Save, Download } from 'lucide-react';
 
 import { 
   DropdownMenu,
@@ -78,7 +78,7 @@ const TalentProfile = () => {
   return (
     <div className={`container mx-auto py-4 md:py-8 ${isMobile ? 'px-2' : 'max-w-5xl'}`}>
       <div className="flex justify-between items-center mb-4">
-        <ProfileNavigationBar onExportPdf={exportAsPDF} />
+        <ProfileNavigationBar />
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -104,6 +104,10 @@ const TalentProfile = () => {
                 Connect Wallet
               </DropdownMenuItem>
             )}
+            <DropdownMenuItem onClick={exportAsPDF}>
+              <Download className="mr-2 h-4 w-4" />
+              Export as PDF
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
