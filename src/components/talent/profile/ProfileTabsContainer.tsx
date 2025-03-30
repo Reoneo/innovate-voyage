@@ -37,13 +37,13 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
 }) => {
   return (
     <TooltipProvider>
-      <Tabs defaultValue="skills" className="w-full">
+      <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid grid-cols-2 md:w-[400px] mx-auto">
-          <TabsTrigger value="skills">Skills</TabsTrigger>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="blockchain">Blockchain</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="skills" className="space-y-6 mt-6">
+        <TabsContent value="overview" className="space-y-6 mt-6">
           <SkillsTab 
             skills={passport.skills}
             name={passport.name}
