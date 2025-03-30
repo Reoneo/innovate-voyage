@@ -76,7 +76,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <div className="space-y-2">
           <h2 className="text-xl font-semibold">Bio</h2>
           <p className="text-gray-300">
-            {passport.bio || blockchainProfile?.description || blockchainExtendedData?.description || "No bio available."}
+            {passport.bio || blockchainProfile?.description || "No bio available."}
           </p>
         </div>
 

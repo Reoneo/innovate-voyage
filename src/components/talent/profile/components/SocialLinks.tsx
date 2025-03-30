@@ -3,6 +3,7 @@ import React from 'react';
 import { Github, Twitter, Linkedin, Globe, Instagram, Youtube, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { socialPlatforms } from '@/constants/socialPlatforms';
+import { SocialIcon } from '@/components/ui/social-icon';
 
 interface SocialLinksProps {
   ensName?: string;
