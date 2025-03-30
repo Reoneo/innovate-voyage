@@ -23,14 +23,17 @@ import ProfileTabsContainer from '@/components/talent/profile/ProfileTabsContain
 import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
 
 const TalentProfile = () => {
-  const { ensName, address: routeAddress } = useParams<{ ensName: string; address: string }>();
+  const { ensName, address: routeAddress, userId } = useParams<{ ensName: string; address: string; userId: string }>();
   const [address, setAddress] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   
-  // Determine if we're using an address or an ENS name
+  // Determine which parameter to use for identification
   useEffect(() => {
-    if (routeAddress) {
+    if (userId) {
+      // We're on the /recruitment.box/:userId route
+      setAddress(userId);
+    } else if (routeAddress) {
       // We're on the /address/:address route
       setAddress(routeAddress);
     } else if (ensName && isValidEthereumAddress(ensName)) {
@@ -41,7 +44,7 @@ const TalentProfile = () => {
     // Get connected wallet from localStorage
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
-  }, [ensName, routeAddress]);
+  }, [ensName, routeAddress, userId]);
 
   const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl } = useProfileData(
     (ensName && !isValidEthereumAddress(ensName)) ? ensName : undefined, 
@@ -73,6 +76,13 @@ const TalentProfile = () => {
       title: "Changes saved",
       description: "Your profile changes have been saved successfully."
     });
+  };
+
+  // Generate shareable URL for the profile
+  const getShareableUrl = () => {
+    const baseUrl = window.location.origin;
+    const profileId = passport?.passport_id || passport?.owner_address;
+    return `${baseUrl}/recruitment.box/${profileId}`;
   };
 
   return (

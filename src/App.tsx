@@ -20,7 +20,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       retry: 2,
       staleTime: 60000, // 1 minute
-      cacheTime: 300000, // 5 minutes
+      gcTime: 300000, // 5 minutes (replacement for deprecated cacheTime)
     },
   },
 });
@@ -72,6 +72,7 @@ const App = () => {
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/talent" element={<Talent />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
+            <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
             <Route path="/talent/:ensName" element={<TalentProfile />} />
             <Route path="/address/:address" element={<TalentProfile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
