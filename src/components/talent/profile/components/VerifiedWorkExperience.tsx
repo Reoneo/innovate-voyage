@@ -49,30 +49,28 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
           <div className="space-y-6">
             {experience.map((job, index) => (
               <div key={index} className="border-b last:border-b-0 pb-4 last:pb-0">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium text-lg">{job.role}</h3>
-                      {job.verified ? (
-                        <Badge variant="outline" className="flex items-center gap-1 text-green-600 border-green-600">
-                          <CheckCircle className="h-3 w-3" />
-                          Verified
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="flex items-center gap-1 text-amber-600 border-amber-600">
-                          <XCircle className="h-3 w-3" />
-                          Pending
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Briefcase className="h-4 w-4" />
-                      <span>{job.company}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      <span>{formatDate(job.start_date)} - {formatDate(job.end_date)}</span>
-                    </div>
+                <div className="flex flex-col mb-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-lg">{job.role}</h3>
+                    {job.verified ? (
+                      <Badge variant="outline" className="flex items-center gap-1 text-green-600 border-green-600">
+                        <CheckCircle className="h-3 w-3" />
+                        Verified
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="flex items-center gap-1 text-amber-600 border-amber-600">
+                        <XCircle className="h-3 w-3" />
+                        Pending
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                    <Briefcase className="h-4 w-4 flex-shrink-0" />
+                    <span className="font-medium">{job.company}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Calendar className="h-4 w-4 flex-shrink-0" />
+                    <span>{formatDate(job.start_date)} - {formatDate(job.end_date)}</span>
                   </div>
                 </div>
                 
