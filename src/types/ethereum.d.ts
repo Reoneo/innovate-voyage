@@ -9,3 +9,8 @@ interface Window {
   connectWalletModal: HTMLDialogElement;
   connectedWalletAddress: string | null;
 }
+
+interface ImportMetaEnv {
+  VITE_ETHERSCAN_API_KEY: string;
+  VITE_ETHERSCAN_API_URL?: string;
+}

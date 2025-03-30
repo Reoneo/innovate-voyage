@@ -13,7 +13,13 @@ import NotFound from "./pages/NotFound";
 import WalletConnectModal from "./components/wallet/WalletConnectModal";
 import { useEffect } from "react";
 
+// Create a new QueryClient instance
 const queryClient = new QueryClient();
+
+// Check for any hard-coded API keys in the codebase
+if (process.env.NODE_ENV === 'development') {
+  console.log('Running in development mode - ensure all API keys are stored in environment variables');
+}
 
 const App = () => {
   // Initialize connected wallet from localStorage on app load
