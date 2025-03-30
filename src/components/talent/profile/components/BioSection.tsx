@@ -70,7 +70,7 @@ const BioSection: React.FC<BioSectionProps> = ({ ownerAddress, initialBio = '' }
             <Textarea 
               value={bio} 
               onChange={(e) => setBio(e.target.value)} 
-              placeholder="Write something about yourself..."
+              placeholder="Write your bio here..."
               className="min-h-[120px]"
             />
             <div className="flex justify-end space-x-2">
@@ -87,8 +87,7 @@ const BioSection: React.FC<BioSectionProps> = ({ ownerAddress, initialBio = '' }
               <p className="whitespace-pre-wrap">{bio}</p>
             ) : isOwner ? (
               <p className="text-muted-foreground italic">
-                Add information about yourself to help others learn more about your experience and background.
-                Click the edit button to get started.
+                Click the edit button to add your bio.
               </p>
             ) : null}
           </div>

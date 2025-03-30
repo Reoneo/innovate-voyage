@@ -13,13 +13,14 @@ import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
 import WalletConnectModal from "./components/wallet/WalletConnectModal";
 
-// Create a new QueryClient instance
+// Create a new QueryClient instance with more aggressive caching
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 30000,
+      retry: 2,
+      staleTime: 60000, // 1 minute
+      cacheTime: 300000, // 5 minutes
     },
   },
 });
@@ -34,19 +35,21 @@ const App = () => {
   
   // Initialize connected wallet from localStorage on app load
   useEffect(() => {
+    // This runs on initial load and sets up wallet connection from localStorage
     const storedAddress = localStorage.getItem('connectedWalletAddress');
     if (storedAddress) {
       window.connectedWalletAddress = storedAddress;
     }
     
-    // Simulate initialization process
+    // Simulate initialization process and ensure content is loaded before rendering
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 200);
+    }, 300); // Slightly longer delay to ensure everything loads
     
     return () => clearTimeout(timer);
   }, []);
 
+  // Show loading state to prevent flashing of empty content
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
