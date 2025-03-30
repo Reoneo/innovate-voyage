@@ -17,6 +17,8 @@ import { Link } from 'react-router-dom';
 
 const Jobs = () => {
   const [sortBy, setSortBy] = useState('recent');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   const { data: jobs, isLoading, error } = useQuery({
     queryKey: ['jobs', sortBy],
@@ -71,6 +73,14 @@ const Jobs = () => {
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
+  };
+
+  const toggleFilter = (filter: string) => {
+    setActiveFilters(prevFilters => 
+      prevFilters.includes(filter)
+        ? prevFilters.filter(f => f !== filter)
+        : [...prevFilters, filter]
+    );
   };
 
   return (
@@ -153,6 +163,10 @@ const Jobs = () => {
               locations={locations || []}
               sectors={sectors}
               isLoading={isLoadingSkills}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              activeFilters={activeFilters}
+              toggleFilter={toggleFilter}
             />
           </div>
           <div className="lg:col-span-3">

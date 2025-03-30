@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -16,17 +16,27 @@ import {
 import { Link } from 'react-router-dom';
 
 interface JobFiltersProps {
-  setSearchQuery: (query: string) => void;
-  searchQuery: string;
-  activeFilters: string[];
-  toggleFilter: (filter: string) => void;
+  setSearchQuery?: (query: string) => void;
+  searchQuery?: string;
+  activeFilters?: string[];
+  toggleFilter?: (filter: string) => void;
+  skills: string[];
+  jobTypes: string[];
+  locations: string[];
+  sectors: string[] | undefined;
+  isLoading: boolean;
 }
 
 const JobFilters: React.FC<JobFiltersProps> = ({ 
-  setSearchQuery, 
-  searchQuery, 
-  activeFilters, 
-  toggleFilter 
+  setSearchQuery = () => {}, 
+  searchQuery = '', 
+  activeFilters = [], 
+  toggleFilter = () => {},
+  skills,
+  jobTypes,
+  locations,
+  sectors,
+  isLoading
 }) => {
   return (
     <div className="flex flex-col space-y-4">
