@@ -42,8 +42,8 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
         </CardDescription>
       </div>
       
-      {/* Social Icons in a horizontal row */}
-      <div className="mt-2 flex flex-wrap items-center gap-3">
+      {/* Social Icons in a horizontal row immediately under the wallet address */}
+      <div className="mt-1 flex flex-wrap items-center gap-2">
         {socialPlatforms.map((platform) => 
           socials[platform.key] && (
             <a 
@@ -56,7 +56,7 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
             >
               <SocialIcon 
                 type={platform.type as any} 
-                size={20}
+                size={18}
               />
             </a>
           )
@@ -67,7 +67,7 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
             className="hover:opacity-80 transition-opacity"
             aria-label="Send email"
           >
-            <SocialIcon type="mail" size={20} />
+            <SocialIcon type="mail" size={18} />
           </a>
         )}
       </div>

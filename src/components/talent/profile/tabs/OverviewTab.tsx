@@ -34,9 +34,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 }) => {
   // Extract links from blockchain profile if available
   const links = blockchainProfile?.ensLinks || [];
-  const socials = blockchainProfile?.socials || {};
-  
-  const hasSocialLinks = ensName || links.length > 0 || Object.keys(socials).length > 0;
+  const hasSocialLinks = ensName || links.length > 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -50,29 +48,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* Icon links in a horizontal row */}
-            {Object.keys(socials).length > 0 && (
-              <div className="flex flex-wrap gap-3 pt-2">
-                {socialPlatforms.map(platform => 
-                  socials[platform.key] && (
-                    <a 
-                      key={platform.key}
-                      href={socials[platform.key]} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="hover:opacity-80 transition-opacity p-1 bg-secondary/30 rounded-full"
-                      aria-label={`Visit ${platform.key}`}
-                    >
-                      <SocialIcon 
-                        type={platform.type as any} 
-                        size={20}
-                      />
-                    </a>
-                  )
-                )}
-              </div>
-            )}
-            
             {/* ENS Domains */}
             {ensName && <EnsLink ensName={ensName} />}
             

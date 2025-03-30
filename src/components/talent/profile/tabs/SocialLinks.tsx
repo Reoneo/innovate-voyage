@@ -16,29 +16,6 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ ensName, links, socials }) =>
   
   return (
     <div className="space-y-4">
-      {/* Social media icons in a horizontal row */}
-      {Object.keys(socials).length > 0 && (
-        <div className="flex flex-wrap gap-3">
-          {socialPlatforms.map(platform => 
-            socials[platform.key] && (
-              <a 
-                key={platform.key}
-                href={socials[platform.key]} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity p-1 bg-secondary/30 rounded-full"
-                aria-label={`Visit ${platform.key}`}
-              >
-                <SocialIcon 
-                  type={platform.type as any} 
-                  size={20}
-                />
-              </a>
-            )
-          )}
-        </div>
-      )}
-      
       {/* ENS Domains */}
       {ensName && <EnsLink ensName={ensName} />}
       
