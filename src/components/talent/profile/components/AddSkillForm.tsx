@@ -4,14 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, X } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 
 interface AddSkillFormProps {
   onAddSkill: (skillName: string) => void;
-  onCancel: () => void; // Add the onCancel prop to the interface
 }
 
-const AddSkillForm: React.FC<AddSkillFormProps> = ({ onAddSkill, onCancel }) => {
+const AddSkillForm: React.FC<AddSkillFormProps> = ({ onAddSkill }) => {
   const [newSkill, setNewSkill] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -47,17 +46,7 @@ const AddSkillForm: React.FC<AddSkillFormProps> = ({ onAddSkill, onCancel }) => 
     <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded-lg">
       <div className="flex items-center justify-between">
         <h3 className="font-medium">Add Unverified Skill</h3>
-        <div className="flex items-center gap-2">
-          <button 
-            type="button" 
-            onClick={onCancel} 
-            className="text-muted-foreground hover:text-destructive focus:outline-none"
-            aria-label="Cancel adding skill"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          <PlusCircle className="h-4 w-4 text-muted-foreground" />
-        </div>
+        <PlusCircle className="h-4 w-4 text-muted-foreground" />
       </div>
       
       <div className="space-y-2">
@@ -71,23 +60,13 @@ const AddSkillForm: React.FC<AddSkillFormProps> = ({ onAddSkill, onCancel }) => 
         />
       </div>
       
-      <div className="flex gap-2">
-        <Button 
-          type="submit"
-          disabled={isSubmitting || !newSkill.trim()}
-          className="flex-1"
-        >
-          Add Skill
-        </Button>
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
-      </div>
+      <Button 
+        type="submit"
+        disabled={isSubmitting || !newSkill.trim()}
+        className="w-full"
+      >
+        Add Skill
+      </Button>
       
       <p className="text-xs text-muted-foreground">
         Note: This skill will be marked as unverified until proof is provided

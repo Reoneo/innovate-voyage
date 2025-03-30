@@ -1,24 +1,24 @@
-
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Network, ListChecks, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
 import AddSkillForm from '../components/AddSkillForm';
-import { Skill } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface SkillsTabProps {
-  skills?: string[] | Skill[];
-  name?: string;
+  skills: Array<{ name: string; proof?: string; issued_by?: string }>;
+  name: string;
   avatarUrl?: string;
   ensName?: string;
-  ownerAddress: string;
+  ownerAddress?: string;
 }
 
-const SkillsTab: React.FC<SkillsTabProps> = ({ skills: initialSkills = [], name, avatarUrl, ensName, ownerAddress }) => {
-  const [skills, setSkills] = useState<string[]>([]);
-  const [showAddSkillForm, setShowAddSkillForm] = useState(false);
+const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name, avatarUrl, ensName, ownerAddress }) => {
+  const [userSkills, setUserSkills] = useState(skills);
   const [isOwner, setIsOwner] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const connectedAddress = localStorage.getItem('connectedWalletAddress');
@@ -30,119 +30,208 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills: initialSkills = [], name,
       setIsOwner(false);
     }
 
+    if (ownerAddress) {
+      const storageKey = `user_skills_${ownerAddress}`;
+      try {
+        const savedSkills = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        if (savedSkills.length > 0) {
+          const existingSkillNames = new Set(skills.map(skill => skill.name));
+          const newSkills = savedSkills.filter(skill => !existingSkillNames.has(skill.name));
+          setUserSkills([...skills, ...newSkills]);
+        }
+      } catch (error) {
+        console.error('Error loading skills from localStorage:', error);
+      }
+    }
+  }, [ownerAddress, skills]);
+
+  const handleAddSkill = (skillName: string) => {
+    const newSkill = {
+      name: skillName,
+      proof: undefined,
+      issued_by: undefined
+    };
+    
+    setUserSkills(prevSkills => {
+      const existingSkillNames = new Set(prevSkills.map(skill => skill.name));
+      if (!existingSkillNames.has(skillName)) {
+        const updatedSkills = [...prevSkills, newSkill];
+        saveSkillsToLocalStorage(updatedSkills);
+        return updatedSkills;
+      }
+      return prevSkills;
+    });
+    
+    toast({
+      title: "Skill added",
+      description: `${skillName} has been added to your profile.`
+    });
+  };
+
+  const handleRemoveSkill = (skillName: string) => {
+    const updatedSkills = userSkills.filter(skill => 
+      skill.name !== skillName || skill.proof
+    );
+    
+    setUserSkills(updatedSkills);
+    
+    saveSkillsToLocalStorage(updatedSkills);
+    
+    toast({
+      title: "Skill removed",
+      description: `${skillName} has been removed from your profile.`
+    });
+  };
+
+  const saveSkillsToLocalStorage = (skills: Array<{ name: string; proof?: string; issued_by?: string }>) => {
     try {
-      // First try to load from localStorage
-      const savedSkills = JSON.parse(localStorage.getItem(`user_skills_${ownerAddress}`) || '[]');
-      
-      if (Array.isArray(savedSkills) && savedSkills.length > 0) {
-        setSkills(savedSkills);
-      } else if (initialSkills.length > 0) {
-        // Convert Skill[] to string[] if needed
-        const formattedSkills = initialSkills.map((skill) => {
-          if (typeof skill === 'string') {
-            return skill;
-          } else if (typeof skill === 'object' && skill.name) {
-            return skill.name;
-          }
-          return '';
-        }).filter(Boolean);
-        
-        setSkills(formattedSkills);
-        localStorage.setItem(`user_skills_${ownerAddress}`, JSON.stringify(formattedSkills));
-      }
+      const storageKey = `user_skills_${ownerAddress}`;
+      localStorage.setItem(storageKey, JSON.stringify(skills));
     } catch (error) {
-      console.error('Error loading skills from localStorage:', error);
-      if (initialSkills.length > 0) {
-        // Convert Skill[] to string[] as a fallback
-        const formattedSkills = initialSkills.map((skill) => {
-          if (typeof skill === 'string') {
-            return skill;
-          } else if (typeof skill === 'object' && skill.name) {
-            return skill.name;
-          }
-          return '';
-        }).filter(Boolean);
-        
-        setSkills(formattedSkills);
-      }
+      console.error('Error saving skills to localStorage:', error);
     }
-  }, [ownerAddress, initialSkills]);
-
-  const handleAddSkill = (skill: string) => {
-    if (skill && !skills.includes(skill)) {
-      const newSkills = [...skills, skill];
-      setSkills(newSkills);
-      localStorage.setItem(`user_skills_${ownerAddress}`, JSON.stringify(newSkills));
-    }
-    setShowAddSkillForm(false);
   };
 
-  const handleRemoveSkill = (skillToRemove: string) => {
-    const newSkills = skills.filter(skill => skill !== skillToRemove);
-    setSkills(newSkills);
-    localStorage.setItem(`user_skills_${ownerAddress}`, JSON.stringify(newSkills));
-  };
-
-  if (skills.length === 0 && !showAddSkillForm && !isOwner) {
-    return null;
-  }
+  const verifiedSkills = userSkills.filter(skill => skill.proof);
+  const unverifiedSkills = userSkills.filter(skill => !skill.proof);
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Skills</CardTitle>
-            <CardDescription>Technical and professional skills</CardDescription>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <Card className="overflow-hidden" id="skills-section">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <ListChecks className="h-5 w-5 text-primary" />
+                Skills List
+              </CardTitle>
+              <CardDescription className="mt-1">
+                Your verified and unverified skills
+              </CardDescription>
+            </div>
+            <div className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
+              {userSkills.length} skills
+            </div>
           </div>
-          {isOwner && !showAddSkillForm && (
-            <Button variant="outline" size="sm" onClick={() => setShowAddSkillForm(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Skill
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        {showAddSkillForm ? (
-          <AddSkillForm 
-            onAddSkill={handleAddSkill} 
-            onCancel={() => setShowAddSkillForm(false)} 
-          />
-        ) : (
-          <>
-            {skills.length > 0 ? (
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-medium mb-2">Verified Skills</h4>
               <div className="flex flex-wrap gap-2">
-                {skills.map((skill, index) => (
-                  <Badge key={index} variant="secondary" className="text-sm py-1 px-2">
-                    {skill}
-                    {isOwner && (
-                      <button 
-                        onClick={() => handleRemoveSkill(skill)} 
-                        className="ml-1 text-muted-foreground hover:text-destructive focus:outline-none"
-                        aria-label={`Remove ${skill} skill`}
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    )}
-                  </Badge>
-                ))}
+                {verifiedSkills.length > 0 ? (
+                  verifiedSkills.map((skill, index) => (
+                    <Badge key={`verified-${index}`} variant="default" className="bg-green-500 hover:bg-green-600">
+                      {skill.name}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No verified skills yet</p>
+                )}
               </div>
-            ) : isOwner ? (
-              <div className="text-center py-6">
-                <p className="text-muted-foreground mb-4">
-                  Add skills to showcase your expertise
-                </p>
-                <Button onClick={() => setShowAddSkillForm(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Skill
-                </Button>
+            </div>
+            
+            <div>
+              <h4 className="text-sm font-medium mb-2">Unverified Skills</h4>
+              <div className="flex flex-wrap gap-2">
+                {unverifiedSkills.length > 0 ? (
+                  unverifiedSkills.map((skill, index) => (
+                    <div key={`unverified-${index}`} className="relative group">
+                      <Badge variant="outline" className="text-gray-600 border-gray-400 pr-7">
+                        {skill.name}
+                      </Badge>
+                      {isOwner && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="absolute right-0 top-1/2 transform -translate-y-1/2 h-5 w-5 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRemoveSkill(skill.name)}
+                          aria-label={`Remove ${skill.name} skill`}
+                        >
+                          <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No unverified skills yet</p>
+                )}
               </div>
-            ) : null}
-          </>
+            </div>
+          </div>
+          
+          <div className="mt-4 border-t pt-3">
+            <h4 className="text-sm font-medium mb-2">Legend:</h4>
+            <div className="flex flex-wrap gap-3 text-xs">
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-green-500 mr-1.5"></div>
+                <span>Verified Skill</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-gray-400 mr-1.5"></div>
+                <span>Unverified Skill</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <div className="space-y-8">
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Network className="h-5 w-5 text-primary" />
+                  ID Network
+                </CardTitle>
+                <CardDescription className="mt-1">
+                  ENS Domains & Identity connections
+                </CardDescription>
+              </div>
+              <div className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
+                Interactive
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[400px] w-full pt-4">
+              <IdNetworkGraph 
+                name={name} 
+                avatarUrl={avatarUrl}
+                ensName={ensName}
+                address={ensName?.includes('.eth') ? undefined : ensName}
+              />
+            </div>
+            <div className="mt-4 border-t pt-3">
+              <h4 className="text-sm font-medium mb-2">Legend:</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-blue-500 mr-1.5"></div>
+                  <span>Main Identity</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-violet-500 mr-1.5"></div>
+                  <span>ENS Domain</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-indigo-400 mr-1.5"></div>
+                  <span>Box Domain</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-emerald-500 mr-1.5"></div>
+                  <span>Other ID Protocol</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {isOwner && (
+          <AddSkillForm onAddSkill={handleAddSkill} />
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
