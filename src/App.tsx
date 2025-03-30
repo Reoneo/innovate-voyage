@@ -17,7 +17,7 @@ import { useEffect } from "react";
 const queryClient = new QueryClient();
 
 // Check for any hard-coded API keys in the codebase
-if (process.env.NODE_ENV === 'development') {
+if (import.meta.env.DEV) {
   console.log('Running in development mode - ensure all API keys are stored in environment variables');
 }
 

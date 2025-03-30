@@ -13,4 +13,12 @@ interface Window {
 interface ImportMetaEnv {
   VITE_ETHERSCAN_API_KEY: string;
   VITE_ETHERSCAN_API_URL?: string;
+  VITE_ETHEREUM_RPC_URL?: string;
+  VITE_OPTIMISM_RPC_URL?: string;
+  readonly DEV: boolean;
+}
+
+// For Vite client types
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
 }

@@ -4,7 +4,7 @@ import { delay } from '../jobsApi';
 // Get account balance
 export async function getAccountBalance(address: string): Promise<string> {
   try {
-    const response = await fetch(`${process.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=balance&address=${address}&tag=latest&apikey=${process.env.VITE_ETHERSCAN_API_KEY || ''}`);
+    const response = await fetch(`${import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=balance&address=${address}&tag=latest&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY || ''}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -30,7 +30,7 @@ export async function getAccountBalance(address: string): Promise<string> {
 // Get transaction count (number of transactions)
 export async function getTransactionCount(address: string): Promise<number> {
   try {
-    const response = await fetch(`${process.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=proxy&action=eth_getTransactionCount&address=${address}&tag=latest&apikey=${process.env.VITE_ETHERSCAN_API_KEY || ''}`);
+    const response = await fetch(`${import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=proxy&action=eth_getTransactionCount&address=${address}&tag=latest&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY || ''}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -54,7 +54,7 @@ export async function getTransactionCount(address: string): Promise<number> {
 // Get latest transactions
 export async function getLatestTransactions(address: string, limit: number = 5): Promise<any[]> {
   try {
-    const response = await fetch(`${process.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${process.env.VITE_ETHERSCAN_API_KEY || ''}`);
+    const response = await fetch(`${import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY || ''}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -77,7 +77,7 @@ export async function getLatestTransactions(address: string, limit: number = 5):
 // Get ERC-20 token transfers
 export async function getTokenTransfers(address: string, limit: number = 5): Promise<any[]> {
   try {
-    const response = await fetch(`${process.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=tokentx&address=${address}&page=1&offset=${limit}&sort=desc&apikey=${process.env.VITE_ETHERSCAN_API_KEY || ''}`);
+    const response = await fetch(`${import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=tokentx&address=${address}&page=1&offset=${limit}&sort=desc&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY || ''}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
