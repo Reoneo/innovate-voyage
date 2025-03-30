@@ -25,6 +25,10 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
     // Toast notification removed
   };
 
+  // Filter out empty social links
+  const socialLinks = Object.entries(socials || {}).filter(([_, url]) => url && url.trim() !== '');
+  const hasSocialLinks = socialLinks.length > 0;
+
   return (
     <div>
       <CardTitle className="text-2xl">{passportId}</CardTitle>
@@ -43,7 +47,7 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
       </div>
       
       {/* Social Icons in a horizontal row immediately under the wallet address */}
-      <div className="mt-1 flex flex-wrap items-center gap-2">
+      <div className="mt-2 flex flex-wrap items-center gap-3 border-t border-border pt-2">
         {socialPlatforms.map((platform) => 
           socials[platform.key] && (
             <a 
@@ -51,12 +55,12 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
               href={socials[platform.key]} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="hover:opacity-80 transition-opacity"
+              className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full"
               aria-label={`Visit ${platform.key}`}
             >
               <SocialIcon 
                 type={platform.type as any} 
-                size={18}
+                size={20}
               />
             </a>
           )
@@ -64,11 +68,15 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
         {socials?.email && (
           <a 
             href={`mailto:${socials.email}`}
-            className="hover:opacity-80 transition-opacity"
+            className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full"
             aria-label="Send email"
           >
-            <SocialIcon type="mail" size={18} />
+            <SocialIcon type="mail" size={20} />
           </a>
+        )}
+        
+        {!hasSocialLinks && (
+          <span className="text-sm text-muted-foreground">No social links available</span>
         )}
       </div>
       
