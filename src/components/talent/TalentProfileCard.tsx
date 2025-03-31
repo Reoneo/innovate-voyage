@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
@@ -20,12 +19,6 @@ interface TalentProfileCardProps {
 
 const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
   const navigate = useNavigate();
-  const [showAllSkills, setShowAllSkills] = useState(false);
-  
-  // Determine which skills to display
-  const displayedSkills = showAllSkills 
-    ? passport.skills 
-    : passport.skills.slice(0, 4);
   
   const viewProfile = () => {
     navigate(`/talent/${passport.passport_id}`);
@@ -57,28 +50,6 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
               </HoverCardTrigger>
               <UserCardTooltip passport={passport} />
             </HoverCard>
-          </div>
-        </div>
-        
-        <div>
-          <h4 className="text-sm font-medium mb-2">Skills</h4>
-          <div className="flex flex-wrap gap-1.5">
-            {displayedSkills.map((skill, index) => (
-              <Badge key={index} variant="secondary" className="text-xs">
-                {skill.name}
-              </Badge>
-            ))}
-            
-            {!showAllSkills && passport.hasMoreSkills && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-6 text-xs px-2 rounded-full"
-                onClick={() => setShowAllSkills(true)}
-              >
-                +{passport.skills.length - 4} more
-              </Button>
-            )}
           </div>
         </div>
       </CardContent>
