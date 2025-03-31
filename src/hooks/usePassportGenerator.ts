@@ -113,11 +113,15 @@ export function usePassportGenerator(
                    web3BioProfile?.description || 
                    '';
         
+        // Get the best name to display (prioritize web3BioProfile.displayName)
+        const displayName = web3BioProfile?.displayName || 
+                           (resolvedEns ? resolvedEns.split('.')[0] : truncateAddress(resolvedAddress));
+        
         const newPassport: BlockchainPassport = {
           passport_id: resolvedEns || truncateAddress(resolvedAddress),
           owner_address: resolvedAddress,
           avatar_url: avatarUrl || web3BioProfile?.avatar || '/placeholder.svg',
-          name: resolvedEns ? resolvedEns.split('.')[0] : truncateAddress(resolvedAddress),
+          name: displayName,
           issued: new Date().toISOString(),
           skills: skills,
           socials: socials,

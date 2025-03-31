@@ -4,7 +4,7 @@ import ProfileAvatar from './ProfileAvatar';
 import SocialMediaLinks from '../tabs/social/SocialMediaLinks';
 import ProfileContact from './ProfileContact';
 import AddressDisplay from './identity/AddressDisplay';
-import { Link, Globe } from 'lucide-react';
+import { Link } from 'lucide-react';
 import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -35,6 +35,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   const [isOwner, setIsOwner] = useState(false);
   const [enhancedSocials, setEnhancedSocials] = useState<Record<string, string>>(socials as Record<string, string>);
   const [loading, setLoading] = useState(false);
+  const [ensOwnerName, setEnsOwnerName] = useState<string | null>(null);
   
   useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -52,9 +53,9 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     ? `${name}.eth` 
     : name;
 
-  // Fetch ENS social links from Web3.bio
+  // Fetch ENS social links and owner name from Web3.bio
   useEffect(() => {
-    const fetchEnsSocials = async () => {
+    const fetchEnsData = async () => {
       // Check if we have an ENS name or address
       let identity = primaryDomain || name;
       
@@ -77,6 +78,11 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         console.log('Web3.bio profile:', profile);
         
         if (profile) {
+          // Set the owner name if available
+          if (profile.displayName && profile.displayName !== profile.identity) {
+            setEnsOwnerName(profile.displayName);
+          }
+          
           const newSocials: Record<string, string> = {...(socials as Record<string, string>)};
           
           // Map profile links to social object
@@ -115,13 +121,13 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
           setEnhancedSocials(newSocials);
         }
       } catch (error) {
-        console.error('Error fetching ENS social links:', error);
+        console.error('Error fetching ENS data:', error);
       } finally {
         setLoading(false);
       }
     };
     
-    fetchEnsSocials();
+    fetchEnsData();
   }, [name, ownerAddress, socials, primaryDomain]);
   
   return (
@@ -131,20 +137,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         name={name} 
       />
       <div className="mt-2 text-center md:text-left">
-        <h3 className="text-2xl font-semibold">{displayName}</h3>
-        {primaryDomain && (
-          <div className="flex items-center gap-1 mt-1 text-primary">
-            <Globe className="h-4 w-4" />
-            <a 
-              href={`https://app.ens.domains/name/${primaryDomain}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium hover:underline"
-            >
-              {primaryDomain}
-            </a>
-          </div>
-        )}
+        <h3 className="text-2xl font-semibold">{ensOwnerName || displayName}</h3>
         <AddressDisplay address={ownerAddress} />
       </div>
       

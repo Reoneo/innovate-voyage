@@ -1,4 +1,3 @@
-
 import { Web3BioProfile } from '../types/web3Types';
 import { delay } from '../jobsApi';
 
@@ -65,16 +64,13 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     
     if (normalizedIdentity.startsWith('0x')) {
       endpoint = `https://api.web3.bio/profile/eth/${normalizedIdentity}`;
-      console.log(`Fetching address profile: ${normalizedIdentity}`);
     } else if (normalizedIdentity.endsWith('.eth') || normalizedIdentity.endsWith('.box')) {
       // For both .box and .eth domains, use the ens endpoint
       endpoint = `https://api.web3.bio/profile/ens/${normalizedIdentity}`;
-      console.log(`Fetching domain profile: ${normalizedIdentity}`);
     } else {
       // Fallback to ENS endpoint with .eth suffix
       const ensName = `${normalizedIdentity}.eth`;
       endpoint = `https://api.web3.bio/profile/ens/${ensName}`;
-      console.log(`Fallback: Fetching profile for ${ensName}`);
     }
     
     const controller = new AbortController();
