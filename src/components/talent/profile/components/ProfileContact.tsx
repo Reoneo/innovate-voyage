@@ -7,9 +7,20 @@ interface ProfileContactProps {
   telephone?: string;
   location?: string;
   isOwner?: boolean;
+  passportId?: string;
+  ownerAddress?: string;
 }
 
-const ProfileContact: React.FC<ProfileContactProps> = ({ email, telephone, location, isOwner = false }) => {
+const ProfileContact: React.FC<ProfileContactProps> = ({ 
+  email, 
+  telephone, 
+  location, 
+  isOwner = false,
+  // We're adding passportId and ownerAddress to the props but not using them
+  // in this component directly - they might be needed for future functionality
+  passportId, 
+  ownerAddress 
+}) => {
   if (!email && !telephone && !location && !isOwner) {
     return null;
   }

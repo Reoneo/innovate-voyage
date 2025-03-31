@@ -27,7 +27,10 @@ const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({
         />
         <ProfileContact 
           passportId={passportId} 
-          ownerAddress={ownerAddress} 
+          ownerAddress={ownerAddress}
+          email={socials?.email} 
+          telephone={socials?.telephone}
+          location={socials?.location}
         />
       </CardContent>
     </Card>
