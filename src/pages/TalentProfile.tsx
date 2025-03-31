@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
@@ -156,39 +155,33 @@ const TalentProfile = () => {
         <ProfileSkeleton />
       ) : passport ? (
         <div ref={profileRef} className={`${isExpanded ? 'min-h-[800px]' : ''}`} id="resume-pdf">
-          <ResizablePanelGroup direction="vertical" className="min-h-[600px]">
-            <ResizablePanel defaultSize={30} minSize={20}>
-              <div className="p-4">
-                <ProfileHeader passport={{
-                  passport_id: passport.passport_id,
-                  owner_address: passport.owner_address,
-                  avatar_url: avatarUrl || passport.avatar_url || '/placeholder.svg',
-                  name: passport.name,
-                  score: passport.score,
-                  category: passport.category,
-                  socials: passport.socials || {},
-                  bio: blockchainProfile?.description || blockchainExtendedData?.description || null
-                }} />
-              </div>
-            </ResizablePanel>
-            
-            <ResizableHandle withHandle />
-            
-            <ResizablePanel defaultSize={70}>
-              <ProfileTabsContainer 
-                passport={passport}
-                blockchainProfile={blockchainProfile}
-                transactions={transactions}
-                resolvedEns={resolvedEns}
-                onExportPdf={exportAsPDF}
-                blockchainExtendedData={blockchainExtendedData}
-                avatarUrl={avatarUrl}
-                ownerAddress={passport.owner_address}
-                poaps={poaps}
-                isLoadingPoaps={loadingPoaps}
-              />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          <div className="p-4 mb-6 border rounded-lg">
+            <ProfileHeader passport={{
+              passport_id: passport.passport_id,
+              owner_address: passport.owner_address,
+              avatar_url: avatarUrl || passport.avatar_url || '/placeholder.svg',
+              name: passport.name,
+              score: passport.score,
+              category: passport.category,
+              socials: passport.socials || {},
+              bio: blockchainProfile?.description || blockchainExtendedData?.description || null
+            }} />
+          </div>
+          
+          <div className={`${isExpanded ? 'h-[800px]' : 'h-[600px]'} relative border rounded-lg overflow-hidden`}>
+            <ProfileTabsContainer 
+              passport={passport}
+              blockchainProfile={blockchainProfile}
+              transactions={transactions}
+              resolvedEns={resolvedEns}
+              onExportPdf={exportAsPDF}
+              blockchainExtendedData={blockchainExtendedData}
+              avatarUrl={avatarUrl}
+              ownerAddress={passport.owner_address}
+              poaps={poaps}
+              isLoadingPoaps={loadingPoaps}
+            />
+          </div>
         </div>
       ) : (
         <ProfileNotFound />
