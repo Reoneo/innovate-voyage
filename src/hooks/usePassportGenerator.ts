@@ -19,6 +19,8 @@ export function usePassportGenerator(
     tokenTransfers: any[] | null;
     web3BioProfile: any;
     blockchainExtendedData: {
+      boxDomains: string[];
+      snsActive: boolean;
       description?: string;
     };
     avatarUrl?: string;
@@ -88,6 +90,14 @@ export function usePassportGenerator(
           { name: 'EVM Expert', proof: 'talentprotocol.com/skills/evm' },
           { name: 'Solidity', proof: 'talentprotocol.com/skills/solidity' }
         );
+
+        if (blockchainExtendedData?.boxDomains && blockchainExtendedData.boxDomains.length > 0) {
+          skills.push({ name: '.box Domain Owner', proof: 'box.domains' });
+        }
+
+        if (blockchainExtendedData?.snsActive) {
+          skills.push({ name: 'SNS.ID User', proof: 'sns.id' });
+        }
         
         const socials = {
           github: web3BioProfile?.github || undefined,
@@ -111,7 +121,7 @@ export function usePassportGenerator(
           issued: new Date().toISOString(),
           skills: skills,
           socials: socials,
-          bio: bio
+          bio: bio  // Add the bio property
         };
         
         setPassport(newPassport);

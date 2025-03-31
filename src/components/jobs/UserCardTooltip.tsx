@@ -1,11 +1,10 @@
 
 import React from 'react';
-import { FileText, Box, Network, Coins } from 'lucide-react';
+import { FileText, Box, Coins } from 'lucide-react';
 import { HoverCardContent } from '@/components/ui/hover-card';
 import { BlockchainPassport } from '@/lib/utils';
 import UserInfo from './user-profile/UserInfo';
 import ContributionChart from './visualizations/ContributionChart';
-import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
 import SkillsNodeLeafD3 from '@/components/visualizations/skills/SkillsNodeLeafD3';
 import BlockchainActivity from './user-profile/BlockchainActivity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,32 +27,18 @@ const UserCardTooltip: React.FC<UserCardTooltipProps> = ({ passport }) => {
       <div className="space-y-4">
         <UserInfo passport={passport} />
 
-        <Tabs defaultValue="connections">
+        <Tabs defaultValue="contributions">
           <TabsList className="w-full">
-            <TabsTrigger value="connections" className="text-xs">
-              <Box className="h-3 w-3 mr-1" /> Connections
-            </TabsTrigger>
             <TabsTrigger value="contributions" className="text-xs">
               <FileText className="h-3 w-3 mr-1" /> Contributions
             </TabsTrigger>
             <TabsTrigger value="skills" className="text-xs">
-              <Network className="h-3 w-3 mr-1" /> Skills
+              <Box className="h-3 w-3 mr-1" /> Skills
             </TabsTrigger>
             <TabsTrigger value="blockchain" className="text-xs">
               <Coins className="h-3 w-3 mr-1" /> Blockchain
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="connections" className="pt-2">
-            <h4 className="text-sm font-medium mb-2">ID Network</h4>
-            <TooltipProvider>
-              <IdNetworkGraph 
-                name={passport.name} 
-                avatarUrl={passport.avatar_url} 
-                ensName={passport.passport_id.includes('.eth') ? passport.passport_id : undefined}
-                address={passport.owner_address}
-              />
-            </TooltipProvider>
-          </TabsContent>
           <TabsContent value="contributions" className="pt-2">
             <h4 className="text-sm font-medium mb-2">Contribution Metrics</h4>
             <ContributionChart />
