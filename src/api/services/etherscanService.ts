@@ -1,10 +1,12 @@
-
 import { delay } from '../jobsApi';
 
 // Get account balance
 export async function getAccountBalance(address: string): Promise<string> {
   try {
-    const response = await fetch(`${import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=balance&address=${address}&tag=latest&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY || ''}`);
+    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY || '';
+    const apiUrl = import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api';
+    
+    const response = await fetch(`${apiUrl}?module=account&action=balance&address=${address}&tag=latest&apikey=${apiKey}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -20,7 +22,7 @@ export async function getAccountBalance(address: string): Promise<string> {
     } else {
       console.warn('Etherscan API returned an error:', data.message);
       // Return mock data for demonstration if API key is missing
-      if (data.message && data.message.includes("Missing/Invalid API Key")) {
+      if (!apiKey || (data.message && data.message.includes("Missing/Invalid API Key"))) {
         console.log("Using mock balance data due to missing API key");
         return "1.2345";
       }
@@ -35,7 +37,10 @@ export async function getAccountBalance(address: string): Promise<string> {
 // Get transaction count (number of transactions)
 export async function getTransactionCount(address: string): Promise<number> {
   try {
-    const response = await fetch(`${import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=proxy&action=eth_getTransactionCount&address=${address}&tag=latest&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY || ''}`);
+    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY || '';
+    const apiUrl = import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api';
+    
+    const response = await fetch(`${apiUrl}?module=proxy&action=eth_getTransactionCount&address=${address}&tag=latest&apikey=${apiKey}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -49,7 +54,7 @@ export async function getTransactionCount(address: string): Promise<number> {
     } else {
       console.warn('Etherscan API returned an error');
       // Return mock data for demonstration if API key is missing
-      if (data.message && data.message.includes("Missing/Invalid API Key")) {
+      if (!apiKey || (data.message && data.message.includes("Missing/Invalid API Key"))) {
         console.log("Using mock transaction count due to missing API key");
         return 42;
       }
@@ -64,7 +69,10 @@ export async function getTransactionCount(address: string): Promise<number> {
 // Get wallet creation date (first transaction)
 export async function getWalletCreationDate(address: string): Promise<string | null> {
   try {
-    const response = await fetch(`${import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=1&sort=asc&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY || ''}`);
+    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY || '';
+    const apiUrl = import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api';
+    
+    const response = await fetch(`${apiUrl}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=1&sort=asc&apikey=${apiKey}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -78,7 +86,7 @@ export async function getWalletCreationDate(address: string): Promise<string | n
     } else {
       console.warn('Etherscan API returned an error or no transactions found');
       // Return mock data for demonstration if API key is missing
-      if (data.message && data.message.includes("Missing/Invalid API Key")) {
+      if (!apiKey || (data.message && data.message.includes("Missing/Invalid API Key"))) {
         console.log("Using mock creation date due to missing API key");
         return new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(); // 1 year ago
       }
@@ -93,7 +101,10 @@ export async function getWalletCreationDate(address: string): Promise<string | n
 // Get latest transactions
 export async function getLatestTransactions(address: string, limit: number = 5): Promise<any[]> {
   try {
-    const response = await fetch(`${import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY || ''}`);
+    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY || '';
+    const apiUrl = import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api';
+    
+    const response = await fetch(`${apiUrl}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${apiKey}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -106,7 +117,7 @@ export async function getLatestTransactions(address: string, limit: number = 5):
     } else {
       console.warn('Etherscan API returned an error:', data.message);
       // Return mock data for demonstration if API key is missing
-      if (data.message && data.message.includes("Missing/Invalid API Key")) {
+      if (!apiKey || (data.message && data.message.includes("Missing/Invalid API Key"))) {
         console.log("Using mock transactions due to missing API key");
         return getMockTransactions(address, limit);
       }
@@ -122,7 +133,10 @@ export async function getLatestTransactions(address: string, limit: number = 5):
 // Get ERC-20 token transfers
 export async function getTokenTransfers(address: string, limit: number = 5): Promise<any[]> {
   try {
-    const response = await fetch(`${import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=tokentx&address=${address}&page=1&offset=${limit}&sort=desc&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY || ''}`);
+    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY || '';
+    const apiUrl = import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api';
+    
+    const response = await fetch(`${apiUrl}?module=account&action=tokentx&address=${address}&page=1&offset=${limit}&sort=desc&apikey=${apiKey}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -135,7 +149,7 @@ export async function getTokenTransfers(address: string, limit: number = 5): Pro
     } else {
       console.warn('Etherscan API returned an error:', data.message);
       // Return mock data for demonstration if API key is missing
-      if (data.message && data.message.includes("Missing/Invalid API Key")) {
+      if (!apiKey || (data.message && data.message.includes("Missing/Invalid API Key"))) {
         console.log("Using mock token transfers due to missing API key");
         return getMockTokenTransfers(address, limit);
       }
@@ -152,7 +166,10 @@ export async function getTokenTransfers(address: string, limit: number = 5): Pro
 export async function getStakingPositions(address: string): Promise<any[]> {
   try {
     // First check for ETH 2.0 staking transactions
-    const response = await fetch(`${import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=100&sort=desc&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY || ''}`);
+    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY || '';
+    const apiUrl = import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api';
+    
+    const response = await fetch(`${apiUrl}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=100&sort=desc&apikey=${apiKey}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -177,7 +194,7 @@ export async function getStakingPositions(address: string): Promise<any[]> {
     } else {
       console.warn('Etherscan API returned an error:', data.message);
       // Return mock data for demonstration if API key is missing
-      if (data.message && data.message.includes("Missing/Invalid API Key")) {
+      if (!apiKey || (data.message && data.message.includes("Missing/Invalid API Key"))) {
         return getMockStakingPositions(address);
       }
       return [];
@@ -191,7 +208,10 @@ export async function getStakingPositions(address: string): Promise<any[]> {
 // Get tokens by address (token holdings)
 export async function getTokensByAddress(address: string): Promise<any[]> {
   try {
-    const response = await fetch(`${import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api'}?module=account&action=tokenlist&address=${address}&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY || ''}`);
+    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY || '';
+    const apiUrl = import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api';
+    
+    const response = await fetch(`${apiUrl}?module=account&action=tokenlist&address=${address}&apikey=${apiKey}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -211,7 +231,7 @@ export async function getTokensByAddress(address: string): Promise<any[]> {
     } else {
       console.warn('Etherscan API returned an error:', data.message);
       // Return mock data for demonstration if API key is missing
-      if (data.message && data.message.includes("Missing/Invalid API Key")) {
+      if (!apiKey || (data.message && data.message.includes("Missing/Invalid API Key"))) {
         return getMockTokens(address);
       }
       return [];

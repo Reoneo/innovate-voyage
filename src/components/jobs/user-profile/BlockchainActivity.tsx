@@ -23,17 +23,29 @@ function formatEther(wei: string): string {
 const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
   const { data: profile, isLoading, error } = useBlockchainProfile(address);
   const { toast } = useToast();
+  const [apiKeyChecked, setApiKeyChecked] = React.useState(false);
 
-  // Display toast when there's an API key error
+  // Check if API key is present and display appropriate toast
   React.useEffect(() => {
-    if (error) {
-      toast({
-        title: "API Key Missing",
-        description: "Using mock blockchain data. Set VITE_ETHERSCAN_API_KEY in your environment to see real data.",
-        variant: "default",
-      });
+    if (!apiKeyChecked) {
+      const hasApiKey = !!import.meta.env.VITE_ETHERSCAN_API_KEY;
+      
+      if (!hasApiKey) {
+        toast({
+          title: "API Key Missing",
+          description: "Using mock blockchain data. Set VITE_ETHERSCAN_API_KEY in your environment to see real data.",
+          variant: "default",
+        });
+      } else if (error) {
+        toast({
+          title: "Etherscan API Error",
+          description: "There was an error fetching blockchain data. Check your API key or network connection.",
+          variant: "destructive",
+        });
+      }
+      setApiKeyChecked(true);
     }
-  }, [error, toast]);
+  }, [error, toast, apiKeyChecked]);
 
   if (isLoading) {
     return (
