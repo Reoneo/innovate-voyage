@@ -1,15 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, CalendarClock, Wallet, Coins } from 'lucide-react';
-import TransactionHistoryChart from '@/components/visualizations/transactions/TransactionHistoryChart';
 import { 
   getWalletCreationDate, 
   getStakingPositions, 
   getTokensByAddress 
 } from '@/api/services/etherscanService';
+
+// Import our new refactored components
+import WalletStatsCards from './blockchain/WalletStatsCards';
+import TokensTable from './blockchain/TokensTable';
+import StakingTable from './blockchain/StakingTable';
+import TransactionsContent from './blockchain/TransactionsContent';
 
 interface BlockchainTabProps {
   transactions: any[] | null;
@@ -59,15 +62,6 @@ const BlockchainTab: React.FC<BlockchainTabProps> = ({ transactions, address }) 
       return tx.input && tx.input.toLowerCase().includes(activeToken.toLowerCase());
     });
   }, [transactions, activeToken]);
-  
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Unknown';
-    try {
-      return new Date(dateString).toLocaleDateString();
-    } catch (error) {
-      return 'Unknown';
-    }
-  };
 
   return (
     <Card>
@@ -79,56 +73,16 @@ const BlockchainTab: React.FC<BlockchainTabProps> = ({ transactions, address }) 
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {/* Wallet Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-muted rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <CalendarClock className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-medium">Wallet Age</h3>
-              </div>
-              {loading.walletDate ? (
-                <div className="flex items-center justify-center h-6">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                </div>
-              ) : (
-                <p className="text-lg font-semibold">
-                  {walletCreationDate ? formatDate(walletCreationDate) : 'No data available'}
-                </p>
-              )}
-            </div>
-            
-            <div className="bg-muted rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Wallet className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-medium">Total Transactions</h3>
-              </div>
-              {!transactions ? (
-                <div className="flex items-center justify-center h-6">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                </div>
-              ) : (
-                <p className="text-lg font-semibold">
-                  {transactions.length > 0 ? transactions.length : 'No transactions'}
-                </p>
-              )}
-            </div>
-            
-            <div className="bg-muted rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Coins className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-medium">Token Types</h3>
-              </div>
-              {loading.tokens ? (
-                <div className="flex items-center justify-center h-6">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                </div>
-              ) : (
-                <p className="text-lg font-semibold">
-                  {tokens.length > 0 ? tokens.length : 'No tokens found'}
-                </p>
-              )}
-            </div>
-          </div>
+          {/* Wallet Stats Cards */}
+          <WalletStatsCards
+            walletCreationDate={walletCreationDate}
+            transactions={transactions}
+            tokens={tokens}
+            loading={{
+              walletDate: loading.walletDate,
+              tokens: loading.tokens
+            }}
+          />
           
           {/* Tabs for different data views */}
           <Tabs defaultValue="transactions">
@@ -140,169 +94,30 @@ const BlockchainTab: React.FC<BlockchainTabProps> = ({ transactions, address }) 
             
             {/* Transactions Tab Content */}
             <TabsContent value="transactions">
-              {transactions && transactions.length > 0 ? (
-                <div className="space-y-6">
-                  {/* Token filter chips */}
-                  {tokens.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      <Badge 
-                        variant={activeToken === null ? "secondary" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setActiveToken(null)}
-                      >
-                        All
-                      </Badge>
-                      {tokens.map((token, idx) => (
-                        <Badge 
-                          key={idx}
-                          variant={activeToken === token.symbol ? "secondary" : "outline"}
-                          className="cursor-pointer"
-                          onClick={() => setActiveToken(token.symbol)}
-                        >
-                          {token.symbol}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Transaction chart */}
-                  <div className="h-64">
-                    <TransactionHistoryChart 
-                      transactions={filteredTransactions || []} 
-                      address={address}
-                      showLabels={true}
-                    />
-                  </div>
-                  
-                  {/* Transaction table */}
-                  <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="bg-muted">
-                          <th className="p-2 text-left">Date</th>
-                          <th className="p-2 text-left">Type</th>
-                          <th className="p-2 text-left">Value</th>
-                          <th className="p-2 text-left">Hash</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(filteredTransactions || []).slice(0, 10).map((tx, idx) => {
-                          const date = new Date(parseInt(tx.timeStamp) * 1000);
-                          const isSent = tx.from.toLowerCase() === address.toLowerCase();
-                          const value = parseFloat(tx.value) / 1e18;
-                          
-                          return (
-                            <tr key={idx} className="border-t border-border">
-                              <td className="p-2">{date.toLocaleDateString()}</td>
-                              <td className="p-2">
-                                <Badge variant={isSent ? "destructive" : "default"}>
-                                  {isSent ? 'Sent' : 'Received'}
-                                </Badge>
-                              </td>
-                              <td className="p-2 font-medium">{value.toFixed(4)} ETH</td>
-                              <td className="p-2 truncate max-w-[150px]">
-                                <a 
-                                  href={`https://etherscan.io/tx/${tx.hash}`} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-blue-500 hover:underline"
-                                >
-                                  {tx.hash.substring(0, 8)}...{tx.hash.substring(tx.hash.length - 8)}
-                                </a>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  No transaction history found for this address
-                </div>
-              )}
+              <TransactionsContent 
+                transactions={transactions}
+                tokens={tokens}
+                activeToken={activeToken}
+                setActiveToken={setActiveToken}
+                address={address}
+                filteredTransactions={filteredTransactions}
+              />
             </TabsContent>
             
             {/* Tokens Tab Content */}
             <TabsContent value="tokens">
-              {loading.tokens ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                </div>
-              ) : tokens.length > 0 ? (
-                <div className="border rounded-lg overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-muted">
-                        <th className="p-2 text-left">Token</th>
-                        <th className="p-2 text-left">Symbol</th>
-                        <th className="p-2 text-left">Balance</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {tokens.map((token, idx) => (
-                        <tr key={idx} className="border-t border-border">
-                          <td className="p-2 font-medium">{token.name}</td>
-                          <td className="p-2">{token.symbol}</td>
-                          <td className="p-2">{token.balanceFormatted}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  No token holdings found for this address
-                </div>
-              )}
+              <TokensTable 
+                tokens={tokens} 
+                loading={loading.tokens} 
+              />
             </TabsContent>
             
             {/* Staking Tab Content */}
             <TabsContent value="staking">
-              {loading.staking ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                </div>
-              ) : stakingPositions.length > 0 ? (
-                <div className="border rounded-lg overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-muted">
-                        <th className="p-2 text-left">Type</th>
-                        <th className="p-2 text-left">Amount</th>
-                        <th className="p-2 text-left">Date</th>
-                        <th className="p-2 text-left">Transaction</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {stakingPositions.map((position, idx) => (
-                        <tr key={idx} className="border-t border-border">
-                          <td className="p-2 font-medium">{position.type}</td>
-                          <td className="p-2">{position.valueFormatted}</td>
-                          <td className="p-2">
-                            {new Date(parseInt(position.timestamp) * 1000).toLocaleDateString()}
-                          </td>
-                          <td className="p-2 truncate max-w-[150px]">
-                            <a 
-                              href={`https://etherscan.io/tx/${position.hash}`} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:underline"
-                            >
-                              {position.hash.substring(0, 8)}...{position.hash.substring(position.hash.length - 8)}
-                            </a>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  No staking positions found for this address
-                </div>
-              )}
+              <StakingTable 
+                stakingPositions={stakingPositions} 
+                loading={loading.staking} 
+              />
             </TabsContent>
           </Tabs>
         </div>
