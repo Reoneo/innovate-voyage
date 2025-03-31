@@ -72,6 +72,35 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
 }
 
 /**
+ * Gets ENS bio data
+ */
+export async function getEnsBio(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
+  try {
+    // Always use mainnet provider
+    const provider = mainnetProvider;
+    const resolver = await provider.getResolver(ensName);
+    
+    if (resolver) {
+      // Try to get description/bio from ENS records
+      try {
+        const description = await resolver.getText('description');
+        if (description) {
+          console.log(`Got bio for ${ensName}:`, description);
+          return description;
+        }
+      } catch (error) {
+        console.warn(`Failed to get description for ${ensName}:`, error);
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error(`Error fetching bio for ${ensName}:`, error);
+    return null;
+  }
+}
+
+/**
  * Gets all ENS-related links and data from resolver
  */
 export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
@@ -86,6 +115,17 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
         socials: {},
         ensLinks: []
       };
+    }
+
+    // Try to get bio/description
+    let description;
+    try {
+      description = await resolver.getText('description');
+      if (description) {
+        console.log(`Got description for ${ensName}:`, description);
+      }
+    } catch (error) {
+      console.warn(`Failed to get description for ${ensName}:`, error);
     }
 
     // Try to get social media links
@@ -173,7 +213,8 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
     
     return {
       socials,
-      ensLinks
+      ensLinks,
+      description
     };
   } catch (error) {
     console.error(`Error getting ENS links for ${ensName}:`, error);

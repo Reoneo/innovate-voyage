@@ -3,3 +3,4 @@
 export { getRealAvatar } from './avatarService';
 export { getEnsByAddress, getAddressByEns } from './domainResolutionService';
 export { getAllEnsRecords, fetchAllEnsDomains } from './domainsService';
+export { getEnsBio } from '../../utils/ensResolution';

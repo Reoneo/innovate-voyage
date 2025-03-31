@@ -5,7 +5,8 @@ import {
   getRealAvatar, 
   getEnsByAddress, 
   getAddressByEns,
-  getAllEnsRecords 
+  getAllEnsRecords,
+  getEnsBio
 } from './services/ensService';
 import { 
   getSkillNftsByAddress,
@@ -63,7 +64,8 @@ export const web3Api = {
   getTransactionCount,
   getLatestTransactions,
   getTokenTransfers,
-  getBlockchainProfile
+  getBlockchainProfile,
+  getEnsBio
 };
 
 // Re-export types for convenience

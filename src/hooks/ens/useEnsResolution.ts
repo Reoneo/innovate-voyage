@@ -1,11 +1,12 @@
 
 import { useState } from 'react';
-import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks } from '@/utils/ensResolution';
+import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ensResolution';
 
 interface EnsResolutionState {
   resolvedAddress: string | undefined;
   resolvedEns: string | undefined;
   avatarUrl: string | undefined;
+  ensBio: string | undefined;
   ensLinks: {
     socials: Record<string, string>;
     ensLinks: string[];
@@ -18,6 +19,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
     resolvedAddress: address,
     resolvedEns: ensName,
     avatarUrl: undefined,
+    ensBio: undefined,
     ensLinks: {
       socials: {},
       ensLinks: []
@@ -32,11 +34,14 @@ export function useEnsResolution(ensName?: string, address?: string) {
       if (resolvedAddress) {
         const links = await getEnsLinks(ensName, 'mainnet');
         const avatar = await getEnsAvatar(ensName, 'mainnet');
+        const bio = await getEnsBio(ensName, 'mainnet');
+        
         setState(prev => ({
           ...prev,
           resolvedAddress,
           ensLinks: links,
-          avatarUrl: avatar || prev.avatarUrl
+          avatarUrl: avatar || prev.avatarUrl,
+          ensBio: bio || links.description || prev.ensBio
         }));
       }
     } catch (error) {
@@ -50,11 +55,14 @@ export function useEnsResolution(ensName?: string, address?: string) {
       if (result) {
         const links = await getEnsLinks(result.ensName, 'mainnet');
         const avatar = await getEnsAvatar(result.ensName, 'mainnet');
+        const bio = await getEnsBio(result.ensName, 'mainnet');
+        
         setState(prev => ({
           ...prev,
           resolvedEns: result.ensName,
           ensLinks: links,
-          avatarUrl: avatar || prev.avatarUrl
+          avatarUrl: avatar || prev.avatarUrl,
+          ensBio: bio || links.description || prev.ensBio
         }));
       }
     } catch (error) {

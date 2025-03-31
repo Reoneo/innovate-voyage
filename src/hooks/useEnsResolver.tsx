@@ -60,6 +60,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
     resolvedAddress: state.resolvedAddress,
     resolvedEns: state.resolvedEns,
     avatarUrl: state.avatarUrl,
+    ensBio: state.ensBio,
     ensLinks: state.ensLinks,
     isLoading: isLoadingEns || isLoadingWeb3Bio,
     error

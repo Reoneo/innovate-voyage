@@ -4,6 +4,7 @@ import { Card, CardHeader } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ProfileAvatar from './components/ProfileAvatar';
 import ProfileInfo from './components/ProfileInfo';
+import ProfileBio from './components/ProfileBio';
 
 interface ProfileHeaderProps {
   passport: {
@@ -36,10 +37,16 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
     <Card>
       <CardHeader className="pb-4">
         <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-          <ProfileAvatar 
-            avatarUrl={passport.avatar_url} 
-            name={passport.name} 
-          />
+          <div className="flex flex-col items-center gap-2">
+            <ProfileAvatar 
+              avatarUrl={passport.avatar_url} 
+              name={passport.name} 
+            />
+            <ProfileBio 
+              bio={passport.bio}
+              ownerAddress={passport.owner_address}
+            />
+          </div>
           
           <div className="flex-1 text-center md:text-left">
             <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">

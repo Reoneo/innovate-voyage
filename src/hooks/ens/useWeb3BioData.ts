@@ -30,8 +30,10 @@ export function useWeb3BioData(
         avatarUrl: addressData.avatar || avatarData,
         ensLinks: {
           socials: addressData.socialProfiles || {},
-          ensLinks: []
-        }
+          ensLinks: [],
+          description: addressData.description
+        },
+        ensBio: addressData.description
       };
     }
 
@@ -42,8 +44,10 @@ export function useWeb3BioData(
         avatarUrl: ensData.avatar || avatarData,
         ensLinks: {
           socials: ensData.socialProfiles || {},
-          ensLinks: []
-        }
+          ensLinks: [],
+          description: ensData.description
+        },
+        ensBio: ensData.description
       };
     }
 
