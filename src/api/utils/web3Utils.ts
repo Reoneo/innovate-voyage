@@ -1,3 +1,4 @@
+
 import { Web3BioProfile } from '../types/web3Types';
 import { delay } from '../jobsApi';
 
@@ -39,6 +40,7 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     }
     
     const data = await response.json();
+    console.log(`Web3.bio data for ${normalizedIdentity}:`, data);
     
     // Check if we got a valid response
     if (data && data.identity) {
@@ -59,6 +61,8 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
       
       // Extract social links from links object if available
       if (data.links) {
+        profile.links = data.links;
+        
         if (data.links.github) {
           profile.github = data.links.github.link;
         }

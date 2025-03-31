@@ -107,11 +107,25 @@ export function usePassportGenerator(
           email: web3BioProfile?.email || undefined
         };
         
-        // Get bio from web3 bio profile or blockchain data
-        const bio = web3BioProfile?.description || 
-                   blockchainProfile?.description || 
-                   blockchainExtendedData?.description || 
-                   '';
+        // Process the bio correctly from all possible sources
+        // Fix the way we extract the bio from web3BioProfile
+        let bio = '';
+        
+        // First try to get it directly from web3BioProfile
+        if (web3BioProfile?.description) {
+          bio = web3BioProfile.description;
+        } 
+        // Next try the blockchain profile description
+        else if (blockchainProfile?.description) {
+          bio = blockchainProfile.description;
+        } 
+        // Finally check extended data
+        else if (blockchainExtendedData?.description) {
+          // Make sure we're handling both string and object formats
+          if (typeof blockchainExtendedData.description === 'string') {
+            bio = blockchainExtendedData.description;
+          }
+        }
         
         console.log('Creating passport with bio:', bio);
         console.log('Bio sources:', {

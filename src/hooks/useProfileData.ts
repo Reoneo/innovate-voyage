@@ -11,7 +11,7 @@ import { usePassportGenerator } from '@/hooks/usePassportGenerator';
  */
 export function useProfileData(ensName?: string, address?: string) {
   // Resolve ENS and address
-  const { resolvedAddress, resolvedEns, avatarUrl, ensLinks } = useEnsResolver(ensName, address);
+  const { resolvedAddress, resolvedEns, avatarUrl, ensLinks, ensBio } = useEnsResolver(ensName, address);
   
   // Fetch blockchain data
   const blockchainData = useBlockchainData(resolvedAddress, resolvedEns);
@@ -24,6 +24,7 @@ export function useProfileData(ensName?: string, address?: string) {
         ensLinks: ensLinks?.ensLinks || [],
         description: blockchainData.blockchainProfile.description || 
                      ensLinks?.description || 
+                     ensBio ||
                      blockchainData.blockchainExtendedData?.description
       }
     : null;
@@ -35,9 +36,20 @@ export function useProfileData(ensName?: string, address?: string) {
     {
       ...blockchainData,
       blockchainProfile: enhancedBlockchainProfile,
-      avatarUrl
+      avatarUrl,
+      web3BioProfile: {
+        ...blockchainData.web3BioProfile,
+        description: blockchainData.web3BioProfile?.description || ensBio
+      }
     }
   );
+
+  console.log('useProfileData - bio sources:', {
+    ensBio,
+    web3BioDescription: blockchainData.web3BioProfile?.description,
+    blockchainProfileDesc: enhancedBlockchainProfile?.description,
+    passportBio: passport?.bio
+  });
 
   return {
     loading,
