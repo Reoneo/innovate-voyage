@@ -1,7 +1,7 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import { NetworkData } from '../hooks/useIdNetworkData';
+import { NetworkData } from '../types/networkTypes';
 import { createNetworkLinks } from './network/NetworkLinks';
 import { createNetworkNodes } from './network/NetworkNodes';
 import { renderNodeElements } from './network/NodeElements';
@@ -25,18 +25,50 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
   interactive = true
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const simulationRef = useRef<any>(null);
   const { nodes, links } = networkData;
+  const [dimensions, setDimensions] = useState({ width: 400, height: 350 });
 
+  // Effect to handle resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (svgRef.current) {
+        const containerRect = svgRef.current.parentElement?.getBoundingClientRect();
+        if (containerRect) {
+          setDimensions({
+            width: containerRect.width || 400,
+            height: containerRect.height || 350
+          });
+        }
+      }
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      // Clean up simulation when component unmounts
+      if (simulationRef.current) {
+        simulationRef.current.stop();
+      }
+    };
+  }, []);
+
+  // Effect to create or update the visualization
   useEffect(() => {
     if (!svgRef.current || !nodes.length) return;
 
-    // Full container size with margins - increased height for better visibility with more ENS domains
-    const width = 400;
-    const height = 350;  // Increased height to accommodate more nodes
-    const margin = { top: 10, right: 10, bottom: 10, left: 10 };
-
     // Clear previous visualization
     d3.select(svgRef.current).selectAll("*").remove();
+    
+    // Stop previous simulation if it exists
+    if (simulationRef.current) {
+      simulationRef.current.stop();
+    }
+
+    const { width, height } = dimensions;
+    const margin = { top: 10, right: 10, bottom: 10, left: 10 };
 
     const svg = d3.select(svgRef.current)
       .attr("width", width)
@@ -49,9 +81,12 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
       links,
       width,
       height,
-      forceStrength: nodes.length > 5 ? -35 : -25,  // Increase force strength for more separation
+      forceStrength: nodes.length > 5 ? -35 : -25,
       interactive
     });
+    
+    // Store simulation in ref for cleanup
+    simulationRef.current = simulation;
 
     // Add links with appropriate styling
     const link = createNetworkLinks({
@@ -94,9 +129,11 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
     const tooltip = applyNodeTooltips(node);
 
     return () => {
+      // Clean up
       tooltip.remove();
+      simulation.stop();
     };
-  }, [nodes, links, selectedNode, avatarUrl, setSelectedNode, interactive]);
+  }, [nodes, links, selectedNode, avatarUrl, setSelectedNode, interactive, dimensions]);
 
   return (
     <svg 

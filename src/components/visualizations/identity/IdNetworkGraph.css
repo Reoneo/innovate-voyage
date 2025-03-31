@@ -1,6 +1,6 @@
 
 .network-node circle {
-  transition: r 0.3s ease, stroke-width 0.3s ease;
+  transition: r 0.3s ease, stroke-width 0.3s ease, fill-opacity 0.3s ease;
 }
 
 .network-node:hover circle {
@@ -10,6 +10,7 @@
 .network-node text {
   pointer-events: none;
   user-select: none;
+  transition: font-size 0.3s ease, font-weight 0.3s ease;
 }
 
 .network-links line {
@@ -18,4 +19,14 @@
 
 .network-tooltip {
   transition: opacity 0.2s ease;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.central-node circle {
+  stroke-width: 2px;
+}
+
+svg {
+  overflow: visible !important;
 }
