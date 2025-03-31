@@ -8,9 +8,10 @@ import { PlusCircle } from 'lucide-react';
 
 interface AddSkillFormProps {
   onAddSkill: (skillName: string) => void;
+  onCancel: () => void;
 }
 
-const AddSkillForm: React.FC<AddSkillFormProps> = ({ onAddSkill }) => {
+const AddSkillForm: React.FC<AddSkillFormProps> = ({ onAddSkill, onCancel }) => {
   const [newSkill, setNewSkill] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -43,7 +44,7 @@ const AddSkillForm: React.FC<AddSkillFormProps> = ({ onAddSkill }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded-lg">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-medium">Add Unverified Skill</h3>
         <PlusCircle className="h-4 w-4 text-muted-foreground" />
@@ -60,13 +61,21 @@ const AddSkillForm: React.FC<AddSkillFormProps> = ({ onAddSkill }) => {
         />
       </div>
       
-      <Button 
-        type="submit"
-        disabled={isSubmitting || !newSkill.trim()}
-        className="w-full"
-      >
-        Add Skill
-      </Button>
+      <div className="flex gap-2 justify-end">
+        <Button 
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
+        <Button 
+          type="submit"
+          disabled={isSubmitting || !newSkill.trim()}
+        >
+          Add Skill
+        </Button>
+      </div>
       
       <p className="text-xs text-muted-foreground">
         Note: This skill will be marked as unverified until proof is provided
