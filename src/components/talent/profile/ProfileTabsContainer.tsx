@@ -4,7 +4,6 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import { BlockchainPassport } from '@/lib/utils';
 
-import BioSection from './components/BioSection';
 import WorkExperienceSection from './components/WorkExperienceSection';
 import SkillsTab from './tabs/SkillsTab';
 
@@ -36,11 +35,6 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   return (
     <TooltipProvider>
       <div className="space-y-6 mt-6">
-        <BioSection 
-          ownerAddress={ownerAddress}
-          initialBio={passport.bio || ''}
-        />
-        
         <WorkExperienceSection 
           ownerAddress={ownerAddress}
         />

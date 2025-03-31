@@ -3,8 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
 import { Network, Link as LinkIcon } from 'lucide-react';
-import { SocialIcon } from '@/components/ui/social-icon';
-import { socialPlatforms } from '@/constants/socialPlatforms';
 import EnsLink from './social/EnsLink';
 import WebLink from './social/WebLink';
 import NoLinks from './social/NoLinks';
