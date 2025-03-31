@@ -9,7 +9,7 @@ declare global {
   interface Window {
     connectWalletModal: HTMLDialogElement;
     connectedWalletAddress: string | null;
-    ethereum?: any;
+    // We don't need to redeclare ethereum here as it's already defined in ethereum.d.ts
   }
 }
 
