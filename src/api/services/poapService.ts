@@ -1,8 +1,9 @@
 
-import { POAP } from '../types/poapTypes';
+import { POAP, POAPResponse } from '../types/poapTypes';
 import { delay } from '../jobsApi';
+import { getSecret } from '@/utils/secrets';
 
-// Mock POAPs data - in a real app this would come from the POAP API
+// Mock POAPs data as fallback if the API fails or for development purposes
 const mockPoaps: POAP[] = [
   {
     event: {
@@ -66,13 +67,95 @@ const mockPoaps: POAP[] = [
   }
 ];
 
-// Get POAPs by address
+// Auth0 token cache to avoid requesting a new token for every API call
+let authTokenCache: {
+  token: string;
+  expiresAt: number;
+} | null = null;
+
+/**
+ * Get an Auth0 token for POAP API access
+ */
+async function getPOAPAuthToken(): Promise<string> {
+  try {
+    // Check if we have a valid cached token
+    if (authTokenCache && authTokenCache.expiresAt > Date.now()) {
+      return authTokenCache.token;
+    }
+
+    const clientId = getSecret('POAP_CLIENT_ID');
+    const clientSecret = getSecret('POAP_CLIENT_SECRET');
+
+    if (!clientId || !clientSecret) {
+      throw new Error('POAP API credentials not configured');
+    }
+
+    const response = await fetch('https://auth.accounts.poap.xyz/oauth/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        audience: 'https://api.poap.tech',
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Auth token request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Cache the token with expiration
+    authTokenCache = {
+      token: data.access_token,
+      // Set expiry slightly before the actual expiry to ensure we don't use an expired token
+      expiresAt: Date.now() + (data.expires_in * 1000) - 60000,
+    };
+    
+    return data.access_token;
+  } catch (error) {
+    console.error('Error obtaining POAP auth token:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get POAPs by Ethereum address from the POAP API
+ */
 export async function getPoapsByAddress(address: string): Promise<POAP[]> {
-  await delay(600); // Simulate network delay
-  
-  // In a real implementation, we would fetch from the POAP API
-  // Example: const response = await fetch(`https://api.poap.xyz/actions/scan/${address}`);
-  
-  // Always return mock POAPs for any address in development
-  return mockPoaps;
+  try {
+    // Try to get an auth token
+    const token = await getPOAPAuthToken();
+    
+    // Make request to POAP API
+    const response = await fetch(`https://api.poap.tech/actions/scan/${address}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`POAP API request failed: ${response.status}`);
+    }
+
+    const data: POAPResponse = await response.json();
+    return data.tokens;
+  } catch (error) {
+    console.error(`Error fetching POAPs for address ${address}:`, error);
+    
+    // Fall back to mock data in development or if there's an API error
+    if (process.env.NODE_ENV !== 'production') {
+      await delay(600); // Simulate network delay
+      console.log('Using mock POAP data as fallback');
+      return mockPoaps;
+    }
+    
+    // In production, we might want to return an empty array instead of mocks
+    return [];
+  }
 }

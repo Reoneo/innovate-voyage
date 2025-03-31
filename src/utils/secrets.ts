@@ -9,6 +9,8 @@
 // in a production environment
 const SECRETS = {
   DOPPLER_API_KEY: "vGJ0AfBhEbUpxaHxGcfaqPNuEucj9ccs48HFobTbG8TGoZBnxH7My5MptnHSzR6f",
+  POAP_CLIENT_ID: "sjiB1afZNmYODDWFYZBSxd3bQTz5p5Bv",
+  POAP_CLIENT_SECRET: "8dsDHAWhjbzbtZH2x6WHEqt0swIqq59d7sh0gNesJdpjU-cUtypmHu49frLMSJbU",
 };
 
 /**
