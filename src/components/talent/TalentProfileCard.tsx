@@ -21,7 +21,8 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
   const navigate = useNavigate();
   
   const viewProfile = () => {
-    navigate(`/talent/${passport.passport_id}`);
+    // Use direct profile path for cleaner URLs
+    navigate(`/${passport.passport_id}`);
   };
   
   return (
