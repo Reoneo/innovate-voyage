@@ -12,7 +12,8 @@ export function useNetworkGraphData(
   ensName?: string,
   ensRecords?: ENSRecord[],
   web3BioProfile?: any,
-  skillNfts?: any[]
+  skillNfts?: any[],
+  additionalEnsDomains: string[] = []
 ): NetworkData {
   const [data, setData] = useState<NetworkData>({ nodes: [], links: [] });
 
@@ -34,6 +35,23 @@ export function useNetworkGraphData(
           avatar: record.avatar,
           isDotBox: record.ensName.includes('.box')
         });
+      });
+    }
+    
+    // Process additional ENS domains passed directly to the component
+    if (additionalEnsDomains && additionalEnsDomains.length > 0) {
+      additionalEnsDomains.forEach((domain, idx) => {
+        // Avoid duplicates - only add domains that aren't already in ensNodes
+        const isDuplicate = ensNodes.some(node => node.name.toLowerCase() === domain.toLowerCase());
+        
+        if (!isDuplicate) {
+          ensNodes.push({
+            id: `additional-ens-${idx}`,
+            name: domain,
+            type: 'ens-domain',
+            isDotBox: domain.includes('.box')
+          });
+        }
       });
     }
     
@@ -91,7 +109,7 @@ export function useNetworkGraphData(
     ];
 
     setData({ nodes, links });
-  }, [name, avatarUrl, ensName, ensRecords, web3BioProfile, skillNfts]);
+  }, [name, avatarUrl, ensName, ensRecords, web3BioProfile, skillNfts, additionalEnsDomains]);
 
   return data;
 }

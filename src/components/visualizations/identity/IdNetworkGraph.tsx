@@ -24,7 +24,7 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
     setSelectedNode,
     loading,
     hasData
-  } = useIdNetworkData(name, avatarUrl, ensName, address);
+  } = useIdNetworkData(name, avatarUrl, ensName, address, additionalEnsDomains);
 
   return (
     <div className="w-full h-full flex justify-center items-center">

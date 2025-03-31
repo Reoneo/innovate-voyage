@@ -9,7 +9,7 @@ import { NetworkData } from '../types/networkTypes';
 /**
  * Hook to process and prepare data for the ID Network graph
  */
-export function useIdNetworkData(name: string, avatarUrl?: string, ensName?: string, address?: string) {
+export function useIdNetworkData(name: string, avatarUrl?: string, ensName?: string, address?: string, additionalEnsDomains: string[] = []) {
   const { selectedNode, setSelectedNode } = useNodeSelection();
   
   // Get resolved address - consider both .eth and .box domains
@@ -30,7 +30,7 @@ export function useIdNetworkData(name: string, avatarUrl?: string, ensName?: str
     },
     enabled: !!resolvedAddress,
     staleTime: 5 * 60 * 1000, // Increased to 5 minutes to prevent quick disappearance
-    cacheTime: 10 * 60 * 1000, // Cache for 10 minutes
+    gcTime: 10 * 60 * 1000, // Updated from cacheTime to gcTime (for React Query v5+)
   });
 
   // Get other web3 profile data
@@ -58,7 +58,8 @@ export function useIdNetworkData(name: string, avatarUrl?: string, ensName?: str
     ensName,
     ensRecords,
     web3BioProfile,
-    skillNfts
+    skillNfts,
+    additionalEnsDomains
   );
 
   return {
@@ -69,11 +70,11 @@ export function useIdNetworkData(name: string, avatarUrl?: string, ensName?: str
     hasData: Boolean(
       (ensRecords && ensRecords.length > 0) || 
       web3BioProfile || 
-      (skillNfts && skillNfts.length > 0)
+      (skillNfts && skillNfts.length > 0) ||
+      (additionalEnsDomains && additionalEnsDomains.length > 0)
     )
   };
 }
 
 // Re-export types from networkTypes for backward compatibility
-// Fix: Use 'export type' syntax for TypeScript types
 export type { NetworkData, NetworkNode, NetworkLink } from '../types/networkTypes';
