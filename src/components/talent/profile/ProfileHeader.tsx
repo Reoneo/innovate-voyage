@@ -49,9 +49,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
             bio={passport.bio}
             socials={passport.socials}
           />
-          <ProfileScores
-            category={passport.category}
-          />
+          <div className="mt-4 md:mt-0">
+            <ProfileScores
+              category={passport.category}
+            />
+          </div>
         </div>
       </div>
     </HeaderContainer>

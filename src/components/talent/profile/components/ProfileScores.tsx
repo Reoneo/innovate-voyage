@@ -8,10 +8,8 @@ interface ProfileScoresProps {
 
 const ProfileScores: React.FC<ProfileScoresProps> = ({ category }) => {
   return (
-    <div className="flex flex-col items-center">
-      <div className="mt-2">
-        <Badge className="text-xs">{category}</Badge>
-      </div>
+    <div className="flex items-center justify-center">
+      <Badge className="text-xs">{category}</Badge>
     </div>
   );
 };
