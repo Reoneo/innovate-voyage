@@ -39,6 +39,11 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   // Use WhatsApp as telephone if available and no direct telephone
   const telephone = socials.telephone || socials.whatsapp;
   
+  // Check if name is likely an ENS name without the .eth extension
+  const displayName = name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/) 
+    ? `${name}.eth` 
+    : name;
+  
   return (
     <div className="flex flex-col items-center md:items-start gap-2">
       <ProfileAvatar 
@@ -46,7 +51,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         name={name} 
       />
       <div className="mt-2 text-center md:text-left">
-        <h3 className="text-lg font-semibold">{name}</h3>
+        <h3 className="text-lg font-semibold">{displayName}</h3>
         <AddressDisplay address={ownerAddress} />
       </div>
       <ProfileContact 
