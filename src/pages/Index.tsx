@@ -83,6 +83,7 @@ const Index = () => {
             avatar_url: avatar,
             name: ensName.split('.')[0],
             issued: new Date().toISOString(),
+            skills: [], // Adding the required skills property
             socials: {}
           };
           
