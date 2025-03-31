@@ -20,6 +20,7 @@ import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import ProfileHeader from '@/components/talent/profile/ProfileHeader';
 import ProfileNavigationBar from '@/components/talent/profile/ProfileNavigationBar';
 import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
+import ProfileTabsContainer from '@/components/talent/profile/ProfileTabsContainer';
 
 const TalentProfile = () => {
   const { ensName, address: routeAddress, userId, ensNameOrAddress } = useParams<{ 
@@ -149,7 +150,7 @@ const TalentProfile = () => {
           {loading ? (
             <ProfileSkeleton />
           ) : passport ? (
-            <div ref={profileRef} className="space-y-4 md:space-y-6" id="resume-pdf">
+            <div ref={profileRef} className="space-y-4 md:space-y-6 p-6" id="resume-pdf" data-owner-address={passport.owner_address}>
               <ProfileHeader passport={{
                 passport_id: passport.passport_id,
                 owner_address: passport.owner_address,
@@ -160,12 +161,50 @@ const TalentProfile = () => {
                 socials: passport.socials || {},
                 bio: passport.bio
               }} />
+              
+              {/* Add ProfileTabsContainer for PDF export */}
+              <div className="pdf-only">
+                <ProfileTabsContainer
+                  passport={passport}
+                  blockchainProfile={blockchainProfile}
+                  transactions={transactions}
+                  resolvedEns={resolvedEns}
+                  onExportPdf={exportAsPDF}
+                  blockchainExtendedData={blockchainExtendedData}
+                  avatarUrl={avatarUrl}
+                  ownerAddress={passport.owner_address}
+                />
+              </div>
             </div>
           ) : (
             <ProfileNotFound />
           )}
         </div>
       </div>
+      
+      {/* Add global styles for PDF generation */}
+      <style jsx global>{`
+        @media print {
+          .pdf-only {
+            display: block !important;
+          }
+          .generating-pdf-visible {
+            display: inline !important;
+          }
+        }
+        body.generating-pdf .pdf-only {
+          display: block !important;
+        }
+        body.generating-pdf .generating-pdf-visible {
+          display: inline !important;
+        }
+        .pdf-only {
+          display: none;
+        }
+        .generating-pdf-visible {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 };

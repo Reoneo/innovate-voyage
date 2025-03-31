@@ -8,7 +8,7 @@ interface EnsLinkProps {
 
 const EnsLink: React.FC<EnsLinkProps> = ({ ensName }) => {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 pdf-visible">
       <Globe className="h-4 w-4" />
       <a 
         href={`https://app.ens.domains/name/${ensName}`}
