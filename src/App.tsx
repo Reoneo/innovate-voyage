@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Jobs from "./pages/Jobs";
@@ -70,11 +70,8 @@ const App = () => {
             <Route path="/" element={<Index />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
-            {/* Profile routes */}
-            <Route path="/profile/:ensNameOrAddress" element={<TalentProfile />} />
-            <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+            {/* Simplified profile routes - all profiles use the same component */}
             <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-            <Route path="/address/:address" element={<TalentProfile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
