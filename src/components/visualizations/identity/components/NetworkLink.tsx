@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { animated, useSpring } from 'react-spring';
 
 interface NetworkLinkProps {
   link: {
@@ -23,24 +22,15 @@ const NetworkLink: React.FC<NetworkLinkProps> = ({ link, opacity, highlighted, o
 
   const linkId = link.id || 'link';
 
-  const springs = useSpring({
-    from: { strokeOpacity: 0, strokeWidth: 1 },
-    to: {
-      strokeOpacity: opacity,
-      strokeWidth: highlighted ? 3 : 1,
-    },
-    config: { tension: 300, friction: 35 },
-  });
-
   return (
-    <animated.line
+    <line
       x1={sourceX}
       y1={sourceY}
       x2={targetX}
       y2={targetY}
       stroke="#999"
-      strokeOpacity={springs.strokeOpacity}
-      strokeWidth={springs.strokeWidth}
+      strokeOpacity={opacity}
+      strokeWidth={highlighted ? 3 : 1}
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     />
