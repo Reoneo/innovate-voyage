@@ -107,11 +107,18 @@ export function usePassportGenerator(
           email: web3BioProfile?.email || undefined
         };
         
-        // Get bio from blockchain data or web3 bio profile
-        const bio = blockchainProfile?.description || 
+        // Get bio from web3 bio profile or blockchain data
+        const bio = web3BioProfile?.description || 
+                   blockchainProfile?.description || 
                    blockchainExtendedData?.description || 
-                   web3BioProfile?.description || 
                    '';
+        
+        console.log('Creating passport with bio:', bio);
+        console.log('Bio sources:', {
+          web3Bio: web3BioProfile?.description,
+          blockchainProfile: blockchainProfile?.description,
+          extendedData: blockchainExtendedData?.description
+        });
         
         const newPassport: BlockchainPassport = {
           passport_id: resolvedEns || truncateAddress(resolvedAddress),

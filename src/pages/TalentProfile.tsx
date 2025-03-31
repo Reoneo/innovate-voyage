@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
@@ -64,6 +65,13 @@ const TalentProfile = () => {
     ens || ((ensName && !isValidEthereumAddress(ensName)) ? ensName : undefined), 
     address || (ensName && isValidEthereumAddress(ensName) ? ensName : undefined)
   );
+  
+  console.log('Profile data:', {
+    loading,
+    passport,
+    bio: passport?.bio,
+    blockchainExtendedData
+  });
   
   const { profileRef, exportAsPDF } = usePdfExport();
   const isMobile = useIsMobile();
