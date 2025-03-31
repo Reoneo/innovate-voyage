@@ -33,10 +33,10 @@ const NetworkLink: React.FC<NetworkLinkProps> = ({ link, nodes, selectedNode }) 
   }
   
   // Get x and y positions with enhanced null checking
-  const sourceX = typeof link.source === 'object' ? (link.source?.x ?? 0) : 0;
-  const sourceY = typeof link.source === 'object' ? (link.source?.y ?? 0) : 0;
-  const targetX = typeof link.target === 'object' ? (link.target?.x ?? 0) : 0;
-  const targetY = typeof link.target === 'object' ? (link.target?.y ?? 0) : 0;
+  const sourceX = typeof link.source === 'object' && link.source ? (link.source.x ?? 0) : 0;
+  const sourceY = typeof link.source === 'object' && link.source ? (link.source.y ?? 0) : 0;
+  const targetX = typeof link.target === 'object' && link.target ? (link.target.x ?? 0) : 0;
+  const targetY = typeof link.target === 'object' && link.target ? (link.target.y ?? 0) : 0;
   
   return (
     <line

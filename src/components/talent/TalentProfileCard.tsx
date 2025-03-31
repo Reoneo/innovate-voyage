@@ -21,7 +21,8 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
   const navigate = useNavigate();
   
   const viewProfile = () => {
-    navigate(`/talent/${passport.passport_id}`);
+    // Navigate back to talent page
+    navigate('/talent');
   };
   
   return (
@@ -60,7 +61,7 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
           className="w-full"
           onClick={viewProfile}
         >
-          View Profile
+          View Details
         </Button>
       </CardFooter>
     </Card>
