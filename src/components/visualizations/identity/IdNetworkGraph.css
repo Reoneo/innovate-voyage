@@ -1,0 +1,21 @@
+
+.network-node circle {
+  transition: r 0.3s ease, stroke-width 0.3s ease;
+}
+
+.network-node:hover circle {
+  stroke-width: 2.5px;
+}
+
+.network-node text {
+  pointer-events: none;
+  user-select: none;
+}
+
+.network-links line {
+  transition: stroke-opacity 0.3s ease, stroke-width 0.3s ease;
+}
+
+.network-tooltip {
+  transition: opacity 0.2s ease;
+}

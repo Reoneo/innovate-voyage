@@ -4,7 +4,7 @@ import { web3Api } from '@/api/web3Api';
 import { useSkillNfts } from '@/hooks/useWeb3';
 import { useNetworkGraphData } from './useNetworkGraphData';
 import { useNodeSelection } from './useNodeSelection';
-import { NetworkData } from '../types/networkTypes';
+import { NetworkData, NetworkNode, NetworkLink } from '../types/networkTypes';
 
 /**
  * Hook to process and prepare data for the ID Network graph

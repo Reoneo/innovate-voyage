@@ -2,6 +2,7 @@
 import React from 'react';
 import { useIdNetworkData } from './hooks/useIdNetworkData';
 import IdNetworkVisualization from './components/IdNetworkVisualization';
+import './IdNetworkGraph.css';
 
 interface IdNetworkGraphProps {
   name: string;
@@ -9,6 +10,7 @@ interface IdNetworkGraphProps {
   ensName?: string;
   address?: string;
   additionalEnsDomains?: string[];
+  interactive?: boolean;
 }
 
 const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({ 
@@ -16,7 +18,8 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
   avatarUrl, 
   ensName, 
   address,
-  additionalEnsDomains = []
+  additionalEnsDomains = [],
+  interactive = true
 }) => {
   const { 
     networkData,
@@ -34,6 +37,7 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
           selectedNode={selectedNode}
           setSelectedNode={setSelectedNode}
           avatarUrl={avatarUrl}
+          interactive={interactive}
         />
       )}
       

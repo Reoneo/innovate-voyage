@@ -14,13 +14,15 @@ interface IdNetworkVisualizationProps {
   selectedNode: string | null;
   setSelectedNode: (node: string | null) => void;
   avatarUrl?: string;
+  interactive?: boolean;
 }
 
 const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
   networkData,
   selectedNode,
   setSelectedNode,
-  avatarUrl
+  avatarUrl,
+  interactive = true
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const { nodes, links } = networkData;
@@ -47,7 +49,8 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
       links,
       width,
       height,
-      forceStrength: nodes.length > 5 ? -30 : -20  // Adjust force based on number of nodes
+      forceStrength: nodes.length > 5 ? -35 : -25,  // Increase force strength for more separation
+      interactive
     });
 
     // Add links with appropriate styling
@@ -63,7 +66,8 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
       nodes,
       simulation,
       setSelectedNode,
-      selectedNode
+      selectedNode,
+      interactive
     });
 
     // Setup user avatar pattern if available
@@ -92,7 +96,7 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
     return () => {
       tooltip.remove();
     };
-  }, [nodes, links, selectedNode, avatarUrl, setSelectedNode]);
+  }, [nodes, links, selectedNode, avatarUrl, setSelectedNode, interactive]);
 
   return (
     <svg 

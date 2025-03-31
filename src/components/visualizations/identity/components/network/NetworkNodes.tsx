@@ -9,6 +9,7 @@ interface NetworkNodesProps {
   simulation: d3.Simulation<any, undefined>;
   setSelectedNode: (node: string | null) => void;
   selectedNode: string | null;
+  interactive?: boolean;
 }
 
 /**
@@ -19,7 +20,8 @@ export const createNetworkNodes = ({
   nodes, 
   simulation, 
   setSelectedNode,
-  selectedNode
+  selectedNode,
+  interactive = true
 }: NetworkNodesProps) => {
   const node = svg.append("g")
     .attr("class", "nodes")
@@ -29,7 +31,11 @@ export const createNetworkNodes = ({
       .attr("class", "node")
       .attr("data-id", (d: any) => d.id)
       .attr("data-name", (d: any) => d.name)
-      .call(createDragBehavior(simulation) as any)
+      .attr("data-type", (d: any) => d.type);
+      
+  // Only apply drag behavior and click handlers if interactive mode is enabled
+  if (interactive) {
+    node.call(createDragBehavior(simulation) as any)
       .on("click", (event, d: any) => {
         const nodeName = d.name;
         setSelectedNode(selectedNode === nodeName ? null : nodeName);
@@ -53,6 +59,15 @@ export const createNetworkNodes = ({
           .attr("stroke-width", (l: any) => Math.sqrt(l.value) * 2);
         }
       });
+  } else {
+    // For non-interactive mode, still allow hover effects for better UX
+    node.on("mouseenter", function(event, d: any) {
+      d3.select(this).select("circle").attr("stroke-width", 2);
+    })
+    .on("mouseleave", function() {
+      d3.select(this).select("circle").attr("stroke-width", 1.5);
+    });
+  }
       
   return node;
 };
