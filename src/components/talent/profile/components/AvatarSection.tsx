@@ -1,16 +1,22 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ProfileAvatar from './ProfileAvatar';
-import ProfileSocialLinks from './social/ProfileSocialLinks';
-import { Card, CardContent } from '@/components/ui/card';
 import ProfileBio from './ProfileBio';
+import ProfileContact from './ProfileContact';
+import AddressDisplay from './identity/AddressDisplay';
 
 interface AvatarSectionProps {
   avatarUrl: string;
   name: string;
-  bio?: string | null;
+  bio?: string;
   ownerAddress: string;
-  socials?: Record<string, string>;
+  socials?: {
+    email?: string;
+    telephone?: string;
+    location?: string;
+    whatsapp?: string;
+    [key: string]: string | undefined;
+  };
 }
 
 const AvatarSection: React.FC<AvatarSectionProps> = ({ 
@@ -18,25 +24,46 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   name, 
   bio, 
   ownerAddress,
-  socials 
+  socials = {}
 }) => {
+  const [isOwner, setIsOwner] = useState(false);
+  
+  useEffect(() => {
+    const connectedWallet = localStorage.getItem('connectedWalletAddress');
+    if (connectedWallet && ownerAddress && 
+        connectedWallet.toLowerCase() === ownerAddress.toLowerCase()) {
+      setIsOwner(true);
+    }
+  }, [ownerAddress]);
+
+  // Use WhatsApp as telephone if available and no direct telephone
+  const telephone = socials.telephone || socials.whatsapp;
+  
+  // Check if name is likely an ENS name without the .eth extension
+  const displayName = name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/) 
+    ? `${name}.eth` 
+    : name;
+  
   return (
-    <div className="flex flex-col items-center space-y-4 w-full md:w-auto">
+    <div className="flex flex-col items-center md:items-start gap-2">
       <ProfileAvatar 
-        avatarUrl={avatarUrl}
-        name={name}
-        address={ownerAddress}
+        avatarUrl={avatarUrl} 
+        name={name} 
       />
-      
-      {bio && (
-        <div className="w-full mt-6 mb-8"> {/* Increased margin top and bottom */}
-          <ProfileBio bio={bio} />
-        </div>
-      )}
-      
-      {socials && Object.keys(socials).length > 0 && (
-        <ProfileSocialLinks socials={socials} />
-      )}
+      <div className="mt-2 text-center md:text-left">
+        <h3 className="text-2xl font-semibold">{displayName}</h3>
+        <AddressDisplay address={ownerAddress} />
+      </div>
+      <ProfileContact 
+        email={socials.email}
+        telephone={telephone}
+        location={socials.location}
+        isOwner={isOwner}
+      />
+      <ProfileBio 
+        bio={bio}
+        ownerAddress={ownerAddress}
+      />
     </div>
   );
 };
