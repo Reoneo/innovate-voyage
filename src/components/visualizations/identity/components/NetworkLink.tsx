@@ -1,52 +1,48 @@
 
 import React from 'react';
-import { NetworkLink as NetworkLinkType, NetworkNode } from '../hooks/useIdNetworkData';
+import { animated, useSpring } from 'react-spring';
 
 interface NetworkLinkProps {
-  link: NetworkLinkType;
-  nodes: NetworkNode[];
-  selectedNode: string | null;
+  link: {
+    source: any;
+    target: any;
+    value: number;
+    id: string;
+  };
+  opacity: number;
+  highlighted: boolean;
+  onClick?: () => void;
 }
 
-const NetworkLink: React.FC<NetworkLinkProps> = ({ link, nodes, selectedNode }) => {
-  // Find the target node to determine color, with proper null checking
-  const targetId = typeof link.target === 'object' && link.target ? link.target.id : link.target;
-  const target = targetId ? nodes.find(n => n.id === targetId) : undefined;
-  
-  // Determine if this link connects to the selected node, with proper null checking
-  const isSelected = Boolean(selectedNode) && (
-    // Check if the source node matches the selected node name
-    ((typeof link.source === 'object' && link.source) ? 
-      nodes.find(n => n.id === (link.source && typeof link.source === 'object' ? link.source.id : link.source))?.name === selectedNode : 
-      (link.source ? nodes.find(n => n.id === link.source)?.name === selectedNode : false)) ||
-    
-    // Check if the target node matches the selected node name
-    ((typeof link.target === 'object' && link.target) ? 
-      nodes.find(n => n.id === (link.target && typeof link.target === 'object' ? link.target.id : link.target))?.name === selectedNode : 
-      (link.target ? nodes.find(n => n.id === link.target)?.name === selectedNode : false))
-  );
-  
-  // Calculate stroke color based on node type
-  let strokeColor = "#9ca3af";
-  if (target?.type === 'ens-domain') {
-    strokeColor = target.isDotBox ? "#8b5cf6" : "#6366f1";
-  }
-  
-  // Get x and y positions with enhanced null checking
-  const sourceX = typeof link.source === 'object' && link.source ? (link.source.x ?? 0) : 0;
-  const sourceY = typeof link.source === 'object' && link.source ? (link.source.y ?? 0) : 0;
-  const targetX = typeof link.target === 'object' && link.target ? (link.target.x ?? 0) : 0;
-  const targetY = typeof link.target === 'object' && link.target ? (link.target.y ?? 0) : 0;
-  
+const NetworkLink: React.FC<NetworkLinkProps> = ({ link, opacity, highlighted, onClick }) => {
+  // Ensure source and target have valid coordinates
+  const sourceX = link.source?.x || 0;
+  const sourceY = link.source?.y || 0;
+  const targetX = link.target?.x || 0;
+  const targetY = link.target?.y || 0;
+
+  const linkId = link.id || 'link';
+
+  const springs = useSpring({
+    from: { strokeOpacity: 0, strokeWidth: 1 },
+    to: {
+      strokeOpacity: opacity,
+      strokeWidth: highlighted ? 3 : 1,
+    },
+    config: { tension: 300, friction: 35 },
+  });
+
   return (
-    <line
-      stroke={strokeColor}
-      strokeOpacity={isSelected ? 1 : 0.7}
-      strokeWidth={isSelected ? Math.sqrt(link.value) * 2 : Math.sqrt(link.value) * 1.5}
+    <animated.line
       x1={sourceX}
       y1={sourceY}
       x2={targetX}
       y2={targetY}
+      stroke="#999"
+      strokeOpacity={springs.strokeOpacity}
+      strokeWidth={springs.strokeWidth}
+      onClick={onClick}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
     />
   );
 };
