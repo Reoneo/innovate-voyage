@@ -1,54 +1,19 @@
 
 import React from 'react';
-import { NetworkLink as NetworkLinkType, NetworkNode } from '../hooks/useIdNetworkData';
 
 interface NetworkLinkProps {
-  link: NetworkLinkType;
-  nodes: NetworkNode[];
-  selectedNode: string | null;
+  link: {
+    source: any;
+    target: any;
+    id?: string;
+  };
 }
 
-const NetworkLink: React.FC<NetworkLinkProps> = ({ link, nodes, selectedNode }) => {
-  // Find the target node to determine color, with proper null checking
-  const targetId = typeof link.target === 'object' && link.target ? link.target.id : link.target;
-  const target = targetId ? nodes.find(n => n.id === targetId) : undefined;
+const NetworkLink: React.FC<NetworkLinkProps> = ({ link }) => {
+  // This component is kept as a placeholder to prevent build errors
+  // Since visualizations were removed, we're providing a minimal implementation
   
-  // Determine if this link connects to the selected node, with proper null checking
-  const isSelected = Boolean(selectedNode) && (
-    // Check if the source node matches the selected node name
-    ((typeof link.source === 'object' && link.source) ? 
-      nodes.find(n => n.id === (link.source && typeof link.source === 'object' ? link.source.id : link.source))?.name === selectedNode : 
-      (link.source ? nodes.find(n => n.id === link.source)?.name === selectedNode : false)) ||
-    
-    // Check if the target node matches the selected node name
-    ((typeof link.target === 'object' && link.target) ? 
-      nodes.find(n => n.id === (link.target && typeof link.target === 'object' ? link.target.id : link.target))?.name === selectedNode : 
-      (link.target ? nodes.find(n => n.id === link.target)?.name === selectedNode : false))
-  );
-  
-  // Calculate stroke color based on node type
-  let strokeColor = "#9ca3af";
-  if (target?.type === 'ens-domain') {
-    strokeColor = target.isDotBox ? "#8b5cf6" : "#6366f1";
-  }
-  
-  // Get x and y positions with enhanced null checking
-  const sourceX = typeof link.source === 'object' && link.source ? (link.source.x ?? 0) : 0;
-  const sourceY = typeof link.source === 'object' && link.source ? (link.source.y ?? 0) : 0;
-  const targetX = typeof link.target === 'object' && link.target ? (link.target.x ?? 0) : 0;
-  const targetY = typeof link.target === 'object' && link.target ? (link.target.y ?? 0) : 0;
-  
-  return (
-    <line
-      stroke={strokeColor}
-      strokeOpacity={isSelected ? 1 : 0.7}
-      strokeWidth={isSelected ? Math.sqrt(link.value) * 2 : Math.sqrt(link.value) * 1.5}
-      x1={sourceX}
-      y1={sourceY}
-      x2={targetX}
-      y2={targetY}
-    />
-  );
+  return null;
 };
 
 export default NetworkLink;
