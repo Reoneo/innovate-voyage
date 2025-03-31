@@ -40,6 +40,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
           name={passport.name}
           ownerAddress={passport.owner_address}
           socials={passport.socials}
+          bio={passport.bio}
         />
         <div className="flex-1 flex flex-col md:flex-row justify-between w-full">
           <ProfileInfoSection
@@ -56,3 +57,4 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
 };
 
 export default ProfileHeader;
+
