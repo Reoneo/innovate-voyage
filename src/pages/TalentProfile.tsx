@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
@@ -6,12 +7,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Wallet, LogOut, Save, Download, Maximize, Minimize } from 'lucide-react';
-import { 
-  ResizablePanelGroup, 
-  ResizablePanel, 
-  ResizableHandle 
-} from '@/components/ui/resizable';
-
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +20,7 @@ import ProfileHeader from '@/components/talent/profile/ProfileHeader';
 import ProfileNavigationBar from '@/components/talent/profile/ProfileNavigationBar';
 import ProfileTabsContainer from '@/components/talent/profile/ProfileTabsContainer';
 import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const TalentProfile = () => {
   const { ensName, address: routeAddress, userId, ensNameOrAddress } = useParams<{ 
@@ -155,32 +151,32 @@ const TalentProfile = () => {
         <ProfileSkeleton />
       ) : passport ? (
         <div ref={profileRef} className={`${isExpanded ? 'min-h-[800px]' : ''}`} id="resume-pdf">
-          <div className="p-4 mb-6 border rounded-lg">
-            <ProfileHeader passport={{
-              passport_id: passport.passport_id,
-              owner_address: passport.owner_address,
-              avatar_url: avatarUrl || passport.avatar_url || '/placeholder.svg',
-              name: passport.name,
-              score: passport.score,
-              category: passport.category,
-              socials: passport.socials || {},
-              bio: blockchainProfile?.description || blockchainExtendedData?.description || null
-            }} />
-          </div>
-          
-          <div className={`${isExpanded ? 'h-[800px]' : 'h-[600px]'} relative border rounded-lg overflow-hidden`}>
-            <ProfileTabsContainer 
-              passport={passport}
-              blockchainProfile={blockchainProfile}
-              transactions={transactions}
-              resolvedEns={resolvedEns}
-              onExportPdf={exportAsPDF}
-              blockchainExtendedData={blockchainExtendedData}
-              avatarUrl={avatarUrl}
-              ownerAddress={passport.owner_address}
-              poaps={poaps}
-              isLoadingPoaps={loadingPoaps}
-            />
+          <div className={`relative ${isExpanded ? 'h-[800px]' : 'h-[600px]'} border rounded-lg overflow-hidden`}>
+            <TooltipProvider>
+              <ProfileHeader passport={{
+                passport_id: passport.passport_id,
+                owner_address: passport.owner_address,
+                avatar_url: avatarUrl || passport.avatar_url || '/placeholder.svg',
+                name: passport.name,
+                score: passport.score,
+                category: passport.category,
+                socials: passport.socials || {},
+                bio: blockchainProfile?.description || blockchainExtendedData?.description || null
+              }} />
+              
+              <ProfileTabsContainer 
+                passport={passport}
+                blockchainProfile={blockchainProfile}
+                transactions={transactions}
+                resolvedEns={resolvedEns}
+                onExportPdf={exportAsPDF}
+                blockchainExtendedData={blockchainExtendedData}
+                avatarUrl={avatarUrl}
+                ownerAddress={passport.owner_address}
+                poaps={poaps}
+                isLoadingPoaps={loadingPoaps}
+              />
+            </TooltipProvider>
           </div>
         </div>
       ) : (
