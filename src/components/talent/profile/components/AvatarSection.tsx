@@ -5,11 +5,11 @@ import SocialMediaLinks from '../tabs/social/SocialMediaLinks';
 import ProfileContact from './ProfileContact';
 import AddressDisplay from './identity/AddressDisplay';
 import { Link } from 'lucide-react';
+import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
 
 interface AvatarSectionProps {
   avatarUrl: string;
   name: string;
-  bio?: string;
   ownerAddress: string;
   socials?: {
     email?: string;
@@ -27,6 +27,8 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   socials = {}
 }) => {
   const [isOwner, setIsOwner] = useState(false);
+  const [enhancedSocials, setEnhancedSocials] = useState<Record<string, string>>(socials as Record<string, string>);
+  const [loading, setLoading] = useState(false);
   
   useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -43,6 +45,75 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   const displayName = name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/) 
     ? `${name}.eth` 
     : name;
+
+  // Fetch ENS social links from Web3.bio
+  useEffect(() => {
+    const fetchEnsSocials = async () => {
+      // Check if we have an ENS name or address
+      let identity = name;
+      
+      // Format identity for ENS lookup
+      if (identity?.includes('.eth') || identity?.includes('.box')) {
+        // Already formatted
+      } else if (identity && !identity.includes('.') && identity.match(/^[a-zA-Z0-9]+$/)) {
+        // Add .eth if simple name without extension
+        identity = `${identity}.eth`;
+      } else if (ownerAddress && ownerAddress.startsWith('0x')) {
+        // Use address if no valid ENS name
+        identity = ownerAddress;
+      } else {
+        return; // No valid identity to look up
+      }
+      
+      setLoading(true);
+      try {
+        const profile = await fetchWeb3BioProfile(identity);
+        if (profile) {
+          const newSocials: Record<string, string> = {...(socials as Record<string, string>)};
+          
+          // Map profile links to social object
+          if (profile.github) newSocials.github = profile.github;
+          if (profile.twitter) newSocials.twitter = profile.twitter;
+          if (profile.linkedin) newSocials.linkedin = profile.linkedin;
+          if (profile.website) newSocials.website = profile.website;
+          if (profile.facebook) newSocials.facebook = profile.facebook;
+          if (profile.instagram) newSocials.instagram = profile.instagram;
+          if (profile.youtube) newSocials.youtube = profile.youtube;
+          if (profile.telegram) newSocials.telegram = profile.telegram;
+          if (profile.discord) newSocials.discord = profile.discord;
+          if (profile.bluesky) newSocials.bluesky = profile.bluesky;
+          if (profile.email) newSocials.email = profile.email;
+          if (profile.whatsapp) newSocials.whatsapp = profile.whatsapp;
+          
+          // Process links object if present
+          if (profile.links) {
+            if (profile.links.github?.link) newSocials.github = profile.links.github.link;
+            if (profile.links.twitter?.link) newSocials.twitter = profile.links.twitter.link;
+            if (profile.links.linkedin?.link) newSocials.linkedin = profile.links.linkedin.link;
+            if (profile.links.website?.link) newSocials.website = profile.links.website.link;
+            if (profile.links.facebook?.link) newSocials.facebook = profile.links.facebook.link;
+            if (profile.links.discord?.link) newSocials.discord = profile.links.discord.link;
+            
+            // Handle additional links that might not be in the type definition
+            const anyLinks = profile.links as any;
+            if (anyLinks.instagram?.link) newSocials.instagram = anyLinks.instagram.link;
+            if (anyLinks.youtube?.link) newSocials.youtube = anyLinks.youtube.link;
+            if (anyLinks.telegram?.link) newSocials.telegram = anyLinks.telegram.link;
+            if (anyLinks.bluesky?.link) newSocials.bluesky = anyLinks.bluesky.link;
+            if (anyLinks.whatsapp?.link) newSocials.whatsapp = anyLinks.whatsapp.link;
+          }
+          
+          setEnhancedSocials(newSocials);
+        }
+      } catch (error) {
+        console.error('Error fetching ENS social links:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchEnsSocials();
+  }, [name, ownerAddress, socials]);
   
   return (
     <div className="flex flex-col items-center md:items-start gap-2">
@@ -66,7 +137,10 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
           <Link className="h-5 w-5" /> Social Links
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
-          <SocialMediaLinks socials={socials as Record<string, string>} />
+          <SocialMediaLinks 
+            socials={enhancedSocials} 
+            isLoading={loading} 
+          />
         </div>
       </div>
     </div>
