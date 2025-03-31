@@ -89,7 +89,7 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name, avatarUrl, ensName,
                 name={name} 
                 avatarUrl={avatarUrl}
                 ensName={ensName}
-                address={ownerAddress}
+                address={address}
               />
             </div>
             <div className="mt-4 border-t pt-3">

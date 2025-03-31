@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useBlockchainProfile, useLatestTransactions, useTokenTransfers } from '@/hooks/useEtherscan';
 import { useWeb3BioProfile } from '@/hooks/useWeb3';
-import { usePoapNfts } from '@/hooks/usePoapNfts';
 import { fetchBlockchainData } from '@/api/services/blockchainDataService';
 
 /**
@@ -25,7 +24,6 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
   const { data: transactions } = useLatestTransactions(resolvedAddress, 20);
   const { data: tokenTransfers } = useTokenTransfers(resolvedAddress, 10);
   const { data: web3BioProfile } = useWeb3BioProfile(resolvedAddress || resolvedEns);
-  const { data: poaps, isLoading: loadingPoaps } = usePoapNfts(resolvedAddress);
   
   // Fetch additional blockchain data
   useEffect(() => {
@@ -65,8 +63,6 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     tokenTransfers,
     web3BioProfile,
     loadingBlockchain,
-    blockchainExtendedData,
-    poaps,
-    loadingPoaps
+    blockchainExtendedData
   };
 }

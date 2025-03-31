@@ -17,58 +17,6 @@ interface TalentGridProps {
   clearFilters: () => void;
 }
 
-// Featured profiles to display when no search results are found
-const FEATURED_PROFILES = [
-  {
-    passport_id: '30315.eth',
-    owner_address: '0x1234567890123456789012345678901234567890', // Placeholder address
-    avatar_url: '/placeholder.svg',
-    name: '30315',
-    issued: new Date().toISOString(),
-    skills: [
-      { name: 'ETH Holder', proof: 'etherscan://0x1234567890123456789012345678901234567890' },
-      { name: 'ENS Owner', proof: 'ens://30315.eth' }
-    ],
-    socials: {},
-    score: 75,
-    category: 'Verified',
-    colorClass: 'bg-green-500',
-    hasMoreSkills: false
-  },
-  {
-    passport_id: 'vitalik.eth',
-    owner_address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-    avatar_url: '/placeholder.svg',
-    name: 'vitalik',
-    issued: new Date().toISOString(),
-    skills: [
-      { name: 'ETH Holder', proof: 'etherscan://0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' },
-      { name: 'ENS Owner', proof: 'ens://vitalik.eth' }
-    ],
-    socials: {},
-    score: 95,
-    category: 'Verified',
-    colorClass: 'bg-green-500',
-    hasMoreSkills: true
-  },
-  {
-    passport_id: 'nick.eth',
-    owner_address: '0x5b2A5d1f4510b893A2348B01F5166B737ABe6be1',
-    avatar_url: '/placeholder.svg',
-    name: 'nick',
-    issued: new Date().toISOString(),
-    skills: [
-      { name: 'ETH Holder', proof: 'etherscan://0x5b2A5d1f4510b893A2348B01F5166B737ABe6be1' },
-      { name: 'ENS Owner', proof: 'ens://nick.eth' }
-    ],
-    socials: {},
-    score: 85,
-    category: 'Verified',
-    colorClass: 'bg-green-500',
-    hasMoreSkills: false
-  }
-];
-
 const TalentGrid: React.FC<TalentGridProps> = ({ isLoading, passportData }) => {
   if (isLoading) {
     return (
@@ -103,18 +51,12 @@ const TalentGrid: React.FC<TalentGridProps> = ({ isLoading, passportData }) => {
 
   if (passportData.length === 0) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-2xl font-bold">Featured Profiles</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURED_PROFILES.map((profile) => (
-            <TalentProfileCard 
-              key={profile.passport_id} 
-              passport={profile} 
-            />
-          ))}
-        </div>
+      <div className="flex flex-col items-center justify-center p-12 text-center border border-muted/50 rounded-xl bg-muted/10">
+        <Users className="h-16 w-16 text-muted-foreground mb-4 opacity-50" />
+        <h3 className="text-2xl font-medium mb-2">No profiles found</h3>
+        <p className="text-muted-foreground max-w-md">
+          Try searching for a Web3 identity using an ENS name (.eth or .box domain) or Ethereum wallet address
+        </p>
       </div>
     );
   }
