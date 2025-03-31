@@ -15,7 +15,7 @@ export function useIdNetworkData(name: string, avatarUrl?: string, ensName?: str
   // Get resolved address - consider both .eth and .box domains
   const resolvedAddress = address || (ensName && !ensName.includes('.eth') && !ensName.includes('.box')) ? ensName : undefined;
   
-  // Fetch all ENS domains for this address
+  // Fetch all ENS domains for this address with increased staleTime to prevent quick disappearance
   const { data: ensRecords, isLoading: isLoadingEns } = useQuery({
     queryKey: ['idNetworkEnsDomains', resolvedAddress],
     queryFn: async () => {
@@ -29,6 +29,8 @@ export function useIdNetworkData(name: string, avatarUrl?: string, ensName?: str
       }
     },
     enabled: !!resolvedAddress,
+    staleTime: 5 * 60 * 1000, // Increased to 5 minutes to prevent quick disappearance
+    cacheTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 
   // Get other web3 profile data

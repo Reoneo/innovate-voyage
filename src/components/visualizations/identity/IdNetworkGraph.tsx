@@ -8,13 +8,15 @@ interface IdNetworkGraphProps {
   avatarUrl?: string;
   ensName?: string;
   address?: string;
+  additionalEnsDomains?: string[];
 }
 
 const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({ 
   name, 
   avatarUrl, 
   ensName, 
-  address 
+  address,
+  additionalEnsDomains = []
 }) => {
   const { 
     networkData,

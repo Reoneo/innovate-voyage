@@ -30,6 +30,7 @@ interface ProfileTabsContainerProps {
   };
   avatarUrl?: string;
   ownerAddress: string;
+  additionalEnsDomains?: string[];
 }
 
 const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({ 
@@ -40,7 +41,8 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   onExportPdf,
   blockchainExtendedData,
   avatarUrl,
-  ownerAddress
+  ownerAddress,
+  additionalEnsDomains = []
 }) => {
   // Extract description from ENS data
   const ensDescription = blockchainProfile?.description || blockchainExtendedData?.description;
@@ -80,6 +82,7 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
                   avatarUrl={avatarUrl}
                   ensName={resolvedEns}
                   address={ownerAddress}
+                  additionalEnsDomains={additionalEnsDomains}
                 />
               </div>
             </CardContent>

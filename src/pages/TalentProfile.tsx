@@ -173,6 +173,7 @@ const TalentProfile = () => {
             blockchainExtendedData={blockchainExtendedData}
             avatarUrl={avatarUrl}
             ownerAddress={passport.owner_address}
+            additionalEnsDomains={passport.additionalEnsDomains || []} // Pass additional ENS domains
           />
         </div>
       ) : (
