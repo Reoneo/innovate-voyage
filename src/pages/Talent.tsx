@@ -8,6 +8,8 @@ import TalentSearch from '@/components/talent/TalentSearch';
 import { useBlockchainProfile } from '@/hooks/useEtherscan';
 import { getAccountBalance, getTransactionCount, getLatestTransactions } from '@/api/services/etherscanService';
 import { fetchAllEnsDomains } from '@/api/services/ensService';
+import { useEnsResolver } from '@/hooks/useEnsResolver';
+import { toast } from 'sonner';
 
 const Talent = () => {
   const [addressSearch, setAddressSearch] = useState('');
@@ -44,9 +46,10 @@ const Talent = () => {
             ensName = addressDataByEns.ensName;
             avatar = addressDataByEns.avatar || avatarData || '/placeholder.svg';
           } else {
-            // No data found, but don't show error toast
+            // No data found
             setIsSearching(false);
             setSearchResults([]);
+            toast.error(`Could not resolve ${addressSearch} to an address`);
             return;
           }
         } 
@@ -66,6 +69,7 @@ const Talent = () => {
         if (allDomains && allDomains.length > 0) {
           // Remove the primary domain that we already have
           additionalEnsDomains = allDomains.filter(domain => domain !== ensName);
+          console.log("Found additional domains:", additionalEnsDomains);
         }
         
         // Fetch blockchain data
@@ -110,14 +114,14 @@ const Talent = () => {
             proof: `etherscan://${address}`,
           })),
           socials: {},
-          additionalEnsDomains // Add the additional domains
+          additionalEnsDomains
         };
         
         setSearchResults([newPassport]);
-        // Success toast removed
+        toast.success(`Found profile for ${ensName || address}`);
       } catch (error) {
         console.error('Error fetching Etherscan data:', error);
-        // Error toast removed
+        toast.error('Error searching for talent profile');
         setSearchResults([]);
       } finally {
         setIsSearching(false);
