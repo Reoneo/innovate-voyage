@@ -2,7 +2,6 @@
 import React from 'react';
 import {
   Github,
-  Mail,
   Disc
 } from 'lucide-react';
 
@@ -94,7 +93,13 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
         );
       case 'email':
       case 'mail':
-        return <Mail size={24} className="text-[#9C27B0]" />;
+        return (
+          <img 
+            src="https://img.icons8.com/?size=100&id=12580&format=png&color=000000"
+            alt="Email"
+            className="w-6 h-6"
+          />
+        );
       default:
         return (
           <img 
