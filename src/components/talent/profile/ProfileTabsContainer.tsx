@@ -1,14 +1,12 @@
 
 import React from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import { BlockchainPassport } from '@/lib/utils';
 
-import BlockchainTab from './tabs/BlockchainTab';
-import SkillsTab from './tabs/SkillsTab';
 import BioSection from './components/BioSection';
 import WorkExperienceSection from './components/WorkExperienceSection';
+import SkillsTab from './tabs/SkillsTab';
 
 interface ProfileTabsContainerProps {
   passport: BlockchainPassport & {
@@ -31,48 +29,30 @@ interface ProfileTabsContainerProps {
 
 const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({ 
   passport, 
-  blockchainProfile, 
-  transactions,
   resolvedEns,
-  onExportPdf,
-  blockchainExtendedData,
   avatarUrl,
   ownerAddress
 }) => {
   return (
     <TooltipProvider>
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid grid-cols-2 md:w-[400px] mx-auto">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="blockchain">Blockchain</TabsTrigger>
-        </TabsList>
+      <div className="space-y-6 mt-6">
+        <BioSection 
+          ownerAddress={ownerAddress}
+          initialBio={passport.bio || ''}
+        />
         
-        <TabsContent value="overview" className="space-y-6 mt-6">
-          <BioSection 
-            ownerAddress={ownerAddress}
-            initialBio={passport.bio || ''}
-          />
-          
-          <WorkExperienceSection 
-            ownerAddress={ownerAddress}
-          />
-          
-          <SkillsTab 
-            skills={passport.skills}
-            name={passport.name}
-            avatarUrl={avatarUrl}
-            ensName={resolvedEns}
-            ownerAddress={ownerAddress}
-          />
-        </TabsContent>
+        <WorkExperienceSection 
+          ownerAddress={ownerAddress}
+        />
         
-        <TabsContent value="blockchain" className="space-y-6 mt-6">
-          <BlockchainTab 
-            transactions={transactions}
-            address={ownerAddress}
-          />
-        </TabsContent>
-      </Tabs>
+        <SkillsTab 
+          skills={passport.skills}
+          name={passport.name}
+          avatarUrl={avatarUrl}
+          ensName={resolvedEns}
+          ownerAddress={ownerAddress}
+        />
+      </div>
     </TooltipProvider>
   );
 };
