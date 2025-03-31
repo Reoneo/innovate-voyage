@@ -3,7 +3,6 @@ import React from 'react';
 import { extractHandle } from '@/utils/socialLinkUtils';
 import {
   Github,
-  Globe,
   Mail,
   Disc
 } from 'lucide-react';
@@ -69,7 +68,13 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
         );
       case 'globe':
       case 'website':
-        return <Globe size={16} className="text-[#4CAF50]" />;
+        return (
+          <img 
+            src="https://img.icons8.com/?size=100&id=1349&format=png&color=000000" 
+            alt="Website"
+            className="w-4 h-4"
+          />
+        );
       case 'telegram':
         return (
           <img 
@@ -89,7 +94,13 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
           />
         );
       default:
-        return <Globe size={16} />;
+        return (
+          <img 
+            src="https://img.icons8.com/?size=100&id=1349&format=png&color=000000" 
+            alt="Website"
+            className="w-4 h-4"
+          />
+        );
     }
   };
 
