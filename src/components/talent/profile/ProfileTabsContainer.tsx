@@ -3,7 +3,8 @@ import React from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import { BlockchainPassport } from '@/lib/utils';
-
+import { Card } from '@/components/ui/card';
+import BioSection from './components/BioSection';
 import WorkExperienceSection from './components/WorkExperienceSection';
 
 interface ProfileTabsContainerProps {
@@ -34,10 +35,21 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
 }) => {
   return (
     <TooltipProvider>
-      <div className="space-y-6 mt-6">
-        <WorkExperienceSection 
-          ownerAddress={ownerAddress}
-        />
+      <div className="space-y-6 mt-6 bg-white p-0 max-w-full mx-auto" style={{ maxWidth: '21cm' }}>
+        <Card className="bg-white border shadow-md rounded-sm overflow-hidden">
+          <div className="p-6">
+            <BioSection 
+              ownerAddress={ownerAddress}
+              initialBio={blockchainProfile?.description || ''}
+            />
+            
+            <div className="mt-6">
+              <WorkExperienceSection 
+                ownerAddress={ownerAddress}
+              />
+            </div>
+          </div>
+        </Card>
       </div>
     </TooltipProvider>
   );

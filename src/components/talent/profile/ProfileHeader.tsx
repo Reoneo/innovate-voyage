@@ -33,7 +33,7 @@ interface ProfileHeaderProps {
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
   return (
     <HeaderContainer>
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 w-full">
         <AvatarSection 
           avatarUrl={passport.avatar_url}
           name={passport.name}

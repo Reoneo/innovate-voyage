@@ -11,8 +11,8 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
   const isMobile = useIsMobile();
 
   return (
-    <Card>
-      <CardHeader className="pb-4">
+    <Card className="bg-white border shadow-md rounded-sm">
+      <CardHeader className="pb-4 border-b border-gray-100">
         <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
           {children}
         </div>

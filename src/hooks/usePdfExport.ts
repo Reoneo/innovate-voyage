@@ -92,6 +92,9 @@ export function usePdfExport() {
               font-size: 14px;
               line-height: 1.5;
             }
+            body {
+              font-family: 'Arial', sans-serif;
+            }
           `;
           document.head.appendChild(style);
         }
@@ -108,8 +111,10 @@ export function usePdfExport() {
       
       document.body.classList.remove('generating-pdf');
       
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
+      // A4 dimensions in mm
+      const imgWidth = 210;
+      const pageHeight = 297;
+      
       const imgHeight = canvas.height * imgWidth / canvas.width;
       
       const pdf = new jsPDF({

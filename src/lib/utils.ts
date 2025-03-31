@@ -1,4 +1,3 @@
-
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -61,10 +60,13 @@ export interface JobPosting {
 }
 
 // Helper function for truncating addresses
-export function truncateAddress(address: string): string {
-  if (!address) return '';
+export const truncateAddress = (address: string | undefined | null): string => {
+  if (!address || typeof address !== 'string') return '';
+  
+  if (address.length < 10) return address;
+  
   return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
-}
+};
 
 // Helper function to validate Ethereum addresses
 export function isValidEthereumAddress(address: string): boolean {
