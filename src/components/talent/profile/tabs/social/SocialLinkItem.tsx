@@ -7,8 +7,6 @@ import {
   Linkedin,
   Globe,
   Mail,
-  Facebook,
-  Instagram,
   Youtube,
   Disc
 } from 'lucide-react';
@@ -29,9 +27,21 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       case 'linkedin':
         return <Linkedin size={16} className="text-[#0077B5]" />;
       case 'facebook':
-        return <Facebook size={16} className="text-[#1877F2]" />;
+        return (
+          <img 
+            src="https://img.icons8.com/?size=100&id=13912&format=png&color=000000" 
+            alt="Facebook"
+            className="w-4 h-4"
+          />
+        );
       case 'instagram':
-        return <Instagram size={16} className="text-[#E4405F]" />;
+        return (
+          <img 
+            src="https://img.icons8.com/?size=100&id=Xy10Jcu1L2Su&format=png&color=000000" 
+            alt="Instagram"
+            className="w-4 h-4"
+          />
+        );
       case 'youtube':
         return <Youtube size={16} className="text-[#FF0000]" />;
       case 'bluesky':
