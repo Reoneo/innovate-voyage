@@ -5,10 +5,9 @@ import SocialMediaLinks from '../tabs/social/SocialMediaLinks';
 import ProfileContact from './ProfileContact';
 import AddressDisplay from './identity/AddressDisplay';
 import { Link } from 'lucide-react';
+import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { mainnetProvider } from '@/utils/ethereumProviders';
-import { getEnsLinks } from '@/utils/ens/ensLinks';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -22,7 +21,6 @@ interface AvatarSectionProps {
     [key: string]: string | undefined;
   };
   additionalEnsDomains?: string[];
-  primaryDomain?: string | null;
 }
 
 const AvatarSection: React.FC<AvatarSectionProps> = ({ 
@@ -30,13 +28,11 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   name, 
   ownerAddress,
   socials = {},
-  additionalEnsDomains = [],
-  primaryDomain
+  additionalEnsDomains = []
 }) => {
   const [isOwner, setIsOwner] = useState(false);
   const [enhancedSocials, setEnhancedSocials] = useState<Record<string, string>>(socials as Record<string, string>);
   const [loading, setLoading] = useState(false);
-  const [ensOwnerName, setEnsOwnerName] = useState<string | null>(null);
   
   useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -54,11 +50,11 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     ? `${name}.eth` 
     : name;
 
-  // Fetch ENS social links and owner name from ENS domains directly
+  // Fetch ENS social links from Web3.bio
   useEffect(() => {
-    const fetchEnsData = async () => {
+    const fetchEnsSocials = async () => {
       // Check if we have an ENS name or address
-      let identity = primaryDomain || name;
+      let identity = name;
       
       // Format identity for ENS lookup
       if (identity?.includes('.eth') || identity?.includes('.box')) {
@@ -68,62 +64,63 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         identity = `${identity}.eth`;
       } else if (ownerAddress && ownerAddress.startsWith('0x')) {
         // Use address if no valid ENS name
-        try {
-          identity = await mainnetProvider.lookupAddress(ownerAddress);
-          if (!identity) return;
-        } catch (error) {
-          console.error('Error looking up ENS name:', error);
-          return;
-        }
+        identity = ownerAddress;
       } else {
         return; // No valid identity to look up
       }
       
       setLoading(true);
       try {
-        // Get ENS resolver
-        const resolver = await mainnetProvider.getResolver(identity);
-        if (resolver) {
-          // Try to get display name
-          try {
-            const name = await resolver.getText('name');
-            if (name) {
-              setEnsOwnerName(name);
-            }
-          } catch (error) {
-            console.warn('Error getting name from ENS:', error);
-          }
-
-          // Collect socials from ENS records
+        const profile = await fetchWeb3BioProfile(identity);
+        console.log('Web3.bio profile:', profile);
+        
+        if (profile) {
           const newSocials: Record<string, string> = {...(socials as Record<string, string>)};
           
-          // Try to get socials from ENS records
-          try {
-            const ensLinks = await getEnsLinks(identity, 'mainnet');
+          // Map profile links to social object
+          if (profile.github) newSocials.github = profile.github;
+          if (profile.twitter) newSocials.twitter = profile.twitter;
+          if (profile.linkedin) newSocials.linkedin = profile.linkedin;
+          if (profile.website) newSocials.website = profile.website;
+          if (profile.facebook) newSocials.facebook = profile.facebook;
+          if (profile.instagram) newSocials.instagram = profile.instagram;
+          if (profile.youtube) newSocials.youtube = profile.youtube;
+          if (profile.telegram) newSocials.telegram = profile.telegram;
+          if (profile.discord) newSocials.discord = profile.discord;
+          if (profile.bluesky) newSocials.bluesky = profile.bluesky;
+          if (profile.email) newSocials.email = profile.email;
+          if (profile.whatsapp) newSocials.whatsapp = profile.whatsapp;
+          
+          // Process links object if present
+          if (profile.links) {
+            if (profile.links.github?.link) newSocials.github = profile.links.github.link;
+            if (profile.links.twitter?.link) newSocials.twitter = profile.links.twitter.link;
+            if (profile.links.linkedin?.link) newSocials.linkedin = profile.links.linkedin.link;
+            if (profile.links.website?.link) newSocials.website = profile.links.website.link;
+            if (profile.links.facebook?.link) newSocials.facebook = profile.links.facebook.link;
+            if (profile.links.discord?.link) newSocials.discord = profile.links.discord.link;
             
-            // Map ENS links to social object
-            if (ensLinks.socials) {
-              Object.entries(ensLinks.socials).forEach(([key, value]) => {
-                if (value) {
-                  newSocials[key] = value;
-                }
-              });
-            }
-            
-            setEnhancedSocials(newSocials);
-          } catch (error) {
-            console.warn('Error getting socials from ENS:', error);
+            // Handle additional links that might not be in the type definition
+            const anyLinks = profile.links as any;
+            if (anyLinks.instagram?.link) newSocials.instagram = anyLinks.instagram.link;
+            if (anyLinks.youtube?.link) newSocials.youtube = anyLinks.youtube.link;
+            if (anyLinks.telegram?.link) newSocials.telegram = anyLinks.telegram.link;
+            if (anyLinks.bluesky?.link) newSocials.bluesky = anyLinks.bluesky.link;
+            if (anyLinks.whatsapp?.link) newSocials.whatsapp = anyLinks.whatsapp.link;
           }
+          
+          console.log('Enhanced socials:', newSocials);
+          setEnhancedSocials(newSocials);
         }
       } catch (error) {
-        console.error('Error fetching ENS data:', error);
+        console.error('Error fetching ENS social links:', error);
       } finally {
         setLoading(false);
       }
     };
     
-    fetchEnsData();
-  }, [name, ownerAddress, socials, primaryDomain]);
+    fetchEnsSocials();
+  }, [name, ownerAddress, socials]);
   
   return (
     <div className="flex flex-col items-center md:items-start gap-2">
@@ -132,7 +129,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         name={name} 
       />
       <div className="mt-2 text-center md:text-left">
-        <h3 className="text-2xl font-semibold">{ensOwnerName || displayName}</h3>
+        <h3 className="text-2xl font-semibold">{displayName}</h3>
         <AddressDisplay address={ownerAddress} />
       </div>
       

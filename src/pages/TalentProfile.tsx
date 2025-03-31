@@ -34,30 +34,42 @@ const TalentProfile = () => {
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   
+  // Determine which parameter to use for identification
   useEffect(() => {
     if (userId) {
+      // We're on the /recruitment.box/:userId route
+      // Check if it's an ENS or address
       if (isValidEthereumAddress(userId)) {
         setAddress(userId);
       } else {
+        // If it's not a valid address, treat it as an ENS
+        // If no .eth suffix is provided, add it (for short ENS names)
         const ensValue = userId.includes('.') ? userId : `${userId}.eth`;
         setEns(ensValue);
       }
     } else if (routeAddress) {
+      // We're on the /address/:address route
       setAddress(routeAddress);
     } else if (ensName && isValidEthereumAddress(ensName)) {
+      // We're on the /talent/:ensName route but it's actually an address
       setAddress(ensName);
     } else if (ensName) {
+      // We're on the /talent/:ensName route with an actual ENS name
+      // If no .eth suffix is provided, add it
       const ensValue = ensName.includes('.') ? ensName : `${ensName}.eth`;
       setEns(ensValue);
     } else if (ensNameOrAddress) {
+      // We're on the /:ensNameOrAddress route
       if (isValidEthereumAddress(ensNameOrAddress)) {
         setAddress(ensNameOrAddress);
       } else {
+        // If no .eth suffix is provided, add it
         const ensValue = ensNameOrAddress.includes('.') ? ensNameOrAddress : `${ensNameOrAddress}.eth`;
         setEns(ensValue);
       }
     }
 
+    // Get connected wallet from localStorage
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
   }, [ensName, routeAddress, userId, ensNameOrAddress]);
@@ -70,9 +82,11 @@ const TalentProfile = () => {
   const { profileRef, exportAsPDF } = usePdfExport();
   const isMobile = useIsMobile();
 
+  // Check if current user is the profile owner
   const isOwner = connectedWallet && passport?.owner_address && 
     connectedWallet.toLowerCase() === passport.owner_address.toLowerCase();
   
+  // Handle disconnecting wallet
   const handleDisconnect = () => {
     localStorage.removeItem('connectedWalletAddress');
     setConnectedWallet(null);
@@ -82,23 +96,22 @@ const TalentProfile = () => {
     });
   };
   
+  // Handle saving changes
   const handleSaveChanges = () => {
+    // This function doesn't need to do anything as changes are saved automatically
+    // to localStorage when skills are added, but we'll show a toast for feedback
     toast({
       title: "Changes saved",
       description: "Your profile changes have been saved successfully."
     });
   };
 
+  // Generate shareable URL for the profile
   const getShareableUrl = () => {
     const baseUrl = window.location.origin;
     const profileId = passport?.passport_id || passport?.owner_address;
     return `${baseUrl}/${profileId}`;
   };
-
-  // Get primary domain from ENS records or .box domains
-  const primaryDomain = resolvedEns || 
-    (blockchainExtendedData?.boxDomains && blockchainExtendedData.boxDomains.length > 0 
-      ? blockchainExtendedData.boxDomains[0] : null);
 
   return (
     <div className={`container mx-auto py-4 md:py-8 ${isMobile ? 'px-2' : 'max-w-5xl'}`}>
@@ -149,8 +162,7 @@ const TalentProfile = () => {
             score: passport.score,
             category: passport.category,
             socials: passport.socials || {},
-            bio: blockchainProfile?.description || blockchainExtendedData?.description || null,
-            primaryDomain: primaryDomain
+            bio: blockchainProfile?.description || blockchainExtendedData?.description || null
           }} />
           <ProfileTabsContainer 
             passport={passport}
@@ -161,7 +173,6 @@ const TalentProfile = () => {
             blockchainExtendedData={blockchainExtendedData}
             avatarUrl={avatarUrl}
             ownerAddress={passport.owner_address}
-            primaryDomain={primaryDomain}
           />
         </div>
       ) : (

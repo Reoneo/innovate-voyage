@@ -23,7 +23,6 @@ interface ProfileTabsContainerProps {
   };
   avatarUrl?: string;
   ownerAddress: string;
-  primaryDomain?: string | null;
 }
 
 const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({ 
@@ -31,8 +30,7 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   resolvedEns,
   avatarUrl,
   ownerAddress,
-  blockchainProfile,
-  primaryDomain
+  blockchainProfile
 }) => {
   return (
     <TooltipProvider>
