@@ -2,7 +2,6 @@
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import AvatarSection from './components/AvatarSection';
-import ProfileInfoSection from './components/ProfileInfoSection';
 
 interface ProfileHeaderProps {
   passport: {
@@ -38,16 +37,8 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
         <AvatarSection 
           avatarUrl={passport.avatar_url}
           name={passport.name}
-          bio={passport.bio}
           ownerAddress={passport.owner_address}
           socials={passport.socials}
-        />
-        
-        <ProfileInfoSection 
-          passportId={passport.passport_id}
-          ownerAddress={passport.owner_address}
-          bio={passport.bio}
-          socials={passport.socials || {}}
         />
       </div>
     </HeaderContainer>

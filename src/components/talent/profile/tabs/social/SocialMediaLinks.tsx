@@ -8,9 +8,16 @@ interface SocialMediaLinksProps {
 }
 
 const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials }) => {
+  // Filter platforms that have values in socials
+  const availablePlatforms = socialPlatforms.filter(platform => socials[platform.key]);
+  
+  if (availablePlatforms.length === 0) {
+    return <span className="text-sm text-muted-foreground col-span-full">No social links available</span>;
+  }
+  
   return (
     <>
-      {socialPlatforms.map(platform => 
+      {availablePlatforms.map(platform => 
         socials[platform.key] && (
           <SocialLinkItem 
             key={platform.key}

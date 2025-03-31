@@ -1,9 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
 import ProfileAvatar from './ProfileAvatar';
-import ProfileBio from './ProfileBio';
+import SocialMediaLinks from '../tabs/social/SocialMediaLinks';
 import ProfileContact from './ProfileContact';
 import AddressDisplay from './identity/AddressDisplay';
+import { Link } from 'lucide-react';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -22,7 +23,6 @@ interface AvatarSectionProps {
 const AvatarSection: React.FC<AvatarSectionProps> = ({ 
   avatarUrl, 
   name, 
-  bio, 
   ownerAddress,
   socials = {}
 }) => {
@@ -60,10 +60,15 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         location={socials.location}
         isOwner={isOwner}
       />
-      <ProfileBio 
-        bio={bio}
-        ownerAddress={ownerAddress}
-      />
+      
+      <div className="w-full mt-6">
+        <h3 className="flex items-center gap-2 text-xl font-medium mb-4">
+          <Link className="h-5 w-5" /> Social Links
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+          <SocialMediaLinks socials={socials as Record<string, string>} />
+        </div>
+      </div>
     </div>
   );
 };
