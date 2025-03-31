@@ -8,6 +8,9 @@ import BlockchainTab from './tabs/BlockchainTab';
 import SkillsTab from './tabs/SkillsTab';
 import BioSection from './components/BioSection';
 import WorkExperienceSection from './components/WorkExperienceSection';
+import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Network } from 'lucide-react';
 
 interface ProfileTabsContainerProps {
   passport: BlockchainPassport & {
@@ -50,12 +53,33 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
           ownerAddress={ownerAddress}
         />
         
-        <SkillsTab 
-          skills={passport.skills || []}
-          avatarUrl={avatarUrl}
-          ensName={resolvedEns || ''}
-          ownerAddress={ownerAddress}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <SkillsTab 
+            skills={passport.skills || []}
+            avatarUrl={avatarUrl}
+            ensName={resolvedEns || ''}
+            ownerAddress={ownerAddress}
+          />
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <Network className="h-5 w-5" />
+                Identity Network
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <IdNetworkGraph 
+                  name={passport.name} 
+                  avatarUrl={avatarUrl}
+                  ensName={resolvedEns}
+                  address={ownerAddress}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
         
         <BlockchainTab 
           transactions={transactions}
