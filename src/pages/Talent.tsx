@@ -1,13 +1,12 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useEnsByAddress, useAddressByEns, useRealAvatar } from '@/hooks/useWeb3';
-import { calculateHumanScore, getScoreColorClass, BlockchainPassport } from '@/lib/utils';
+import { BlockchainPassport } from '@/lib/utils';
 import TalentLayout from '@/components/talent/TalentLayout';
 import TalentGrid from '@/components/talent/TalentGrid';
 import TalentSearch from '@/components/talent/TalentSearch';
 import { useBlockchainProfile } from '@/hooks/useEtherscan';
 import { getAccountBalance, getTransactionCount, getLatestTransactions } from '@/api/services/etherscanService';
-import { fetchAllEnsDomains } from '@/api/services/ensService';
 
 const Talent = () => {
   const [addressSearch, setAddressSearch] = useState('');
@@ -34,7 +33,6 @@ const Talent = () => {
       let address = addressSearch;
       let ensName = '';
       let avatar = '/placeholder.svg';
-      let additionalEnsDomains: string[] = [];
       
       try {
         // If ENS name is provided, try to resolve address
@@ -61,43 +59,6 @@ const Talent = () => {
           ensName = address.substring(0, 6) + '...' + address.substring(address.length - 4);
         }
         
-        // Fetch ALL ENS domains for this address - only real ones, no mocks
-        const allDomains = await fetchAllEnsDomains(address);
-        if (allDomains && allDomains.length > 0) {
-          // Remove the primary domain that we already have
-          additionalEnsDomains = allDomains.filter(domain => domain !== ensName);
-        }
-        
-        // Fetch blockchain data
-        const [balance, txCount, latestTxs] = await Promise.all([
-          getAccountBalance(address),
-          getTransactionCount(address),
-          getLatestTransactions(address, 5)
-        ]);
-        
-        // Create skills array from transaction data
-        const skills = [];
-        if (Number(balance) > 0) skills.push('ETH Holder');
-        if (txCount > 10) skills.push('Active Trader');
-        if (txCount > 50) skills.push('Power User');
-        if (ensName.includes('.eth') || ensName.includes('.box')) skills.push('ENS Owner');
-        
-        // Add transaction-based skills
-        if (latestTxs && latestTxs.length > 0) {
-          const hasContractInteractions = latestTxs.some(tx => tx.input && tx.input !== '0x');
-          if (hasContractInteractions) skills.push('Smart Contract User');
-          
-          // Check if they've done transactions recently (within last 30 days)
-          const recentTx = latestTxs.some(tx => {
-            const txDate = new Date(parseInt(tx.timeStamp) * 1000);
-            const now = new Date();
-            const daysDiff = (now.getTime() - txDate.getTime()) / (1000 * 3600 * 24);
-            return daysDiff < 30;
-          });
-          
-          if (recentTx) skills.push('Recently Active');
-        }
-        
         // Create new passport from Etherscan data
         const newPassport: BlockchainPassport = {
           passport_id: ensName,
@@ -105,19 +66,13 @@ const Talent = () => {
           avatar_url: avatar,
           name: ensName.split('.')[0],
           issued: new Date().toISOString(),
-          skills: skills.map(skill => ({
-            name: skill,
-            proof: `etherscan://${address}`,
-          })),
-          socials: {},
-          additionalEnsDomains // Add the additional domains
+          skills: [],
+          socials: {}
         };
         
         setSearchResults([newPassport]);
-        // Success toast removed
       } catch (error) {
         console.error('Error fetching Etherscan data:', error);
-        // Error toast removed
         setSearchResults([]);
       } finally {
         setIsSearching(false);
@@ -131,14 +86,12 @@ const Talent = () => {
   const passportData = useMemo(() => {
     if (searchResults.length > 0) {
       return searchResults.map(passport => {
-        const { score, category } = calculateHumanScore(passport);
-        
         return {
           ...passport,
-          score,
-          category,
-          colorClass: getScoreColorClass(score),
-          hasMoreSkills: passport.skills?.length > 4
+          score: 0,
+          category: "",
+          colorClass: "",
+          hasMoreSkills: false
         };
       });
     }

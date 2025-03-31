@@ -3,7 +3,6 @@ import EnsLink from './social/EnsLink';
 import WebLink from './social/WebLink';
 import NoLinks from './social/NoLinks';
 import { SocialIcon } from '@/components/ui/social-icon';
-import { socialPlatforms } from '@/constants/socialPlatforms';
 
 interface SocialLinksProps {
   ensName?: string;

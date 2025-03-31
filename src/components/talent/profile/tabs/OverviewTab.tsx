@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
@@ -7,7 +8,6 @@ import WebLink from './social/WebLink';
 import NoLinks from './social/NoLinks';
 
 interface OverviewTabProps {
-  skills: Array<{ name: string; proof?: string }>;
   name: string;
   blockchainProfile?: BlockchainProfile | null;
   transactions?: any[] | null;
