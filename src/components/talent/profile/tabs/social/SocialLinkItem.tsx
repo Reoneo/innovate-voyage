@@ -3,11 +3,8 @@ import React from 'react';
 import { extractHandle } from '@/utils/socialLinkUtils';
 import {
   Github,
-  Twitter,
-  Linkedin,
   Globe,
   Mail,
-  Youtube,
   Disc
 } from 'lucide-react';
 
@@ -23,9 +20,21 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       case 'github':
         return <Github size={16} className="text-[#333]" />;
       case 'twitter':
-        return <Twitter size={16} className="text-[#1DA1F2]" />;
+        return (
+          <img 
+            src="https://img.icons8.com/?size=100&id=fJp7hepMryiw&format=png&color=000000" 
+            alt="Twitter"
+            className="w-4 h-4"
+          />
+        );
       case 'linkedin':
-        return <Linkedin size={16} className="text-[#0077B5]" />;
+        return (
+          <img 
+            src="https://img.icons8.com/?size=100&id=13930&format=png&color=000000" 
+            alt="LinkedIn"
+            className="w-4 h-4"
+          />
+        );
       case 'facebook':
         return (
           <img 
@@ -43,7 +52,13 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
           />
         );
       case 'youtube':
-        return <Youtube size={16} className="text-[#FF0000]" />;
+        return (
+          <img 
+            src="https://img.icons8.com/?size=100&id=19318&format=png&color=000000" 
+            alt="YouTube"
+            className="w-4 h-4"
+          />
+        );
       case 'bluesky':
         return (
           <img 
