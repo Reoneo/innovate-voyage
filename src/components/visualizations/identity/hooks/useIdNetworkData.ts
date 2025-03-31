@@ -1,9 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { web3Api } from '@/api/web3Api';
+import { fetchAllEnsDomains } from '@/api/services/domainsService';
 import { useSkillNfts } from '@/hooks/useWeb3';
-import { ENSRecord } from '@/api/types/web3Types';
 
 export interface NetworkNode {
   id: string;
@@ -34,20 +33,13 @@ export function useIdNetworkData(name: string, avatarUrl?: string, ensName?: str
   // Get resolved address - consider both .eth and .box domains
   const resolvedAddress = address || (ensName && !ensName.includes('.eth') && !ensName.includes('.box')) ? ensName : undefined;
   
-  // Fetch all ENS domains for this address
-  const { data: ensRecords } = useQuery({
-    queryKey: ['ensRecords', resolvedAddress],
+  // Fetch all ENS domains for this address using Etherscan API
+  const { data: ensDomains, isLoading: loadingEnsDomains } = useQuery({
+    queryKey: ['ensDomains', resolvedAddress],
     queryFn: async () => {
       if (!resolvedAddress) return [];
       try {
-        // Get all ENS records
-        const records = await web3Api.getAllEnsRecords();
-        
-        // Filter records to include only those belonging to the address
-        // and ensure we include both .eth and .box domains
-        return records.filter(record => 
-          record.address.toLowerCase() === resolvedAddress.toLowerCase()
-        );
+        return await fetchAllEnsDomains(resolvedAddress);
       } catch (error) {
         console.error("Error fetching ENS domains:", error);
         return [];
@@ -56,57 +48,32 @@ export function useIdNetworkData(name: string, avatarUrl?: string, ensName?: str
     enabled: !!resolvedAddress,
   });
 
-  // Get other web3 profile data
-  const { data: web3BioProfile } = useQuery({
-    queryKey: ['web3BioProfile', ensName || resolvedAddress],
-    queryFn: async () => {
-      if (!ensName && !resolvedAddress) return null;
-      try {
-        return await web3Api.fetchWeb3BioProfile(ensName || resolvedAddress || '');
-      } catch (error) {
-        console.error("Error fetching Web3 Bio Profile:", error);
-        return null;
-      }
-    },
-    enabled: !!(ensName || resolvedAddress),
-  });
-
-  // Get NFT data
-  const { data: skillNfts } = useSkillNfts(resolvedAddress);
-
-  // Process the data to create nodes and links
+  // Process the data to create nodes and links for ENS domains only
   const networkData = useNetworkGraphData(
     name,
     avatarUrl,
     ensName,
-    ensRecords,
-    web3BioProfile,
-    skillNfts
+    ensDomains || []
   );
 
   return {
     networkData,
     selectedNode,
     setSelectedNode,
-    loading: !ensRecords && !web3BioProfile && !skillNfts,
-    hasData: Boolean(
-      (ensRecords && ensRecords.length > 0) || 
-      web3BioProfile || 
-      (skillNfts && skillNfts.length > 0)
-    )
+    loading: loadingEnsDomains,
+    hasData: Boolean(ensDomains && ensDomains.length > 0)
   };
 }
 
 /**
  * Hook to process the data into nodes and links for the D3 graph
+ * Focusing ONLY on ENS domains
  */
 function useNetworkGraphData(
   name: string,
   avatarUrl?: string,
   ensName?: string,
-  ensRecords?: ENSRecord[],
-  web3BioProfile?: any,
-  skillNfts?: any[]
+  ensDomains?: string[]
 ): NetworkData {
   const [data, setData] = useState<NetworkData>({ nodes: [], links: [] });
 
@@ -115,85 +82,45 @@ function useNetworkGraphData(
     const centralNode: NetworkNode = { id: 'central', name, type: 'user', avatar: avatarUrl };
     
     // Main ENS domain node - could be .eth or .box
-    // Now directly connected to central node
     const mainEnsNode = ensName ? { 
       id: 'main-ens', 
       name: ensName, 
-      type: 'ens-domain', // Changed from 'ens-main' to 'ens-domain'
+      type: 'ens-domain',
       isDotBox: ensName.includes('.box') 
     } : null;
     
     // Additional ENS domains - both .eth and .box
-    // Now all directly connected to central node
-    const ensNodes = ensRecords?.filter(domain => 
-      domain.ensName !== ensName
-    ).map((domain, idx) => ({
-      id: `ens-${idx}`,
-      name: domain.ensName,
-      type: 'ens-domain', // Changed from 'ens-other' to 'ens-domain'
-      avatar: domain.avatar,
-      isDotBox: domain.ensName.includes('.box')
-    })) || [];
+    const ensNodes = (ensDomains || [])
+      .filter(domain => domain !== ensName) // Filter out main ENS name to avoid duplication
+      .map((domain, idx) => ({
+        id: `ens-${idx}`,
+        name: domain,
+        type: 'ens-domain',
+        isDotBox: domain.includes('.box')
+      }));
     
-    // Identity-related NFTs
-    const identityNfts = skillNfts?.filter(nft => 
-      nft.name.toLowerCase().includes('identity') || 
-      nft.name.toLowerCase().includes('passport') ||
-      nft.name.toLowerCase().includes('account') ||
-      nft.name.toLowerCase().includes('profile')
-    ).map((nft, idx) => ({
-      id: `nft-${idx}`,
-      name: nft.name,
-      type: 'identity-nft',
-      image: nft.image
-    })) || [];
-    
-    // Web3 bio platform nodes
-    const bioNodes = web3BioProfile?.platform ? [{
-      id: 'web3bio',
-      name: web3BioProfile.platform,
-      type: 'platform'
-    }] : [];
-    
-    // Combine all nodes
+    // Combine all nodes - ONLY central node and ENS domains
     const nodes = [
       centralNode,
       ...(mainEnsNode ? [mainEnsNode] : []),
-      ...ensNodes,
-      ...identityNfts,
-      ...bioNodes
+      ...ensNodes
     ];
 
-    // Create links between central node and other identity elements
-    // All ENS domains now directly connect to central node
+    // Create links between central node and ENS domains
     const links = [
-      // Link to main ENS
+      // Link to main ENS if exists
       ...(mainEnsNode ? [{ source: 'central', target: 'main-ens', value: 5 }] : []),
       
-      // Links to other ENS domains - now directly to central node
+      // Links to other ENS domains - directly to central node
       ...ensNodes.map(node => ({
         source: 'central',
         target: node.id,
         value: 3
-      })),
-      
-      // Links to NFTs
-      ...identityNfts.map(node => ({
-        source: 'central',
-        target: node.id,
-        value: 2
-      })),
-      
-      // Links to web3 bio platforms
-      ...bioNodes.map(node => ({
-        source: 'central',
-        target: node.id,
-        value: 2
       }))
     ];
 
     setData({ nodes, links });
-  }, [name, avatarUrl, ensName, ensRecords, web3BioProfile, skillNfts]);
+  }, [name, avatarUrl, ensName, ensDomains]);
 
   return data;
 }

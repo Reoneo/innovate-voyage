@@ -41,7 +41,7 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
       .attr("height", height)
       .attr("viewBox", `0 0 ${width} ${height}`);
 
-    // Create force simulation
+    // Create force simulation - adjust for ENS domain focus
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id((d: any) => d.id).distance(100))
       .force("charge", d3.forceManyBody().strength(-200))
@@ -57,8 +57,6 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
         .attr("stroke", (d: any) => {
           const target = nodes.find(n => n.id === d.target);
           if (target?.type === 'ens-domain') return target.isDotBox ? "#8b5cf6" : "#6366f1";
-          if (target?.type === 'identity-nft') return "#10b981";
-          if (target?.type === 'platform') return "#f59e0b";
           return "#9ca3af";
         })
         .attr("stroke-opacity", 0.7)
@@ -96,12 +94,7 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
 
     // Add circles to nodes with styling based on node type
     node.append("circle")
-      .attr("r", (d: any) => {
-        if (d.type === "user") return 30;
-        if (d.type === "ens-domain") return 22;
-        if (d.type === "identity-nft") return 18;
-        return 18;
-      })
+      .attr("r", (d: any) => d.type === "user" ? 30 : 22)
       .attr("fill", (d: any) => {
         if (d.type === "user") {
           if (d.avatar) return `url(#user-avatar)`;
@@ -112,6 +105,7 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
       .attr("stroke", (d: any) => getNodeStrokeColor(d.type, d.isDotBox))
       .attr("stroke-width", 1.5);
 
+    // Add user avatar if available
     if (avatarUrl) {
       const defs = svg.append("defs");
       const pattern = defs.append("pattern")
@@ -127,40 +121,34 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
         .attr("preserveAspectRatio", "xMidYMid slice");
     }
 
+    // Add text labels to nodes
     node.append("text")
-      .attr("dy", (d: any) => d.type === "user" ? 0 : 0)
+      .attr("dy", 0)
       .attr("text-anchor", "middle")
       .attr("dominant-baseline", "middle")
       .attr("fill", (d: any) => {
         if (d.type === "user") return avatarUrl ? "#ffffff" : "#ffffff";
-        if (d.type.includes("ens")) return "#ffffff";
         return "#ffffff";
       })
       .attr("font-weight", (d: any) => {
-        if (d.type === "user" || d.type === "ens-domain") return "bold"; 
-        return "normal";
+        return d.type === "user" || d.type === "ens-domain" ? "bold" : "normal";
       })
       .attr("font-size", (d: any) => {
-        if (d.type === "user") return "12px";
-        if (d.type === "ens-domain") return "11px";
-        return "10px";
+        return d.type === "user" ? "12px" : "11px";
       })
       .text((d: any) => {
         const displayName = d.name;
         if (d.type === "user") {
           return displayName.length > 12 ? displayName.substring(0, 12) + "..." : displayName;
-        } else if (d.type === "ens-domain") {
-          return displayName.length > 12 ? displayName.substring(0, 12) + "..." : displayName;
         } else {
-          return displayName.length > 10 ? displayName.substring(0, 10) + "..." : displayName;
+          return displayName.length > 12 ? displayName.substring(0, 12) + "..." : displayName;
         }
       });
 
+    // Add background circle for text visibility
     node.insert("circle", "text")
       .attr("r", (d: any) => {
-        if (d.type === "user") return 25;
-        if (d.type === "ens-domain") return 20;
-        return 16;
+        return d.type === "user" ? 25 : 20;
       })
       .attr("fill", (d: any) => {
         if (d.type === "user") return avatarUrl ? "transparent" : "#3b82f6";
@@ -168,6 +156,7 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
       })
       .attr("opacity", (d: any) => d.type === "user" && avatarUrl ? 0 : 0.9);
 
+    // Add ENS/BOX labels to domain nodes
     node.filter((d: any) => d.type === "ens-domain")
       .append("text")
       .attr("x", 12)
@@ -179,6 +168,7 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
       .attr("font-size", "10px")
       .text((d: any) => d.isDotBox ? "BOX" : "ENS");
 
+    // Update positions on simulation tick
     simulation.on("tick", () => {
       link
         .attr("x1", (d: any) => d.source.x)
@@ -186,6 +176,7 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
         .attr("x2", (d: any) => d.target.x)
         .attr("y2", (d: any) => d.target.y);
 
+      // Keep nodes within bounds
       node.attr("transform", (d: any) => {
         d.x = Math.max(margin.left + 30, Math.min(width - margin.right - 30, d.x));
         d.y = Math.max(margin.top + 30, Math.min(height - margin.bottom - 30, d.y));
@@ -193,6 +184,7 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
       });
     });
 
+    // Add tooltips
     const tooltip = createTooltip();
 
     node.on("mouseover", function(event, d: any) {
