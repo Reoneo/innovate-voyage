@@ -3,8 +3,9 @@ import React from 'react';
 import { useBlockchainProfile } from '@/hooks/useEtherscan';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowDownUp, Coins, AlignJustify } from 'lucide-react';
+import { ArrowDownUp, Coins, AlignJustify, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface BlockchainActivityProps {
   address: string;
@@ -28,7 +29,6 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
   // Check if API key is present and display appropriate toast
   React.useEffect(() => {
     if (!apiKeyChecked) {
-      // The API key is now set directly in the environment variables
       const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
       
       if (!apiKey) {
@@ -40,7 +40,7 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
       } else if (error) {
         toast({
           title: "Etherscan API Error",
-          description: "There was an error fetching blockchain data. Check your API key or network connection.",
+          description: "There was an error fetching blockchain data. This may be due to rate limiting or an invalid address.",
           variant: "destructive",
         });
       } else {
@@ -66,8 +66,22 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
 
   if (!profile) {
     return (
-      <div className="text-sm text-muted-foreground">
-        Could not load blockchain data. Using mock data instead.
+      <div className="space-y-4">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error loading blockchain data</AlertTitle>
+          <AlertDescription>
+            {error ? 
+              `Error: ${error instanceof Error ? error.message : 'Unable to fetch blockchain data'}` : 
+              'Could not retrieve blockchain activity for this address. Using mock data instead.'}
+          </AlertDescription>
+        </Alert>
+        <div className="text-sm">
+          <p className="text-muted-foreground mt-2">
+            Note: Some ENS names may not map directly to Ethereum addresses or may have resolution issues.
+            If you're seeing this error, try viewing the profile by Ethereum address instead.
+          </p>
+        </div>
       </div>
     );
   }

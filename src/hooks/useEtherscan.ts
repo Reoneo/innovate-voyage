@@ -6,9 +6,19 @@ import type { BlockchainProfile } from '@/api/types/etherscanTypes';
 export function useBlockchainProfile(address: string | undefined) {
   return useQuery({
     queryKey: ['blockchain', 'profile', address],
-    queryFn: () => address ? web3Api.getBlockchainProfile(address) : null,
+    queryFn: async () => {
+      if (!address) return null;
+      try {
+        const profile = await web3Api.getBlockchainProfile(address);
+        return profile;
+      } catch (error) {
+        console.error("Error fetching blockchain profile:", error);
+        throw error;
+      }
+    },
     enabled: !!address,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1, // Only retry once to avoid rate limiting issues
   });
 }
 
@@ -18,6 +28,7 @@ export function useAccountBalance(address: string | undefined) {
     queryFn: () => address ? web3Api.getAccountBalance(address) : null,
     enabled: !!address,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
   });
 }
 
@@ -27,6 +38,7 @@ export function useTransactionCount(address: string | undefined) {
     queryFn: () => address ? web3Api.getTransactionCount(address) : null,
     enabled: !!address,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
   });
 }
 
@@ -36,6 +48,7 @@ export function useLatestTransactions(address: string | undefined, limit: number
     queryFn: () => address ? web3Api.getLatestTransactions(address, limit) : null,
     enabled: !!address,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
   });
 }
 
@@ -45,5 +58,6 @@ export function useTokenTransfers(address: string | undefined, limit: number = 5
     queryFn: () => address ? web3Api.getTokenTransfers(address, limit) : null,
     enabled: !!address,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
   });
 }
