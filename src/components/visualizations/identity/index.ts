@@ -1,3 +1,1 @@
-
-// Export identity visualization components
-export { default as IdNetworkGraph } from './IdNetworkGraph';
+// Identity visualization components have been removed
