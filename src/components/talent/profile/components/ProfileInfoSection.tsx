@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import ProfileBio from './ProfileBio';
 import ProfileContact from './ProfileContact';
 
 interface ProfileInfoSectionProps {
@@ -20,11 +19,6 @@ const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({
   return (
     <Card className="w-full">
       <CardContent className="p-4 space-y-4">
-        <ProfileBio 
-          bio={bio} 
-          ownerAddress={ownerAddress} 
-          socials={socials}
-        />
         <ProfileContact 
           passportId={passportId} 
           ownerAddress={ownerAddress}
