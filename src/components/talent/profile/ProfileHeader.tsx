@@ -50,7 +50,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
             socials={passport.socials}
           />
           <ProfileScores
-            humanScore={passport.score}
             category={passport.category}
           />
         </div>
