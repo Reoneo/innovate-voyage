@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PlusCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -28,7 +28,7 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
 }) => {
   const { toast } = useToast();
   const [showAddSkill, setShowAddSkill] = useState(false);
-  const [localSkills, setLocalSkills] = useState<Skill[]>(skills || []);
+  const [localSkills, setLocalSkills] = useState<Skill[]>([]);
   const [isOwner, setIsOwner] = useState(false);
   
   useEffect(() => {
@@ -41,13 +41,15 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
       const savedSkills = JSON.parse(localStorage.getItem(`skills_${ownerAddress}`) || 'null');
       if (savedSkills) {
         setLocalSkills(savedSkills);
-      } else if (skills && skills.length > 0) {
+      } else if (isOwner && skills && skills.length > 0) {
         setLocalSkills(skills);
+      } else {
+        setLocalSkills([]);
       }
     } catch (error) {
       console.error('Error loading skills from localStorage:', error);
     }
-  }, [skills, ownerAddress]);
+  }, [skills, ownerAddress, isOwner]);
   
   const handleAddSkill = (skillName: string) => {
     const newSkill = { name: skillName };
@@ -82,9 +84,6 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
           <CardTitle>Skills</CardTitle>
-          <CardDescription>
-            Showcase your technical and professional skills
-          </CardDescription>
         </div>
         
         {isOwner && (
@@ -123,11 +122,7 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            {isOwner ? (
-              <>No skills have been added yet</>
-            ) : (
-              <>Connect wallet to add skills</>
-            )}
+            Connect wallet to add skills
           </div>
         )}
       </CardContent>
