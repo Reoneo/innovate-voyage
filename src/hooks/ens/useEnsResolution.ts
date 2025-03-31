@@ -1,9 +1,6 @@
 
 import { useState } from 'react';
-import { resolveEnsToAddress, resolveAddressToEns } from '@/utils/ens/resolveEns';
-import { getEnsAvatar, getEnsBio } from '@/utils/ens/ensRecords';
-import { getTextRecord } from '@/utils/ens/ensClient';
-import { getEnsLinks } from '@/utils/ens/ensLinks';
+import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ensResolution';
 
 interface EnsResolutionState {
   resolvedAddress: string | undefined;
@@ -39,28 +36,10 @@ export function useEnsResolution(ensName?: string, address?: string) {
         const avatar = await getEnsAvatar(ensName, 'mainnet');
         const bio = await getEnsBio(ensName, 'mainnet');
         
-        // Get additional social links
-        const github = await getTextRecord(ensName, 'com.github');
-        const twitter = await getTextRecord(ensName, 'com.twitter');
-        const linkedin = await getTextRecord(ensName, 'com.linkedin');
-        const website = await getTextRecord(ensName, 'url');
-        
-        // Initialize socials
-        const socials: Record<string, string> = { ...(links.socials || {}) };
-        
-        // Combine with existing links
-        if (github) socials.github = github;
-        if (twitter) socials.twitter = twitter;
-        if (linkedin) socials.linkedin = linkedin;
-        if (website) socials.website = website;
-        
         setState(prev => ({
           ...prev,
           resolvedAddress,
-          ensLinks: {
-            ...links,
-            socials
-          },
+          ensLinks: links,
           avatarUrl: avatar || prev.avatarUrl,
           ensBio: bio || links.description || prev.ensBio
         }));
@@ -78,28 +57,10 @@ export function useEnsResolution(ensName?: string, address?: string) {
         const avatar = await getEnsAvatar(result.ensName, 'mainnet');
         const bio = await getEnsBio(result.ensName, 'mainnet');
         
-        // Get additional social links
-        const github = await getTextRecord(result.ensName, 'com.github');
-        const twitter = await getTextRecord(result.ensName, 'com.twitter');
-        const linkedin = await getTextRecord(result.ensName, 'com.linkedin');
-        const website = await getTextRecord(result.ensName, 'url');
-        
-        // Initialize socials
-        const socials: Record<string, string> = { ...(links.socials || {}) };
-        
-        // Combine with existing links
-        if (github) socials.github = github;
-        if (twitter) socials.twitter = twitter;
-        if (linkedin) socials.linkedin = linkedin;
-        if (website) socials.website = website;
-        
         setState(prev => ({
           ...prev,
           resolvedEns: result.ensName,
-          ensLinks: {
-            ...links,
-            socials
-          },
+          ensLinks: links,
           avatarUrl: avatar || prev.avatarUrl,
           ensBio: bio || links.description || prev.ensBio
         }));

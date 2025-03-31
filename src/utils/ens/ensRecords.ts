@@ -1,19 +1,27 @@
 
-import { getTextRecord, getAvatar } from './ensClient';
+import { mainnetProvider } from '../ethereumProviders';
 
 /**
- * Gets avatar for an ENS name using ENS.js
+ * Gets avatar for an ENS name
  */
 export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
   try {
-    console.log(`Getting avatar for ${ensName}`);
-    const avatarUrl = await getAvatar(ensName);
+    // Always use mainnet provider regardless of network param
+    const provider = mainnetProvider;
+    const resolver = await provider.getResolver(ensName);
     
-    if (avatarUrl) {
-      console.log(`Got avatar for ${ensName}:`, avatarUrl);
-      return avatarUrl;
+    if (resolver) {
+      console.log(`Got resolver for ${ensName}`);
+      const avatar = await resolver.getText('avatar');
+      
+      if (avatar) {
+        console.log(`Got avatar for ${ensName}:`, avatar);
+        return avatar;
+      } else {
+        console.log(`No avatar found for ${ensName} in resolver`);
+      }
     } else {
-      console.log(`No avatar found for ${ensName}`);
+      console.log(`No resolver found for ${ensName}`);
     }
     
     return null;
@@ -24,16 +32,25 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
 }
 
 /**
- * Gets ENS bio data using ENS.js
+ * Gets ENS bio data
  */
 export async function getEnsBio(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
   try {
-    console.log(`Getting bio for ${ensName}`);
-    const description = await getTextRecord(ensName, 'description');
+    // Always use mainnet provider
+    const provider = mainnetProvider;
+    const resolver = await provider.getResolver(ensName);
     
-    if (description) {
-      console.log(`Got bio for ${ensName}:`, description);
-      return description;
+    if (resolver) {
+      // Try to get description/bio from ENS records
+      try {
+        const description = await resolver.getText('description');
+        if (description) {
+          console.log(`Got bio for ${ensName}:`, description);
+          return description;
+        }
+      } catch (error) {
+        console.warn(`Failed to get description for ${ensName}:`, error);
+      }
     }
     
     return null;

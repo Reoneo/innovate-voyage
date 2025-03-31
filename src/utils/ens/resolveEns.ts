@@ -1,60 +1,37 @@
 
 import { mainnetProvider } from '../ethereumProviders';
-import { getAddressRecord, getName, normalizeEnsDomain, ensClient } from './ensClient';
 
 /**
- * Validates if the input could be a valid ENS name
- */
-export function isValidEnsDomain(domain: string): boolean {
-  // Basic validation: must have at least one character before the dot
-  // and a valid TLD (currently supporting .eth and .box)
-  return /^[a-zA-Z0-9][a-zA-Z0-9-]*\.(eth|box)$/.test(domain);
-}
-
-/**
- * Resolves an ENS name to an address using ENS.js
+ * Resolves an ENS name to an address
  */
 export async function resolveEnsToAddress(ensName: string) {
-  if (!ensName) return null;
+  // Treat all domains as mainnet domains
+  const provider = mainnetProvider;
   
-  const normalizedEns = normalizeEnsDomain(ensName);
-  
-  // Only proceed if it's a potentially valid ENS name
-  if (!normalizedEns.includes('.')) {
-    console.warn(`Invalid ENS format: ${ensName}`);
-    return null;
-  }
-  
-  console.log(`Resolving domain: ${normalizedEns} using ENS.js client`);
+  console.log(`Resolving domain: ${ensName} using Mainnet provider`);
   
   try {
-    const result = await getAddressRecord(normalizedEns);
-    console.log(`Resolution result for ${normalizedEns}:`, result);
-    return result;
+    const resolvedAddress = await provider.resolveName(ensName);
+    console.log(`Resolution result for ${ensName}:`, resolvedAddress);
+    return resolvedAddress;
   } catch (error) {
-    console.error(`Error resolving ${normalizedEns}:`, error);
+    console.error(`Error resolving ${ensName}:`, error);
     return null;
   }
 }
 
 /**
- * Resolves an address to ENS names using ENS.js
+ * Resolves an address to ENS names
  */
 export async function resolveAddressToEns(address: string) {
-  if (!address || !address.startsWith('0x')) {
-    console.warn('Invalid Ethereum address format');
-    return null;
-  }
-  
+  // Try mainnet first
   try {
-    console.log(`Looking up ENS for address: ${address} using ENS.js client`);
-    // Convert to correct 0x format for viem
-    const formattedAddress = address as `0x${string}`;
-    const nameResult = await getName(formattedAddress);
+    console.log(`Looking up ENS for address: ${address} on Mainnet`);
+    const ensName = await mainnetProvider.lookupAddress(address);
     
-    if (nameResult && nameResult.name) {
-      console.log(`Found ENS name for ${address}: ${nameResult.name}`);
-      return { ensName: nameResult.name, network: 'mainnet' as const };
+    if (ensName) {
+      console.log(`Found ENS name for ${address}: ${ensName}`);
+      return { ensName, network: 'mainnet' as const };
     }
     
     return null;
