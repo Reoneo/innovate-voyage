@@ -1,21 +1,17 @@
 
 import React, { useEffect, useState } from 'react';
 import { CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { PencilLine } from 'lucide-react';
 import ProfileSocialLinks from './social/ProfileSocialLinks';
 
 interface ProfileInfoProps {
   passportId: string;
   ownerAddress: string;
-  bio?: string;
   socials: Record<string, string>;
 }
 
 const ProfileInfo: React.FC<ProfileInfoProps> = ({ 
   passportId, 
   ownerAddress, 
-  bio, 
   socials 
 }) => {
   const [isOwner, setIsOwner] = useState(false);
@@ -36,15 +32,6 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
       <div className="mb-3">
         <CardTitle className="text-2xl">{passportId}</CardTitle>
       </div>
-      
-      {bio && (
-        <div className="mb-4">
-          <h3 className="font-bold mb-1">Bio</h3>
-          <p className="text-sm text-muted-foreground">
-            {bio}
-          </p>
-        </div>
-      )}
       
       <ProfileSocialLinks 
         passportId={passportId} 
