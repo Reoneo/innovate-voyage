@@ -105,6 +105,10 @@ export interface Web3BioProfile {
       link: string;
       handle: string;
     };
+    discord?: {
+      link: string;
+      handle: string;
+    };
   };
   social?: Record<string, any>;
 }
