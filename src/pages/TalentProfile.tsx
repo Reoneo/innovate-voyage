@@ -5,7 +5,7 @@ import { usePdfExport } from '@/hooks/usePdfExport';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { Wallet, LogOut, Save, Download, FileText } from 'lucide-react';
+import { Wallet, LogOut, Save, Download } from 'lucide-react';
 
 import { 
   DropdownMenu,
@@ -100,17 +100,6 @@ const TalentProfile = () => {
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <ProfileNavigationBar />
-            <div className="hidden md:block">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="ml-2 flex items-center gap-1" 
-                onClick={exportAsPDF}
-              >
-                <FileText className="h-4 w-4" />
-                <span>Export PDF</span>
-              </Button>
-            </div>
           </div>
           
           <DropdownMenu>
