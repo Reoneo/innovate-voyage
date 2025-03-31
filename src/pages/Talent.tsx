@@ -110,6 +110,7 @@ const Talent = () => {
             proof: `etherscan://${address}`,
           })),
           socials: {},
+          category: 'Blockchain User', // Add the required category property
           additionalEnsDomains // Store the additional domains in the passport
         };
         

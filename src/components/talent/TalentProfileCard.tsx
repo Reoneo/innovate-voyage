@@ -5,11 +5,9 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
 import { BlockchainPassport } from '@/lib/utils';
-import { Shield, Info, ListFilter } from 'lucide-react';
-import UserCardTooltip from '@/components/jobs/UserCardTooltip';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ListFilter } from 'lucide-react';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 interface TalentProfileCardProps {
   passport: BlockchainPassport & {
@@ -37,7 +35,7 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
     <TooltipProvider>
       <Card className="h-full flex flex-col">
         <CardContent className="pt-6 flex-grow">
-          <div className="flex justify-between items-start mb-4">
+          <div className="flex items-start mb-4">
             <div className="flex items-center space-x-3">
               <Avatar className="h-12 w-12 border">
                 <AvatarImage src={passport.avatar_url} alt={passport.passport_id} />
@@ -51,28 +49,6 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
                   {passport.owner_address.substring(0, 6)}...{passport.owner_address.substring(passport.owner_address.length - 4)}
                 </p>
               </div>
-            </div>
-            
-            <div className="flex items-center">
-              <HoverCard openDelay={200}>
-                <HoverCardTrigger asChild>
-                  <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-secondary">
-                    <Shield className={`h-4 w-4 ${passport.colorClass}`} />
-                    <span className={`text-xs font-semibold ${passport.colorClass}`}>{passport.score}</span>
-                  </div>
-                </HoverCardTrigger>
-                <UserCardTooltip passport={passport} />
-              </HoverCard>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 ml-1.5 text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p className="text-sm">Human Score: {passport.score}</p>
-                  <p className="text-xs text-muted-foreground">{passport.category}</p>
-                </TooltipContent>
-              </Tooltip>
             </div>
           </div>
 
