@@ -9,7 +9,7 @@ interface ProfileAvatarProps {
 
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   return (
-    <Avatar className="h-24 w-24">
+    <Avatar className="h-28 w-28">
       <AvatarImage src={avatarUrl || '/placeholder.svg'} alt={name} />
       <AvatarFallback>{name?.substring(0, 2)?.toUpperCase() || 'BP'}</AvatarFallback>
     </Avatar>
