@@ -37,7 +37,8 @@ export async function fetchFromEtherscan(endpoint: string, params: Record<string
       // If the error is due to empty results and not an API error
       if (data.message === 'No transactions found' || 
           data.message.includes('No transactions found') ||
-          data.message === 'No records found') {
+          data.message === 'No records found' ||
+          data.message === 'Result is empty') {
         return []; // Return empty array for "no data" responses
       }
       

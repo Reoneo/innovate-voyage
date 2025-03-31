@@ -15,7 +15,6 @@ export async function getAccountBalance(address: string): Promise<string> {
     return balanceInETH;
   } catch (error) {
     console.error('Error fetching Etherscan balance:', error);
-    // Only return "0.0000" instead of mock data
     return "0.0000";
   }
 }
@@ -33,7 +32,6 @@ export async function getTransactionCount(address: string): Promise<number> {
     return parseInt(result, 16);
   } catch (error) {
     console.error('Error fetching Etherscan transaction count:', error);
-    // Return 0 instead of mock count
     return 0;
   }
 }

@@ -43,12 +43,6 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
           description: "There was an error fetching blockchain data. This may be due to rate limiting or an invalid address.",
           variant: "destructive",
         });
-      } else {
-        toast({
-          title: "Etherscan API Connected",
-          description: "Using blockchain data from Etherscan.",
-          variant: "default",
-        });
       }
       setApiKeyChecked(true);
     }
@@ -57,9 +51,21 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
   if (isLoading) {
     return (
       <div className="space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-20 w-full" />
+        <div className="flex justify-between">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+        <div className="flex justify-between mt-2">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-4 w-12" />
+        </div>
+        <Separator className="my-2" />
+        <Skeleton className="h-4 w-32" />
+        <div className="space-y-2">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
       </div>
     );
   }

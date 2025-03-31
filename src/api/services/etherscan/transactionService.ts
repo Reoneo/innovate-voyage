@@ -1,6 +1,5 @@
 
 import { fetchFromEtherscan, isEmptyResultError } from './etherscanCore';
-import { getMockStakingPositions } from './mockAdvancedData';
 
 // Get latest transactions
 export async function getLatestTransactions(address: string, limit: number = 5): Promise<any[]> {

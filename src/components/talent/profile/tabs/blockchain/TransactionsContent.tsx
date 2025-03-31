@@ -3,6 +3,7 @@ import React from 'react';
 import TokenFilterBadges from './TokenFilterBadges';
 import TransactionHistoryChart from '@/components/visualizations/transactions/TransactionHistoryChart';
 import TransactionsTable from './TransactionsTable';
+import { Loader2 } from 'lucide-react';
 
 interface TransactionsContentProps {
   transactions: any[] | null;
@@ -11,6 +12,7 @@ interface TransactionsContentProps {
   setActiveToken: (token: string | null) => void;
   address: string;
   filteredTransactions: any[] | null;
+  loading?: boolean;
 }
 
 const TransactionsContent: React.FC<TransactionsContentProps> = ({
@@ -19,8 +21,18 @@ const TransactionsContent: React.FC<TransactionsContentProps> = ({
   activeToken,
   setActiveToken,
   address,
-  filteredTransactions
+  filteredTransactions,
+  loading = false
 }) => {
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Loading transaction data...</p>
+      </div>
+    );
+  }
+  
   if (!transactions || transactions.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -41,7 +53,7 @@ const TransactionsContent: React.FC<TransactionsContentProps> = ({
       )}
       
       {/* Transaction chart */}
-      <div className="h-64">
+      <div className="h-64 w-full overflow-x-auto">
         <TransactionHistoryChart 
           transactions={filteredTransactions || []} 
           address={address}
@@ -50,10 +62,12 @@ const TransactionsContent: React.FC<TransactionsContentProps> = ({
       </div>
       
       {/* Transaction table */}
-      <TransactionsTable 
-        transactions={filteredTransactions || []} 
-        address={address} 
-      />
+      <div className="overflow-x-auto">
+        <TransactionsTable 
+          transactions={filteredTransactions || []} 
+          address={address} 
+        />
+      </div>
     </div>
   );
 };

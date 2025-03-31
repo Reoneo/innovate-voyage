@@ -72,6 +72,19 @@ const TalentProfile = () => {
     // Get connected wallet from localStorage
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
+    
+    // Add event listener to handle wallet connect button
+    const handleWalletConnect = () => {
+      if (window.connectWalletModal) {
+        window.connectWalletModal.showModal();
+      }
+    };
+    
+    document.addEventListener('open-wallet-connect', handleWalletConnect);
+    
+    return () => {
+      document.removeEventListener('open-wallet-connect', handleWalletConnect);
+    };
   }, [ensName, routeAddress, userId, ensNameOrAddress]);
 
   const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl } = useProfileData(
@@ -104,13 +117,6 @@ const TalentProfile = () => {
       title: "Changes saved",
       description: "Your profile changes have been saved successfully."
     });
-  };
-
-  // Generate shareable URL for the profile
-  const getShareableUrl = () => {
-    const baseUrl = window.location.origin;
-    const profileId = passport?.passport_id || passport?.owner_address;
-    return `${baseUrl}/${profileId}`;
   };
 
   return (
@@ -173,7 +179,7 @@ const TalentProfile = () => {
             blockchainExtendedData={blockchainExtendedData}
             avatarUrl={avatarUrl}
             ownerAddress={passport.owner_address}
-            additionalEnsDomains={passport.additionalEnsDomains || []} // Pass additional ENS domains
+            additionalEnsDomains={passport.additionalEnsDomains || []}
           />
         </div>
       ) : (
