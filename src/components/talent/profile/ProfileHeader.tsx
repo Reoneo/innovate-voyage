@@ -4,7 +4,6 @@ import { Card, CardHeader } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ProfileAvatar from './components/ProfileAvatar';
 import ProfileInfo from './components/ProfileInfo';
-import ProfileScores from './components/ProfileScores';
 
 interface ProfileHeaderProps {
   passport: {
@@ -49,11 +48,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
                 ownerAddress={passport.owner_address}
                 bio={passport.bio}
                 socials={passport.socials || {}}
-              />
-              
-              <ProfileScores 
-                humanScore={passport.score}
-                category={passport.category}
               />
             </div>
           </div>

@@ -9,7 +9,6 @@ import BlockchainTab from './tabs/BlockchainTab';
 import SkillsTab from './tabs/SkillsTab';
 import BioSection from './components/BioSection';
 import WorkExperienceSection from './components/WorkExperienceSection';
-import VerifiedWorkExperience from './components/VerifiedWorkExperience';
 
 interface ProfileTabsContainerProps {
   passport: BlockchainPassport & {
@@ -52,10 +51,6 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
           <BioSection 
             ownerAddress={ownerAddress}
             initialBio={passport.bio || ''}
-          />
-          
-          <VerifiedWorkExperience
-            walletAddress={ownerAddress}
           />
           
           <WorkExperienceSection 
