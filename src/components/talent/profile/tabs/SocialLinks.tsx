@@ -1,3 +1,4 @@
+
 import React from 'react';
 import EnsLink from './social/EnsLink';
 import WebLink from './social/WebLink';
@@ -16,7 +17,7 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ ensName, links, socials }) =>
   
   return (
     <div className="space-y-4">
-      {/* ENS Domains */}
+      {/* ENS Domain */}
       {ensName && <EnsLink ensName={ensName} />}
       
       {/* Other links */}

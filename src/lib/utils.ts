@@ -41,7 +41,6 @@ export interface BlockchainPassport {
     youtube?: string;
     bluesky?: string;
   };
-  additionalEnsDomains?: string[]; // Add this property
 }
 
 // Type for job posting

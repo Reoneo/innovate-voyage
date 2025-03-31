@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
@@ -46,7 +47,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* ENS Domains */}
+            {/* ENS Domain */}
             {ensName && <EnsLink ensName={ensName} />}
             
             {/* Other links */}
