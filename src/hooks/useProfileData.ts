@@ -47,6 +47,7 @@ export function useProfileData(ensName?: string, address?: string) {
     resolvedEns,
     blockchainExtendedData: blockchainData.blockchainExtendedData,
     avatarUrl,
-    poaps: blockchainData.poaps
+    poaps: blockchainData.poaps,
+    loadingPoaps: blockchainData.loadingPoaps
   };
 }

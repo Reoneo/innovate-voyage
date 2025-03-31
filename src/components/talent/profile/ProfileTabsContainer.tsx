@@ -27,6 +27,7 @@ interface ProfileTabsContainerProps {
   avatarUrl?: string;
   ownerAddress: string;
   poaps?: POAP[];
+  isLoadingPoaps?: boolean;
 }
 
 const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({ 
@@ -35,7 +36,8 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   avatarUrl,
   ownerAddress,
   blockchainProfile,
-  poaps
+  poaps,
+  isLoadingPoaps
 }) => {
   return (
     <TooltipProvider>
@@ -54,6 +56,7 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
 
         <PoapsTab 
           poaps={poaps}
+          isLoading={isLoadingPoaps}
         />
       </div>
     </TooltipProvider>

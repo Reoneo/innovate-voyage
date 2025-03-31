@@ -73,7 +73,6 @@ export async function getPoapsByAddress(address: string): Promise<POAP[]> {
   // In a real implementation, we would fetch from the POAP API
   // Example: const response = await fetch(`https://api.poap.xyz/actions/scan/${address}`);
   
-  return mockPoaps.filter(poap => 
-    poap.owner.toLowerCase() === address.toLowerCase()
-  );
+  // Always return mock POAPs for any address in development
+  return mockPoaps;
 }
