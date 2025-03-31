@@ -4,6 +4,7 @@ import { useBlockchainProfile } from '@/hooks/useEtherscan';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowDownUp, Coins, AlignJustify } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface BlockchainActivityProps {
   address: string;
@@ -21,6 +22,18 @@ function formatEther(wei: string): string {
 
 const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
   const { data: profile, isLoading, error } = useBlockchainProfile(address);
+  const { toast } = useToast();
+
+  // Display toast when there's an API key error
+  React.useEffect(() => {
+    if (error) {
+      toast({
+        title: "API Key Missing",
+        description: "Using mock blockchain data. Set VITE_ETHERSCAN_API_KEY in your environment to see real data.",
+        variant: "default",
+      });
+    }
+  }, [error, toast]);
 
   if (isLoading) {
     return (
@@ -32,10 +45,10 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
     );
   }
 
-  if (error || !profile) {
+  if (!profile) {
     return (
       <div className="text-sm text-muted-foreground">
-        Could not load blockchain data
+        Could not load blockchain data. Using mock data instead.
       </div>
     );
   }

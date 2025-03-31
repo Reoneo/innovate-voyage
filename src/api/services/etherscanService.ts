@@ -21,6 +21,7 @@ export async function getAccountBalance(address: string): Promise<string> {
       console.warn('Etherscan API returned an error:', data.message);
       // Return mock data for demonstration if API key is missing
       if (data.message && data.message.includes("Missing/Invalid API Key")) {
+        console.log("Using mock balance data due to missing API key");
         return "1.2345";
       }
       return '0';
@@ -49,6 +50,7 @@ export async function getTransactionCount(address: string): Promise<number> {
       console.warn('Etherscan API returned an error');
       // Return mock data for demonstration if API key is missing
       if (data.message && data.message.includes("Missing/Invalid API Key")) {
+        console.log("Using mock transaction count due to missing API key");
         return 42;
       }
       return 0;
@@ -77,6 +79,7 @@ export async function getWalletCreationDate(address: string): Promise<string | n
       console.warn('Etherscan API returned an error or no transactions found');
       // Return mock data for demonstration if API key is missing
       if (data.message && data.message.includes("Missing/Invalid API Key")) {
+        console.log("Using mock creation date due to missing API key");
         return new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(); // 1 year ago
       }
       return null;
@@ -104,12 +107,14 @@ export async function getLatestTransactions(address: string, limit: number = 5):
       console.warn('Etherscan API returned an error:', data.message);
       // Return mock data for demonstration if API key is missing
       if (data.message && data.message.includes("Missing/Invalid API Key")) {
+        console.log("Using mock transactions due to missing API key");
         return getMockTransactions(address, limit);
       }
       return [];
     }
   } catch (error) {
     console.error('Error fetching Etherscan transactions:', error);
+    console.log("Using mock transactions due to fetch error");
     return getMockTransactions(address, limit);
   }
 }
@@ -131,12 +136,14 @@ export async function getTokenTransfers(address: string, limit: number = 5): Pro
       console.warn('Etherscan API returned an error:', data.message);
       // Return mock data for demonstration if API key is missing
       if (data.message && data.message.includes("Missing/Invalid API Key")) {
+        console.log("Using mock token transfers due to missing API key");
         return getMockTokenTransfers(address, limit);
       }
       return [];
     }
   } catch (error) {
     console.error('Error fetching Etherscan token transfers:', error);
+    console.log("Using mock token transfers due to fetch error");
     return getMockTokenTransfers(address, limit);
   }
 }
@@ -222,13 +229,15 @@ function getMockTransactions(address: string, limit: number): any[] {
   
   for (let i = 0; i < limit; i++) {
     const isSending = i % 2 === 0;
+    const mockValue = Math.floor(Math.random() * 1000000000000000000); // Random value in wei
+    
     transactions.push({
       blockNumber: String(16000000 - i * 100),
       timeStamp: String(now - i * 86400), // One day apart
       hash: `0x${Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`,
       from: isSending ? address.toLowerCase() : `0x${Array(40).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`,
       to: isSending ? `0x${Array(40).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')}` : address.toLowerCase(),
-      value: String(Math.floor(Math.random() * 1000000000000000000)), // Random value in wei
+      value: String(mockValue), // Random value in wei
       gas: "21000",
       gasPrice: "20000000000",
       isError: "0",
@@ -241,6 +250,7 @@ function getMockTransactions(address: string, limit: number): any[] {
     });
   }
   
+  console.log(`Generated ${transactions.length} mock transactions for address ${address}`);
   return transactions;
 }
 
