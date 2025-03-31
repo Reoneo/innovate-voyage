@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileBio from './ProfileBio';
 import ProfileContact from './ProfileContact';
+import AddressDisplay from './identity/AddressDisplay';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -44,6 +45,10 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         avatarUrl={avatarUrl} 
         name={name} 
       />
+      <div className="mt-2 text-center md:text-left">
+        <h3 className="text-lg font-semibold">{name}</h3>
+        <AddressDisplay address={ownerAddress} />
+      </div>
       <ProfileContact 
         email={socials.email}
         telephone={telephone}

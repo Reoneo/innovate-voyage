@@ -4,8 +4,6 @@ import { CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PencilLine } from 'lucide-react';
 import ProfileSocialLinks from './social/ProfileSocialLinks';
-import EditableName from './identity/EditableName';
-import AddressDisplay from './identity/AddressDisplay';
 
 interface ProfileInfoProps {
   passportId: string;
@@ -35,12 +33,8 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
 
   return (
     <div data-owner-address={ownerAddress}>
-      <div className="flex items-center gap-3 mb-1">
-        <CardTitle className="text-2xl">{passportId}</CardTitle>
-      </div>
-      
       <div className="mb-3">
-        <AddressDisplay address={ownerAddress} />
+        <CardTitle className="text-2xl">{passportId}</CardTitle>
       </div>
       
       {bio && (
