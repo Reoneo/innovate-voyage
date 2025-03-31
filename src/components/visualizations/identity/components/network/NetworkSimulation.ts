@@ -57,4 +57,3 @@ export const applyTickFunction = (
       });
   };
 };
-</lov-add-dependency>axios@latest</lov-add-dependency>
