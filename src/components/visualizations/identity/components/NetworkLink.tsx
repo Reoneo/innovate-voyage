@@ -10,19 +10,19 @@ interface NetworkLinkProps {
 
 const NetworkLink: React.FC<NetworkLinkProps> = ({ link, nodes, selectedNode }) => {
   // Find the target node to determine color, with proper null checking
-  const targetId = typeof link.target === 'object' ? link.target?.id : link.target;
+  const targetId = typeof link.target === 'object' && link.target ? link.target.id : link.target;
   const target = targetId ? nodes.find(n => n.id === targetId) : undefined;
   
   // Determine if this link connects to the selected node, with proper null checking
   const isSelected = Boolean(selectedNode) && (
     // Check if the source node matches the selected node name
-    ((typeof link.source === 'object' && link.source?.id) ? 
-      nodes.find(n => n.id === link.source?.id)?.name === selectedNode : 
+    ((typeof link.source === 'object' && link.source) ? 
+      nodes.find(n => n.id === (link.source && typeof link.source === 'object' ? link.source.id : link.source))?.name === selectedNode : 
       (link.source ? nodes.find(n => n.id === link.source)?.name === selectedNode : false)) ||
     
     // Check if the target node matches the selected node name
-    ((typeof link.target === 'object' && link.target?.id) ? 
-      nodes.find(n => n.id === link.target?.id)?.name === selectedNode : 
+    ((typeof link.target === 'object' && link.target) ? 
+      nodes.find(n => n.id === (link.target && typeof link.target === 'object' ? link.target.id : link.target))?.name === selectedNode : 
       (link.target ? nodes.find(n => n.id === link.target)?.name === selectedNode : false))
   );
   
@@ -33,10 +33,10 @@ const NetworkLink: React.FC<NetworkLinkProps> = ({ link, nodes, selectedNode }) 
   }
   
   // Get x and y positions with enhanced null checking
-  const sourceX = typeof link.source === 'object' ? (link.source?.x ?? 0) : 0;
-  const sourceY = typeof link.source === 'object' ? (link.source?.y ?? 0) : 0;
-  const targetX = typeof link.target === 'object' ? (link.target?.x ?? 0) : 0;
-  const targetY = typeof link.target === 'object' ? (link.target?.y ?? 0) : 0;
+  const sourceX = typeof link.source === 'object' && link.source ? (link.source.x ?? 0) : 0;
+  const sourceY = typeof link.source === 'object' && link.source ? (link.source.y ?? 0) : 0;
+  const targetX = typeof link.target === 'object' && link.target ? (link.target.x ?? 0) : 0;
+  const targetY = typeof link.target === 'object' && link.target ? (link.target.y ?? 0) : 0;
   
   return (
     <line

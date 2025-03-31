@@ -5,7 +5,6 @@ import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import { BlockchainPassport } from '@/lib/utils';
 
 import WorkExperienceSection from './components/WorkExperienceSection';
-import OverviewTab from './tabs/OverviewTab';
 
 interface ProfileTabsContainerProps {
   passport: BlockchainPassport & {
