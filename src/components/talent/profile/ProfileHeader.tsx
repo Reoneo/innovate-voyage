@@ -4,7 +4,6 @@ import { Card, CardHeader } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ProfileAvatar from './components/ProfileAvatar';
 import ProfileInfo from './components/ProfileInfo';
-import ProfileScores from './components/ProfileScores';
 
 interface ProfileHeaderProps {
   passport: {
@@ -12,7 +11,6 @@ interface ProfileHeaderProps {
     owner_address: string;
     avatar_url: string;
     name: string;
-    score: number;
     category: string;
     socials: {
       github?: string;
@@ -43,19 +41,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
           />
           
           <div className="flex-1 text-center md:text-left">
-            <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
-              <ProfileInfo 
-                passportId={passport.passport_id}
-                ownerAddress={passport.owner_address}
-                bio={passport.bio}
-                socials={passport.socials || {}}
-              />
-              
-              <ProfileScores 
-                humanScore={passport.score}
-                category={passport.category}
-              />
-            </div>
+            <ProfileInfo 
+              passportId={passport.passport_id}
+              ownerAddress={passport.owner_address}
+              bio={passport.bio}
+              socials={passport.socials || {}}
+            />
           </div>
         </div>
       </CardHeader>

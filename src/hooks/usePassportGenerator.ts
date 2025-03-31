@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react';
-import { BlockchainPassport, calculateHumanScore } from '@/lib/utils';
+import { BlockchainPassport } from '@/lib/utils';
 import { truncateAddress } from '@/lib/utils';
 
 /**
@@ -8,7 +8,7 @@ import { truncateAddress } from '@/lib/utils';
  * @param resolvedAddress Ethereum address of the user
  * @param resolvedEns ENS name of the user
  * @param blockchainData Combined blockchain data
- * @returns Object containing the generated passport with score and loading state
+ * @returns Object containing the generated passport and loading state
  */
 export function usePassportGenerator(
   resolvedAddress?: string, 
@@ -121,7 +121,8 @@ export function usePassportGenerator(
           issued: new Date().toISOString(),
           skills: skills,
           socials: socials,
-          bio: bio  // Add the bio property
+          bio: bio,
+          category: 'Blockchain User'
         };
         
         setPassport(newPassport);
@@ -138,13 +139,8 @@ export function usePassportGenerator(
     }
   }, [resolvedAddress, resolvedEns, blockchainData]);
 
-  const passportWithScore = passport ? {
-    ...passport,
-    ...calculateHumanScore(passport)
-  } : null;
-
   return {
-    passport: passportWithScore,
+    passport,
     loading
   };
 }

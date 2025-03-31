@@ -14,7 +14,6 @@ import { Network } from 'lucide-react';
 
 interface ProfileTabsContainerProps {
   passport: BlockchainPassport & {
-    score: number;
     category: string;
   };
   blockchainProfile?: BlockchainProfile;
