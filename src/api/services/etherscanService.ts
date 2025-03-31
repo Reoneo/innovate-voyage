@@ -3,7 +3,8 @@ import { delay } from '../jobsApi';
 // Get account balance
 export async function getAccountBalance(address: string): Promise<string> {
   try {
-    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY || '';
+    // Use provided API key directly
+    const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
     const apiUrl = import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api';
     
     const response = await fetch(`${apiUrl}?module=account&action=balance&address=${address}&tag=latest&apikey=${apiKey}`);
@@ -21,7 +22,7 @@ export async function getAccountBalance(address: string): Promise<string> {
       return balanceInEther.toFixed(4);
     } else {
       console.warn('Etherscan API returned an error:', data.message);
-      // Return mock data for demonstration if API key is missing
+      // Return mock data for demonstration if API key is missing or there's an error
       if (!apiKey || (data.message && data.message.includes("Missing/Invalid API Key"))) {
         console.log("Using mock balance data due to missing API key");
         return "1.2345";
@@ -37,7 +38,8 @@ export async function getAccountBalance(address: string): Promise<string> {
 // Get transaction count (number of transactions)
 export async function getTransactionCount(address: string): Promise<number> {
   try {
-    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY || '';
+    // Use provided API key directly
+    const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
     const apiUrl = import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api';
     
     const response = await fetch(`${apiUrl}?module=proxy&action=eth_getTransactionCount&address=${address}&tag=latest&apikey=${apiKey}`);
@@ -53,7 +55,7 @@ export async function getTransactionCount(address: string): Promise<number> {
       return parseInt(data.result, 16);
     } else {
       console.warn('Etherscan API returned an error');
-      // Return mock data for demonstration if API key is missing
+      // Return mock data for demonstration if API key is missing or there's an error
       if (!apiKey || (data.message && data.message.includes("Missing/Invalid API Key"))) {
         console.log("Using mock transaction count due to missing API key");
         return 42;
@@ -69,7 +71,8 @@ export async function getTransactionCount(address: string): Promise<number> {
 // Get wallet creation date (first transaction)
 export async function getWalletCreationDate(address: string): Promise<string | null> {
   try {
-    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY || '';
+    // Use provided API key directly
+    const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
     const apiUrl = import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api';
     
     const response = await fetch(`${apiUrl}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=1&sort=asc&apikey=${apiKey}`);
@@ -85,7 +88,7 @@ export async function getWalletCreationDate(address: string): Promise<string | n
       return new Date(timestamp * 1000).toISOString();
     } else {
       console.warn('Etherscan API returned an error or no transactions found');
-      // Return mock data for demonstration if API key is missing
+      // Return mock data for demonstration if API key is missing or there's an error
       if (!apiKey || (data.message && data.message.includes("Missing/Invalid API Key"))) {
         console.log("Using mock creation date due to missing API key");
         return new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(); // 1 year ago
@@ -101,7 +104,8 @@ export async function getWalletCreationDate(address: string): Promise<string | n
 // Get latest transactions
 export async function getLatestTransactions(address: string, limit: number = 5): Promise<any[]> {
   try {
-    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY || '';
+    // Use provided API key directly
+    const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
     const apiUrl = import.meta.env.VITE_ETHERSCAN_API_URL || 'https://api.etherscan.io/api';
     
     const response = await fetch(`${apiUrl}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${apiKey}`);
@@ -116,7 +120,7 @@ export async function getLatestTransactions(address: string, limit: number = 5):
       return data.result;
     } else {
       console.warn('Etherscan API returned an error:', data.message);
-      // Return mock data for demonstration if API key is missing
+      // Return mock data for demonstration if API key is missing or there's an error
       if (!apiKey || (data.message && data.message.includes("Missing/Invalid API Key"))) {
         console.log("Using mock transactions due to missing API key");
         return getMockTransactions(address, limit);

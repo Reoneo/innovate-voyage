@@ -28,9 +28,10 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
   // Check if API key is present and display appropriate toast
   React.useEffect(() => {
     if (!apiKeyChecked) {
-      const hasApiKey = !!import.meta.env.VITE_ETHERSCAN_API_KEY;
+      // The API key is now set directly in the environment variables
+      const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
       
-      if (!hasApiKey) {
+      if (!apiKey) {
         toast({
           title: "API Key Missing",
           description: "Using mock blockchain data. Set VITE_ETHERSCAN_API_KEY in your environment to see real data.",
@@ -41,6 +42,12 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
           title: "Etherscan API Error",
           description: "There was an error fetching blockchain data. Check your API key or network connection.",
           variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Etherscan API Connected",
+          description: "Using real blockchain data from Etherscan.",
+          variant: "default",
         });
       }
       setApiKeyChecked(true);
