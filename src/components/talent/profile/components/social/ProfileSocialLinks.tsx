@@ -38,6 +38,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
             if (profile.telegram) newSocials.telegram = profile.telegram;
             if (profile.bluesky) newSocials.bluesky = profile.bluesky;
             if (profile.email) newSocials.email = profile.email;
+            if (profile.discord) newSocials.discord = profile.discord;
             
             if (profile.links) {
               if (profile.links.website?.link) newSocials.website = profile.links.website.link;
@@ -45,6 +46,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
               if (profile.links.twitter?.link) newSocials.twitter = profile.links.twitter.link;
               if (profile.links.linkedin?.link) newSocials.linkedin = profile.links.linkedin.link;
               if (profile.links.facebook?.link) newSocials.facebook = profile.links.facebook.link;
+              if (profile.links.discord?.link) newSocials.discord = profile.links.discord.link;
               
               const anyLinks = profile.links as any;
               if (anyLinks.instagram?.link) newSocials.instagram = anyLinks.instagram.link;

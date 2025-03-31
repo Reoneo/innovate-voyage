@@ -52,7 +52,7 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
     case 'reddit':
       return <div className={`text-orange-600 ${iconClasses}`} style={{ fontSize: `${size * 0.8}px`, fontWeight: 'bold' }}>R</div>;
     case 'discord':
-      return <div className={`text-indigo-500 ${iconClasses}`} style={{ fontSize: `${size * 0.8}px`, fontWeight: 'bold' }}>D</div>;
+      return <div className={`text-indigo-600 ${iconClasses}`} style={{ fontSize: `${size * 0.8}px`, fontWeight: 'bold' }}>D</div>;
     default:
       return null;
   }
