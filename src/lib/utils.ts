@@ -1,3 +1,4 @@
+
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -23,7 +24,7 @@ export interface BlockchainPassport {
   name: string;
   issued: string;
   skills: Skill[];
-  bio?: string;
+  bio?: string; // Adding bio property as optional
   socials: {
     twitter?: string;
     github?: string;
@@ -40,6 +41,7 @@ export interface BlockchainPassport {
     youtube?: string;
     bluesky?: string;
   };
+  additionalEnsDomains?: string[]; // Add this property
 }
 
 // Type for job posting

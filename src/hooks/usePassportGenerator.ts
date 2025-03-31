@@ -37,12 +37,67 @@ export function usePassportGenerator(
       setLoading(true);
       
       try {
+        const skills = [];
         const { 
           blockchainProfile, 
+          transactions, 
+          tokenTransfers, 
           web3BioProfile,
           blockchainExtendedData,
           avatarUrl
         } = blockchainData || {};
+        
+        if (blockchainProfile) {
+          if (parseFloat(blockchainProfile.balance) > 0) skills.push({ name: 'ETH Holder', proof: `etherscan://${resolvedAddress}` });
+          if (blockchainProfile.transactionCount > 10) skills.push({ name: 'Active Trader', proof: `etherscan://${resolvedAddress}` });
+          if (blockchainProfile.transactionCount > 50) skills.push({ name: 'Power User', proof: `etherscan://${resolvedAddress}` });
+        }
+        
+        if (resolvedEns?.includes('.eth')) skills.push({ name: 'ENS Owner', proof: `ens://${resolvedEns}` });
+        
+        if (transactions && transactions.length > 0) {
+          const hasContractInteractions = transactions.some(tx => tx.input && tx.input !== '0x');
+          if (hasContractInteractions) skills.push({ name: 'Smart Contract User', proof: `etherscan://${resolvedAddress}` });
+          
+          const recentTx = transactions.some(tx => {
+            const txDate = new Date(parseInt(tx.timeStamp) * 1000);
+            const now = new Date();
+            const daysDiff = (now.getTime() - txDate.getTime()) / (1000 * 3600 * 24);
+            return daysDiff < 30;
+          });
+          
+          if (recentTx) skills.push({ name: 'Recently Active', proof: `etherscan://${resolvedAddress}` });
+        }
+        
+        if (tokenTransfers && tokenTransfers.length > 0) {
+          const uniqueTokens = new Set(tokenTransfers.map(tx => tx.tokenSymbol));
+          if (uniqueTokens.size > 0) skills.push({ name: 'Token Holder', proof: `etherscan://${resolvedAddress}` });
+          if (uniqueTokens.size > 5) skills.push({ name: 'Token Collector', proof: `etherscan://${resolvedAddress}` });
+          
+          if (Array.from(uniqueTokens).some(token => token === 'UNI')) {
+            skills.push({ name: 'Uniswap User', proof: `etherscan://${resolvedAddress}` });
+          }
+        }
+        
+        if (web3BioProfile) {
+          if (web3BioProfile.github) skills.push({ name: 'GitHub User', proof: web3BioProfile.github });
+          if (web3BioProfile.twitter) skills.push({ name: 'Twitter User', proof: web3BioProfile.twitter });
+          if (web3BioProfile.linkedin) skills.push({ name: 'LinkedIn User', proof: web3BioProfile.linkedin });
+        }
+        
+        skills.push(
+          { name: 'Smart Contract Developer', proof: 'talentprotocol.com/skills/dev' },
+          { name: 'EVM Expert', proof: 'talentprotocol.com/skills/evm' },
+          { name: 'Solidity', proof: 'talentprotocol.com/skills/solidity' }
+        );
+
+        if (blockchainExtendedData?.boxDomains && blockchainExtendedData.boxDomains.length > 0) {
+          skills.push({ name: '.box Domain Owner', proof: 'box.domains' });
+        }
+
+        if (blockchainExtendedData?.snsActive) {
+          skills.push({ name: 'SNS.ID User', proof: 'sns.id' });
+        }
         
         const socials = {
           github: web3BioProfile?.github || undefined,
@@ -64,9 +119,9 @@ export function usePassportGenerator(
           avatar_url: avatarUrl || web3BioProfile?.avatar || '/placeholder.svg',
           name: resolvedEns ? resolvedEns.split('.')[0] : truncateAddress(resolvedAddress),
           issued: new Date().toISOString(),
-          skills: [], // Empty array for skills
+          skills: skills,
           socials: socials,
-          bio: bio
+          bio: bio  // Add the bio property
         };
         
         setPassport(newPassport);

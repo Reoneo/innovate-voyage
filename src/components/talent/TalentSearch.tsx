@@ -1,11 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SearchIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { isValidEthereumAddress } from '@/lib/utils';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
+import { Alert } from '@/components/ui/alert';
 
 interface TalentSearchProps {
   onSearch: (query: string) => void;
@@ -14,13 +16,13 @@ interface TalentSearchProps {
 
 const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) => {
   const [searchInput, setSearchInput] = useState('');
+  const [searchResults, setSearchResults] = useState<Array<{name: string, address?: string, avatar?: string}>>([]);
   const [hasExecutedSearch, setHasExecutedSearch] = useState(false);
-  const [shouldResolve, setShouldResolve] = useState(false);
   
   // Initialize resolver but don't trigger it automatically
-  const { resolvedAddress, resolvedEns, isLoading } = useEnsResolver(
-    shouldResolve && (searchInput.includes('.eth') || searchInput.includes('.box')) ? searchInput : undefined,
-    shouldResolve && isValidEthereumAddress(searchInput) ? searchInput : undefined
+  const { resolvedAddress, resolvedEns, avatarUrl, isLoading, error } = useEnsResolver(
+    hasExecutedSearch && (searchInput.includes('.eth') || searchInput.includes('.box')) ? searchInput : undefined,
+    hasExecutedSearch && isValidEthereumAddress(searchInput) ? searchInput : undefined
   );
   
   const handleSearch = () => {
@@ -30,23 +32,30 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
     const isValidInput = searchInput.includes('.eth') || searchInput.includes('.box') || isValidEthereumAddress(searchInput);
     
     if (!isValidInput) {
+      // Removed toast notification
       return;
     }
     
     // Set flag to execute the search
     setHasExecutedSearch(true);
-    setShouldResolve(true);
     
     // Pass the input to the parent component for searching
     onSearch(searchInput.trim());
   };
 
-  // Effect to reset shouldResolve after resolution completes
-  useEffect(() => {
-    if (!isLoading && shouldResolve) {
-      setShouldResolve(false);
+  // Update results only when resolver finishes and finds something
+  React.useEffect(() => {
+    if (hasExecutedSearch && !isLoading && (resolvedEns || resolvedAddress)) {
+      setSearchResults([{
+        name: resolvedEns || searchInput,
+        address: resolvedAddress,
+        avatar: avatarUrl
+      }]);
+    } else if (hasExecutedSearch && !isLoading && !resolvedEns && !resolvedAddress) {
+      // Clear results if nothing found but don't show toast
+      setSearchResults([]);
     }
-  }, [isLoading, resolvedAddress, resolvedEns]);
+  }, [resolvedEns, resolvedAddress, avatarUrl, isLoading, searchInput, hasExecutedSearch]);
 
   return (
     <Card className="mb-6">

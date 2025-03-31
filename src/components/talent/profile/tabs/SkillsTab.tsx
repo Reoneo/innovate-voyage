@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ListChecks, X } from 'lucide-react';
+import { Network, ListChecks, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
 import AddSkillForm from '../components/AddSkillForm';
 import { useToast } from '@/hooks/use-toast';
 
@@ -15,7 +15,7 @@ interface SkillsTabProps {
   ownerAddress?: string;
 }
 
-const SkillsTab: React.FC<SkillsTabProps> = ({ skills, ownerAddress }) => {
+const SkillsTab: React.FC<SkillsTabProps> = ({ skills, name, avatarUrl, ensName, ownerAddress }) => {
   const [userSkills, setUserSkills] = useState(skills);
   const [isOwner, setIsOwner] = useState(false);
   const { toast } = useToast();
@@ -96,7 +96,7 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills, ownerAddress }) => {
   const unverifiedSkills = userSkills.filter(skill => !skill.proof);
 
   return (
-    <div className="grid grid-cols-1 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <Card className="overflow-hidden" id="skills-section">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
@@ -176,9 +176,61 @@ const SkillsTab: React.FC<SkillsTabProps> = ({ skills, ownerAddress }) => {
         </CardContent>
       </Card>
       
-      {isOwner && (
-        <AddSkillForm onAddSkill={handleAddSkill} />
-      )}
+      <div className="space-y-8">
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Network className="h-5 w-5 text-primary" />
+                  ID Network
+                </CardTitle>
+                <CardDescription className="mt-1">
+                  ENS Domains & Identity connections
+                </CardDescription>
+              </div>
+              <div className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
+                Interactive
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[400px] w-full pt-4">
+              <IdNetworkGraph 
+                name={name} 
+                avatarUrl={avatarUrl}
+                ensName={ensName}
+                address={ensName?.includes('.eth') ? undefined : ensName}
+              />
+            </div>
+            <div className="mt-4 border-t pt-3">
+              <h4 className="text-sm font-medium mb-2">Legend:</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-blue-500 mr-1.5"></div>
+                  <span>Main Identity</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-violet-500 mr-1.5"></div>
+                  <span>ENS Domain</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-indigo-400 mr-1.5"></div>
+                  <span>Box Domain</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-emerald-500 mr-1.5"></div>
+                  <span>Other ID Protocol</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {isOwner && (
+          <AddSkillForm onAddSkill={handleAddSkill} />
+        )}
+      </div>
     </div>
   );
 };
