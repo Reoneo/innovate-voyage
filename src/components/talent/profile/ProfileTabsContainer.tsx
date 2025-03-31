@@ -5,7 +5,6 @@ import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import { BlockchainPassport } from '@/lib/utils';
 
 import WorkExperienceSection from './components/WorkExperienceSection';
-import SkillsTab from './tabs/SkillsTab';
 import OverviewTab from './tabs/OverviewTab';
 
 interface ProfileTabsContainerProps {
@@ -37,25 +36,7 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   return (
     <TooltipProvider>
       <div className="space-y-6 mt-6">
-        <OverviewTab 
-          name={passport.name}
-          skills={passport.skills}
-          address={ownerAddress}
-          ensName={resolvedEns}
-          avatarUrl={avatarUrl}
-          blockchainProfile={blockchainProfile}
-          additionalEnsDomains={passport.additionalEnsDomains}
-        />
-        
         <WorkExperienceSection 
-          ownerAddress={ownerAddress}
-        />
-        
-        <SkillsTab 
-          skills={passport.skills}
-          name={passport.name}
-          avatarUrl={avatarUrl}
-          ensName={resolvedEns}
           ownerAddress={ownerAddress}
         />
       </div>
