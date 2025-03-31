@@ -6,9 +6,10 @@ interface ProfileScoresProps {
   category: string;
 }
 
+// This component is kept for reference but will no longer be used in the ProfileHeader
 const ProfileScores: React.FC<ProfileScoresProps> = ({ category }) => {
   return (
-    <div className="flex items-center justify-center">
+    <div className="hidden">
       <Badge className="text-xs">{category}</Badge>
     </div>
   );

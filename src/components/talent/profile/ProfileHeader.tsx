@@ -3,7 +3,6 @@ import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import AvatarSection from './components/AvatarSection';
 import ProfileInfoSection from './components/ProfileInfoSection';
-import ProfileScores from './components/ProfileScores';
 
 interface ProfileHeaderProps {
   passport: {
@@ -49,11 +48,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
             bio={passport.bio}
             socials={passport.socials}
           />
-          <div className="mt-4 md:mt-0">
-            <ProfileScores
-              category={passport.category}
-            />
-          </div>
+          {/* Category badge has been removed */}
         </div>
       </div>
     </HeaderContainer>
