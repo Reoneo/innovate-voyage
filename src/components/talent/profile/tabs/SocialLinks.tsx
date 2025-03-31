@@ -1,7 +1,9 @@
+
 import React from 'react';
 import EnsLink from './social/EnsLink';
 import WebLink from './social/WebLink';
 import NoLinks from './social/NoLinks';
+import PoapsSection from './social/PoapsSection';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ListFilter } from 'lucide-react';
 
@@ -10,13 +12,22 @@ interface SocialLinksProps {
   links: string[];
   socials: Record<string, string>;
   additionalEnsDomains?: string[];
+  poaps?: Array<{
+    id: string;
+    name: string;
+    image_url: string;
+    created_date?: string;
+    description?: string;
+    event?: string;
+  }>;
 }
 
 const SocialLinks: React.FC<SocialLinksProps> = ({ 
   ensName, 
   links, 
   socials,
-  additionalEnsDomains = []
+  additionalEnsDomains = [],
+  poaps = []
 }) => {
   const hasSocialLinks = ensName || links.length > 0 || Object.keys(socials).length > 0 || additionalEnsDomains.length > 0;
   
@@ -56,6 +67,9 @@ const SocialLinks: React.FC<SocialLinksProps> = ({
       {links.map((link, index) => (
         <WebLink key={index} url={link} />
       ))}
+      
+      {/* POAPs section */}
+      <PoapsSection poaps={poaps} />
       
       {/* Show a message if no links are available */}
       {!hasSocialLinks && <NoLinks />}
