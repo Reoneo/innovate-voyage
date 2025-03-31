@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { Wallet, LogOut, Save, Download, Copy } from 'lucide-react';
+import { Wallet, LogOut, Save, Download } from 'lucide-react';
 
 import { 
   DropdownMenu,
@@ -15,11 +15,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
+import ProfileHeader from '@/components/talent/profile/ProfileHeader';
 import ProfileNavigationBar from '@/components/talent/profile/ProfileNavigationBar';
-import ProfileContent from '@/components/talent/profile/ProfileContent';
+import ProfileTabsContainer from '@/components/talent/profile/ProfileTabsContainer';
 import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
 
 const TalentProfile = () => {
@@ -98,82 +98,86 @@ const TalentProfile = () => {
   
   // Handle saving changes
   const handleSaveChanges = () => {
+    // This function doesn't need to do anything as changes are saved automatically
+    // to localStorage when skills are added, but we'll show a toast for feedback
     toast({
       title: "Changes saved",
       description: "Your profile changes have been saved successfully."
     });
   };
 
-  // Copy address to clipboard
-  const copyAddressToClipboard = () => {
-    if (passport?.owner_address) {
-      navigator.clipboard.writeText(passport.owner_address);
-      toast({
-        title: "Address copied",
-        description: "Address has been copied to clipboard"
-      });
-    }
+  // Generate shareable URL for the profile
+  const getShareableUrl = () => {
+    const baseUrl = window.location.origin;
+    const profileId = passport?.passport_id || passport?.owner_address;
+    return `${baseUrl}/${profileId}`;
   };
 
   return (
-    <div className="min-h-screen bg-[#1A1F2C] text-white">
-      <div className={`container mx-auto py-4 md:py-8 ${isMobile ? 'px-2' : 'max-w-5xl'}`}>
-        <div className="flex justify-between items-center mb-4">
-          <ProfileNavigationBar />
-          
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon" onClick={exportAsPDF}>
-              <Download className="h-4 w-4" />
-            </Button>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Wallet className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {connectedWallet ? (
-                  <>
-                    <DropdownMenuItem onClick={handleSaveChanges}>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save Changes
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleDisconnect}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Disconnect
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <DropdownMenuItem onClick={() => document.dispatchEvent(new Event('open-wallet-connect'))}>
-                    <Wallet className="mr-2 h-4 w-4" />
-                    Connect Wallet
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
+    <div className={`container mx-auto py-4 md:py-8 ${isMobile ? 'px-2' : 'max-w-5xl'}`}>
+      <div className="flex justify-between items-center mb-4">
+        <ProfileNavigationBar />
         
-        {loading ? (
-          <ProfileSkeleton />
-        ) : passport ? (
-          <div ref={profileRef} className="space-y-4" id="resume-pdf">
-            <ProfileContent 
-              passport={passport}
-              blockchainProfile={blockchainProfile}
-              transactions={transactions}
-              resolvedEns={resolvedEns}
-              blockchainExtendedData={blockchainExtendedData}
-              avatarUrl={avatarUrl}
-              onCopyAddress={copyAddressToClipboard}
-              isOwner={isOwner}
-            />
-          </div>
-        ) : (
-          <ProfileNotFound />
-        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" className="ml-2">
+              <Wallet className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {connectedWallet ? (
+              <>
+                <DropdownMenuItem onClick={handleSaveChanges}>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Changes
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDisconnect}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Disconnect
+                </DropdownMenuItem>
+              </>
+            ) : (
+              <DropdownMenuItem onClick={() => document.dispatchEvent(new Event('open-wallet-connect'))}>
+                <Wallet className="mr-2 h-4 w-4" />
+                Connect Wallet
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem onClick={exportAsPDF}>
+              <Download className="mr-2 h-4 w-4" />
+              Export as PDF
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+      
+      {loading ? (
+        <ProfileSkeleton />
+      ) : passport ? (
+        <div ref={profileRef} className="space-y-4 md:space-y-6" id="resume-pdf">
+          <ProfileHeader passport={{
+            passport_id: passport.passport_id,
+            owner_address: passport.owner_address,
+            avatar_url: avatarUrl || passport.avatar_url || '/placeholder.svg',
+            name: passport.name,
+            score: passport.score,
+            category: passport.category,
+            socials: passport.socials || {},
+            bio: blockchainProfile?.description || blockchainExtendedData?.description || null
+          }} />
+          <ProfileTabsContainer 
+            passport={passport}
+            blockchainProfile={blockchainProfile}
+            transactions={transactions}
+            resolvedEns={resolvedEns}
+            onExportPdf={exportAsPDF}
+            blockchainExtendedData={blockchainExtendedData}
+            avatarUrl={avatarUrl}
+            ownerAddress={passport.owner_address}
+          />
+        </div>
+      ) : (
+        <ProfileNotFound />
+      )}
     </div>
   );
 };

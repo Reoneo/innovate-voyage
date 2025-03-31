@@ -10,8 +10,13 @@ import { useWeb3BioData } from './ens/useWeb3BioData';
  * @returns Object containing resolved address and ENS name
  */
 export function useEnsResolver(ensName?: string, address?: string) {
+  // Normalize ENS name if provided without extension
+  const normalizedEnsName = ensName && !ensName.includes('.') 
+    ? `${ensName}.eth` 
+    : ensName;
+  
   // Determine if we're dealing with an ENS name (.eth or .box)
-  const isEns = ensName?.includes('.eth') || ensName?.includes('.box');
+  const isEns = normalizedEnsName?.includes('.eth') || normalizedEnsName?.includes('.box');
   
   const {
     state,
@@ -22,10 +27,10 @@ export function useEnsResolver(ensName?: string, address?: string) {
     setError,
     resolveEns,
     lookupAddress
-  } = useEnsResolution(ensName, address);
+  } = useEnsResolution(normalizedEnsName, address);
 
   const { isLoading: isLoadingWeb3Bio } = useWeb3BioData(
-    ensName,
+    normalizedEnsName,
     address,
     !!isEns,
     (newState) => setState(prev => ({ ...prev, ...newState }))
@@ -33,13 +38,13 @@ export function useEnsResolver(ensName?: string, address?: string) {
 
   // Effect to handle ENS resolution
   useEffect(() => {
-    if (!ensName) return;
+    if (!normalizedEnsName) return;
     
     setIsLoading(true);
     setError(null);
     
-    resolveEns(ensName).finally(() => setIsLoading(false));
-  }, [ensName]);
+    resolveEns(normalizedEnsName).finally(() => setIsLoading(false));
+  }, [normalizedEnsName]);
 
   // Effect to handle address resolution
   useEffect(() => {

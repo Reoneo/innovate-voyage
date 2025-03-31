@@ -70,10 +70,6 @@ body.generating-pdf {
     max-width: 100%;
     box-shadow: none !important;
     background-color: white !important;
-    display: grid;
-    grid-template-columns: 8.6cm 8.6cm; /* Width from image (8.6cm per column) */
-    grid-gap: 1.25cm; /* Spacing from image (1.25cm) */
-    width: 18.45cm; /* Total width (8.6 + 8.6 + 1.25) */
   }
   
   #resume-pdf * {
@@ -91,18 +87,4 @@ body.generating-pdf {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-
-/* High-resolution styles for PDF export */
-.pdf-high-res .avatar img,
-.pdf-high-res .avatar-image {
-  image-rendering: high-quality;
-}
-
-.pdf-high-res text,
-.pdf-high-res p,
-.pdf-high-res h1,
-.pdf-high-res h2,
-.pdf-high-res h3 {
-  text-rendering: geometricPrecision;
 }
