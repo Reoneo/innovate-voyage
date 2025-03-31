@@ -16,12 +16,13 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
   setSelectedNode,
   avatarUrl
 }) => {
-  const svgRef = useNetworkVisualization(
+  // Pass the props as a single object to match the hook's parameter structure
+  const svgRef = useNetworkVisualization({
     networkData,
     selectedNode,
     setSelectedNode,
     avatarUrl
-  );
+  });
 
   return (
     <svg 
