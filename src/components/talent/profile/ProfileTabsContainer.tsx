@@ -6,6 +6,7 @@ import { BlockchainPassport } from '@/lib/utils';
 
 import WorkExperienceSection from './components/WorkExperienceSection';
 import SkillsTab from './tabs/SkillsTab';
+import BioSection from './components/BioSection';
 
 interface ProfileTabsContainerProps {
   passport: BlockchainPassport & {
@@ -30,7 +31,8 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   passport, 
   resolvedEns,
   avatarUrl,
-  ownerAddress
+  ownerAddress,
+  blockchainProfile
 }) => {
   return (
     <TooltipProvider>

@@ -1,6 +1,8 @@
 
 import React from 'react';
-import ProfileInfo from './ProfileInfo';
+import { Card, CardContent } from '@/components/ui/card';
+import ProfileBio from './ProfileBio';
+import ProfileContact from './ProfileContact';
 
 interface ProfileInfoSectionProps {
   passportId: string;
@@ -12,20 +14,23 @@ interface ProfileInfoSectionProps {
 const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ 
   passportId, 
   ownerAddress, 
-  bio, 
+  bio,
   socials 
 }) => {
   return (
-    <div className="flex-1 text-left">
-      <div className="flex flex-col items-start justify-between gap-4">
-        <ProfileInfo 
-          passportId={passportId}
-          ownerAddress={ownerAddress}
-          bio={bio}
+    <Card className="w-full">
+      <CardContent className="p-4 space-y-4">
+        <ProfileBio 
+          bio={bio} 
+          ownerAddress={ownerAddress} 
           socials={socials}
         />
-      </div>
-    </div>
+        <ProfileContact 
+          passportId={passportId} 
+          ownerAddress={ownerAddress} 
+        />
+      </CardContent>
+    </Card>
   );
 };
 
