@@ -73,4 +73,5 @@ export function useIdNetworkData(name: string, avatarUrl?: string, ensName?: str
 }
 
 // Re-export types from networkTypes for backward compatibility
-export { NetworkData, NetworkNode, NetworkLink } from '../types/networkTypes';
+// Fix: Use 'export type' syntax for TypeScript types
+export type { NetworkData, NetworkNode, NetworkLink } from '../types/networkTypes';
