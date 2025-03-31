@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Jobs from "./pages/Jobs";
-import Talent from "./pages/Talent";
 import JobDetail from "./pages/JobDetail";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
@@ -70,15 +69,15 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/jobs" element={<Jobs />} />
-            <Route path="/talent" element={<Talent />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
             {/* Prioritize the recruitment.box route for profile sharing */}
             <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
             {/* Catch-all route for direct profile access */}
             <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
             {/* Legacy routes for backwards compatibility */}
-            <Route path="/talent/:ensName" element={<TalentProfile />} />
             <Route path="/address/:address" element={<TalentProfile />} />
+            {/* Redirect old talent route to home page */}
+            <Route path="/talent/*" element={<Navigate to="/" replace />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
