@@ -3,7 +3,8 @@ import React from 'react';
 import TokenFilterBadges from './TokenFilterBadges';
 import TransactionHistoryChart from '@/components/visualizations/transactions/TransactionHistoryChart';
 import TransactionsTable from './TransactionsTable';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface TransactionsContentProps {
   transactions: any[] | null;
@@ -13,6 +14,7 @@ interface TransactionsContentProps {
   address: string;
   filteredTransactions: any[] | null;
   loading?: boolean;
+  error?: Error | null;
 }
 
 const TransactionsContent: React.FC<TransactionsContentProps> = ({
@@ -22,7 +24,8 @@ const TransactionsContent: React.FC<TransactionsContentProps> = ({
   setActiveToken,
   address,
   filteredTransactions,
-  loading = false
+  loading = false,
+  error = null
 }) => {
   if (loading) {
     return (
@@ -30,6 +33,17 @@ const TransactionsContent: React.FC<TransactionsContentProps> = ({
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p className="text-sm text-muted-foreground">Loading transaction data...</p>
       </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <Alert variant="destructive" className="mb-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load transaction data: {error.message}
+        </AlertDescription>
+      </Alert>
     );
   }
   

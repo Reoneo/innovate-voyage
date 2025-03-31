@@ -31,6 +31,7 @@ interface ProfileTabsContainerProps {
   avatarUrl?: string;
   ownerAddress: string;
   additionalEnsDomains?: string[];
+  blockchainError?: Error | null;
 }
 
 const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({ 
@@ -42,7 +43,8 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   blockchainExtendedData,
   avatarUrl,
   ownerAddress,
-  additionalEnsDomains = []
+  additionalEnsDomains = [],
+  blockchainError
 }) => {
   // Extract description from ENS data
   const ensDescription = blockchainProfile?.description || blockchainExtendedData?.description;
@@ -92,6 +94,7 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
         <BlockchainTab 
           transactions={transactions}
           address={ownerAddress}
+          error={blockchainError}
         />
       </div>
     </TooltipProvider>

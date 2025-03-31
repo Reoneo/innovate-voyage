@@ -45,7 +45,15 @@ export function useTransactionCount(address: string | undefined) {
 export function useLatestTransactions(address: string | undefined, limit: number = 5) {
   return useQuery({
     queryKey: ['blockchain', 'transactions', address, limit],
-    queryFn: () => address ? web3Api.getLatestTransactions(address, limit) : null,
+    queryFn: async () => {
+      if (!address) return null;
+      try {
+        return await web3Api.getLatestTransactions(address, limit);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+        throw error;
+      }
+    },
     enabled: !!address,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
@@ -55,7 +63,15 @@ export function useLatestTransactions(address: string | undefined, limit: number
 export function useTokenTransfers(address: string | undefined, limit: number = 5) {
   return useQuery({
     queryKey: ['blockchain', 'tokens', address, limit],
-    queryFn: () => address ? web3Api.getTokenTransfers(address, limit) : null,
+    queryFn: async () => {
+      if (!address) return null;
+      try {
+        return await web3Api.getTokenTransfers(address, limit);
+      } catch (error) {
+        console.error("Error fetching token transfers:", error);
+        throw error;
+      }
+    },
     enabled: !!address,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,

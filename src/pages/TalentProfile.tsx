@@ -6,7 +6,7 @@ import { usePdfExport } from '@/hooks/usePdfExport';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { Wallet, LogOut, Save, Download } from 'lucide-react';
+import { Wallet, LogOut, Save, Download, AlertCircle } from 'lucide-react';
 
 import { 
   DropdownMenu,
@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import ProfileHeader from '@/components/talent/profile/ProfileHeader';
@@ -87,7 +88,7 @@ const TalentProfile = () => {
     };
   }, [ensName, routeAddress, userId, ensNameOrAddress]);
 
-  const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl } = useProfileData(
+  const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl, error } = useProfileData(
     ens || ((ensName && !isValidEthereumAddress(ensName)) ? ensName : undefined), 
     address || (ensName && isValidEthereumAddress(ensName) ? ensName : undefined)
   );
@@ -170,6 +171,16 @@ const TalentProfile = () => {
             socials: passport.socials || {},
             bio: blockchainProfile?.description || blockchainExtendedData?.description || null
           }} />
+          
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Error loading blockchain data: {error.message}
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <ProfileTabsContainer 
             passport={passport}
             blockchainProfile={blockchainProfile}
@@ -180,6 +191,7 @@ const TalentProfile = () => {
             avatarUrl={avatarUrl}
             ownerAddress={passport.owner_address}
             additionalEnsDomains={passport.additionalEnsDomains || []}
+            blockchainError={error}
           />
         </div>
       ) : (

@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Loader2, CalendarClock, Wallet, Coins } from 'lucide-react';
+import { Loader2, CalendarClock, Wallet, Coins, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface WalletStatsCardsProps {
   walletCreationDate: string | null;
@@ -10,13 +11,21 @@ interface WalletStatsCardsProps {
     walletDate: boolean;
     tokens: boolean;
   };
+  errors?: {
+    walletDate: Error | null;
+    tokens: Error | null;
+  };
 }
 
 const WalletStatsCards: React.FC<WalletStatsCardsProps> = ({ 
   walletCreationDate, 
   transactions, 
   tokens, 
-  loading 
+  loading,
+  errors = {
+    walletDate: null,
+    tokens: null
+  }
 }) => {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Unknown';
@@ -26,6 +35,18 @@ const WalletStatsCards: React.FC<WalletStatsCardsProps> = ({
       return 'Unknown';
     }
   };
+
+  // Show an error message if any of the API calls failed
+  if (errors.walletDate || errors.tokens) {
+    return (
+      <Alert variant="destructive" className="mb-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Error loading wallet statistics: {errors.walletDate?.message || errors.tokens?.message}
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,18 +1,31 @@
 
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface StakingTableProps {
   stakingPositions: any[];
   loading: boolean;
+  error?: Error | null;
 }
 
-const StakingTable: React.FC<StakingTableProps> = ({ stakingPositions, loading }) => {
+const StakingTable: React.FC<StakingTableProps> = ({ stakingPositions, loading, error }) => {
   if (loading) {
     return (
       <div className="flex justify-center py-8">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <Alert variant="destructive" className="mb-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load staking data: {error.message}
+        </AlertDescription>
+      </Alert>
     );
   }
   

@@ -28,19 +28,25 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
 
   // Check if API key is present and display appropriate toast
   React.useEffect(() => {
-    if (!apiKeyChecked) {
-      const { apiKey } = { apiKey: import.meta.env.VITE_ETHERSCAN_API_KEY || "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM" };
+    if (!apiKeyChecked && error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       
-      if (!apiKey) {
+      if (errorMessage.includes('API key')) {
         toast({
-          title: "API Key Missing",
-          description: "Unable to fetch blockchain data. Set VITE_ETHERSCAN_API_KEY in your environment.",
+          title: "API Key Issue",
+          description: "Unable to fetch blockchain data due to API key limitations.",
           variant: "destructive",
         });
-      } else if (error) {
+      } else if (errorMessage.includes('rate limit')) {
         toast({
-          title: "Etherscan API Error",
-          description: "There was an error fetching blockchain data. This may be due to rate limiting or an invalid address.",
+          title: "Rate Limit Exceeded",
+          description: "Etherscan API rate limit reached. Please try again later.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Blockchain Data Error",
+          description: "There was an error fetching blockchain data.",
           variant: "destructive",
         });
       }
@@ -70,6 +76,27 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
     );
   }
 
+  if (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    return (
+      <div className="space-y-4">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Blockchain Data Error</AlertTitle>
+          <AlertDescription>
+            {errorMessage}
+          </AlertDescription>
+        </Alert>
+        <div className="text-sm">
+          <p className="text-muted-foreground mt-2">
+            This may be due to API rate limiting or connectivity issues. Try again later.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!profile) {
     return (
       <div className="space-y-4">
@@ -77,14 +104,12 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
           <Info className="h-4 w-4" />
           <AlertTitle>No blockchain data available</AlertTitle>
           <AlertDescription>
-            {error ? 
-              `Error: ${error instanceof Error ? error.message : 'Unable to fetch blockchain data'}` : 
-              'No blockchain activity found for this address.'}
+            No blockchain activity found for this address.
           </AlertDescription>
         </Alert>
         <div className="text-sm">
           <p className="text-muted-foreground mt-2">
-            Note: Some ENS names may not map directly to Ethereum addresses or may have resolution issues.
+            Some ENS names may not map directly to Ethereum addresses or may have resolution issues.
             If you're seeing this error, try viewing the profile by Ethereum address instead.
           </p>
         </div>

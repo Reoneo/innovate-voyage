@@ -42,6 +42,16 @@ export async function fetchFromEtherscan(endpoint: string, params: Record<string
         return []; // Return empty array for "no data" responses
       }
       
+      // For rate limit errors, throw a more specific error
+      if (data.message.includes('rate limit') || data.message.includes('Max rate limit')) {
+        throw new Error(`Etherscan API rate limit exceeded: ${data.message}`);
+      }
+
+      // For NOTOK responses without a specific message
+      if (data.message === 'NOTOK') {
+        throw new Error('Etherscan API error: Invalid API key or request limit reached');
+      }
+      
       throw new Error(data.message || 'Unknown Etherscan API error');
     }
     
