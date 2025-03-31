@@ -17,17 +17,15 @@ const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({
   socials 
 }) => {
   return (
-    <Card className="w-full">
-      <CardContent className="p-4 space-y-4">
-        <ProfileContact 
-          passportId={passportId} 
-          ownerAddress={ownerAddress}
-          email={socials?.email} 
-          telephone={socials?.telephone}
-          location={socials?.location}
-        />
-      </CardContent>
-    </Card>
+    <div className="w-full">
+      <ProfileContact 
+        passportId={passportId} 
+        ownerAddress={ownerAddress}
+        email={socials?.email} 
+        telephone={socials?.telephone}
+        location={socials?.location}
+      />
+    </div>
   );
 };
 
