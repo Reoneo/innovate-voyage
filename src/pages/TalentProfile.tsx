@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
@@ -182,8 +181,9 @@ const TalentProfile = () => {
         </div>
       </div>
       
-      {/* Add global styles for PDF generation */}
-      <style jsx global>{`
+      {/* Add global styles for PDF generation - Fix the style element by removing jsx and global attributes */}
+      <style>
+        {`
         @media print {
           .pdf-only {
             display: block !important;
@@ -204,7 +204,8 @@ const TalentProfile = () => {
         .generating-pdf-visible {
           display: none;
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
