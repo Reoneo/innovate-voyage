@@ -13,9 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Network } from 'lucide-react';
 
 interface ProfileTabsContainerProps {
-  passport: BlockchainPassport & {
-    category: string;
-  };
+  passport: BlockchainPassport;
   blockchainProfile?: BlockchainProfile;
   transactions?: any[] | null;
   resolvedEns?: string;
