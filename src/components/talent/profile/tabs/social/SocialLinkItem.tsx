@@ -38,19 +38,33 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
         return <Youtube size={16} className="text-[#FF0000]" />;
       case 'bluesky':
         return (
-          <span className="text-[#0085FF] flex items-center justify-center" style={{ fontSize: '14px' }}>
-            🦋
-          </span>
+          <img 
+            src="https://img.icons8.com/?size=100&id=3ovMFy5JDSWq&format=png&color=000000" 
+            alt="Bluesky"
+            className="w-4 h-4"
+          />
         );
       case 'globe':
       case 'website':
         return <Globe size={16} className="text-[#4CAF50]" />;
       case 'telegram':
-        return <MessageCircle size={16} className="text-[#0088cc]" />;
+        return (
+          <img 
+            src="https://img.icons8.com/?size=100&id=63306&format=png&color=000000" 
+            alt="Telegram"
+            className="w-4 h-4"
+          />
+        );
       case 'discord':
         return <Disc size={16} className="text-[#5865F2]" />;
       case 'whatsapp':
-        return <MessageSquare size={16} className="text-[#25D366]" />;
+        return (
+          <img 
+            src="https://img.icons8.com/?size=100&id=16713&format=png&color=000000" 
+            alt="WhatsApp"
+            className="w-4 h-4"
+          />
+        );
       default:
         return <Globe size={16} />;
     }
