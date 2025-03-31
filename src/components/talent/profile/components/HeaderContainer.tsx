@@ -7,9 +7,18 @@ interface HeaderContainerProps {
   children: React.ReactNode;
 }
 
-// This component is now a lightweight wrapper since we're using DraggableTile
 const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
-  return <>{children}</>;
+  const isMobile = useIsMobile();
+
+  return (
+    <Card>
+      <CardHeader className="pb-4">
+        <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
+          {children}
+        </div>
+      </CardHeader>
+    </Card>
+  );
 };
 
 export default HeaderContainer;

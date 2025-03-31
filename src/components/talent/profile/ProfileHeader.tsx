@@ -1,8 +1,7 @@
 
 import React from 'react';
+import HeaderContainer from './components/HeaderContainer';
 import AvatarSection from './components/AvatarSection';
-import DraggableTile from '@/components/ui/draggable-tile';
-import { User } from 'lucide-react';
 
 interface ProfileHeaderProps {
   passport: {
@@ -33,13 +32,8 @@ interface ProfileHeaderProps {
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
   return (
-    <DraggableTile 
-      title="Profile Information" 
-      defaultPosition={{ x: 20, y: 20 }}
-      defaultSize={{ width: 780, height: 120 }}
-      icon={<User className="h-4 w-4" />}
-    >
-      <div className="flex flex-row items-start gap-6">
+    <HeaderContainer>
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
         <AvatarSection 
           avatarUrl={passport.avatar_url}
           name={passport.name}
@@ -47,7 +41,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
           socials={passport.socials}
         />
       </div>
-    </DraggableTile>
+    </HeaderContainer>
   );
 };
 
