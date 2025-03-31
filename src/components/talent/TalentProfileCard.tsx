@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { HoverCard, HoverCardTrigger } from '@/components/ui/hover-card';
 import { BlockchainPassport } from '@/lib/utils';
-import { ListFilter } from 'lucide-react';
 import UserCardTooltip from '@/components/jobs/UserCardTooltip';
 
 interface TalentProfileCardProps {
@@ -60,23 +59,6 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
             </HoverCard>
           </div>
         </div>
-
-        {/* Additional ENS Domains */}
-        {passport.additionalEnsDomains && passport.additionalEnsDomains.length > 0 && (
-          <div className="mb-4">
-            <h4 className="text-sm font-medium flex items-center gap-1 mb-1.5">
-              <ListFilter className="h-4 w-4" /> 
-              Additional ENS Domains
-            </h4>
-            <div className="flex flex-wrap gap-1.5">
-              {passport.additionalEnsDomains.map((domain, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {domain}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
         
         <div>
           <h4 className="text-sm font-medium mb-2">Skills</h4>
