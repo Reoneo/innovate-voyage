@@ -51,7 +51,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         name={name} 
       />
       <div className="mt-2 text-center md:text-left">
-        <h3 className="text-lg font-semibold">{displayName}</h3>
+        <h3 className="text-2xl font-semibold">{displayName}</h3>
         <AddressDisplay address={ownerAddress} />
       </div>
       <ProfileContact 
