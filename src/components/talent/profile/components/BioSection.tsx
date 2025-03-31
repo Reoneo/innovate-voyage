@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { PencilLine, Save } from 'lucide-react';
@@ -9,11 +9,10 @@ import { useToast } from '@/hooks/use-toast';
 interface BioSectionProps {
   ownerAddress: string;
   initialBio?: string;
-  ensDescription?: string;
 }
 
-const BioSection: React.FC<BioSectionProps> = ({ ownerAddress, initialBio = '', ensDescription }) => {
-  const [bio, setBio] = useState(initialBio || ensDescription || '');
+const BioSection: React.FC<BioSectionProps> = ({ ownerAddress, initialBio = '' }) => {
+  const [bio, setBio] = useState(initialBio);
   const [isEditing, setIsEditing] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const { toast } = useToast();
@@ -33,10 +32,8 @@ const BioSection: React.FC<BioSectionProps> = ({ ownerAddress, initialBio = '', 
       setBio(savedBio);
     } else if (initialBio) {
       setBio(initialBio);
-    } else if (ensDescription) {
-      setBio(ensDescription);
     }
-  }, [ownerAddress, initialBio, ensDescription]);
+  }, [ownerAddress, initialBio]);
 
   const handleSave = () => {
     localStorage.setItem(`user_bio_${ownerAddress}`, bio);
@@ -47,6 +44,10 @@ const BioSection: React.FC<BioSectionProps> = ({ ownerAddress, initialBio = '', 
       description: "Your bio has been updated successfully."
     });
   };
+
+  if (!bio && !isEditing && !isOwner) {
+    return null;
+  }
 
   return (
     <Card id="bio-section">
@@ -88,11 +89,7 @@ const BioSection: React.FC<BioSectionProps> = ({ ownerAddress, initialBio = '', 
               <p className="text-muted-foreground italic">
                 Click the edit button to add your bio.
               </p>
-            ) : (
-              <p className="text-muted-foreground italic">
-                Connect wallet to edit bio.
-              </p>
-            )}
+            ) : null}
           </div>
         )}
       </CardContent>

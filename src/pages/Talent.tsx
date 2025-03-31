@@ -110,13 +110,14 @@ const Talent = () => {
             proof: `etherscan://${address}`,
           })),
           socials: {},
-          category: 'Blockchain User', // Add the required category property
-          additionalEnsDomains // Store the additional domains in the passport
+          additionalEnsDomains // Add the additional domains
         };
         
         setSearchResults([newPassport]);
+        // Success toast removed
       } catch (error) {
         console.error('Error fetching Etherscan data:', error);
+        // Error toast removed
         setSearchResults([]);
       } finally {
         setIsSearching(false);

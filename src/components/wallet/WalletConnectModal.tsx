@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -9,28 +9,12 @@ declare global {
   interface Window {
     connectWalletModal: HTMLDialogElement;
     connectedWalletAddress: string | null;
-    // We don't need to redeclare ethereum here as it's already defined in ethereum.d.ts
   }
 }
 
 const WalletConnectModal: React.FC = () => {
   const [connecting, setConnecting] = useState(false);
   const { toast } = useToast();
-
-  // Setup event listener for opening modal
-  useEffect(() => {
-    const handleOpenWalletConnect = () => {
-      if (window.connectWalletModal) {
-        window.connectWalletModal.showModal();
-      }
-    };
-
-    document.addEventListener('open-wallet-connect', handleOpenWalletConnect);
-    
-    return () => {
-      document.removeEventListener('open-wallet-connect', handleOpenWalletConnect);
-    };
-  }, []);
 
   const connectMetamask = async () => {
     setConnecting(true);
@@ -77,9 +61,7 @@ const WalletConnectModal: React.FC = () => {
   };
 
   const closeModal = () => {
-    if (window.connectWalletModal) {
-      window.connectWalletModal.close();
-    }
+    window.connectWalletModal.close();
   };
 
   return (

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -282,13 +281,7 @@ const WorkExperienceSection: React.FC<WorkExperienceSectionProps> = ({ ownerAddr
                   Add Experience
                 </Button>
               </div>
-            ) : (
-              <div className="text-center py-6">
-                <p className="text-muted-foreground">
-                  Connect wallet to add work experience.
-                </p>
-              </div>
-            )}
+            ) : null}
           </>
         )}
       </CardContent>

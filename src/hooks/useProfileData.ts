@@ -46,7 +46,6 @@ export function useProfileData(ensName?: string, address?: string) {
     transactions: blockchainData.transactions,
     resolvedEns,
     blockchainExtendedData: blockchainData.blockchainExtendedData,
-    avatarUrl,
-    error: blockchainData.error
+    avatarUrl
   };
 }

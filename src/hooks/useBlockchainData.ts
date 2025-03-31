@@ -18,29 +18,12 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     snsActive: false,
     description: undefined as string | undefined
   });
-  const [extendedDataError, setExtendedDataError] = useState<Error | null>(null);
 
   // Fetch blockchain data
-  const { 
-    data: blockchainProfile, 
-    isLoading: loadingBlockchain,
-    error: blockchainError 
-  } = useBlockchainProfile(resolvedAddress);
-  
-  const { 
-    data: transactions,
-    error: transactionsError 
-  } = useLatestTransactions(resolvedAddress, 20);
-  
-  const { 
-    data: tokenTransfers,
-    error: tokenTransfersError 
-  } = useTokenTransfers(resolvedAddress, 10);
-  
+  const { data: blockchainProfile, isLoading: loadingBlockchain } = useBlockchainProfile(resolvedAddress);
+  const { data: transactions } = useLatestTransactions(resolvedAddress, 20);
+  const { data: tokenTransfers } = useTokenTransfers(resolvedAddress, 10);
   const { data: web3BioProfile } = useWeb3BioProfile(resolvedAddress || resolvedEns);
-  
-  // Aggregate errors
-  const error = blockchainError || transactionsError || tokenTransfersError || extendedDataError;
   
   // Fetch additional blockchain data
   useEffect(() => {
@@ -56,10 +39,8 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
             snsActive: data.snsActive,
             description: data.description
           });
-          setExtendedDataError(null);
         } catch (error) {
           console.error('Error fetching blockchain data:', error);
-          setExtendedDataError(error instanceof Error ? error : new Error('Unknown error'));
         }
       }
     };
@@ -67,25 +48,13 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     loadBlockchainData();
   }, [resolvedAddress]);
 
-  // Get description from web3BioProfile if available
-  useEffect(() => {
-    if (web3BioProfile?.description && !blockchainExtendedData.description) {
-      setBlockchainExtendedData(prev => ({
-        ...prev,
-        description: web3BioProfile.description
-      }));
-    }
-  }, [web3BioProfile]);
-
-  // Merge blockchain profile with extended data, but only if we have actual blockchain data
-  // We don't want to show mock data if the real data couldn't be fetched
+  // Merge blockchain profile with extended data
   const enhancedBlockchainProfile = blockchainProfile ? {
     ...blockchainProfile,
     mirrorPosts: blockchainExtendedData.mirrorPosts,
     lensActivity: blockchainExtendedData.lensActivity,
     boxDomains: blockchainExtendedData.boxDomains,
-    snsActive: blockchainExtendedData.snsActive,
-    description: blockchainProfile.description || blockchainExtendedData.description || web3BioProfile?.description
+    snsActive: blockchainExtendedData.snsActive
   } : null;
 
   return {
@@ -94,10 +63,6 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     tokenTransfers,
     web3BioProfile,
     loadingBlockchain,
-    error,
-    blockchainExtendedData: {
-      ...blockchainExtendedData,
-      description: blockchainExtendedData.description || web3BioProfile?.description
-    }
+    blockchainExtendedData
   };
 }

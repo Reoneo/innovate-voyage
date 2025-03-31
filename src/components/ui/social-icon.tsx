@@ -54,6 +54,6 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
     case 'discord':
       return <div className={`text-indigo-500 ${iconClasses}`} style={{ fontSize: `${size * 0.8}px`, fontWeight: 'bold' }}>D</div>;
     default:
-      return null;
+      return <Link size={size} className={iconClasses} />;
   }
 };

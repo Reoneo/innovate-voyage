@@ -3,9 +3,7 @@ import React from 'react';
 import { useBlockchainProfile } from '@/hooks/useEtherscan';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowDownUp, Coins, AlignJustify, AlertCircle, Info } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ArrowDownUp, Coins, AlignJustify } from 'lucide-react';
 
 interface BlockchainActivityProps {
   address: string;
@@ -23,96 +21,21 @@ function formatEther(wei: string): string {
 
 const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
   const { data: profile, isLoading, error } = useBlockchainProfile(address);
-  const { toast } = useToast();
-  const [apiKeyChecked, setApiKeyChecked] = React.useState(false);
-
-  // Check if API key is present and display appropriate toast
-  React.useEffect(() => {
-    if (!apiKeyChecked && error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      
-      if (errorMessage.includes('API key')) {
-        toast({
-          title: "API Key Issue",
-          description: "Unable to fetch blockchain data due to API key limitations.",
-          variant: "destructive",
-        });
-      } else if (errorMessage.includes('rate limit')) {
-        toast({
-          title: "Rate Limit Exceeded",
-          description: "Etherscan API rate limit reached. Please try again later.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Blockchain Data Error",
-          description: "There was an error fetching blockchain data.",
-          variant: "destructive",
-        });
-      }
-      setApiKeyChecked(true);
-    }
-  }, [error, toast, apiKeyChecked]);
 
   if (isLoading) {
     return (
       <div className="space-y-2">
-        <div className="flex justify-between">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-4 w-16" />
-        </div>
-        <div className="flex justify-between mt-2">
-          <Skeleton className="h-4 w-28" />
-          <Skeleton className="h-4 w-12" />
-        </div>
-        <Separator className="my-2" />
-        <Skeleton className="h-4 w-32" />
-        <div className="space-y-2">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-20 w-full" />
       </div>
     );
   }
 
-  if (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    
+  if (error || !profile) {
     return (
-      <div className="space-y-4">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Blockchain Data Error</AlertTitle>
-          <AlertDescription>
-            {errorMessage}
-          </AlertDescription>
-        </Alert>
-        <div className="text-sm">
-          <p className="text-muted-foreground mt-2">
-            This may be due to API rate limiting or connectivity issues. Try again later.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="space-y-4">
-        <Alert>
-          <Info className="h-4 w-4" />
-          <AlertTitle>No blockchain data available</AlertTitle>
-          <AlertDescription>
-            No blockchain activity found for this address.
-          </AlertDescription>
-        </Alert>
-        <div className="text-sm">
-          <p className="text-muted-foreground mt-2">
-            Some ENS names may not map directly to Ethereum addresses or may have resolution issues.
-            If you're seeing this error, try viewing the profile by Ethereum address instead.
-          </p>
-        </div>
+      <div className="text-sm text-muted-foreground">
+        Could not load blockchain data
       </div>
     );
   }
@@ -135,7 +58,7 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
         <span className="font-medium">{profile.transactionCount}</span>
       </div>
       
-      {profile.latestTransactions && profile.latestTransactions.length > 0 ? (
+      {profile.latestTransactions && profile.latestTransactions.length > 0 && (
         <>
           <Separator />
           <div>
@@ -161,10 +84,6 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
             </div>
           </div>
         </>
-      ) : (
-        <div className="text-sm text-muted-foreground py-2">
-          No recent transactions found
-        </div>
       )}
     </div>
   );

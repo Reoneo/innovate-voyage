@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, X } from 'lucide-react';
 
 interface AddSkillFormProps {
   onAddSkill: (skillName: string) => void;
@@ -36,18 +36,15 @@ const AddSkillForm: React.FC<AddSkillFormProps> = ({ onAddSkill, onCancel }) => 
     // Reset form
     setNewSkill('');
     setIsSubmitting(false);
-    
-    toast({
-      title: "Skill Added",
-      description: `"${newSkill.trim()}" has been added to your profile`,
-    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 border border-gray-700 p-4 rounded-lg bg-[#222632]">
       <div className="flex items-center justify-between">
         <h3 className="font-medium">Add Unverified Skill</h3>
-        <PlusCircle className="h-4 w-4 text-muted-foreground" />
+        <Button variant="ghost" size="icon" onClick={onCancel} className="h-6 w-6">
+          <X className="h-3.5 w-3.5" />
+        </Button>
       </div>
       
       <div className="space-y-2">
@@ -58,13 +55,14 @@ const AddSkillForm: React.FC<AddSkillFormProps> = ({ onAddSkill, onCancel }) => 
           value={newSkill}
           onChange={(e) => setNewSkill(e.target.value)}
           disabled={isSubmitting}
+          className="bg-[#1A1F2C] border-gray-700"
         />
       </div>
       
-      <div className="flex gap-2 justify-end">
+      <div className="flex justify-end gap-2">
         <Button 
-          type="button"
-          variant="outline"
+          type="button" 
+          variant="outline" 
           onClick={onCancel}
         >
           Cancel
@@ -77,7 +75,7 @@ const AddSkillForm: React.FC<AddSkillFormProps> = ({ onAddSkill, onCancel }) => 
         </Button>
       </div>
       
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-gray-500">
         Note: This skill will be marked as unverified until proof is provided
       </p>
     </form>
