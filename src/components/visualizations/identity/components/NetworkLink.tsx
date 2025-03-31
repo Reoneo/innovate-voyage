@@ -1,60 +1,52 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { NetworkLink as NetworkLinkType, NetworkNode } from '../hooks/useIdNetworkData';
 
 interface NetworkLinkProps {
-  link: {
-    source: { id: string; x: number; y: number } | string;
-    target: { id: string; x: number; y: number } | string;
-    value: number;
-  };
-  animated: boolean;
-  isHighlighted: boolean;
-  opacity?: number;
+  link: NetworkLinkType;
+  nodes: NetworkNode[];
+  selectedNode: string | null;
 }
 
-const NetworkLink: React.FC<NetworkLinkProps> = ({ link, animated, isHighlighted, opacity = 0.5 }) => {
-  // Handle both string and object source/target formats
-  const sourceId = typeof link.source === 'string' ? link.source : link.source?.id;
-  const targetId = typeof link.target === 'string' ? link.target : link.target?.id;
+const NetworkLink: React.FC<NetworkLinkProps> = ({ link, nodes, selectedNode }) => {
+  // Find the target node to determine color, with proper null checking
+  const targetId = typeof link.target === 'object' && link.target ? link.target.id : link.target;
+  const target = targetId ? nodes.find(n => n.id === targetId) : undefined;
   
-  // Skip rendering if the link is not valid
-  if (!sourceId || !targetId) {
-    return null;
+  // Determine if this link connects to the selected node, with proper null checking
+  const isSelected = Boolean(selectedNode) && (
+    // Check if the source node matches the selected node name
+    ((typeof link.source === 'object' && link.source) ? 
+      nodes.find(n => n.id === (link.source && typeof link.source === 'object' ? link.source.id : link.source))?.name === selectedNode : 
+      (link.source ? nodes.find(n => n.id === link.source)?.name === selectedNode : false)) ||
+    
+    // Check if the target node matches the selected node name
+    ((typeof link.target === 'object' && link.target) ? 
+      nodes.find(n => n.id === (link.target && typeof link.target === 'object' ? link.target.id : link.target))?.name === selectedNode : 
+      (link.target ? nodes.find(n => n.id === link.target)?.name === selectedNode : false))
+  );
+  
+  // Calculate stroke color based on node type
+  let strokeColor = "#9ca3af";
+  if (target?.type === 'ens-domain') {
+    strokeColor = target.isDotBox ? "#8b5cf6" : "#6366f1";
   }
   
-  // Handle both string and object source/target formats for coordinates
-  const x1 = typeof link.source === 'string' ? 0 : link.source?.x || 0;
-  const y1 = typeof link.source === 'string' ? 0 : link.source?.y || 0;
-  const x2 = typeof link.target === 'string' ? 0 : link.target?.x || 0;
-  const y2 = typeof link.target === 'string' ? 0 : link.target?.y || 0;
-  
-  // If using string references, don't render the link visually
-  if (typeof link.source === 'string' || typeof link.target === 'string') {
-    return null;
-  }
-  
-  const strokeWidth = Math.sqrt(link.value) || 1;
+  // Get x and y positions with enhanced null checking
+  const sourceX = typeof link.source === 'object' && link.source ? (link.source.x ?? 0) : 0;
+  const sourceY = typeof link.source === 'object' && link.source ? (link.source.y ?? 0) : 0;
+  const targetX = typeof link.target === 'object' && link.target ? (link.target.x ?? 0) : 0;
+  const targetY = typeof link.target === 'object' && link.target ? (link.target.y ?? 0) : 0;
   
   return (
-    <motion.line
-      initial={animated ? { opacity: 0, pathLength: 0 } : { opacity: opacity }}
-      animate={animated ? {
-        opacity: isHighlighted ? 0.8 : opacity,
-        pathLength: 1,
-        strokeWidth: isHighlighted ? strokeWidth + 1 : strokeWidth
-      } : {
-        opacity: isHighlighted ? 0.8 : opacity,
-        strokeWidth: isHighlighted ? strokeWidth + 1 : strokeWidth
-      }}
-      transition={{ duration: 0.8 }}
-      x1={x1}
-      y1={y1}
-      x2={x2}
-      y2={y2}
-      stroke={isHighlighted ? "#3b82f6" : "#64748b"}
-      strokeWidth={strokeWidth}
-      strokeOpacity={isHighlighted ? 0.8 : 0.5}
+    <line
+      stroke={strokeColor}
+      strokeOpacity={isSelected ? 1 : 0.7}
+      strokeWidth={isSelected ? Math.sqrt(link.value) * 2 : Math.sqrt(link.value) * 1.5}
+      x1={sourceX}
+      y1={sourceY}
+      x2={targetX}
+      y2={targetY}
     />
   );
 };
