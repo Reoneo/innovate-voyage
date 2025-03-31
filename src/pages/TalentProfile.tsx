@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import ProfileHeader from '@/components/talent/profile/ProfileHeader';
 import ProfileNavigationBar from '@/components/talent/profile/ProfileNavigationBar';
-import ProfileTabsContainer from '@/components/talent/profile/ProfileTabsContainer';
 import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
 
 const TalentProfile = () => {
@@ -137,8 +136,6 @@ const TalentProfile = () => {
         <div className="mx-auto bg-white shadow-lg rounded-sm border border-gray-200" style={{
           width: '100%',
           maxWidth: '21cm', /* A4 width */
-          minHeight: '29.7cm', /* A4 height */
-          padding: '1.5cm',
           position: 'relative',
         }}>
           {loading ? (
@@ -152,18 +149,9 @@ const TalentProfile = () => {
                 name: passport.name,
                 score: passport.score,
                 category: passport.category,
-                socials: passport.socials || {}
+                socials: passport.socials || {},
+                bio: passport.bio
               }} />
-              <ProfileTabsContainer 
-                passport={passport}
-                blockchainProfile={blockchainProfile}
-                transactions={transactions}
-                resolvedEns={resolvedEns}
-                onExportPdf={exportAsPDF}
-                blockchainExtendedData={blockchainExtendedData}
-                avatarUrl={avatarUrl}
-                ownerAddress={passport.owner_address}
-              />
             </div>
           ) : (
             <ProfileNotFound />

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface HeaderContainerProps {
@@ -11,12 +11,14 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
   const isMobile = useIsMobile();
 
   return (
-    <Card className="bg-white shadow-md rounded-sm mx-0 w-full">
-      <CardHeader className="pb-8 pt-8 px-8">
-        <div className="flex flex-col md:flex-row gap-6 items-center md:items-start w-full">
-          {children}
-        </div>
-      </CardHeader>
+    <Card className="bg-white shadow-md rounded-sm w-full" style={{
+      minHeight: isMobile ? 'auto' : '29.7cm', /* A4 height */
+      width: '100%',
+      maxWidth: '100%',
+    }}>
+      <CardContent className="p-8 md:p-12">
+        {children}
+      </CardContent>
     </Card>
   );
 };

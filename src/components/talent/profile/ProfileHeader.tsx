@@ -2,6 +2,8 @@
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import AvatarSection from './components/AvatarSection';
+import ProfileInfoSection from './components/ProfileInfoSection';
+import ProfileScores from './components/ProfileScores';
 
 interface ProfileHeaderProps {
   passport: {
@@ -40,6 +42,18 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
           ownerAddress={passport.owner_address}
           socials={passport.socials}
         />
+        <div className="flex-1 flex flex-col md:flex-row justify-between w-full">
+          <ProfileInfoSection
+            passportId={passport.passport_id}
+            ownerAddress={passport.owner_address}
+            bio={passport.bio}
+            socials={passport.socials}
+          />
+          <ProfileScores
+            humanScore={passport.score}
+            category={passport.category}
+          />
+        </div>
       </div>
     </HeaderContainer>
   );
