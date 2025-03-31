@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Check } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -100,26 +100,43 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
       </CardHeader>
       <CardContent>
         {localSkills && localSkills.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {localSkills.map((skill, index) => (
-              <Badge 
-                key={index} 
-                variant="secondary"
-                className="text-sm py-2 px-3 flex items-center gap-2"
-              >
-                {skill.name}
-                {isOwner && (
-                  <button 
-                    onClick={() => handleDeleteSkill(index)}
-                    className="ml-1 text-muted-foreground hover:text-foreground"
-                    aria-label="Delete skill"
-                  >
-                    ×
-                  </button>
-                )}
-              </Badge>
-            ))}
-          </div>
+          <>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {localSkills.map((skill, index) => (
+                <Badge 
+                  key={index} 
+                  variant={skill.proof ? "default" : "secondary"}
+                  className="text-sm py-2 px-3 flex items-center gap-2"
+                >
+                  {skill.proof && (
+                    <Check className="h-3 w-3" />
+                  )}
+                  {skill.name}
+                  {isOwner && (
+                    <button 
+                      onClick={() => handleDeleteSkill(index)}
+                      className="ml-1 text-muted-foreground hover:text-foreground"
+                      aria-label="Delete skill"
+                    >
+                      ×
+                    </button>
+                  )}
+                </Badge>
+              ))}
+            </div>
+            <div className="flex items-center gap-4 text-xs text-muted-foreground mt-4 border-t pt-3">
+              <div className="flex items-center gap-1">
+                <Badge variant="default" className="w-4 h-4 p-0 flex items-center justify-center">
+                  <Check className="h-3 w-3" />
+                </Badge>
+                <span>Verified</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Badge variant="secondary" className="w-4 h-4 p-0"></Badge>
+                <span>Unverified</span>
+              </div>
+            </div>
+          </>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
             Connect wallet to add skills
