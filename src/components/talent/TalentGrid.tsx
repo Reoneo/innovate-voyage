@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -28,12 +29,7 @@ const FEATURED_PROFILES = [
       { name: 'ETH Holder', proof: 'etherscan://0x1234567890123456789012345678901234567890' },
       { name: 'ENS Owner', proof: 'ens://30315.eth' }
     ],
-    socials: {
-      github: 'https://github.com/30315',
-      twitter: 'https://twitter.com/30315',
-      linkedin: 'https://linkedin.com/in/30315',
-      website: 'https://30315.eth.xyz'
-    },
+    socials: {},
     score: 75,
     category: 'Verified',
     colorClass: 'bg-green-500',
@@ -49,11 +45,7 @@ const FEATURED_PROFILES = [
       { name: 'ETH Holder', proof: 'etherscan://0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' },
       { name: 'ENS Owner', proof: 'ens://vitalik.eth' }
     ],
-    socials: {
-      github: 'https://github.com/vbuterin',
-      twitter: 'https://twitter.com/VitalikButerin',
-      website: 'https://vitalik.ca'
-    },
+    socials: {},
     score: 95,
     category: 'Verified',
     colorClass: 'bg-green-500',
@@ -69,10 +61,7 @@ const FEATURED_PROFILES = [
       { name: 'ETH Holder', proof: 'etherscan://0x5b2A5d1f4510b893A2348B01F5166B737ABe6be1' },
       { name: 'ENS Owner', proof: 'ens://nick.eth' }
     ],
-    socials: {
-      twitter: 'https://twitter.com/nicksdjohnson',
-      github: 'https://github.com/arachnid'
-    },
+    socials: {},
     score: 85,
     category: 'Verified',
     colorClass: 'bg-green-500',
