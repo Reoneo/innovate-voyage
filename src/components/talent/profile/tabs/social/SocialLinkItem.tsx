@@ -10,8 +10,6 @@ import {
   Facebook,
   Instagram,
   Youtube,
-  MessageSquare,
-  MessageCircle,
   Disc
 } from 'lucide-react';
 
