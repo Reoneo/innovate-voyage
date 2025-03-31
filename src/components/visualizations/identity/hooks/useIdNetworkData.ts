@@ -112,26 +112,10 @@ function useNetworkGraphData(
     // Process all ENS domains
     const ensNodes: NetworkNode[] = [];
     
-    // Main ENS domain (if provided)
-    const mainEnsNode = ensName ? { 
-      id: 'main-ens', 
-      name: ensName, 
-      type: 'ens-domain',
-      isDotBox: ensName.includes('.box') 
-    } : null;
-    
     // Process all ENS domains from query
     if (ensRecords && ensRecords.length > 0) {
-      // First, add the main ENS if it exists
-      if (mainEnsNode) {
-        ensNodes.push(mainEnsNode);
-      }
-      
-      // Then add all other ENS domains from the records
+      // Add all ENS domains from the records
       ensRecords.forEach((record, idx) => {
-        // Skip the main ENS as we already added it
-        if (record.ensName === ensName) return;
-        
         ensNodes.push({
           id: `ens-${idx}`,
           name: record.ensName,
@@ -140,9 +124,6 @@ function useNetworkGraphData(
           isDotBox: record.ensName.includes('.box')
         });
       });
-    } else if (mainEnsNode) {
-      // If no records but we have main ENS, just add that
-      ensNodes.push(mainEnsNode);
     }
     
     // Identity-related NFTs
@@ -180,7 +161,7 @@ function useNetworkGraphData(
       ...ensNodes.map(node => ({
         source: 'central',
         target: node.id,
-        value: node.id === 'main-ens' ? 5 : 3
+        value: 3
       })),
       
       // Links to NFTs
