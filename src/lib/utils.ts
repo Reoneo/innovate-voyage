@@ -25,7 +25,6 @@ export interface BlockchainPassport {
   issued: string;
   skills: Skill[];
   bio?: string; // Adding bio property as optional
-  category?: string; // Make category optional to fix type errors
   socials: {
     twitter?: string;
     github?: string;

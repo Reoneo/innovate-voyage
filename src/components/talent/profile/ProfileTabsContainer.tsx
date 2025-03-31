@@ -1,8 +1,16 @@
 
 import React from 'react';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import { BlockchainPassport } from '@/lib/utils';
-import ProfileTabs from './tabs/ProfileTabs';
+
+import BlockchainTab from './tabs/BlockchainTab';
+import SkillsTab from './tabs/SkillsTab';
+import BioSection from './components/BioSection';
+import WorkExperienceSection from './components/WorkExperienceSection';
+import IdNetworkGraph from '@/components/visualizations/identity/IdNetworkGraph';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Network } from 'lucide-react';
 
 interface ProfileTabsContainerProps {
   passport: BlockchainPassport & {
@@ -25,19 +33,70 @@ interface ProfileTabsContainerProps {
   blockchainError?: Error | null;
 }
 
-const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = (props) => {
+const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({ 
+  passport, 
+  blockchainProfile, 
+  transactions,
+  resolvedEns,
+  onExportPdf,
+  blockchainExtendedData,
+  avatarUrl,
+  ownerAddress,
+  additionalEnsDomains = [],
+  blockchainError
+}) => {
+  // Extract description from ENS data
+  const ensDescription = blockchainProfile?.description || blockchainExtendedData?.description;
+  
   return (
-    <ProfileTabs
-      passport={props.passport}
-      blockchainProfile={props.blockchainProfile}
-      transactions={props.transactions}
-      resolvedEns={props.resolvedEns}
-      blockchainExtendedData={props.blockchainExtendedData}
-      avatarUrl={props.avatarUrl}
-      ownerAddress={props.ownerAddress}
-      additionalEnsDomains={props.additionalEnsDomains}
-      blockchainError={props.blockchainError}
-    />
+    <TooltipProvider>
+      <div className="space-y-6 mt-6">
+        <BioSection 
+          ownerAddress={ownerAddress}
+          initialBio={passport.bio || ''}
+          ensDescription={ensDescription}
+        />
+        
+        <WorkExperienceSection 
+          ownerAddress={ownerAddress}
+        />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <SkillsTab 
+            skills={passport.skills || []}
+            avatarUrl={avatarUrl}
+            ensName={resolvedEns || ''}
+            ownerAddress={ownerAddress}
+          />
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <Network className="h-5 w-5" />
+                Identity Network
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <IdNetworkGraph 
+                  name={passport.name} 
+                  avatarUrl={avatarUrl}
+                  ensName={resolvedEns}
+                  address={ownerAddress}
+                  additionalEnsDomains={additionalEnsDomains}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <BlockchainTab 
+          transactions={transactions}
+          address={ownerAddress}
+          error={blockchainError}
+        />
+      </div>
+    </TooltipProvider>
   );
 };
 
