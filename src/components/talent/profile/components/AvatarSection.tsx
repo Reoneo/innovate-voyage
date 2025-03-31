@@ -6,8 +6,6 @@ import ProfileContact from './ProfileContact';
 import AddressDisplay from './identity/AddressDisplay';
 import { Link } from 'lucide-react';
 import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -20,15 +18,13 @@ interface AvatarSectionProps {
     whatsapp?: string;
     [key: string]: string | undefined;
   };
-  additionalEnsDomains?: string[];
 }
 
 const AvatarSection: React.FC<AvatarSectionProps> = ({ 
   avatarUrl, 
   name, 
   ownerAddress,
-  socials = {},
-  additionalEnsDomains = []
+  socials = {}
 }) => {
   const [isOwner, setIsOwner] = useState(false);
   const [enhancedSocials, setEnhancedSocials] = useState<Record<string, string>>(socials as Record<string, string>);
@@ -132,28 +128,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         <h3 className="text-2xl font-semibold">{displayName}</h3>
         <AddressDisplay address={ownerAddress} />
       </div>
-      
-      {/* Additional ENS Domains */}
-      {additionalEnsDomains && additionalEnsDomains.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2 max-w-full">
-          {additionalEnsDomains.map((domain, index) => (
-            <a 
-              key={index}
-              href={`https://app.ens.domains/name/${domain}`}
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted hover:bg-muted/80 transition-colors text-xs"
-            >
-              <Avatar className="h-4 w-4">
-                <AvatarImage src={`https://metadata.ens.domains/mainnet/avatar/${domain}`} alt={domain} />
-                <AvatarFallback>{domain.substring(0, 1).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              {domain}
-            </a>
-          ))}
-        </div>
-      )}
-      
       <ProfileContact 
         email={socials.email}
         telephone={telephone}

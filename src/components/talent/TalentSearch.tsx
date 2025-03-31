@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SearchIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,6 @@ import { isValidEthereumAddress } from '@/lib/utils';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { Alert } from '@/components/ui/alert';
-import { toast } from 'sonner';
 
 interface TalentSearchProps {
   onSearch: (query: string) => void;
@@ -33,7 +32,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
     const isValidInput = searchInput.includes('.eth') || searchInput.includes('.box') || isValidEthereumAddress(searchInput);
     
     if (!isValidInput) {
-      toast.error('Please enter a valid ENS name (.eth or .box) or Ethereum address');
+      // Removed toast notification
       return;
     }
     
@@ -44,20 +43,8 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
     onSearch(searchInput.trim());
   };
 
-  // Format input for ENS if needed
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.trim();
-    
-    // Auto-append .eth if the input looks like an ENS name without extension
-    if (value && !value.includes('.') && !value.startsWith('0x') && /^[a-zA-Z0-9]+$/.test(value)) {
-      setSearchInput(value); // Keep the input clean in the field
-    } else {
-      setSearchInput(value);
-    }
-  };
-
   // Update results only when resolver finishes and finds something
-  useEffect(() => {
+  React.useEffect(() => {
     if (hasExecutedSearch && !isLoading && (resolvedEns || resolvedAddress)) {
       setSearchResults([{
         name: resolvedEns || searchInput,
@@ -65,6 +52,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
         avatar: avatarUrl
       }]);
     } else if (hasExecutedSearch && !isLoading && !resolvedEns && !resolvedAddress) {
+      // Clear results if nothing found but don't show toast
       setSearchResults([]);
     }
   }, [resolvedEns, resolvedAddress, avatarUrl, isLoading, searchInput, hasExecutedSearch]);
@@ -85,7 +73,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
               <Input
                 placeholder="vitalik.eth, smith.box or 0x71C7..."
                 value={searchInput}
-                onChange={handleInputChange}
+                onChange={(e) => setSearchInput(e.target.value)}
                 className="pr-10"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSearch();
