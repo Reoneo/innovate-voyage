@@ -122,7 +122,7 @@ export function usePassportGenerator(
           skills: skills,
           socials: socials,
           bio: bio,
-          category: 'Blockchain User'
+          category: 'Blockchain User' // Now this is valid with our updated type
         };
         
         setPassport(newPassport);
