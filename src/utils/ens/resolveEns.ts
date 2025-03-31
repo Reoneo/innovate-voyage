@@ -1,18 +1,6 @@
 
 import { mainnetProvider } from '../ethereumProviders';
-
-/**
- * Normalizes an ENS name by adding .eth suffix if missing and not containing another TLD
- */
-export function normalizeEnsDomain(ensName: string): string {
-  // Already has a TLD
-  if (ensName.includes('.')) {
-    return ensName;
-  }
-  
-  // Add .eth for names without a TLD
-  return `${ensName}.eth`;
-}
+import { getAddressRecord, getName, normalizeEnsDomain, ensClient } from './ensClient';
 
 /**
  * Validates if the input could be a valid ENS name
@@ -24,7 +12,7 @@ export function isValidEnsDomain(domain: string): boolean {
 }
 
 /**
- * Resolves an ENS name to an address with improved error handling
+ * Resolves an ENS name to an address using ENS.js
  */
 export async function resolveEnsToAddress(ensName: string) {
   if (!ensName) return null;
@@ -37,15 +25,12 @@ export async function resolveEnsToAddress(ensName: string) {
     return null;
   }
   
-  // Treat all domains as mainnet domains
-  const provider = mainnetProvider;
-  
-  console.log(`Resolving domain: ${normalizedEns} using Mainnet provider`);
+  console.log(`Resolving domain: ${normalizedEns} using ENS.js client`);
   
   try {
-    const resolvedAddress = await provider.resolveName(normalizedEns);
-    console.log(`Resolution result for ${normalizedEns}:`, resolvedAddress);
-    return resolvedAddress;
+    const result = await getAddressRecord(normalizedEns);
+    console.log(`Resolution result for ${normalizedEns}:`, result);
+    return result;
   } catch (error) {
     console.error(`Error resolving ${normalizedEns}:`, error);
     return null;
@@ -53,7 +38,7 @@ export async function resolveEnsToAddress(ensName: string) {
 }
 
 /**
- * Resolves an address to ENS names with improved handling
+ * Resolves an address to ENS names using ENS.js
  */
 export async function resolveAddressToEns(address: string) {
   if (!address || !address.startsWith('0x')) {
@@ -61,14 +46,13 @@ export async function resolveAddressToEns(address: string) {
     return null;
   }
   
-  // Try mainnet first
   try {
-    console.log(`Looking up ENS for address: ${address} on Mainnet`);
-    const ensName = await mainnetProvider.lookupAddress(address);
+    console.log(`Looking up ENS for address: ${address} using ENS.js client`);
+    const nameResult = await getName(address);
     
-    if (ensName) {
-      console.log(`Found ENS name for ${address}: ${ensName}`);
-      return { ensName, network: 'mainnet' as const };
+    if (nameResult && nameResult.name) {
+      console.log(`Found ENS name for ${address}: ${nameResult.name}`);
+      return { ensName: nameResult.name, network: 'mainnet' as const };
     }
     
     return null;

@@ -1,6 +1,7 @@
 
-import { avatarCache, fetchWeb3BioProfile, generateFallbackAvatar, normalizeIdentity } from '../utils/web3Utils';
+import { avatarCache, generateFallbackAvatar, normalizeIdentity } from '../utils/web3Utils';
 import { delay } from '../jobsApi';
+import { getAvatar } from '@/utils/ens/ensClient';
 
 // Get real avatar for an ENS name (both .eth and .box domains)
 export async function getRealAvatar(ensName: string): Promise<string | null> {
@@ -13,13 +14,13 @@ export async function getRealAvatar(ensName: string): Promise<string | null> {
     return avatarCache[normalizedEns];
   }
   
-  // If not in cache, fetch from API
+  // If not in cache, fetch using ENS.js
   try {
-    // Try Web3Bio API first - works for both .eth and .box domains
-    const profile = await fetchWeb3BioProfile(normalizedEns);
-    if (profile && profile.avatar) {
-      avatarCache[normalizedEns] = profile.avatar;
-      return profile.avatar;
+    // Try ENS.js first - works for .eth domains
+    const avatar = await getAvatar(normalizedEns);
+    if (avatar) {
+      avatarCache[normalizedEns] = avatar;
+      return avatar;
     }
     
     // No avatar found via API, generate deterministic fallback based on the name

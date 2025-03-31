@@ -1,61 +1,62 @@
 
 import { ENSRecord } from '../types/web3Types';
 import { delay } from '../jobsApi';
-import { fetchWeb3BioProfile, addressCache, domainCache, avatarCache, normalizeIdentity } from '../utils/web3Utils';
+import { addressCache, domainCache, avatarCache, normalizeIdentity } from '../utils/web3Utils';
 import { getRealAvatar } from './avatarService';
 import { generateFallbackAvatar } from '../utils/web3Utils';
+import { 
+  getAddressRecord, 
+  getName, 
+  getTextRecord, 
+  getAvatar
+} from '@/utils/ens/ensClient';
 
-// Lookup ENS record by address with improved caching and error handling
+// Lookup ENS record by address with ENS.js
 export async function getEnsByAddress(address: string): Promise<ENSRecord | null> {
   if (!address) return null;
   
   try {
     // Check if we have this address cached already
     const cachedDomain = domainCache[address.toLowerCase()];
-    let profile = null;
     
-    if (cachedDomain) {
-      // Use the cached domain to get full profile
-      profile = await fetchWeb3BioProfile(cachedDomain);
-    }
+    // First try ENS.js to get the primary name
+    const nameResult = await getName(address);
     
-    // If no cache hit or cached domain didn't resolve, fetch fresh
-    if (!profile) {
-      profile = await fetchWeb3BioProfile(address);
-    }
-    
-    if (profile && profile.identity && (profile.identity.includes('.eth') || profile.identity.includes('.box'))) {
-      // Create ENS record from profile data
+    if (nameResult && nameResult.name) {
+      const ensName = nameResult.name;
+      
+      // Get avatar
+      const avatar = await getAvatar(ensName) || await getRealAvatar(ensName) || generateFallbackAvatar();
+      
+      // Get social data from text records
+      const github = await getTextRecord(ensName, 'com.github');
+      const twitter = await getTextRecord(ensName, 'com.twitter');
+      const linkedin = await getTextRecord(ensName, 'com.linkedin');
+      const email = await getTextRecord(ensName, 'email');
+      const url = await getTextRecord(ensName, 'url');
+      const description = await getTextRecord(ensName, 'description');
+      const location = await getTextRecord(ensName, 'location');
+      
+      // Create ENS record from data
       const record: ENSRecord = {
-        address: profile.address,
-        ensName: profile.identity,
-        avatar: profile.avatar || await getRealAvatar(profile.identity) || generateFallbackAvatar(),
+        address,
+        ensName,
+        avatar,
         skills: [], // Will be populated later in the app
         socialProfiles: {
-          twitter: profile.twitter,
-          github: profile.github,
-          linkedin: profile.linkedin,
-          website: profile.website,
-          email: profile.email,
-          facebook: profile.facebook,
-          whatsapp: profile.whatsapp,
-          bluesky: profile.bluesky,
-          instagram: profile.instagram,
-          youtube: profile.youtube,
-          telegram: profile.telegram,
-          reddit: profile.reddit,
-          discord: profile.discord,
-          messenger: profile.messenger,
-          telephone: profile.telephone || profile.whatsapp, // Use WhatsApp as fallback phone
-          location: profile.location
+          github: github || '',
+          twitter: twitter || '',
+          linkedin: linkedin || '',
+          website: url || '',
+          email: email || '',
+          location: location || '',
         },
-        description: profile.description
+        description
       };
       
       return record;
     }
     
-    // No real data found
     return null;
   } catch (error) {
     console.error(`Error fetching ENS for address ${address}:`, error);
@@ -63,7 +64,7 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
   }
 }
 
-// Reverse lookup address by ENS name with improved validation and normalization
+// Reverse lookup address by ENS name
 export async function getAddressByEns(ensName: string): Promise<ENSRecord | null> {
   if (!ensName) return null;
   
@@ -73,49 +74,38 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
     
     // Check if we have this domain cached already
     const cachedAddress = addressCache[normalizedEns];
-    let profile = null;
     
-    if (cachedAddress) {
-      // Double check that the cached address resolves correctly
-      profile = await fetchWeb3BioProfile(normalizedEns);
+    // Use ENS.js to resolve the address
+    const address = await getAddressRecord(normalizedEns);
+    
+    if (address) {
+      // Get avatar
+      const avatar = await getAvatar(normalizedEns) || await getRealAvatar(normalizedEns) || generateFallbackAvatar();
       
-      // If cache is invalid, clear it
-      if (!profile || profile.address !== cachedAddress) {
-        delete addressCache[normalizedEns];
-      }
-    }
-    
-    // If no cache hit or cache invalid, fetch fresh
-    if (!profile) {
-      profile = await fetchWeb3BioProfile(normalizedEns);
-    }
-    
-    if (profile && profile.address) {
+      // Get social data from text records
+      const github = await getTextRecord(normalizedEns, 'com.github');
+      const twitter = await getTextRecord(normalizedEns, 'com.twitter');
+      const linkedin = await getTextRecord(normalizedEns, 'com.linkedin');
+      const email = await getTextRecord(normalizedEns, 'email');
+      const url = await getTextRecord(normalizedEns, 'url');
+      const description = await getTextRecord(normalizedEns, 'description');
+      const location = await getTextRecord(normalizedEns, 'location');
+      
       // Create ENS record from profile data
       const record: ENSRecord = {
-        address: profile.address,
-        ensName: profile.identity || normalizedEns,
-        avatar: profile.avatar || await getRealAvatar(normalizedEns) || generateFallbackAvatar(),
+        address,
+        ensName: normalizedEns,
+        avatar,
         skills: [], // Will be populated later in the app
         socialProfiles: {
-          twitter: profile.twitter,
-          github: profile.github,
-          linkedin: profile.linkedin,
-          website: profile.website,
-          email: profile.email,
-          facebook: profile.facebook,
-          whatsapp: profile.whatsapp,
-          bluesky: profile.bluesky,
-          instagram: profile.instagram,
-          youtube: profile.youtube,
-          telegram: profile.telegram,
-          reddit: profile.reddit,
-          discord: profile.discord,
-          messenger: profile.messenger,
-          telephone: profile.telephone || profile.whatsapp, // Use WhatsApp as fallback phone
-          location: profile.location
+          github: github || '',
+          twitter: twitter || '',
+          linkedin: linkedin || '',
+          website: url || '',
+          email: email || '',
+          location: location || '',
         },
-        description: profile.description
+        description
       };
       
       return record;

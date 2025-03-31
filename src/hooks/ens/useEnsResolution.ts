@@ -1,6 +1,9 @@
 
 import { useState } from 'react';
-import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ensResolution';
+import { resolveEnsToAddress, resolveAddressToEns } from '@/utils/ens/resolveEns';
+import { getEnsAvatar, getEnsBio } from '@/utils/ens/ensRecords';
+import { getTextRecord } from '@/utils/ens/ensClient';
+import { getEnsLinks } from '@/utils/ensResolution';
 
 interface EnsResolutionState {
   resolvedAddress: string | undefined;
@@ -36,6 +39,18 @@ export function useEnsResolution(ensName?: string, address?: string) {
         const avatar = await getEnsAvatar(ensName, 'mainnet');
         const bio = await getEnsBio(ensName, 'mainnet');
         
+        // Get additional social links
+        const github = await getTextRecord(ensName, 'com.github');
+        const twitter = await getTextRecord(ensName, 'com.twitter');
+        const linkedin = await getTextRecord(ensName, 'com.linkedin');
+        const website = await getTextRecord(ensName, 'url');
+        
+        // Combine with existing links
+        if (github) links.socials.github = github;
+        if (twitter) links.socials.twitter = twitter;
+        if (linkedin) links.socials.linkedin = linkedin;
+        if (website) links.socials.website = website;
+        
         setState(prev => ({
           ...prev,
           resolvedAddress,
@@ -56,6 +71,18 @@ export function useEnsResolution(ensName?: string, address?: string) {
         const links = await getEnsLinks(result.ensName, 'mainnet');
         const avatar = await getEnsAvatar(result.ensName, 'mainnet');
         const bio = await getEnsBio(result.ensName, 'mainnet');
+        
+        // Get additional social links
+        const github = await getTextRecord(result.ensName, 'com.github');
+        const twitter = await getTextRecord(result.ensName, 'com.twitter');
+        const linkedin = await getTextRecord(result.ensName, 'com.linkedin');
+        const website = await getTextRecord(result.ensName, 'url');
+        
+        // Combine with existing links
+        if (github) links.socials.github = github;
+        if (twitter) links.socials.twitter = twitter;
+        if (linkedin) links.socials.linkedin = linkedin;
+        if (website) links.socials.website = website;
         
         setState(prev => ({
           ...prev,
