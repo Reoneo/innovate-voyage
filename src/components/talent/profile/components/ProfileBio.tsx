@@ -83,7 +83,7 @@ const ProfileBio: React.FC<ProfileBioProps> = ({ bio, ownerAddress }) => {
         </div>
       ) : (
         <div className="relative">
-          <h3 className="font-bold mb-1">Bio</h3>
+          <h3 className="text-2xl font-semibold leading-none tracking-tight mb-2">Bio</h3>
           <p className="text-sm text-muted-foreground pr-8">
             {displayBio}
           </p>
