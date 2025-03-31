@@ -6,10 +6,11 @@ interface ProfileContactProps {
   email?: string;
   telephone?: string;
   location?: string;
+  isOwner?: boolean;
 }
 
-const ProfileContact: React.FC<ProfileContactProps> = ({ email, telephone, location }) => {
-  if (!email && !telephone && !location) {
+const ProfileContact: React.FC<ProfileContactProps> = ({ email, telephone, location, isOwner = false }) => {
+  if (!email && !telephone && !location && !isOwner) {
     return null;
   }
 
@@ -31,6 +32,12 @@ const ProfileContact: React.FC<ProfileContactProps> = ({ email, telephone, locat
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4" />
           <span>Location: {location}</span>
+        </div>
+      )}
+      {!location && isOwner && (
+        <div className="flex items-center gap-2">
+          <MapPin className="h-4 w-4" />
+          <span className="text-muted-foreground/75 italic">Connect wallet to add location</span>
         </div>
       )}
     </div>

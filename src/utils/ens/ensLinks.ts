@@ -48,8 +48,8 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
       'com.instagram',
       'com.youtube',
       'bsky.app',
-      'phone',         // Added phone/telephone
-      'location',      // Added location
+      'phone',
+      'location',
     ];
     
     // Try to get each social media link
@@ -77,6 +77,8 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
               socials.facebook = value;
               break;
             case 'org.whatsapp.phone':
+              // Use WhatsApp phone as telephone if no direct phone record exists
+              socials.telephone = socials.telephone || value;
               socials.whatsapp = value;
               break;
             case 'com.facebook.messenger':

@@ -32,8 +32,11 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
           telegram: profile.telegram,
           reddit: profile.reddit,
           discord: profile.discord,
-          messenger: profile.messenger
-        }
+          messenger: profile.messenger,
+          telephone: profile.telephone || profile.whatsapp, // Use WhatsApp as fallback phone
+          location: profile.location
+        },
+        description: profile.description
       };
       
       return record;
@@ -78,8 +81,11 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
           telegram: profile.telegram,
           reddit: profile.reddit,
           discord: profile.discord,
-          messenger: profile.messenger
-        }
+          messenger: profile.messenger,
+          telephone: profile.telephone || profile.whatsapp, // Use WhatsApp as fallback phone
+          location: profile.location
+        },
+        description: profile.description
       };
       
       return record;
