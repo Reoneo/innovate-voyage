@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
@@ -94,6 +95,7 @@ const TalentProfile = () => {
     return `${baseUrl}/${profileId}`;
   };
 
+  // Get primary domain from ENS records or .box domains
   const primaryDomain = resolvedEns || 
     (blockchainExtendedData?.boxDomains && blockchainExtendedData.boxDomains.length > 0 
       ? blockchainExtendedData.boxDomains[0] : null);

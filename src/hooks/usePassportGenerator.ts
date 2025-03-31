@@ -41,8 +41,7 @@ export function usePassportGenerator(
         const { 
           blockchainProfile, 
           transactions, 
-          tokenTransfers, 
-          web3BioProfile,
+          tokenTransfers,
           blockchainExtendedData,
           avatarUrl
         } = blockchainData || {};
@@ -53,7 +52,7 @@ export function usePassportGenerator(
           if (blockchainProfile.transactionCount > 50) skills.push({ name: 'Power User', proof: `etherscan://${resolvedAddress}` });
         }
         
-        if (resolvedEns?.includes('.eth')) skills.push({ name: 'ENS Owner', proof: `ens://${resolvedEns}` });
+        if (resolvedEns?.includes('.eth') || resolvedEns?.includes('.box')) skills.push({ name: 'ENS Owner', proof: `ens://${resolvedEns}` });
         
         if (transactions && transactions.length > 0) {
           const hasContractInteractions = transactions.some(tx => tx.input && tx.input !== '0x');
@@ -79,12 +78,7 @@ export function usePassportGenerator(
           }
         }
         
-        if (web3BioProfile) {
-          if (web3BioProfile.github) skills.push({ name: 'GitHub User', proof: web3BioProfile.github });
-          if (web3BioProfile.twitter) skills.push({ name: 'Twitter User', proof: web3BioProfile.twitter });
-          if (web3BioProfile.linkedin) skills.push({ name: 'LinkedIn User', proof: web3BioProfile.linkedin });
-        }
-        
+        // Add some default Web3 skills without relying on web3.bio
         skills.push(
           { name: 'Smart Contract Developer', proof: 'talentprotocol.com/skills/dev' },
           { name: 'EVM Expert', proof: 'talentprotocol.com/skills/evm' },
@@ -99,33 +93,33 @@ export function usePassportGenerator(
           skills.push({ name: 'SNS.ID User', proof: 'sns.id' });
         }
         
+        // Collect social data from ENS records and Etherscan
         const socials = {
-          github: web3BioProfile?.github || undefined,
-          twitter: web3BioProfile?.twitter || undefined,
-          linkedin: web3BioProfile?.linkedin || undefined,
-          website: web3BioProfile?.website || undefined,
-          email: web3BioProfile?.email || undefined
+          github: blockchainExtendedData?.github || undefined,
+          twitter: blockchainExtendedData?.twitter || undefined,
+          linkedin: blockchainExtendedData?.linkedin || undefined,
+          website: blockchainExtendedData?.website || undefined,
+          email: blockchainExtendedData?.email || undefined
         };
         
-        // Get bio from blockchain data or web3 bio profile
+        // Get bio from blockchain data or ENS records
         const bio = blockchainProfile?.description || 
                    blockchainExtendedData?.description || 
-                   web3BioProfile?.description || 
                    '';
         
-        // Get the best name to display (prioritize web3BioProfile.displayName)
-        const displayName = web3BioProfile?.displayName || 
+        // Get the best name to display (prioritize ENS records displayName)
+        const displayName = blockchainExtendedData?.displayName || 
                            (resolvedEns ? resolvedEns.split('.')[0] : truncateAddress(resolvedAddress));
         
         const newPassport: BlockchainPassport = {
           passport_id: resolvedEns || truncateAddress(resolvedAddress),
           owner_address: resolvedAddress,
-          avatar_url: avatarUrl || web3BioProfile?.avatar || '/placeholder.svg',
+          avatar_url: avatarUrl || '/placeholder.svg',
           name: displayName,
           issued: new Date().toISOString(),
           skills: skills,
           socials: socials,
-          bio: bio  // Add the bio property
+          bio: bio
         };
         
         setPassport(newPassport);
