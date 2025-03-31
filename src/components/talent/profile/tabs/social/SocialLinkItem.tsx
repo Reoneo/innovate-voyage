@@ -111,26 +111,6 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
     }
   };
 
-  // Get the display text for the link in PDFs
-  const getDisplayText = () => {
-    switch (platformType) {
-      case 'github': return 'GitHub';
-      case 'twitter': return 'Twitter';
-      case 'linkedin': return 'LinkedIn';
-      case 'facebook': return 'Facebook';
-      case 'instagram': return 'Instagram';
-      case 'youtube': return 'YouTube';
-      case 'bluesky': return 'Bluesky';
-      case 'website': return 'Website';
-      case 'telegram': return 'Telegram';
-      case 'discord': return 'Discord';
-      case 'whatsapp': return 'WhatsApp';
-      case 'mail': return 'Email';
-      case 'email': return 'Email';
-      default: return platformType.charAt(0).toUpperCase() + platformType.slice(1);
-    }
-  };
-
   return (
     <a 
       href={url} 
@@ -141,7 +121,6 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       data-social-link={platformType}
     >
       {getIconForPlatform()}
-      <span className="sr-only generating-pdf-visible">{getDisplayText()}</span>
     </a>
   );
 };
