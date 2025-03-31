@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { extractHandle } from '@/utils/socialLinkUtils';
 import {
   Github,
   Mail,
@@ -17,13 +16,13 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
   const getIconForPlatform = () => {
     switch (platformType) {
       case 'github':
-        return <Github size={16} className="text-[#333]" />;
+        return <Github size={24} className="text-[#333]" />;
       case 'twitter':
         return (
           <img 
             src="https://img.icons8.com/?size=100&id=fJp7hepMryiw&format=png&color=000000" 
             alt="Twitter"
-            className="w-4 h-4"
+            className="w-6 h-6"
           />
         );
       case 'linkedin':
@@ -31,7 +30,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
           <img 
             src="https://img.icons8.com/?size=100&id=13930&format=png&color=000000" 
             alt="LinkedIn"
-            className="w-4 h-4"
+            className="w-6 h-6"
           />
         );
       case 'facebook':
@@ -39,7 +38,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
           <img 
             src="https://img.icons8.com/?size=100&id=13912&format=png&color=000000" 
             alt="Facebook"
-            className="w-4 h-4"
+            className="w-6 h-6"
           />
         );
       case 'instagram':
@@ -47,7 +46,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
           <img 
             src="https://img.icons8.com/?size=100&id=Xy10Jcu1L2Su&format=png&color=000000" 
             alt="Instagram"
-            className="w-4 h-4"
+            className="w-6 h-6"
           />
         );
       case 'youtube':
@@ -55,7 +54,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
           <img 
             src="https://img.icons8.com/?size=100&id=19318&format=png&color=000000" 
             alt="YouTube"
-            className="w-4 h-4"
+            className="w-6 h-6"
           />
         );
       case 'bluesky':
@@ -63,7 +62,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
           <img 
             src="https://img.icons8.com/?size=100&id=3ovMFy5JDSWq&format=png&color=000000" 
             alt="Bluesky"
-            className="w-4 h-4"
+            className="w-6 h-6"
           />
         );
       case 'globe':
@@ -72,7 +71,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
           <img 
             src="https://img.icons8.com/?size=100&id=1349&format=png&color=000000" 
             alt="Website"
-            className="w-4 h-4"
+            className="w-6 h-6"
           />
         );
       case 'telegram':
@@ -80,45 +79,43 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
           <img 
             src="https://img.icons8.com/?size=100&id=63306&format=png&color=000000" 
             alt="Telegram"
-            className="w-4 h-4"
+            className="w-6 h-6"
           />
         );
       case 'discord':
-        return <Disc size={16} className="text-[#5865F2]" />;
+        return <Disc size={24} className="text-[#5865F2]" />;
       case 'whatsapp':
         return (
           <img 
             src="https://img.icons8.com/?size=100&id=16713&format=png&color=000000" 
             alt="WhatsApp"
-            className="w-4 h-4"
+            className="w-6 h-6"
           />
         );
       case 'email':
       case 'mail':
-        return <Mail size={16} className="text-[#9C27B0]" />;
+        return <Mail size={24} className="text-[#9C27B0]" />;
       default:
         return (
           <img 
             src="https://img.icons8.com/?size=100&id=1349&format=png&color=000000" 
             alt="Website"
-            className="w-4 h-4"
+            className="w-6 h-6"
           />
         );
     }
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <a 
+      href={url} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="hover:opacity-70 transition-opacity"
+      title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
+    >
       {getIconForPlatform()}
-      <a 
-        href={url} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="text-blue-500 hover:underline"
-      >
-        {extractHandle(url, platformType)}
-      </a>
-    </div>
+    </a>
   );
 };
 
