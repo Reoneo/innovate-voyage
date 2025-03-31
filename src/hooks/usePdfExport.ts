@@ -60,12 +60,19 @@ export function usePdfExport() {
         logging: false,
         backgroundColor: '#ffffff',
         onclone: (document) => {
-          // Make all links in the cloned document blue and underlined
+          // Make all links in the cloned document blue and underlined for better visibility in PDF
           const links = document.getElementsByTagName('a');
           for (let i = 0; i < links.length; i++) {
             links[i].style.color = '#0000EE';
             links[i].style.textDecoration = 'underline';
           }
+          
+          // Ensure social media links are visible and properly styled
+          const socialLinks = document.querySelectorAll('[data-social-link]');
+          socialLinks.forEach((link) => {
+            (link as HTMLElement).style.color = '#0000EE';
+            (link as HTMLElement).style.textDecoration = 'underline';
+          });
           
           // Hide the blockchain tab content in the PDF
           const blockchainTab = document.querySelector('[data-tab="blockchain"]');
@@ -94,6 +101,10 @@ export function usePdfExport() {
             }
             body {
               font-family: 'Arial', sans-serif;
+            }
+            a {
+              color: #0000EE !important;
+              text-decoration: underline !important;
             }
           `;
           document.head.appendChild(style);
@@ -149,14 +160,35 @@ export function usePdfExport() {
         const rect = link.getBoundingClientRect();
         const scaleFactor = imgWidth / canvas.width;
         
-        pdf.link(
-          rect.left * scaleFactor,
-          rect.top * scaleFactor,
-          rect.width * scaleFactor,
-          rect.height * scaleFactor,
-          { url: link.href }
-        );
+        // Only add link if it has href
+        if (link.href) {
+          pdf.link(
+            rect.left * scaleFactor,
+            rect.top * scaleFactor,
+            rect.width * scaleFactor,
+            rect.height * scaleFactor,
+            { url: link.href }
+          );
+        }
       }
+      
+      // Specifically handle social links with data attributes
+      const socialLinks = resumeElement.querySelectorAll('[data-social-link]');
+      socialLinks.forEach((socialLink) => {
+        const link = socialLink as HTMLAnchorElement;
+        if (link && link.href) {
+          const rect = link.getBoundingClientRect();
+          const scaleFactor = imgWidth / canvas.width;
+          
+          pdf.link(
+            rect.left * scaleFactor,
+            rect.top * scaleFactor,
+            rect.width * scaleFactor,
+            rect.height * scaleFactor,
+            { url: link.href }
+          );
+        }
+      });
       
       // Get custom name if available
       const ownerAddress = resumeElement.querySelector('[data-owner-address]')?.getAttribute('data-owner-address');

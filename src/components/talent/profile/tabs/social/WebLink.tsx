@@ -23,6 +23,7 @@ const WebLink: React.FC<WebLinkProps> = ({ url }) => {
         target="_blank" 
         rel="noopener noreferrer"
         className="text-blue-500 hover:underline"
+        data-social-link="web"
       >
         {displayUrl}
       </a>

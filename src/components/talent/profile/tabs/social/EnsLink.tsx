@@ -15,6 +15,7 @@ const EnsLink: React.FC<EnsLinkProps> = ({ ensName }) => {
         target="_blank" 
         rel="noopener noreferrer"
         className="text-blue-500 hover:underline"
+        data-social-link="ens"
       >
         {ensName}
       </a>

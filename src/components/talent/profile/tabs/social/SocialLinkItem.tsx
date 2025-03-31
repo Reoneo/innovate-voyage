@@ -118,6 +118,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       rel="noopener noreferrer"
       className="hover:opacity-70 transition-opacity bg-secondary/30 p-1.5 rounded-full"
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
+      data-social-link={platformType}
     >
       {getIconForPlatform()}
     </a>
