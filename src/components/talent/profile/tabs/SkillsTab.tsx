@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,13 +29,25 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
   const { toast } = useToast();
   const [showAddSkill, setShowAddSkill] = useState(false);
   const [localSkills, setLocalSkills] = useState<Skill[]>(skills || []);
+  const [isOwner, setIsOwner] = useState(false);
   
-  // Check if current user is the profile owner
-  const isOwner = () => {
+  useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
-    return connectedWallet && ownerAddress && 
-      connectedWallet.toLowerCase() === ownerAddress.toLowerCase();
-  };
+    setIsOwner(connectedWallet && ownerAddress && 
+      connectedWallet.toLowerCase() === ownerAddress.toLowerCase());
+      
+    // Load user skills from localStorage if they exist
+    try {
+      const savedSkills = JSON.parse(localStorage.getItem(`skills_${ownerAddress}`) || 'null');
+      if (savedSkills) {
+        setLocalSkills(savedSkills);
+      } else if (skills && skills.length > 0) {
+        setLocalSkills(skills);
+      }
+    } catch (error) {
+      console.error('Error loading skills from localStorage:', error);
+    }
+  }, [skills, ownerAddress]);
   
   const handleAddSkill = (skillName: string) => {
     const newSkill = { name: skillName };
@@ -43,7 +55,7 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
     setLocalSkills(updatedSkills);
     
     // If this is the user's own profile, store skills in localStorage
-    if (isOwner()) {
+    if (isOwner) {
       localStorage.setItem(`skills_${ownerAddress}`, JSON.stringify(updatedSkills));
     }
     
@@ -55,7 +67,7 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
     setLocalSkills(updatedSkills);
     
     // If this is the user's own profile, update localStorage
-    if (isOwner()) {
+    if (isOwner) {
       localStorage.setItem(`skills_${ownerAddress}`, JSON.stringify(updatedSkills));
     }
     
@@ -75,7 +87,7 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
           </CardDescription>
         </div>
         
-        {isOwner() && (
+        {isOwner && (
           <Button 
             variant="outline" 
             size="sm" 
@@ -97,7 +109,7 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
                 className="text-sm py-2 px-3 flex items-center gap-2"
               >
                 {skill.name}
-                {isOwner() && (
+                {isOwner && (
                   <button 
                     onClick={() => handleDeleteSkill(index)}
                     className="ml-1 text-muted-foreground hover:text-foreground"
@@ -111,7 +123,11 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            No skills have been added yet
+            {isOwner ? (
+              <>No skills have been added yet</>
+            ) : (
+              <>Connect wallet to add skills</>
+            )}
           </div>
         )}
       </CardContent>

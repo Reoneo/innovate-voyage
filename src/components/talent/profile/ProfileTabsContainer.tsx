@@ -26,6 +26,7 @@ interface ProfileTabsContainerProps {
     lensActivity: number;
     boxDomains: string[];
     snsActive: boolean;
+    description?: string;
   };
   avatarUrl?: string;
   ownerAddress: string;
@@ -41,12 +42,16 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   avatarUrl,
   ownerAddress
 }) => {
+  // Extract description from ENS data
+  const ensDescription = blockchainProfile?.description || blockchainExtendedData?.description;
+  
   return (
     <TooltipProvider>
       <div className="space-y-6 mt-6">
         <BioSection 
           ownerAddress={ownerAddress}
           initialBio={passport.bio || ''}
+          ensDescription={ensDescription}
         />
         
         <WorkExperienceSection 

@@ -48,13 +48,24 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     loadBlockchainData();
   }, [resolvedAddress]);
 
+  // Get description from web3BioProfile if available
+  useEffect(() => {
+    if (web3BioProfile?.description && !blockchainExtendedData.description) {
+      setBlockchainExtendedData(prev => ({
+        ...prev,
+        description: web3BioProfile.description
+      }));
+    }
+  }, [web3BioProfile]);
+
   // Merge blockchain profile with extended data
   const enhancedBlockchainProfile = blockchainProfile ? {
     ...blockchainProfile,
     mirrorPosts: blockchainExtendedData.mirrorPosts,
     lensActivity: blockchainExtendedData.lensActivity,
     boxDomains: blockchainExtendedData.boxDomains,
-    snsActive: blockchainExtendedData.snsActive
+    snsActive: blockchainExtendedData.snsActive,
+    description: blockchainProfile.description || blockchainExtendedData.description || web3BioProfile?.description
   } : null;
 
   return {
@@ -63,6 +74,9 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     tokenTransfers,
     web3BioProfile,
     loadingBlockchain,
-    blockchainExtendedData
+    blockchainExtendedData: {
+      ...blockchainExtendedData,
+      description: blockchainExtendedData.description || web3BioProfile?.description
+    }
   };
 }
