@@ -28,9 +28,9 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
   useEffect(() => {
     if (!svgRef.current || !nodes.length) return;
 
-    // Full container size with margins
+    // Full container size with margins - increased height for better visibility with more ENS domains
     const width = 400;
-    const height = 300;
+    const height = 350;  // Increased height to accommodate more nodes
     const margin = { top: 10, right: 10, bottom: 10, left: 10 };
 
     // Clear previous visualization
@@ -41,12 +41,13 @@ const IdNetworkVisualization: React.FC<IdNetworkVisualizationProps> = ({
       .attr("height", height)
       .attr("viewBox", `0 0 ${width} ${height}`);
 
-    // Create force simulation
+    // Create force simulation with more space between nodes
     const simulation = createNetworkSimulation({
       nodes,
       links,
       width,
-      height
+      height,
+      forceStrength: nodes.length > 5 ? -30 : -20  // Adjust force based on number of nodes
     });
 
     // Add links with appropriate styling
