@@ -4,13 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { PencilLine, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { SocialIcon } from '@/components/ui/social-icon';
+import { socialPlatforms } from '@/constants/socialPlatforms';
 
 interface ProfileBioProps {
   bio?: string;
   ownerAddress: string;
+  socials?: Record<string, string>;
 }
 
-const ProfileBio: React.FC<ProfileBioProps> = ({ bio, ownerAddress }) => {
+const ProfileBio: React.FC<ProfileBioProps> = ({ bio, ownerAddress, socials = {} }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [bioText, setBioText] = useState(bio || '');
   const [savedBio, setSavedBio] = useState(bio || '');
@@ -52,8 +55,18 @@ const ProfileBio: React.FC<ProfileBioProps> = ({ bio, ownerAddress }) => {
     ? "Connect your wallet to edit your bio" 
     : "ENS bio unavailable. Update via ENS.domains or connect wallet to edit");
 
+  // Filter out platforms with no links
+  const availablePlatforms = socialPlatforms.filter(platform => 
+    socials[platform.key] && socials[platform.key].trim() !== ''
+  );
+
+  const socialRows = [];
+  for (let i = 0; i < availablePlatforms.length; i += 5) {
+    socialRows.push(availablePlatforms.slice(i, i + 5));
+  }
+
   return (
-    <div className="w-full mb-4">
+    <div className="w-full">
       {isEditing ? (
         <div className="space-y-2">
           <Textarea
@@ -83,10 +96,48 @@ const ProfileBio: React.FC<ProfileBioProps> = ({ bio, ownerAddress }) => {
         </div>
       ) : (
         <div className="relative">
-          <h3 className="text-lg font-semibold leading-none tracking-tight mb-2">Bio</h3>
-          <p className="text-sm text-muted-foreground pr-8 mb-2">
+          <h3 className="text-2xl font-semibold leading-none tracking-tight mb-2">Bio</h3>
+          <p className="text-sm text-muted-foreground pr-8 mb-4">
             {displayBio}
           </p>
+          
+          {/* Social Media Icons */}
+          {socialRows.length > 0 && (
+            <div className="mt-3">
+              {socialRows.map((row, rowIndex) => (
+                <div key={rowIndex} className="flex items-center gap-3 mb-2">
+                  {row.map((platform) => (
+                    <a 
+                      key={platform.key}
+                      href={platform.key === 'whatsapp' 
+                        ? `https://wa.me/${socials[platform.key]}` 
+                        : socials[platform.key]
+                      } 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full"
+                      aria-label={`Visit ${platform.key}`}
+                    >
+                      <SocialIcon 
+                        type={platform.type as any} 
+                        size={20}
+                      />
+                    </a>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {socials?.email && (
+            <a 
+              href={`mailto:${socials.email}`}
+              className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full inline-block mt-2"
+              aria-label="Send email"
+            >
+              <SocialIcon type="mail" size={20} />
+            </a>
+          )}
           
           {isOwner && (
             <Button 

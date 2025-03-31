@@ -1,8 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { PencilLine } from 'lucide-react';
 import ProfileSocialLinks from './social/ProfileSocialLinks';
-import ProfileBio from './ProfileBio';
 
 interface ProfileInfoProps {
   passportId: string;
@@ -36,11 +37,14 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
         <CardTitle className="text-2xl">{passportId}</CardTitle>
       </div>
       
-      {/* Bio moved above social links */}
-      <ProfileBio 
-        bio={bio} 
-        ownerAddress={ownerAddress}
-      />
+      {bio && (
+        <div className="mb-4">
+          <h3 className="font-bold mb-1">Bio</h3>
+          <p className="text-sm text-muted-foreground">
+            {bio}
+          </p>
+        </div>
+      )}
       
       <ProfileSocialLinks 
         passportId={passportId} 
