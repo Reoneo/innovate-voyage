@@ -3,9 +3,11 @@ import React from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { BlockchainProfile } from '@/api/types/etherscanTypes';
 import { BlockchainPassport } from '@/lib/utils';
+import { POAP } from '@/api/types/poapTypes';
 
 import WorkExperienceSection from './components/WorkExperienceSection';
 import SkillsTab from './tabs/SkillsTab';
+import PoapsTab from './tabs/PoapsTab';
 
 interface ProfileTabsContainerProps {
   passport: BlockchainPassport & {
@@ -24,6 +26,7 @@ interface ProfileTabsContainerProps {
   };
   avatarUrl?: string;
   ownerAddress: string;
+  poaps?: POAP[];
 }
 
 const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({ 
@@ -31,7 +34,8 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
   resolvedEns,
   avatarUrl,
   ownerAddress,
-  blockchainProfile
+  blockchainProfile,
+  poaps
 }) => {
   return (
     <TooltipProvider>
@@ -46,6 +50,10 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
           avatarUrl={avatarUrl}
           ensName={resolvedEns}
           ownerAddress={ownerAddress}
+        />
+
+        <PoapsTab 
+          poaps={poaps}
         />
       </div>
     </TooltipProvider>

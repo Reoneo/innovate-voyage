@@ -74,7 +74,7 @@ const TalentProfile = () => {
     setConnectedWallet(storedWallet);
   }, [ensName, routeAddress, userId, ensNameOrAddress]);
 
-  const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl } = useProfileData(
+  const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl, poaps } = useProfileData(
     ens || ((ensName && !isValidEthereumAddress(ensName)) ? ensName : undefined), 
     address || (ensName && isValidEthereumAddress(ensName) ? ensName : undefined)
   );
@@ -173,6 +173,7 @@ const TalentProfile = () => {
             blockchainExtendedData={blockchainExtendedData}
             avatarUrl={avatarUrl}
             ownerAddress={passport.owner_address}
+            poaps={poaps}
           />
         </div>
       ) : (

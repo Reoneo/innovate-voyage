@@ -1,6 +1,7 @@
 
 import { ENSRecord, SkillNFT, Web3Credentials, Web3BioProfile } from './types/web3Types';
 import { BlockchainProfile } from './types/etherscanTypes';
+import { POAP } from './types/poapTypes';
 import { 
   getRealAvatar, 
   getEnsByAddress, 
@@ -12,6 +13,9 @@ import {
   getSkillNftsByAddress,
   getAllSkillNfts
 } from './services/nftService';
+import { 
+  getPoapsByAddress
+} from './services/poapService';
 import { 
   getAccountBalance,
   getTransactionCount,
@@ -65,8 +69,9 @@ export const web3Api = {
   getLatestTransactions,
   getTokenTransfers,
   getBlockchainProfile,
-  getEnsBio
+  getEnsBio,
+  getPoapsByAddress
 };
 
 // Re-export types for convenience
-export type { ENSRecord, SkillNFT, Web3Credentials, Web3BioProfile, BlockchainProfile };
+export type { ENSRecord, SkillNFT, Web3Credentials, Web3BioProfile, BlockchainProfile, POAP };
