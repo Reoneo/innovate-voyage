@@ -41,7 +41,7 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
     const domains: string[] = [];
     
     try {
-      // Use the Etherscan API to get ENS domain records
+      // Use the Etherscan API to get ENS domain records (ENS Registry)
       const response = await fetch(`https://api.etherscan.io/api?module=account&action=tokennfttx&address=${address}&contractaddress=0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85&page=1&offset=100&sort=asc&apikey=${ETHERSCAN_API_KEY}`);
       
       if (!response.ok) {
@@ -75,6 +75,43 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
               }
             } catch (err) {
               console.error("Error processing ENS transaction:", err);
+            }
+          }
+        }
+      }
+      
+      // Also fetch NameWrapper wrapped names
+      const nameWrapperResponse = await fetch(`https://api.etherscan.io/api?module=account&action=tokennfttx&address=${address}&contractaddress=0xD4416b13d2B3a9aBae7AcD5D6C2BbDBE25686401&page=1&offset=100&sort=asc&apikey=${ETHERSCAN_API_KEY}`);
+      
+      if (nameWrapperResponse.ok) {
+        const nameWrapperData = await nameWrapperResponse.json();
+        
+        if (nameWrapperData.status === '1' && nameWrapperData.result) {
+          // Process NameWrapper transactions
+          const nameWrapperTxs = nameWrapperData.result;
+          
+          for (const tx of nameWrapperTxs) {
+            if (tx.to.toLowerCase() === address.toLowerCase()) {
+              try {
+                // For NameWrapper, the token name may contain the domain
+                const tokenName = tx.tokenName;
+                if (tokenName && tokenName.includes("Wrapped Name")) {
+                  // Try to extract from token name or use alternative methods
+                  if (tx.tokenSymbol === "WENS") {
+                    // This is a wrapped ENS name
+                    // Try to derive the name from available data
+                    const wrappedName = tx.tokenID.includes(".") 
+                      ? tx.tokenID 
+                      : `${tx.tokenID}.eth`;
+                      
+                    if (!domains.includes(wrappedName)) {
+                      domains.push(wrappedName);
+                    }
+                  }
+                }
+              } catch (err) {
+                console.error("Error processing NameWrapper transaction:", err);
+              }
             }
           }
         }
