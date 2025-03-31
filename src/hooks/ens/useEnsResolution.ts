@@ -45,16 +45,22 @@ export function useEnsResolution(ensName?: string, address?: string) {
         const linkedin = await getTextRecord(ensName, 'com.linkedin');
         const website = await getTextRecord(ensName, 'url');
         
+        // Initialize socials if needed
+        const socials = links.socials || {};
+        
         // Combine with existing links
-        if (github) links.socials.github = github;
-        if (twitter) links.socials.twitter = twitter;
-        if (linkedin) links.socials.linkedin = linkedin;
-        if (website) links.socials.website = website;
+        if (github) socials.github = github;
+        if (twitter) socials.twitter = twitter;
+        if (linkedin) socials.linkedin = linkedin;
+        if (website) socials.website = website;
         
         setState(prev => ({
           ...prev,
           resolvedAddress,
-          ensLinks: links,
+          ensLinks: {
+            ...links,
+            socials
+          },
           avatarUrl: avatar || prev.avatarUrl,
           ensBio: bio || links.description || prev.ensBio
         }));
@@ -78,16 +84,22 @@ export function useEnsResolution(ensName?: string, address?: string) {
         const linkedin = await getTextRecord(result.ensName, 'com.linkedin');
         const website = await getTextRecord(result.ensName, 'url');
         
+        // Initialize socials if needed
+        const socials = links.socials || {};
+        
         // Combine with existing links
-        if (github) links.socials.github = github;
-        if (twitter) links.socials.twitter = twitter;
-        if (linkedin) links.socials.linkedin = linkedin;
-        if (website) links.socials.website = website;
+        if (github) socials.github = github;
+        if (twitter) socials.twitter = twitter;
+        if (linkedin) socials.linkedin = linkedin;
+        if (website) socials.website = website;
         
         setState(prev => ({
           ...prev,
           resolvedEns: result.ensName,
-          ensLinks: links,
+          ensLinks: {
+            ...links,
+            socials
+          },
           avatarUrl: avatar || prev.avatarUrl,
           ensBio: bio || links.description || prev.ensBio
         }));
