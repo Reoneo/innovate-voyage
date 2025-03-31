@@ -93,6 +93,9 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
             className="w-4 h-4"
           />
         );
+      case 'email':
+      case 'mail':
+        return <Mail size={16} className="text-[#9C27B0]" />;
       default:
         return (
           <img 
