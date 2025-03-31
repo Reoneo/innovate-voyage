@@ -60,9 +60,11 @@ export interface JobPosting {
   logo: string;
 }
 
-// Helper function for truncating addresses
-export function truncateAddress(address: string): string {
+// Helper function for truncating addresses - now with proper type safety
+export function truncateAddress(address: string | undefined | null): string {
   if (!address) return '';
+  if (typeof address !== 'string') return String(address);
+  
   return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 }
 

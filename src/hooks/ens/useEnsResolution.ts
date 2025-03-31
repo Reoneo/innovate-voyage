@@ -45,8 +45,8 @@ export function useEnsResolution(ensName?: string, address?: string) {
         const linkedin = await getTextRecord(ensName, 'com.linkedin');
         const website = await getTextRecord(ensName, 'url');
         
-        // Initialize socials if needed
-        const socials = links.socials || {};
+        // Initialize socials
+        const socials: Record<string, string> = { ...(links.socials || {}) };
         
         // Combine with existing links
         if (github) socials.github = github;
@@ -84,8 +84,8 @@ export function useEnsResolution(ensName?: string, address?: string) {
         const linkedin = await getTextRecord(result.ensName, 'com.linkedin');
         const website = await getTextRecord(result.ensName, 'url');
         
-        // Initialize socials if needed
-        const socials = links.socials || {};
+        // Initialize socials
+        const socials: Record<string, string> = { ...(links.socials || {}) };
         
         // Combine with existing links
         if (github) socials.github = github;
