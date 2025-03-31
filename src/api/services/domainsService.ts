@@ -1,7 +1,6 @@
 
 import { ENSRecord } from '../types/web3Types';
 import { delay } from '../jobsApi';
-import { mockEnsRecords } from '../data/mockWeb3Data';
 import { fetchWeb3BioProfile, generateFallbackAvatar } from '../utils/web3Utils';
 import { request, gql } from 'graphql-request';
 import axios from 'axios';
@@ -42,30 +41,9 @@ interface ENSDomainsResponse {
   }>;
 }
 
-// Get all available ENS records (for demo purposes)
+// Get all ENS records from real sources - no more mock data
 export async function getAllEnsRecords(): Promise<ENSRecord[]> {
-  await delay(400);
-  
-  // Make sure all records have avatars
-  await Promise.all(
-    mockEnsRecords.map(async (record) => {
-      if (!record.avatar) {
-        // Try to fetch real avatar for this ENS
-        try {
-          const profile = await fetchWeb3BioProfile(record.ensName);
-          if (profile && profile.avatar) {
-            record.avatar = profile.avatar;
-          } else {
-            record.avatar = generateFallbackAvatar();
-          }
-        } catch (error) {
-          record.avatar = generateFallbackAvatar();
-        }
-      }
-    })
-  );
-  
-  return [...mockEnsRecords];
+  return [];  // Return empty array instead of mock data
 }
 
 // Fetch all ENS domains associated with an address - improved version with Etherscan
@@ -79,7 +57,7 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
     
     let domains: string[] = [];
     
-    // Try to get domains from Etherscan API first (new)
+    // Try to get domains from Etherscan API first
     try {
       const { apiKey } = getEtherscanConfig();
       if (apiKey) {
@@ -124,20 +102,6 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
       }
     }
     
-    // If still no domains, use mock data as last resort for demo
-    if (domains.length === 0) {
-      console.log("No real domains found, falling back to mock data");
-      await delay(500); // Simulate API delay
-      
-      // Get mock records matching this address
-      const mockRecords = await getAllEnsRecords();
-      const mockDomains = mockRecords
-        .filter(record => record.address.toLowerCase() === normalizedAddress)
-        .map(record => record.ensName);
-      
-      domains = mockDomains;
-    }
-    
     console.log(`Final domains for address ${address}:`, domains);
     return domains;
   } catch (error) {
@@ -146,7 +110,7 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
   }
 }
 
-// New function to get ENS names directly from Etherscan
+// Function to get ENS names directly from Etherscan
 async function getEtherscanNameTags(address: string, apiKey: string): Promise<string[]> {
   try {
     // Etherscan doesn't directly expose ENS names in their API
@@ -155,7 +119,7 @@ async function getEtherscanNameTags(address: string, apiKey: string): Promise<st
     const response = await axios.get(baseUrl, {
       params: {
         module: 'account',
-        action: 'txlist', // Get transactions to check for "name tags"
+        action: 'txlist',
         address,
         startblock: '0',
         endblock: '99999999',
@@ -166,34 +130,29 @@ async function getEtherscanNameTags(address: string, apiKey: string): Promise<st
       },
     });
 
-    // If the API returns data with a name tag, extract it
-    if (response.data && response.data.result) {
-      // Look for name tags in "from" and "to" addresses
-      const fromTags = new Set<string>();
-      const toTags = new Set<string>();
-      
+    // Initialize sets to hold unique names
+    const fromTags = new Set<string>();
+    const toTags = new Set<string>();
+
+    // If the API returns data, try to extract name tags
+    if (response.data && response.data.result && Array.isArray(response.data.result)) {
       response.data.result.forEach((tx: any) => {
-        // Check if there's a fromAddressName that looks like an ENS
-        if (tx.from && tx.fromAddressName && 
-            (tx.fromAddressName.includes('.eth') || tx.fromAddressName.includes('.box')) &&
-            tx.from.toLowerCase() === address.toLowerCase()) {
-          fromTags.add(tx.fromAddressName);
+        // Look for name tags in transactions
+        if (tx.from && tx.fromAddress && tx.from.toLowerCase() === address.toLowerCase() && tx.fromAddress.includes('.eth')) {
+          fromTags.add(tx.fromAddress);
         }
         
-        // Check if there's a toAddressName that looks like an ENS
-        if (tx.to && tx.toAddressName && 
-            (tx.toAddressName.includes('.eth') || tx.toAddressName.includes('.box')) &&
-            tx.to.toLowerCase() === address.toLowerCase()) {
-          toTags.add(tx.toAddressName);
+        if (tx.to && tx.toAddress && tx.to.toLowerCase() === address.toLowerCase() && tx.toAddress.includes('.eth')) {
+          toTags.add(tx.toAddress);
         }
       });
-      
-      // Combine both sets of tags
-      const allTags = [...fromTags, ...toTags];
-      
-      if (allTags.length > 0) {
-        return allTags;
-      }
+    }
+    
+    // Combine both sets of tags
+    const allTags = [...fromTags, ...toTags];
+    
+    if (allTags.length > 0) {
+      return allTags;
     }
     
     // As a fallback, use the account method to try and get any associated ENS names
@@ -210,9 +169,8 @@ async function getEtherscanNameTags(address: string, apiKey: string): Promise<st
     
     if (lookupResponse.data && lookupResponse.data.result && parseInt(lookupResponse.data.result) > 0) {
       console.log(`This address owns ${lookupResponse.data.result} ENS tokens`);
-      // If the account holds ENS tokens, we need to make another request to get ENS domains
-      // However, Etherscan doesn't directly expose this data, so we'll use ENS subgraph
-      // This is handled by the ENS subgraph call in the parent function
+      // If the account holds ENS tokens, we know they own ENS domains
+      // But we'll need to rely on the ENS subgraph to get the actual domains
     }
     
     return [];
@@ -227,7 +185,7 @@ export async function getIdNetworkEnsDomains(address: string): Promise<ENSRecord
   try {
     if (!address) return [];
     
-    // Get all domain names first
+    // Get all domain names first (no more mock data)
     const domainNames = await fetchAllEnsDomains(address);
     if (!domainNames.length) return [];
     
@@ -237,6 +195,7 @@ export async function getIdNetworkEnsDomains(address: string): Promise<ENSRecord
         // Try to get avatar for this domain
         let avatar;
         try {
+          console.log(`Fetching domain profile: ${domainName}`);
           const profile = await fetchWeb3BioProfile(domainName);
           avatar = profile?.avatar || generateFallbackAvatar();
         } catch {

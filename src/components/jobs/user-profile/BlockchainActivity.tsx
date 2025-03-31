@@ -3,7 +3,7 @@ import React from 'react';
 import { useBlockchainProfile } from '@/hooks/useEtherscan';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowDownUp, Coins, AlignJustify, AlertCircle } from 'lucide-react';
+import { ArrowDownUp, Coins, AlignJustify, AlertCircle, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -29,13 +29,13 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
   // Check if API key is present and display appropriate toast
   React.useEffect(() => {
     if (!apiKeyChecked) {
-      const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
+      const { apiKey } = { apiKey: import.meta.env.VITE_ETHERSCAN_API_KEY || "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM" };
       
       if (!apiKey) {
         toast({
           title: "API Key Missing",
-          description: "Using mock blockchain data. Set VITE_ETHERSCAN_API_KEY in your environment to see real data.",
-          variant: "default",
+          description: "Unable to fetch blockchain data. Set VITE_ETHERSCAN_API_KEY in your environment.",
+          variant: "destructive",
         });
       } else if (error) {
         toast({
@@ -46,7 +46,7 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
       } else {
         toast({
           title: "Etherscan API Connected",
-          description: "Using real blockchain data from Etherscan.",
+          description: "Using blockchain data from Etherscan.",
           variant: "default",
         });
       }
@@ -67,13 +67,13 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
   if (!profile) {
     return (
       <div className="space-y-4">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error loading blockchain data</AlertTitle>
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>No blockchain data available</AlertTitle>
           <AlertDescription>
             {error ? 
               `Error: ${error instanceof Error ? error.message : 'Unable to fetch blockchain data'}` : 
-              'Could not retrieve blockchain activity for this address. Using mock data instead.'}
+              'No blockchain activity found for this address.'}
           </AlertDescription>
         </Alert>
         <div className="text-sm">
@@ -104,7 +104,7 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
         <span className="font-medium">{profile.transactionCount}</span>
       </div>
       
-      {profile.latestTransactions && profile.latestTransactions.length > 0 && (
+      {profile.latestTransactions && profile.latestTransactions.length > 0 ? (
         <>
           <Separator />
           <div>
@@ -130,6 +130,10 @@ const BlockchainActivity: React.FC<BlockchainActivityProps> = ({ address }) => {
             </div>
           </div>
         </>
+      ) : (
+        <div className="text-sm text-muted-foreground py-2">
+          No recent transactions found
+        </div>
       )}
     </div>
   );
