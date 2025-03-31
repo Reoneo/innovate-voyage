@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
@@ -151,7 +150,7 @@ const TalentProfile = () => {
         <ProfileSkeleton />
       ) : passport ? (
         <div ref={profileRef} className={`${isExpanded ? 'min-h-[800px]' : ''}`} id="resume-pdf">
-          <div className={`relative ${isExpanded ? 'h-[800px]' : 'h-[600px]'} border rounded-lg overflow-hidden`}>
+          <div className={`relative ${isExpanded ? 'h-[800px]' : 'h-[700px]'} border rounded-lg overflow-hidden`}>
             <TooltipProvider>
               <ProfileHeader passport={{
                 passport_id: passport.passport_id,

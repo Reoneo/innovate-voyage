@@ -48,7 +48,7 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
           {/* Work Experience Tile */}
           <DraggableTile 
             title="Work Experience" 
-            defaultPosition={{ x: 20, y: 20 }}
+            defaultPosition={{ x: 20, y: 160 }}
             defaultSize={{ width: 380, height: 300 }}
             icon={<Briefcase className="h-4 w-4" />}
           >
@@ -60,7 +60,7 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
           {/* Skills Tile */}
           <DraggableTile 
             title="Skills" 
-            defaultPosition={{ x: 420, y: 20 }}
+            defaultPosition={{ x: 420, y: 160 }}
             defaultSize={{ width: 380, height: 300 }}
             icon={<Code className="h-4 w-4" />}
           >
@@ -76,7 +76,7 @@ const ProfileTabsContainer: React.FC<ProfileTabsContainerProps> = ({
           {/* POAPs Tile */}
           <DraggableTile 
             title="POAPs" 
-            defaultPosition={{ x: 220, y: 340 }}
+            defaultPosition={{ x: 220, y: 480 }}
             defaultSize={{ width: 380, height: 300 }}
             icon={<Award className="h-4 w-4" />}
           >

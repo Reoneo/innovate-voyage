@@ -36,10 +36,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
     <DraggableTile 
       title="Profile Information" 
       defaultPosition={{ x: 20, y: 20 }}
-      defaultSize={{ width: 580, height: 400 }}
+      defaultSize={{ width: 780, height: 120 }}
       icon={<User className="h-4 w-4" />}
     >
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+      <div className="flex flex-row items-start gap-6">
         <AvatarSection 
           avatarUrl={passport.avatar_url}
           name={passport.name}
