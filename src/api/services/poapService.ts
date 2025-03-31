@@ -8,8 +8,8 @@ const mockPoaps: POAP[] = [
   {
     event: {
       id: 1,
-      fancy_id: "eth-denver-2023",
-      name: "ETHDenver 2023 Attendee",
+      fancy_id: "mock-eth-denver-2023",
+      name: "Mock ETHDenver 2023 Attendee",
       description: "This POAP was awarded to attendees of ETHDenver 2023, the world's largest web3 #BUIDLathon.",
       start_date: "2023-02-24",
       end_date: "2023-03-05",
@@ -90,6 +90,8 @@ async function getPOAPAuthToken(): Promise<string> {
       throw new Error('POAP API credentials not configured');
     }
 
+    console.log('Requesting new POAP Auth token with client ID:', clientId.substring(0, 5) + '...');
+    
     const response = await fetch('https://auth.accounts.poap.xyz/oauth/token', {
       method: 'POST',
       headers: {
@@ -104,10 +106,14 @@ async function getPOAPAuthToken(): Promise<string> {
     });
 
     if (!response.ok) {
+      console.error('Auth token request failed with status:', response.status);
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
       throw new Error(`Auth token request failed: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('Successfully obtained POAP auth token');
     
     // Cache the token with expiration
     authTokenCache = {
@@ -128,10 +134,13 @@ async function getPOAPAuthToken(): Promise<string> {
  */
 export async function getPoapsByAddress(address: string): Promise<POAP[]> {
   try {
+    console.log('Fetching POAPs for address:', address);
+    
     // Try to get an auth token
     const token = await getPOAPAuthToken();
     
     // Make request to POAP API
+    console.log('Making request to POAP API...');
     const response = await fetch(`https://api.poap.tech/actions/scan/${address}`, {
       headers: {
         'Accept': 'application/json',
@@ -140,11 +149,22 @@ export async function getPoapsByAddress(address: string): Promise<POAP[]> {
     });
 
     if (!response.ok) {
+      console.error('POAP API request failed with status:', response.status);
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
       throw new Error(`POAP API request failed: ${response.status}`);
     }
 
     const data: POAPResponse = await response.json();
-    return data.tokens;
+    console.log('POAP API returned data:', data);
+    
+    if (data.tokens && data.tokens.length > 0) {
+      console.log(`Retrieved ${data.tokens.length} POAPs for address ${address}`);
+      return data.tokens;
+    } else {
+      console.log('No POAPs found for this address, falling back to alternatives');
+      throw new Error('No POAPs found');
+    }
   } catch (error) {
     console.error(`Error fetching POAPs for address ${address}:`, error);
     
@@ -152,7 +172,12 @@ export async function getPoapsByAddress(address: string): Promise<POAP[]> {
     if (process.env.NODE_ENV !== 'production') {
       await delay(600); // Simulate network delay
       console.log('Using mock POAP data as fallback');
-      return mockPoaps;
+      
+      // Return mock data with the correct owner address
+      return mockPoaps.map(poap => ({
+        ...poap,
+        owner: address
+      }));
     }
     
     // In production, we might want to return an empty array instead of mocks

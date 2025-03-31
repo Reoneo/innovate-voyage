@@ -2,9 +2,10 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Globe, ExternalLink } from 'lucide-react';
+import { Calendar, MapPin, Globe, ExternalLink, AlertCircle } from 'lucide-react';
 import type { POAP } from '@/api/types/poapTypes';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface PoapsTabProps {
   poaps: POAP[] | undefined;
@@ -12,6 +13,14 @@ interface PoapsTabProps {
 }
 
 const PoapsTab: React.FC<PoapsTabProps> = ({ poaps, isLoading = false }) => {
+  // Check if all POAPs are mock data
+  const allMockData = poaps?.length ? 
+    poaps.every(poap => 
+      poap.event.name.includes('Mock') || 
+      poap.event.fancy_id.includes('mock') ||
+      poap.event.fancy_id.includes('etherscan')
+    ) : false;
+
   if (isLoading) {
     return (
       <Card>
@@ -62,6 +71,15 @@ const PoapsTab: React.FC<PoapsTabProps> = ({ poaps, isLoading = false }) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {allMockData && (
+          <Alert className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Using derived POAP data. These may not represent actual POAPs.
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <div className="space-y-6">
           {poaps.map((poap) => (
             <div key={poap.tokenId} className="flex flex-col sm:flex-row gap-4 border-b pb-6 last:border-0">
@@ -70,6 +88,10 @@ const PoapsTab: React.FC<PoapsTabProps> = ({ poaps, isLoading = false }) => {
                   src={poap.event.image_url} 
                   alt={poap.event.name} 
                   className="w-24 h-24 rounded-md object-cover shadow-sm"
+                  onError={(e) => {
+                    // Fallback if image doesn't load
+                    (e.target as HTMLImageElement).src = `https://effigy.im/a/${poap.tokenId}.svg`;
+                  }}
                 />
               </div>
               
@@ -83,11 +105,15 @@ const PoapsTab: React.FC<PoapsTabProps> = ({ poaps, isLoading = false }) => {
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1 text-muted-foreground" />
                     <span>
-                      {new Date(poap.event.start_date).toLocaleDateString()} - {new Date(poap.event.end_date).toLocaleDateString()}
+                      {new Date(poap.event.start_date).toLocaleDateString()}
+                      {poap.event.start_date !== poap.event.end_date && 
+                        ` - ${new Date(poap.event.end_date).toLocaleDateString()}`}
                     </span>
                   </div>
                   
-                  {(poap.event.city || poap.event.country) && (
+                  {(poap.event.city || poap.event.country) && 
+                   poap.event.city !== 'Unknown' && 
+                   poap.event.country !== 'Unknown' && (
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-1 text-muted-foreground" />
                       <span>{[poap.event.city, poap.event.country].filter(Boolean).join(', ')}</span>
@@ -96,7 +122,9 @@ const PoapsTab: React.FC<PoapsTabProps> = ({ poaps, isLoading = false }) => {
                 </div>
                 
                 <div className="flex justify-between items-center pt-2">
-                  <Badge variant="outline">{poap.event.year}</Badge>
+                  <Badge variant={poap.event.fancy_id.includes('etherscan') ? "outline" : "default"}>
+                    {poap.chain === 'xdai' ? 'POAP' : poap.chain} • {poap.event.year}
+                  </Badge>
                   
                   <TooltipProvider>
                     <Tooltip>
@@ -108,12 +136,16 @@ const PoapsTab: React.FC<PoapsTabProps> = ({ poaps, isLoading = false }) => {
                           className="flex items-center text-sm text-blue-600 hover:text-blue-800"
                         >
                           <Globe className="h-3 w-3 mr-1" />
-                          <span className="hidden sm:inline">Visit Event</span>
+                          <span className="hidden sm:inline">
+                            {poap.event.fancy_id.includes('etherscan') ? 'View Transaction' : 'Visit Event'}
+                          </span>
                           <ExternalLink className="h-3 w-3 ml-1" />
                         </a>
                       </TooltipTrigger>
                       <TooltipContent>
-                        Open event website
+                        {poap.event.fancy_id.includes('etherscan') 
+                          ? 'View the transaction on Etherscan' 
+                          : 'Open event website'}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
