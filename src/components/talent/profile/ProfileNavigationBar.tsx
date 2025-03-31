@@ -8,18 +8,18 @@ const ProfileNavigationBar: React.FC = () => {
   
   const handleBackClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate('/talent');
+    navigate('/');
   };
 
   return (
     <div className="flex justify-between items-center mb-6">
       <a 
-        href="/talent" 
+        href="/" 
         onClick={handleBackClick}
         className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Talent
+        Back to Home
       </a>
     </div>
   );

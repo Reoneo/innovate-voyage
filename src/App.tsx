@@ -70,14 +70,11 @@ const App = () => {
             <Route path="/" element={<Index />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
-            {/* Prioritize the recruitment.box route for profile sharing */}
+            {/* Profile routes */}
+            <Route path="/profile/:ensNameOrAddress" element={<TalentProfile />} />
             <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-            {/* Catch-all route for direct profile access */}
             <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-            {/* Legacy routes for backwards compatibility */}
             <Route path="/address/:address" element={<TalentProfile />} />
-            {/* Redirect old talent route to home page */}
-            <Route path="/talent/*" element={<Navigate to="/" replace />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
