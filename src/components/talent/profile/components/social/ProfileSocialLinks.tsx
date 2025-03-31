@@ -78,7 +78,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
   }, [passportId]);
 
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-3 border-t border-border pt-2">
+    <div className="mt-2 grid grid-cols-4 gap-2 border-t border-border pt-2">
       {socialPlatforms.map((platform) => 
         socialLinks[platform.key] && (
           <a 
@@ -86,7 +86,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
             href={platform.key === 'whatsapp' ? `https://wa.me/${socialLinks[platform.key]}` : socialLinks[platform.key]} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full"
+            className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full flex items-center justify-center"
             aria-label={`Visit ${platform.key}`}
           >
             <SocialIcon 
@@ -99,7 +99,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
       {socialLinks?.email && (
         <a 
           href={`mailto:${socialLinks.email}`}
-          className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full"
+          className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full flex items-center justify-center"
           aria-label="Send email"
         >
           <SocialIcon type="mail" size={20} />
@@ -107,11 +107,11 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
       )}
       
       {Object.keys(socialLinks).length === 0 && !loading && (
-        <span className="text-sm text-muted-foreground">No social links available</span>
+        <span className="text-sm text-muted-foreground col-span-4">No social links available</span>
       )}
       
       {loading && (
-        <span className="text-sm text-muted-foreground">Loading social links...</span>
+        <span className="text-sm text-muted-foreground col-span-4">Loading social links...</span>
       )}
     </div>
   );
