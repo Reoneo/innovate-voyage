@@ -39,6 +39,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
             if (profile.bluesky) newSocials.bluesky = profile.bluesky;
             if (profile.email) newSocials.email = profile.email;
             if (profile.discord) newSocials.discord = profile.discord;
+            if (profile.whatsapp) newSocials.whatsapp = profile.whatsapp;
             
             if (profile.links) {
               if (profile.links.website?.link) newSocials.website = profile.links.website.link;
@@ -53,6 +54,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
               if (anyLinks.youtube?.link) newSocials.youtube = anyLinks.youtube.link;
               if (anyLinks.telegram?.link) newSocials.telegram = anyLinks.telegram.link;
               if (anyLinks.bluesky?.link) newSocials.bluesky = anyLinks.bluesky.link;
+              if (anyLinks.whatsapp?.link) newSocials.whatsapp = anyLinks.whatsapp.link;
             }
             
             console.log("Mapped social links:", newSocials);
@@ -81,7 +83,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
         socialLinks[platform.key] && (
           <a 
             key={platform.key}
-            href={socialLinks[platform.key]} 
+            href={platform.key === 'whatsapp' ? `https://wa.me/${socialLinks[platform.key]}` : socialLinks[platform.key]} 
             target="_blank" 
             rel="noopener noreferrer"
             className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full"

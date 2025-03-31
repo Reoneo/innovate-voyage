@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Github, Twitter, Linkedin, Globe, Mail, Facebook, MessageCircle, Smartphone, Instagram, Youtube, Link } from 'lucide-react';
+import { Github, Twitter, Linkedin, Globe, Mail, Facebook, MessageCircle, Smartphone, Instagram, Youtube, Link, Discord, MessageSquare } from 'lucide-react';
 
 type SocialIconType = 'github' | 'twitter' | 'linkedin' | 'globe' | 'mail' | 'facebook' | 'whatsapp' | 'messenger' | 'bluesky' | 'instagram' | 'youtube' | 'telegram' | 'reddit' | 'discord';
 
@@ -31,7 +31,7 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
     case 'facebook':
       return <Facebook size={size} className={`text-blue-600 ${iconClasses}`} />;
     case 'whatsapp':
-      return <Smartphone size={size} className={`text-green-500 ${iconClasses}`} />;
+      return <MessageSquare size={size} className={`text-green-500 ${iconClasses}`} />;
     case 'messenger':
       return <MessageCircle size={size} className={`text-blue-500 ${iconClasses}`} />;
     case 'bluesky':
@@ -52,7 +52,7 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
     case 'reddit':
       return <div className={`text-orange-600 ${iconClasses}`} style={{ fontSize: `${size * 0.8}px`, fontWeight: 'bold' }}>R</div>;
     case 'discord':
-      return <div className={`text-indigo-600 ${iconClasses}`} style={{ fontSize: `${size * 0.8}px`, fontWeight: 'bold' }}>D</div>;
+      return <Discord size={size} className={`text-indigo-600 ${iconClasses}`} />;
     default:
       return null;
   }
