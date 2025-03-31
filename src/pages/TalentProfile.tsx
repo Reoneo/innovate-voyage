@@ -113,6 +113,11 @@ const TalentProfile = () => {
     return `${baseUrl}/${profileId}`;
   };
 
+  // Get the primary domain (ENS or .box)
+  const primaryDomain = resolvedEns || 
+    (blockchainExtendedData?.boxDomains && blockchainExtendedData.boxDomains.length > 0 
+      ? blockchainExtendedData.boxDomains[0] : null);
+
   return (
     <div className={`container mx-auto py-4 md:py-8 ${isMobile ? 'px-2' : 'max-w-5xl'}`}>
       <div className="flex justify-between items-center mb-4">
@@ -162,7 +167,8 @@ const TalentProfile = () => {
             score: passport.score,
             category: passport.category,
             socials: passport.socials || {},
-            bio: blockchainProfile?.description || blockchainExtendedData?.description || null
+            bio: blockchainProfile?.description || blockchainExtendedData?.description || null,
+            primaryDomain: primaryDomain
           }} />
           <ProfileTabsContainer 
             passport={passport}
@@ -173,6 +179,7 @@ const TalentProfile = () => {
             blockchainExtendedData={blockchainExtendedData}
             avatarUrl={avatarUrl}
             ownerAddress={passport.owner_address}
+            primaryDomain={primaryDomain}
           />
         </div>
       ) : (

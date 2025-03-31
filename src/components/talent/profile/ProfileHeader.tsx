@@ -27,6 +27,7 @@ interface ProfileHeaderProps {
       location?: string;
     };
     bio?: string;
+    primaryDomain?: string | null;
   };
 }
 
@@ -39,6 +40,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
           name={passport.name}
           ownerAddress={passport.owner_address}
           socials={passport.socials}
+          primaryDomain={passport.primaryDomain}
         />
       </div>
     </HeaderContainer>

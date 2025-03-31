@@ -4,7 +4,7 @@ import ProfileAvatar from './ProfileAvatar';
 import SocialMediaLinks from '../tabs/social/SocialMediaLinks';
 import ProfileContact from './ProfileContact';
 import AddressDisplay from './identity/AddressDisplay';
-import { Link } from 'lucide-react';
+import { Link, Globe } from 'lucide-react';
 import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -21,6 +21,7 @@ interface AvatarSectionProps {
     [key: string]: string | undefined;
   };
   additionalEnsDomains?: string[];
+  primaryDomain?: string | null;
 }
 
 const AvatarSection: React.FC<AvatarSectionProps> = ({ 
@@ -28,7 +29,8 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   name, 
   ownerAddress,
   socials = {},
-  additionalEnsDomains = []
+  additionalEnsDomains = [],
+  primaryDomain
 }) => {
   const [isOwner, setIsOwner] = useState(false);
   const [enhancedSocials, setEnhancedSocials] = useState<Record<string, string>>(socials as Record<string, string>);
@@ -54,7 +56,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   useEffect(() => {
     const fetchEnsSocials = async () => {
       // Check if we have an ENS name or address
-      let identity = name;
+      let identity = primaryDomain || name;
       
       // Format identity for ENS lookup
       if (identity?.includes('.eth') || identity?.includes('.box')) {
@@ -120,7 +122,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     };
     
     fetchEnsSocials();
-  }, [name, ownerAddress, socials]);
+  }, [name, ownerAddress, socials, primaryDomain]);
   
   return (
     <div className="flex flex-col items-center md:items-start gap-2">
@@ -130,6 +132,19 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       />
       <div className="mt-2 text-center md:text-left">
         <h3 className="text-2xl font-semibold">{displayName}</h3>
+        {primaryDomain && (
+          <div className="flex items-center gap-1 mt-1 text-primary">
+            <Globe className="h-4 w-4" />
+            <a 
+              href={`https://app.ens.domains/name/${primaryDomain}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium hover:underline"
+            >
+              {primaryDomain}
+            </a>
+          </div>
+        )}
         <AddressDisplay address={ownerAddress} />
       </div>
       
