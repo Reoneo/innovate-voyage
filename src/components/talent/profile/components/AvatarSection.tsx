@@ -17,7 +17,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   ownerAddress 
 }) => {
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center md:items-start gap-2">
       <ProfileAvatar 
         avatarUrl={avatarUrl} 
         name={name} 

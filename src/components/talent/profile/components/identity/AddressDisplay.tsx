@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { CardDescription } from '@/components/ui/card';
 import { Copy } from 'lucide-react';
 import { truncateAddress } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -17,8 +16,10 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ address }) => {
   };
 
   return (
-    <CardDescription className="text-base flex items-center gap-1">
-      {truncateAddress(address)}
+    <div className="flex items-center gap-1">
+      <span className="text-sm text-muted-foreground">
+        {truncateAddress(address)}
+      </span>
       <Button 
         variant="ghost" 
         size="sm" 
@@ -27,7 +28,7 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ address }) => {
       >
         <Copy className="h-3.5 w-3.5" />
       </Button>
-    </CardDescription>
+    </div>
   );
 };
 

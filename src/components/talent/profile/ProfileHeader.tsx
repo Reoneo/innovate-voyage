@@ -23,6 +23,7 @@ interface ProfileHeaderProps {
       youtube?: string;
       bluesky?: string;
       telegram?: string;
+      discord?: string;
     };
     bio?: string;
   };
@@ -31,19 +32,21 @@ interface ProfileHeaderProps {
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
   return (
     <HeaderContainer>
-      <AvatarSection 
-        avatarUrl={passport.avatar_url}
-        name={passport.name}
-        bio={passport.bio}
-        ownerAddress={passport.owner_address}
-      />
-      
-      <ProfileInfoSection 
-        passportId={passport.passport_id}
-        ownerAddress={passport.owner_address}
-        bio={passport.bio}
-        socials={passport.socials || {}}
-      />
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+        <AvatarSection 
+          avatarUrl={passport.avatar_url}
+          name={passport.name}
+          bio={passport.bio}
+          ownerAddress={passport.owner_address}
+        />
+        
+        <ProfileInfoSection 
+          passportId={passport.passport_id}
+          ownerAddress={passport.owner_address}
+          bio={passport.bio}
+          socials={passport.socials || {}}
+        />
+      </div>
     </HeaderContainer>
   );
 };

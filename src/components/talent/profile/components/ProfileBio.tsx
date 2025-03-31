@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { PencilLine, Save, X } from 'lucide-react';
@@ -51,52 +50,51 @@ const ProfileBio: React.FC<ProfileBioProps> = ({ bio, ownerAddress }) => {
   // Determine what to display based on available bio information
   const displayBio = savedBio || bio || (isOwner 
     ? "Connect your wallet to edit your bio" 
-    : "Update your ENS bio via ENS.domains or connect wallet to edit");
+    : "ENS bio unavailable. Update via ENS.domains or connect wallet to edit");
 
   return (
-    <div className="w-full max-w-xs">
-      <h3 className="font-medium text-sm text-center mb-1">Bio</h3>
-      
+    <div className="w-full">
       {isEditing ? (
         <div className="space-y-2">
           <Textarea
             value={bioText}
             onChange={(e) => setBioText(e.target.value)}
             placeholder="Write something about yourself..."
-            className="h-24 text-xs"
+            className="text-sm"
           />
           <div className="flex justify-end space-x-2">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleCancel}
-              className="h-7 px-2"
+              className="h-8 px-3"
             >
-              <X className="h-3.5 w-3.5 mr-1" /> Cancel
+              <X className="h-4 w-4 mr-1" /> Cancel
             </Button>
             <Button 
               variant="default" 
               size="sm" 
               onClick={handleSave}
-              className="h-7 px-2"
+              className="h-8 px-3"
             >
-              <Save className="h-3.5 w-3.5 mr-1" /> Save
+              <Save className="h-4 w-4 mr-1" /> Save
             </Button>
           </div>
         </div>
       ) : (
-        <div className="relative bg-muted/30 p-2 rounded-md min-h-[60px] text-xs">
-          <p className="text-muted-foreground text-center">
+        <div className="relative">
+          <h3 className="font-bold mb-1">Bio</h3>
+          <p className="text-sm text-muted-foreground pr-8">
             {displayBio}
           </p>
           {isOwner && (
             <Button 
               variant="ghost" 
               size="sm" 
-              className="absolute top-1 right-1 h-6 w-6 p-0" 
+              className="absolute top-0 right-0 h-6 w-6 p-0" 
               onClick={handleEdit}
             >
-              <PencilLine className="h-3 w-3" />
+              <PencilLine className="h-3.5 w-3.5" />
             </Button>
           )}
         </div>

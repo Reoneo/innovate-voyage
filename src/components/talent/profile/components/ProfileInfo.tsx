@@ -39,24 +39,23 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
         <CardTitle className="text-2xl">{passportId}</CardTitle>
       </div>
       
-      <div className="flex items-center flex-wrap gap-2">
-        <EditableName 
-          ownerAddress={ownerAddress} 
-          isOwner={isOwner} 
-        />
+      <div className="mb-3">
         <AddressDisplay address={ownerAddress} />
       </div>
+      
+      {bio && (
+        <div className="mb-4">
+          <h3 className="font-bold mb-1">Bio</h3>
+          <p className="text-sm text-muted-foreground">
+            {bio}
+          </p>
+        </div>
+      )}
       
       <ProfileSocialLinks 
         passportId={passportId} 
         initialSocials={socials} 
       />
-      
-      {bio && (
-        <p className="text-sm mt-3 text-muted-foreground">
-          {bio}
-        </p>
-      )}
     </div>
   );
 };

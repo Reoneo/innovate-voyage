@@ -16,8 +16,8 @@ const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({
   socials 
 }) => {
   return (
-    <div className="flex-1 text-center md:text-left">
-      <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
+    <div className="flex-1 text-left">
+      <div className="flex flex-col items-start justify-between gap-4">
         <ProfileInfo 
           passportId={passportId}
           ownerAddress={ownerAddress}
