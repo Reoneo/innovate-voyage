@@ -28,7 +28,7 @@ export const getTextRecord = async (name: string, key: string) => {
   }
 };
 
-export const getName = async (address: string) => {
+export const getName = async (address: `0x${string}`) => {
   try {
     return await ensClient.getName({ address });
   } catch (error) {
@@ -39,7 +39,8 @@ export const getName = async (address: string) => {
 
 export const getAvatar = async (name: string) => {
   try {
-    return await ensClient.getAvatar({ name });
+    const result = await ensClient.getTextRecord({ name, key: 'avatar' });
+    return result;
   } catch (error) {
     console.error(`Error getting avatar for ${name}:`, error);
     return null;

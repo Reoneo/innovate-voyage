@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { resolveEnsToAddress, resolveAddressToEns } from '@/utils/ens/resolveEns';
 import { getEnsAvatar, getEnsBio } from '@/utils/ens/ensRecords';
 import { getTextRecord } from '@/utils/ens/ensClient';
-import { getEnsLinks } from '@/utils/ensResolution';
+import { getEnsLinks } from '@/utils/ens/ensLinks';
 
 interface EnsResolutionState {
   resolvedAddress: string | undefined;

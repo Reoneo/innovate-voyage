@@ -32,6 +32,14 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
     navigate(`/talent/${passport.passport_id}`);
   };
   
+  // Safely format the address to prevent errors
+  const formatAddress = (address: string | undefined): string => {
+    if (!address) return ''; 
+    if (typeof address !== 'string') return String(address);
+    
+    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+  };
+  
   return (
     <Card className="h-full flex flex-col">
       <CardContent className="pt-6 flex-grow">
@@ -46,7 +54,7 @@ const TalentProfileCard: React.FC<TalentProfileCardProps> = ({ passport }) => {
                 {passport.passport_id}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {passport.owner_address.substring(0, 6)}...{passport.owner_address.substring(passport.owner_address.length - 4)}
+                {formatAddress(passport.owner_address)}
               </p>
             </div>
           </div>

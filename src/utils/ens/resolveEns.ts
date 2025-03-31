@@ -48,7 +48,9 @@ export async function resolveAddressToEns(address: string) {
   
   try {
     console.log(`Looking up ENS for address: ${address} using ENS.js client`);
-    const nameResult = await getName(address);
+    // Convert to correct 0x format for viem
+    const formattedAddress = address as `0x${string}`;
+    const nameResult = await getName(formattedAddress);
     
     if (nameResult && nameResult.name) {
       console.log(`Found ENS name for ${address}: ${nameResult.name}`);
