@@ -24,6 +24,8 @@ interface ProfileHeaderProps {
       bluesky?: string;
       telegram?: string;
       discord?: string;
+      telephone?: string;
+      location?: string;
     };
     bio?: string;
   };
@@ -38,6 +40,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
           name={passport.name}
           bio={passport.bio}
           ownerAddress={passport.owner_address}
+          socials={passport.socials}
         />
         
         <ProfileInfoSection 

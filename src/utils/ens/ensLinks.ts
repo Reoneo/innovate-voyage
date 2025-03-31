@@ -32,22 +32,24 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
     // Try to get social media links
     const socials: Record<string, string> = {};
     
-    // Common ENS text records for social media
+    // Common ENS text records for social media and contact info
     const socialKeys = [
       'com.github', 
       'com.twitter', 
       'com.linkedin', 
       'url', 
       'email', 
-      'com.facebook',  // Added Facebook
-      'org.whatsapp.phone',  // Added WhatsApp
-      'com.facebook.messenger', // Added Facebook Messenger
-      'com.discord',  // Added Discord
-      'com.reddit',  // Added Reddit
-      'org.telegram', // Added Telegram
-      'com.instagram', // Added Instagram
-      'com.youtube',  // Added YouTube
-      'bsky.app',  // Added Bluesky
+      'com.facebook',
+      'org.whatsapp.phone',
+      'com.facebook.messenger',
+      'com.discord',
+      'com.reddit',
+      'org.telegram',
+      'com.instagram',
+      'com.youtube',
+      'bsky.app',
+      'phone',         // Added phone/telephone
+      'location',      // Added location
     ];
     
     // Try to get each social media link
@@ -97,6 +99,12 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
               break;
             case 'bsky.app':
               socials.bluesky = value;
+              break;
+            case 'phone':
+              socials.telephone = value;
+              break;
+            case 'location':
+              socials.location = value;
               break;
           }
         }

@@ -21,6 +21,8 @@ export interface ENSRecord {
     instagram?: string;
     youtube?: string;
     bluesky?: string;
+    telephone?: string;  // Added telephone field
+    location?: string;   // Added location field
   };
 }
 
@@ -48,6 +50,7 @@ export interface Web3BioProfile {
   description: string | null;
   status?: string | null;
   location?: string | null;
+  telephone?: string | null;  // Added telephone field
   header?: string | null;
   contenthash?: string | null;
   github?: string;
