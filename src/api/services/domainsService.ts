@@ -25,6 +25,21 @@ const ENS_DOMAINS_QUERY = gql`
 // ENS Subgraph URL
 const ENS_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/ensdomains/ens";
 
+// Define the shape of the GraphQL response
+interface ENSDomainsResponse {
+  domains: Array<{
+    id: string;
+    name: string;
+    labelName: string;
+    owner: {
+      id: string;
+    };
+    parent: {
+      name: string;
+    };
+  }>;
+}
+
 // Get all available ENS records (for demo purposes)
 export async function getAllEnsRecords(): Promise<ENSRecord[]> {
   await delay(400);
@@ -65,13 +80,13 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
     // Try to get real domains from ENS subgraph
     try {
       const variables = { owner: normalizedAddress };
-      const data = await request(ENS_SUBGRAPH_URL, ENS_DOMAINS_QUERY, variables);
+      const data = await request<ENSDomainsResponse>(ENS_SUBGRAPH_URL, ENS_DOMAINS_QUERY, variables);
       
       if (data && data.domains && data.domains.length > 0) {
         console.log(`Found ${data.domains.length} domains from ENS subgraph`, data.domains);
         domains = data.domains
-          .filter((domain: any) => domain.name) // Ensure domain has a name
-          .map((domain: any) => domain.name);
+          .filter((domain) => domain.name) // Ensure domain has a name
+          .map((domain) => domain.name);
       }
     } catch (subgraphError) {
       console.warn("Error querying ENS subgraph:", subgraphError);
