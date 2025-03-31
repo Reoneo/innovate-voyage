@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Github, Twitter, Linkedin, Globe, Mail, Facebook, MessageCircle, Smartphone, Instagram, Youtube, Link, Discord, MessageSquare } from 'lucide-react';
+import { Github, Twitter, Linkedin, Globe, Mail, Facebook, MessageCircle, Smartphone, Instagram, Youtube, Link, MessageSquare } from 'lucide-react';
 
 type SocialIconType = 'github' | 'twitter' | 'linkedin' | 'globe' | 'mail' | 'facebook' | 'whatsapp' | 'messenger' | 'bluesky' | 'instagram' | 'youtube' | 'telegram' | 'reddit' | 'discord';
 
@@ -52,7 +52,8 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
     case 'reddit':
       return <div className={`text-orange-600 ${iconClasses}`} style={{ fontSize: `${size * 0.8}px`, fontWeight: 'bold' }}>R</div>;
     case 'discord':
-      return <Discord size={size} className={`text-indigo-600 ${iconClasses}`} />;
+      // Using a text-based fallback for Discord since the Discord icon is not available
+      return <div className={`text-indigo-600 ${iconClasses}`} style={{ fontSize: `${size * 0.8}px`, fontWeight: 'bold' }}>D</div>;
     default:
       return null;
   }
