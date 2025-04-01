@@ -38,7 +38,9 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
   try {
     if (!address) return [];
     
-    // Try to get real domains from web3.bio API
+    console.log(`Fetching domains for address: ${address}`);
+    
+    // Try to get real domains from web3.bio API first
     const domains: string[] = await fetchDomainsFromWeb3Bio(address);
     
     // If no domains found through web3.bio, fall back to Etherscan
@@ -66,6 +68,7 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
       }
     }
     
+    console.log(`Found ${domains.length} domains for address ${address}:`, domains);
     return domains;
   } catch (error) {
     console.error(`Error fetching domains for address ${address}:`, error);
@@ -78,19 +81,29 @@ export async function fetchAllEnsDomains(address: string): Promise<string[]> {
  */
 async function fetchDomainsFromWeb3Bio(address: string): Promise<string[]> {
   try {
-    const response = await fetch(`https://api.web3.bio/profile/${address}`, {
+    // Add a cache-busting parameter to prevent stale data
+    const url = `https://api.web3.bio/profile/${address}?nocache=${Date.now()}`;
+    
+    const response = await fetch(url, {
       headers: {
-        'Authorization': `Bearer ${WEB3_BIO_API_KEY}`
-      }
+        'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Accept': 'application/json'
+      },
+      cache: 'no-store'
     });
     
     if (!response.ok) {
+      console.warn(`Web3.bio API returned status ${response.status} for address ${address}`);
       return [];
     }
     
     const data = await response.json();
     
     if (!Array.isArray(data)) {
+      if (data.identity) {
+        return [data.identity];
+      }
       return [];
     }
     
@@ -105,16 +118,28 @@ async function fetchDomainsFromWeb3Bio(address: string): Promise<string[]> {
       // Also extract aliases if available
       if (profile.aliases && Array.isArray(profile.aliases)) {
         for (const alias of profile.aliases) {
-          const parts = alias.split(',');
-          if (parts.length === 2 && parts[1].includes('.')) {
-            if (!domains.includes(parts[1])) {
-              domains.push(parts[1]);
+          // Handle different alias formats
+          if (typeof alias === 'string') {
+            if (alias.includes(',')) {
+              // Format: "platform,name"
+              const parts = alias.split(',');
+              if (parts.length === 2 && parts[1].includes('.')) {
+                if (!domains.includes(parts[1])) {
+                  domains.push(parts[1]);
+                }
+              }
+            } else if (alias.includes('.')) {
+              // Direct domain name
+              if (!domains.includes(alias)) {
+                domains.push(alias);
+              }
             }
           }
         }
       }
     }
     
+    console.log(`Web3.bio returned ${domains.length} domains for ${address}:`, domains);
     return domains;
   } catch (error) {
     console.error("Error fetching from web3.bio:", error);
@@ -128,44 +153,50 @@ async function fetchDomainsFromWeb3Bio(address: string): Promise<string[]> {
 async function fetchDomainsFromEtherscan(address: string): Promise<string[]> {
   const domains: string[] = [];
   
-  // Use the Etherscan API to get ENS domain records (ENS Registry)
-  const response = await fetch(`https://api.etherscan.io/api?module=account&action=tokennfttx&address=${address}&contractaddress=0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85&page=1&offset=100&sort=asc&apikey=${ETHERSCAN_API_KEY}`);
-  
-  if (!response.ok) {
-    throw new Error(`Etherscan API error: ${response.status}`);
-  }
-  
-  const data = await response.json();
-  
-  if (data.status === '1' && data.result) {
-    // Filter for ENS domain transactions
-    // The ENS domain registrar contract address: 0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85
-    const ensTransactions = data.result;
+  try {
+    // Use the Etherscan API to get ENS domain records (ENS Registry)
+    const response = await fetch(`https://api.etherscan.io/api?module=account&action=tokennfttx&address=${address}&contractaddress=0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85&page=1&offset=100&sort=asc&apikey=${ETHERSCAN_API_KEY}`);
     
-    // Process each transaction to extract ENS names
-    for (const tx of ensTransactions) {
-      if (tx.to.toLowerCase() === address.toLowerCase()) {
-        try {
-          // The tokenName is usually in the format: "ENS: domain.eth"
-          const tokenName = tx.tokenName;
-          if (tokenName && tokenName.startsWith("ENS:")) {
-            const ensDomain = tokenName.substring(4).trim();
-            if (ensDomain && !domains.includes(ensDomain)) {
-              domains.push(ensDomain);
+    if (!response.ok) {
+      throw new Error(`Etherscan API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.status === '1' && data.result) {
+      // Filter for ENS domain transactions
+      // The ENS domain registrar contract address: 0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85
+      const ensTransactions = data.result;
+      
+      // Process each transaction to extract ENS names
+      for (const tx of ensTransactions) {
+        if (tx.to && tx.to.toLowerCase() === address.toLowerCase()) {
+          try {
+            // The tokenName is usually in the format: "ENS: domain.eth"
+            const tokenName = tx.tokenName;
+            if (tokenName && tokenName.startsWith("ENS:")) {
+              const ensDomain = tokenName.substring(4).trim();
+              if (ensDomain && !domains.includes(ensDomain)) {
+                domains.push(ensDomain);
+              }
+            } else if (tx.tokenID) {
+              // If tokenName doesn't work, try to add the tokenID
+              const ensName = `${tx.tokenID}.eth`;
+              if (!domains.includes(ensName)) {
+                domains.push(ensName);
+              }
             }
-          } else if (tx.tokenID) {
-            // If tokenName doesn't work, try to add the tokenID
-            const ensName = `${tx.tokenID}.eth`;
-            if (!domains.includes(ensName)) {
-              domains.push(ensName);
-            }
+          } catch (err) {
+            console.error("Error processing ENS transaction:", err);
           }
-        } catch (err) {
-          console.error("Error processing ENS transaction:", err);
         }
       }
     }
+    
+    console.log(`Etherscan returned ${domains.length} domains for ${address}:`, domains);
+    return domains;
+  } catch (error) {
+    console.error(`Error fetching from Etherscan: ${error}`);
+    return domains;
   }
-  
-  return domains;
 }

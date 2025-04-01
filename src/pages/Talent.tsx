@@ -1,15 +1,16 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useEnsByAddress, useAddressByEns, useRealAvatar } from '@/hooks/useWeb3';
-import { calculateHumanScore, getScoreColorClass, BlockchainPassport } from '@/lib/utils';
+import { calculateHumanScore, getScoreColorClass, BlockchainPassport, isValidEthereumAddress } from '@/lib/utils';
 import TalentLayout from '@/components/talent/TalentLayout';
 import TalentGrid from '@/components/talent/TalentGrid';
 import TalentSearch from '@/components/talent/TalentSearch';
 import { useBlockchainProfile } from '@/hooks/useEtherscan';
 import { getAccountBalance, getTransactionCount, getLatestTransactions } from '@/api/services/etherscanService';
-import { fetchAllEnsDomains } from '@/api/services/ensService';
+import { fetchAllEnsDomains } from '@/api/services/domainsService';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { toast } from 'sonner';
+import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
 
 const Talent = () => {
   const [addressSearch, setAddressSearch] = useState('');
@@ -19,12 +20,12 @@ const Talent = () => {
   // Search specific address or ENS
   const { data: ensDataByAddress } = useEnsByAddress(addressSearch);
   const { data: addressDataByEns } = useAddressByEns(
-    addressSearch.includes('.eth') || addressSearch.includes('.box') ? addressSearch : undefined
+    addressSearch.includes('.') ? addressSearch : undefined
   );
   
   // Get avatar for searched ENS
   const { data: avatarData } = useRealAvatar(
-    addressSearch.includes('.eth') || addressSearch.includes('.box') ? addressSearch : undefined
+    addressSearch.includes('.') ? addressSearch : undefined
   );
 
   // Effect to fetch data when address search changes
@@ -39,30 +40,57 @@ const Talent = () => {
       let additionalEnsDomains: string[] = [];
       
       try {
-        // If ENS name is provided, try to resolve address
-        if (addressSearch.includes('.eth') || addressSearch.includes('.box')) {
+        // Directly try Web3.bio API first for fastest resolution
+        const web3BioProfile = await fetchWeb3BioProfile(addressSearch);
+        
+        if (web3BioProfile && web3BioProfile.address) {
+          address = web3BioProfile.address;
+          ensName = web3BioProfile.displayName || web3BioProfile.identity || addressSearch;
+          avatar = web3BioProfile.avatar || '/placeholder.svg';
+          console.log("Found profile via Web3.bio:", web3BioProfile);
+        }
+        // If not found in Web3.bio, try standard resolution methods
+        else if (addressSearch.includes('.')) {
           if (addressDataByEns) {
             address = addressDataByEns.address;
             ensName = addressDataByEns.ensName;
             avatar = addressDataByEns.avatar || avatarData || '/placeholder.svg';
           } else {
-            // No data found
-            setIsSearching(false);
-            setSearchResults([]);
-            toast.error(`Could not resolve ${addressSearch} to an address`);
-            return;
+            // No data found, try one more ENS lookup attempt
+            try {
+              const { resolvedAddress } = await fetchAddressFromEns(addressSearch);
+              if (resolvedAddress) {
+                address = resolvedAddress;
+                ensName = addressSearch;
+              } else {
+                setIsSearching(false);
+                setSearchResults([]);
+                toast.error(`Could not resolve ${addressSearch} to an address`);
+                return;
+              }
+            } catch (lookupError) {
+              console.error("ENS lookup error:", lookupError);
+              setIsSearching(false);
+              setSearchResults([]);
+              toast.error(`Could not resolve ${addressSearch}`);
+              return;
+            }
           }
         } 
         // If address is provided, try to resolve ENS name
-        else if (ensDataByAddress) {
-          ensName = ensDataByAddress.ensName;
-          avatar = ensDataByAddress.avatar || '/placeholder.svg';
+        else if (isValidEthereumAddress(addressSearch)) {
+          if (ensDataByAddress) {
+            ensName = ensDataByAddress.ensName;
+            avatar = ensDataByAddress.avatar || '/placeholder.svg';
+          }
         }
         
         // If no ENS name, use a placeholder
         if (!ensName) {
           ensName = address.substring(0, 6) + '...' + address.substring(address.length - 4);
         }
+        
+        console.log("Final resolved data:", { address, ensName, avatar });
         
         // Fetch ALL ENS domains for this address - only real ones, no mocks
         const allDomains = await fetchAllEnsDomains(address);
@@ -84,7 +112,7 @@ const Talent = () => {
         if (Number(balance) > 0) skills.push('ETH Holder');
         if (txCount > 10) skills.push('Active Trader');
         if (txCount > 50) skills.push('Power User');
-        if (ensName.includes('.eth') || ensName.includes('.box')) skills.push('ENS Owner');
+        if (ensName.includes('.')) skills.push('Web3 Domain Owner');
         
         // Add transaction-based skills
         if (latestTxs && latestTxs.length > 0) {
@@ -107,7 +135,7 @@ const Talent = () => {
           passport_id: ensName,
           owner_address: address,
           avatar_url: avatar,
-          name: ensName.split('.')[0],
+          name: ensName.includes('.') ? ensName.split('.')[0] : ensName,
           issued: new Date().toISOString(),
           skills: skills.map(skill => ({
             name: skill,
@@ -120,7 +148,7 @@ const Talent = () => {
         setSearchResults([newPassport]);
         toast.success(`Found profile for ${ensName || address}`);
       } catch (error) {
-        console.error('Error fetching Etherscan data:', error);
+        console.error('Error fetching profile data:', error);
         toast.error('Error searching for talent profile');
         setSearchResults([]);
       } finally {
@@ -130,6 +158,24 @@ const Talent = () => {
     
     fetchEtherscanData();
   }, [addressSearch, addressDataByEns, ensDataByAddress, avatarData]);
+
+  // Helper function to fetch address from ENS name
+  async function fetchAddressFromEns(ensName: string): Promise<{resolvedAddress?: string}> {
+    try {
+      // Try direct Web3.bio lookup
+      const profile = await fetchWeb3BioProfile(ensName);
+      if (profile && profile.address) {
+        return { resolvedAddress: profile.address };
+      }
+      
+      // Use the ens resolver as fallback
+      const { resolvedAddress } = useEnsResolver(ensName);
+      return { resolvedAddress };
+    } catch (error) {
+      console.error("Error in fetchAddressFromEns:", error);
+      return {};
+    }
+  }
 
   // Process passport data
   const passportData = useMemo(() => {

@@ -34,7 +34,7 @@ function getWeb3BioEndpoint(identity: string): { endpoint: string, type: string 
   
   // Box domains (.box)
   if (normalizedId.endsWith('.box')) {
-    return { endpoint: `https://api.web3.bio/profile/${normalizedId}`, type: 'box' };
+    return { endpoint: `https://api.web3.bio/profile/dotbit/${normalizedId}`, type: 'box' };
   }
   
   // Base domains (.base.eth)
@@ -121,12 +121,16 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     const { endpoint, type } = getWeb3BioEndpoint(normalizedIdentity);
     console.log(`Using endpoint: ${endpoint} (${type})`);
     
-    const response = await fetch(endpoint, {
+    // Add a random query parameter to prevent caching issues
+    const noCacheEndpoint = `${endpoint}?nocache=${Date.now()}`;
+    
+    const response = await fetch(noCacheEndpoint, {
       headers: {
         'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
         'Accept': 'application/json',
-        'Cache-Control': 'no-cache'
-      }
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      },
+      cache: 'no-store'
     });
     
     if (!response.ok) {
@@ -137,6 +141,28 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
         console.log('Rate limited, retrying after delay');
         await delay(2000);
         return fetchWeb3BioProfile(identity);
+      }
+      
+      // Try a fallback approach for .box domains
+      if (type === 'box' || normalizedIdentity.endsWith('.box')) {
+        console.log('Trying alternative approach for .box domain');
+        const fallbackEndpoint = `https://api.web3.bio/profile/${normalizedIdentity}?nocache=${Date.now()}`;
+        const fallbackResponse = await fetch(fallbackEndpoint, {
+          headers: {
+            'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        if (fallbackResponse.ok) {
+          const data = await fallbackResponse.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const profileData = processWeb3BioProfileData(data[0], normalizedIdentity);
+            if (profileData) profileCache[identity] = profileData;
+            return profileData;
+          }
+        }
       }
       
       return null;

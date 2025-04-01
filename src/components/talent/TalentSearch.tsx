@@ -28,7 +28,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
   
   // Initialize resolver but don't trigger it automatically
   const { resolvedAddress, resolvedEns, avatarUrl, isLoading, error } = useEnsResolver(
-    hasExecutedSearch && isValidInput ? searchInput : undefined,
+    hasExecutedSearch && isValidInput && !isValidEthereumAddress(searchInput) ? searchInput : undefined,
     hasExecutedSearch && isValidEthereumAddress(searchInput) ? searchInput : undefined
   );
   
@@ -49,10 +49,10 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
       }
       
       // Check if it has a supported domain extension
-      const hasSupportedExtension = SUPPORTED_DOMAINS.some(ext => searchInput.includes(ext));
+      const hasSupportedExtension = SUPPORTED_DOMAINS.some(ext => searchInput.toLowerCase().includes(ext));
       if (hasSupportedExtension) {
         setIsValidInput(true);
-        const platform = SUPPORTED_DOMAINS.find(ext => searchInput.includes(ext))?.replace('.', '');
+        const platform = SUPPORTED_DOMAINS.find(ext => searchInput.toLowerCase().includes(ext))?.replace('.', '');
         setSearchFeedback(`Searching for ${platform} domain`);
         return;
       }
@@ -91,18 +91,18 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
       const profile = await fetchWeb3BioProfile(searchInput);
       if (profile) {
         if (profile.error) {
-          toast.error(`Error: ${profile.error}`);
-          setSearchFeedback("Profile not found");
+          console.warn(`Web3.bio error: ${profile.error}`);
+          setSearchFeedback("Trying alternative lookup methods...");
         } else {
           toast.success(`Found profile for ${profile.displayName || profile.identity}`);
           setSearchFeedback(`Found: ${profile.displayName || profile.identity}`);
         }
       } else {
-        setSearchFeedback("No profile found");
+        setSearchFeedback("Trying alternative lookup methods...");
       }
     } catch (error) {
       console.error("Error pre-resolving profile:", error);
-      setSearchFeedback("Error looking up profile");
+      setSearchFeedback("Trying alternative lookup methods...");
     }
     
     // Pass the input to the parent component for searching
@@ -184,8 +184,8 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
           
           <div className="flex flex-wrap gap-2 text-xs justify-center">
             <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">.eth</span>
-            <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full">.lens</span>
             <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full">.box</span>
+            <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full">.lens</span>
             <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded-full">.base.eth</span>
             <span className="px-2 py-1 bg-pink-100 text-pink-800 rounded-full">.linea.eth</span>
             <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full">Address</span>
