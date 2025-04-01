@@ -1,5 +1,5 @@
 
-import { avatarCache, fetchWeb3BioProfile, generateFallbackAvatar } from '../utils/web3Utils';
+import { avatarCache, fetchWeb3BioProfile, generateFallbackAvatar } from '../utils/web3/index';
 import { delay } from '../jobsApi';
 
 // Get real avatar for any domain type using web3.bio

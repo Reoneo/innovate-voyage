@@ -1,8 +1,7 @@
-
 import { ENSRecord } from '../types/web3Types';
 import { delay } from '../jobsApi';
 import { mockEnsRecords } from '../data/mockWeb3Data';
-import { fetchWeb3BioProfile, generateFallbackAvatar } from '../utils/web3Utils';
+import { fetchWeb3BioProfile, generateFallbackAvatar } from '../utils/web3/index';
 
 const ETHERSCAN_API_KEY = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
 const WEB3_BIO_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20";

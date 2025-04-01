@@ -1,9 +1,8 @@
-
 import { ENSRecord } from '../types/web3Types';
 import { delay } from '../jobsApi';
-import { fetchWeb3BioProfile } from '../utils/web3Utils';
+import { fetchWeb3BioProfile } from '../utils/web3/index';
 import { getRealAvatar } from './avatarService';
-import { generateFallbackAvatar } from '../utils/web3Utils';
+import { generateFallbackAvatar } from '../utils/web3/index';
 
 // Lookup ENS record by address
 export async function getEnsByAddress(address: string): Promise<ENSRecord | null> {
