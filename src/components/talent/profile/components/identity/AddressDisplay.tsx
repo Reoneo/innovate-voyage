@@ -2,7 +2,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Copy } from 'lucide-react';
-import { truncateAddress } from '@/lib/utils';
 import { toast } from 'sonner';
 
 interface AddressDisplayProps {
@@ -17,10 +16,16 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ address }) => {
     }
   };
 
+  // Custom truncate function to show first 5 and last 5 characters
+  const customTruncateAddress = (addr: string): string => {
+    if (!addr || typeof addr !== 'string' || addr.length <= 10) return addr;
+    return `${addr.substring(0, 5)}...${addr.substring(addr.length - 5)}`;
+  };
+
   return (
     <div className="flex items-center gap-1">
       <span className="text-sm text-muted-foreground">
-        {address && typeof address === 'string' ? truncateAddress(address) : ''}
+        {address && typeof address === 'string' ? customTruncateAddress(address) : ''}
       </span>
       <Button 
         variant="ghost" 

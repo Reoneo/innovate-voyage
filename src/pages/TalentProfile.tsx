@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 import HeaderContainer from '@/components/talent/profile/components/HeaderContainer';
+import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import AvatarSection from '@/components/talent/profile/components/AvatarSection';
 import VerifiedWorkExperience from '@/components/talent/profile/components/VerifiedWorkExperience';
 
@@ -107,15 +108,10 @@ const TalentProfile = () => {
         
         {/* A4 Profile Page */}
         <div ref={profileRef} id="resume-pdf">
-          <HeaderContainer>
-            {loading ? (
-              <div className="flex justify-center items-center h-[29.7cm] w-full">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                  <p className="text-muted-foreground">Loading profile data...</p>
-                </div>
-              </div>
-            ) : passport ? (
+          {loading ? (
+            <ProfileSkeleton />
+          ) : passport ? (
+            <HeaderContainer>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Left column with avatar and social links */}
                 <div className="md:col-span-1">
@@ -126,6 +122,7 @@ const TalentProfile = () => {
                     socials={passport.socials}
                     bio={passport.bio}
                     displayIdentity={ensNameOrAddress}
+                    additionalEnsDomains={passport.additionalEnsDomains}
                   />
                 </div>
                 
@@ -136,8 +133,10 @@ const TalentProfile = () => {
                   />
                 </div>
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[29.7cm] text-center">
+            </HeaderContainer>
+          ) : (
+            <HeaderContainer>
+              <div className="flex flex-col items-center justify-center h-full text-center">
                 <h2 className="text-2xl font-bold mb-2">Profile Not Found</h2>
                 <p className="text-muted-foreground mb-6">
                   We couldn't find a profile for {ensNameOrAddress}
@@ -149,8 +148,8 @@ const TalentProfile = () => {
                   </Button>
                 </Link>
               </div>
-            )}
-          </HeaderContainer>
+            </HeaderContainer>
+          )}
         </div>
       </div>
     </div>

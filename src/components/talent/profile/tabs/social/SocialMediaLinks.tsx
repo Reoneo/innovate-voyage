@@ -22,7 +22,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
     );
   }
   
-  if (availablePlatforms.length === 0) {
+  if (availablePlatforms.length === 0 && !socials.email) {
     return <span className="text-sm text-muted-foreground col-span-full">No social links available</span>;
   }
   

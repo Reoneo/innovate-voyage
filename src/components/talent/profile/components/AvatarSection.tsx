@@ -4,12 +4,11 @@ import ProfileAvatar from './ProfileAvatar';
 import SocialMediaLinks from '../tabs/social/SocialMediaLinks';
 import ProfileContact from './ProfileContact';
 import AddressDisplay from './identity/AddressDisplay';
-import { Link, Copy } from 'lucide-react';
 import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'lucide-react';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -56,15 +55,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   const displayName = displayIdentity || (name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/) 
     ? `${name}.eth` 
     : name);
-
-  // Copy address to clipboard
-  const copyAddress = () => {
-    navigator.clipboard.writeText(ownerAddress);
-    toast({
-      title: "Address copied",
-      description: "Wallet address has been copied to clipboard"
-    });
-  };
 
   // Fetch ENS social links from Web3.bio
   useEffect(() => {
@@ -147,16 +137,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       <div className="mt-2 text-center md:text-left">
         <h3 className="text-2xl font-semibold">{displayName}</h3>
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs text-muted-foreground truncate max-w-[180px]">{ownerAddress}</span>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-6 w-6" 
-            onClick={copyAddress} 
-            title="Copy address"
-          >
-            <Copy className="h-3 w-3" />
-          </Button>
+          <AddressDisplay address={ownerAddress} />
         </div>
       </div>
       

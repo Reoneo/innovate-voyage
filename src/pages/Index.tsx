@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -75,7 +76,7 @@ const Index = () => {
               <form onSubmit={handleSearch} className="flex gap-2">
                 <div className="relative flex-grow">
                   <Input
-                    placeholder="Search by ENS, address or domain (e.g. vitalik.eth)"
+                    placeholder="Search by ENS, address or domain"
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     className="pr-10"
@@ -86,9 +87,6 @@ const Index = () => {
                 </div>
                 <Button type="submit">Search</Button>
               </form>
-              <p className="text-xs text-muted-foreground mt-2">
-                Direct access: recruitment.box/vitalik.eth • recruitment.box/0x123... • recruitment.box/domain.box
-              </p>
             </div>
           </motion.div>
 
