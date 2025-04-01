@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -99,13 +98,6 @@ const Index = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <Button 
-              size="lg" 
-              onClick={(e) => handleNavigation('/talent', e)}
-            >
-              Browse Talent
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
             <Button size="lg" variant="outline" disabled title="Coming soon">
               <span className="flex items-center">
                 Browse Jobs
