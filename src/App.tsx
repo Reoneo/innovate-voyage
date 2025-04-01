@@ -66,8 +66,9 @@ const App = () => {
               <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
               {/* Route for other domain formats */}
               <Route path="/:domain/:userId" element={<TalentProfile />} />
-              {/* Original route for simple ENS names or addresses */}
-              <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+              {/* Specific route for .eth domains - highest priority */}
+              <Route path="/:ensName" element={<TalentProfile />} />
+              {/* Original route for simple ENS names or addresses as fallback */}
               <Route path="*" element={<NotFound />} />
             </Routes>
             <WalletConnectModal />

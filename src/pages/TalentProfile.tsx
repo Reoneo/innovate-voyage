@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
@@ -20,27 +20,35 @@ import AvatarSection from '@/components/talent/profile/components/AvatarSection'
 import VerifiedWorkExperience from '@/components/talent/profile/components/VerifiedWorkExperience';
 
 const TalentProfile = () => {
-  const { ensNameOrAddress, domain, userId } = useParams<{
+  const { ensNameOrAddress, domain, userId, ensName } = useParams<{
     ensNameOrAddress?: string;
     domain?: string;
     userId?: string;
+    ensName?: string;
   }>();
   
   const navigate = useNavigate();
+  const location = useLocation();
   const [address, setAddress] = useState<string | undefined>(undefined);
   const [ens, setEns] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   
   useEffect(() => {
+    console.log('TalentProfile mounted with params:', { ensNameOrAddress, domain, userId, ensName });
+    console.log('Current pathname:', location.pathname);
+    
     // Handle different URL formats
     let identityToUse: string | undefined;
     
-    // Handle potential host name issues
-    // When using direct URL access like https://recruitment.box/30315.eth
-    if (window.location.hostname === "recruitment.box" && ensNameOrAddress && !domain && !userId) {
+    // Check if we have a direct ENS name from the /:ensName route
+    if (ensName) {
+      console.log('Using direct ENS name from route parameter:', ensName);
+      identityToUse = ensName;
+    }
+    // Handle potential host name issues like direct domain access (recruitment.box/30315.eth)
+    else if (window.location.hostname === "recruitment.box" && ensNameOrAddress && !domain && !userId) {
       console.log('Detected direct domain access:', window.location.hostname, ensNameOrAddress);
-      // Split the pathname to get the correct path
       identityToUse = ensNameOrAddress;
     }
     // Case 1: /recruitment.box/:userId format
@@ -55,6 +63,15 @@ const TalentProfile = () => {
     else if (ensNameOrAddress) {
       identityToUse = ensNameOrAddress;
     }
+    // Special case: handle direct path like /30315.eth
+    else if (location.pathname && location.pathname !== '/') {
+      // Extract the identity from the pathname
+      const pathIdentity = location.pathname.substring(1); // Remove leading slash
+      if (pathIdentity) {
+        console.log('Extracted identity from pathname:', pathIdentity);
+        identityToUse = pathIdentity;
+      }
+    }
     
     console.log('Identity to use:', identityToUse);
     
@@ -62,6 +79,7 @@ const TalentProfile = () => {
       if (isValidEthereumAddress(identityToUse)) {
         setAddress(identityToUse);
       } else {
+        // Make sure to handle ENS names without extension
         const ensValue = identityToUse.includes('.') ? identityToUse : `${identityToUse}.eth`;
         setEns(ensValue);
       }
@@ -74,10 +92,11 @@ const TalentProfile = () => {
 
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
-  }, [ensNameOrAddress, domain, userId, navigate]);
+  }, [ensNameOrAddress, domain, userId, ensName, navigate, location.pathname]);
 
   // For display in UI
-  const displayIdentity = userId && domain ? `${userId}.${domain}` : ensNameOrAddress;
+  const displayIdentity = ensName || (userId && domain ? `${userId}.${domain}` : ensNameOrAddress) || 
+                         location.pathname.substring(1);
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
   
