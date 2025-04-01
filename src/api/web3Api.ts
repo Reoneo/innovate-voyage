@@ -1,4 +1,3 @@
-
 import { ENSRecord, SkillNFT, Web3Credentials, Web3BioProfile } from './types/web3Types';
 import { BlockchainProfile } from './types/etherscanTypes';
 import { 
@@ -19,6 +18,7 @@ import {
   getTokenTransfers
 } from './services/etherscanService';
 import { fetchWeb3BioProfile } from './utils/web3Utils';
+import { getRealAvatar } from './services/avatar';
 
 // Get all Web3 credentials (ENS + Skill NFTs) by address
 async function getWeb3CredentialsByAddress(address: string): Promise<Web3Credentials> {
