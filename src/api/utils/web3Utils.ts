@@ -8,6 +8,10 @@ export const avatarCache: Record<string, string> = {};
 // Store the API key for web3.bio
 const WEB3_BIO_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20";
 
+// Rate limiting variables
+let lastRequestTime = 0;
+const REQUEST_DELAY_MS = 300; // Minimum time between requests
+
 /**
  * Function to determine the endpoint to use based on identity type
  */
@@ -74,11 +78,29 @@ function getWeb3BioEndpoint(identity: string): { endpoint: string, type: string 
   return { endpoint: `https://api.web3.bio/profile/${identity}`, type: 'universal' };
 }
 
+/**
+ * Helper function to enforce rate limiting
+ */
+async function enforceRateLimit() {
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastRequestTime;
+  
+  if (timeSinceLastRequest < REQUEST_DELAY_MS) {
+    const waitTime = REQUEST_DELAY_MS - timeSinceLastRequest;
+    await new Promise(resolve => setTimeout(resolve, waitTime));
+  }
+  
+  lastRequestTime = Date.now();
+}
+
 // Function to fetch profile from Web3.bio API
 export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProfile | null> {
   if (!identity) return null;
   
   try {
+    // Enforce rate limiting to avoid 429 errors
+    await enforceRateLimit();
+    
     // Normalize the identity parameter if needed
     let normalizedIdentity = identity;
     
@@ -90,12 +112,21 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     
     const response = await fetch(endpoint, {
       headers: {
+        'X-API-KEY': `Bearer ${WEB3_BIO_API_KEY}`,
         'Authorization': `Bearer ${WEB3_BIO_API_KEY}`
       }
     });
     
     if (!response.ok) {
       console.warn(`Failed to fetch Web3.bio profile for ${normalizedIdentity}: Status ${response.status}`);
+      
+      // If rate limited, retry after a delay
+      if (response.status === 429) {
+        console.log('Rate limited, retrying after delay');
+        await delay(2000);
+        return fetchWeb3BioProfile(identity);
+      }
+      
       return null;
     }
     
@@ -107,7 +138,7 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
       if (data.length === 0) return null;
       
       // Use the first profile with a preference for ENS
-      const ensProfile = data.find(profile => profile.platform === 'ens');
+      const ensProfile = data.find(p => p.platform === 'ens');
       const anyProfile = data[0];
       const profileData = ensProfile || anyProfile;
       
@@ -117,7 +148,15 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     else if (data && typeof data === 'object') {
       if (data.error) {
         console.warn(`Web3.bio error for ${normalizedIdentity}:`, data.error);
-        return null;
+        return {
+          address: '',
+          identity: normalizedIdentity,
+          platform: type,
+          displayName: normalizedIdentity,
+          avatar: null,
+          description: null,
+          error: data.error
+        };
       }
       
       return processWeb3BioProfileData(data, normalizedIdentity);
@@ -134,7 +173,7 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
  * Process the web3.bio profile data into our internal format
  */
 function processWeb3BioProfileData(data: any, normalizedIdentity: string): Web3BioProfile | null {
-  if (!data || !data.identity) return null;
+  if (!data) return null;
   
   const profile: Web3BioProfile = {
     address: data.address || '',
@@ -148,7 +187,9 @@ function processWeb3BioProfileData(data: any, normalizedIdentity: string): Web3B
     location: data.location || null,
     header: data.header || null,
     contenthash: data.contenthash || null,
-    links: data.links || {}
+    links: data.links || {},
+    social: data.social || {},
+    aliases: data.aliases || []
   };
   
   // Extract social links
@@ -168,20 +209,6 @@ function processWeb3BioProfileData(data: any, normalizedIdentity: string): Web3B
     if (data.links.reddit?.link) profile.reddit = data.links.reddit.link;
     if (data.links.farcaster?.link) profile.farcaster = data.links.farcaster.link;
     if (data.links.lens?.link) profile.lens = data.links.lens.link;
-  }
-  
-  // Extract social stats
-  if (data.social) {
-    profile.social = {
-      uid: data.social.uid,
-      follower: data.social.follower,
-      following: data.social.following
-    };
-  }
-  
-  // Extract other identities/aliases
-  if (data.aliases) {
-    profile.aliases = data.aliases;
   }
   
   // Cache the avatar if available

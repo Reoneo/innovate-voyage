@@ -24,6 +24,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
   const [searchResults, setSearchResults] = useState<Array<{name: string, address?: string, avatar?: string}>>([]);
   const [hasExecutedSearch, setHasExecutedSearch] = useState(false);
   const [isValidInput, setIsValidInput] = useState(false);
+  const [searchFeedback, setSearchFeedback] = useState<string | null>(null);
   
   // Initialize resolver but don't trigger it automatically
   const { resolvedAddress, resolvedEns, avatarUrl, isLoading, error } = useEnsResolver(
@@ -36,12 +37,14 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
     const checkValidity = async () => {
       if (!searchInput.trim()) {
         setIsValidInput(false);
+        setSearchFeedback(null);
         return;
       }
       
       // Check if it's an Ethereum address
       if (isValidEthereumAddress(searchInput)) {
         setIsValidInput(true);
+        setSearchFeedback("Valid Ethereum address");
         return;
       }
       
@@ -49,22 +52,21 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
       const hasSupportedExtension = SUPPORTED_DOMAINS.some(ext => searchInput.includes(ext));
       if (hasSupportedExtension) {
         setIsValidInput(true);
+        const platform = SUPPORTED_DOMAINS.find(ext => searchInput.includes(ext))?.replace('.', '');
+        setSearchFeedback(`Searching for ${platform} domain`);
         return;
       }
       
       // If no extension, assume it might be a plain ENS name
       if (!searchInput.includes('.') && /^[a-zA-Z0-9]+$/.test(searchInput)) {
         setIsValidInput(true);
+        setSearchFeedback("Searching as ENS name");
         return;
       }
       
-      // For other cases, check if web3.bio API can resolve it
-      try {
-        const profile = await fetchWeb3BioProfile(searchInput);
-        setIsValidInput(!!profile);
-      } catch {
-        setIsValidInput(false);
-      }
+      // For other cases, set to valid but show checking message
+      setSearchFeedback("Checking identity...");
+      setIsValidInput(true);
     };
     
     checkValidity();
@@ -78,6 +80,9 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
       return;
     }
     
+    // Set loading feedback
+    setSearchFeedback("Searching...");
+    
     // Set flag to execute the search
     setHasExecutedSearch(true);
     
@@ -85,10 +90,19 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
     try {
       const profile = await fetchWeb3BioProfile(searchInput);
       if (profile) {
-        toast.success(`Found profile for ${profile.displayName || profile.identity}`);
+        if (profile.error) {
+          toast.error(`Error: ${profile.error}`);
+          setSearchFeedback("Profile not found");
+        } else {
+          toast.success(`Found profile for ${profile.displayName || profile.identity}`);
+          setSearchFeedback(`Found: ${profile.displayName || profile.identity}`);
+        }
+      } else {
+        setSearchFeedback("No profile found");
       }
     } catch (error) {
       console.error("Error pre-resolving profile:", error);
+      setSearchFeedback("Error looking up profile");
     }
     
     // Pass the input to the parent component for searching
@@ -109,8 +123,16 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
         address: resolvedAddress,
         avatar: avatarUrl
       }]);
+      
+      if (resolvedEns || resolvedAddress) {
+        setSearchFeedback(`Resolved to ${resolvedEns || resolvedAddress.substring(0, 8) + '...'}`);
+      }
     } else if (hasExecutedSearch && !isLoading && !resolvedEns && !resolvedAddress) {
       setSearchResults([]);
+      
+      if (!searchFeedback || searchFeedback === "Searching...") {
+        setSearchFeedback("No results found");
+      }
     }
   }, [resolvedEns, resolvedAddress, avatarUrl, isLoading, searchInput, hasExecutedSearch]);
 
@@ -152,21 +174,7 @@ const TalentSearch: React.FC<TalentSearchProps> = ({ onSearch, isSearching }) =>
             {searchInput && (
               <div className="mt-1">
                 {isValidInput ? (
-                  <>
-                    {searchInput.includes('.eth') ? 
-                      'Searching for ENS name on Ethereum Mainnet' : 
-                      searchInput.includes('.box') ?
-                        'Searching for Box domain' :
-                        searchInput.includes('.lens') ?
-                          'Searching for Lens profile' :
-                          searchInput.includes('.base.eth') ?
-                            'Searching for Basenames domain' :
-                            searchInput.includes('.linea.eth') ?
-                              'Searching for Linea Name Service domain' :
-                              searchInput.startsWith('0x') ? 
-                                'Valid Ethereum address' : 
-                                'Searching for identity across platforms'}
-                  </>
+                  <>{searchFeedback || "Checking identity..."}</>
                 ) : (
                   <span className="text-red-500">Please enter a valid web3 identity</span>
                 )}

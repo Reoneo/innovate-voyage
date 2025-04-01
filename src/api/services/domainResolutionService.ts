@@ -17,12 +17,12 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
     if (primaryProfile) {
       // Create ENS record from profile data
       const record: ENSRecord = {
-        address: primaryProfile.address,
-        ensName: primaryProfile.identity,
+        address: primaryProfile.address || address,
+        ensName: primaryProfile.identity || address,
         avatar: primaryProfile.avatar || await getRealAvatar(primaryProfile.identity) || generateFallbackAvatar(),
         skills: [], // Will be populated later in the app
         socialProfiles: extractSocialProfiles(primaryProfile),
-        description: primaryProfile.description
+        description: primaryProfile.description || ''
       };
       
       return record;
@@ -54,7 +54,7 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
         avatar: profile.avatar || await getRealAvatar(normalizedName) || generateFallbackAvatar(),
         skills: [], // Will be populated later in the app
         socialProfiles: extractSocialProfiles(profile),
-        description: profile.description
+        description: profile.description || ''
       };
       
       return record;
@@ -74,19 +74,18 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
 async function fetchMultiPlatformProfiles(address: string) {
   try {
     // Use the universal endpoint to get all profiles
-    const response = await fetch(`https://api.web3.bio/profile/${address}`, {
-      headers: {
-        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20`
-      }
-    });
+    const profile = await fetchWeb3BioProfile(address);
     
-    if (!response.ok) {
-      console.warn(`Failed to fetch profiles for ${address}: Status ${response.status}`);
+    if (!profile) {
       return [];
     }
     
-    const data = await response.json();
-    return Array.isArray(data) ? data : [];
+    // If we got a single profile object, put it in an array
+    if (!Array.isArray(profile)) {
+      return [profile];
+    }
+    
+    return profile;
   } catch (error) {
     console.error(`Error fetching multiple platform profiles: ${error}`);
     return [];
@@ -99,6 +98,9 @@ async function fetchMultiPlatformProfiles(address: string) {
  */
 function findPrimaryProfile(profiles: any[]) {
   if (profiles.length === 0) return null;
+  
+  // If there's only one profile, return it
+  if (profiles.length === 1) return profiles[0];
   
   // Priority order
   const platformPriority = ['ens', 'basenames', 'linea', 'lens', 'farcaster', 'dotbit', 'unstoppabledomains', 'solana'];

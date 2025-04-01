@@ -67,51 +67,90 @@ export interface Web3BioProfile {
   youtube?: string;
   bluesky?: string;
   discord?: string;
+  farcaster?: string;
+  lens?: string;
+  aliases?: string[];
   links?: {
     website?: {
       link: string;
       handle: string;
+      sources?: string[];
     };
     github?: {
       link: string;
       handle: string;
+      sources?: string[];
     };
     twitter?: {
       link: string;
       handle: string;
+      sources?: string[];
     };
     linkedin?: {
       link: string;
       handle: string;
+      sources?: string[];
     };
     facebook?: {
       link: string;
       handle: string;
+      sources?: string[];
     };
     whatsapp?: {
       link: string;
       handle: string;
+      sources?: string[];
     };
     bluesky?: {
       link: string;
       handle: string;
+      sources?: string[];
     };
     instagram?: {
       link: string;
       handle: string;
+      sources?: string[];
     };
     youtube?: {
       link: string;
       handle: string;
+      sources?: string[];
     };
     telegram?: {
       link: string;
       handle: string;
+      sources?: string[];
     };
     discord?: {
       link: string;
       handle: string;
+      sources?: string[];
+    };
+    farcaster?: {
+      link: string;
+      handle: string;
+      sources?: string[];
+    };
+    lens?: {
+      link: string;
+      handle: string;
+      sources?: string[];
+    };
+    nostr?: {
+      link: string;
+      handle: string;
+      sources?: string[];
+    };
+    opensea?: {
+      link: string;
+      handle: string;
+      sources?: string[];
     };
   };
-  social?: Record<string, any>;
+  social?: {
+    uid?: string | number | null;
+    follower?: number;
+    following?: number;
+  };
+  error?: string;
 }
