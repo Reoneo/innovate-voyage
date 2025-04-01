@@ -1,9 +1,10 @@
+
 import React from 'react';
 import EnsLink from './social/EnsLink';
 import WebLink from './social/WebLink';
 import NoLinks from './social/NoLinks';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { ListFilter } from 'lucide-react';
+import { ListFilter, Globe } from 'lucide-react';
 
 interface SocialLinksProps {
   ensName?: string;
@@ -18,12 +19,12 @@ const SocialLinks: React.FC<SocialLinksProps> = ({
   socials,
   additionalEnsDomains = []
 }) => {
-  const hasSocialLinks = ensName || links.length > 0 || Object.keys(socials).length > 0 || additionalEnsDomains.length > 0;
+  const hasSocialLinks = ensName || links.length > 0 || Object.keys(socials).filter(k => socials[k]).length > 0 || additionalEnsDomains.length > 0;
   
   return (
     <div className="space-y-4">
       {/* Primary ENS Domain */}
-      {ensName && <EnsLink ensName={ensName} />}
+      {ensName && <EnsLink ensName={ensName} isPrimary />}
       
       {/* Additional ENS Domains */}
       {additionalEnsDomains && additionalEnsDomains.length > 0 && (
@@ -52,10 +53,20 @@ const SocialLinks: React.FC<SocialLinksProps> = ({
         </div>
       )}
       
-      {/* Other links */}
-      {links.map((link, index) => (
-        <WebLink key={index} url={link} />
-      ))}
+      {/* Website links */}
+      {links && links.length > 0 && (
+        <div className="mb-4">
+          <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
+            <Globe className="h-4 w-4" /> 
+            Websites
+          </h4>
+          <div className="space-y-2">
+            {links.map((link, index) => (
+              <WebLink key={index} url={link} />
+            ))}
+          </div>
+        </div>
+      )}
       
       {/* Show a message if no links are available */}
       {!hasSocialLinks && <NoLinks />}

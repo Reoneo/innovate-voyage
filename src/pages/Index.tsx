@@ -1,5 +1,6 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Briefcase, 
@@ -12,20 +13,41 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { isValidEthereumAddress } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const Index = () => {
   const navigate = useNavigate();
+  const [searchInput, setSearchInput] = useState('');
   
   const handleNavigation = (path: string, e: React.MouseEvent) => {
     e.preventDefault();
     navigate(path);
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchInput.trim()) return;
+    
+    // Validate the input
+    const isEnsName = searchInput.includes('.eth') || searchInput.includes('.box');
+    const isValidInput = isEnsName || isValidEthereumAddress(searchInput);
+    
+    if (!isValidInput) {
+      toast.error('Please enter a valid ENS name (.eth or .box) or Ethereum address');
+      return;
+    }
+    
+    // Navigate directly to the profile page
+    navigate(`/${searchInput}`);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 sm:px-6 py-8">
         {/* Hero Section with Logo */}
-        <div className="flex flex-col items-center text-center mb-20">
+        <div className="flex flex-col items-center text-center mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -42,8 +64,36 @@ const Index = () => {
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gradient mb-4">
               Recruitment.box
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8">
               A decentralized CV & recruitment engine powered by blockchain data
+            </p>
+          </motion.div>
+
+          {/* Search Bar */}
+          <motion.div
+            className="w-full max-w-2xl mx-auto mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            <form onSubmit={handleSearch} className="flex gap-2">
+              <div className="relative flex-grow">
+                <Input
+                  placeholder="vitalik.eth, smith.box or 0x71C7..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="pr-10"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <Search className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </div>
+              <Button type="submit" disabled={!searchInput.trim()}>
+                Search
+              </Button>
+            </form>
+            <p className="text-xs text-center text-muted-foreground mt-2">
+              Search by ENS name or Ethereum address to view blockchain profile
             </p>
           </motion.div>
 
