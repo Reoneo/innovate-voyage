@@ -1,7 +1,7 @@
+
 import { ENSRecord, SkillNFT, Web3Credentials, Web3BioProfile } from './types/web3Types';
 import { BlockchainProfile } from './types/etherscanTypes';
 import { 
-  getRealAvatar, 
   getEnsByAddress, 
   getAddressByEns,
   getAllEnsRecords,
@@ -17,7 +17,7 @@ import {
   getLatestTransactions,
   getTokenTransfers
 } from './services/etherscanService';
-import { fetchWeb3BioProfile } from './utils/web3Utils';
+import { fetchWeb3BioProfile } from './utils/web3/index';
 import { getRealAvatar } from './services/avatar';
 
 // Get all Web3 credentials (ENS + Skill NFTs) by address
