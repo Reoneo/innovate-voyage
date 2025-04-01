@@ -11,6 +11,7 @@ export const socialPlatforms = [
   { key: 'website', type: 'globe' },
   { key: 'telegram', type: 'telegram' },
   { key: 'discord', type: 'discord' },
+  { key: 'reddit', type: 'reddit' },
   { key: 'whatsapp', type: 'whatsapp' }
 ];
 

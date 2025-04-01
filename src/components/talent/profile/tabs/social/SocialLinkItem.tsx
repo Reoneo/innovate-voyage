@@ -1,17 +1,6 @@
 
 import React from 'react';
-import {
-  Github,
-  Linkedin,
-  Facebook,
-  Instagram,
-  Youtube,
-  Globe,
-  Mail,
-  MessageCircle,
-  Twitter,
-  Disc
-} from 'lucide-react';
+import { SocialIcon } from '@/components/ui/social-icon';
 
 interface SocialLinkItemProps {
   platformType: string;
@@ -19,50 +8,16 @@ interface SocialLinkItemProps {
 }
 
 const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) => {
-  // Function to get the appropriate icon based on platform type
-  const getIconForPlatform = () => {
-    switch (platformType) {
-      case 'github':
-        return <Github size={20} className="text-[#333]" />;
-      case 'twitter':
-        return <Twitter size={20} className="text-[#1DA1F2]" />;
-      case 'linkedin':
-        return <Linkedin size={20} className="text-[#0A66C2]" />;
-      case 'facebook':
-        return <Facebook size={20} className="text-[#1877F2]" />;
-      case 'instagram':
-        return <Instagram size={20} className="text-[#E4405F]" />;
-      case 'youtube':
-        return <Youtube size={20} className="text-[#FF0000]" />;
-      case 'bluesky':
-        return (
-          <span className="inline-flex items-center justify-center text-[#0285FF]">
-            <span role="img" aria-label="butterfly" style={{ fontSize: '16px' }}>
-              🦋
-            </span>
-          </span>
-        );
-      case 'globe':
-      case 'website':
-        return <Globe size={20} className="text-[#2E7D32]" />;
-      case 'telegram':
-        return <MessageCircle size={20} className="text-[#0088cc]" />;
-      case 'discord':
-        return <Disc size={20} className="text-[#5865F2]" />;
-      case 'whatsapp':
-        return <MessageCircle size={20} className="text-[#25D366]" />;
-      case 'email':
-      case 'mail':
-        return <Mail size={20} className="text-[#EA4335]" />;
-      default:
-        return <Globe size={20} className="text-[#2E7D32]" />;
-    }
-  };
-
-  // Format URL if needed
-  const formattedUrl = platformType === 'whatsapp' && !url.startsWith('https://') 
-    ? `https://wa.me/${url.replace(/[^0-9]/g, '')}` 
-    : url;
+  // Format URL if needed (e.g., adding proper protocol)
+  let formattedUrl = url;
+  
+  if (platformType === 'whatsapp' && !url.startsWith('https://')) {
+    formattedUrl = `https://wa.me/${url.replace(/[^0-9]/g, '')}`;
+  } else if ((platformType === 'website' || platformType === 'globe') && !url.startsWith('http')) {
+    formattedUrl = `https://${url}`;
+  } else if (platformType === 'email' || platformType === 'mail') {
+    formattedUrl = url.startsWith('mailto:') ? url : `mailto:${url}`;
+  }
 
   return (
     <a 
@@ -73,7 +28,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
       data-social-link={platformType}
     >
-      {getIconForPlatform()}
+      <SocialIcon type={platformType as any} size={20} />
     </a>
   );
 };

@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Github, Twitter, Linkedin, Globe, Mail, Facebook, MessageCircle, Instagram, Youtube, MessageSquare } from 'lucide-react';
+import { Github, Twitter, Linkedin, Globe, Mail, Facebook, MessageCircle, Instagram, Youtube, MessageSquare, ExternalLink } from 'lucide-react';
 
-type SocialIconType = 'github' | 'twitter' | 'linkedin' | 'globe' | 'mail' | 'facebook' | 'whatsapp' | 'messenger' | 'bluesky' | 'instagram' | 'youtube' | 'telegram' | 'reddit' | 'discord';
+type SocialIconType = 'github' | 'twitter' | 'linkedin' | 'globe' | 'mail' | 'facebook' | 'whatsapp' | 'messenger' | 'bluesky' | 'instagram' | 'youtube' | 'telegram' | 'reddit' | 'discord' | 'website' | 'email';
 
 interface SocialIconProps {
   type: SocialIconType;
@@ -25,8 +25,10 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
     case 'linkedin':
       return <Linkedin size={size} className={`text-blue-700 ${iconClasses}`} />;
     case 'globe':
+    case 'website':
       return <Globe size={size} className={`text-green-600 ${iconClasses}`} />;
     case 'mail':
+    case 'email':
       return <Mail size={size} className={`text-purple-500 ${iconClasses}`} />;
     case 'facebook':
       return <Facebook size={size} className={`text-blue-600 ${iconClasses}`} />;
@@ -61,6 +63,6 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
         </div>
       );
     default:
-      return null;
+      return <ExternalLink size={size} className={`text-gray-500 ${iconClasses}`} />;
   }
 };

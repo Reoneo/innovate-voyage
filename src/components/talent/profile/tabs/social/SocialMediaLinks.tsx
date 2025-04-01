@@ -10,11 +10,6 @@ interface SocialMediaLinksProps {
 }
 
 const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading = false }) => {
-  // Filter platforms that have values in socials
-  const availablePlatforms = socialPlatforms.filter(platform => 
-    socials[platform.key] && socials[platform.key].trim() !== ''
-  );
-  
   if (isLoading) {
     return (
       <div className="col-span-full flex items-center gap-2 text-muted-foreground">
@@ -24,13 +19,16 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
     );
   }
   
-  if (availablePlatforms.length === 0 && !socials.email) {
+  // Check if we have any actual social links
+  const hasSocialLinks = Object.values(socials || {}).some(val => val && val.trim() !== '');
+  
+  if (!hasSocialLinks) {
     return <span className="text-sm text-muted-foreground col-span-full">No social links available</span>;
   }
   
   return (
     <>
-      {availablePlatforms.map(platform => 
+      {socialPlatforms.map(platform => 
         socials[platform.key] && (
           <SocialLinkItem 
             key={platform.key}
@@ -39,10 +37,10 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
           />
         )
       )}
-      {socials.email && !availablePlatforms.find(p => p.key === 'email') && (
+      {socials.email && !socialPlatforms.find(p => p.key === 'email') && (
         <SocialLinkItem 
           platformType="mail" 
-          url={`mailto:${socials.email}`} 
+          url={socials.email} 
         />
       )}
     </>
