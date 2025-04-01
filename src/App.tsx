@@ -72,12 +72,14 @@ const App = () => {
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/talent" element={<Talent />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
-            
-            {/* Consolidated profile routes */}
+            {/* Prioritize the recruitment.box route for profile sharing */}
             <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+            {/* Catch-all route for direct profile access */}
             <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-            
-            {/* Catch-all route for 404 */}
+            {/* Legacy routes for backwards compatibility */}
+            <Route path="/talent/:ensName" element={<TalentProfile />} />
+            <Route path="/address/:address" element={<TalentProfile />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           <WalletConnectModal />

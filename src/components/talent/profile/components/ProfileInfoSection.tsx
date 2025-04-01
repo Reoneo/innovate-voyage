@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import ProfileContact from './ProfileContact';
-import SocialMediaLinks from '../tabs/social/SocialMediaLinks';
 
 interface ProfileInfoSectionProps {
   passportId: string;
@@ -14,11 +13,11 @@ interface ProfileInfoSectionProps {
 const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ 
   passportId, 
   ownerAddress, 
+  bio,
   socials 
 }) => {
   return (
-    <div className="w-full space-y-6">
-      {/* Contact information section */}
+    <div className="w-full">
       <ProfileContact 
         passportId={passportId} 
         ownerAddress={ownerAddress}

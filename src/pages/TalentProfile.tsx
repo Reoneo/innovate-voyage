@@ -20,54 +20,57 @@ import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import ProfileHeader from '@/components/talent/profile/ProfileHeader';
 import ProfileNavigationBar from '@/components/talent/profile/ProfileNavigationBar';
 import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
-import ProfileInfoSection from '@/components/talent/profile/components/ProfileInfoSection';
-import { SocialLinks } from '@/components/talent/profile/tabs/social';
 
 const TalentProfile = () => {
-  const { 
-    ensNameOrAddress, 
-    userId // From /recruitment.box/:userId route
-  } = useParams<{ 
-    ensNameOrAddress: string;
+  const { ensName, address: routeAddress, userId, ensNameOrAddress } = useParams<{ 
+    ensName: string; 
+    address: string; 
     userId: string;
+    ensNameOrAddress: string;
   }>();
-  
   const [address, setAddress] = useState<string | undefined>(undefined);
   const [ens, setEns] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   
-  // Determine what identifier we have from the URL
   useEffect(() => {
-    const identifier = userId || ensNameOrAddress;
-    
-    if (identifier) {
-      if (isValidEthereumAddress(identifier)) {
-        setAddress(identifier);
-        setEns(undefined);
+    if (userId) {
+      if (isValidEthereumAddress(userId)) {
+        setAddress(userId);
       } else {
-        const ensValue = identifier.includes('.') ? identifier : `${identifier}.eth`;
+        const ensValue = userId.includes('.') ? userId : `${userId}.eth`;
         setEns(ensValue);
-        setAddress(undefined);
+      }
+    } else if (routeAddress) {
+      setAddress(routeAddress);
+    } else if (ensName && isValidEthereumAddress(ensName)) {
+      setAddress(ensName);
+    } else if (ensName) {
+      const ensValue = ensName.includes('.') ? ensName : `${ensName}.eth`;
+      setEns(ensValue);
+    } else if (ensNameOrAddress) {
+      if (isValidEthereumAddress(ensNameOrAddress)) {
+        setAddress(ensNameOrAddress);
+      } else {
+        const ensValue = ensNameOrAddress.includes('.') ? ensNameOrAddress : `${ensNameOrAddress}.eth`;
+        setEns(ensValue);
       }
     }
 
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
-  }, [ensNameOrAddress, userId]);
+  }, [ensName, routeAddress, userId, ensNameOrAddress]);
 
   const { loading, passport, blockchainProfile, transactions, resolvedEns, blockchainExtendedData, avatarUrl } = useProfileData(
-    ens, 
-    address
+    ens || ((ensName && !isValidEthereumAddress(ensName)) ? ensName : undefined), 
+    address || (ensName && isValidEthereumAddress(ensName) ? ensName : undefined)
   );
   
   console.log('Profile data:', {
     loading,
     passport,
     bio: passport?.bio,
-    blockchainExtendedData,
-    additionalEnsDomains: passport?.additionalEnsDomains,
-    socialLinks: passport?.socials
+    blockchainExtendedData
   });
   
   const { profileRef, exportAsPDF } = usePdfExport();
@@ -96,12 +99,6 @@ const TalentProfile = () => {
     const baseUrl = window.location.origin;
     const profileId = passport?.passport_id || passport?.owner_address;
     return `${baseUrl}/${profileId}`;
-  };
-
-  // Combine social links from all sources
-  const combinedSocials = {
-    ...(passport?.socials || {}),
-    ...(blockchainProfile?.socials || {})
   };
 
   return (
@@ -160,32 +157,9 @@ const TalentProfile = () => {
                 name: passport.name,
                 score: passport.score,
                 category: passport.category,
-                socials: combinedSocials,
-                bio: '' // Remove bio
+                socials: passport.socials || {},
+                bio: passport.bio
               }} />
-              
-              <div className="px-6 pb-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Left column - Profile info */}
-                  <div className="md:col-span-1">
-                    <ProfileInfoSection 
-                      passportId={passport.passport_id}
-                      ownerAddress={passport.owner_address}
-                      socials={combinedSocials}
-                    />
-                  </div>
-                  
-                  {/* Right column - Social Links and Other Data */}
-                  <div className="md:col-span-2">
-                    <SocialLinks 
-                      ensName={resolvedEns || (passport.passport_id?.includes('.eth') ? passport.passport_id : undefined)}
-                      links={blockchainProfile?.ensLinks || []}
-                      socials={combinedSocials}
-                      additionalEnsDomains={passport.additionalEnsDomains}
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
           ) : (
             <ProfileNotFound />

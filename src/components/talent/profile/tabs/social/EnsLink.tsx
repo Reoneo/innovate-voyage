@@ -1,38 +1,24 @@
 
 import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Globe } from 'lucide-react';
 
 interface EnsLinkProps {
   ensName: string;
-  isPrimary?: boolean;
 }
 
-const EnsLink: React.FC<EnsLinkProps> = ({ ensName, isPrimary = false }) => {
-  const ensUrl = `https://app.ens.domains/name/${ensName}`;
-  const avatarUrl = `https://metadata.ens.domains/mainnet/avatar/${ensName}`;
-  
+const EnsLink: React.FC<EnsLinkProps> = ({ ensName }) => {
   return (
-    <div className="flex items-center gap-3">
-      <Avatar className="h-9 w-9">
-        <AvatarImage src={avatarUrl} alt={ensName} />
-        <AvatarFallback>{ensName.substring(0, 2).toUpperCase()}</AvatarFallback>
-      </Avatar>
-      
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <a 
-            href={ensUrl}
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-base font-medium hover:underline"
-          >
-            {ensName}
-          </a>
-          {isPrimary && <Badge variant="outline" className="text-xs">Primary</Badge>}
-        </div>
-        <p className="text-xs text-muted-foreground">ENS Domain</p>
-      </div>
+    <div className="flex items-center gap-2">
+      <Globe className="h-4 w-4" />
+      <a 
+        href={`https://app.ens.domains/name/${ensName}`}
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="text-blue-500 hover:underline"
+        data-social-link="ens"
+      >
+        {ensName}
+      </a>
     </div>
   );
 };
