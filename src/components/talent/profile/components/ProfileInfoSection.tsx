@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import ProfileContact from './ProfileContact';
+import SocialMediaLinks from '../tabs/social/SocialMediaLinks';
 
 interface ProfileInfoSectionProps {
   passportId: string;

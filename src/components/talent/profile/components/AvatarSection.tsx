@@ -166,12 +166,10 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         <h3 className="flex items-center gap-2 text-xl font-medium mb-4">
           <Link className="h-5 w-5" /> Social Links
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <SocialMediaLinks 
-            socials={enhancedSocials} 
-            isLoading={loading} 
-          />
-        </div>
+        <SocialMediaLinks 
+          socials={enhancedSocials} 
+          isLoading={loading} 
+        />
       </div>
     </div>
   );
