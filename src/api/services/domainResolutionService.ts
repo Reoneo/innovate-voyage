@@ -8,41 +8,27 @@ import { generateFallbackAvatar } from '../utils/web3Utils';
 // Lookup ENS record by address
 export async function getEnsByAddress(address: string): Promise<ENSRecord | null> {
   try {
-    // Try to fetch from web3.bio API first
-    const profile = await fetchWeb3BioProfile(address);
+    // Try to fetch from web3.bio API first - supports all domain types
+    const profiles = await fetchMultiPlatformProfiles(address);
     
-    if (profile && profile.identity && (profile.identity.includes('.eth') || profile.identity.includes('.box'))) {
+    // Find the primary profile - prefer ENS, then other domains
+    const primaryProfile = findPrimaryProfile(profiles);
+    
+    if (primaryProfile) {
       // Create ENS record from profile data
       const record: ENSRecord = {
-        address: profile.address,
-        ensName: profile.identity,
-        avatar: profile.avatar || await getRealAvatar(profile.identity) || generateFallbackAvatar(),
+        address: primaryProfile.address,
+        ensName: primaryProfile.identity,
+        avatar: primaryProfile.avatar || await getRealAvatar(primaryProfile.identity) || generateFallbackAvatar(),
         skills: [], // Will be populated later in the app
-        socialProfiles: {
-          twitter: profile.twitter,
-          github: profile.github,
-          linkedin: profile.linkedin,
-          website: profile.website,
-          email: profile.email,
-          facebook: profile.facebook,
-          whatsapp: profile.whatsapp,
-          bluesky: profile.bluesky,
-          instagram: profile.instagram,
-          youtube: profile.youtube,
-          telegram: profile.telegram,
-          reddit: profile.reddit,
-          discord: profile.discord,
-          messenger: profile.messenger,
-          telephone: profile.telephone || profile.whatsapp, // Use WhatsApp as fallback phone
-          location: profile.location
-        },
-        description: profile.description
+        socialProfiles: extractSocialProfiles(primaryProfile),
+        description: primaryProfile.description
       };
       
       return record;
     }
     
-    // Don't fallback to mock data, just return null if no real data found
+    // No real data found
     await delay(300); // Simulate network delay
     return null;
   } catch (error) {
@@ -54,47 +40,109 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
 // Reverse lookup address by ENS name
 export async function getAddressByEns(ensName: string): Promise<ENSRecord | null> {
   try {
-    // Add .eth suffix if not present and no other extension is present
-    const normalizedEns = !ensName.includes('.') ? `${ensName}.eth` : ensName;
+    // Normalize the input
+    const normalizedName = ensName;
     
-    // Handle both .eth and .box domains through web3.bio API
-    const profile = await fetchWeb3BioProfile(normalizedEns);
+    // Handle all domain types through web3.bio API
+    const profile = await fetchWeb3BioProfile(normalizedName);
     
     if (profile && profile.address) {
       // Create ENS record from profile data
       const record: ENSRecord = {
         address: profile.address,
-        ensName: profile.identity || normalizedEns,
-        avatar: profile.avatar || await getRealAvatar(normalizedEns) || generateFallbackAvatar(),
+        ensName: profile.identity || normalizedName,
+        avatar: profile.avatar || await getRealAvatar(normalizedName) || generateFallbackAvatar(),
         skills: [], // Will be populated later in the app
-        socialProfiles: {
-          twitter: profile.twitter,
-          github: profile.github,
-          linkedin: profile.linkedin,
-          website: profile.website,
-          email: profile.email,
-          facebook: profile.facebook,
-          whatsapp: profile.whatsapp,
-          bluesky: profile.bluesky,
-          instagram: profile.instagram,
-          youtube: profile.youtube,
-          telegram: profile.telegram,
-          reddit: profile.reddit,
-          discord: profile.discord,
-          messenger: profile.messenger,
-          telephone: profile.telephone || profile.whatsapp, // Use WhatsApp as fallback phone
-          location: profile.location
-        },
+        socialProfiles: extractSocialProfiles(profile),
         description: profile.description
       };
       
       return record;
     }
     
-    // No mock data fallback - return null if no data found
+    // No data found
     return null;
   } catch (error) {
     console.error(`Error fetching address for ENS ${ensName}:`, error);
     return null;
   }
+}
+
+/**
+ * Fetch profiles from all platforms for a given address
+ */
+async function fetchMultiPlatformProfiles(address: string) {
+  try {
+    // Use the universal endpoint to get all profiles
+    const response = await fetch(`https://api.web3.bio/profile/${address}`, {
+      headers: {
+        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20`
+      }
+    });
+    
+    if (!response.ok) {
+      console.warn(`Failed to fetch profiles for ${address}: Status ${response.status}`);
+      return [];
+    }
+    
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error(`Error fetching multiple platform profiles: ${error}`);
+    return [];
+  }
+}
+
+/**
+ * Find the primary profile from a list of profiles
+ * Priority: ENS > Basenames > Linea > Lens > Others
+ */
+function findPrimaryProfile(profiles: any[]) {
+  if (profiles.length === 0) return null;
+  
+  // Priority order
+  const platformPriority = ['ens', 'basenames', 'linea', 'lens', 'farcaster', 'dotbit', 'unstoppabledomains', 'solana'];
+  
+  // Try to find profiles in priority order
+  for (const platform of platformPriority) {
+    const profile = profiles.find(p => p.platform === platform);
+    if (profile) return profile;
+  }
+  
+  // If no priority match, return the first one
+  return profiles[0];
+}
+
+/**
+ * Extract social profiles from a web3.bio profile
+ */
+function extractSocialProfiles(profile: any) {
+  const socialProfiles: Record<string, string> = {};
+  
+  // Direct properties
+  if (profile.twitter) socialProfiles.twitter = profile.twitter;
+  if (profile.github) socialProfiles.github = profile.github;
+  if (profile.linkedin) socialProfiles.linkedin = profile.linkedin;
+  if (profile.website) socialProfiles.website = profile.website;
+  if (profile.email) socialProfiles.email = profile.email;
+  if (profile.facebook) socialProfiles.facebook = profile.facebook;
+  if (profile.whatsapp) socialProfiles.whatsapp = profile.whatsapp;
+  if (profile.bluesky) socialProfiles.bluesky = profile.bluesky;
+  if (profile.instagram) socialProfiles.instagram = profile.instagram;
+  if (profile.youtube) socialProfiles.youtube = profile.youtube;
+  if (profile.telegram) socialProfiles.telegram = profile.telegram;
+  if (profile.reddit) socialProfiles.reddit = profile.reddit;
+  if (profile.discord) socialProfiles.discord = profile.discord;
+  if (profile.location) socialProfiles.location = profile.location;
+  
+  // Links object
+  if (profile.links) {
+    Object.entries(profile.links).forEach(([key, value]: [string, any]) => {
+      if (value && value.link) {
+        socialProfiles[key] = value.link;
+      }
+    });
+  }
+  
+  return socialProfiles;
 }
