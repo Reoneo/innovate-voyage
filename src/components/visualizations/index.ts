@@ -5,7 +5,5 @@ export * from './skills';
 // Export transaction visualization components
 export { default as TransactionHistoryChart } from './transactions/TransactionHistoryChart';
 
-// Export identity visualization components
+// Export identity visualization components - use proper re-exports
 export * from './identity';
-
-// Export other visualization components as needed
