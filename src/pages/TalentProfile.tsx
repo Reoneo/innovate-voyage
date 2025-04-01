@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
@@ -26,6 +26,7 @@ const TalentProfile = () => {
     userId?: string;
   }>();
   
+  const navigate = useNavigate();
   const [address, setAddress] = useState<string | undefined>(undefined);
   const [ens, setEns] = useState<string | undefined>(undefined);
   const { toast } = useToast();
@@ -35,8 +36,15 @@ const TalentProfile = () => {
     // Handle different URL formats
     let identityToUse: string | undefined;
     
+    // Handle potential host name issues
+    // When using direct URL access like https://recruitment.box/30315.eth
+    if (window.location.hostname === "recruitment.box" && ensNameOrAddress && !domain && !userId) {
+      console.log('Detected direct domain access:', window.location.hostname, ensNameOrAddress);
+      // Split the pathname to get the correct path
+      identityToUse = ensNameOrAddress;
+    }
     // Case 1: /recruitment.box/:userId format
-    if (userId && domain === 'recruitment.box') {
+    else if (userId && domain === 'recruitment.box') {
       identityToUse = `${userId}.box`;
     }
     // Case 2: /:domain/:userId format
@@ -57,11 +65,16 @@ const TalentProfile = () => {
         const ensValue = identityToUse.includes('.') ? identityToUse : `${identityToUse}.eth`;
         setEns(ensValue);
       }
+    } else {
+      // No valid identity found, redirect to home
+      console.error("No valid identity found in URL");
+      navigate('/');
+      return;
     }
 
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
-  }, [ensNameOrAddress, domain, userId]);
+  }, [ensNameOrAddress, domain, userId, navigate]);
 
   // For display in UI
   const displayIdentity = userId && domain ? `${userId}.${domain}` : ensNameOrAddress;

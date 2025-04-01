@@ -62,9 +62,11 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              {/* Route for direct URL access */}
               <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-              {/* New route for direct URLs */}
+              {/* Route for other domain formats */}
               <Route path="/:domain/:userId" element={<TalentProfile />} />
+              {/* Original route for simple ENS names or addresses */}
               <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
