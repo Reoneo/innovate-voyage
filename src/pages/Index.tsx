@@ -16,6 +16,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { toast } from 'sonner';
+import { Helmet } from 'react-helmet-async';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -48,6 +49,21 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Recruitment.box | Decentralized CV & Recruitment Engine</title>
+        <meta name="description" content="A decentralized CV & recruitment engine powered by blockchain data. Find talent, verify skills, and connect with professionals in Web3." />
+        <meta name="keywords" content="blockchain recruitment, web3 cv, decentralized talent, ethereum hiring, blockchain verification" />
+        <meta property="og:title" content="Recruitment.box | Decentralized CV & Recruitment Engine" />
+        <meta property="og:description" content="A decentralized CV & recruitment engine powered by blockchain data. Find talent, verify skills, and connect with professionals in Web3." />
+        <meta property="og:image" content="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Recruitment.box | Decentralized CV & Recruitment Engine" />
+        <meta name="twitter:description" content="A decentralized CV & recruitment engine powered by blockchain data. Find talent, verify skills, and connect with professionals in Web3." />
+        <meta name="twitter:image" content="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" />
+        <link rel="canonical" href="https://recruitment.box" />
+      </Helmet>
+      
       <div className="container mx-auto px-4 sm:px-6 py-8">
         {/* Hero Section with Logo */}
         <div className="flex flex-col items-center text-center mb-16">
@@ -58,10 +74,12 @@ const Index = () => {
             className="mb-8"
           >
             <div className="flex justify-center mb-6">
-              <Avatar className="h-32 w-32 border-4 border-primary shadow-lg">
-                <AvatarImage src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" alt="Profile Logo" />
-                <AvatarFallback>RB</AvatarFallback>
-              </Avatar>
+              <a href="https://smith.box" title="Go to smith.box">
+                <Avatar className="h-32 w-32 border-4 border-primary shadow-lg hover:shadow-xl transition-all duration-300">
+                  <AvatarImage src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" alt="Recruitment.box Logo" />
+                  <AvatarFallback>RB</AvatarFallback>
+                </Avatar>
+              </a>
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gradient mb-4">
@@ -80,9 +98,10 @@ const Index = () => {
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     className="pr-10"
+                    aria-label="Search profiles"
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <Search className="h-4 w-4 text-muted-foreground" />
+                    <Search className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                   </div>
                 </div>
                 <Button type="submit">Search</Button>
@@ -99,7 +118,7 @@ const Index = () => {
             <Button size="lg" variant="outline" disabled title="Coming soon">
               <span className="flex items-center">
                 Browse Jobs
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </span>
             </Button>
           </motion.div>
@@ -118,7 +137,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="glass-card">
               <CardHeader>
-                <Shield className="h-12 w-12 text-primary mb-4" />
+                <Shield className="h-12 w-12 text-primary mb-4" aria-hidden="true" />
                 <CardTitle>Decentralized Identity</CardTitle>
                 <CardDescription>
                   Verify your skills and experience through blockchain credentials
@@ -134,7 +153,7 @@ const Index = () => {
 
             <Card className="glass-card">
               <CardHeader>
-                <Database className="h-12 w-12 text-primary mb-4" />
+                <Database className="h-12 w-12 text-primary mb-4" aria-hidden="true" />
                 <CardTitle>On-Chain Verification</CardTitle>
                 <CardDescription>
                   Your contributions and achievements are cryptographically verified
@@ -150,7 +169,7 @@ const Index = () => {
 
             <Card className="glass-card">
               <CardHeader>
-                <Search className="h-12 w-12 text-primary mb-4" />
+                <Search className="h-12 w-12 text-primary mb-4" aria-hidden="true" />
                 <CardTitle>AI-Powered Matching</CardTitle>
                 <CardDescription>
                   Intelligent algorithms find the perfect job match

@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { HelmetProvider } from 'react-helmet-async';
 import Index from "./pages/Index";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
@@ -53,21 +54,23 @@ const App = () => {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-            <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <WalletConnectModal />
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+              <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <WalletConnectModal />
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 };
 
