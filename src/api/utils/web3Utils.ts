@@ -8,6 +8,9 @@ export const avatarCache: Record<string, string> = {};
 // Store the API key for web3.bio
 const WEB3_BIO_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20";
 
+// In-memory cache for Web3.bio profiles
+const profileCache: Record<string, Web3BioProfile> = {};
+
 // Rate limiting variables
 let lastRequestTime = 0;
 const REQUEST_DELAY_MS = 300; // Minimum time between requests
@@ -16,66 +19,68 @@ const REQUEST_DELAY_MS = 300; // Minimum time between requests
  * Function to determine the endpoint to use based on identity type
  */
 function getWeb3BioEndpoint(identity: string): { endpoint: string, type: string } {
+  // Normalize the identity
+  const normalizedId = identity.toLowerCase().trim();
+  
   // Check if this is an Ethereum address (0x...)
-  if (identity.startsWith('0x') && identity.length === 42) {
-    return { endpoint: `https://api.web3.bio/profile/${identity}`, type: 'address' };
+  if (normalizedId.startsWith('0x') && normalizedId.length === 42) {
+    return { endpoint: `https://api.web3.bio/profile/${normalizedId}`, type: 'address' };
   }
   
   // ENS domains (.eth)
-  if (identity.endsWith('.eth')) {
-    return { endpoint: `https://api.web3.bio/profile/ens/${identity}`, type: 'ens' };
-  }
-  
-  // Base domains (.base.eth)
-  if (identity.endsWith('.base.eth')) {
-    return { endpoint: `https://api.web3.bio/profile/basenames/${identity}`, type: 'basenames' };
-  }
-  
-  // Linea domains (.linea.eth)
-  if (identity.endsWith('.linea.eth')) {
-    return { endpoint: `https://api.web3.bio/profile/linea/${identity}`, type: 'linea' };
+  if (normalizedId.endsWith('.eth')) {
+    return { endpoint: `https://api.web3.bio/profile/ens/${normalizedId}`, type: 'ens' };
   }
   
   // Box domains (.box)
-  if (identity.endsWith('.box')) {
-    // For .box domains, use the general profile endpoint
-    return { endpoint: `https://api.web3.bio/profile/${identity}`, type: 'box' };
+  if (normalizedId.endsWith('.box')) {
+    return { endpoint: `https://api.web3.bio/profile/${normalizedId}`, type: 'box' };
+  }
+  
+  // Base domains (.base.eth)
+  if (normalizedId.endsWith('.base.eth')) {
+    return { endpoint: `https://api.web3.bio/profile/basenames/${normalizedId}`, type: 'basenames' };
+  }
+  
+  // Linea domains (.linea.eth)
+  if (normalizedId.endsWith('.linea.eth')) {
+    return { endpoint: `https://api.web3.bio/profile/linea/${normalizedId}`, type: 'linea' };
   }
   
   // Farcaster identities
-  if (identity.endsWith('.farcaster') || identity.includes('#')) {
-    return { endpoint: `https://api.web3.bio/profile/farcaster/${identity}`, type: 'farcaster' };
+  if (normalizedId.endsWith('.farcaster') || normalizedId.includes('#')) {
+    return { endpoint: `https://api.web3.bio/profile/farcaster/${normalizedId}`, type: 'farcaster' };
   }
   
   // Lens handles
-  if (identity.endsWith('.lens')) {
-    return { endpoint: `https://api.web3.bio/profile/lens/${identity}`, type: 'lens' };
+  if (normalizedId.endsWith('.lens')) {
+    return { endpoint: `https://api.web3.bio/profile/lens/${normalizedId}`, type: 'lens' };
   }
   
   // Unstoppable domains
-  if (identity.endsWith('.crypto') || identity.endsWith('.nft') || 
-      identity.endsWith('.blockchain') || identity.endsWith('.x') || 
-      identity.endsWith('.wallet') || identity.endsWith('.dao')) {
-    return { endpoint: `https://api.web3.bio/profile/unstoppabledomains/${identity}`, type: 'unstoppabledomains' };
+  if (normalizedId.endsWith('.crypto') || normalizedId.endsWith('.nft') || 
+      normalizedId.endsWith('.blockchain') || normalizedId.endsWith('.x') || 
+      normalizedId.endsWith('.wallet') || normalizedId.endsWith('.dao')) {
+    return { endpoint: `https://api.web3.bio/profile/unstoppabledomains/${normalizedId}`, type: 'unstoppabledomains' };
   }
   
   // Solana domains
-  if (identity.endsWith('.sol')) {
-    return { endpoint: `https://api.web3.bio/profile/solana/${identity}`, type: 'solana' };
+  if (normalizedId.endsWith('.sol')) {
+    return { endpoint: `https://api.web3.bio/profile/solana/${normalizedId}`, type: 'solana' };
   }
   
   // .bit domains
-  if (identity.endsWith('.bit')) {
-    return { endpoint: `https://api.web3.bio/profile/dotbit/${identity}`, type: 'dotbit' };
+  if (normalizedId.endsWith('.bit')) {
+    return { endpoint: `https://api.web3.bio/profile/dotbit/${normalizedId}`, type: 'dotbit' };
   }
   
   // If no specific extension but looks like a domain name, treat as ENS
-  if (!identity.startsWith('0x') && !identity.includes('.') && /^[a-zA-Z0-9]+$/.test(identity)) {
-    return { endpoint: `https://api.web3.bio/profile/ens/${identity}.eth`, type: 'ens' };
+  if (!normalizedId.startsWith('0x') && !normalizedId.includes('.') && /^[a-zA-Z0-9]+$/.test(normalizedId)) {
+    return { endpoint: `https://api.web3.bio/profile/ens/${normalizedId}.eth`, type: 'ens' };
   }
   
   // Default to universal endpoint
-  return { endpoint: `https://api.web3.bio/profile/${identity}`, type: 'universal' };
+  return { endpoint: `https://api.web3.bio/profile/${normalizedId}`, type: 'universal' };
 }
 
 /**
@@ -97,12 +102,18 @@ async function enforceRateLimit() {
 export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProfile | null> {
   if (!identity) return null;
   
+  // Check cache first
+  if (profileCache[identity]) {
+    console.log(`Using cached profile for ${identity}`);
+    return profileCache[identity];
+  }
+  
   try {
     // Enforce rate limiting to avoid 429 errors
     await enforceRateLimit();
     
-    // Normalize the identity parameter if needed
-    let normalizedIdentity = identity;
+    // Normalize the identity parameter
+    const normalizedIdentity = identity.toLowerCase().trim();
     
     console.log(`Fetching profile for ${normalizedIdentity}`);
     
@@ -112,8 +123,9 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     
     const response = await fetch(endpoint, {
       headers: {
-        'X-API-KEY': `Bearer ${WEB3_BIO_API_KEY}`,
-        'Authorization': `Bearer ${WEB3_BIO_API_KEY}`
+        'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
       }
     });
     
@@ -137,12 +149,14 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     if (Array.isArray(data)) {
       if (data.length === 0) return null;
       
-      // Use the first profile with a preference for ENS
-      const ensProfile = data.find(p => p.platform === 'ens');
-      const anyProfile = data[0];
-      const profileData = ensProfile || anyProfile;
+      // Use the first profile with a preference for specific types
+      const specificProfile = data.find(p => p.platform === type) || data[0];
+      const profileData = processWeb3BioProfileData(specificProfile, normalizedIdentity);
       
-      return processWeb3BioProfileData(profileData, normalizedIdentity);
+      // Cache the result
+      if (profileData) profileCache[identity] = profileData;
+      
+      return profileData;
     } 
     // Handle single object response (specific platform endpoint)
     else if (data && typeof data === 'object') {
@@ -159,7 +173,12 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
         };
       }
       
-      return processWeb3BioProfileData(data, normalizedIdentity);
+      const profileData = processWeb3BioProfileData(data, normalizedIdentity);
+      
+      // Cache the result
+      if (profileData) profileCache[identity] = profileData;
+      
+      return profileData;
     }
     
     return null;
@@ -183,10 +202,19 @@ function processWeb3BioProfileData(data: any, normalizedIdentity: string): Web3B
     avatar: data.avatar || null,
     description: data.description || null,
     status: data.status || null,
-    email: data.email || null,
     location: data.location || null,
+    telephone: data.telephone || null,
     header: data.header || null,
     contenthash: data.contenthash || null,
+    github: data.github || null,
+    twitter: data.twitter || null,
+    linkedin: data.linkedin || null,
+    website: data.website || null,
+    email: data.email || null,
+    facebook: data.facebook || null,
+    whatsapp: data.whatsapp || null,
+    bluesky: data.bluesky || null,
+    discord: data.discord || null,
     links: data.links || {},
     social: data.social || {},
     aliases: data.aliases || []
