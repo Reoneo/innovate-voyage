@@ -27,7 +27,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   }
   
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <>
       {availablePlatforms.map(platform => 
         socials[platform.key] && (
           <SocialLinkItem 
@@ -43,7 +43,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
           url={`mailto:${socials.email}`} 
         />
       )}
-    </div>
+    </>
   );
 };
 

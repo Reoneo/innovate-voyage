@@ -4,10 +4,12 @@ import ProfileAvatar from './ProfileAvatar';
 import SocialMediaLinks from '../tabs/social/SocialMediaLinks';
 import ProfileContact from './ProfileContact';
 import AddressDisplay from './identity/AddressDisplay';
-import { Link } from 'lucide-react';
+import { Link, Copy } from 'lucide-react';
 import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -22,6 +24,7 @@ interface AvatarSectionProps {
   };
   additionalEnsDomains?: string[];
   bio?: string;
+  displayIdentity?: string;
 }
 
 const AvatarSection: React.FC<AvatarSectionProps> = ({ 
@@ -30,13 +33,13 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   ownerAddress,
   socials = {},
   additionalEnsDomains = [],
-  bio
+  bio,
+  displayIdentity
 }) => {
   const [isOwner, setIsOwner] = useState(false);
   const [enhancedSocials, setEnhancedSocials] = useState<Record<string, string>>(socials as Record<string, string>);
   const [loading, setLoading] = useState(false);
-  
-  console.log('Bio received in AvatarSection:', bio); // Debug log
+  const { toast } = useToast();
   
   useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -49,16 +52,25 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   // Use WhatsApp as telephone if available and no direct telephone
   const telephone = socials.telephone || socials.whatsapp;
   
-  // Check if name is likely an ENS name without the .eth extension
-  const displayName = name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/) 
+  // Determine display name - prefer displayIdentity (URL slug) over name
+  const displayName = displayIdentity || (name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/) 
     ? `${name}.eth` 
-    : name;
+    : name);
+
+  // Copy address to clipboard
+  const copyAddress = () => {
+    navigator.clipboard.writeText(ownerAddress);
+    toast({
+      title: "Address copied",
+      description: "Wallet address has been copied to clipboard"
+    });
+  };
 
   // Fetch ENS social links from Web3.bio
   useEffect(() => {
     const fetchEnsSocials = async () => {
       // Check if we have an ENS name or address
-      let identity = name;
+      let identity = displayIdentity || name;
       
       // Format identity for ENS lookup
       if (identity?.includes('.eth') || identity?.includes('.box')) {
@@ -124,7 +136,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     };
     
     fetchEnsSocials();
-  }, [name, ownerAddress, socials]);
+  }, [displayIdentity, name, ownerAddress, socials]);
   
   return (
     <div className="flex flex-col items-center md:items-start gap-2">
@@ -134,7 +146,18 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       />
       <div className="mt-2 text-center md:text-left">
         <h3 className="text-2xl font-semibold">{displayName}</h3>
-        <AddressDisplay address={ownerAddress} />
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-xs text-muted-foreground truncate max-w-[180px]">{ownerAddress}</span>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-6 w-6" 
+            onClick={copyAddress} 
+            title="Copy address"
+          >
+            <Copy className="h-3 w-3" />
+          </Button>
+        </div>
       </div>
       
       {/* Additional ENS Domains */}
@@ -183,7 +206,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         <h3 className="flex items-center gap-2 text-xl font-medium mb-4">
           <Link className="h-5 w-5" /> Social Links
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <SocialMediaLinks 
             socials={enhancedSocials} 
             isLoading={loading} 

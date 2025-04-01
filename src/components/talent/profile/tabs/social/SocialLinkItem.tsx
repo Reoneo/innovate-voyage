@@ -2,6 +2,14 @@
 import React from 'react';
 import {
   Github,
+  Linkedin,
+  Facebook,
+  Instagram,
+  Youtube,
+  Globe,
+  Mail,
+  MessageCircle,
+  Twitter,
   Disc
 } from 'lucide-react';
 
@@ -15,108 +23,53 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
   const getIconForPlatform = () => {
     switch (platformType) {
       case 'github':
-        return <Github size={24} className="text-[#333]" />;
+        return <Github size={20} className="text-[#333]" />;
       case 'twitter':
-        return (
-          <img 
-            src="https://img.icons8.com/?size=100&id=fJp7hepMryiw&format=png&color=000000" 
-            alt="Twitter"
-            className="w-6 h-6"
-          />
-        );
+        return <Twitter size={20} className="text-[#1DA1F2]" />;
       case 'linkedin':
-        return (
-          <img 
-            src="https://img.icons8.com/?size=100&id=13930&format=png&color=000000" 
-            alt="LinkedIn"
-            className="w-6 h-6"
-          />
-        );
+        return <Linkedin size={20} className="text-[#0A66C2]" />;
       case 'facebook':
-        return (
-          <img 
-            src="https://img.icons8.com/?size=100&id=13912&format=png&color=000000" 
-            alt="Facebook"
-            className="w-6 h-6"
-          />
-        );
+        return <Facebook size={20} className="text-[#1877F2]" />;
       case 'instagram':
-        return (
-          <img 
-            src="https://img.icons8.com/?size=100&id=Xy10Jcu1L2Su&format=png&color=000000" 
-            alt="Instagram"
-            className="w-6 h-6"
-          />
-        );
+        return <Instagram size={20} className="text-[#E4405F]" />;
       case 'youtube':
-        return (
-          <img 
-            src="https://img.icons8.com/?size=100&id=19318&format=png&color=000000" 
-            alt="YouTube"
-            className="w-6 h-6"
-          />
-        );
+        return <Youtube size={20} className="text-[#FF0000]" />;
       case 'bluesky':
         return (
-          <img 
-            src="https://img.icons8.com/?size=100&id=3ovMFy5JDSWq&format=png&color=000000" 
-            alt="Bluesky"
-            className="w-6 h-6"
-          />
+          <span className="inline-flex items-center justify-center text-[#0285FF]">
+            <span role="img" aria-label="butterfly" style={{ fontSize: '16px' }}>
+              🦋
+            </span>
+          </span>
         );
       case 'globe':
       case 'website':
-        return (
-          <img 
-            src="https://img.icons8.com/?size=100&id=1349&format=png&color=000000" 
-            alt="Website"
-            className="w-6 h-6"
-          />
-        );
+        return <Globe size={20} className="text-[#2E7D32]" />;
       case 'telegram':
-        return (
-          <img 
-            src="https://img.icons8.com/?size=100&id=63306&format=png&color=000000" 
-            alt="Telegram"
-            className="w-6 h-6"
-          />
-        );
+        return <MessageCircle size={20} className="text-[#0088cc]" />;
       case 'discord':
-        return <Disc size={24} className="text-[#5865F2]" />;
+        return <Disc size={20} className="text-[#5865F2]" />;
       case 'whatsapp':
-        return (
-          <img 
-            src="https://img.icons8.com/?size=100&id=16713&format=png&color=000000" 
-            alt="WhatsApp"
-            className="w-6 h-6"
-          />
-        );
+        return <MessageCircle size={20} className="text-[#25D366]" />;
       case 'email':
       case 'mail':
-        return (
-          <img 
-            src="https://img.icons8.com/?size=100&id=12580&format=png&color=000000"
-            alt="Email"
-            className="w-6 h-6"
-          />
-        );
+        return <Mail size={20} className="text-[#EA4335]" />;
       default:
-        return (
-          <img 
-            src="https://img.icons8.com/?size=100&id=1349&format=png&color=000000" 
-            alt="Website"
-            className="w-6 h-6"
-          />
-        );
+        return <Globe size={20} className="text-[#2E7D32]" />;
     }
   };
 
+  // Format URL if needed
+  const formattedUrl = platformType === 'whatsapp' && !url.startsWith('https://') 
+    ? `https://wa.me/${url.replace(/[^0-9]/g, '')}` 
+    : url;
+
   return (
     <a 
-      href={url} 
+      href={formattedUrl} 
       target="_blank" 
       rel="noopener noreferrer"
-      className="hover:opacity-70 transition-opacity bg-secondary/30 p-1.5 rounded-full"
+      className="hover:opacity-70 transition-opacity bg-secondary/30 p-2 rounded-full flex items-center justify-center"
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
       data-social-link={platformType}
     >

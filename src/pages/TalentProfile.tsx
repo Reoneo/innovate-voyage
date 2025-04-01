@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { Wallet, LogOut, Save, Download } from 'lucide-react';
+import { Wallet, LogOut, Save, Download, ArrowLeft } from 'lucide-react';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -16,8 +16,6 @@ import { Button } from "@/components/ui/button";
 
 import HeaderContainer from '@/components/talent/profile/components/HeaderContainer';
 import AvatarSection from '@/components/talent/profile/components/AvatarSection';
-import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
-import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
 import VerifiedWorkExperience from '@/components/talent/profile/components/VerifiedWorkExperience';
 
 const TalentProfile = () => {
@@ -64,44 +62,60 @@ const TalentProfile = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-4 md:py-8">
       <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
-        <div className="flex justify-end items-center mb-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="ml-2">
-                <Wallet className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {connectedWallet ? (
-                <>
-                  <DropdownMenuItem onClick={handleSaveChanges}>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Changes
+        {/* Back Button */}
+        <div className="flex items-center mb-4">
+          <Link to="/">
+            <Button variant="outline" size="sm" className="gap-1">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Button>
+          </Link>
+          
+          <div className="ml-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Wallet className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {connectedWallet ? (
+                  <>
+                    <DropdownMenuItem onClick={handleSaveChanges}>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Changes
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDisconnect}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Disconnect
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem onClick={() => document.dispatchEvent(new Event('open-wallet-connect'))}>
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Connect Wallet
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleDisconnect}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Disconnect
-                  </DropdownMenuItem>
-                </>
-              ) : (
-                <DropdownMenuItem onClick={() => document.dispatchEvent(new Event('open-wallet-connect'))}>
-                  <Wallet className="mr-2 h-4 w-4" />
-                  Connect Wallet
+                )}
+                <DropdownMenuItem onClick={exportAsPDF}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export as PDF
                 </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={exportAsPDF}>
-                <Download className="mr-2 h-4 w-4" />
-                Export as PDF
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         
-        {loading ? (
-          <ProfileSkeleton />
-        ) : passport ? (
-          <div ref={profileRef} id="resume-pdf">
-            <HeaderContainer>
+        {/* A4 Profile Page */}
+        <div ref={profileRef} id="resume-pdf">
+          <HeaderContainer>
+            {loading ? (
+              <div className="flex justify-center items-center h-[29.7cm] w-full">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                  <p className="text-muted-foreground">Loading profile data...</p>
+                </div>
+              </div>
+            ) : passport ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Left column with avatar and social links */}
                 <div className="md:col-span-1">
@@ -111,6 +125,7 @@ const TalentProfile = () => {
                     ownerAddress={passport.owner_address}
                     socials={passport.socials}
                     bio={passport.bio}
+                    displayIdentity={ensNameOrAddress}
                   />
                 </div>
                 
@@ -121,11 +136,22 @@ const TalentProfile = () => {
                   />
                 </div>
               </div>
-            </HeaderContainer>
-          </div>
-        ) : (
-          <ProfileNotFound />
-        )}
+            ) : (
+              <div className="flex flex-col items-center justify-center h-[29.7cm] text-center">
+                <h2 className="text-2xl font-bold mb-2">Profile Not Found</h2>
+                <p className="text-muted-foreground mb-6">
+                  We couldn't find a profile for {ensNameOrAddress}
+                </p>
+                <Link to="/">
+                  <Button>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Return to Home
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </HeaderContainer>
+        </div>
       </div>
     </div>
   );
