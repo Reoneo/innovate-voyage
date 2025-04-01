@@ -63,6 +63,8 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+              {/* New route for direct URLs */}
+              <Route path="/:domain/:userId" element={<TalentProfile />} />
               <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

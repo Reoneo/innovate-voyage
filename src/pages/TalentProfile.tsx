@@ -20,25 +20,51 @@ import AvatarSection from '@/components/talent/profile/components/AvatarSection'
 import VerifiedWorkExperience from '@/components/talent/profile/components/VerifiedWorkExperience';
 
 const TalentProfile = () => {
-  const { ensNameOrAddress } = useParams<{ensNameOrAddress: string}>();
+  const { ensNameOrAddress, domain, userId } = useParams<{
+    ensNameOrAddress?: string;
+    domain?: string;
+    userId?: string;
+  }>();
+  
   const [address, setAddress] = useState<string | undefined>(undefined);
   const [ens, setEns] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   
   useEffect(() => {
-    if (ensNameOrAddress) {
-      if (isValidEthereumAddress(ensNameOrAddress)) {
-        setAddress(ensNameOrAddress);
+    // Handle different URL formats
+    let identityToUse: string | undefined;
+    
+    // Case 1: /recruitment.box/:userId format
+    if (userId && domain === 'recruitment.box') {
+      identityToUse = `${userId}.box`;
+    }
+    // Case 2: /:domain/:userId format
+    else if (domain && userId) {
+      identityToUse = `${userId}.${domain}`;
+    }
+    // Case 3: /:ensNameOrAddress format (original)
+    else if (ensNameOrAddress) {
+      identityToUse = ensNameOrAddress;
+    }
+    
+    console.log('Identity to use:', identityToUse);
+    
+    if (identityToUse) {
+      if (isValidEthereumAddress(identityToUse)) {
+        setAddress(identityToUse);
       } else {
-        const ensValue = ensNameOrAddress.includes('.') ? ensNameOrAddress : `${ensNameOrAddress}.eth`;
+        const ensValue = identityToUse.includes('.') ? identityToUse : `${identityToUse}.eth`;
         setEns(ensValue);
       }
     }
 
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
-  }, [ensNameOrAddress]);
+  }, [ensNameOrAddress, domain, userId]);
+
+  // For display in UI
+  const displayIdentity = userId && domain ? `${userId}.${domain}` : ensNameOrAddress;
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
   
@@ -121,7 +147,7 @@ const TalentProfile = () => {
                     ownerAddress={passport.owner_address}
                     socials={passport.socials}
                     bio={passport.bio}
-                    displayIdentity={ensNameOrAddress}
+                    displayIdentity={displayIdentity}
                     additionalEnsDomains={passport.additionalEnsDomains}
                   />
                 </div>
@@ -139,7 +165,7 @@ const TalentProfile = () => {
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <h2 className="text-2xl font-bold mb-2">Profile Not Found</h2>
                 <p className="text-muted-foreground mb-6">
-                  We couldn't find a profile for {ensNameOrAddress}
+                  We couldn't find a profile for {displayIdentity}
                 </p>
                 <Link to="/">
                   <Button>
