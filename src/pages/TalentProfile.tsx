@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import HeaderContainer from '@/components/talent/profile/components/HeaderContainer';
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import AvatarSection from '@/components/talent/profile/components/AvatarSection';
-import VerifiedWorkExperience from '@/components/talent/profile/components/VerifiedWorkExperience';
 
 const TalentProfile = () => {
   const { ensNameOrAddress } = useParams<{ensNameOrAddress: string}>();
@@ -114,7 +113,7 @@ const TalentProfile = () => {
             <HeaderContainer>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Left column with avatar and social links */}
-                <div className="md:col-span-1">
+                <div className="md:col-span-3">
                   <AvatarSection 
                     avatarUrl={avatarUrl || passport.avatar_url}
                     name={passport.name}
@@ -123,13 +122,6 @@ const TalentProfile = () => {
                     bio={passport.bio}
                     displayIdentity={ensNameOrAddress}
                     additionalEnsDomains={passport.additionalEnsDomains}
-                  />
-                </div>
-                
-                {/* Right column with work experience */}
-                <div className="md:col-span-2">
-                  <VerifiedWorkExperience 
-                    walletAddress={passport.owner_address} 
                   />
                 </div>
               </div>
