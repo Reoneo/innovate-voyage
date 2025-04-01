@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -89,7 +88,7 @@ const Index = () => {
               Find talent on the blockchain with our decentralized CV & recruitment engine
             </p>
             
-            {/* Simple Search Form */}
+            {/* Simple Search Form - removing text values */}
             <div className="max-w-md mx-auto mb-8">
               <form onSubmit={handleSearch} className="flex gap-2">
                 <div className="relative flex-grow">

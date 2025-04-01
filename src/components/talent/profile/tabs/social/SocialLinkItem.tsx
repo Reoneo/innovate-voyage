@@ -1,5 +1,8 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
+import { CheckCircle, Copy, ExternalLink } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface SocialLinkItemProps {
   platformType: string;
@@ -7,8 +10,46 @@ interface SocialLinkItemProps {
 }
 
 const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) => {
+  const [copied, setCopied] = useState(false);
+  
   // Format URL if needed (e.g., adding proper protocol)
   let formattedUrl = url;
+  let displayHandle = url;
+  let isExternalLink = true;
+  
+  // Special handling for discord - make it copyable instead of a hyperlink
+  if (platformType === 'discord') {
+    isExternalLink = false;
+    displayHandle = url.replace('@', '');
+    
+    const handleCopyDiscord = () => {
+      navigator.clipboard.writeText(displayHandle);
+      setCopied(true);
+      toast.success('Discord handle copied to clipboard!');
+      
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    };
+    
+    return (
+      <button 
+        onClick={handleCopyDiscord}
+        className="hover:opacity-70 transition-opacity bg-secondary/30 p-2 rounded-full flex items-center justify-center"
+        title={`Copy Discord: ${displayHandle}`}
+        data-social-link={platformType}
+      >
+        <div className="relative">
+          <SocialIcon type="discord" size={20} />
+          {copied ? (
+            <CheckCircle className="absolute -top-1 -right-1 h-3 w-3 text-green-500" />
+          ) : (
+            <Copy className="absolute -top-1 -right-1 h-3 w-3 opacity-70" />
+          )}
+        </div>
+      </button>
+    );
+  }
   
   switch (platformType) {
     case 'whatsapp':
@@ -42,6 +83,11 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
         formattedUrl = `https://linkedin.com/in/${url.replace('@', '')}`;
       }
       break;
+    case 'bluesky':
+      if (!url.startsWith('http')) {
+        formattedUrl = `https://bsky.app/profile/${url.replace('@', '')}`;
+      }
+      break;
     default:
       // Keep as is if it already has a protocol
       if (!url.startsWith('http') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
@@ -59,6 +105,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       data-social-link={platformType}
     >
       <SocialIcon type={platformType as any} size={20} />
+      {isExternalLink && <span className="sr-only">Visit {platformType}</span>}
     </a>
   );
 };
