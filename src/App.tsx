@@ -72,9 +72,8 @@ const App = () => {
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/talent" element={<Talent />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
-            {/* Prioritize the recruitment.box route for profile sharing */}
+            {/* Direct profile access routes - BEFORE other routes to take priority */}
             <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-            {/* Catch-all route for direct profile access */}
             <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
             {/* Legacy routes for backwards compatibility */}
             <Route path="/talent/:ensName" element={<TalentProfile />} />
