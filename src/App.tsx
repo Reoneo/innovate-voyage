@@ -4,26 +4,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { lazy, Suspense, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import Index from "./pages/Index";
+import Jobs from "./pages/Jobs";
+import Talent from "./pages/Talent";
+import JobDetail from "./pages/JobDetail";
+import TalentProfile from "./pages/TalentProfile";
+import NotFound from "./pages/NotFound";
 import WalletConnectModal from "./components/wallet/WalletConnectModal";
-
-// Lazy load pages for better performance
-const Index = lazy(() => import("./pages/Index"));
-const Jobs = lazy(() => import("./pages/Jobs"));
-const Talent = lazy(() => import("./pages/Talent"));
-const JobDetail = lazy(() => import("./pages/JobDetail"));
-const TalentProfile = lazy(() => import("./pages/TalentProfile"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-
-// Create a loading component for suspense
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen bg-background">
-    <div className="flex flex-col items-center space-y-4">
-      <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      <p className="text-muted-foreground">Loading page...</p>
-    </div>
-  </div>
-);
 
 // Create a new QueryClient instance with more aggressive caching
 const queryClient = new QueryClient({
@@ -79,23 +67,21 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/jobs" element={<Jobs />} />
-              <Route path="/talent" element={<Talent />} />
-              <Route path="/jobs/:jobId" element={<JobDetail />} />
-              
-              {/* Consolidated talent profile routes with priority order */}
-              <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-              <Route path="/talent/:ensName" element={<TalentProfile />} />
-              <Route path="/address/:address" element={<TalentProfile />} />
-              <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-              
-              {/* Catch-all route for 404 */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/jobs" element={<Jobs />} />
+            <Route path="/talent" element={<Talent />} />
+            <Route path="/jobs/:jobId" element={<JobDetail />} />
+            {/* Prioritize the recruitment.box route for profile sharing */}
+            <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+            {/* Catch-all route for direct profile access */}
+            <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+            {/* Legacy routes for backwards compatibility */}
+            <Route path="/talent/:ensName" element={<TalentProfile />} />
+            <Route path="/address/:address" element={<TalentProfile />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
           <WalletConnectModal />
         </BrowserRouter>
       </TooltipProvider>

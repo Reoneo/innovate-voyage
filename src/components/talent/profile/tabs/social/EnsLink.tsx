@@ -1,5 +1,5 @@
 
-import React, { memo } from 'react';
+import React from 'react';
 import { Globe } from 'lucide-react';
 
 interface EnsLinkProps {
@@ -7,16 +7,14 @@ interface EnsLinkProps {
 }
 
 const EnsLink: React.FC<EnsLinkProps> = ({ ensName }) => {
-  if (!ensName) return null;
-  
   return (
     <div className="flex items-center gap-2">
-      <Globe className="h-5 w-5 text-primary" />
+      <Globe className="h-4 w-4" />
       <a 
         href={`https://app.ens.domains/name/${ensName}`}
         target="_blank" 
         rel="noopener noreferrer"
-        className="text-blue-500 hover:underline font-medium"
+        className="text-blue-500 hover:underline"
         data-social-link="ens"
       >
         {ensName}
@@ -25,5 +23,4 @@ const EnsLink: React.FC<EnsLinkProps> = ({ ensName }) => {
   );
 };
 
-// Use memo to prevent unnecessary re-renders
-export default memo(EnsLink);
+export default EnsLink;
