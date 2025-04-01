@@ -48,15 +48,12 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     }
   }, [ownerAddress]);
 
-  // Use WhatsApp as telephone if available and no direct telephone
-  const telephone = socials.telephone || socials.whatsapp;
-  
   // Determine display name - prefer displayIdentity (URL slug) over name
   const displayName = displayIdentity || (name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/) 
     ? `${name}.eth` 
     : name);
 
-  // Fetch ENS social links from Web3.bio
+  // Fetch ENS social links from Web3.bio and resolver
   useEffect(() => {
     const fetchEnsSocials = async () => {
       // Check if we have an ENS name or address
@@ -77,6 +74,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       
       setLoading(true);
       try {
+        // Try to get links from both Web3.bio API and ENS resolver
         const profile = await fetchWeb3BioProfile(identity);
         console.log('Web3.bio profile:', profile);
         
@@ -128,8 +126,12 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     fetchEnsSocials();
   }, [displayIdentity, name, ownerAddress, socials]);
   
+  // Use WhatsApp as telephone if available and no direct telephone
+  const telephone = enhancedSocials.telephone || enhancedSocials.whatsapp;
+  
   return (
     <div className="flex flex-col items-center md:items-start gap-2">
+      {/* Avatar and Name section */}
       <ProfileAvatar 
         avatarUrl={avatarUrl} 
         name={name} 
@@ -162,10 +164,11 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         </div>
       )}
       
+      {/* Contact Info */}
       <ProfileContact 
-        email={socials.email}
+        email={enhancedSocials.email}
         telephone={telephone}
-        location={socials.location}
+        location={enhancedSocials.location}
         isOwner={isOwner}
       />
       
@@ -183,6 +186,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         </div>
       )}
       
+      {/* Social Links */}
       <div className="w-full mt-6">
         <h3 className="flex items-center gap-2 text-xl font-medium mb-4">
           <Link className="h-5 w-5" /> Social Links

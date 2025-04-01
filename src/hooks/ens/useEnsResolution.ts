@@ -32,9 +32,19 @@ export function useEnsResolution(ensName?: string, address?: string) {
     try {
       const resolvedAddress = await resolveEnsToAddress(ensName);
       if (resolvedAddress) {
-        const links = await getEnsLinks(ensName, 'mainnet');
-        const avatar = await getEnsAvatar(ensName, 'mainnet');
-        const bio = await getEnsBio(ensName, 'mainnet');
+        // Fetch links, avatar and bio in parallel
+        const [links, avatar, bio] = await Promise.all([
+          getEnsLinks(ensName, 'mainnet'),
+          getEnsAvatar(ensName, 'mainnet'),
+          getEnsBio(ensName, 'mainnet')
+        ]);
+        
+        console.log(`ENS resolution for ${ensName}:`, { 
+          address: resolvedAddress,
+          links,
+          avatar,
+          bio
+        });
         
         setState(prev => ({
           ...prev,
@@ -53,9 +63,19 @@ export function useEnsResolution(ensName?: string, address?: string) {
     try {
       const result = await resolveAddressToEns(address);
       if (result) {
-        const links = await getEnsLinks(result.ensName, 'mainnet');
-        const avatar = await getEnsAvatar(result.ensName, 'mainnet');
-        const bio = await getEnsBio(result.ensName, 'mainnet');
+        // Fetch links, avatar and bio in parallel
+        const [links, avatar, bio] = await Promise.all([
+          getEnsLinks(result.ensName, 'mainnet'),
+          getEnsAvatar(result.ensName, 'mainnet'),
+          getEnsBio(result.ensName, 'mainnet')
+        ]);
+        
+        console.log(`Address lookup for ${address}:`, {
+          ens: result.ensName,
+          links,
+          avatar,
+          bio
+        });
         
         setState(prev => ({
           ...prev,

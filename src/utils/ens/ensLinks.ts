@@ -52,68 +52,70 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
       'location',
     ];
     
-    // Try to get each social media link
-    await Promise.all(socialKeys.map(async (key) => {
-      try {
-        const value = await resolver.getText(key);
-        if (value) {
-          switch (key) {
-            case 'com.github':
-              socials.github = value;
-              break;
-            case 'com.twitter':
-              socials.twitter = value;
-              break;
-            case 'com.linkedin':
-              socials.linkedin = value;
-              break;
-            case 'url':
-              socials.website = value;
-              break;
-            case 'email':
-              socials.email = value;
-              break;
-            case 'com.facebook':
-              socials.facebook = value;
-              break;
-            case 'org.whatsapp.phone':
-              // Use WhatsApp phone as telephone if no direct phone record exists
-              socials.telephone = socials.telephone || value;
-              socials.whatsapp = value;
-              break;
-            case 'com.facebook.messenger':
-              socials.messenger = value;
-              break;
-            case 'com.discord':
-              socials.discord = value;
-              break;
-            case 'com.reddit':
-              socials.reddit = value;
-              break;
-            case 'org.telegram':
-              socials.telegram = value;
-              break;
-            case 'com.instagram':
-              socials.instagram = value;
-              break;
-            case 'com.youtube':
-              socials.youtube = value;
-              break;
-            case 'bsky.app':
-              socials.bluesky = value;
-              break;
-            case 'phone':
-              socials.telephone = value;
-              break;
-            case 'location':
-              socials.location = value;
-              break;
-          }
+    // Try to get each social media link in parallel for efficiency
+    const results = await Promise.allSettled(
+      socialKeys.map(async key => ({ key, value: await resolver.getText(key) }))
+    );
+    
+    // Process successful results
+    results.forEach(result => {
+      if (result.status === 'fulfilled' && result.value.value) {
+        const { key, value } = result.value;
+        
+        switch (key) {
+          case 'com.github':
+            socials.github = value;
+            break;
+          case 'com.twitter':
+            socials.twitter = value;
+            break;
+          case 'com.linkedin':
+            socials.linkedin = value;
+            break;
+          case 'url':
+            socials.website = value;
+            break;
+          case 'email':
+            socials.email = value;
+            break;
+          case 'com.facebook':
+            socials.facebook = value;
+            break;
+          case 'org.whatsapp.phone':
+            // Use WhatsApp phone as telephone if no direct phone record exists
+            socials.telephone = socials.telephone || value;
+            socials.whatsapp = value;
+            break;
+          case 'com.facebook.messenger':
+            socials.messenger = value;
+            break;
+          case 'com.discord':
+            socials.discord = value;
+            break;
+          case 'com.reddit':
+            socials.reddit = value;
+            break;
+          case 'org.telegram':
+            socials.telegram = value;
+            break;
+          case 'com.instagram':
+            socials.instagram = value;
+            break;
+          case 'com.youtube':
+            socials.youtube = value;
+            break;
+          case 'bsky.app':
+            socials.bluesky = value;
+            break;
+          case 'phone':
+            socials.telephone = value;
+            break;
+          case 'location':
+            socials.location = value;
+            break;
         }
-      } catch (error) {
-        console.warn(`Failed to get ${key} for ${ensName}:`, error);
       }
-    }));
+    });
 
     // Try to get additional ENS names
     // This is a simplified implementation - in a real app you would query an ENS indexer
