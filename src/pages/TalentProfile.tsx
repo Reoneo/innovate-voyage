@@ -66,7 +66,8 @@ const TalentProfile = () => {
     passport,
     bio: passport?.bio,
     blockchainExtendedData,
-    additionalEnsDomains: passport?.additionalEnsDomains
+    additionalEnsDomains: passport?.additionalEnsDomains,
+    socialLinks: passport?.socials
   });
   
   const { profileRef, exportAsPDF } = usePdfExport();
@@ -95,6 +96,12 @@ const TalentProfile = () => {
     const baseUrl = window.location.origin;
     const profileId = passport?.passport_id || passport?.owner_address;
     return `${baseUrl}/${profileId}`;
+  };
+
+  // Combine social links from all sources
+  const combinedSocials = {
+    ...(passport?.socials || {}),
+    ...(blockchainProfile?.socials || {})
   };
 
   return (
@@ -153,8 +160,8 @@ const TalentProfile = () => {
                 name: passport.name,
                 score: passport.score,
                 category: passport.category,
-                socials: passport.socials || {},
-                bio: passport.bio
+                socials: combinedSocials,
+                bio: '' // Remove bio
               }} />
               
               <div className="px-6 pb-6">
@@ -164,8 +171,7 @@ const TalentProfile = () => {
                     <ProfileInfoSection 
                       passportId={passport.passport_id}
                       ownerAddress={passport.owner_address}
-                      bio={passport.bio}
-                      socials={passport.socials || {}}
+                      socials={combinedSocials}
                     />
                   </div>
                   
@@ -174,7 +180,7 @@ const TalentProfile = () => {
                     <SocialLinks 
                       ensName={resolvedEns || (passport.passport_id?.includes('.eth') ? passport.passport_id : undefined)}
                       links={blockchainProfile?.ensLinks || []}
-                      socials={passport.socials || {}}
+                      socials={combinedSocials}
                       additionalEnsDomains={passport.additionalEnsDomains}
                     />
                   </div>

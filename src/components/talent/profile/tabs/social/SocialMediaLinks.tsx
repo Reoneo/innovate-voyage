@@ -22,7 +22,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
     );
   }
   
-  if (availablePlatforms.length === 0) {
+  if (availablePlatforms.length === 0 && !socials.email && !socials.website) {
     return <span className="text-sm text-muted-foreground col-span-full">No social links available</span>;
   }
   
@@ -41,6 +41,12 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
         <SocialLinkItem 
           platformType="mail" 
           url={`mailto:${socials.email}`} 
+        />
+      )}
+      {socials.website && (
+        <SocialLinkItem 
+          platformType="globe" 
+          url={socials.website} 
         />
       )}
     </div>

@@ -30,13 +30,10 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   ownerAddress,
   socials = {},
   additionalEnsDomains = [],
-  bio
 }) => {
   const [isOwner, setIsOwner] = useState(false);
   const [enhancedSocials, setEnhancedSocials] = useState<Record<string, string>>(socials as Record<string, string>);
   const [loading, setLoading] = useState(false);
-  
-  console.log('Bio received in AvatarSection:', bio); // Debug log
   
   useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -164,20 +161,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         location={socials.location}
         isOwner={isOwner}
       />
-      
-      {/* ENS Bio */}
-      {bio && (
-        <div className="w-full mt-4 mb-2 text-sm">
-          <h3 className="text-xl font-medium mb-2">Bio</h3>
-          <p className="text-muted-foreground whitespace-pre-wrap break-words">{bio}</p>
-        </div>
-      )}
-      {!bio && (
-        <div className="w-full mt-4 mb-2 text-sm">
-          <h3 className="text-xl font-medium mb-2">Bio</h3>
-          <p className="text-muted-foreground italic">No bio available</p>
-        </div>
-      )}
       
       <div className="w-full mt-6">
         <h3 className="flex items-center gap-2 text-xl font-medium mb-4">
