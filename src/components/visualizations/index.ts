@@ -6,4 +6,12 @@ export * from './skills';
 export { default as TransactionHistoryChart } from './transactions/TransactionHistoryChart';
 
 // Export identity visualization components - use proper re-exports
-export * from './identity';
+export { 
+  IdNetworkGraph,
+  useIdNetworkData,
+  useNetworkVisualization
+} from './identity';
+
+// Re-export identity components with unique names to avoid conflicts
+export { NetworkNode as IdNetworkNode, NetworkLink as IdNetworkLink } from './identity';
+

@@ -5,6 +5,9 @@ import { delay } from '../jobsApi';
 // Cache for storing already fetched avatars to reduce API calls
 export const avatarCache: Record<string, string> = {};
 
+// Store the API key for web3.bio
+const WEB3_BIO_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20";
+
 // Function to fetch profile from Web3.bio API
 export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProfile | null> {
   if (!identity) return null;
@@ -32,7 +35,11 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     }
     
     console.log(`Fetching profile for ${normalizedIdentity} from ${endpoint}`);
-    const response = await fetch(endpoint);
+    const response = await fetch(endpoint, {
+      headers: {
+        'Authorization': `Bearer ${WEB3_BIO_API_KEY}`
+      }
+    });
     
     if (!response.ok) {
       console.warn(`Failed to fetch Web3.bio profile for ${normalizedIdentity}: Status ${response.status}`);
@@ -182,3 +189,4 @@ export function generateFallbackAvatar() {
   const fallbackIdx = Math.floor(Math.random() * 30) + 1;
   return `https://i.pravatar.cc/300?img=${fallbackIdx}`;
 }
+

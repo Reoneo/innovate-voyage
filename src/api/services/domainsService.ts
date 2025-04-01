@@ -32,116 +32,78 @@ export async function getAllEnsRecords(): Promise<ENSRecord[]> {
   return [...mockEnsRecords];
 }
 
-// Fetch all ENS domains associated with an address using Etherscan API
+// Fetch all ENS domains associated with an address using web3.bio API
 export async function fetchAllEnsDomains(address: string): Promise<string[]> {
   try {
     if (!address) return [];
     
-    // First try to fetch domains using Etherscan API
+    // Try to get real domains from web3.bio API
+    const profile = await fetchWeb3BioProfile(address);
     const domains: string[] = [];
+      
+    if (profile && profile.identity) {
+      if (profile.identity.includes('.eth') || profile.identity.includes('.box')) {
+        domains.push(profile.identity);
+      }
+    }
     
-    try {
-      // Use the Etherscan API to get ENS domain records (ENS Registry)
-      const response = await fetch(`https://api.etherscan.io/api?module=account&action=tokennfttx&address=${address}&contractaddress=0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85&page=1&offset=100&sort=asc&apikey=${ETHERSCAN_API_KEY}`);
-      
-      if (!response.ok) {
-        throw new Error(`Etherscan API error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.status === '1' && data.result) {
-        // Filter for ENS domain transactions
-        // The ENS domain registrar contract address: 0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85
-        const ensTransactions = data.result;
+    // If no domains found through web3.bio, fall back to Etherscan
+    if (domains.length === 0) {
+      try {
+        // Use the Etherscan API to get ENS domain records (ENS Registry)
+        const response = await fetch(`https://api.etherscan.io/api?module=account&action=tokennfttx&address=${address}&contractaddress=0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85&page=1&offset=100&sort=asc&apikey=${ETHERSCAN_API_KEY}`);
         
-        // Process each transaction to extract ENS names
-        for (const tx of ensTransactions) {
-          if (tx.to.toLowerCase() === address.toLowerCase()) {
-            try {
-              // The tokenName is usually in the format: "ENS: domain.eth"
-              const tokenName = tx.tokenName;
-              if (tokenName && tokenName.startsWith("ENS:")) {
-                const ensDomain = tokenName.substring(4).trim();
-                if (ensDomain && !domains.includes(ensDomain)) {
-                  domains.push(ensDomain);
-                }
-              } else if (tx.tokenID) {
-                // If tokenName doesn't work, try to add the tokenID
-                const ensName = `${tx.tokenID}.eth`;
-                if (!domains.includes(ensName)) {
-                  domains.push(ensName);
-                }
-              }
-            } catch (err) {
-              console.error("Error processing ENS transaction:", err);
-            }
-          }
+        if (!response.ok) {
+          throw new Error(`Etherscan API error: ${response.status}`);
         }
-      }
-      
-      // Also fetch NameWrapper wrapped names
-      const nameWrapperResponse = await fetch(`https://api.etherscan.io/api?module=account&action=tokennfttx&address=${address}&contractaddress=0xD4416b13d2B3a9aBae7AcD5D6C2BbDBE25686401&page=1&offset=100&sort=asc&apikey=${ETHERSCAN_API_KEY}`);
-      
-      if (nameWrapperResponse.ok) {
-        const nameWrapperData = await nameWrapperResponse.json();
         
-        if (nameWrapperData.status === '1' && nameWrapperData.result) {
-          // Process NameWrapper transactions
-          const nameWrapperTxs = nameWrapperData.result;
+        const data = await response.json();
+        
+        if (data.status === '1' && data.result) {
+          // Filter for ENS domain transactions
+          // The ENS domain registrar contract address: 0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85
+          const ensTransactions = data.result;
           
-          for (const tx of nameWrapperTxs) {
+          // Process each transaction to extract ENS names
+          for (const tx of ensTransactions) {
             if (tx.to.toLowerCase() === address.toLowerCase()) {
               try {
-                // For NameWrapper, the token name may contain the domain
+                // The tokenName is usually in the format: "ENS: domain.eth"
                 const tokenName = tx.tokenName;
-                if (tokenName && tokenName.includes("Wrapped Name")) {
-                  // Try to extract from token name or use alternative methods
-                  if (tx.tokenSymbol === "WENS") {
-                    // This is a wrapped ENS name
-                    // Try to derive the name from available data
-                    const wrappedName = tx.tokenID.includes(".") 
-                      ? tx.tokenID 
-                      : `${tx.tokenID}.eth`;
-                      
-                    if (!domains.includes(wrappedName)) {
-                      domains.push(wrappedName);
-                    }
+                if (tokenName && tokenName.startsWith("ENS:")) {
+                  const ensDomain = tokenName.substring(4).trim();
+                  if (ensDomain && !domains.includes(ensDomain)) {
+                    domains.push(ensDomain);
+                  }
+                } else if (tx.tokenID) {
+                  // If tokenName doesn't work, try to add the tokenID
+                  const ensName = `${tx.tokenID}.eth`;
+                  if (!domains.includes(ensName)) {
+                    domains.push(ensName);
                   }
                 }
               } catch (err) {
-                console.error("Error processing NameWrapper transaction:", err);
+                console.error("Error processing ENS transaction:", err);
               }
             }
           }
         }
+      } catch (etherscanError) {
+        console.error("Etherscan API error:", etherscanError);
       }
-    } catch (etherscanError) {
-      console.error("Etherscan API error:", etherscanError);
     }
     
-    // If no domains found through Etherscan, fall back to web3.bio
+    // Also check mock data as fallback
     if (domains.length === 0) {
-      // Try to get real domains from web3.bio API
-      const profile = await fetchWeb3BioProfile(address);
+      const mockRecords = await getAllEnsRecords();
+      const additionalDomains = mockRecords
+        .filter(record => record.address.toLowerCase() === address.toLowerCase())
+        .map(record => record.ensName);
       
-      if (profile && profile.identity) {
-        if (profile.identity.includes('.eth') || profile.identity.includes('.box')) {
-          domains.push(profile.identity);
-        }
-        
-        // Also check mock data as fallback
-        const mockRecords = await getAllEnsRecords();
-        const additionalDomains = mockRecords
-          .filter(record => record.address.toLowerCase() === address.toLowerCase())
-          .filter(record => record.ensName !== profile.identity) // Filter out the main identity
-          .map(record => record.ensName);
-        
-        // Add any additional domains found
-        for (const domain of additionalDomains) {
-          if (!domains.includes(domain)) {
-            domains.push(domain);
-          }
+      // Add any additional domains found
+      for (const domain of additionalDomains) {
+        if (!domains.includes(domain)) {
+          domains.push(domain);
         }
       }
     }

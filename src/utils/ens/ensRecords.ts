@@ -1,4 +1,3 @@
-
 import { mainnetProvider } from '../ethereumProviders';
 
 /**
@@ -34,28 +33,26 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
 /**
  * Gets ENS bio data
  */
-export async function getEnsBio(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
+export async function getEnsBio(ensName: string, network = 'mainnet'): Promise<string | null> {
   try {
-    // Always use mainnet provider
-    const provider = mainnetProvider;
-    const resolver = await provider.getResolver(ensName);
+    if (!ensName) return null;
     
-    if (resolver) {
-      // Try to get description/bio from ENS records
-      try {
-        const description = await resolver.getText('description');
-        if (description) {
-          console.log(`Got bio for ${ensName}:`, description);
-          return description;
-        }
-      } catch (error) {
-        console.warn(`Failed to get description for ${ensName}:`, error);
-      }
+    // Use web3.bio API to get description/bio
+    const profile = await fetchWeb3BioProfileForUtil(ensName);
+    if (profile && profile.description) {
+      return profile.description;
     }
     
     return null;
   } catch (error) {
-    console.error(`Error fetching bio for ${ensName}:`, error);
+    console.error(`Error fetching ENS bio: ${error}`);
     return null;
   }
+}
+
+// Helper function to fetch Web3Bio profile for utilities
+async function fetchWeb3BioProfileForUtil(identity: string) {
+  // Import the fetchWeb3BioProfile function dynamically to avoid circular dependencies
+  const { fetchWeb3BioProfile } = await import('../../api/utils/web3Utils');
+  return fetchWeb3BioProfile(identity);
 }
