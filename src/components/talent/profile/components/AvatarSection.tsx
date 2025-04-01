@@ -5,7 +5,8 @@ import ProfileContact from './ProfileContact';
 import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
 import BiographySection from './biography/BiographySection';
-import SocialLinksSection from './social/SocialLinksSection';
+import { SocialIcon } from '@/components/ui/social-icon';
+import { socialPlatforms } from '@/constants/socialPlatforms';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -47,6 +48,9 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   // Use WhatsApp as telephone if available and no direct telephone
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
   
+  // Check if we have any social links
+  const hasSocialLinks = Object.keys(normalizedSocials).length > 0;
+  
   return (
     <div className="flex flex-col items-center md:items-start gap-2">
       {/* Avatar */}
@@ -77,7 +81,28 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       <BiographySection bio={bio} identity={displayIdentity} />
       
       {/* Social Links */}
-      <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
+      {hasSocialLinks && (
+        <div className="w-full mt-4 grid grid-cols-4 sm:grid-cols-6 gap-2">
+          {socialPlatforms.map((platform) => 
+            normalizedSocials[platform.key] && (
+              <a 
+                key={platform.key}
+                href={platform.key === 'whatsapp' ? `https://wa.me/${normalizedSocials[platform.key]}` : normalizedSocials[platform.key]} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity bg-secondary/30 p-2 rounded-full flex items-center justify-center"
+                aria-label={`Visit ${platform.key}`}
+                title={platform.type.charAt(0).toUpperCase() + platform.type.slice(1)}
+              >
+                <SocialIcon 
+                  type={platform.type as any} 
+                  size={20}
+                />
+              </a>
+            )
+          )}
+        </div>
+      )}
     </div>
   );
 };
