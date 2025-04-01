@@ -86,7 +86,7 @@ const Index = () => {
               Recruitment.box
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              A decentralized CV & recruitment engine powered by blockchain data
+              Find talent on the blockchain with our decentralized CV & recruitment engine
             </p>
             
             {/* Simple Search Form */}
@@ -188,7 +188,7 @@ const Index = () => {
         {/* Roadmap Section - Replacing the CTA Section */}
         <div className="py-16 text-center">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold mb-6">Product Roadmap</h2>
+            <h2 className="text-3xl font-bold mb-6">Roadmap</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
               <div className="border border-muted rounded-lg p-6 bg-card">
                 <div className="flex items-center mb-3">
