@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileContact from './ProfileContact';
 import NameSection from './identity/NameSection';
@@ -74,10 +74,10 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       />
       
       {/* ENS Bio */}
-      <BiographySection bio={bio} />
+      <BiographySection bio={bio} identity={displayIdentity} />
       
       {/* Social Links */}
-      <SocialLinksSection socials={normalizedSocials} />
+      <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
     </div>
   );
 };

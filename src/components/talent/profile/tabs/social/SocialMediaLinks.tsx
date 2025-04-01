@@ -20,7 +20,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   }
   
   // Check if we have any actual social links
-  const hasSocialLinks = Object.values(socials || {}).some(val => val && val.trim() !== '');
+  const hasSocialLinks = Object.entries(socials || {}).some(([key, val]) => val && val.trim() !== '');
   
   if (!hasSocialLinks) {
     return <span className="text-sm text-muted-foreground col-span-full">No social links available</span>;
@@ -28,6 +28,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   
   return (
     <>
+      {/* Display standard social platforms first */}
       {socialPlatforms.map(platform => 
         socials[platform.key] && (
           <SocialLinkItem 
@@ -37,12 +38,22 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
           />
         )
       )}
-      {socials.email && !socialPlatforms.find(p => p.key === 'email') && (
-        <SocialLinkItem 
-          platformType="mail" 
-          url={socials.email} 
-        />
-      )}
+      
+      {/* Handle any custom social links not in our predefined list */}
+      {Object.entries(socials).map(([key, value]) => {
+        // Skip if this platform is already handled above or if value is empty
+        if (!value || socialPlatforms.some(p => p.key === key)) {
+          return null;
+        }
+        
+        return (
+          <SocialLinkItem
+            key={key}
+            platformType={key}
+            url={value}
+          />
+        );
+      })}
     </>
   );
 };
