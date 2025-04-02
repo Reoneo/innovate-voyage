@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { ArrowRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -81,6 +80,14 @@ const HeroSection: React.FC = () => {
             name: `${searchInput}.base.eth`
           });
           
+          // Include .box domain
+          results.push({
+            id: `${searchInput}.box`,
+            type: 'box',
+            icon: "https://pbs.twimg.com/profile_images/1673978200800473088/96dq4nBA_400x400.png",
+            name: `${searchInput}.box`
+          });
+          
           setSearchResults(results);
           setShowResults(true);
         } catch (error) {
@@ -136,6 +143,8 @@ const HeroSection: React.FC = () => {
         return <img src={PLATFORM_ICONS.lens} alt="Lens" className="w-6 h-6 object-contain" />;
       case 'base':
         return <img src={PLATFORM_ICONS.base} alt="Base" className="w-6 h-6 object-contain" />;
+      case 'box':
+        return <img src="https://pbs.twimg.com/profile_images/1673978200800473088/96dq4nBA_400x400.png" alt="Box" className="w-6 h-6 object-contain" />;
       default:
         return <span className="text-xl">●</span>;
     }
@@ -143,20 +152,15 @@ const HeroSection: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center text-center mb-16">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="mb-8"
-      >
+      <div className="mb-8">
         <div className="flex justify-center mb-6">
           <a href="https://smith.box" title="Go to smith.box">
-            {/* Prefetch image to avoid loading delay */}
             <Avatar className="h-32 w-32 border-4 border-primary shadow-lg hover:shadow-xl transition-all duration-300">
               <AvatarImage 
                 src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" 
                 alt="Recruitment.box Logo" 
                 loading="eager"
+                fetchPriority="high"
               />
               <AvatarFallback>RB</AvatarFallback>
             </Avatar>
@@ -215,21 +219,16 @@ const HeroSection: React.FC = () => {
             </Card>
           )}
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div 
-        className="flex flex-col sm:flex-row gap-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-      >
+      <div className="flex flex-col sm:flex-row gap-4">
         <Button size="lg" variant="outline" disabled title="Coming soon">
           <span className="flex items-center">
             Browse Jobs
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </span>
         </Button>
-      </motion.div>
+      </div>
     </div>
   );
 };

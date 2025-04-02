@@ -48,10 +48,13 @@ export function useEnsResolution(ensName?: string, address?: string) {
       if (resolvedAddress) {
         // Fetch links, avatar and bio in parallel
         const [links, avatar, bio, realAvatar] = await Promise.all([
-          getEnsLinks(ensName, 'mainnet'),
-          getEnsAvatar(ensName, 'mainnet'),
-          getEnsBio(ensName, 'mainnet'),
-          getRealAvatar(ensName) // Use the improved avatar fetching service
+          getEnsLinks(ensName, 'mainnet').catch(error => {
+            console.error(`Error fetching ENS links: ${error}`);
+            return { socials: {}, ensLinks: [ensName] }; 
+          }),
+          getEnsAvatar(ensName, 'mainnet').catch(() => null),
+          getEnsBio(ensName, 'mainnet').catch(() => null),
+          getRealAvatar(ensName).catch(() => null) // Use the improved avatar fetching service
         ]);
         
         console.log(`ENS resolution for ${ensName}:`, { 
@@ -65,15 +68,17 @@ export function useEnsResolution(ensName?: string, address?: string) {
         let finalAvatar = realAvatar || avatar;
         
         // If still no avatar, try specific ENS avatar endpoints
-        if (!finalAvatar && ensName.endsWith('.eth')) {
+        if (!finalAvatar) {
           try {
-            const ensAvatarUrl = `https://metadata.ens.domains/mainnet/avatar/${ensName}`;
-            const response = await fetch(ensAvatarUrl, { method: 'HEAD' });
-            if (response.ok) {
-              finalAvatar = ensAvatarUrl;
+            if (ensName.endsWith('.eth')) {
+              finalAvatar = `https://metadata.ens.domains/mainnet/avatar/${ensName}`;
+            } else if (ensName.endsWith('.box')) {
+              finalAvatar = 'https://pbs.twimg.com/profile_images/1673978200800473088/96dq4nBA_400x400.png';
+            } else if (ensName.endsWith('.lens')) {
+              finalAvatar = 'https://img.cryptorank.io/coins/lens_protocol1733845125692.png';
             }
           } catch (avatarError) {
-            console.warn(`Failed to fetch ENS avatar for ${ensName}:`, avatarError);
+            console.warn(`Failed to fetch avatar for ${ensName}:`, avatarError);
           }
         }
         
@@ -110,10 +115,13 @@ export function useEnsResolution(ensName?: string, address?: string) {
       if (result) {
         // Fetch links, avatar and bio in parallel
         const [links, avatar, bio, realAvatar] = await Promise.all([
-          getEnsLinks(result.ensName, 'mainnet'),
-          getEnsAvatar(result.ensName, 'mainnet'),
-          getEnsBio(result.ensName, 'mainnet'),
-          getRealAvatar(result.ensName) // Use the improved avatar fetching service
+          getEnsLinks(result.ensName, 'mainnet').catch(error => {
+            console.error(`Error fetching ENS links: ${error}`);
+            return { socials: {}, ensLinks: [result.ensName] };
+          }),
+          getEnsAvatar(result.ensName, 'mainnet').catch(() => null),
+          getEnsBio(result.ensName, 'mainnet').catch(() => null),
+          getRealAvatar(result.ensName).catch(() => null) // Use the improved avatar fetching service
         ]);
         
         console.log(`Address lookup for ${address}:`, {
@@ -127,15 +135,17 @@ export function useEnsResolution(ensName?: string, address?: string) {
         let finalAvatar = realAvatar || avatar;
         
         // If still no avatar, try specific ENS avatar endpoints
-        if (!finalAvatar && result.ensName.endsWith('.eth')) {
+        if (!finalAvatar) {
           try {
-            const ensAvatarUrl = `https://metadata.ens.domains/mainnet/avatar/${result.ensName}`;
-            const response = await fetch(ensAvatarUrl, { method: 'HEAD' });
-            if (response.ok) {
-              finalAvatar = ensAvatarUrl;
+            if (result.ensName.endsWith('.eth')) {
+              finalAvatar = `https://metadata.ens.domains/mainnet/avatar/${result.ensName}`;
+            } else if (result.ensName.endsWith('.box')) {
+              finalAvatar = 'https://pbs.twimg.com/profile_images/1673978200800473088/96dq4nBA_400x400.png';
+            } else if (result.ensName.endsWith('.lens')) {
+              finalAvatar = 'https://img.cryptorank.io/coins/lens_protocol1733845125692.png';
             }
           } catch (avatarError) {
-            console.warn(`Failed to fetch ENS avatar for ${result.ensName}:`, avatarError);
+            console.warn(`Failed to fetch avatar for ${result.ensName}:`, avatarError);
           }
         }
         

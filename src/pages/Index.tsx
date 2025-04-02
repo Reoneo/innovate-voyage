@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import RoadmapSection from '@/components/home/RoadmapSection';
-import { Mail, Linkedin } from 'lucide-react';
+import { Mail, Linkedin, Globe } from 'lucide-react';
 
 const Index = () => {
   // Preload the logo image when the page loads
@@ -28,6 +28,13 @@ const Index = () => {
         <meta name="twitter:description" content="A decentralized CV & recruitment engine powered by blockchain data. Find talent, verify skills, and connect with professionals in Web3." />
         <meta name="twitter:image" content="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" />
         <link rel="canonical" href="https://recruitment.box" />
+        <link rel="alternate" href="https://www.recruitment.box" />
+        {/* Android SEO - Add logo */}
+        <meta name="application-name" content="Recruitment.box" />
+        <meta name="theme-color" content="#000000" />
+        <link rel="icon" sizes="192x192" href="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" />
+        <link rel="icon" sizes="512x512" href="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" />
+        <link rel="shortcut icon" href="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" />
         {/* Preload key assets */}
         <link rel="preload" href="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" as="image" />
       </Helmet>
@@ -37,7 +44,7 @@ const Index = () => {
         <FeaturesSection />
         <RoadmapSection />
         
-        {/* Contact section with email and LinkedIn */}
+        {/* Contact section with email, website and LinkedIn */}
         <div className="py-8 mt-8 border-t border-gray-200 flex justify-center space-x-6">
           <a 
             href="mailto:hello@smith.box"
@@ -46,6 +53,17 @@ const Index = () => {
           >
             <Mail className="h-5 w-5" />
             <span>hello@smith.box</span>
+          </a>
+          
+          <a 
+            href="https://www.smith.box"
+            className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit our website"
+          >
+            <Globe className="h-5 w-5" />
+            <span>www.smith.box</span>
           </a>
           
           <a 

@@ -16,9 +16,11 @@ export function getWeb3BioEndpoint(identity: string): { endpoint: string, type: 
     return { endpoint: `https://api.web3.bio/profile/ens/${normalizedId}`, type: 'ens' };
   }
   
-  // Box domains (.box)
+  // Box domains (.box) - treat similar to ENS for resolution
   if (normalizedId.endsWith('.box')) {
-    return { endpoint: `https://api.web3.bio/profile/dotbit/${normalizedId}`, type: 'box' };
+    // Try both approaches for .box domains for better compatibility
+    // First try the universal endpoint which works for many domain types
+    return { endpoint: `https://api.web3.bio/profile/${normalizedId}`, type: 'box' };
   }
   
   // Base domains (.base.eth)
