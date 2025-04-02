@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, Box, CircleDollarSign, HardDrive, ListFilter } from 'lucide-react';
 import { truncateAddress } from '@/lib/utils';
-import { TransactionHistoryChart } from '@/components/visualizations/transactions/TransactionHistoryChart';
+import TransactionHistoryChart from '@/components/visualizations/transactions/TransactionHistoryChart';
 
 export interface BlockchainTabProps {
   address?: string;

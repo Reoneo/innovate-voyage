@@ -1,186 +1,109 @@
-
 import { useState, useEffect } from 'react';
-import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ens';
-import { getRealAvatar } from '@/api/services/avatar';
+import { useQuery } from '@tanstack/react-query';
+import { web3Api } from '@/api/web3Api';
 
-interface EnsResolutionState {
-  resolvedAddress: string | undefined;
-  resolvedEns: string | undefined;
-  avatarUrl: string | undefined;
-  ensBio: string | undefined;
-  ensLinks: {
-    socials: Record<string, string>;
-    ensLinks: string[];
-    description?: string;
-    additionalEnsDomains?: string[];
-  };
+// Add a proper type for the ensLinks return value
+interface EnsLinksResult {
+  socials: Record<string, string>;
+  ensLinks: string[];
+  description?: string;
 }
 
+// Update the function to handle description property safely
 export function useEnsResolution(ensName?: string, address?: string) {
-  const [state, setState] = useState<EnsResolutionState>({
-    resolvedAddress: address,
-    resolvedEns: ensName,
-    avatarUrl: undefined,
-    ensBio: undefined,
-    ensLinks: {
-      socials: {},
-      ensLinks: [],
-      additionalEnsDomains: []
-    }
+  const [resolvedAddress, setResolvedAddress] = useState<string | undefined>(address);
+  const [resolvedEns, setResolvedEns] = useState<string | undefined>(ensName);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
+
+  const { data: addressData } = useQuery({
+    queryKey: ['ens', 'name', ensName],
+    queryFn: () => ensName ? web3Api.getAddressByEns(ensName) : null,
+    enabled: !!ensName,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [timeoutError, setTimeoutError] = useState<boolean>(false);
 
-  const resolveEns = async (ensName: string) => {
-    try {
-      // Create a timeout promise
-      const timeoutPromise = new Promise<null>((_, reject) => {
-        setTimeout(() => reject(new Error('Timeout: ENS resolution took too long')), 4000);
-      });
-      
-      // Race between actual resolution and timeout
-      const resolvedAddress = await Promise.race([
-        resolveEnsToAddress(ensName),
-        timeoutPromise
-      ]);
-      
-      if (resolvedAddress) {
-        // Fetch links, avatar and bio in parallel
-        const [links, avatar, bio, realAvatar] = await Promise.all([
-          getEnsLinks(ensName, 'mainnet').catch(error => {
-            console.error(`Error fetching ENS links: ${error}`);
-            return { socials: {}, ensLinks: [ensName] }; 
-          }),
-          getEnsAvatar(ensName, 'mainnet').catch(() => null),
-          getEnsBio(ensName, 'mainnet').catch(() => null),
-          getRealAvatar(ensName).catch(() => null) // Use the improved avatar fetching service
-        ]);
-        
-        console.log(`ENS resolution for ${ensName}:`, { 
-          address: resolvedAddress,
-          links,
-          avatar: avatar || realAvatar,
-          bio
-        });
-        
-        // Enhanced avatar fetching with multiple fallbacks
-        let finalAvatar = realAvatar || avatar;
-        
-        // If still no avatar, try specific ENS avatar endpoints
-        if (!finalAvatar) {
-          try {
-            if (ensName.endsWith('.eth')) {
-              finalAvatar = `https://metadata.ens.domains/mainnet/avatar/${ensName}`;
-            } else if (ensName.endsWith('.box')) {
-              finalAvatar = 'https://pbs.twimg.com/profile_images/1673978200800473088/96dq4nBA_400x400.png';
-            } else if (ensName.endsWith('.lens')) {
-              finalAvatar = 'https://img.cryptorank.io/coins/lens_protocol1733845125692.png';
-            }
-          } catch (avatarError) {
-            console.warn(`Failed to fetch avatar for ${ensName}:`, avatarError);
-          }
-        }
-        
-        // Safely get description from links or use undefined
-        const description = links?.description || undefined;
-        
-        setState(prev => ({
-          ...prev,
-          resolvedAddress,
-          ensLinks: links,
-          avatarUrl: finalAvatar || prev.avatarUrl,
-          ensBio: bio || description || prev.ensBio
-        }));
-      }
-    } catch (error) {
-      console.error(`Error resolving ${ensName}:`, error);
-      if (error instanceof Error && error.message.includes('Timeout')) {
-        setTimeoutError(true);
-      }
-      setError(`Error resolving ${ensName}: ${error}`);
+  const { data: ensData } = useQuery({
+    queryKey: ['ens', 'address', address],
+    queryFn: () => address ? web3Api.getEnsByAddress(address) : null,
+    enabled: !!address,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const { data: avatar } = useQuery({
+    queryKey: ['avatar', ensName],
+    queryFn: () => ensName ? web3Api.getRealAvatar(ensName) : null,
+    enabled: !!ensName,
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    retry: 1, // Reduce retries for avatars since some might not exist
+  });
+
+  useEffect(() => {
+    if (addressData?.address) {
+      setResolvedAddress(addressData.address);
+      setResolvedEns(ensName);
     }
+  }, [addressData, ensName]);
+
+  useEffect(() => {
+    if (ensData?.name) {
+      setResolvedEns(ensData.name);
+      setResolvedAddress(address);
+    }
+  }, [ensData, address]);
+
+  useEffect(() => {
+    if (avatar) {
+      setAvatarUrl(avatar.url);
+    }
+  }, [avatar]);
+
+  const { data: allEnsRecords } = useQuery({
+    queryKey: ['ensRecords', resolvedAddress],
+    queryFn: () => resolvedAddress ? web3Api.getAllEnsRecords() : null,
+    enabled: !!resolvedAddress,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const processEnsRecords = (records: any): EnsLinksResult => {
+    if (!records) {
+      return { socials: {}, ensLinks: [] };
+    }
+
+    // Extract social links from records
+    const socials: Record<string, string> = {};
+    const ensLinks: string[] = [];
+    let description: string | undefined = undefined;
+
+    for (const record of records) {
+      if (record.key.startsWith('social.')) {
+        const service = record.key.substring(7);
+        socials[service] = record.value;
+      } else if (record.key === 'url') {
+        ensLinks.push(record.value);
+      }
+    }
+
+    // Make sure to extract the description
+    if (records.description) {
+      description = records.description;
+    }
+
+    return { socials, ensLinks, description };
   };
 
-  const lookupAddress = async (address: string) => {
-    try {
-      // Create a timeout promise
-      const timeoutPromise = new Promise<null>((_, reject) => {
-        setTimeout(() => reject(new Error('Timeout: Address lookup took too long')), 4000);
-      });
-      
-      // Race between actual lookup and timeout
-      const result = await Promise.race([
-        resolveAddressToEns(address),
-        timeoutPromise
-      ]);
-      
-      if (result) {
-        // Fetch links, avatar and bio in parallel
-        const [links, avatar, bio, realAvatar] = await Promise.all([
-          getEnsLinks(result.ensName, 'mainnet').catch(error => {
-            console.error(`Error fetching ENS links: ${error}`);
-            return { socials: {}, ensLinks: [result.ensName] };
-          }),
-          getEnsAvatar(result.ensName, 'mainnet').catch(() => null),
-          getEnsBio(result.ensName, 'mainnet').catch(() => null),
-          getRealAvatar(result.ensName).catch(() => null) // Use the improved avatar fetching service
-        ]);
-        
-        console.log(`Address lookup for ${address}:`, {
-          ens: result.ensName,
-          links,
-          avatar: avatar || realAvatar,
-          bio
-        });
-        
-        // Enhanced avatar fetching with multiple fallbacks
-        let finalAvatar = realAvatar || avatar;
-        
-        // If still no avatar, try specific ENS avatar endpoints
-        if (!finalAvatar) {
-          try {
-            if (result.ensName.endsWith('.eth')) {
-              finalAvatar = `https://metadata.ens.domains/mainnet/avatar/${result.ensName}`;
-            } else if (result.ensName.endsWith('.box')) {
-              finalAvatar = 'https://pbs.twimg.com/profile_images/1673978200800473088/96dq4nBA_400x400.png';
-            } else if (result.ensName.endsWith('.lens')) {
-              finalAvatar = 'https://img.cryptorank.io/coins/lens_protocol1733845125692.png';
-            }
-          } catch (avatarError) {
-            console.warn(`Failed to fetch avatar for ${result.ensName}:`, avatarError);
-          }
-        }
-        
-        // Safely get description from links or use undefined
-        const description = links?.description || undefined;
-        
-        setState(prev => ({
-          ...prev,
-          resolvedEns: result.ensName,
-          ensLinks: links,
-          avatarUrl: finalAvatar || prev.avatarUrl,
-          ensBio: bio || description || prev.ensBio
-        }));
-      }
-    } catch (error) {
-      console.error(`Error looking up ENS for address ${address}:`, error);
-      if (error instanceof Error && error.message.includes('Timeout')) {
-        setTimeoutError(true);
-      }
-      setError(`Error looking up ENS for address ${address}: ${error}`);
-    }
-  };
+  const linkData = allEnsRecords ? processEnsRecords(allEnsRecords) : null;
 
   return {
-    state,
-    setState,
-    isLoading,
-    setIsLoading,
-    error,
-    setError,
-    resolveEns,
-    lookupAddress,
-    timeoutError
+    resolvedAddress,
+    resolvedEns,
+    avatarUrl,
+    ensLinks: linkData ? { 
+      socials: linkData.socials || {}, 
+      ensLinks: linkData.ensLinks || [],
+      description: linkData.description
+    } : { 
+      socials: {}, 
+      ensLinks: [] 
+    },
   };
 }
