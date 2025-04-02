@@ -41,6 +41,7 @@ export interface Web3Credentials {
   skillNfts: SkillNFT[];
 }
 
+// Updated the social interface to be more flexible
 export interface Web3BioProfile {
   address: string;
   identity: string;
@@ -151,6 +152,7 @@ export interface Web3BioProfile {
     uid?: string | number | null;
     follower?: number;
     following?: number;
+    [key: string]: any; // Add index signature to allow additional properties
   };
   error?: string;
 }

@@ -1,83 +1,133 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import TransactionHistoryChart from '@/components/visualizations/transactions/TransactionHistoryChart';
+import { ArrowUpRight, Box, CircleDollarSign, HardDrive, ListFilter } from 'lucide-react';
+import { truncateAddress } from '@/lib/utils';
+import { TransactionHistoryChart } from '@/components/visualizations/transactions/TransactionHistoryChart';
 
-interface BlockchainTabProps {
-  transactions: any[] | null;
-  address: string;
+export interface BlockchainTabProps {
+  address?: string;
+  ensName?: string;
+  blockchainProfile?: any;
+  transactions?: any[];
 }
 
-const BlockchainTab: React.FC<BlockchainTabProps> = ({ transactions, address }) => {
+const BlockchainTab: React.FC<BlockchainTabProps> = ({ 
+  address,
+  ensName,
+  blockchainProfile,
+  transactions
+}) => {
+  const ethereumScanLink = address 
+    ? `https://etherscan.io/address/${address}`
+    : '';
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Transaction History</CardTitle>
-        <CardDescription>
-          Recent blockchain transactions
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {transactions && transactions.length > 0 ? (
-          <div className="space-y-8">
-            <div className="h-64">
-              <TransactionHistoryChart 
-                transactions={transactions} 
-                address={address}
-                showLabels={true}
-              />
+    <div className="space-y-6">
+      {/* Blockchain Header Info */}
+      <Card className="p-6">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between">
+          <div>
+            <h2 className="text-xl font-medium flex items-center gap-2">
+              <Box className="h-5 w-5" />
+              Blockchain Activity
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {ensName ? `${ensName} (${truncateAddress(address || '')})` : address ? truncateAddress(address) : 'N/A'}
+            </p>
+          </div>
+          
+          {address && (
+            <a 
+              href={ethereumScanLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-sm text-primary hover:underline"
+            >
+              View on Etherscan <ArrowUpRight className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+      </Card>
+      
+      {/* Statistics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Transactions Count */}
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Transactions</p>
+              <p className="text-2xl font-bold">
+                {blockchainProfile?.transactionCount || '0'}
+              </p>
             </div>
-            
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-muted">
-                    <th className="p-2 text-left">Date</th>
-                    <th className="p-2 text-left">Type</th>
-                    <th className="p-2 text-left">Value</th>
-                    <th className="p-2 text-left">Hash</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transactions.slice(0, 10).map((tx, idx) => {
-                    const date = new Date(parseInt(tx.timeStamp) * 1000);
-                    const isSent = tx.from.toLowerCase() === address.toLowerCase();
-                    const value = parseFloat(tx.value) / 1e18;
-                    
-                    return (
-                      <tr key={idx} className="border-t border-border">
-                        <td className="p-2">{date.toLocaleDateString()}</td>
-                        <td className="p-2">
-                          <Badge variant={isSent ? "destructive" : "default"}>
-                            {isSent ? 'Sent' : 'Received'}
-                          </Badge>
-                        </td>
-                        <td className="p-2 font-medium">{value.toFixed(4)} ETH</td>
-                        <td className="p-2 truncate max-w-[150px]">
-                          <a 
-                            href={`https://etherscan.io/tx/${tx.hash}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-blue-500 hover:underline"
-                          >
-                            {tx.hash.substring(0, 8)}...{tx.hash.substring(tx.hash.length - 8)}
-                          </a>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="bg-primary/10 p-3 rounded-full">
+              <ListFilter className="h-5 w-5 text-primary" />
             </div>
           </div>
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            No transaction history found for this address
+        </Card>
+        
+        {/* ETH Balance */}
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">ETH Balance</p>
+              <p className="text-2xl font-bold">
+                {blockchainProfile?.balance 
+                  ? parseFloat(blockchainProfile.balance).toFixed(4)
+                  : '0.0000'}
+              </p>
+            </div>
+            <div className="bg-primary/10 p-3 rounded-full">
+              <CircleDollarSign className="h-5 w-5 text-primary" />
+            </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </Card>
+        
+        {/* First Transaction */}
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">First Transaction</p>
+              <p className="text-lg font-medium">
+                {transactions && transactions.length > 0
+                  ? new Date(parseInt(transactions[transactions.length - 1]?.timeStamp || '0') * 1000).toLocaleDateString()
+                  : 'N/A'}
+              </p>
+            </div>
+            <div className="bg-primary/10 p-3 rounded-full">
+              <HardDrive className="h-5 w-5 text-primary" />
+            </div>
+          </div>
+        </Card>
+        
+        {/* Latest Transaction */}
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Latest Transaction</p>
+              <p className="text-lg font-medium">
+                {transactions && transactions.length > 0
+                  ? new Date(parseInt(transactions[0]?.timeStamp || '0') * 1000).toLocaleDateString()
+                  : 'N/A'}
+              </p>
+            </div>
+            <div className="bg-primary/10 p-3 rounded-full">
+              <ArrowUpRight className="h-5 w-5 text-primary" />
+            </div>
+          </div>
+        </Card>
+      </div>
+      
+      {/* Transaction History Chart */}
+      <Card className="p-6">
+        <h3 className="text-lg font-medium mb-4">Transaction History</h3>
+        <div className="h-80">
+          <TransactionHistoryChart address={address} />
+        </div>
+      </Card>
+    </div>
   );
 };
 

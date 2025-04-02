@@ -28,7 +28,7 @@ const TalentProfile = () => {
   const ensName = isEnsName ? normalizedIdentity : undefined;
   const address = !isEnsName ? normalizedIdentity : undefined;
   
-  const { passport, loading } = useProfileData(ensName, address);
+  const { passport, loading, blockchainProfile, transactions, blockchainExtendedData, resolvedEns } = useProfileData(ensName, address);
   
   // Set a timeout for loading the profile
   useEffect(() => {
@@ -73,31 +73,31 @@ const TalentProfile = () => {
           <SkillsTab 
             skills={passport.skills}
             name={passport.name}
-            blockchainProfile={passport.blockchainProfile}
-            transactions={passport.transactions}
-            address={passport.address}
-            blockchainExtendedData={passport.blockchainExtendedData}
-            avatarUrl={passport.avatarUrl}
-            ensName={passport.ensName}
-            additionalEnsDomains={passport.blockchainExtendedData?.boxDomains}
+            address={passport.owner_address}
+            ensName={resolvedEns}
+            avatarUrl={passport.avatar_url}
+            blockchainProfile={blockchainProfile}
+            transactions={transactions}
+            blockchainExtendedData={blockchainExtendedData}
+            additionalEnsDomains={blockchainExtendedData?.boxDomains}
           />
         );
       case 'blockchain':
         return (
           <BlockchainTab 
-            transactions={passport.transactions}
-            blockchainProfile={passport.blockchainProfile}
-            address={passport.address}
-            ensName={passport.ensName}
+            address={passport.owner_address}
+            ensName={resolvedEns}
+            blockchainProfile={blockchainProfile}
+            transactions={transactions}
           />
         );
       case 'links':
         return (
           <SocialLinks 
-            ensName={passport.ensName}
-            links={passport.profile.links || []}
-            socials={passport.profile.socials || {}}
-            additionalEnsDomains={passport.blockchainExtendedData?.boxDomains}
+            ensName={resolvedEns}
+            links={[]}
+            socials={passport.socials}
+            additionalEnsDomains={blockchainExtendedData?.boxDomains}
           />
         );
       default:
@@ -109,11 +109,11 @@ const TalentProfile = () => {
     <div className="container mx-auto px-4 py-8 min-h-screen">
       <Helmet>
         <title>
-          {passport.name || passport.ensName || passport.address.slice(0, 10)} | Recruitment.box
+          {passport.name || resolvedEns || passport.owner_address.slice(0, 10)} | Recruitment.box
         </title>
         <meta 
           name="description" 
-          content={`View the blockchain CV and skills of ${passport.name || passport.ensName || passport.address.slice(0, 10)} on Recruitment.box.`} 
+          content={`View the blockchain CV and skills of ${passport.name || resolvedEns || passport.owner_address.slice(0, 10)} on Recruitment.box.`} 
         />
       </Helmet>
 

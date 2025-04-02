@@ -82,12 +82,15 @@ export function useEnsResolution(ensName?: string, address?: string) {
           }
         }
         
+        // Safely get description from links or use undefined
+        const description = links?.description || undefined;
+        
         setState(prev => ({
           ...prev,
           resolvedAddress,
           ensLinks: links,
           avatarUrl: finalAvatar || prev.avatarUrl,
-          ensBio: bio || links.description || prev.ensBio
+          ensBio: bio || description || prev.ensBio
         }));
       }
     } catch (error) {
@@ -149,12 +152,15 @@ export function useEnsResolution(ensName?: string, address?: string) {
           }
         }
         
+        // Safely get description from links or use undefined
+        const description = links?.description || undefined;
+        
         setState(prev => ({
           ...prev,
           resolvedEns: result.ensName,
           ensLinks: links,
           avatarUrl: finalAvatar || prev.avatarUrl,
-          ensBio: bio || links.description || prev.ensBio
+          ensBio: bio || description || prev.ensBio
         }));
       }
     } catch (error) {

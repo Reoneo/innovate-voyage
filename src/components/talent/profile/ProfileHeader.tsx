@@ -10,8 +10,8 @@ interface ProfileHeaderProps {
     owner_address: string;
     avatar_url: string;
     name: string;
-    score: number;
-    category: string;
+    score?: number;
+    category?: string;
     socials: {
       github?: string;
       twitter?: string;
@@ -29,9 +29,10 @@ interface ProfileHeaderProps {
     };
     bio?: string;
   };
+  loading?: boolean;
 }
 
-const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
+const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport, loading }) => {
   return (
     <HeaderContainer>
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6 w-full">
@@ -57,4 +58,3 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
 };
 
 export default ProfileHeader;
-
