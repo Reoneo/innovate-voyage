@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ens';
 import { getRealAvatar } from '@/api/services/avatar';
 
@@ -12,6 +12,7 @@ interface EnsResolutionState {
     socials: Record<string, string>;
     ensLinks: string[];
     description?: string;
+    additionalEnsDomains?: string[];
   };
 }
 
@@ -23,15 +24,27 @@ export function useEnsResolution(ensName?: string, address?: string) {
     ensBio: undefined,
     ensLinks: {
       socials: {},
-      ensLinks: []
+      ensLinks: [],
+      additionalEnsDomains: []
     }
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [timeoutError, setTimeoutError] = useState<boolean>(false);
 
   const resolveEns = async (ensName: string) => {
     try {
-      const resolvedAddress = await resolveEnsToAddress(ensName);
+      // Create a timeout promise
+      const timeoutPromise = new Promise<null>((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout: ENS resolution took too long')), 4000);
+      });
+      
+      // Race between actual resolution and timeout
+      const resolvedAddress = await Promise.race([
+        resolveEnsToAddress(ensName),
+        timeoutPromise
+      ]);
+      
       if (resolvedAddress) {
         // Fetch links, avatar and bio in parallel
         const [links, avatar, bio, realAvatar] = await Promise.all([
@@ -48,22 +61,52 @@ export function useEnsResolution(ensName?: string, address?: string) {
           bio
         });
         
+        // Enhanced avatar fetching with multiple fallbacks
+        let finalAvatar = realAvatar || avatar;
+        
+        // If still no avatar, try specific ENS avatar endpoints
+        if (!finalAvatar && ensName.endsWith('.eth')) {
+          try {
+            const ensAvatarUrl = `https://metadata.ens.domains/mainnet/avatar/${ensName}`;
+            const response = await fetch(ensAvatarUrl, { method: 'HEAD' });
+            if (response.ok) {
+              finalAvatar = ensAvatarUrl;
+            }
+          } catch (avatarError) {
+            console.warn(`Failed to fetch ENS avatar for ${ensName}:`, avatarError);
+          }
+        }
+        
         setState(prev => ({
           ...prev,
           resolvedAddress,
           ensLinks: links,
-          avatarUrl: realAvatar || avatar || prev.avatarUrl,
+          avatarUrl: finalAvatar || prev.avatarUrl,
           ensBio: bio || links.description || prev.ensBio
         }));
       }
     } catch (error) {
       console.error(`Error resolving ${ensName}:`, error);
+      if (error instanceof Error && error.message.includes('Timeout')) {
+        setTimeoutError(true);
+      }
+      setError(`Error resolving ${ensName}: ${error}`);
     }
   };
 
   const lookupAddress = async (address: string) => {
     try {
-      const result = await resolveAddressToEns(address);
+      // Create a timeout promise
+      const timeoutPromise = new Promise<null>((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout: Address lookup took too long')), 4000);
+      });
+      
+      // Race between actual lookup and timeout
+      const result = await Promise.race([
+        resolveAddressToEns(address),
+        timeoutPromise
+      ]);
+      
       if (result) {
         // Fetch links, avatar and bio in parallel
         const [links, avatar, bio, realAvatar] = await Promise.all([
@@ -80,16 +123,36 @@ export function useEnsResolution(ensName?: string, address?: string) {
           bio
         });
         
+        // Enhanced avatar fetching with multiple fallbacks
+        let finalAvatar = realAvatar || avatar;
+        
+        // If still no avatar, try specific ENS avatar endpoints
+        if (!finalAvatar && result.ensName.endsWith('.eth')) {
+          try {
+            const ensAvatarUrl = `https://metadata.ens.domains/mainnet/avatar/${result.ensName}`;
+            const response = await fetch(ensAvatarUrl, { method: 'HEAD' });
+            if (response.ok) {
+              finalAvatar = ensAvatarUrl;
+            }
+          } catch (avatarError) {
+            console.warn(`Failed to fetch ENS avatar for ${result.ensName}:`, avatarError);
+          }
+        }
+        
         setState(prev => ({
           ...prev,
           resolvedEns: result.ensName,
           ensLinks: links,
-          avatarUrl: realAvatar || avatar || prev.avatarUrl,
+          avatarUrl: finalAvatar || prev.avatarUrl,
           ensBio: bio || links.description || prev.ensBio
         }));
       }
     } catch (error) {
       console.error(`Error looking up ENS for address ${address}:`, error);
+      if (error instanceof Error && error.message.includes('Timeout')) {
+        setTimeoutError(true);
+      }
+      setError(`Error looking up ENS for address ${address}: ${error}`);
     }
   };
 
@@ -101,6 +164,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
     error,
     setError,
     resolveEns,
-    lookupAddress
+    lookupAddress,
+    timeoutError
   };
 }

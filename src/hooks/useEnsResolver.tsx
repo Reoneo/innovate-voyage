@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useEnsResolution } from './ens/useEnsResolution';
 import { useWeb3BioData } from './ens/useWeb3BioData';
+import { useLensAndFarcaster } from './ens/useLensAndFarcaster';
 
 /**
  * Hook to resolve ENS name and Ethereum address bidirectionally
@@ -23,10 +24,11 @@ export function useEnsResolver(ensName?: string, address?: string) {
     setState,
     isLoading: isLoadingEns,
     setIsLoading,
-    error,
+    error: ensError,
     setError,
     resolveEns,
-    lookupAddress
+    lookupAddress,
+    timeoutError
   } = useEnsResolution(normalizedEnsName, address);
 
   const { isLoading: isLoadingWeb3Bio } = useWeb3BioData(
@@ -35,6 +37,14 @@ export function useEnsResolver(ensName?: string, address?: string) {
     !!isEns,
     (newState) => setState(prev => ({ ...prev, ...newState }))
   );
+
+  // Use our new hook for Lens and Farcaster data
+  const { 
+    lensProfile, 
+    farcasterProfile, 
+    isLoading: isLoadingLensAndFarcaster,
+    error: lensAndFarcasterError 
+  } = useLensAndFarcaster(normalizedEnsName || address);
 
   // Effect to handle ENS resolution
   useEffect(() => {
@@ -56,13 +66,61 @@ export function useEnsResolver(ensName?: string, address?: string) {
     lookupAddress(address).finally(() => setIsLoading(false));
   }, [address, isEns]);
 
+  // Merge social links from all sources
+  useEffect(() => {
+    if (lensProfile || farcasterProfile) {
+      setState(prev => {
+        const updatedSocials = { ...prev.ensLinks.socials };
+        
+        // Add Lens socials
+        if (lensProfile?.socials) {
+          Object.keys(lensProfile.socials).forEach(key => {
+            if (!updatedSocials[key]) {
+              updatedSocials[key] = lensProfile.socials[key];
+            }
+          });
+        }
+        
+        // Add Farcaster socials
+        if (farcasterProfile?.socials) {
+          Object.keys(farcasterProfile.socials).forEach(key => {
+            if (!updatedSocials[key]) {
+              updatedSocials[key] = farcasterProfile.socials[key];
+            }
+          });
+        }
+        
+        // Update bio if not already set
+        const updatedBio = prev.ensBio || 
+                          lensProfile?.bio || 
+                          farcasterProfile?.bio;
+        
+        // Use Lens or Farcaster avatar if ENS avatar is not available
+        const updatedAvatar = prev.avatarUrl || 
+                             lensProfile?.avatar || 
+                             farcasterProfile?.avatar;
+        
+        return {
+          ...prev,
+          avatarUrl: updatedAvatar,
+          ensBio: updatedBio,
+          ensLinks: {
+            ...prev.ensLinks,
+            socials: updatedSocials
+          }
+        };
+      });
+    }
+  }, [lensProfile, farcasterProfile]);
+
   return {
     resolvedAddress: state.resolvedAddress,
     resolvedEns: state.resolvedEns,
     avatarUrl: state.avatarUrl,
     ensBio: state.ensBio,
     ensLinks: state.ensLinks,
-    isLoading: isLoadingEns || isLoadingWeb3Bio,
-    error
+    isLoading: isLoadingEns || isLoadingWeb3Bio || isLoadingLensAndFarcaster,
+    error: ensError || lensAndFarcasterError,
+    timeoutError
   };
 }

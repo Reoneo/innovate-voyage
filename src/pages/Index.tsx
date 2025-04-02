@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import RoadmapSection from '@/components/home/RoadmapSection';
+import { Mail, Linkedin } from 'lucide-react';
 
 const Index = () => {
   // Preload the logo image when the page loads
@@ -35,6 +36,29 @@ const Index = () => {
         <HeroSection />
         <FeaturesSection />
         <RoadmapSection />
+        
+        {/* Contact section with email and LinkedIn */}
+        <div className="py-8 mt-8 border-t border-gray-200 flex justify-center space-x-6">
+          <a 
+            href="mailto:hello@smith.box"
+            className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+            aria-label="Email us"
+          >
+            <Mail className="h-5 w-5" />
+            <span>hello@smith.box</span>
+          </a>
+          
+          <a 
+            href="https://linkedin.com/in/thirdweb"
+            className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Connect on LinkedIn"
+          >
+            <Linkedin className="h-5 w-5" />
+            <span>@thirdweb</span>
+          </a>
+        </div>
       </div>
     </div>
   );

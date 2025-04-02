@@ -30,45 +30,62 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
       return profile.avatar;
     }
     
-    // If it's an ENS name, try multiple fallbacks
+    // Custom icon mappings for different domain types
     if (identity.endsWith('.eth')) {
-      // Try ENS metadata service
-      try {
-        const avatarUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
-        const response = await fetch(avatarUrl, { 
-          method: 'HEAD',
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache'
+      // For ENS domains, try ENS-specific endpoints
+      // Try multiple ENS-specific endpoints
+      const ensAvatarUrls = [
+        `https://metadata.ens.domains/mainnet/avatar/${identity}`,
+        `https://api.ensideas.com/ens/avatar/${identity}?size=400`,
+        `https://avatar.designeard.com/${identity}`
+      ];
+      
+      for (const avatarUrl of ensAvatarUrls) {
+        try {
+          const response = await fetch(avatarUrl, { 
+            method: 'HEAD',
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          });
+          
+          if (response.ok) {
+            console.log(`Found avatar via ${avatarUrl} for ${identity}`);
+            avatarCache[identity] = avatarUrl;
+            return avatarUrl;
           }
-        });
-        if (response.ok) {
-          console.log(`Found avatar via ENS metadata for ${identity}`);
-          avatarCache[identity] = avatarUrl;
-          return avatarUrl;
+        } catch (error) {
+          console.warn(`Failed to fetch avatar from ${avatarUrl} for ${identity}:`, error);
+          // Continue to next URL
         }
-      } catch (ensError) {
-        console.error(`Error fetching ENS avatar from metadata service for ${identity}:`, ensError);
       }
       
-      // Try ENS avatar service
-      try {
-        const avatarUrl = `https://api.ensideas.com/ens/avatar/${identity}?size=400`;
-        const response = await fetch(avatarUrl, { 
-          method: 'HEAD',
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache'
-          }
-        });
-        if (response.ok) {
-          console.log(`Found avatar via ENSideas for ${identity}`);
-          avatarCache[identity] = avatarUrl;
-          return avatarUrl;
-        }
-      } catch (ensError) {
-        console.error(`Error fetching ENS avatar from ENSideas for ${identity}:`, ensError);
-      }
+      // If all ENS-specific methods fail, use a static ENS logo
+      const ensLogo = "https://toppng.com/uploads/preview/ens-logo-ethereum-name-service-11563224806hmo41gaxv3.png";
+      avatarCache[identity] = ensLogo;
+      return ensLogo;
+    } 
+    
+    // For Lens domains, use Lens logo
+    if (identity.endsWith('.lens')) {
+      const lensLogo = "https://img.cryptorank.io/coins/lens_protocol1733845125692.png";
+      avatarCache[identity] = lensLogo;
+      return lensLogo;
+    }
+    
+    // For Base domains, use Base logo
+    if (identity.endsWith('.base.eth') || identity.endsWith('.base')) {
+      const baseLogo = "https://basetradingbots.com/wp-content/uploads/2024/04/base.png";
+      avatarCache[identity] = baseLogo;
+      return baseLogo;
+    }
+    
+    // For Farcaster identities
+    if (identity.includes('farcaster') || identity.includes('#')) {
+      const farcasterLogo = "https://docs.farcaster.xyz/icon.png";
+      avatarCache[identity] = farcasterLogo;
+      return farcasterLogo;
     }
     
     // For .box domains, try specific approach

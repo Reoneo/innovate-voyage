@@ -5,7 +5,7 @@ import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { Wallet, LogOut, Save, Download, ArrowLeft } from 'lucide-react';
+import { Wallet, LogOut, Save, Download, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +18,7 @@ import HeaderContainer from '@/components/talent/profile/components/HeaderContai
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import AvatarSection from '@/components/talent/profile/components/AvatarSection';
 import VerifiedWorkExperience from '@/components/talent/profile/components/VerifiedWorkExperience';
+import { useEnsResolver } from '@/hooks/useEnsResolver';
 
 const TalentProfile = () => {
   const { ensNameOrAddress } = useParams<{ensNameOrAddress: string}>();
@@ -25,9 +26,14 @@ const TalentProfile = () => {
   const [ens, setEns] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
+  const [loadStartTime, setLoadStartTime] = useState<number>(Date.now());
+  const [loadTimeout, setLoadTimeout] = useState<boolean>(false);
   
   useEffect(() => {
     if (ensNameOrAddress) {
+      setLoadStartTime(Date.now());
+      setLoadTimeout(false);
+      
       if (isValidEthereumAddress(ensNameOrAddress)) {
         setAddress(ensNameOrAddress);
       } else {
@@ -40,7 +46,29 @@ const TalentProfile = () => {
     setConnectedWallet(storedWallet);
   }, [ensNameOrAddress]);
 
+  // Use useEnsResolver directly to access the timeoutError
+  const { timeoutError } = useEnsResolver(ens, address);
+  
+  // Get profile data
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
+  
+  // Check for timeout after 4 seconds
+  useEffect(() => {
+    const timeoutCheck = setTimeout(() => {
+      if (loading && Date.now() - loadStartTime > 4000) {
+        setLoadTimeout(true);
+      }
+    }, 4000);
+    
+    return () => clearTimeout(timeoutCheck);
+  }, [loading, loadStartTime]);
+
+  // Update timeout state when we get the timeoutError from useEnsResolver
+  useEffect(() => {
+    if (timeoutError) {
+      setLoadTimeout(true);
+    }
+  }, [timeoutError]);
   
   const { profileRef, exportAsPDF } = usePdfExport();
 
@@ -59,6 +87,29 @@ const TalentProfile = () => {
       description: "Your profile changes have been saved successfully."
     });
   };
+
+  // Show error state if loading takes too long
+  if ((loadTimeout || timeoutError) && loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-4 md:py-8">
+        <div className="container mx-auto px-4">
+          <div className="bg-white rounded-xl shadow-sm p-8 flex flex-col items-center justify-center text-center">
+            <AlertTriangle className="h-12 w-12 text-amber-500 mb-4" />
+            <h2 className="text-2xl font-bold mb-2">Profile Loading Error</h2>
+            <p className="text-muted-foreground mb-6">
+              The profile for <span className="font-medium">{ensNameOrAddress}</span> is taking too long to load. Please try again later.
+            </p>
+            <Link to="/">
+              <Button>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Home
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 md:py-8">
