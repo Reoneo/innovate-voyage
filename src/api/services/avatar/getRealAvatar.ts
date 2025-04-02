@@ -1,5 +1,7 @@
 
 import { avatarCache, fetchWeb3BioProfile, generateFallbackAvatar } from '../../utils/web3/index';
+import { enforceRateLimit } from '../../utils/web3/rateLimiter';
+import { WEB3_BIO_API_KEY } from '../../utils/web3/config';
 
 /**
  * Get real avatar for any domain type using web3.bio
@@ -11,12 +13,14 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
   
   // Check cache first
   if (avatarCache[identity]) {
+    console.log(`Using cached avatar for ${identity}: ${avatarCache[identity]}`);
     return avatarCache[identity];
   }
   
   // If not in cache, fetch from API
   try {
     console.log(`Fetching avatar for ${identity}`);
+    await enforceRateLimit(300); // Ensure we don't hit rate limits
     
     // Try Web3Bio API first - works for all domain types
     const profile = await fetchWeb3BioProfile(identity);
@@ -26,8 +30,9 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
       return profile.avatar;
     }
     
-    // If it's an ENS name, try the metadata.ens.domains fallback
+    // If it's an ENS name, try multiple fallbacks
     if (identity.endsWith('.eth')) {
+      // Try ENS metadata service
       try {
         const avatarUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
         const response = await fetch(avatarUrl, { 
@@ -45,6 +50,25 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
       } catch (ensError) {
         console.error(`Error fetching ENS avatar from metadata service for ${identity}:`, ensError);
       }
+      
+      // Try ENS avatar service
+      try {
+        const avatarUrl = `https://api.ensideas.com/ens/avatar/${identity}?size=400`;
+        const response = await fetch(avatarUrl, { 
+          method: 'HEAD',
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+        if (response.ok) {
+          console.log(`Found avatar via ENSideas for ${identity}`);
+          avatarCache[identity] = avatarUrl;
+          return avatarUrl;
+        }
+      } catch (ensError) {
+        console.error(`Error fetching ENS avatar from ENSideas for ${identity}:`, ensError);
+      }
     }
     
     // For .box domains, try specific approach
@@ -53,7 +77,7 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
         // Try direct web3.bio approach for .box domains
         const boxProfile = await fetch(`https://api.web3.bio/profile/dotbit/${identity}?nocache=${Date.now()}`, {
           headers: {
-            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20`,
+            'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
             'Accept': 'application/json',
             'Cache-Control': 'no-cache'
           }

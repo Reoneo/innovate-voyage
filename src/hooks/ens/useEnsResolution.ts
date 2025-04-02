@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ens';
+import { getRealAvatar } from '@/api/services/avatar';
 
 interface EnsResolutionState {
   resolvedAddress: string | undefined;
@@ -33,16 +34,17 @@ export function useEnsResolution(ensName?: string, address?: string) {
       const resolvedAddress = await resolveEnsToAddress(ensName);
       if (resolvedAddress) {
         // Fetch links, avatar and bio in parallel
-        const [links, avatar, bio] = await Promise.all([
+        const [links, avatar, bio, realAvatar] = await Promise.all([
           getEnsLinks(ensName, 'mainnet'),
           getEnsAvatar(ensName, 'mainnet'),
-          getEnsBio(ensName, 'mainnet')
+          getEnsBio(ensName, 'mainnet'),
+          getRealAvatar(ensName) // Use the improved avatar fetching service
         ]);
         
         console.log(`ENS resolution for ${ensName}:`, { 
           address: resolvedAddress,
           links,
-          avatar,
+          avatar: avatar || realAvatar,
           bio
         });
         
@@ -50,7 +52,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
           ...prev,
           resolvedAddress,
           ensLinks: links,
-          avatarUrl: avatar || prev.avatarUrl,
+          avatarUrl: realAvatar || avatar || prev.avatarUrl,
           ensBio: bio || links.description || prev.ensBio
         }));
       }
@@ -64,16 +66,17 @@ export function useEnsResolution(ensName?: string, address?: string) {
       const result = await resolveAddressToEns(address);
       if (result) {
         // Fetch links, avatar and bio in parallel
-        const [links, avatar, bio] = await Promise.all([
+        const [links, avatar, bio, realAvatar] = await Promise.all([
           getEnsLinks(result.ensName, 'mainnet'),
           getEnsAvatar(result.ensName, 'mainnet'),
-          getEnsBio(result.ensName, 'mainnet')
+          getEnsBio(result.ensName, 'mainnet'),
+          getRealAvatar(result.ensName) // Use the improved avatar fetching service
         ]);
         
         console.log(`Address lookup for ${address}:`, {
           ens: result.ensName,
           links,
-          avatar,
+          avatar: avatar || realAvatar,
           bio
         });
         
@@ -81,7 +84,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
           ...prev,
           resolvedEns: result.ensName,
           ensLinks: links,
-          avatarUrl: avatar || prev.avatarUrl,
+          avatarUrl: realAvatar || avatar || prev.avatarUrl,
           ensBio: bio || links.description || prev.ensBio
         }));
       }

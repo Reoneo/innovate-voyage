@@ -8,8 +8,15 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { toast } from 'sonner';
-import { fetchWeb3BioProfile } from '@/api/utils/web3/profileFetcher';
 import { Card } from '@/components/ui/card';
+
+// Platform icon URLs
+const PLATFORM_ICONS = {
+  ens: "https://toppng.com/uploads/preview/ens-logo-ethereum-name-service-11563224806hmo41gaxv3.png",
+  farcaster: "https://docs.farcaster.xyz/icon.png",
+  lens: "https://img.cryptorank.io/coins/lens_protocol1733845125692.png",
+  base: "https://basetradingbots.com/wp-content/uploads/2024/04/base.png"
+};
 
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
@@ -46,15 +53,15 @@ const HeroSection: React.FC = () => {
           results.push({
             id: `${searchInput}.eth`,
             type: 'ens',
-            icon: 'https://i.pravatar.cc/100?u=ens',
+            icon: PLATFORM_ICONS.ens,
             name: `${searchInput}.eth`
           });
           
-          // Include regular name
+          // Include regular name (now Farcaster)
           results.push({
             id: searchInput,
-            type: 'name',
-            icon: 'https://i.pravatar.cc/100?u=name',
+            type: 'farcaster',
+            icon: PLATFORM_ICONS.farcaster,
             name: searchInput
           });
           
@@ -62,7 +69,7 @@ const HeroSection: React.FC = () => {
           results.push({
             id: `${searchInput}.lens`,
             type: 'lens',
-            icon: 'https://i.pravatar.cc/100?u=lens',
+            icon: PLATFORM_ICONS.lens,
             name: `${searchInput}.lens`
           });
           
@@ -70,7 +77,7 @@ const HeroSection: React.FC = () => {
           results.push({
             id: `${searchInput}.base.eth`,
             type: 'base',
-            icon: 'https://i.pravatar.cc/100?u=base',
+            icon: PLATFORM_ICONS.base,
             name: `${searchInput}.base.eth`
           });
           
@@ -118,17 +125,17 @@ const HeroSection: React.FC = () => {
     setSearchInput('');
   };
   
-  // Get icon for identity type
+  // Get icon for identity type - now using image components instead of text
   const getIdentityIcon = (type: string) => {
     switch (type) {
       case 'ens':
-        return <span className="text-xl">◎</span>;
-      case 'name':
-        return <span className="text-xl">⌂</span>;
+        return <img src={PLATFORM_ICONS.ens} alt="ENS" className="w-6 h-6 object-contain" />;
+      case 'farcaster':
+        return <img src={PLATFORM_ICONS.farcaster} alt="Farcaster" className="w-6 h-6 object-contain" />;
       case 'lens':
-        return <span className="text-xl">🌿</span>;
+        return <img src={PLATFORM_ICONS.lens} alt="Lens" className="w-6 h-6 object-contain" />;
       case 'base':
-        return <span className="text-xl">○</span>;
+        return <img src={PLATFORM_ICONS.base} alt="Base" className="w-6 h-6 object-contain" />;
       default:
         return <span className="text-xl">●</span>;
     }
@@ -144,7 +151,13 @@ const HeroSection: React.FC = () => {
       >
         <div className="flex justify-center mb-6">
           <a href="https://smith.box" title="Go to smith.box">
-            <Avatar className="h-32 w-32 border-4 border-primary shadow-lg hover:shadow-xl transition-all duration-300"><AvatarImage src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" alt="Recruitment.box Logo" />
+            {/* Prefetch image to avoid loading delay */}
+            <Avatar className="h-32 w-32 border-4 border-primary shadow-lg hover:shadow-xl transition-all duration-300">
+              <AvatarImage 
+                src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" 
+                alt="Recruitment.box Logo" 
+                loading="eager"
+              />
               <AvatarFallback>RB</AvatarFallback>
             </Avatar>
           </a>
