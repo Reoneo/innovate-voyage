@@ -3,7 +3,7 @@ import React from 'react';
 import { useIdNetworkData } from './hooks/useIdNetworkData';
 import IdNetworkVisualization from './components/IdNetworkVisualization';
 
-interface IdNetworkGraphProps {
+export interface IdNetworkGraphProps {
   name: string;
   avatarUrl?: string;
   ensName?: string;
@@ -32,6 +32,9 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
           selectedNode={selectedNode}
           setSelectedNode={setSelectedNode}
           avatarUrl={avatarUrl}
+          name={name}
+          ensName={ensName}
+          address={address}
         />
       )}
       

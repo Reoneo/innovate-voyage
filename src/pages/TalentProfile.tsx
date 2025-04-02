@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useProfileData } from '@/hooks/useProfileData';
 import ProfileHeader from '@/components/talent/profile/ProfileHeader';
@@ -11,6 +11,10 @@ import SkillsTab from '@/components/talent/profile/tabs/SkillsTab';
 import BlockchainTab from '@/components/talent/profile/tabs/BlockchainTab';
 import SocialLinks from '@/components/talent/profile/tabs/SocialLinks';
 import ProfileTimeoutError from '@/components/talent/profile/ProfileTimeoutError';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import BlockchainActivity from '@/components/jobs/user-profile/BlockchainActivity';
+import VerifiedWorkExperience from '@/components/talent/profile/components/VerifiedWorkExperience';
 
 // Define interface for URL parameters
 interface TalentProfileParams {
@@ -22,14 +26,11 @@ const TalentProfile = () => {
   const [activeTab, setActiveTab] = useState('skills');
   const [timeoutError, setTimeoutError] = useState(false);
   
-  // Normalize the identity
-  const normalizedIdentity = ensNameOrAddress?.toLowerCase().endsWith('.eth') ||
-    ensNameOrAddress?.toLowerCase().endsWith('.box')
-    ? ensNameOrAddress.toLowerCase()
-    : ensNameOrAddress;
+  // Normalize the identity - only accept .eth and .box domains
+  const normalizedIdentity = ensNameOrAddress?.toLowerCase();
   
   // Parse the identity to decide whether to use it as ENS name or address
-  const isEnsName = normalizedIdentity?.includes('.'); // Check if it contains a dot (e.g., .eth, .box, etc.)
+  const isEnsName = normalizedIdentity?.endsWith('.eth') || normalizedIdentity?.endsWith('.box');
   const ensName = isEnsName ? normalizedIdentity : undefined;
   const address = !isEnsName ? normalizedIdentity : undefined;
   
@@ -119,19 +120,52 @@ const TalentProfile = () => {
         />
       </Helmet>
 
-      <ProfileHeader
-        passport={passport}
-      />
-      
-      <div className="my-6">
-        <ProfileNavigationBar 
-          activeTab={activeTab} 
-          onTabChange={setActiveTab} 
-        />
+      <div className="flex items-center mb-8">
+        <Button variant="ghost" className="mr-2" asChild>
+          <Link to="/">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Link>
+        </Button>
       </div>
 
-      <div className="mb-12">
-        {renderTabContent()}
+      <div className="flex flex-col gap-6">
+        {/* A4 layout with two columns */}
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="flex flex-col md:flex-row">
+            {/* Left column (25%) */}
+            <div className="md:w-1/4 p-6 border-r border-gray-200">
+              <ProfileHeader
+                passport={passport}
+                compact={true}
+              />
+            </div>
+
+            {/* Right column (75%) */}
+            <div className="md:w-3/4 p-6">
+              <div className="mb-8">
+                <h2 className="text-xl font-bold mb-4">Blockchain Experience</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <VerifiedWorkExperience walletAddress={passport.owner_address} />
+                  {passport.owner_address && (
+                    <BlockchainActivity address={passport.owner_address} />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="my-6">
+          <ProfileNavigationBar 
+            activeTab={activeTab} 
+            onTabChange={setActiveTab} 
+          />
+        </div>
+
+        <div className="mb-12">
+          {renderTabContent()}
+        </div>
       </div>
     </div>
   );

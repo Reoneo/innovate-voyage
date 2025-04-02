@@ -1,79 +1,105 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
-export interface TransactionHistoryChartProps {
-  transactions: any[];
+interface Transaction {
+  hash: string;
+  timeStamp: string;
+  from: string;
+  to: string;
+  value: string;
+  gasPrice: string;
+  gasUsed: string;
+  methodId?: string;
 }
 
-const TransactionHistoryChart: React.FC<TransactionHistoryChartProps> = ({ transactions = [] }) => {
+interface TransactionHistoryChartProps {
+  transactions: Transaction[];
+}
+
+const TransactionHistoryChart: React.FC<TransactionHistoryChartProps> = ({ transactions }) => {
   // Group transactions by month
-  const groupedData = React.useMemo(() => {
-    const data: { name: string; transactions: number }[] = [];
+  const groupTransactionsByMonth = () => {
+    const monthlyData: Record<string, { month: string, count: number }> = {};
     
-    if (!transactions || transactions.length === 0) {
-      // Return some placeholder data if no transactions
-      return [
-        { name: "Jan", transactions: 0 },
-        { name: "Feb", transactions: 0 },
-        { name: "Mar", transactions: 0 },
-        { name: "Apr", transactions: 0 },
-      ];
-    }
-    
-    // Create a map of month -> count
-    const monthMap = new Map<string, number>();
-    
-    // Get the last 6 months
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date(now);
-      date.setMonth(now.getMonth() - i);
-      const monthName = date.toLocaleString('default', { month: 'short' });
-      monthMap.set(monthName, 0);
-    }
-    
-    // Count transactions per month
     transactions.forEach(tx => {
-      if (tx.timeStamp) {
-        const txDate = new Date(parseInt(tx.timeStamp) * 1000);
-        const monthName = txDate.toLocaleString('default', { month: 'short' });
-        if (monthMap.has(monthName)) {
-          monthMap.set(monthName, (monthMap.get(monthName) || 0) + 1);
-        }
+      const date = new Date(parseInt(tx.timeStamp) * 1000);
+      const month = date.toLocaleString('default', { month: 'short', year: '2-digit' });
+      
+      if (monthlyData[month]) {
+        monthlyData[month].count++;
+      } else {
+        monthlyData[month] = {
+          month,
+          count: 1
+        };
       }
     });
     
-    // Convert to array format for chart
-    monthMap.forEach((count, month) => {
-      data.push({ name: month, transactions: count });
+    // Return as array sorted by date
+    return Object.values(monthlyData).sort((a, b) => {
+      const dateA = new Date(a.month);
+      const dateB = new Date(b.month);
+      return dateA.getTime() - dateB.getTime();
     });
-    
-    return data;
-  }, [transactions]);
+  };
   
+  const transactionData = groupTransactionsByMonth();
+  
+  if (transactions.length === 0) {
+    return (
+      <Card className="p-6">
+        <h3 className="text-lg font-medium mb-2">Transaction History</h3>
+        <p className="text-muted-foreground">No transaction history available.</p>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="p-4">
-      <h3 className="text-lg font-medium mb-4">Transaction Activity</h3>
+    <Card className="p-6">
+      <h3 className="text-lg font-medium mb-4">Transaction History</h3>
+      
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={groupedData}>
+          <BarChart data={transactionData}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="transactions" fill="#8884d8" radius={[4, 4, 0, 0]} />
+            <XAxis 
+              dataKey="month" 
+              tick={{ fontSize: 12 }}
+            />
+            <YAxis 
+              tick={{ fontSize: 12 }}
+              allowDecimals={false}
+            />
+            <Tooltip 
+              formatter={(value) => [`${value} transactions`, 'Count']}
+              labelFormatter={(label) => `${label}`}
+            />
+            <Bar 
+              dataKey="count" 
+              name="Transactions" 
+              fill="#6366f1" // indigo-500
+              radius={[4, 4, 0, 0]} 
+            />
           </BarChart>
         </ResponsiveContainer>
+      </div>
+      
+      <div className="mt-4 pt-4 border-t">
+        <p className="text-sm text-muted-foreground">
+          Total transactions: <span className="font-medium">{transactions.length}</span>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          First transaction: <span className="font-medium">
+            {new Date(parseInt(transactions[transactions.length - 1]?.timeStamp) * 1000).toLocaleDateString()}
+          </span>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Latest transaction: <span className="font-medium">
+            {new Date(parseInt(transactions[0]?.timeStamp) * 1000).toLocaleDateString()}
+          </span>
+        </p>
       </div>
     </Card>
   );

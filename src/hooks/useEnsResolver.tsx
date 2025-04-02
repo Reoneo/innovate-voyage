@@ -36,29 +36,29 @@ export function useEnsResolver(ensName?: string, address?: string) {
     ensLinks: []
   });
   
-  // Use our ENS resolution hook
-  const {
-    resolvedAddress: hookResolvedAddress,
-    resolvedEns: hookResolvedEns,
-    avatarUrl: hookAvatarUrl,
-    ensLinks: hookEnsLinks
-  } = useEnsResolution(normalizedEnsName, address);
-
+  // Use our ENS resolution hook with proper type checking
+  const ensResolution = useEnsResolution(normalizedEnsName, address);
+  
   // Effect to update state from the useEnsResolution hook
   useEffect(() => {
-    if (hookResolvedAddress) {
-      setResolvedAddress(hookResolvedAddress);
+    if (ensResolution) {
+      if (ensResolution.resolvedAddress) {
+        setResolvedAddress(ensResolution.resolvedAddress);
+      }
+      if (ensResolution.resolvedEns) {
+        setResolvedEns(ensResolution.resolvedEns);
+      }
+      if (ensResolution.avatarUrl) {
+        setAvatarUrl(ensResolution.avatarUrl);
+      }
+      if (ensResolution.ensLinks) {
+        setEnsLinks(ensResolution.ensLinks);
+        if (ensResolution.ensLinks.description) {
+          setEnsBio(ensResolution.ensLinks.description);
+        }
+      }
     }
-    if (hookResolvedEns) {
-      setResolvedEns(hookResolvedEns);
-    }
-    if (hookAvatarUrl) {
-      setAvatarUrl(hookAvatarUrl);
-    }
-    if (hookEnsLinks) {
-      setEnsLinks(hookEnsLinks);
-    }
-  }, [hookResolvedAddress, hookResolvedEns, hookAvatarUrl, hookEnsLinks]);
+  }, [ensResolution]);
 
   // Use Web3Bio data
   const { isLoading: isLoadingWeb3Bio } = useWeb3BioData(

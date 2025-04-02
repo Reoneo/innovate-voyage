@@ -50,28 +50,35 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
       </Card>
 
       {/* Identity Network Graph Section */}
-      <Card className="p-6">
-        <h2 className="text-xl font-medium flex items-center gap-2">
-          Identity Network
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Explore the network of identities and connections for this profile.
-        </p>
-        <div className="mt-4">
-          {address ? (
+      {address && (
+        <Card className="p-6">
+          <h2 className="text-xl font-medium flex items-center gap-2">
+            Identity Network
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Explore the network of identities and connections for this profile.
+          </p>
+          <div className="mt-4">
             <IdNetworkGraph 
               name={name} 
               address={address} 
               ensName={ensName} 
               avatarUrl={avatarUrl} 
             />
-          ) : (
-            <p className="text-muted-foreground">
-              Could not resolve identity graph for {name || truncateAddress(address || '')}.
-            </p>
-          )}
-        </div>
-      </Card>
+          </div>
+        </Card>
+      )}
+
+      {!address && (
+        <Card className="p-6">
+          <h2 className="text-xl font-medium flex items-center gap-2">
+            Identity Network
+          </h2>
+          <p className="text-muted-foreground">
+            Could not resolve identity graph for {name || truncateAddress(address || '')}.
+          </p>
+        </Card>
+      )}
     </div>
   );
 };
