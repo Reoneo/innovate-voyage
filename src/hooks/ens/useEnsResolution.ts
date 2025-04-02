@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ensResolution';
+import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ens';
 
 interface EnsResolutionState {
   resolvedAddress: string | undefined;
