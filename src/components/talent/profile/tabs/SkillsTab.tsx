@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { SkillsVisualization } from '@/components/visualizations/skills';
 import { IdNetworkGraph } from '@/components/visualizations/identity';
 import { truncateAddress } from '@/lib/utils';
 
-// Define Skill interface locally if it's not exported from task types
+// Define Skill interface locally for this component
 interface Skill {
   name: string;
   proof?: string;
@@ -41,7 +42,7 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
         </p>
         <div className="mt-4">
           {skills.length > 0 ? (
-            <SkillsVisualization skills={skills} />
+            <SkillsVisualization skills={skills as any} />
           ) : (
             <p className="text-muted-foreground">No skills listed for this profile.</p>
           )}

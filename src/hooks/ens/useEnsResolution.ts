@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { web3Api } from '@/api/web3Api';
@@ -45,14 +46,14 @@ export function useEnsResolution(ensName?: string, address?: string) {
   }, [addressData, ensName]);
 
   useEffect(() => {
-    if (ensData?.name) {
-      setResolvedEns(ensData.name);
+    if (ensData?.ensName) {
+      setResolvedEns(ensData.ensName);
       setResolvedAddress(address);
     }
   }, [ensData, address]);
 
   useEffect(() => {
-    if (avatar) {
+    if (avatar?.url) {
       setAvatarUrl(avatar.url);
     }
   }, [avatar]);
@@ -75,11 +76,13 @@ export function useEnsResolution(ensName?: string, address?: string) {
     let description: string | undefined = undefined;
 
     for (const record of records) {
-      if (record.key.startsWith('social.')) {
+      if (record.key?.startsWith('social.')) {
         const service = record.key.substring(7);
         socials[service] = record.value;
       } else if (record.key === 'url') {
         ensLinks.push(record.value);
+      } else if (record.key === 'description') {
+        description = record.value;
       }
     }
 
@@ -93,17 +96,19 @@ export function useEnsResolution(ensName?: string, address?: string) {
 
   const linkData = allEnsRecords ? processEnsRecords(allEnsRecords) : null;
 
+  const resultEnsLinks = linkData ? { 
+    socials: linkData.socials || {}, 
+    ensLinks: linkData.ensLinks || [],
+    description: linkData.description
+  } : { 
+    socials: {}, 
+    ensLinks: [] 
+  };
+
   return {
     resolvedAddress,
     resolvedEns,
     avatarUrl,
-    ensLinks: linkData ? { 
-      socials: linkData.socials || {}, 
-      ensLinks: linkData.ensLinks || [],
-      description: linkData.description
-    } : { 
-      socials: {}, 
-      ensLinks: [] 
-    },
+    ensLinks: resultEnsLinks,
   };
 }

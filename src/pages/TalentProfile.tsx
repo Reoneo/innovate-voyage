@@ -12,8 +12,13 @@ import BlockchainTab from '@/components/talent/profile/tabs/BlockchainTab';
 import SocialLinks from '@/components/talent/profile/tabs/SocialLinks';
 import ProfileTimeoutError from '@/components/talent/profile/ProfileTimeoutError';
 
+// Define interface for URL parameters
+interface TalentProfileParams {
+  ensNameOrAddress: string;
+}
+
 const TalentProfile = () => {
-  const { ensNameOrAddress } = useParams<{ensNameOrAddress: string}>();
+  const { ensNameOrAddress } = useParams<keyof TalentProfileParams>() as TalentProfileParams;
   const [activeTab, setActiveTab] = useState('skills');
   const [timeoutError, setTimeoutError] = useState(false);
   
@@ -24,11 +29,11 @@ const TalentProfile = () => {
     : ensNameOrAddress;
   
   // Parse the identity to decide whether to use it as ENS name or address
-  const isEnsName = normalizedIdentity?.includes('.'); // Check if it contains a dot (e.g., .eth, .lens, etc.)
+  const isEnsName = normalizedIdentity?.includes('.'); // Check if it contains a dot (e.g., .eth, .box, etc.)
   const ensName = isEnsName ? normalizedIdentity : undefined;
   const address = !isEnsName ? normalizedIdentity : undefined;
   
-  const { passport, loading, blockchainProfile, transactions, blockchainExtendedData, resolvedEns } = useProfileData(ensName, address);
+  const { passport, loading, blockchainProfile, transactions, blockchainExtendedData, resolvedEns, avatarUrl } = useProfileData(ensName, address);
   
   // Set a timeout for loading the profile
   useEffect(() => {
@@ -75,10 +80,7 @@ const TalentProfile = () => {
             name={passport.name}
             address={passport.owner_address}
             ensName={resolvedEns}
-            avatarUrl={passport.avatar_url}
-            blockchainProfile={blockchainProfile}
-            transactions={transactions}
-            blockchainExtendedData={blockchainExtendedData}
+            avatarUrl={avatarUrl || passport.avatar_url}
             additionalEnsDomains={blockchainExtendedData?.boxDomains}
           />
         );
@@ -88,7 +90,7 @@ const TalentProfile = () => {
             address={passport.owner_address}
             ensName={resolvedEns}
             blockchainProfile={blockchainProfile}
-            transactions={transactions}
+            transactions={transactions || []}
           />
         );
       case 'links':
@@ -119,13 +121,12 @@ const TalentProfile = () => {
 
       <ProfileHeader
         passport={passport}
-        loading={loading}
       />
       
       <div className="my-6">
         <ProfileNavigationBar 
           activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
+          onTabChange={setActiveTab} 
         />
       </div>
 

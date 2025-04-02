@@ -1,42 +1,34 @@
 
 import React from 'react';
-import { Separator } from '@/components/ui/separator';
-import { Box, Link, BookOpen } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Briefcase, Network, Link } from 'lucide-react';
 
 interface ProfileNavigationBarProps {
   activeTab: string;
-  setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+  onTabChange: (value: string) => void;
 }
 
-const ProfileNavigationBar: React.FC<ProfileNavigationBarProps> = ({ activeTab, setActiveTab }) => {
-  const tabs = [
-    { id: 'skills', label: 'Skills', icon: <BookOpen className="h-4 w-4" /> },
-    { id: 'blockchain', label: 'Blockchain', icon: <Box className="h-4 w-4" /> },
-    { id: 'links', label: 'Links', icon: <Link className="h-4 w-4" /> }
-  ];
-
+const ProfileNavigationBar: React.FC<ProfileNavigationBarProps> = ({
+  activeTab,
+  onTabChange
+}) => {
   return (
-    <div>
-      <nav className="flex items-center gap-4 sm:gap-6">
-        {tabs.map((tab) => (
-          <button 
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              "flex items-center gap-2 px-1 py-2 text-sm font-medium transition-colors",
-              activeTab === tab.id
-                ? "border-b-2 border-primary text-foreground"
-                : "border-b-2 border-transparent text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
-      </nav>
-      <Separator className="mt-0 mb-4" />
-    </div>
+    <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
+      <TabsList className="grid grid-cols-3 w-full max-w-md mx-auto">
+        <TabsTrigger value="skills" className="flex items-center gap-2">
+          <Briefcase className="h-4 w-4" />
+          <span className="hidden sm:inline">Skills</span>
+        </TabsTrigger>
+        <TabsTrigger value="blockchain" className="flex items-center gap-2">
+          <Network className="h-4 w-4" />
+          <span className="hidden sm:inline">Blockchain</span>
+        </TabsTrigger>
+        <TabsTrigger value="links" className="flex items-center gap-2">
+          <Link className="h-4 w-4" />
+          <span className="hidden sm:inline">Links</span>
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
   );
 };
 
