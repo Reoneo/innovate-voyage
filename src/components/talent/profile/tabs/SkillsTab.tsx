@@ -24,7 +24,7 @@ export interface SkillsTabProps {
 
 const SkillsTab: React.FC<SkillsTabProps> = ({
   skills = [],
-  name,
+  name = 'Unknown',
   address,
   ensName,
   avatarUrl,
@@ -42,7 +42,7 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
         </p>
         <div className="mt-4">
           {skills.length > 0 ? (
-            <SkillsVisualization skills={skills as any} />
+            <SkillsVisualization skills={skills as any} name={name} />
           ) : (
             <p className="text-muted-foreground">No skills listed for this profile.</p>
           )}
@@ -59,7 +59,12 @@ const SkillsTab: React.FC<SkillsTabProps> = ({
         </p>
         <div className="mt-4">
           {address ? (
-            <IdNetworkGraph address={address} />
+            <IdNetworkGraph 
+              name={name} 
+              address={address} 
+              ensName={ensName} 
+              avatarUrl={avatarUrl} 
+            />
           ) : (
             <p className="text-muted-foreground">
               Could not resolve identity graph for {name || truncateAddress(address || '')}.

@@ -79,7 +79,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
       if (record.key?.startsWith('social.')) {
         const service = record.key.substring(7);
         socials[service] = record.value;
-      } else if (record.key === 'url') {
+      } else if (record.key === 'url' && typeof record.value === 'string') {
         ensLinks.push(record.value);
       } else if (record.key === 'description') {
         description = record.value;

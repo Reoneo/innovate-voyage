@@ -7,7 +7,7 @@ interface IdNetworkGraphProps {
   name: string;
   avatarUrl?: string;
   ensName?: string;
-  address?: string;
+  address: string;
 }
 
 const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({ 
