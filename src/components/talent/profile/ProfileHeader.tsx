@@ -30,9 +30,10 @@ interface ProfileHeaderProps {
     bio?: string;
   };
   loading?: boolean;
+  compact?: boolean;
 }
 
-const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport, loading }) => {
+const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport, loading, compact }) => {
   return (
     <HeaderContainer>
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6 w-full">
@@ -49,6 +50,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport, loading }) => {
             ownerAddress={passport.owner_address}
             bio={passport.bio}
             socials={passport.socials}
+            compact={compact}
           />
           {/* Category badge has been removed */}
         </div>

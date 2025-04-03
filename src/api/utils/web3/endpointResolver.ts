@@ -1,6 +1,7 @@
 
 /**
  * Function to determine the endpoint to use based on identity type
+ * Focus only on ENS (.eth and .box) domains
  */
 export function getWeb3BioEndpoint(identity: string): { endpoint: string, type: string } {
   // Normalize the identity
@@ -20,43 +21,6 @@ export function getWeb3BioEndpoint(identity: string): { endpoint: string, type: 
   if (normalizedId.endsWith('.box')) {
     // Try to use ENS endpoint for .box domains for better compatibility
     return { endpoint: `https://api.web3.bio/profile/ens/${normalizedId}`, type: 'ens' };
-  }
-  
-  // Base domains (.base.eth)
-  if (normalizedId.endsWith('.base.eth')) {
-    return { endpoint: `https://api.web3.bio/profile/basenames/${normalizedId}`, type: 'basenames' };
-  }
-  
-  // Linea domains (.linea.eth)
-  if (normalizedId.endsWith('.linea.eth')) {
-    return { endpoint: `https://api.web3.bio/profile/linea/${normalizedId}`, type: 'linea' };
-  }
-  
-  // Farcaster identities
-  if (normalizedId.endsWith('.farcaster') || normalizedId.includes('#')) {
-    return { endpoint: `https://api.web3.bio/profile/farcaster/${normalizedId}`, type: 'farcaster' };
-  }
-  
-  // Lens handles
-  if (normalizedId.endsWith('.lens')) {
-    return { endpoint: `https://api.web3.bio/profile/lens/${normalizedId}`, type: 'lens' };
-  }
-  
-  // Unstoppable domains
-  if (normalizedId.endsWith('.crypto') || normalizedId.endsWith('.nft') || 
-      normalizedId.endsWith('.blockchain') || normalizedId.endsWith('.x') || 
-      normalizedId.endsWith('.wallet') || normalizedId.endsWith('.dao')) {
-    return { endpoint: `https://api.web3.bio/profile/unstoppabledomains/${normalizedId}`, type: 'unstoppabledomains' };
-  }
-  
-  // Solana domains
-  if (normalizedId.endsWith('.sol')) {
-    return { endpoint: `https://api.web3.bio/profile/solana/${normalizedId}`, type: 'solana' };
-  }
-  
-  // .bit domains
-  if (normalizedId.endsWith('.bit')) {
-    return { endpoint: `https://api.web3.bio/profile/dotbit/${normalizedId}`, type: 'dotbit' };
   }
   
   // If no specific extension but looks like a domain name, treat as ENS

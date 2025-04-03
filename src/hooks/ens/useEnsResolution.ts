@@ -53,8 +53,12 @@ export function useEnsResolution(ensName?: string, address?: string) {
   }, [ensData, address]);
 
   useEffect(() => {
-    if (avatar?.url) {
-      setAvatarUrl(avatar.url);
+    if (avatar) {
+      // Handle both string and object with url property
+      const avatarUrl = typeof avatar === 'string' ? avatar : avatar.url;
+      if (avatarUrl) {
+        setAvatarUrl(avatarUrl);
+      }
     }
   }, [avatar]);
 

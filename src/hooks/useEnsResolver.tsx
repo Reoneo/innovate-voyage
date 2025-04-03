@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useEnsResolution } from './ens/useEnsResolution';
 import { useWeb3BioData } from './ens/useWeb3BioData';
-import { useLensAndFarcaster } from './ens/useLensAndFarcaster';
 
 /**
  * Hook to resolve ENS name and Ethereum address bidirectionally
@@ -60,7 +59,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
     }
   }, [ensResolution]);
 
-  // Use Web3Bio data
+  // Use Web3Bio data - only for ENS names
   const { isLoading: isLoadingWeb3Bio } = useWeb3BioData(
     normalizedEnsName,
     address,
@@ -91,68 +90,13 @@ export function useEnsResolver(ensName?: string, address?: string) {
     }
   );
 
-  // Use our new hook for Lens and Farcaster data
-  const { 
-    lensProfile, 
-    farcasterProfile, 
-    isLoading: isLoadingLensAndFarcaster
-  } = useLensAndFarcaster(normalizedEnsName || address);
-
-  // Merge social links from all sources
-  useEffect(() => {
-    if (lensProfile || farcasterProfile) {
-      const updatedSocials = { ...ensLinks.socials };
-        
-      // Add Lens socials
-      if (lensProfile?.socials) {
-        Object.keys(lensProfile.socials).forEach(key => {
-          if (!updatedSocials[key]) {
-            updatedSocials[key] = lensProfile.socials[key];
-          }
-        });
-      }
-        
-      // Add Farcaster socials
-      if (farcasterProfile?.socials) {
-        Object.keys(farcasterProfile.socials).forEach(key => {
-          if (!updatedSocials[key]) {
-            updatedSocials[key] = farcasterProfile.socials[key];
-          }
-        });
-      }
-        
-      // Update bio if not already set
-      const updatedBio = ensBio || 
-                        lensProfile?.bio || 
-                        farcasterProfile?.bio;
-        
-      // Use Lens or Farcaster avatar if ENS avatar is not available
-      const updatedAvatar = avatarUrl || 
-                           lensProfile?.avatar || 
-                           farcasterProfile?.avatar;
-        
-      if (updatedBio) {
-        setEnsBio(updatedBio);
-      }
-      
-      if (updatedAvatar) {
-        setAvatarUrl(updatedAvatar);
-      }
-      
-      setEnsLinks({
-        ...ensLinks,
-        socials: updatedSocials
-      });
-    }
-  }, [lensProfile, farcasterProfile]);
-
   return {
     resolvedAddress,
     resolvedEns,
     avatarUrl,
     ensBio,
     ensLinks,
-    isLoading: isLoading || isLoadingWeb3Bio || isLoadingLensAndFarcaster,
+    isLoading: isLoading || isLoadingWeb3Bio,
     error,
     timeoutError
   };
