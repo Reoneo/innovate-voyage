@@ -1,14 +1,16 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { 
   Briefcase, 
   Users, 
   Database,
   ArrowRight,
   Search,
-  Shield
+  Shield,
+  Mail,
+  Linkedin,
+  Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,12 +69,7 @@ const Index = () => {
       <div className="container mx-auto px-4 sm:px-6 py-8">
         {/* Hero Section with Logo */}
         <div className="flex flex-col items-center text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-8"
-          >
+          <div className="mb-8">
             <div className="flex justify-center mb-6">
               <a href="https://smith.box" title="Go to smith.box">
                 <Avatar className="h-32 w-32 border-4 border-primary shadow-lg hover:shadow-xl transition-all duration-300">
@@ -86,7 +83,7 @@ const Index = () => {
               Recruitment.box
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              A decentralized CV & recruitment engine powered by blockchain data
+              Find talent on the blockchain with our decentralized CV & recruitment engine
             </p>
             
             {/* Simple Search Form */}
@@ -107,21 +104,16 @@ const Index = () => {
                 <Button type="submit">Search</Button>
               </form>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            className="flex flex-col sm:flex-row gap-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
+          <div className="flex flex-col sm:flex-row gap-4">
             <Button size="lg" variant="outline" disabled title="Coming soon">
               <span className="flex items-center">
                 Browse Jobs
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </span>
             </Button>
-          </motion.div>
+          </div>
         </div>
 
         {/* Features Section */}
@@ -233,6 +225,21 @@ const Index = () => {
             </div>
           </div>
         </div>
+        
+        {/* Footer with social links */}
+        <footer className="py-8 border-t border-gray-200 mt-8">
+          <div className="flex justify-center space-x-6">
+            <a href="mailto:hello@smith.box" aria-label="Email" className="text-gray-600 hover:text-primary">
+              <Mail className="h-6 w-6" />
+            </a>
+            <a href="https://www.linkedin.com/company/thridweb" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-gray-600 hover:text-primary">
+              <Linkedin className="h-6 w-6" />
+            </a>
+            <a href="https://www.smith.box" target="_blank" rel="noopener noreferrer" aria-label="Website" className="text-gray-600 hover:text-primary">
+              <Globe className="h-6 w-6" />
+            </a>
+          </div>
+        </footer>
       </div>
     </div>
   );
