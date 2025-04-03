@@ -3,7 +3,7 @@ import React from 'react';
 import { truncateAddress } from '@/lib/utils';
 import WorkExperienceSection from './WorkExperienceSection';
 import { Button } from '@/components/ui/button';
-import BiographySection from './BiographySection';
+import BiographySection from './biography/BiographySection';
 
 interface ProfileInfoSectionProps {
   passportId: string;
