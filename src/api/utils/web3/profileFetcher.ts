@@ -1,5 +1,6 @@
-import { enforceRateLimit } from './rateLimiter';
-import { WEB3_BIO_API_KEY, REQUEST_DELAY_MS } from './config';
+
+import { enforceRateLimit, getWeb3BioHeaders } from './rateLimiter';
+import { REQUEST_DELAY_MS } from './config';
 import type { Web3BioProfile } from '../../types/web3Types';
 
 /**
@@ -18,10 +19,7 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     // Make the API request with proper authentication
     const response = await fetch(apiUrl, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
-        'Accept': 'application/json'
-      }
+      headers: getWeb3BioHeaders()
     });
     
     // Handle API errors

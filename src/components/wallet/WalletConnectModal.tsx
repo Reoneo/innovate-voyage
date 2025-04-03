@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,21 @@ const WalletConnectModal: React.FC = () => {
   const [connecting, setConnecting] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    // Set up event listener for opening the modal
+    const openWalletHandler = () => {
+      if (window.connectWalletModal) {
+        window.connectWalletModal.showModal();
+      }
+    };
+
+    document.addEventListener('open-wallet-connect', openWalletHandler);
+    
+    return () => {
+      document.removeEventListener('open-wallet-connect', openWalletHandler);
+    };
+  }, []);
+
   const connectMetamask = async () => {
     setConnecting(true);
     
@@ -27,6 +42,7 @@ const WalletConnectModal: React.FC = () => {
           description: "Please install MetaMask browser extension to continue",
           variant: "destructive",
         });
+        setConnecting(false);
         return;
       }
       
@@ -43,7 +59,9 @@ const WalletConnectModal: React.FC = () => {
           description: `Connected to ${accounts[0].substring(0, 6)}...${accounts[0].substring(38)}`,
         });
         
-        window.connectWalletModal.close();
+        if (window.connectWalletModal) {
+          window.connectWalletModal.close();
+        }
         
         // Force refresh to update UI
         window.location.reload();
@@ -61,7 +79,9 @@ const WalletConnectModal: React.FC = () => {
   };
 
   const closeModal = () => {
-    window.connectWalletModal.close();
+    if (window.connectWalletModal) {
+      window.connectWalletModal.close();
+    }
   };
 
   return (

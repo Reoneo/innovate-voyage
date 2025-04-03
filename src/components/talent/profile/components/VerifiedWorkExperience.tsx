@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, FileSymlink, Clock, CreditCard, Coins, DatabaseIcon } from 'lucide-react';
+import { Calendar, FileSymlink, Clock, CreditCard, Coins, DatabaseIcon, ExternalLink, Briefcase } from 'lucide-react';
 import { useWeb3WorkExperience } from '@/hooks/useWeb3WorkExperience';
 import { useBlockchainProfile, useLatestTransactions, useTokenTransfers } from '@/hooks/useEtherscan';
 import { format } from 'date-fns';
@@ -70,7 +70,18 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
             <DatabaseIcon className="h-5 w-5 text-primary" />
             <div>
               <CardTitle>Blockchain Experience</CardTitle>
-              <CardDescription>On-chain verified activity</CardDescription>
+              <CardDescription className="flex items-center gap-1">
+                Verified via{" "}
+                <a 
+                  href={`https://etherscan.io/address/${walletAddress}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline flex items-center"
+                >
+                  Etherscan.io
+                  <ExternalLink className="h-3 w-3 ml-0.5" />
+                </a>
+              </CardDescription>
             </div>
           </div>
         </div>
@@ -117,7 +128,19 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
             </div>
             
             <div className="border-t pt-4">
-              <h3 className="font-medium mb-3">Work History</h3>
+              <h3 className="font-medium mb-1">Skills</h3>
+              <p className="text-xs text-muted-foreground mb-3 flex items-center">
+                Verified via{" "}
+                <a 
+                  href="https://talentprotocol.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline flex items-center ml-1"
+                >
+                  TalentProtocol.com
+                  <ExternalLink className="h-3 w-3 ml-0.5" />
+                </a>
+              </p>
               {experience && experience.length > 0 ? (
                 <div className="space-y-4">
                   {experience.map((job, index) => (
@@ -155,7 +178,7 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
               ) : (
                 <div className="text-center py-4">
                   <p className="text-muted-foreground">
-                    No verified work history found. Connect your wallet to add your work experience.
+                    No verified skills found. Connect your wallet to add your skills.
                   </p>
                 </div>
               )}
