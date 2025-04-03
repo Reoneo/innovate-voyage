@@ -23,6 +23,10 @@ const ProfileTimeoutError: React.FC<ProfileTimeoutErrorProps> = ({ identity }) =
             <p className="text-muted-foreground mb-4">
               We couldn't load the profile for <strong>{identity || "this address"}</strong>.
             </p>
+            <p className="text-sm text-muted-foreground mb-4">
+              This could be due to rate limiting from the Web3.bio API. 
+              Please try again in a few moments.
+            </p>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 w-full">

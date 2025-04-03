@@ -28,6 +28,11 @@ const TalentProfile = () => {
   const [timeoutError, setTimeoutError] = useState(false);
   const isMobile = useIsMobile();
   
+  // Reset state when the URL changes
+  useEffect(() => {
+    setTimeoutError(false);
+  }, [ensNameOrAddress]);
+  
   // Normalize the identity - only accept .eth and .box domains
   const normalizedIdentity = ensNameOrAddress?.toLowerCase();
   
@@ -38,13 +43,13 @@ const TalentProfile = () => {
   
   const { passport, loading, blockchainProfile, transactions, blockchainExtendedData, resolvedEns, avatarUrl } = useProfileData(ensName, address);
   
-  // Set a timeout for loading the profile
+  // Set a timeout for loading the profile - now with more time for API calls
   useEffect(() => {
     const timeoutTimer = setTimeout(() => {
       if (loading) {
         setTimeoutError(true);
       }
-    }, 4000); // 4 seconds timeout
+    }, 10000); // Increased to 10 seconds to allow for retries
     
     return () => {
       clearTimeout(timeoutTimer);
@@ -136,7 +141,7 @@ const TalentProfile = () => {
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="flex flex-col md:flex-row">
             {/* Left column (30%) */}
-            <div className="md:w-3/10 p-6 border-r border-gray-200">
+            <div className="md:w-3/10 w-full p-6 border-b md:border-b-0 md:border-r border-gray-200">
               <ProfileHeader
                 passport={passport}
                 compact={true}
@@ -144,7 +149,7 @@ const TalentProfile = () => {
             </div>
 
             {/* Right column (70%) */}
-            <div className="md:w-7/10 p-6">
+            <div className="md:w-7/10 w-full p-6">
               <div className="mb-8">
                 <h2 className="text-xl font-bold mb-4">Blockchain Experience</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
