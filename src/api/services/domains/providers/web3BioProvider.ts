@@ -27,20 +27,23 @@ export async function fetchDomainsFromWeb3Bio(address: string): Promise<string[]
     
     if (!Array.isArray(data)) {
       if (data.identity) {
-        return [data.identity];
+        // Only include .eth and .box domains
+        if (data.identity.endsWith('.eth') || data.identity.endsWith('.box')) {
+          return [data.identity];
+        }
       }
       return [];
     }
     
-    // Extract all identities
+    // Extract all identities - only .eth and .box domains
     const domains: string[] = [];
     
     for (const profile of data) {
-      if (profile.identity) {
+      if (profile.identity && (profile.identity.endsWith('.eth') || profile.identity.endsWith('.box'))) {
         domains.push(profile.identity);
       }
       
-      // Also extract aliases if available
+      // Also extract aliases if available - only .eth and .box domains
       if (profile.aliases && Array.isArray(profile.aliases)) {
         for (const alias of profile.aliases) {
           // Handle different alias formats
@@ -48,12 +51,13 @@ export async function fetchDomainsFromWeb3Bio(address: string): Promise<string[]
             if (alias.includes(',')) {
               // Format: "platform,name"
               const parts = alias.split(',');
-              if (parts.length === 2 && parts[1].includes('.')) {
+              if (parts.length === 2 && 
+                  (parts[1].endsWith('.eth') || parts[1].endsWith('.box'))) {
                 if (!domains.includes(parts[1])) {
                   domains.push(parts[1]);
                 }
               }
-            } else if (alias.includes('.')) {
+            } else if (alias.endsWith('.eth') || alias.endsWith('.box')) {
               // Direct domain name
               if (!domains.includes(alias)) {
                 domains.push(alias);

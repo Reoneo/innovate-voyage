@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import BlockchainActivity from '@/components/jobs/user-profile/BlockchainActivity';
 import VerifiedWorkExperience from '@/components/talent/profile/components/VerifiedWorkExperience';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Define interface for URL parameters
 interface TalentProfileParams {
@@ -25,6 +26,7 @@ const TalentProfile = () => {
   const { ensNameOrAddress } = useParams<keyof TalentProfileParams>() as TalentProfileParams;
   const [activeTab, setActiveTab] = useState('skills');
   const [timeoutError, setTimeoutError] = useState(false);
+  const isMobile = useIsMobile();
   
   // Normalize the identity - only accept .eth and .box domains
   const normalizedIdentity = ensNameOrAddress?.toLowerCase();
@@ -133,16 +135,16 @@ const TalentProfile = () => {
         {/* A4 layout with two columns */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="flex flex-col md:flex-row">
-            {/* Left column (25%) */}
-            <div className="md:w-1/4 p-6 border-r border-gray-200">
+            {/* Left column (30%) */}
+            <div className="md:w-3/10 p-6 border-r border-gray-200">
               <ProfileHeader
                 passport={passport}
                 compact={true}
               />
             </div>
 
-            {/* Right column (75%) */}
-            <div className="md:w-3/4 p-6">
+            {/* Right column (70%) */}
+            <div className="md:w-7/10 p-6">
               <div className="mb-8">
                 <h2 className="text-xl font-bold mb-4">Blockchain Experience</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

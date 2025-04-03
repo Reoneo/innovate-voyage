@@ -19,7 +19,6 @@ export function getWeb3BioEndpoint(identity: string): { endpoint: string, type: 
   
   // Box domains (.box) - improved handling for .box domains
   if (normalizedId.endsWith('.box')) {
-    // Try to use ENS endpoint for .box domains for better compatibility
     return { endpoint: `https://api.web3.bio/profile/ens/${normalizedId}`, type: 'ens' };
   }
   

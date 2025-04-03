@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Clock, Home, ArrowLeft } from 'lucide-react';
+import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface ProfileTimeoutErrorProps {
@@ -15,7 +15,7 @@ const ProfileTimeoutError: React.FC<ProfileTimeoutErrorProps> = ({ identity }) =
       <Card className="max-w-lg mx-auto p-6 shadow-lg">
         <div className="flex flex-col items-center gap-6 text-center">
           <div className="bg-red-100 p-4 rounded-full">
-            <Clock className="h-12 w-12 text-red-500" />
+            <AlertCircle className="h-12 w-12 text-red-500" />
           </div>
           
           <div>
@@ -42,6 +42,7 @@ const ProfileTimeoutError: React.FC<ProfileTimeoutErrorProps> = ({ identity }) =
               className="flex items-center gap-2 flex-1"
               onClick={() => window.location.reload()}
             >
+              <RefreshCw className="h-4 w-4" />
               Try Again
             </Button>
           </div>

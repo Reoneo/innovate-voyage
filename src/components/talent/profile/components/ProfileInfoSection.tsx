@@ -1,10 +1,9 @@
 
 import React from 'react';
 import { truncateAddress } from '@/lib/utils';
-import ProfileScores from './ProfileScores';
 import WorkExperienceSection from './WorkExperienceSection';
 import { Button } from '@/components/ui/button';
-import BiographySection from './biography/BiographySection';
+import BiographySection from './BiographySection';
 
 interface ProfileInfoSectionProps {
   passportId: string;
@@ -25,7 +24,6 @@ const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({
 }) => {
   return (
     <div className="flex-1">
-      {/* Display address or ENS name */}
       <div className="flex flex-col">
         {/* Skip display of certain elements when in compact mode */}
         {!compact && (
