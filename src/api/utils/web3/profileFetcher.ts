@@ -4,7 +4,7 @@ import { delay } from '../../jobsApi';
 import { getWeb3BioEndpoint } from './endpointResolver';
 import { enforceRateLimit } from './rateLimiter';
 import { processWeb3BioProfileData } from './profileProcessor';
-import { MAX_RETRIES, REQUEST_DELAY_MS, WEB3_BIO_API_KEY } from './config';
+import { REQUEST_DELAY_MS, WEB3_BIO_API_KEY } from './config';
 import { avatarCache, generateFallbackAvatar } from './avatarCache';
 
 // In-memory cache for Web3.bio profiles
@@ -36,88 +36,45 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     // Add a random query parameter to prevent caching issues
     const noCacheEndpoint = `${endpoint}?nocache=${Date.now()}`;
     
-    // Prepare headers with proper authentication
-    const headers = {
-      'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
-      'X-API-KEY': `Bearer ${WEB3_BIO_API_KEY}`,
-      'Accept': 'application/json',
-      'Cache-Control': 'no-cache, no-store, must-revalidate'
-    };
+    const response = await fetch(noCacheEndpoint, {
+      headers: {
+        'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      },
+      cache: 'no-store'
+    });
     
-    // Make the API request with retry logic
-    let response = null;
-    let retries = 0;
-    
-    while (retries < MAX_RETRIES) {
-      try {
-        response = await fetch(noCacheEndpoint, {
-          headers,
-          cache: 'no-store'
+    if (!response.ok) {
+      console.warn(`Failed to fetch Web3.bio profile for ${normalizedIdentity}: Status ${response.status}`);
+      
+      // If rate limited, retry after a delay
+      if (response.status === 429) {
+        console.log('Rate limited, retrying after delay');
+        await delay(2000);
+        return fetchWeb3BioProfile(identity);
+      }
+      
+      // Try a fallback approach for .box domains
+      if (type === 'box' || normalizedIdentity.endsWith('.box')) {
+        console.log('Trying alternative approach for .box domain');
+        const fallbackEndpoint = `https://api.web3.bio/profile/${normalizedIdentity}?nocache=${Date.now()}`;
+        const fallbackResponse = await fetch(fallbackEndpoint, {
+          headers: {
+            'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+          }
         });
         
-        if (response.ok) break;
-        
-        console.warn(`Attempt ${retries + 1}/${MAX_RETRIES} failed with status ${response.status}`);
-        
-        if (response.status === 429) {
-          // If rate limited, wait longer before retry
-          const waitTime = (retries + 1) * 1000;
-          console.log(`Rate limited, waiting ${waitTime}ms before retry`);
-          await delay(waitTime);
-        } else {
-          await delay(REQUEST_DELAY_MS);
-        }
-        
-        retries++;
-      } catch (fetchError) {
-        console.error(`Fetch error on attempt ${retries + 1}/${MAX_RETRIES}:`, fetchError);
-        await delay(REQUEST_DELAY_MS);
-        retries++;
-      }
-    }
-    
-    // Handle final response
-    if (!response || !response.ok) {
-      console.warn(`Failed to fetch Web3.bio profile for ${normalizedIdentity} after ${MAX_RETRIES} attempts`);
-      
-      // Special handling for .box domains if the dotbit endpoint failed
-      if (type === 'dotbit' || normalizedIdentity.endsWith('.box')) {
-        console.log('Trying alternate approach for .box domain');
-        
-        // Try with universal endpoint as fallback
-        const universalEndpoint = `https://api.web3.bio/profile/${normalizedIdentity}?nocache=${Date.now()}`;
-        try {
-          const universalResponse = await fetch(universalEndpoint, { headers });
-          
-          if (universalResponse.ok) {
-            const universalData = await universalResponse.json();
-            if (Array.isArray(universalData) && universalData.length > 0) {
-              const profileData = processWeb3BioProfileData(universalData[0], normalizedIdentity);
-              if (profileData) {
-                profileCache[identity] = profileData;
-                return profileData;
-              }
-            }
+        if (fallbackResponse.ok) {
+          const data = await fallbackResponse.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const profileData = processWeb3BioProfileData(data[0], normalizedIdentity);
+            if (profileData) profileCache[identity] = profileData;
+            return profileData;
           }
-        } catch (universalError) {
-          console.error(`Error with universal endpoint for ${normalizedIdentity}:`, universalError);
         }
-        
-        // If all attempts fail, return a basic profile for .box domains
-        const fallbackBoxProfile = {
-          address: '',
-          identity: normalizedIdentity,
-          platform: 'box',
-          displayName: normalizedIdentity,
-          avatar: 'https://pbs.twimg.com/profile_images/1673978200800473088/96dq4nBA_400x400.png',
-          description: `Box domain profile for ${normalizedIdentity}`,
-          social: {
-            website: `https://${normalizedIdentity}`
-          }
-        };
-        
-        profileCache[identity] = fallbackBoxProfile;
-        return fallbackBoxProfile;
       }
       
       return null;
@@ -128,9 +85,7 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     
     // Handle array response (universal endpoint)
     if (Array.isArray(data)) {
-      if (data.length === 0) {
-        return null;
-      }
+      if (data.length === 0) return null;
       
       // Use the first profile with a preference for specific types
       const specificProfile = data.find(p => p.platform === type) || data[0];
@@ -145,25 +100,6 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     else if (data && typeof data === 'object') {
       if (data.error) {
         console.warn(`Web3.bio error for ${normalizedIdentity}:`, data.error);
-        
-        // Special handling for .box domains
-        if (normalizedIdentity.endsWith('.box')) {
-          const fallbackBoxProfile = {
-            address: '',
-            identity: normalizedIdentity,
-            platform: 'box',
-            displayName: normalizedIdentity,
-            avatar: 'https://pbs.twimg.com/profile_images/1673978200800473088/96dq4nBA_400x400.png',
-            description: `Box domain profile for ${normalizedIdentity}`,
-            social: {
-              website: `https://${normalizedIdentity}`
-            }
-          };
-          
-          profileCache[identity] = fallbackBoxProfile;
-          return fallbackBoxProfile;
-        }
-        
         return {
           address: '',
           identity: normalizedIdentity,
@@ -186,25 +122,6 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     return null;
   } catch (error) {
     console.error(`Error fetching Web3.bio profile for ${identity}:`, error);
-    
-    // Return a minimal fallback profile for known domain types
-    if (identity.endsWith('.box')) {
-      const fallbackBoxProfile = {
-        address: '',
-        identity,
-        platform: 'box',
-        displayName: identity,
-        avatar: 'https://pbs.twimg.com/profile_images/1673978200800473088/96dq4nBA_400x400.png',
-        description: `Box domain profile for ${identity}`,
-        social: {
-          website: `https://${identity}`
-        }
-      };
-      
-      profileCache[identity] = fallbackBoxProfile;
-      return fallbackBoxProfile;
-    }
-    
     return null;
   }
 }

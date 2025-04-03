@@ -1,7 +1,5 @@
 
 import { avatarCache, fetchWeb3BioProfile, generateFallbackAvatar } from '../../utils/web3/index';
-import { enforceRateLimit } from '../../utils/web3/rateLimiter';
-import { WEB3_BIO_API_KEY } from '../../utils/web3/config';
 
 /**
  * Get real avatar for any domain type using web3.bio
@@ -13,14 +11,12 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
   
   // Check cache first
   if (avatarCache[identity]) {
-    console.log(`Using cached avatar for ${identity}: ${avatarCache[identity]}`);
     return avatarCache[identity];
   }
   
   // If not in cache, fetch from API
   try {
     console.log(`Fetching avatar for ${identity}`);
-    await enforceRateLimit(300); // Ensure we don't hit rate limits
     
     // Try Web3Bio API first - works for all domain types
     const profile = await fetchWeb3BioProfile(identity);
@@ -30,62 +26,25 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
       return profile.avatar;
     }
     
-    // Custom icon mappings for different domain types
+    // If it's an ENS name, try the metadata.ens.domains fallback
     if (identity.endsWith('.eth')) {
-      // For ENS domains, try ENS-specific endpoints
-      // Try multiple ENS-specific endpoints
-      const ensAvatarUrls = [
-        `https://metadata.ens.domains/mainnet/avatar/${identity}`,
-        `https://api.ensideas.com/ens/avatar/${identity}?size=400`,
-        `https://avatar.designeard.com/${identity}`
-      ];
-      
-      for (const avatarUrl of ensAvatarUrls) {
-        try {
-          const response = await fetch(avatarUrl, { 
-            method: 'HEAD',
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          });
-          
-          if (response.ok) {
-            console.log(`Found avatar via ${avatarUrl} for ${identity}`);
-            avatarCache[identity] = avatarUrl;
-            return avatarUrl;
+      try {
+        const avatarUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
+        const response = await fetch(avatarUrl, { 
+          method: 'HEAD',
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
           }
-        } catch (error) {
-          console.warn(`Failed to fetch avatar from ${avatarUrl} for ${identity}:`, error);
-          // Continue to next URL
+        });
+        if (response.ok) {
+          console.log(`Found avatar via ENS metadata for ${identity}`);
+          avatarCache[identity] = avatarUrl;
+          return avatarUrl;
         }
+      } catch (ensError) {
+        console.error(`Error fetching ENS avatar from metadata service for ${identity}:`, ensError);
       }
-      
-      // If all ENS-specific methods fail, use a static ENS logo
-      const ensLogo = "https://toppng.com/uploads/preview/ens-logo-ethereum-name-service-11563224806hmo41gaxv3.png";
-      avatarCache[identity] = ensLogo;
-      return ensLogo;
-    } 
-    
-    // For Lens domains, use Lens logo
-    if (identity.endsWith('.lens')) {
-      const lensLogo = "https://img.cryptorank.io/coins/lens_protocol1733845125692.png";
-      avatarCache[identity] = lensLogo;
-      return lensLogo;
-    }
-    
-    // For Base domains, use Base logo
-    if (identity.endsWith('.base.eth') || identity.endsWith('.base')) {
-      const baseLogo = "https://basetradingbots.com/wp-content/uploads/2024/04/base.png";
-      avatarCache[identity] = baseLogo;
-      return baseLogo;
-    }
-    
-    // For Farcaster identities
-    if (identity.includes('farcaster') || identity.includes('#')) {
-      const farcasterLogo = "https://docs.farcaster.xyz/icon.png";
-      avatarCache[identity] = farcasterLogo;
-      return farcasterLogo;
     }
     
     // For .box domains, try specific approach
@@ -94,7 +53,7 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
         // Try direct web3.bio approach for .box domains
         const boxProfile = await fetch(`https://api.web3.bio/profile/dotbit/${identity}?nocache=${Date.now()}`, {
           headers: {
-            'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
+            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20`,
             'Accept': 'application/json',
             'Cache-Control': 'no-cache'
           }

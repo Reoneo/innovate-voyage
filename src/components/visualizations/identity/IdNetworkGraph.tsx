@@ -3,11 +3,11 @@ import React from 'react';
 import { useIdNetworkData } from './hooks/useIdNetworkData';
 import IdNetworkVisualization from './components/IdNetworkVisualization';
 
-export interface IdNetworkGraphProps {
+interface IdNetworkGraphProps {
   name: string;
   avatarUrl?: string;
   ensName?: string;
-  address: string;
+  address?: string;
 }
 
 const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({ 
@@ -24,29 +24,14 @@ const IdNetworkGraph: React.FC<IdNetworkGraphProps> = ({
     hasData
   } = useIdNetworkData(name, avatarUrl, ensName, address);
 
-  // Transform the network data to match expected format for IdNetworkVisualization
-  const formattedNetworkData = {
-    nodes: networkData.nodes.map(node => ({
-      id: node.id,
-      group: node.type === 'user' ? 1 : node.isDotBox ? 3 : 2, // Assign group based on node type
-      name: node.name,
-      avatar: node.avatar,
-      type: node.type
-    })),
-    links: networkData.links
-  };
-
   return (
     <div className="w-full h-full flex justify-center items-center">
       {networkData.nodes.length > 0 && (
         <IdNetworkVisualization
-          networkData={formattedNetworkData}
+          networkData={networkData}
           selectedNode={selectedNode}
           setSelectedNode={setSelectedNode}
           avatarUrl={avatarUrl}
-          name={name}
-          ensName={ensName}
-          address={address}
         />
       )}
       

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import EnsLink from './social/EnsLink';
 import WebLink from './social/WebLink';
@@ -6,17 +5,17 @@ import NoLinks from './social/NoLinks';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ListFilter } from 'lucide-react';
 
-export interface SocialLinksProps {
+interface SocialLinksProps {
   ensName?: string;
-  links?: string[];
-  socials?: Record<string, string>;
+  links: string[];
+  socials: Record<string, string>;
   additionalEnsDomains?: string[];
 }
 
 const SocialLinks: React.FC<SocialLinksProps> = ({ 
   ensName, 
-  links = [], 
-  socials = {},
+  links, 
+  socials,
   additionalEnsDomains = []
 }) => {
   const hasSocialLinks = ensName || links.length > 0 || Object.keys(socials).length > 0 || additionalEnsDomains.length > 0;

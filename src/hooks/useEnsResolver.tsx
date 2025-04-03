@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useEnsResolution } from './ens/useEnsResolution';
 import { useWeb3BioData } from './ens/useWeb3BioData';
 
@@ -18,86 +18,51 @@ export function useEnsResolver(ensName?: string, address?: string) {
   // Determine if we're dealing with an ENS name (.eth or .box)
   const isEns = normalizedEnsName?.includes('.eth') || normalizedEnsName?.includes('.box');
   
-  // Initialize state
-  const [resolvedAddress, setResolvedAddress] = useState<string | undefined>(address);
-  const [resolvedEns, setResolvedEns] = useState<string | undefined>(normalizedEnsName);
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
-  const [ensBio, setEnsBio] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [timeoutError, setTimeoutError] = useState(false);
-  const [ensLinks, setEnsLinks] = useState<{
-    socials: Record<string, string>;
-    ensLinks: string[];
-    description?: string;
-  }>({
-    socials: {},
-    ensLinks: []
-  });
-  
-  // Use our ENS resolution hook with proper type checking
-  const ensResolution = useEnsResolution(normalizedEnsName, address);
-  
-  // Effect to update state from the useEnsResolution hook
-  useEffect(() => {
-    if (ensResolution) {
-      if (ensResolution.resolvedAddress) {
-        setResolvedAddress(ensResolution.resolvedAddress);
-      }
-      if (ensResolution.resolvedEns) {
-        setResolvedEns(ensResolution.resolvedEns);
-      }
-      if (ensResolution.avatarUrl) {
-        setAvatarUrl(ensResolution.avatarUrl);
-      }
-      if (ensResolution.ensLinks) {
-        setEnsLinks(ensResolution.ensLinks);
-        if (ensResolution.ensLinks.description) {
-          setEnsBio(ensResolution.ensLinks.description);
-        }
-      }
-    }
-  }, [ensResolution]);
+  const {
+    state,
+    setState,
+    isLoading: isLoadingEns,
+    setIsLoading,
+    error,
+    setError,
+    resolveEns,
+    lookupAddress
+  } = useEnsResolution(normalizedEnsName, address);
 
-  // Use Web3Bio data - only for ENS names
   const { isLoading: isLoadingWeb3Bio } = useWeb3BioData(
     normalizedEnsName,
     address,
     !!isEns,
-    (newState) => {
-      if (newState.resolvedAddress) {
-        setResolvedAddress(newState.resolvedAddress);
-      }
-      if (newState.resolvedEns) {
-        setResolvedEns(newState.resolvedEns);
-      }
-      if (newState.avatarUrl) {
-        setAvatarUrl(newState.avatarUrl);
-      }
-      if (newState.ensBio) {
-        setEnsBio(newState.ensBio);
-      }
-      if (newState.ensLinks?.socials) {
-        setEnsLinks(prevLinks => ({
-          ...prevLinks,
-          socials: {
-            ...prevLinks.socials,
-            ...newState.ensLinks?.socials
-          },
-          description: newState.ensLinks?.description || prevLinks.description
-        }));
-      }
-    }
+    (newState) => setState(prev => ({ ...prev, ...newState }))
   );
 
+  // Effect to handle ENS resolution
+  useEffect(() => {
+    if (!normalizedEnsName) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    resolveEns(normalizedEnsName).finally(() => setIsLoading(false));
+  }, [normalizedEnsName]);
+
+  // Effect to handle address resolution
+  useEffect(() => {
+    if (!address || isEns) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    lookupAddress(address).finally(() => setIsLoading(false));
+  }, [address, isEns]);
+
   return {
-    resolvedAddress,
-    resolvedEns,
-    avatarUrl,
-    ensBio,
-    ensLinks,
-    isLoading: isLoading || isLoadingWeb3Bio,
-    error,
-    timeoutError
+    resolvedAddress: state.resolvedAddress,
+    resolvedEns: state.resolvedEns,
+    avatarUrl: state.avatarUrl,
+    ensBio: state.ensBio,
+    ensLinks: state.ensLinks,
+    isLoading: isLoadingEns || isLoadingWeb3Bio,
+    error
   };
 }

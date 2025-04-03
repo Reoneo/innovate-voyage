@@ -1,118 +1,103 @@
 
-import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { web3Api } from '@/api/web3Api';
+import { useState } from 'react';
+import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ensResolution';
 
-// Add a proper type for the ensLinks return value
-interface EnsLinksResult {
-  socials: Record<string, string>;
-  ensLinks: string[];
-  description?: string;
+interface EnsResolutionState {
+  resolvedAddress: string | undefined;
+  resolvedEns: string | undefined;
+  avatarUrl: string | undefined;
+  ensBio: string | undefined;
+  ensLinks: {
+    socials: Record<string, string>;
+    ensLinks: string[];
+    description?: string;
+  };
 }
 
-// Update the function to handle description property safely
 export function useEnsResolution(ensName?: string, address?: string) {
-  const [resolvedAddress, setResolvedAddress] = useState<string | undefined>(address);
-  const [resolvedEns, setResolvedEns] = useState<string | undefined>(ensName);
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
-
-  const { data: addressData } = useQuery({
-    queryKey: ['ens', 'name', ensName],
-    queryFn: () => ensName ? web3Api.getAddressByEns(ensName) : null,
-    enabled: !!ensName,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-
-  const { data: ensData } = useQuery({
-    queryKey: ['ens', 'address', address],
-    queryFn: () => address ? web3Api.getEnsByAddress(address) : null,
-    enabled: !!address,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-
-  const { data: avatar } = useQuery({
-    queryKey: ['avatar', ensName],
-    queryFn: () => ensName ? web3Api.getRealAvatar(ensName) : null,
-    enabled: !!ensName,
-    staleTime: 30 * 60 * 1000, // 30 minutes
-    retry: 1, // Reduce retries for avatars since some might not exist
-  });
-
-  useEffect(() => {
-    if (addressData?.address) {
-      setResolvedAddress(addressData.address);
-      setResolvedEns(ensName);
+  const [state, setState] = useState<EnsResolutionState>({
+    resolvedAddress: address,
+    resolvedEns: ensName,
+    avatarUrl: undefined,
+    ensBio: undefined,
+    ensLinks: {
+      socials: {},
+      ensLinks: []
     }
-  }, [addressData, ensName]);
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (ensData?.ensName) {
-      setResolvedEns(ensData.ensName);
-      setResolvedAddress(address);
-    }
-  }, [ensData, address]);
-
-  useEffect(() => {
-    if (avatar) {
-      // Handle both string and object with url property
-      const avatarUrl = typeof avatar === 'string' ? avatar : avatar.url;
-      if (avatarUrl) {
-        setAvatarUrl(avatarUrl);
+  const resolveEns = async (ensName: string) => {
+    try {
+      const resolvedAddress = await resolveEnsToAddress(ensName);
+      if (resolvedAddress) {
+        // Fetch links, avatar and bio in parallel
+        const [links, avatar, bio] = await Promise.all([
+          getEnsLinks(ensName, 'mainnet'),
+          getEnsAvatar(ensName, 'mainnet'),
+          getEnsBio(ensName, 'mainnet')
+        ]);
+        
+        console.log(`ENS resolution for ${ensName}:`, { 
+          address: resolvedAddress,
+          links,
+          avatar,
+          bio
+        });
+        
+        setState(prev => ({
+          ...prev,
+          resolvedAddress,
+          ensLinks: links,
+          avatarUrl: avatar || prev.avatarUrl,
+          ensBio: bio || links.description || prev.ensBio
+        }));
       }
+    } catch (error) {
+      console.error(`Error resolving ${ensName}:`, error);
     }
-  }, [avatar]);
-
-  const { data: allEnsRecords } = useQuery({
-    queryKey: ['ensRecords', resolvedAddress],
-    queryFn: () => resolvedAddress ? web3Api.getAllEnsRecords() : null,
-    enabled: !!resolvedAddress,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-
-  const processEnsRecords = (records: any): EnsLinksResult => {
-    if (!records) {
-      return { socials: {}, ensLinks: [] };
-    }
-
-    // Extract social links from records
-    const socials: Record<string, string> = {};
-    const ensLinks: string[] = [];
-    let description: string | undefined = undefined;
-
-    for (const record of records) {
-      if (record.key?.startsWith('social.')) {
-        const service = record.key.substring(7);
-        socials[service] = record.value;
-      } else if (record.key === 'url' && typeof record.value === 'string') {
-        ensLinks.push(record.value);
-      } else if (record.key === 'description') {
-        description = record.value;
-      }
-    }
-
-    // Make sure to extract the description
-    if (records.description) {
-      description = records.description;
-    }
-
-    return { socials, ensLinks, description };
   };
 
-  const linkData = allEnsRecords ? processEnsRecords(allEnsRecords) : null;
-
-  const resultEnsLinks = linkData ? { 
-    socials: linkData.socials || {}, 
-    ensLinks: linkData.ensLinks || [],
-    description: linkData.description
-  } : { 
-    socials: {}, 
-    ensLinks: [] 
+  const lookupAddress = async (address: string) => {
+    try {
+      const result = await resolveAddressToEns(address);
+      if (result) {
+        // Fetch links, avatar and bio in parallel
+        const [links, avatar, bio] = await Promise.all([
+          getEnsLinks(result.ensName, 'mainnet'),
+          getEnsAvatar(result.ensName, 'mainnet'),
+          getEnsBio(result.ensName, 'mainnet')
+        ]);
+        
+        console.log(`Address lookup for ${address}:`, {
+          ens: result.ensName,
+          links,
+          avatar,
+          bio
+        });
+        
+        setState(prev => ({
+          ...prev,
+          resolvedEns: result.ensName,
+          ensLinks: links,
+          avatarUrl: avatar || prev.avatarUrl,
+          ensBio: bio || links.description || prev.ensBio
+        }));
+      }
+    } catch (error) {
+      console.error(`Error looking up ENS for address ${address}:`, error);
+    }
   };
 
   return {
-    resolvedAddress,
-    resolvedEns,
-    avatarUrl,
-    ensLinks: resultEnsLinks,
+    state,
+    setState,
+    isLoading,
+    setIsLoading,
+    error,
+    setError,
+    resolveEns,
+    lookupAddress
   };
 }

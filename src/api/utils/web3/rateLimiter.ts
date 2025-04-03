@@ -1,18 +1,16 @@
 
-// Simple rate limiter for API requests
+// In-memory storage for rate limiting
 let lastRequestTime = 0;
 
 /**
- * Enforces a minimum delay between API requests to avoid rate limiting
- * @param minDelay Minimum delay in ms between requests
+ * Helper function to enforce rate limiting
  */
-export async function enforceRateLimit(minDelay: number): Promise<void> {
+export async function enforceRateLimit(delayMs: number) {
   const now = Date.now();
   const timeSinceLastRequest = now - lastRequestTime;
   
-  if (timeSinceLastRequest < minDelay) {
-    const waitTime = minDelay - timeSinceLastRequest;
-    console.log(`Rate limiting: waiting ${waitTime}ms before next request`);
+  if (timeSinceLastRequest < delayMs) {
+    const waitTime = delayMs - timeSinceLastRequest;
     await new Promise(resolve => setTimeout(resolve, waitTime));
   }
   

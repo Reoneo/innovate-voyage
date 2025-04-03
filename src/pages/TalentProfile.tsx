@@ -1,177 +1,155 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useProfileData } from '@/hooks/useProfileData';
-import ProfileHeader from '@/components/talent/profile/ProfileHeader';
-import ProfileNavigationBar from '@/components/talent/profile/ProfileNavigationBar';
-import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
-import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
-import SkillsTab from '@/components/talent/profile/tabs/SkillsTab';
-import BlockchainTab from '@/components/talent/profile/tabs/BlockchainTab';
-import SocialLinks from '@/components/talent/profile/tabs/SocialLinks';
-import ProfileTimeoutError from '@/components/talent/profile/ProfileTimeoutError';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import BlockchainActivity from '@/components/jobs/user-profile/BlockchainActivity';
-import VerifiedWorkExperience from '@/components/talent/profile/components/VerifiedWorkExperience';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { usePdfExport } from '@/hooks/usePdfExport';
+import { isValidEthereumAddress } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { Wallet, LogOut, Save, Download, ArrowLeft } from 'lucide-react';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
-// Define interface for URL parameters
-interface TalentProfileParams {
-  ensNameOrAddress: string;
-}
+import HeaderContainer from '@/components/talent/profile/components/HeaderContainer';
+import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
+import AvatarSection from '@/components/talent/profile/components/AvatarSection';
+import VerifiedWorkExperience from '@/components/talent/profile/components/VerifiedWorkExperience';
 
 const TalentProfile = () => {
-  const { ensNameOrAddress } = useParams<keyof TalentProfileParams>() as TalentProfileParams;
-  const [activeTab, setActiveTab] = useState('skills');
-  const [timeoutError, setTimeoutError] = useState(false);
-  const isMobile = useIsMobile();
+  const { ensNameOrAddress } = useParams<{ensNameOrAddress: string}>();
+  const [address, setAddress] = useState<string | undefined>(undefined);
+  const [ens, setEns] = useState<string | undefined>(undefined);
+  const { toast } = useToast();
+  const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   
-  // Reset state when the URL changes
   useEffect(() => {
-    setTimeoutError(false);
-  }, [ensNameOrAddress]);
-  
-  // Normalize the identity - only accept .eth and .box domains
-  const normalizedIdentity = ensNameOrAddress?.toLowerCase();
-  
-  // Parse the identity to decide whether to use it as ENS name or address
-  const isEnsName = normalizedIdentity?.endsWith('.eth') || normalizedIdentity?.endsWith('.box');
-  const ensName = isEnsName ? normalizedIdentity : undefined;
-  const address = !isEnsName ? normalizedIdentity : undefined;
-  
-  const { passport, loading, blockchainProfile, transactions, blockchainExtendedData, resolvedEns, avatarUrl } = useProfileData(ensName, address);
-  
-  // Set a timeout for loading the profile - now with more time for API calls
-  useEffect(() => {
-    const timeoutTimer = setTimeout(() => {
-      if (loading) {
-        setTimeoutError(true);
+    if (ensNameOrAddress) {
+      if (isValidEthereumAddress(ensNameOrAddress)) {
+        setAddress(ensNameOrAddress);
+      } else {
+        const ensValue = ensNameOrAddress.includes('.') ? ensNameOrAddress : `${ensNameOrAddress}.eth`;
+        setEns(ensValue);
       }
-    }, 10000); // Increased to 10 seconds to allow for retries
-    
-    return () => {
-      clearTimeout(timeoutTimer);
-    };
-  }, [loading]);
-  
-  // Reset timeout error if loading state changes to false
-  useEffect(() => {
-    if (!loading) {
-      setTimeoutError(false);
     }
-  }, [loading]);
-  
-  // If we have a timeout error, show the timeout error component
-  if (timeoutError && loading) {
-    return <ProfileTimeoutError identity={normalizedIdentity} />;
-  }
-  
-  // Loading state
-  if (loading) {
-    return <ProfileSkeleton />;
-  }
-  
-  // Not found state
-  if (!passport) {
-    return <ProfileNotFound ensNameOrAddress={ensNameOrAddress || 'Unknown'} />;
-  }
 
-  // Render the appropriate tab content based on activeTab
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'skills':
-        return (
-          <SkillsTab 
-            skills={passport.skills}
-            name={passport.name}
-            address={passport.owner_address}
-            ensName={resolvedEns}
-            avatarUrl={avatarUrl || passport.avatar_url}
-            additionalEnsDomains={blockchainExtendedData?.boxDomains}
-          />
-        );
-      case 'blockchain':
-        return (
-          <BlockchainTab 
-            address={passport.owner_address}
-            ensName={resolvedEns}
-            blockchainProfile={blockchainProfile}
-            transactions={transactions || []}
-          />
-        );
-      case 'links':
-        return (
-          <SocialLinks 
-            ensName={resolvedEns}
-            links={[]}
-            socials={passport.socials}
-            additionalEnsDomains={blockchainExtendedData?.boxDomains}
-          />
-        );
-      default:
-        return null;
-    }
+    const storedWallet = localStorage.getItem('connectedWalletAddress');
+    setConnectedWallet(storedWallet);
+  }, [ensNameOrAddress]);
+
+  const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
+  
+  const { profileRef, exportAsPDF } = usePdfExport();
+
+  const handleDisconnect = () => {
+    localStorage.removeItem('connectedWalletAddress');
+    setConnectedWallet(null);
+    toast({
+      title: "Wallet disconnected",
+      description: "You've been successfully disconnected from your wallet."
+    });
+  };
+  
+  const handleSaveChanges = () => {
+    toast({
+      title: "Changes saved",
+      description: "Your profile changes have been saved successfully."
+    });
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 min-h-screen">
-      <Helmet>
-        <title>
-          {passport.name || resolvedEns || passport.owner_address.slice(0, 10)} | Recruitment.box
-        </title>
-        <meta 
-          name="description" 
-          content={`View the blockchain CV and skills of ${passport.name || resolvedEns || passport.owner_address.slice(0, 10)} on Recruitment.box.`} 
-        />
-      </Helmet>
-
-      <div className="flex items-center mb-8">
-        <Button variant="ghost" className="mr-2" asChild>
+    <div className="min-h-screen bg-gray-50 py-4 md:py-8">
+      <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
+        {/* Back Button */}
+        <div className="flex items-center mb-4">
           <Link to="/">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
+            <Button variant="outline" size="sm" className="gap-1">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Button>
           </Link>
-        </Button>
-      </div>
-
-      <div className="flex flex-col gap-6">
-        {/* A4 layout with two columns */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="flex flex-col md:flex-row">
-            {/* Left column (30%) */}
-            <div className="md:w-3/10 w-full p-6 border-b md:border-b-0 md:border-r border-gray-200">
-              <ProfileHeader
-                passport={passport}
-                compact={true}
-              />
-            </div>
-
-            {/* Right column (70%) */}
-            <div className="md:w-7/10 w-full p-6">
-              <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">Blockchain Experience</h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <VerifiedWorkExperience walletAddress={passport.owner_address} />
-                  {passport.owner_address && (
-                    <BlockchainActivity address={passport.owner_address} />
-                  )}
-                </div>
-              </div>
-            </div>
+          
+          <div className="ml-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Wallet className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {connectedWallet ? (
+                  <>
+                    <DropdownMenuItem onClick={handleSaveChanges}>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Changes
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDisconnect}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Disconnect
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem onClick={() => document.dispatchEvent(new Event('open-wallet-connect'))}>
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Connect Wallet
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={exportAsPDF}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export as PDF
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
         
-        <div className="my-6">
-          <ProfileNavigationBar 
-            activeTab={activeTab} 
-            onTabChange={setActiveTab} 
-          />
-        </div>
-
-        <div className="mb-12">
-          {renderTabContent()}
+        {/* A4 Profile Page */}
+        <div ref={profileRef} id="resume-pdf">
+          {loading ? (
+            <ProfileSkeleton />
+          ) : passport ? (
+            <HeaderContainer>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Left column with avatar and social links */}
+                <div className="md:col-span-1">
+                  <AvatarSection 
+                    avatarUrl={avatarUrl || passport.avatar_url}
+                    name={passport.name}
+                    ownerAddress={passport.owner_address}
+                    socials={passport.socials}
+                    bio={passport.bio}
+                    displayIdentity={ensNameOrAddress}
+                    additionalEnsDomains={passport.additionalEnsDomains}
+                  />
+                </div>
+                
+                {/* Right column with work experience */}
+                <div className="md:col-span-2">
+                  <VerifiedWorkExperience 
+                    walletAddress={passport.owner_address} 
+                  />
+                </div>
+              </div>
+            </HeaderContainer>
+          ) : (
+            <HeaderContainer>
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <h2 className="text-2xl font-bold mb-2">Profile Not Found</h2>
+                <p className="text-muted-foreground mb-6">
+                  We couldn't find a profile for {ensNameOrAddress}
+                </p>
+                <Link to="/">
+                  <Button>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Return to Home
+                  </Button>
+                </Link>
+              </div>
+            </HeaderContainer>
+          )}
         </div>
       </div>
     </div>

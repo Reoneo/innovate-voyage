@@ -1,34 +1,27 @@
 
 import React from 'react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Briefcase, Network, Link } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
-interface ProfileNavigationBarProps {
-  activeTab: string;
-  onTabChange: (value: string) => void;
-}
+const ProfileNavigationBar: React.FC = () => {
+  const navigate = useNavigate();
+  
+  const handleBackClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate('/talent');
+  };
 
-const ProfileNavigationBar: React.FC<ProfileNavigationBarProps> = ({
-  activeTab,
-  onTabChange
-}) => {
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid grid-cols-3 w-full max-w-md mx-auto">
-        <TabsTrigger value="skills" className="flex items-center gap-2">
-          <Briefcase className="h-4 w-4" />
-          <span className="hidden sm:inline">Skills</span>
-        </TabsTrigger>
-        <TabsTrigger value="blockchain" className="flex items-center gap-2">
-          <Network className="h-4 w-4" />
-          <span className="hidden sm:inline">Blockchain</span>
-        </TabsTrigger>
-        <TabsTrigger value="links" className="flex items-center gap-2">
-          <Link className="h-4 w-4" />
-          <span className="hidden sm:inline">Links</span>
-        </TabsTrigger>
-      </TabsList>
-    </Tabs>
+    <div className="flex justify-between items-center mb-6">
+      <a 
+        href="/talent" 
+        onClick={handleBackClick}
+        className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Talent
+      </a>
+    </div>
   );
 };
 

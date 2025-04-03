@@ -1,41 +1,28 @@
 
 import React from 'react';
-import { truncateAddress } from '@/lib/utils';
-import WorkExperienceSection from './WorkExperienceSection';
-import { Button } from '@/components/ui/button';
-import BiographySection from './biography/BiographySection';
+import ProfileContact from './ProfileContact';
 
 interface ProfileInfoSectionProps {
   passportId: string;
   ownerAddress: string;
-  ensName?: string;
-  score?: number;
   bio?: string;
-  socials?: Record<string, string>;
-  compact?: boolean;  // Add compact prop
+  socials: Record<string, string>;
 }
 
-const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({
-  passportId,
-  ownerAddress,
-  bio,
-  socials,
-  compact
+const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ 
+  passportId, 
+  ownerAddress, 
+  socials = {} 
 }) => {
   return (
-    <div className="flex-1">
-      <div className="flex flex-col">
-        {/* Skip display of certain elements when in compact mode */}
-        {!compact && (
-          <div className="mt-4">
-            <BiographySection bio={bio} identity={ownerAddress} />
-          </div>
-        )}
-        
-        <div className="mt-auto flex flex-col gap-6">
-          {!compact && <WorkExperienceSection address={ownerAddress} />}
-        </div>
-      </div>
+    <div className="w-full">
+      <ProfileContact 
+        passportId={passportId} 
+        ownerAddress={ownerAddress}
+        email={socials?.email} 
+        telephone={socials?.telephone}
+        location={socials?.location}
+      />
     </div>
   );
 };
