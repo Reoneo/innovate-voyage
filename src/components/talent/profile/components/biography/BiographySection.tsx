@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { getEnsBio } from '@/utils/ens/ensRecords';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { FileText } from 'lucide-react';
 
 interface BiographySectionProps {
   bio?: string;
@@ -33,18 +35,29 @@ const BiographySection: React.FC<BiographySectionProps> = ({ bio, identity }) =>
   }, [biography, identity]);
 
   return (
-    <div className="w-full mt-4 mb-2 text-center">
-      <h3 className="text-lg font-medium mb-2">Bio</h3>
-      {isLoading ? (
-        <p className="text-muted-foreground italic">Loading bio...</p>
-      ) : biography ? (
-        <p className="text-muted-foreground whitespace-pre-wrap break-words text-sm">
-          {biography}
-        </p>
-      ) : (
-        <p className="text-muted-foreground italic text-sm">No bio available</p>
-      )}
-    </div>
+    <Card id="bio-card-section" className="mt-4">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              Bio
+            </CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <p className="text-muted-foreground text-sm">Loading bio...</p>
+        ) : biography ? (
+          <p className="text-muted-foreground text-sm whitespace-pre-wrap break-words">
+            {biography}
+          </p>
+        ) : (
+          <p className="text-muted-foreground text-sm">No bio available</p>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

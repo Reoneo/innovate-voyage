@@ -34,7 +34,8 @@ export const usePdfExport = () => {
         }
       }
     `,
-    onBeforeGetContent: () => {
+    // Using onBeforePrint instead of onBeforeGetContent
+    onBeforePrint: () => {
       // Add a temporary class to ensure content fits on one page
       if (profileRef.current) {
         profileRef.current.classList.add('profile-content');

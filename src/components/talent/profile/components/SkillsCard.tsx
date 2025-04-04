@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ListChecks, ExternalLink } from 'lucide-react';
 
 interface SkillsCardProps {
   walletAddress?: string;
@@ -25,7 +24,11 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <ListChecks className="h-5 w-5 text-primary" />
+              <img 
+                src="https://pbs.twimg.com/profile_images/1838579348086882305/KEjwEWVa_400x400.jpg" 
+                alt="Skills Logo" 
+                className="h-5 w-5 rounded-full"
+              />
               Skills
             </CardTitle>
             <CardDescription className="flex items-center gap-1">
@@ -34,10 +37,9 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
                 href="https://talentprotocol.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-primary hover:underline flex items-center"
+                className="text-primary hover:underline"
               >
                 TalentProtocol.com
-                <ExternalLink className="h-3 w-3 ml-0.5" />
               </a>
             </CardDescription>
           </div>
