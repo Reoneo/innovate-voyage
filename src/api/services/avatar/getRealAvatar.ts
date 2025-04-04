@@ -26,24 +26,53 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
       return profile.avatar;
     }
     
-    // If it's an ENS name, try the metadata.ens.domains fallback
+    // If it's an ENS name, try multiple sources
     if (identity.endsWith('.eth')) {
+      // Try the ENS metadata service (more reliable for newer ENS domains)
       try {
-        const avatarUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
-        const response = await fetch(avatarUrl, { 
+        // First try the ENS metadata service
+        const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
+        const metadataResponse = await fetch(metadataUrl, { 
           method: 'HEAD',
           cache: 'no-store',
           headers: {
             'Cache-Control': 'no-cache'
           }
         });
-        if (response.ok) {
+        
+        if (metadataResponse.ok) {
           console.log(`Found avatar via ENS metadata for ${identity}`);
-          avatarCache[identity] = avatarUrl;
-          return avatarUrl;
+          avatarCache[identity] = metadataUrl;
+          return metadataUrl;
         }
       } catch (ensError) {
         console.error(`Error fetching ENS avatar from metadata service for ${identity}:`, ensError);
+      }
+      
+      // Try the Ethereum Avatar Service
+      try {
+        const ethAvatarUrl = `https://eth-avatar-api.herokuapp.com/${identity}`;
+        const ethAvatarResponse = await fetch(ethAvatarUrl, { method: 'HEAD' });
+        if (ethAvatarResponse.ok) {
+          console.log(`Found avatar via Ethereum Avatar Service for ${identity}`);
+          avatarCache[identity] = ethAvatarUrl;
+          return ethAvatarUrl;
+        }
+      } catch (ethAvatarError) {
+        console.error(`Error fetching from Ethereum Avatar Service for ${identity}:`, ethAvatarError);
+      }
+      
+      // Try the official ENS Avatar API
+      try {
+        const ensAvatarUrl = `https://avatar.ens.domains/${identity}`;
+        const ensAvatarResponse = await fetch(ensAvatarUrl, { method: 'HEAD' });
+        if (ensAvatarResponse.ok) {
+          console.log(`Found avatar via ENS Avatar API for ${identity}`);
+          avatarCache[identity] = ensAvatarUrl;
+          return ensAvatarUrl;
+        }
+      } catch (ensAvatarError) {
+        console.error(`Error fetching from ENS Avatar API for ${identity}:`, ensAvatarError);
       }
     }
     

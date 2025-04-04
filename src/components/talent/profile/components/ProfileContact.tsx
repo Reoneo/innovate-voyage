@@ -45,7 +45,6 @@ const ProfileContact: React.FC<ProfileContactProps> = ({
           <span>Location: {location}</span>
         </div>
       )}
-      {/* Removed the "Connect wallet to add location" message */}
     </div>
   );
 };

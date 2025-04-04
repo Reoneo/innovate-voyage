@@ -88,3 +88,8 @@ body.generating-pdf {
   align-items: center;
   justify-content: center;
 }
+
+/* Home page title with no animation */
+.static-title {
+  display: inline-block;
+}

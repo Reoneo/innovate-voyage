@@ -44,7 +44,6 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
       telegram: data.telegram || '',
       lens: data.lens || '',
       farcaster: data.farcaster || '',
-      ens: data.ens || '',
       unstoppableDomains: data.unstoppableDomains || '',
       website: data.website || '',
       linkedin: data.linkedin || '',

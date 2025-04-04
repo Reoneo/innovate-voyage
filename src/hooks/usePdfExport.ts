@@ -54,8 +54,43 @@ export function usePdfExport() {
         (skillsSection as HTMLElement).style.display = 'block';
       }
       
+      // Before capturing, drastically reduce padding and margins
+      const allElements = resumeElement.querySelectorAll('*');
+      const originalStyles: Array<{element: HTMLElement, padding: string, margin: string, fontSize: string}> = [];
+      
+      allElements.forEach((el) => {
+        const element = el as HTMLElement;
+        if (element.style) {
+          originalStyles.push({
+            element,
+            padding: element.style.padding,
+            margin: element.style.margin,
+            fontSize: element.style.fontSize
+          });
+          
+          // Reduce padding and margins
+          if (window.getComputedStyle(element).padding !== '0px') {
+            element.style.padding = '4px';
+          }
+          if (window.getComputedStyle(element).margin !== '0px') {
+            element.style.margin = '2px';
+          }
+          
+          // Reduce font sizes
+          const computedStyle = window.getComputedStyle(element);
+          const fontSize = parseInt(computedStyle.fontSize);
+          if (fontSize > 16) {
+            element.style.fontSize = '16px';
+          } else if (fontSize > 14) {
+            element.style.fontSize = '14px';
+          } else if (fontSize > 12) {
+            element.style.fontSize = '12px';
+          }
+        }
+      });
+      
       const canvas = await html2canvas(resumeElement, {
-        scale: 2,
+        scale: 1.5, // Decreased scale for better compression
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
@@ -85,29 +120,29 @@ export function usePdfExport() {
           if (content) {
             const contentContainer = content.querySelector('.p-8.md\\:p-12');
             if (contentContainer) {
-              (contentContainer as HTMLElement).style.padding = '8px';
+              (contentContainer as HTMLElement).style.padding = '2px';
               
               // Scale down content 
               const gridContainer = contentContainer.querySelector('.grid');
               if (gridContainer) {
-                (gridContainer as HTMLElement).style.gap = '12px';
+                (gridContainer as HTMLElement).style.gap = '8px';
               }
               
               // Reduce margins and paddings
               document.querySelectorAll('.mt-2, .mt-4, .mb-2, .mb-4, .my-2, .my-4, .py-2, .py-4').forEach((el) => {
-                (el as HTMLElement).style.margin = '4px 0';
-                (el as HTMLElement).style.padding = '4px 0';
+                (el as HTMLElement).style.margin = '2px 0';
+                (el as HTMLElement).style.padding = '2px 0';
               });
               
-              // Reduce font sizes
+              // Reduce font sizes more aggressively
               document.querySelectorAll('h1, h2, h3, .text-2xl').forEach((el) => {
-                (el as HTMLElement).style.fontSize = '18px';
-                (el as HTMLElement).style.lineHeight = '22px';
+                (el as HTMLElement).style.fontSize = '14px';
+                (el as HTMLElement).style.lineHeight = '16px';
               });
               
               document.querySelectorAll('p, .text-sm').forEach((el) => {
-                (el as HTMLElement).style.fontSize = '12px';
-                (el as HTMLElement).style.lineHeight = '16px';
+                (el as HTMLElement).style.fontSize = '9px';
+                (el as HTMLElement).style.lineHeight = '11px';
               });
             }
           }
@@ -116,20 +151,20 @@ export function usePdfExport() {
           const style = document.createElement('style');
           style.innerHTML = `
             .pdf-section {
-              margin-bottom: 10px;
+              margin-bottom: 4px;
               page-break-inside: avoid;
             }
             .pdf-section-title {
-              font-size: 16px;
+              font-size: 11px;
               font-weight: bold;
-              margin-bottom: 5px;
+              margin-bottom: 2px;
               color: #333;
               border-bottom: 1px solid #ddd;
-              padding-bottom: 2px;
+              padding-bottom: 1px;
             }
             .pdf-content {
-              font-size: 12px;
-              line-height: 1.3;
+              font-size: 9px;
+              line-height: 1.1;
             }
             body {
               font-family: 'Arial', sans-serif;
@@ -143,6 +178,13 @@ export function usePdfExport() {
         }
       });
       
+      // Restore original styles
+      originalStyles.forEach(({element, padding, margin, fontSize}) => {
+        element.style.padding = padding;
+        element.style.margin = margin;
+        element.style.fontSize = fontSize;
+      });
+      
       // Restore elements display after canvas capture
       if (tabsContainer) {
         (tabsContainer as HTMLElement).style.display = tabContainerDisplay;
@@ -154,9 +196,18 @@ export function usePdfExport() {
       
       document.body.classList.remove('generating-pdf');
       
-      // A4 dimensions in mm
+      // A4 dimensions in mm (Width: 210mm, Height: 297mm)
       const imgWidth = 210;
-      const imgHeight = canvas.height * imgWidth / canvas.width;
+      
+      // Force single page by calculating the scaling factor needed
+      const aspectRatio = canvas.height / canvas.width;
+      const imgHeight = imgWidth * aspectRatio;
+      const maxHeight = 297; // A4 height
+      
+      // If image would be taller than A4, scale it down to fit
+      const scaleFactor = imgHeight > maxHeight ? maxHeight / imgHeight : 1;
+      const finalWidth = imgWidth * scaleFactor;
+      const finalHeight = imgHeight * scaleFactor;
       
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -165,10 +216,10 @@ export function usePdfExport() {
       });
       
       // Get image data from canvas
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/jpeg', 0.7); // Use JPEG with compression for smaller file
       
-      // Add image to PDF - force single page by using compression
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, Math.min(imgHeight, 297));
+      // Add image to PDF, forcing it to fit on a single page
+      pdf.addImage(imgData, 'JPEG', 0, 0, finalWidth, finalHeight);
       
       // Get custom name if available
       const ownerAddress = resumeElement.querySelector('[data-owner-address]')?.getAttribute('data-owner-address');

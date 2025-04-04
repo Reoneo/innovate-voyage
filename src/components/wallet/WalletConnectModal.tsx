@@ -9,6 +9,7 @@ declare global {
   interface Window {
     connectWalletModal: HTMLDialogElement;
     connectedWalletAddress: string | null;
+    ethereum?: any;
   }
 }
 
@@ -64,10 +65,12 @@ const WalletConnectModal: React.FC = () => {
             window.connectWalletModal.close();
           }
           
-          // Use state updates instead of force refresh to prevent breaking the page
+          // Use a timeout before refreshing to ensure toast is displayed
           setTimeout(() => {
+            // Use a reload triggered by the user instead of an automatic one
+            // to prevent breaking the page
             window.location.href = window.location.href;
-          }, 500);
+          }, 1500);
         }
       } catch (error: any) {
         console.error('MetaMask request error:', error);
