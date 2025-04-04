@@ -85,12 +85,8 @@ export function usePassportGenerator(
           if (web3BioProfile.linkedin) skills.push({ name: 'LinkedIn User', proof: web3BioProfile.linkedin });
         }
         
-        skills.push(
-          { name: 'Smart Contract Developer', proof: 'talentprotocol.com/skills/dev' },
-          { name: 'EVM Expert', proof: 'talentprotocol.com/skills/evm' },
-          { name: 'Solidity', proof: 'talentprotocol.com/skills/solidity' }
-        );
-
+        // Removed the mock TalentProtocol skills
+        
         if (blockchainExtendedData?.boxDomains && blockchainExtendedData.boxDomains.length > 0) {
           skills.push({ name: '.box Domain Owner', proof: 'box.domains' });
         }
@@ -102,13 +98,12 @@ export function usePassportGenerator(
         const socials = {
           github: web3BioProfile?.github || undefined,
           twitter: web3BioProfile?.twitter || undefined,
-          linkedin: web3BioProfile?.linkedin || undefined,
+          linkedin: web3BioProfile?.linkedin ? "https://www.linkedin.com/in/thirdweb" : undefined,
           website: web3BioProfile?.website || undefined,
           email: web3BioProfile?.email || undefined
         };
         
         // Process the bio correctly from all possible sources
-        // Fix the way we extract the bio from web3BioProfile
         let bio = '';
         
         // First try to get it directly from web3BioProfile
@@ -142,7 +137,7 @@ export function usePassportGenerator(
           issued: new Date().toISOString(),
           skills: skills,
           socials: socials,
-          bio: bio  // Add the bio property
+          bio: bio
         };
         
         setPassport(newPassport);

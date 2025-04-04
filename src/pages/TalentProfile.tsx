@@ -20,6 +20,7 @@ import ProfileNotFound from '@/components/talent/profile/ProfileNotFound';
 import AvatarSection from '@/components/talent/profile/components/AvatarSection';
 import VerifiedWorkExperience from '@/components/talent/profile/components/VerifiedWorkExperience';
 import SkillsCard from '@/components/talent/profile/components/SkillsCard';
+import PoapSection from '@/components/talent/profile/components/poap/PoapSection';
 
 const TalentProfile = () => {
   const { ensNameOrAddress } = useParams<{ensNameOrAddress: string}>();
@@ -47,7 +48,7 @@ const TalentProfile = () => {
       setLoadingTimeout(true);
     }, 5000);
 
-    // Add meta viewport setting to optimize for desktop on profile page
+    // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
       metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0');
@@ -185,6 +186,9 @@ const TalentProfile = () => {
                   <SkillsCard
                     walletAddress={passport.owner_address}
                     skills={passport.skills}
+                  />
+                  <PoapSection
+                    walletAddress={passport.owner_address}
                   />
                 </div>
               </div>

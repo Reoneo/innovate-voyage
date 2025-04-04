@@ -48,7 +48,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
   
   return (
-    <div className="flex flex-col items-center md:items-start gap-2">
+    <div className="flex flex-col items-center gap-2 w-full text-center">
       {/* Avatar */}
       <ProfileAvatar 
         avatarUrl={avatarUrl} 
@@ -69,7 +69,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       <ProfileContact 
         email={normalizedSocials.email}
         telephone={telephone}
-        location={normalizedSocials.location}
         isOwner={isOwner}
       />
       

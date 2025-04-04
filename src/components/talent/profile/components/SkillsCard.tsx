@@ -14,6 +14,11 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
     return null;
   }
 
+  // Filter out the mock TalentProtocol skills
+  const filteredSkills = skills.filter(skill => 
+    !skill.proof?.includes('talentprotocol.com')
+  );
+
   return (
     <Card id="skills-card-section" className="mt-4">
       <CardHeader className="pb-2">
@@ -39,9 +44,9 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         </div>
       </CardHeader>
       <CardContent>
-        {skills && skills.length > 0 ? (
+        {filteredSkills && filteredSkills.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-            {skills.map((skill, index) => (
+            {filteredSkills.map((skill, index) => (
               <Badge key={index} variant={skill.proof ? "default" : "outline"} 
                 className={skill.proof ? "bg-green-500 hover:bg-green-600" : "text-gray-600 border-gray-400"}>
                 {skill.name}
@@ -51,7 +56,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         ) : (
           <div className="text-center py-4">
             <p className="text-muted-foreground text-sm">
-              No verified skills found. Connect your wallet to add your skills.
+              No verified skills found.
             </p>
           </div>
         )}
