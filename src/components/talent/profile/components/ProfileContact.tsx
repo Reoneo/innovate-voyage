@@ -45,12 +45,7 @@ const ProfileContact: React.FC<ProfileContactProps> = ({
           <span>Location: {location}</span>
         </div>
       )}
-      {!location && isOwner && (
-        <div className="flex items-center gap-2">
-          <MapPin className="h-4 w-4" />
-          <span className="text-muted-foreground/75 italic">Connect wallet to add location</span>
-        </div>
-      )}
+      {/* Removed the "Connect wallet to add location" message */}
     </div>
   );
 };

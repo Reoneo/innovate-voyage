@@ -46,25 +46,36 @@ const WalletConnectModal: React.FC = () => {
         return;
       }
       
-      // Request account access
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      
-      if (accounts && accounts.length > 0) {
-        // Save connected address to window and localStorage for persistence
-        window.connectedWalletAddress = accounts[0];
-        localStorage.setItem('connectedWalletAddress', accounts[0]);
+      // Request account access - using a safer method with error handling
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         
-        toast({
-          title: "Wallet Connected",
-          description: `Connected to ${accounts[0].substring(0, 6)}...${accounts[0].substring(38)}`,
-        });
-        
-        if (window.connectWalletModal) {
-          window.connectWalletModal.close();
+        if (accounts && accounts.length > 0) {
+          // Save connected address to window and localStorage for persistence
+          window.connectedWalletAddress = accounts[0];
+          localStorage.setItem('connectedWalletAddress', accounts[0]);
+          
+          toast({
+            title: "Wallet Connected",
+            description: `Connected to ${accounts[0].substring(0, 6)}...${accounts[0].substring(38)}`,
+          });
+          
+          if (window.connectWalletModal) {
+            window.connectWalletModal.close();
+          }
+          
+          // Use state updates instead of force refresh to prevent breaking the page
+          setTimeout(() => {
+            window.location.href = window.location.href;
+          }, 500);
         }
-        
-        // Force refresh to update UI
-        window.location.reload();
+      } catch (error: any) {
+        console.error('MetaMask request error:', error);
+        toast({
+          title: "Connection Failed",
+          description: error.message || "There was an error connecting to your wallet",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Error connecting to wallet:', error);

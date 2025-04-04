@@ -80,24 +80,56 @@ export function usePdfExport() {
             (blockchainTab as HTMLElement).style.display = 'none';
           }
           
+          // Scale and compress content for single page
+          const content = document.getElementById('resume-pdf');
+          if (content) {
+            const contentContainer = content.querySelector('.p-8.md\\:p-12');
+            if (contentContainer) {
+              (contentContainer as HTMLElement).style.padding = '8px';
+              
+              // Scale down content 
+              const gridContainer = contentContainer.querySelector('.grid');
+              if (gridContainer) {
+                (gridContainer as HTMLElement).style.gap = '12px';
+              }
+              
+              // Reduce margins and paddings
+              document.querySelectorAll('.mt-2, .mt-4, .mb-2, .mb-4, .my-2, .my-4, .py-2, .py-4').forEach((el) => {
+                (el as HTMLElement).style.margin = '4px 0';
+                (el as HTMLElement).style.padding = '4px 0';
+              });
+              
+              // Reduce font sizes
+              document.querySelectorAll('h1, h2, h3, .text-2xl').forEach((el) => {
+                (el as HTMLElement).style.fontSize = '18px';
+                (el as HTMLElement).style.lineHeight = '22px';
+              });
+              
+              document.querySelectorAll('p, .text-sm').forEach((el) => {
+                (el as HTMLElement).style.fontSize = '12px';
+                (el as HTMLElement).style.lineHeight = '16px';
+              });
+            }
+          }
+          
           // Add a professional layout styling for PDF
           const style = document.createElement('style');
           style.innerHTML = `
             .pdf-section {
-              margin-bottom: 20px;
+              margin-bottom: 10px;
               page-break-inside: avoid;
             }
             .pdf-section-title {
-              font-size: 18px;
+              font-size: 16px;
               font-weight: bold;
-              margin-bottom: 10px;
+              margin-bottom: 5px;
               color: #333;
               border-bottom: 1px solid #ddd;
-              padding-bottom: 5px;
+              padding-bottom: 2px;
             }
             .pdf-content {
-              font-size: 14px;
-              line-height: 1.5;
+              font-size: 12px;
+              line-height: 1.3;
             }
             body {
               font-family: 'Arial', sans-serif;
@@ -124,8 +156,6 @@ export function usePdfExport() {
       
       // A4 dimensions in mm
       const imgWidth = 210;
-      const pageHeight = 297;
-      
       const imgHeight = canvas.height * imgWidth / canvas.width;
       
       const pdf = new jsPDF({
@@ -137,58 +167,8 @@ export function usePdfExport() {
       // Get image data from canvas
       const imgData = canvas.toDataURL('image/png');
       
-      // Split the image into pages if it's too long
-      let heightLeft = imgHeight;
-      let position = 0;
-      let pageNumber = 1;
-
-      while (heightLeft >= 0) {
-        if (pageNumber > 1) {
-          pdf.addPage();
-        }
-        
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        position -= pageHeight;
-        pageNumber++;
-      }
-
-      // Add hyperlinks to the PDF
-      const links = resumeElement.getElementsByTagName('a');
-      for (let i = 0; i < links.length; i++) {
-        const link = links[i];
-        const rect = link.getBoundingClientRect();
-        const scaleFactor = imgWidth / canvas.width;
-        
-        // Only add link if it has href
-        if (link.href) {
-          pdf.link(
-            rect.left * scaleFactor,
-            rect.top * scaleFactor,
-            rect.width * scaleFactor,
-            rect.height * scaleFactor,
-            { url: link.href }
-          );
-        }
-      }
-      
-      // Specifically handle social links with data attributes
-      const socialLinks = resumeElement.querySelectorAll('[data-social-link]');
-      socialLinks.forEach((socialLink) => {
-        const link = socialLink as HTMLAnchorElement;
-        if (link && link.href) {
-          const rect = link.getBoundingClientRect();
-          const scaleFactor = imgWidth / canvas.width;
-          
-          pdf.link(
-            rect.left * scaleFactor,
-            rect.top * scaleFactor,
-            rect.width * scaleFactor,
-            rect.height * scaleFactor,
-            { url: link.href }
-          );
-        }
-      });
+      // Add image to PDF - force single page by using compression
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, Math.min(imgHeight, 297));
       
       // Get custom name if available
       const ownerAddress = resumeElement.querySelector('[data-owner-address]')?.getAttribute('data-owner-address');
