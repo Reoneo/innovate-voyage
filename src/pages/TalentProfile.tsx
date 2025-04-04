@@ -83,6 +83,12 @@ const TalentProfile = () => {
     });
   };
 
+  // Handler for the export PDF dropdown item
+  const handleExportPdf = () => {
+    // This correctly calls the function returned by useReactToPrint
+    exportAsPDF();
+  };
+
   // If loading timeout occurred and still loading, show error message
   if (loadingTimeout && loading) {
     return (
@@ -144,7 +150,7 @@ const TalentProfile = () => {
                     Connect Wallet
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={exportAsPDF}>
+                <DropdownMenuItem onClick={handleExportPdf}>
                   <Download className="mr-2 h-4 w-4" />
                   Export as PDF
                 </DropdownMenuItem>

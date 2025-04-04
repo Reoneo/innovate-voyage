@@ -4,14 +4,8 @@ import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
-// Declare the modal type on the window object
-declare global {
-  interface Window {
-    connectWalletModal: HTMLDialogElement;
-    connectedWalletAddress: string | null;
-    ethereum?: any;
-  }
-}
+// No need to redeclare the window interface here since it's defined in types/ethereum.d.ts
+// Just use the existing interface
 
 const WalletConnectModal: React.FC = () => {
   const [connecting, setConnecting] = useState(false);

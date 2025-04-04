@@ -37,6 +37,9 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     // Extract and normalize the profile data
     const profile: Web3BioProfile = {
       address: data.address || '',
+      identity: identity,
+      platform: 'ethereum',
+      displayName: data.address || identity,
       avatar: data.avatar || '',
       description: data.description || '',
       github: data.github || '',

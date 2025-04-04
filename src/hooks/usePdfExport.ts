@@ -6,8 +6,11 @@ export const usePdfExport = () => {
   const profileRef = useRef<HTMLDivElement | null>(null);
 
   const exportAsPDF = useReactToPrint({
-    content: () => profileRef.current,
     documentTitle: 'Profile',
+    onPrintError: (error) => console.error('Failed to print', error),
+    removeAfterPrint: true,
+    // Use contentRef option instead of content
+    contentRef: profileRef,
     pageStyle: `
       @page {
         size: A4;
