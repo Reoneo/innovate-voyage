@@ -59,6 +59,16 @@
   }
 }
 
+/* Hide scrollbars for POAP section */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 /* PDF Generation Styles */
 body.generating-pdf {
   overflow: hidden;

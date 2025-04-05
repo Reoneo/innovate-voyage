@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ListChecks, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 interface SkillsCardProps {
   walletAddress?: string;
@@ -19,7 +19,8 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
     const fetchTalentSkills = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('https://api.talentprotocol.com/api/v1/skills', {
+        // Using the v2 API endpoint as requested
+        const response = await fetch('https://api.talentprotocol.com/api/v2/profiles', {
           headers: {
             'Authorization': 'Bearer 2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
           }
@@ -27,9 +28,14 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         
         if (response.ok) {
           const data = await response.json();
-          // Extract skill names from the response
-          const skillNames = data.skills?.map((skill: any) => skill.name) || [];
-          setTalentSkills(skillNames);
+          // Extract skill names from the response - adjust this based on the actual API response structure
+          const skillNames = data.profiles?.flatMap((profile: any) => 
+            profile.skills?.map((skill: any) => skill.name) || []
+          ) || [];
+          
+          // Remove duplicates
+          const uniqueSkills = [...new Set(skillNames)];
+          setTalentSkills(uniqueSkills);
         } else {
           console.error('Failed to fetch skills from TalentProtocol');
         }
@@ -67,7 +73,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <img src="https://cdn.worldvectorlogo.com/logos/talent-protocol.svg" className="h-6 w-6" alt="Talent Protocol" />
+              <img src="https://world-id-assets.com/app_51fb239afc33541eb0a5cf76aaeb67bb/59c4ed38-f2ec-4362-af2c-17a196365fca.png" className="h-8 w-8" alt="Talent Protocol" />
               Skills
             </CardTitle>
             <CardDescription className="flex items-center gap-1">

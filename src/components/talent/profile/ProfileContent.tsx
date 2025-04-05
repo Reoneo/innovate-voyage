@@ -28,8 +28,14 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
 
+  // Add a style to center the content
+  const centerStyle = {
+    maxWidth: '950px',
+    margin: '0 auto'
+  };
+
   return (
-    <div ref={profileRef} id="resume-pdf">
+    <div ref={profileRef} id="resume-pdf" style={centerStyle}>
       {loading && !loadingTimeout ? (
         <ProfileSkeleton />
       ) : passport ? (

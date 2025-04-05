@@ -29,9 +29,9 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
     });
   };
 
-  // Generate the correct POAP gallery URL
-  const getPoapGalleryUrl = () => {
-    return `https://poap.gallery/drops/${poap.event.fancy_id}`;
+  // Generate the correct POAP collector URL
+  const getPoapCollectorUrl = () => {
+    return `https://collectors.poap.xyz/token/${poap.tokenId}`;
   };
 
   return (
@@ -40,7 +40,7 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
         className="relative cursor-pointer group"
         onClick={() => setIsOpen(true)}
       >
-        <div className="w-16 h-16 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md">
+        <div className="w-20 h-20 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md">
           <img 
             src={poap.event.image_url} 
             alt={poap.event.name} 
@@ -53,7 +53,7 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="text-center text-xl">{poap.event.name}</DialogTitle>
             <DialogDescription className="text-center flex justify-center">
@@ -62,7 +62,7 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
           </DialogHeader>
           
           <div className="flex justify-center mb-4">
-            <div className="w-24 h-24 overflow-hidden rounded-full border-2 border-primary/20">
+            <div className="w-40 h-40 overflow-hidden rounded-full border-2 border-primary/20">
               <img 
                 src={poap.event.image_url} 
                 alt={poap.event.name}
@@ -106,7 +106,7 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
             
             <div className="pt-2">
               <a 
-                href={getPoapGalleryUrl()} 
+                href={getPoapCollectorUrl()} 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline text-sm flex items-center"
