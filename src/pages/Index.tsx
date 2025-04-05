@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Briefcase, 
@@ -19,6 +19,41 @@ import { Input } from '@/components/ui/input';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
+
+// Image URLs for floating logos
+const logoUrls = [
+  "https://altcoinsbox.com/wp-content/uploads/2023/04/full-ethereum-name-service-logo.png",
+  "https://web3.bio/web3bio-logo.png",
+  "https://cdn.publish0x.com/prod/fs/cachedimages/230573382-6a4061168e36bfea7f9ff3375f58f4f0e97b5d13f5c05413a12b04e7ba76270c.png",
+  "https://etherscan.io/images/brandassets/etherscan-logo.svg"
+];
+
+// Floating Logo Component
+interface FloatingLogoProps {
+  imageUrl: string;
+  index: number;
+}
+
+const FloatingLogo: React.FC<FloatingLogoProps> = ({ imageUrl, index }) => {
+  const speed = 20 + (index * 5); // Different speed for each logo
+  
+  return (
+    <div 
+      className="absolute" 
+      style={{
+        animation: `floatRight ${speed}s linear infinite`,
+        top: `${20 + (index * 15)}%`,
+        zIndex: 1
+      }}
+    >
+      <img 
+        src={imageUrl} 
+        alt="Web3 logo" 
+        className="h-12 md:h-16 object-contain opacity-80 hover:opacity-100 transition-opacity"
+      />
+    </div>
+  );
+};
 
 const Index = () => {
   const navigate = useNavigate();
@@ -48,6 +83,22 @@ const Index = () => {
     navigate(`/${searchValue}`);
     toast.success(`Looking up profile for ${searchValue}`);
   };
+
+  // Add keyframes for the floating animation to the document
+  useEffect(() => {
+    const styleSheet = document.createElement("style");
+    styleSheet.textContent = `
+      @keyframes floatRight {
+        0% { transform: translateX(100vw); }
+        100% { transform: translateX(-20vw); }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+    
+    return () => {
+      document.head.removeChild(styleSheet);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -118,12 +169,15 @@ const Index = () => {
 
         {/* Features Section */}
         <div id="features" className="py-16">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Why Recruitment.box?</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Our platform leverages Web3 technology to create a transparent, 
-              efficient, and reliable recruitment experience.
-            </p>
+          <div className="text-center mb-16 relative overflow-hidden">
+            <h2 className="text-3xl font-bold mb-4">Powered by</h2>
+            
+            {/* Floating Web3 Logos */}
+            <div className="h-20 w-full relative mb-6">
+              {logoUrls.map((url, index) => (
+                <FloatingLogo key={index} imageUrl={url} index={index} />
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { type Poap } from '@/api/services/poapService';
 
@@ -40,7 +39,7 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
         className="relative cursor-pointer group"
         onClick={() => setIsOpen(true)}
       >
-        <div className="w-20 h-20 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md">
+        <div className="w-40 h-40 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md">
           <img 
             src={poap.event.image_url} 
             alt={poap.event.name} 
@@ -62,7 +61,7 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
           </DialogHeader>
           
           <div className="flex justify-center mb-4">
-            <div className="w-40 h-40 overflow-hidden rounded-full border-2 border-primary/20">
+            <div className="w-80 h-80 overflow-hidden rounded-full border-2 border-primary/20">
               <img 
                 src={poap.event.image_url} 
                 alt={poap.event.name}

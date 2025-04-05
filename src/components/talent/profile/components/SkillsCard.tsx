@@ -10,10 +10,15 @@ interface SkillsCardProps {
 }
 
 // Define types for the API response
+interface TalentProtocolSkill {
+  id: number;
+  name: string;
+}
+
 interface TalentProtocolProfile {
   id: number;
   name: string;
-  skills: Array<{ id: number; name: string }>;
+  skills: TalentProtocolSkill[];
 }
 
 interface TalentProtocolResponse {
@@ -30,7 +35,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
     const fetchTalentSkills = async () => {
       setIsLoading(true);
       try {
-        // Using the v2 API endpoint as requested
+        // Using the v2 API endpoint as documented in https://docs.talentprotocol.com/docs
         const response = await fetch('https://api.talentprotocol.com/api/v2/profiles', {
           headers: {
             'Authorization': 'Bearer 2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
@@ -40,16 +45,20 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         if (response.ok) {
           const data = await response.json() as TalentProtocolResponse;
           
-          // Extract skill names from the response with proper typing
-          const skillNames: string[] = data.profiles?.flatMap((profile: TalentProtocolProfile) => 
-            profile.skills?.map((skill) => skill.name) || []
+          // Make sure we're extracting skill names correctly based on the API documentation
+          const skillNames = data.profiles?.flatMap((profile: TalentProtocolProfile) => 
+            profile.skills?.map((skill: TalentProtocolSkill) => skill.name) || []
           ) || [];
           
           // Remove duplicates
           const uniqueSkills = [...new Set(skillNames)];
           setTalentSkills(uniqueSkills);
+          
+          // Log the response for debugging
+          console.log('TalentProtocol API response:', data);
+          console.log('Extracted skills:', uniqueSkills);
         } else {
-          console.error('Failed to fetch skills from TalentProtocol');
+          console.error('Failed to fetch skills from TalentProtocol:', await response.text());
         }
       } catch (error) {
         console.error('Error fetching TalentProtocol skills:', error);
@@ -85,7 +94,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <img src="https://world-id-assets.com/app_51fb239afc33541eb0a5cf76aaeb67bb/59c4ed38-f2ec-4362-af2c-17a196365fca.png" className="h-8 w-8" alt="Talent Protocol" />
+              <img src="https://world-id-assets.com/app_51fb239afc33541eb0a5cf76aaeb67bb/59c4ed38-f2ec-4362-af2c-17a196365fca.png" className="h-16 w-16" alt="Talent Protocol" />
               Skills
             </CardTitle>
             <CardDescription className="flex items-center gap-1">

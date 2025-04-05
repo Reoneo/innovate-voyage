@@ -103,3 +103,9 @@ body.generating-pdf {
 .static-title {
   display: inline-block;
 }
+
+/* Floating animations for web3 logos */
+@keyframes floatRight {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-20vw); }
+}
