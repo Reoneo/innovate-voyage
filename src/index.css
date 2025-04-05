@@ -77,11 +77,6 @@ body.generating-pdf {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-
-  /* Remove external link arrows in PDFs */
-  a[href^="http"]::after {
-    display: none !important;
-  }
 }
 
 /* Special styles for social icons in PDF */
@@ -97,16 +92,4 @@ body.generating-pdf {
 /* Home page title with no animation */
 .static-title {
   display: inline-block;
-}
-
-/* Make external links not show the arrow in PDF exports */
-@media print {
-  a {
-    text-decoration: none !important;
-  }
-  
-  a::after {
-    display: none !important;
-    content: "" !important;
-  }
 }

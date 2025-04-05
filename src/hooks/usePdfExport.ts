@@ -34,14 +34,11 @@ export const usePdfExport = () => {
         }
       }
     `,
-    // Using onBeforePrint instead of onBeforeGetContent - must return a Promise<void>
-    onBeforePrint: async () => {
+    onBeforeGetContent: () => {
       // Add a temporary class to ensure content fits on one page
       if (profileRef.current) {
         profileRef.current.classList.add('profile-content');
       }
-      // Return Promise.resolve() to satisfy the Promise<void> return type
-      return Promise.resolve();
     },
     onAfterPrint: () => {
       // Clean up temporary class

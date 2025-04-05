@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { ExternalLink } from 'lucide-react';
 import { 
   Dialog,
   DialogContent,
@@ -34,12 +35,15 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
         className="relative cursor-pointer group"
         onClick={() => setIsOpen(true)}
       >
-        <div className="w-24 h-24 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md animate-pulse">
+        <div className="w-16 h-16 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md">
           <img 
             src={poap.event.image_url} 
             alt={poap.event.name} 
-            className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300"
+            className="w-full h-full object-cover"
           />
+        </div>
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-full transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <ExternalLink className="w-5 h-5 text-white" />
         </div>
       </div>
 
@@ -97,12 +101,13 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
             
             <div className="pt-2">
               <a 
-                href={`https://poap.gallery/drops/${poap.tokenId}`}
+                href={poap.event.event_url} 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:underline text-sm"
+                className="text-primary hover:underline text-sm flex items-center"
               >
                 View on POAP.xyz
+                <ExternalLink className="ml-1 h-3 w-3" />
               </a>
             </div>
           </div>

@@ -61,7 +61,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               <SkillsCard
                 walletAddress={passport.owner_address}
                 skills={passport.skills}
-                apiKey="2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f"
               />
               <PoapSection
                 walletAddress={passport.owner_address}
