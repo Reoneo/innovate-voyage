@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ExternalLink } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from 'lucide-react';
 import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
 import PoapCard from './PoapCard';
 
@@ -20,7 +20,8 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     const loadPoaps = async () => {
       setIsLoading(true);
       try {
-        const fetchedPoaps = await fetchPoapsByAddress(walletAddress);
+        // Fetch all POAPs (removed the limit)
+        const fetchedPoaps = await fetchPoapsByAddress(walletAddress, 20); 
         setPoaps(fetchedPoaps);
       } catch (error) {
         console.error('Error loading POAPs:', error);
@@ -39,39 +40,24 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   return (
     <Card id="poap-card-section" className="mt-4">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <img 
-                src="https://blog.poap.xyz/content/images/2022/10/POAP-Logo.png" 
-                alt="POAP Logo" 
-                className="h-5 w-5"
-              />
-              POAP Badges
-            </CardTitle>
-            <CardDescription className="flex items-center gap-1">
-              Verified via{" "}
-              <a 
-                href="https://poap.xyz" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                POAP.xyz
-              </a>
-            </CardDescription>
-          </div>
+        <div className="flex items-center gap-2">
+          <img 
+            src="https://blog.poap.xyz/content/images/2022/10/POAP-Logo.png" 
+            alt="POAP Logo" 
+            className="h-7 w-7"
+          />
+          <CardTitle>POAP Badges</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           <div className="flex flex-wrap gap-4 justify-center">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-20 w-20 rounded-full" />
+              <Skeleton key={i} className="h-28 w-28 rounded-full" />
             ))}
           </div>
         ) : poaps.length > 0 ? (
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 justify-center">
             {poaps.map((poap) => (
               <PoapCard key={poap.tokenId} poap={poap} />
             ))}

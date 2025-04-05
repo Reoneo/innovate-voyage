@@ -7,9 +7,14 @@ import { Loader2 } from 'lucide-react';
 interface SocialMediaLinksProps {
   socials: Record<string, string>;
   isLoading?: boolean;
+  onCopyDiscord?: (discordHandle: string) => void;
 }
 
-const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading = false }) => {
+const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ 
+  socials, 
+  isLoading = false,
+  onCopyDiscord
+}) => {
   if (isLoading) {
     return (
       <div className="col-span-full flex items-center gap-2 text-muted-foreground">
@@ -34,15 +39,39 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
           <SocialLinkItem 
             key={platform.key}
             platformType={platform.type} 
-            url={socials[platform.key]} 
+            url={socials[platform.key]}
+            onCopy={platform.key === 'discord' ? () => onCopyDiscord?.(socials[platform.key]) : undefined}
           />
         )
+      )}
+      
+      {/* Add special handling for WhatsApp */}
+      {socials.whatsapp && (
+        <SocialLinkItem
+          key="whatsapp"
+          platformType="whatsapp"
+          url={socials.whatsapp}
+          iconUrl="https://cdn.worldvectorlogo.com/logos/whatsapp-3.svg"
+        />
+      )}
+      
+      {/* Add special handling for Bluesky */}
+      {socials.bluesky && (
+        <SocialLinkItem
+          key="bluesky"
+          platformType="bluesky"
+          url={socials.bluesky}
+          iconUrl="https://cdn.worldvectorlogo.com/logos/bluesky-1.svg"
+        />
       )}
       
       {/* Handle any custom social links not in our predefined list */}
       {Object.entries(socials).map(([key, value]) => {
         // Skip if this platform is already handled above or if value is empty
-        if (!value || socialPlatforms.some(p => p.key === key)) {
+        if (!value || 
+            socialPlatforms.some(p => p.key === key) || 
+            key === 'whatsapp' || 
+            key === 'bluesky') {
           return null;
         }
         

@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { type Poap } from '@/api/services/poapService';
 
@@ -31,15 +30,19 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
   return (
     <>
       <div 
-        className="relative cursor-pointer group"
+        className="relative cursor-pointer group animate-pulse"
         onClick={() => setIsOpen(true)}
       >
-        <div className="w-20 h-20 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md">
+        <div className="w-28 h-28 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-500 
+                       group-hover:border-primary group-hover:shadow-[0_0_15px_rgba(155,135,245,0.5)] group-hover:scale-105">
           <img 
             src={poap.event.image_url} 
             alt={poap.event.name} 
             className="w-full h-full object-cover"
           />
+        </div>
+        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/70 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap">
+          {poap.event.name}
         </div>
       </div>
 
@@ -53,7 +56,7 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
           </DialogHeader>
           
           <div className="flex justify-center mb-4">
-            <div className="w-24 h-24 overflow-hidden rounded-full border-2 border-primary/20">
+            <div className="w-28 h-28 overflow-hidden rounded-full border-2 border-primary/20">
               <img 
                 src={poap.event.image_url} 
                 alt={poap.event.name}
@@ -97,7 +100,7 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
             
             <div className="pt-2">
               <a 
-                href={poap.event.event_url} 
+                href={`https://poap.gallery/drops/${poap.tokenId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline text-sm"

@@ -24,7 +24,7 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
   const getWalletAge = () => {
     if (!transactions || transactions.length === 0) return 'Unknown';
     
-    // Sort transactions by timestamp
+    // Sort transactions by timestamp (oldest first)
     const sortedTransactions = [...transactions].sort((a, b) => 
       parseInt(a.timeStamp) - parseInt(b.timeStamp)
     );
@@ -32,17 +32,13 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
     // Get the oldest transaction timestamp
     const oldestTimestamp = parseInt(sortedTransactions[0].timeStamp) * 1000;
     const oldestDate = new Date(oldestTimestamp);
+    const formattedDate = format(oldestDate, 'MMM d, yyyy');
     
     // Get the difference in days
     const diffTime = Math.abs(new Date().getTime() - oldestDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays > 365) {
-      const years = Math.floor(diffDays / 365);
-      return `${years} year${years > 1 ? 's' : ''} old`;
-    }
-    
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} old`;
+    return `${diffDays} days (since ${formattedDate})`;
   };
 
   return (
@@ -50,7 +46,7 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="https://cdn.cdnlogo.com/logos/e/39/ethereum.svg" alt="Ethereum" className="h-5 w-5" />
+            <img src="https://cdn.cdnlogo.com/logos/e/39/ethereum.svg" alt="Ethereum" className="h-7 w-7" />
             <div>
               <CardTitle>Blockchain Experience</CardTitle>
               <CardDescription className="flex items-center gap-1">

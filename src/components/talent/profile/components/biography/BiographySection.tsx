@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { getEnsBio } from '@/utils/ens/ensRecords';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FileText } from 'lucide-react';
 
 interface BiographySectionProps {
@@ -35,18 +34,9 @@ const BiographySection: React.FC<BiographySectionProps> = ({ bio, identity }) =>
   }, [biography, identity]);
 
   return (
-    <Card id="bio-card-section" className="mt-4">
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" />
-              Bio
-            </CardTitle>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
+    <div className="w-full mt-6">
+      <h3 className="text-xl font-medium mb-4">Bio</h3>
+      <div className="w-full">
         {isLoading ? (
           <p className="text-muted-foreground text-sm">Loading bio...</p>
         ) : biography ? (
@@ -56,8 +46,8 @@ const BiographySection: React.FC<BiographySectionProps> = ({ bio, identity }) =>
         ) : (
           <p className="text-muted-foreground text-sm">No bio available</p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
