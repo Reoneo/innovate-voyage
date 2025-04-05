@@ -9,6 +9,17 @@ interface SkillsCardProps {
   skills: Array<{ name: string; proof?: string }>;
 }
 
+// Define types for the API response
+interface TalentProtocolProfile {
+  id: number;
+  name: string;
+  skills: Array<{ id: number; name: string }>;
+}
+
+interface TalentProtocolResponse {
+  profiles: TalentProtocolProfile[];
+}
+
 const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
   const [talentSkills, setTalentSkills] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,10 +38,11 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         });
         
         if (response.ok) {
-          const data = await response.json();
-          // Extract skill names from the response - adjust this based on the actual API response structure
-          const skillNames = data.profiles?.flatMap((profile: any) => 
-            profile.skills?.map((skill: any) => skill.name) || []
+          const data = await response.json() as TalentProtocolResponse;
+          
+          // Extract skill names from the response with proper typing
+          const skillNames: string[] = data.profiles?.flatMap((profile: TalentProtocolProfile) => 
+            profile.skills?.map((skill) => skill.name) || []
           ) || [];
           
           // Remove duplicates
