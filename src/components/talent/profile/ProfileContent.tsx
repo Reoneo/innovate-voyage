@@ -7,7 +7,6 @@ import AvatarSection from './components/AvatarSection';
 import VerifiedWorkExperience from './components/VerifiedWorkExperience';
 import SkillsCard from './components/SkillsCard';
 import PoapSection from './components/poap/PoapSection';
-import BiographySection from './components/biography/BiographySection';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -59,13 +58,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               <VerifiedWorkExperience 
                 walletAddress={passport.owner_address} 
               />
-              <BiographySection
-                bio={passport.bio}
-                identity={ensNameOrAddress}
-              />
               <SkillsCard
                 walletAddress={passport.owner_address}
                 skills={passport.skills}
+                apiKey="2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f"
               />
               <PoapSection
                 walletAddress={passport.owner_address}

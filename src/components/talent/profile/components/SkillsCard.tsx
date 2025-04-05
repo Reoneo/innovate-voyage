@@ -1,54 +1,90 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 interface SkillsCardProps {
   walletAddress?: string;
   skills: Array<{ name: string; proof?: string }>;
+  apiKey?: string;
 }
 
-const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
+interface ApiSkill {
+  id: string;
+  name: string;
+  verified: boolean;
+}
+
+const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, apiKey }) => {
+  const [verifiedSkills, setVerifiedSkills] = useState<ApiSkill[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (apiKey && walletAddress) {
+      setIsLoading(true);
+      // Fetch skills from TalentProtocol API
+      fetch(`https://api.talentprotocol.com/api/v1/skills?address=${walletAddress}`, {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch skills');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('TalentProtocol skills:', data);
+          if (data && Array.isArray(data.skills)) {
+            setVerifiedSkills(data.skills);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching skills:', error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [walletAddress, apiKey]);
+
   if (!walletAddress) {
     return null;
   }
 
-  // Filter out the mock TalentProtocol skills
-  const filteredSkills = skills.filter(skill => 
-    !skill.proof?.includes('talentprotocol.com')
-  );
+  // Combine API skills with existing skills
+  const combinedSkills = [
+    ...verifiedSkills.map(skill => ({ 
+      name: skill.name, 
+      proof: skill.verified ? 'talentprotocol.com' : undefined 
+    })),
+    ...skills.filter(skill => 
+      !verifiedSkills.some(vs => vs.name.toLowerCase() === skill.name.toLowerCase())
+    )
+  ];
 
   return (
     <Card id="skills-card-section" className="mt-4">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <img 
-                src="https://pbs.twimg.com/profile_images/1838579348086882305/KEjwEWVa_400x400.jpg" 
-                alt="Skills Logo" 
-                className="h-5 w-5 rounded-full"
-              />
-              Skills
-            </CardTitle>
-            <CardDescription className="flex items-center gap-1">
-              Verified via{" "}
-              <a 
-                href="https://talentprotocol.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                TalentProtocol.com
-              </a>
-            </CardDescription>
-          </div>
+        <div className="flex items-center gap-2">
+          <img 
+            src="https://pbs.twimg.com/profile_images/1838579348086882305/KEjwEWVa_400x400.jpg" 
+            alt="Skills Logo" 
+            className="h-8 w-8 rounded-full"
+          />
+          <CardTitle>Skills</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
-        {filteredSkills && filteredSkills.length > 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center py-6">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : combinedSkills && combinedSkills.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-            {filteredSkills.map((skill, index) => (
+            {combinedSkills.map((skill, index) => (
               <Badge key={index} variant={skill.proof ? "default" : "outline"} 
                 className={skill.proof ? "bg-green-500 hover:bg-green-600" : "text-gray-600 border-gray-400"}>
                 {skill.name}

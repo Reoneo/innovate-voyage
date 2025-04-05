@@ -33,17 +33,28 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
     case 'facebook':
       return <Facebook size={size} className={`text-blue-600 ${iconClasses}`} />;
     case 'whatsapp':
-      return <MessageSquare size={size} className={`text-green-500 ${iconClasses}`} />;
+      return (
+        <div className={`text-green-500 ${iconClasses}`}>
+          <img 
+            src="https://cdn.worldvectorlogo.com/logos/whatsapp-3.svg" 
+            width={size} 
+            height={size} 
+            alt="WhatsApp"
+          />
+        </div>
+      );
     case 'messenger':
       return <MessageCircle size={size} className={`text-blue-500 ${iconClasses}`} />;
     case 'bluesky':
-      // Custom butterfly icon for Bluesky
       return (
-        <span className={`inline-flex items-center justify-center text-blue-500 ${iconClasses}`}>
-          <span role="img" aria-label="butterfly" style={{ fontSize: `${size * 0.8}px` }}>
-            🦋
-          </span>
-        </span>
+        <div className={`text-blue-500 ${iconClasses}`}>
+          <img 
+            src="https://cdn.worldvectorlogo.com/logos/bluesky-1.svg" 
+            width={size} 
+            height={size} 
+            alt="Bluesky"
+          />
+        </div>
       );
     case 'instagram':
       return <Instagram size={size} className={`text-pink-600 ${iconClasses}`} />;

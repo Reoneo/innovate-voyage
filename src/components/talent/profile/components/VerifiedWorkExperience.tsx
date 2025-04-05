@@ -37,12 +37,7 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
     const diffTime = Math.abs(new Date().getTime() - oldestDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays > 365) {
-      const years = Math.floor(diffDays / 365);
-      return `${years} year${years > 1 ? 's' : ''} old`;
-    }
-    
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} old`;
+    return `${diffDays} days old`;
   };
 
   return (
@@ -50,7 +45,7 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="https://cdn.cdnlogo.com/logos/e/39/ethereum.svg" alt="Ethereum" className="h-5 w-5" />
+            <img src="https://cdn.cdnlogo.com/logos/e/39/ethereum.svg" alt="Ethereum" className="h-8 w-8" />
             <div>
               <CardTitle>Blockchain Experience</CardTitle>
               <CardDescription className="flex items-center gap-1">
@@ -62,7 +57,6 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
                   className="text-primary hover:underline flex items-center"
                 >
                   Etherscan.io
-                  <ExternalLink className="h-3 w-3 ml-0.5" />
                 </a>
               </CardDescription>
             </div>

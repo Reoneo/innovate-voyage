@@ -34,11 +34,11 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
         className="relative cursor-pointer group"
         onClick={() => setIsOpen(true)}
       >
-        <div className="w-20 h-20 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md">
+        <div className="w-24 h-24 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md animate-pulse">
           <img 
             src={poap.event.image_url} 
             alt={poap.event.name} 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300"
           />
         </div>
       </div>
@@ -97,7 +97,7 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
             
             <div className="pt-2">
               <a 
-                href={poap.event.event_url} 
+                href={`https://poap.gallery/drops/${poap.tokenId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline text-sm"

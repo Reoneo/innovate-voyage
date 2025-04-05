@@ -1,5 +1,7 @@
+
 import React from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
+import { useToast } from '@/hooks/use-toast';
 
 interface SocialLinkItemProps {
   platformType: string;
@@ -7,8 +9,23 @@ interface SocialLinkItemProps {
 }
 
 const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) => {
+  const { toast } = useToast();
+  
   // Format URL if needed (e.g., adding proper protocol)
   let formattedUrl = url;
+  
+  const handleClick = (e: React.MouseEvent) => {
+    // For Discord, copy the handle to clipboard instead of navigating
+    if (platformType === 'discord') {
+      e.preventDefault();
+      navigator.clipboard.writeText(url).then(() => {
+        toast({
+          title: "Discord handle copied!",
+          description: `${url} has been copied to your clipboard.`
+        });
+      });
+    }
+  };
   
   switch (platformType) {
     case 'whatsapp':
@@ -42,6 +59,11 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
         formattedUrl = `https://linkedin.com/in/${url.replace('@', '')}`;
       }
       break;
+    case 'bluesky':
+      if (!url.startsWith('http')) {
+        formattedUrl = `https://bsky.app/profile/${url.replace('@', '')}`;
+      }
+      break;
     default:
       // Keep as is if it already has a protocol
       if (!url.startsWith('http') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
@@ -57,6 +79,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       className="hover:opacity-70 transition-opacity bg-secondary/30 p-2 rounded-full flex items-center justify-center"
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
       data-social-link={platformType}
+      onClick={handleClick}
     >
       <SocialIcon type={platformType as any} size={20} />
     </a>
