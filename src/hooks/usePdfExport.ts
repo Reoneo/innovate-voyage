@@ -37,13 +37,13 @@ export const usePdfExport = () => {
         }
       }
     `,
-    // Using onBeforePrint and ensuring it returns a Promise
-    onBeforePrint: async () => {
+    // Using onBeforePrint instead of onBeforeGetContent
+    onBeforePrint: () => {
       // Add a temporary class to ensure content fits on one page
       if (profileRef.current) {
         profileRef.current.classList.add('profile-content');
       }
-      // Explicitly return a resolved Promise to satisfy the TypeScript type
+      // Return a Promise to satisfy the TypeScript type
       return Promise.resolve();
     },
     onAfterPrint: () => {
