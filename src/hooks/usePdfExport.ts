@@ -8,6 +8,7 @@ export const usePdfExport = () => {
   const exportAsPDF = useReactToPrint({
     documentTitle: 'Profile',
     onPrintError: (error) => console.error('Failed to print', error),
+    // Use contentRef option instead of content
     contentRef: profileRef,
     pageStyle: `
       @page {
@@ -31,10 +32,6 @@ export const usePdfExport = () => {
           max-height: 297mm; /* A4 height */
           overflow: hidden;
         }
-        /* Remove external link arrows in PDFs */
-        a[href^="http"]::after {
-          display: none !important;
-        }
       }
     `,
     // Using onBeforePrint instead of onBeforeGetContent
@@ -43,8 +40,6 @@ export const usePdfExport = () => {
       if (profileRef.current) {
         profileRef.current.classList.add('profile-content');
       }
-      // Return a Promise to satisfy the TypeScript type
-      return Promise.resolve();
     },
     onAfterPrint: () => {
       // Clean up temporary class

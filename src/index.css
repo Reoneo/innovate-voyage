@@ -59,11 +59,6 @@
   }
 }
 
-/* Remove external link arrows */
-a[href^="http"]::after {
-  display: none !important;
-}
-
 /* PDF Generation Styles */
 body.generating-pdf {
   overflow: hidden;
@@ -87,23 +82,6 @@ body.generating-pdf {
   a[href^="http"]::after {
     display: none !important;
   }
-}
-
-/* POAP Animation */
-@keyframes pulse-glow {
-  0% {
-    box-shadow: 0 0 5px rgba(155, 135, 245, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(155, 135, 245, 0.8);
-  }
-  100% {
-    box-shadow: 0 0 5px rgba(155, 135, 245, 0.5);
-  }
-}
-
-.poap-glow {
-  animation: pulse-glow 2s infinite;
 }
 
 /* Special styles for social icons in PDF */

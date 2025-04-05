@@ -32,9 +32,9 @@ export interface Poap {
 /**
  * Fetch POAPs for a wallet address
  * @param address Ethereum address
- * @param limit Maximum number of POAPs to fetch (default: 20)
+ * @param limit Maximum number of POAPs to fetch (default: 3)
  */
-export async function fetchPoapsByAddress(address: string, limit = 20): Promise<Poap[]> {
+export async function fetchPoapsByAddress(address: string, limit = 3): Promise<Poap[]> {
   try {
     // Rate limit requests
     await enforceRateLimit(300);
