@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Award, ExternalLink } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Award } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
 import PoapCard from './PoapCard';
@@ -42,21 +42,9 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Award className="h-5 w-5 text-primary" />
+              <img src="https://assets.poap.xyz/poap-2021-logo-1614593279329.png" className="h-6 w-6" alt="POAP" />
               POAP Badges
             </CardTitle>
-            <CardDescription className="flex items-center gap-1">
-              Verified via{" "}
-              <a 
-                href="https://poap.xyz" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:underline flex items-center"
-              >
-                POAP.xyz
-                <ExternalLink className="h-3 w-3 ml-0.5" />
-              </a>
-            </CardDescription>
           </div>
         </div>
       </CardHeader>

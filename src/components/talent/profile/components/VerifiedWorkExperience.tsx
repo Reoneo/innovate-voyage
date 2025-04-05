@@ -33,16 +33,8 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
     const oldestTimestamp = parseInt(sortedTransactions[0].timeStamp) * 1000;
     const oldestDate = new Date(oldestTimestamp);
     
-    // Get the difference in days
-    const diffTime = Math.abs(new Date().getTime() - oldestDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays > 365) {
-      const years = Math.floor(diffDays / 365);
-      return `${years} year${years > 1 ? 's' : ''} old`;
-    }
-    
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} old`;
+    // Format the date
+    return format(oldestDate, 'MMM d, yyyy');
   };
 
   return (
@@ -50,7 +42,7 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="https://cdn.cdnlogo.com/logos/e/39/ethereum.svg" alt="Ethereum" className="h-5 w-5" />
+            <img src="https://cdn.cdnlogo.com/logos/e/39/ethereum.svg" alt="Ethereum" className="h-6 w-6" />
             <div>
               <CardTitle>Blockchain Experience</CardTitle>
               <CardDescription className="flex items-center gap-1">
@@ -80,7 +72,7 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
               <div className="border rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-primary" />
-                  <h3 className="font-medium">Wallet Age</h3>
+                  <h3 className="font-medium">First Transaction</h3>
                 </div>
                 <p className="text-2xl font-bold">{getWalletAge()}</p>
               </div>

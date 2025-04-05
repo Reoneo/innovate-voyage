@@ -29,6 +29,11 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
     });
   };
 
+  // Generate the correct POAP gallery URL
+  const getPoapGalleryUrl = () => {
+    return `https://poap.gallery/drops/${poap.event.fancy_id}`;
+  };
+
   return (
     <>
       <div 
@@ -101,7 +106,7 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
             
             <div className="pt-2">
               <a 
-                href={poap.event.event_url} 
+                href={getPoapGalleryUrl()} 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline text-sm flex items-center"

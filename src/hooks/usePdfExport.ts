@@ -34,11 +34,13 @@ export const usePdfExport = () => {
         }
       }
     `,
-    onBeforeGetContent: () => {
+    onBeforeGetContent: async () => {
       // Add a temporary class to ensure content fits on one page
       if (profileRef.current) {
         profileRef.current.classList.add('profile-content');
       }
+      // Return a resolved promise to satisfy TypeScript
+      return Promise.resolve();
     },
     onAfterPrint: () => {
       // Clean up temporary class
