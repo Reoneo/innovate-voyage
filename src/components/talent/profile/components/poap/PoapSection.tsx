@@ -66,7 +66,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                 className="h-16 w-16" 
                 alt="Proof of Attendance Protocol" 
               />
-              POAPs
+              Proof of Attendance
             </CardTitle>
           </div>
         </div>

@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ExternalLink } from 'lucide-react';
 
 interface SkillsCardProps {
   walletAddress?: string;
@@ -35,8 +34,8 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
     const fetchTalentSkills = async () => {
       setIsLoading(true);
       try {
-        // Using the v2 API endpoint as documented in https://docs.talentprotocol.com/docs
-        const response = await fetch('https://api.talentprotocol.com/api/v2/profiles', {
+        // Using the advanced search endpoint
+        const response = await fetch('https://api.talentprotocol.com/search/advanced/profiles', {
           headers: {
             'Authorization': 'Bearer 2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
           }
@@ -45,7 +44,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         if (response.ok) {
           const data = await response.json() as TalentProtocolResponse;
           
-          // Make sure we're extracting skill names correctly based on the API documentation
+          // Extract skill names from all profiles
           const skillNames = data.profiles?.flatMap((profile: TalentProtocolProfile) => 
             profile.skills?.map((skill: TalentProtocolSkill) => skill.name) || []
           ) || [];
@@ -94,21 +93,9 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <img src="https://world-id-assets.com/app_51fb239afc33541eb0a5cf76aaeb67bb/59c4ed38-f2ec-4362-af2c-17a196365fca.png" className="h-16 w-16" alt="Talent Protocol" />
+              <img src="https://world-id-assets.com/app_51fb239afc33541eb0a5cf76aaeb67bb/59c4ed38-f2ec-4362-af2c-17a196365fca.png" className="h-10 w-10" alt="Talent Protocol" />
               Skills
             </CardTitle>
-            <CardDescription className="flex items-center gap-1">
-              Verified via{" "}
-              <a 
-                href="https://talentprotocol.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:underline flex items-center"
-              >
-                TalentProtocol.com
-                <ExternalLink className="h-3 w-3 ml-0.5" />
-              </a>
-            </CardDescription>
           </div>
         </div>
       </CardHeader>
