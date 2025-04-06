@@ -14,6 +14,10 @@ interface TalentProtocolSkill {
   name: string;
 }
 
+interface TalentProtocolApiResponse {
+  data: TalentProtocolSkill[];
+}
+
 const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
   const [talentSkills, setTalentSkills] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,9 +36,9 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         });
         
         if (response.ok) {
-          const data = await response.json();
+          const data = await response.json() as TalentProtocolApiResponse;
           
-          // Extract skill names from the response
+          // Extract skill names from the response with proper type checking
           const skillNames = data?.data?.map((skill: TalentProtocolSkill) => skill.name) || [];
           
           // Remove duplicates

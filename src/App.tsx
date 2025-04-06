@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { HelmetProvider } from 'react-helmet-async';
 import Index from "./pages/Index";
@@ -65,7 +65,9 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
               <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-              <Route path="*" element={<NotFound />} />
+              {/* Handle 404 and redirects */}
+              <Route path="/404" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/404" />} />
             </Routes>
             <WalletConnectModal />
           </BrowserRouter>
