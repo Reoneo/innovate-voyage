@@ -1,68 +1,124 @@
 
 import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { useTalentProtocolSkills } from '@/api/services/talentProtocolService';
 
 interface SkillsCardProps {
-  skillList?: string[];
-  isLoading?: boolean;
+  walletAddress?: string;
+  skills: Array<{ name: string; proof?: string }>;
 }
 
-const SkillsCard: React.FC<SkillsCardProps> = ({ 
-  skillList = [], 
-  isLoading = false 
-}) => {
-  const [skills, setSkills] = useState<string[]>(skillList || []);
-  const { 
-    skills: talentProtocolSkills, 
-    loading: talentProtocolLoading 
-  } = useTalentProtocolSkills();
-  
-  useEffect(() => {
-    // If we have skills from props, use those; otherwise use TalentProtocol skills
-    if (skillList && skillList.length > 0) {
-      setSkills(skillList);
-    } else if (talentProtocolSkills && talentProtocolSkills.length > 0) {
-      // Ensure we're setting an array of strings
-      const stringSkills = talentProtocolSkills.map(skill => 
-        typeof skill === 'string' ? skill : String(skill)
-      );
-      setSkills(stringSkills);
-    }
-  }, [skillList, talentProtocolSkills]);
+// Define types for the API response
+interface TalentProtocolSkill {
+  id: number;
+  name: string;
+}
 
-  const loading = isLoading || talentProtocolLoading;
+interface TalentProtocolProfile {
+  id: number;
+  name: string;
+  skills: TalentProtocolSkill[];
+}
+
+interface TalentProtocolResponse {
+  profiles: TalentProtocolProfile[];
+}
+
+const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
+  const [talentSkills, setTalentSkills] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!walletAddress) return;
+
+    const fetchTalentSkills = async () => {
+      setIsLoading(true);
+      try {
+        // Using the advanced search endpoint
+        const response = await fetch('https://api.talentprotocol.com/search/advanced/profiles', {
+          headers: {
+            'Authorization': 'Bearer 2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json() as TalentProtocolResponse;
+          
+          // Extract skill names from all profiles
+          const skillNames = data.profiles?.flatMap((profile: TalentProtocolProfile) => 
+            profile.skills?.map((skill: TalentProtocolSkill) => skill.name) || []
+          ) || [];
+          
+          // Remove duplicates
+          const uniqueSkills = [...new Set(skillNames)];
+          setTalentSkills(uniqueSkills);
+          
+          // Log the response for debugging
+          console.log('TalentProtocol API response:', data);
+          console.log('Extracted skills:', uniqueSkills);
+        } else {
+          console.error('Failed to fetch skills from TalentProtocol:', await response.text());
+        }
+      } catch (error) {
+        console.error('Error fetching TalentProtocol skills:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTalentSkills();
+  }, [walletAddress]);
+
+  if (!walletAddress) {
+    return null;
+  }
+
+  // Filter out the mock TalentProtocol skills
+  const filteredSkills = skills.filter(skill => 
+    !skill.proof?.includes('talentprotocol.com')
+  );
+
+  // Create skill objects from TalentProtocol API
+  const talentProtocolSkills = talentSkills.map(skillName => ({
+    name: skillName,
+    proof: 'https://talentprotocol.com'
+  }));
+
+  // Combine skills
+  const allSkills = [...filteredSkills, ...talentProtocolSkills];
 
   return (
-    <Card className="mb-4 shadow-sm">
+    <Card id="skills-card-section" className="mt-4">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center text-lg font-semibold">
-          <img 
-            src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/7c844b24-d8f5-417f-accb-574c88b75e26/Logo_TalentProtocol.jpg?table=block&id=507f9f8e-04b7-478b-8a33-8900e4838847&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1743948000000&signature=gk2ASkxTsqSqmE_gIMWkAlMMZ3Fdo1YOD9Smt-okG6s&downloadName=Logo_TalentProtocol.jpg" 
-            alt="Talent Protocol" 
-            className="h-4 w-4 mr-2" 
-          />
-          Skills
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <img src="https://world-id-assets.com/app_51fb239afc33541eb0a5cf76aaeb67bb/59c4ed38-f2ec-4362-af2c-17a196365fca.png" className="h-10 w-10" alt="Talent Protocol" />
+              Skills
+            </CardTitle>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className="bg-gray-100 animate-pulse w-16 h-6" />
-            <Badge variant="outline" className="bg-gray-100 animate-pulse w-20 h-6" />
-            <Badge variant="outline" className="bg-gray-100 animate-pulse w-24 h-6" />
+        {isLoading ? (
+          <div className="text-center py-2">
+            <p className="text-muted-foreground text-sm">Loading skills...</p>
           </div>
-        ) : skills && skills.length > 0 ? (
+        ) : allSkills && allSkills.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-            {skills.map((skill, index) => (
-              <Badge key={index} variant="outline" className="bg-primary/10 text-primary">
-                {skill}
+            {allSkills.map((skill, index) => (
+              <Badge key={index} variant={skill.proof ? "default" : "outline"} 
+                className={skill.proof ? "bg-green-500 hover:bg-green-600" : "text-gray-600 border-gray-400"}>
+                {skill.name}
               </Badge>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">No skills found</p>
+          <div className="text-center py-4">
+            <p className="text-muted-foreground text-sm">
+              No verified skills found.
+            </p>
+          </div>
         )}
       </CardContent>
     </Card>
