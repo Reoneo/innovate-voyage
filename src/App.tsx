@@ -11,6 +11,7 @@ import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
 import WalletConnectModal from "./components/wallet/WalletConnectModal";
 
+// Create a persistent QueryClient instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

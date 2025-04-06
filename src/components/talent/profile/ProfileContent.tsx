@@ -50,7 +50,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   ownerAddress={passport.owner_address}
                   socials={{
                     ...passport.socials,
-                    linkedin: passport.socials.linkedin ? "https://www.linkedin.com/in/thirdweb" : undefined
+                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
                   }}
                   bio={passport.bio}
                   displayIdentity={ensNameOrAddress}
@@ -66,7 +66,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               />
               <SkillsCard
                 walletAddress={passport.owner_address}
-                skills={passport.skills}
+                skills={passport.skills || []}
               />
               <PoapSection
                 walletAddress={passport.owner_address}

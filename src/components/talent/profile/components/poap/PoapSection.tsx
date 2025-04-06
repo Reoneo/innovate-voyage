@@ -24,7 +24,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     const loadPoaps = async () => {
       setIsLoading(true);
       try {
-        // Removed the limit parameter to fetch all POAPs
+        // Fetch all POAPs
         const fetchedPoaps = await fetchPoapsByAddress(walletAddress);
         setPoaps(fetchedPoaps);
       } catch (error) {
@@ -63,7 +63,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
             <CardTitle className="flex items-center gap-2">
               <img 
                 src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
-                className="h-16 w-16" 
+                className="h-6 w-6" 
                 alt="Proof of Attendance Protocol" 
               />
               Proof of Attendance

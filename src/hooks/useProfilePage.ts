@@ -7,19 +7,22 @@ import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 export function useProfilePage() {
-  const { ensNameOrAddress } = useParams<{ensNameOrAddress: string}>();
+  const { ensNameOrAddress, userId } = useParams<{ensNameOrAddress?: string, userId?: string}>();
   const [address, setAddress] = useState<string | undefined>(undefined);
   const [ens, setEns] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
   
+  // Determine which parameter to use (either regular path or recruitment.box path)
+  const targetIdentifier = userId || ensNameOrAddress;
+  
   useEffect(() => {
-    if (ensNameOrAddress) {
-      if (isValidEthereumAddress(ensNameOrAddress)) {
-        setAddress(ensNameOrAddress);
+    if (targetIdentifier) {
+      if (isValidEthereumAddress(targetIdentifier)) {
+        setAddress(targetIdentifier);
       } else {
-        const ensValue = ensNameOrAddress.includes('.') ? ensNameOrAddress : `${ensNameOrAddress}.eth`;
+        const ensValue = targetIdentifier.includes('.') ? targetIdentifier : `${targetIdentifier}.eth`;
         setEns(ensValue);
       }
     }
@@ -45,7 +48,7 @@ export function useProfilePage() {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }
     };
-  }, [ensNameOrAddress]);
+  }, [targetIdentifier]);
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
   
@@ -74,7 +77,7 @@ export function useProfilePage() {
   };
 
   return {
-    ensNameOrAddress,
+    ensNameOrAddress: targetIdentifier,
     loading,
     loadingTimeout,
     passport,
