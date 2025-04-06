@@ -13,7 +13,16 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
     const profile = await fetchWeb3BioProfile(ensName);
     if (profile && profile.avatar) {
       console.log(`Got avatar for ${ensName} from web3.bio:`, profile.avatar);
-      return profile.avatar;
+      let avatar = profile.avatar;
+      
+      // Handle IPFS URLs
+      if (avatar && avatar.startsWith("ipfs://")) {
+        const cid = avatar.replace("ipfs://", "");
+        avatar = `https://ipfs.io/ipfs/${cid}`;
+        console.log(`Converted IPFS avatar URL: ${avatar}`);
+      }
+      
+      return avatar;
     }
     
     console.log(`No avatar found for ${ensName} in web3.bio, falling back to other methods`);
@@ -26,10 +35,18 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
         
         if (resolver) {
           console.log(`Got resolver for ${ensName}`);
-          const avatar = await resolver.getText('avatar');
+          let avatar = await resolver.getText('avatar');
           
           if (avatar) {
             console.log(`Got avatar for ${ensName}:`, avatar);
+            
+            // Handle IPFS URLs
+            if (avatar && avatar.startsWith("ipfs://")) {
+              const cid = avatar.replace("ipfs://", "");
+              avatar = `https://ipfs.io/ipfs/${cid}`;
+              console.log(`Converted IPFS avatar URL: ${avatar}`);
+            }
+            
             return avatar;
           } else {
             console.log(`No avatar found for ${ensName} in resolver`);

@@ -1,128 +1,162 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Skeleton } from "@/components/ui/skeleton";
-import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
-import PoapCard from './PoapCard';
-import { Button } from '@/components/ui/button';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 interface PoapSectionProps {
   walletAddress?: string;
+  hideTitle?: boolean;
 }
 
-const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
+interface Poap {
+  event: {
+    id: number;
+    fancy_id: string;
+    name: string;
+    description: string;
+    start_date: string;
+    end_date: string;
+    city: string;
+    country: string;
+    image_url: string;
+    year: number;
+  };
+  tokenId: string;
+  owner: string;
+  chain: string;
+  created: string;
+}
+
+const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress, hideTitle = false }) => {
   const [poaps, setPoaps] = useState<Poap[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [scrollPosition, setScrollPosition] = useState(0);
-  
-  const scrollContainer = React.useRef<HTMLDivElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!walletAddress) return;
-    
-    const loadPoaps = async () => {
+
+    const fetchPoaps = async () => {
       setIsLoading(true);
+      setError(null);
+      
       try {
-        // Removed the limit parameter to fetch all POAPs
-        const fetchedPoaps = await fetchPoapsByAddress(walletAddress);
-        setPoaps(fetchedPoaps);
-      } catch (error) {
-        console.error('Error loading POAPs:', error);
+        // Use POAP API to fetch POAPs for the wallet address
+        const response = await fetch(`https://api.poap.tech/actions/scan/${walletAddress}`, {
+          headers: {
+            'Accept': 'application/json',
+            'X-API-Key': '7xCyGbvGPTHYL9RA9QKZFmGKtjuWQTm5' // Replace with your actual API key
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`POAP API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('POAP data:', data);
+        
+        // Sort POAPs by date (newest first)
+        const sortedPoaps = data.sort((a: Poap, b: Poap) => 
+          new Date(b.event.start_date).getTime() - new Date(a.event.start_date).getTime()
+        );
+        
+        setPoaps(sortedPoaps);
+      } catch (err) {
+        console.error('Error fetching POAPs:', err);
+        setError('Failed to load POAPs');
       } finally {
         setIsLoading(false);
       }
     };
-    
-    loadPoaps();
+
+    fetchPoaps();
   }, [walletAddress]);
-
-  const scrollLeft = () => {
-    if (scrollContainer.current) {
-      scrollContainer.current.scrollBy({ left: -200, behavior: 'smooth' });
-      setScrollPosition(scrollContainer.current.scrollLeft - 200);
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollContainer.current) {
-      scrollContainer.current.scrollBy({ left: 200, behavior: 'smooth' });
-      setScrollPosition(scrollContainer.current.scrollLeft + 200);
-    }
-  };
 
   if (!walletAddress) {
     return null;
   }
 
+  // If hideTitle is true, don't render the Card wrapper and title
+  if (hideTitle) {
+    return (
+      <CardContent>
+        {renderPoapContent()}
+      </CardContent>
+    );
+  }
+
   return (
-    <Card id="poap-card-section" className="mt-4">
+    <Card className="mt-4" id="poap-section">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <img 
-                src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
-                className="h-16 w-16" 
-                alt="Proof of Attendance Protocol" 
-              />
-              Proof of Attendance
-            </CardTitle>
-          </div>
-        </div>
+        <CardTitle>Proof of Attendance</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <div className="flex flex-wrap gap-4 justify-center">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-16 w-16 rounded-full" />
-            ))}
-          </div>
-        ) : poaps.length > 0 ? (
-          <div className="relative">
-            {poaps.length > 4 && (
-              <>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/80 rounded-full"
-                  onClick={scrollLeft}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/80 rounded-full"
-                  onClick={scrollRight}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </>
-            )}
-            <div 
-              ref={scrollContainer}
-              className="flex gap-4 overflow-x-auto py-2 px-2 scrollbar-hide scroll-smooth"
-              style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-              }}
-            >
-              {poaps.map((poap) => (
-                <PoapCard key={poap.tokenId} poap={poap} />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="text-center py-4">
-            <p className="text-muted-foreground text-sm">
-              No POAPs found for this wallet address.
-            </p>
-          </div>
-        )}
+        {renderPoapContent()}
       </CardContent>
     </Card>
   );
+
+  function renderPoapContent() {
+    if (isLoading) {
+      return (
+        <div className="flex space-x-4 overflow-x-auto py-2 scrollbar-hide">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex-none w-[150px]">
+              <Skeleton className="h-[150px] w-[150px] rounded-full" />
+              <Skeleton className="h-4 w-[100px] mt-2 mx-auto" />
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="text-center py-4">
+          <p className="text-muted-foreground">{error}</p>
+        </div>
+      );
+    }
+
+    if (poaps.length === 0) {
+      return (
+        <div className="text-center py-4">
+          <p className="text-muted-foreground">No POAPs found for this address</p>
+        </div>
+      );
+    }
+
+    return (
+      <Carousel className="w-full">
+        <CarouselContent>
+          {poaps.map((poap) => (
+            <CarouselItem key={poap.tokenId} className="md:basis-1/4 lg:basis-1/5">
+              <div className="flex flex-col items-center p-1">
+                <div className="relative group">
+                  <img 
+                    src={poap.event.image_url} 
+                    alt={poap.event.name}
+                    className="w-[120px] h-[120px] rounded-full object-cover border-2 border-primary/20 group-hover:border-primary/60 transition-all"
+                  />
+                  <div className="absolute -bottom-1 -right-1">
+                    <Badge variant="outline" className="bg-background text-xs">
+                      {poap.event.year}
+                    </Badge>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-center font-medium truncate max-w-[120px]">
+                  {poap.event.name}
+                </p>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="left-0" />
+        <CarouselNext className="right-0" />
+      </Carousel>
+    );
+  }
 };
 
 export default PoapSection;

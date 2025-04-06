@@ -14,16 +14,6 @@ interface TalentProtocolSkill {
   name: string;
 }
 
-interface TalentProtocolProfile {
-  id: number;
-  name: string;
-  skills: TalentProtocolSkill[];
-}
-
-interface TalentProtocolResponse {
-  profiles: TalentProtocolProfile[];
-}
-
 const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
   const [talentSkills, setTalentSkills] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,26 +24,24 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
     const fetchTalentSkills = async () => {
       setIsLoading(true);
       try {
-        // Using the advanced search endpoint
-        const response = await fetch('https://api.talentprotocol.com/search/advanced/profiles', {
+        // Using the v2 skills endpoint
+        const response = await fetch('https://api.talentprotocol.com/api/v2/skills?verified=true', {
           headers: {
             'Authorization': 'Bearer 2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
           }
         });
         
         if (response.ok) {
-          const data = await response.json() as TalentProtocolResponse;
+          const data = await response.json();
           
-          // Extract skill names from all profiles
-          const skillNames = data.profiles?.flatMap((profile: TalentProtocolProfile) => 
-            profile.skills?.map((skill: TalentProtocolSkill) => skill.name) || []
-          ) || [];
+          // Extract skill names from all skills
+          const skillNames = data.skills?.map((skill: TalentProtocolSkill) => skill.name) || [];
           
           // Remove duplicates
           const uniqueSkills = [...new Set(skillNames)];
           setTalentSkills(uniqueSkills);
           
-          // Log the response for debugging
+          //Log the response for debugging
           console.log('TalentProtocol API response:', data);
           console.log('Extracted skills:', uniqueSkills);
         } else {
@@ -93,7 +81,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <img src="https://world-id-assets.com/app_51fb239afc33541eb0a5cf76aaeb67bb/59c4ed38-f2ec-4362-af2c-17a196365fca.png" className="h-10 w-10" alt="Talent Protocol" />
+              <img src="https://world-id-assets.com/app_51fb239afc33541eb0a5cf76aaeb67bb/59c4ed38-f2ec-4362-af2c-17a196365fca.png" className="h-6 w-6" alt="Talent Protocol" />
               Skills
             </CardTitle>
           </div>

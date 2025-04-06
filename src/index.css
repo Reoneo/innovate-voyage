@@ -109,3 +109,21 @@ body.generating-pdf {
   0% { transform: translateX(100vw); }
   100% { transform: translateX(-20vw); }
 }
+
+/* Powered By Section Styles */
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.logo-scroll {
+  animation: scroll 30s linear infinite;
+}
+
+.logo-scroll:hover {
+  animation-play-state: paused;
+}
+
+.logo-pause:hover {
+  filter: grayscale(0);
+}
