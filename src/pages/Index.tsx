@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -32,24 +31,30 @@ const logoUrls = [
 interface FloatingLogoProps {
   imageUrl: string;
   index: number;
+  totalLogos: number;
 }
 
-const FloatingLogo: React.FC<FloatingLogoProps> = ({ imageUrl, index }) => {
-  const speed = 20 + (index * 5); // Different speed for each logo
+const FloatingLogo: React.FC<FloatingLogoProps> = ({ imageUrl, index, totalLogos }) => {
+  // Calculate logo position with equal spacing
+  const spacing = 100 / totalLogos;
+  const position = spacing * index + spacing / 2;
   
   return (
     <div 
       className="absolute" 
       style={{
-        animation: `floatRight ${speed}s linear infinite`,
-        top: `${20 + (index * 15)}%`,
+        animation: `floatRight 20s linear infinite`,
+        left: `${position}%`, 
+        transform: 'translateX(-50%)',
+        top: '50%',
+        marginTop: '-20px',
         zIndex: 1
       }}
     >
       <img 
         src={imageUrl} 
         alt="Web3 logo" 
-        className="h-12 md:h-16 object-contain opacity-80 hover:opacity-100 transition-opacity"
+        className="h-12 md:h-14 object-contain opacity-80 hover:opacity-100 transition-opacity"
       />
     </div>
   );
@@ -89,8 +94,8 @@ const Index = () => {
     const styleSheet = document.createElement("style");
     styleSheet.textContent = `
       @keyframes floatRight {
-        0% { transform: translateX(100vw); }
-        100% { transform: translateX(-20vw); }
+        0% { transform: translateX(-100%) translateY(-50%); }
+        100% { transform: translateX(100vw) translateY(-50%); }
       }
     `;
     document.head.appendChild(styleSheet);
@@ -175,7 +180,12 @@ const Index = () => {
             {/* Floating Web3 Logos */}
             <div className="h-20 w-full relative mb-6">
               {logoUrls.map((url, index) => (
-                <FloatingLogo key={index} imageUrl={url} index={index} />
+                <FloatingLogo 
+                  key={index} 
+                  imageUrl={url} 
+                  index={index} 
+                  totalLogos={logoUrls.length} 
+                />
               ))}
             </div>
           </div>

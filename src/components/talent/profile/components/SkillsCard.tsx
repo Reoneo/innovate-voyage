@@ -28,12 +28,8 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
     const fetchTalentSkills = async () => {
       setIsLoading(true);
       try {
-        // Using the v2 API endpoint for verified skills
-        const response = await fetch('https://api.talentprotocol.com/api/v2/skills?verified=true', {
-          headers: {
-            'Authorization': 'Bearer 2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
-          }
-        });
+        // Using a direct API call without complex authorization
+        const response = await fetch('https://api.talentprotocol.com/api/v2/skills?verified=true');
         
         if (response.ok) {
           const data = await response.json() as TalentProtocolApiResponse;
