@@ -1,128 +1,123 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { ExternalLink } from 'lucide-react';
 import { 
-  Calendar, 
-  Map, 
-  ExternalLink 
-} from 'lucide-react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from '@/components/ui/dialog';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Badge } from '@/components/ui/badge';
+import { type Poap } from '@/api/services/poapService';
 
 interface PoapCardProps {
-  poap: {
-    name: string;
-    tokenId: string;
-    city: string;
-    country: string;
-    image_url: string;
-    event_url: string;
-    description: string;
-    event: {
-      start_date: string;
-      end_date: string;
-    };
-  };
+  poap: Poap;
 }
 
 const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
-  // Format date from ISO string
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString(undefined, { 
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'Unknown';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'short', 
       day: 'numeric' 
     });
   };
 
-  // Get badge text based on event location
-  const getBadgeText = () => {
-    if (poap.city && poap.country) {
-      return `${poap.city}, ${poap.country}`;
-    } else if (poap.city) {
-      return poap.city;
-    } else if (poap.country) {
-      return poap.country;
-    }
-    return 'Virtual';
-  };
-
-  // Create link to view on POAP.xyz
-  const getPoapExternalLink = () => {
+  // Generate the correct POAP collector URL
+  const getPoapCollectorUrl = () => {
     return `https://collectors.poap.xyz/token/${poap.tokenId}`;
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <div className="relative group cursor-pointer transition-all duration-300 transform hover:scale-105">
+    <>
+      <div 
+        className="relative cursor-pointer group"
+        onClick={() => setIsOpen(true)}
+      >
+        <div className="w-40 h-40 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md">
           <img 
-            src={poap.image_url} 
-            alt={poap.name} 
-            className="h-24 w-24 rounded-full object-cover border-2 border-transparent group-hover:border-primary transition-all"
+            src={poap.event.image_url} 
+            alt={poap.event.name} 
+            className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 rounded-full bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
-            <span className="text-white text-xs font-medium">View</span>
-          </div>
         </div>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{poap.name}</DialogTitle>
-          <DialogDescription>
-            POAP Token ID: {poap.tokenId}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-col items-center gap-4 p-4">
-          {/* Increased size for the POAP image in the popup */}
-          <img 
-            src={poap.image_url} 
-            alt={poap.name} 
-            className="h-60 w-60 rounded-full object-cover border-4 border-primary/20" 
-          />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-full transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <ExternalLink className="w-5 h-5 text-white" />
+        </div>
+      </div>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl">{poap.event.name}</DialogTitle>
+            <DialogDescription className="text-center flex justify-center">
+              <Badge variant="outline" className="mt-1">ID #{poap.tokenId}</Badge>
+            </DialogDescription>
+          </DialogHeader>
           
-          <div className="flex flex-col gap-2 w-full">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-primary" />
-              <span className="text-sm">
-                {formatDate(poap.event.start_date)}
-                {poap.event.end_date !== poap.event.start_date && 
-                  ` - ${formatDate(poap.event.end_date)}`
-                }
-              </span>
+          <div className="flex justify-center mb-4">
+            <div className="w-80 h-80 overflow-hidden rounded-full border-2 border-primary/20">
+              <img 
+                src={poap.event.image_url} 
+                alt={poap.event.name}
+                className="w-full h-full object-cover" 
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-medium mb-1">Description</h4>
+              <p className="text-sm text-muted-foreground">
+                {poap.event.description || "No description available"}
+              </p>
             </div>
             
-            <div className="flex items-center gap-2">
-              <Map className="h-4 w-4 text-primary" />
-              <Badge variant="outline">{getBadgeText()}</Badge>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <h4 className="font-medium mb-1">Event Date</h4>
+                <p className="text-muted-foreground">
+                  {formatDate(poap.event.start_date)}
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium mb-1">Year</h4>
+                <p className="text-muted-foreground">{poap.event.year}</p>
+              </div>
+              {poap.event.city && (
+                <div>
+                  <h4 className="font-medium mb-1">Location</h4>
+                  <p className="text-muted-foreground">
+                    {poap.event.city}, {poap.event.country}
+                  </p>
+                </div>
+              )}
+              <div>
+                <h4 className="font-medium mb-1">Supply</h4>
+                <p className="text-muted-foreground">{poap.event.supply || "Unlimited"}</p>
+              </div>
             </div>
             
-            <p className="text-sm text-muted-foreground mt-2">
-              {poap.description}
-            </p>
-            
-            <div className="flex justify-center mt-4">
+            <div className="pt-2">
               <a 
-                href={getPoapExternalLink()}
-                target="_blank" 
+                href={getPoapCollectorUrl()} 
+                target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-primary hover:underline text-sm"
+                className="text-primary hover:underline text-sm flex items-center"
               >
                 View on POAP.xyz
-                <ExternalLink className="h-3 w-3" />
+                <ExternalLink className="ml-1 h-3 w-3" />
               </a>
             </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

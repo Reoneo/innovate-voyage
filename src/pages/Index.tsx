@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -19,32 +20,29 @@ import { isValidEthereumAddress } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
 
-// Image URLs for floating logos - updated Talent Protocol URL
+// Image URLs for floating logos
 const logoUrls = [
   "https://altcoinsbox.com/wp-content/uploads/2023/04/full-ethereum-name-service-logo.png",
   "https://web3.bio/web3bio-logo.png",
-  "https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/7c844b24-d8f5-417f-accb-574c88b75e26/Logo_TalentProtocol.jpg?table=block&id=507f9f8e-04b7-478b-8a33-8900e4838847&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1743948000000&signature=gk2ASkxTsqSqmE_gIMWkAlMMZ3Fdo1YOD9Smt-okG6s&downloadName=Logo_TalentProtocol.jpg",
+  "https://cdn.publish0x.com/prod/fs/cachedimages/230573382-6a4061168e36bfea7f9ff3375f58f4f0e97b5d13f5c05413a12b04e7ba76270c.png",
   "https://etherscan.io/images/brandassets/etherscan-logo.svg"
 ];
 
-// Floating Logo Component - fixed to ensure consistent speed and spacing
+// Floating Logo Component
 interface FloatingLogoProps {
   imageUrl: string;
   index: number;
-  totalLogos: number;
 }
 
-const FloatingLogo: React.FC<FloatingLogoProps> = ({ imageUrl, index, totalLogos }) => {
-  const speed = 30; // Same speed for all logos
-  const verticalSpacing = 100 / (totalLogos + 1); // Evenly space logos vertically
+const FloatingLogo: React.FC<FloatingLogoProps> = ({ imageUrl, index }) => {
+  const speed = 20 + (index * 5); // Different speed for each logo
   
   return (
     <div 
       className="absolute" 
       style={{
         animation: `floatRight ${speed}s linear infinite`,
-        animationDelay: `${index * (speed / totalLogos)}s`, // Staggered start times
-        top: `${verticalSpacing * (index + 1)}%`,
+        top: `${20 + (index * 15)}%`,
         zIndex: 1
       }}
     >
@@ -174,15 +172,10 @@ const Index = () => {
           <div className="text-center mb-16 relative overflow-hidden">
             <h2 className="text-3xl font-bold mb-4">Powered by</h2>
             
-            {/* Floating Web3 Logos - updated to ensure even spacing */}
-            <div className="h-60 w-full relative mb-6">
+            {/* Floating Web3 Logos */}
+            <div className="h-20 w-full relative mb-6">
               {logoUrls.map((url, index) => (
-                <FloatingLogo 
-                  key={index} 
-                  imageUrl={url} 
-                  index={index} 
-                  totalLogos={logoUrls.length}
-                />
+                <FloatingLogo key={index} imageUrl={url} index={index} />
               ))}
             </div>
           </div>

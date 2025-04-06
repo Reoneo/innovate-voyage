@@ -38,11 +38,11 @@ const BiographySection: React.FC<BiographySectionProps> = ({ bio, identity }) =>
       {isLoading ? (
         <p className="text-muted-foreground italic">Loading bio...</p>
       ) : biography ? (
-        <p className="text-muted-foreground whitespace-pre-wrap break-words text-lg">
+        <p className="text-muted-foreground whitespace-pre-wrap break-words text-base">
           {biography}
         </p>
       ) : (
-        <p className="text-muted-foreground italic text-lg">No bio available</p>
+        <p className="text-muted-foreground italic text-base">No bio available</p>
       )}
     </div>
   );

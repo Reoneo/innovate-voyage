@@ -1,107 +1,123 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Skeleton } from "@/components/ui/skeleton";
+import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
 import PoapCard from './PoapCard';
+import { Button } from '@/components/ui/button';
 
 interface PoapSectionProps {
   walletAddress?: string;
 }
 
-interface Poap {
-  name: string;
-  tokenId: string;
-  city: string;
-  country: string;
-  image_url: string;
-  event_url: string;
-  description: string;
-  event: {
-    start_date: string;
-    end_date: string;
-  };
-}
-
 const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   const [poaps, setPoaps] = useState<Poap[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  
+  const scrollContainer = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!walletAddress) return;
-
-    const fetchPoaps = async () => {
+    
+    const loadPoaps = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`https://api.poap.tech/actions/scan/${walletAddress}`, {
-          headers: {
-            'Accept': 'application/json',
-            'X-API-Key': 'OdCiTR9uNKR1GITEaSYbwTgJrHYx2cCN3jCvQZ9U'
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('POAP data:', data);
-          setPoaps(data);
-        } else {
-          console.error('Failed to fetch POAPs:', response.status);
-        }
+        // Removed the limit parameter to fetch all POAPs
+        const fetchedPoaps = await fetchPoapsByAddress(walletAddress);
+        setPoaps(fetchedPoaps);
       } catch (error) {
-        console.error('Error fetching POAPs:', error);
+        console.error('Error loading POAPs:', error);
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchPoaps();
+    
+    loadPoaps();
   }, [walletAddress]);
+
+  const scrollLeft = () => {
+    if (scrollContainer.current) {
+      scrollContainer.current.scrollBy({ left: -200, behavior: 'smooth' });
+      setScrollPosition(scrollContainer.current.scrollLeft - 200);
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainer.current) {
+      scrollContainer.current.scrollBy({ left: 200, behavior: 'smooth' });
+      setScrollPosition(scrollContainer.current.scrollLeft + 200);
+    }
+  };
 
   if (!walletAddress) {
     return null;
   }
 
   return (
-    <Card className="mt-4">
-      <CardHeader className="pb-3">
+    <Card id="poap-card-section" className="mt-4">
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {/* Doubled the size of the POAP icon */}
-            <img 
-              src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
-              alt="POAP" 
-              className="h-16 w-16" 
-            />
-            <div>
-              <CardTitle>POAPs</CardTitle>
-              <a 
-                href={`https://collectors.poap.xyz/scan/${walletAddress}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline flex items-center"
-              >
-                View all on POAP.xyz
-                <ExternalLink className="h-3 w-3 ml-0.5" />
-              </a>
-            </div>
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <img 
+                src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
+                className="h-16 w-16" 
+                alt="Proof of Attendance Protocol" 
+              />
+              POAPs
+            </CardTitle>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="flex justify-center py-4">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <div className="flex flex-wrap gap-4 justify-center">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-16 w-16 rounded-full" />
+            ))}
           </div>
         ) : poaps.length > 0 ? (
-          <div className="overflow-x-auto scrollbar-hide max-w-full">
-            <div className="flex gap-4 py-2 min-w-max">
-              {poaps.map((poap, index) => (
-                <PoapCard key={index} poap={poap} />
+          <div className="relative">
+            {poaps.length > 4 && (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/80 rounded-full"
+                  onClick={scrollLeft}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/80 rounded-full"
+                  onClick={scrollRight}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+            <div 
+              ref={scrollContainer}
+              className="flex gap-4 overflow-x-auto py-2 px-2 scrollbar-hide scroll-smooth"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
+              {poaps.map((poap) => (
+                <PoapCard key={poap.tokenId} poap={poap} />
               ))}
             </div>
           </div>
         ) : (
           <div className="text-center py-4">
-            <p className="text-muted-foreground">No POAPs found for this wallet</p>
+            <p className="text-muted-foreground text-sm">
+              No POAPs found for this wallet address.
+            </p>
           </div>
         )}
       </CardContent>
