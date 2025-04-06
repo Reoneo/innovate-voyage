@@ -21,9 +21,17 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     // Try Web3Bio API first - works for all domain types
     const profile = await fetchWeb3BioProfile(identity);
     if (profile && profile.avatar) {
+      let avatar = profile.avatar;
+      
+      // Handle IPFS protocol for avatars
+      if (avatar && avatar.startsWith("ipfs://")) {
+        const cid = avatar.replace("ipfs://", "");
+        avatar = `https://ipfs.io/ipfs/${cid}`;
+      }
+      
       console.log(`Found avatar via Web3.bio for ${identity}`);
-      avatarCache[identity] = profile.avatar;
-      return profile.avatar;
+      avatarCache[identity] = avatar;
+      return avatar;
     }
     
     // If it's an ENS name, try multiple sources
@@ -67,9 +75,24 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
         const ensAvatarUrl = `https://avatar.ens.domains/${identity}`;
         const ensAvatarResponse = await fetch(ensAvatarUrl, { method: 'HEAD' });
         if (ensAvatarResponse.ok) {
+          // Check if the avatar is an IPFS URL and convert it
+          let avatar = ensAvatarUrl;
+          
+          // Handle IPFS protocol
+          try {
+            const avatarData = await fetch(ensAvatarUrl);
+            const avatarText = await avatarData.text();
+            if (avatarText.startsWith("ipfs://")) {
+              const cid = avatarText.replace("ipfs://", "");
+              avatar = `https://ipfs.io/ipfs/${cid}`;
+            }
+          } catch (err) {
+            console.error("Error processing ENS avatar:", err);
+          }
+          
           console.log(`Found avatar via ENS Avatar API for ${identity}`);
-          avatarCache[identity] = ensAvatarUrl;
-          return ensAvatarUrl;
+          avatarCache[identity] = avatar;
+          return avatar;
         }
       } catch (ensAvatarError) {
         console.error(`Error fetching from ENS Avatar API for ${identity}:`, ensAvatarError);
@@ -91,9 +114,17 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
         if (boxProfile.ok) {
           const boxData = await boxProfile.json();
           if (boxData && boxData.avatar) {
+            let avatar = boxData.avatar;
+            
+            // Handle IPFS protocol
+            if (avatar && avatar.startsWith("ipfs://")) {
+              const cid = avatar.replace("ipfs://", "");
+              avatar = `https://ipfs.io/ipfs/${cid}`;
+            }
+            
             console.log(`Found .box avatar for ${identity}`);
-            avatarCache[identity] = boxData.avatar;
-            return boxData.avatar;
+            avatarCache[identity] = avatar;
+            return avatar;
           }
         }
       } catch (boxError) {
