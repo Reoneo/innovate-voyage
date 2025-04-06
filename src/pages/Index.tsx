@@ -1,17 +1,19 @@
 
-// This is just a representative update. The actual Index.tsx is a read-only file.
-// We'll create a modified version that includes our PoweredBySection.
-
 import React from 'react';
-import { Original_Index } from './Original_Index';
 import PoweredBySection from '@/components/PoweredBySection';
 
 const Index = () => {
   return (
-    <>
-      <Original_Index />
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-grow">
+        {/* This is a placeholder for the actual home page content */}
+        <div className="container mx-auto px-4 py-12">
+          <h1 className="text-4xl font-bold text-center mb-8">Recruitment.box</h1>
+          <p className="text-xl text-center mb-8">A decentralized CV & recruitment engine powered by blockchain data.</p>
+        </div>
+      </main>
       <PoweredBySection />
-    </>
+    </div>
   );
 };
 

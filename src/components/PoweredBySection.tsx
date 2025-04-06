@@ -33,24 +33,26 @@ const PoweredBySection: React.FC = () => {
           ))}
         </div>
         
-        <style jsx>{`
-          @keyframes scroll {
-            0% {
-              transform: translateX(0);
+        <style>
+          {`
+            @keyframes scroll {
+              0% {
+                transform: translateX(0);
+              }
+              100% {
+                transform: translateX(-50%);
+              }
             }
-            100% {
-              transform: translateX(-50%);
+            
+            .logo-scroll {
+              animation: scroll 30s linear infinite;
             }
-          }
-          
-          .logo-scroll {
-            animation: scroll 30s linear infinite;
-          }
-          
-          .logo-scroll:hover {
-            animation-play-state: paused;
-          }
-        `}</style>
+            
+            .logo-scroll:hover {
+              animation-play-state: paused;
+            }
+          `}
+        </style>
       </div>
     </div>
   );
