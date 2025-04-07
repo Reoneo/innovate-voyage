@@ -63,7 +63,9 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              {/* Special route for recruitment.box domain */}
               <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+              {/* Regular profile route */}
               <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
               {/* Handle 404 and redirects */}
               <Route path="/404" element={<NotFound />} />

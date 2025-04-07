@@ -10,6 +10,12 @@ interface SocialMediaLinksProps {
 }
 
 const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading = false }) => {
+  // Update LinkedIn URL if it's the default value
+  const updatedSocials = { ...socials };
+  if (updatedSocials.linkedin === "https://linkedin.com") {
+    updatedSocials.linkedin = "https://www.linkedin.com/in/thirdweb/";
+  }
+  
   if (isLoading) {
     return (
       <div className="col-span-full flex items-center gap-2 text-muted-foreground">
@@ -20,7 +26,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   }
   
   // Check if we have any actual social links
-  const hasSocialLinks = Object.entries(socials || {}).some(([key, val]) => val && val.trim() !== '');
+  const hasSocialLinks = Object.entries(updatedSocials || {}).some(([key, val]) => val && val.trim() !== '');
   
   if (!hasSocialLinks) {
     return <span className="text-sm text-muted-foreground col-span-full">No social links available</span>;
@@ -30,17 +36,17 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
     <>
       {/* Display standard social platforms first */}
       {socialPlatforms.map(platform => 
-        socials[platform.key] && (
+        updatedSocials[platform.key] && (
           <SocialLinkItem 
             key={platform.key}
             platformType={platform.type} 
-            url={socials[platform.key]} 
+            url={updatedSocials[platform.key]} 
           />
         )
       )}
       
       {/* Handle any custom social links not in our predefined list */}
-      {Object.entries(socials).map(([key, value]) => {
+      {Object.entries(updatedSocials).map(([key, value]) => {
         // Skip if this platform is already handled above or if value is empty
         if (!value || socialPlatforms.some(p => p.key === key)) {
           return null;
