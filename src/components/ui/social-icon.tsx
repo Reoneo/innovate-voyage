@@ -24,7 +24,7 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
     case 'twitter':
       return <img src="https://cdn-icons-png.flaticon.com/512/5969/5969020.png" width={iconSize} height={iconSize} alt="Twitter" className={iconClasses} />;
     case 'linkedin':
-      return <img src="https://cdn-icons-png.flaticon.com/512/5968/5968804.png" width={iconSize} height={iconSize} alt="LinkedIn" className={iconClasses} />;
+      return <img src="https://cdn-icons-png.flaticon.com/512/145/145807.png" width={iconSize} height={iconSize} alt="LinkedIn" className={iconClasses} />;
     case 'globe':
     case 'website':
       return <img src="https://cdn-icons-png.flaticon.com/512/3059/3059997.png" width={iconSize} height={iconSize} alt="Website" className={iconClasses} />;

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
 import { Check, Copy } from 'lucide-react';
@@ -30,6 +31,10 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
     case 'phone':
     case 'telephone':
       formattedUrl = url.startsWith('tel:') ? url : `tel:${url.replace(/[^0-9+]/g, '')}`;
+      break;
+    case 'location':
+      // Convert location value to Google Maps search
+      formattedUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(url)}`;
       break;
     case 'twitter':
       // Handle both twitter.com and x.com URLs
