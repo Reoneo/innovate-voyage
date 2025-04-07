@@ -28,13 +28,13 @@ const logoUrls = [
 ];
 
 // Floating Logo Component
-interface LogoProps {
+interface FloatingLogoProps {
   imageUrl: string;
   index: number;
   totalLogos: number;
 }
 
-const StaticLogo: React.FC<LogoProps> = ({ imageUrl, index, totalLogos }) => {
+const FloatingLogo: React.FC<FloatingLogoProps> = ({ imageUrl, index, totalLogos }) => {
   // Calculate logo position with equal spacing
   const spacing = 100 / totalLogos;
   const position = spacing * index + spacing / 2;
@@ -43,6 +43,7 @@ const StaticLogo: React.FC<LogoProps> = ({ imageUrl, index, totalLogos }) => {
     <div 
       className="absolute" 
       style={{
+        animation: `floatRight 20s linear infinite`,
         left: `${position}%`, 
         transform: 'translateX(-50%)',
         top: '50%',
@@ -88,9 +89,20 @@ const Index = () => {
     toast.success(`Looking up profile for ${searchValue}`);
   };
 
-  // Remove the keyframes animation setup
+  // Add keyframes for the floating animation to the document
   useEffect(() => {
-    // Animation keyframes are no longer needed as we're using static logos
+    const styleSheet = document.createElement("style");
+    styleSheet.textContent = `
+      @keyframes floatRight {
+        0% { transform: translateX(-100%) translateY(-50%); }
+        100% { transform: translateX(100vw) translateY(-50%); }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+    
+    return () => {
+      document.head.removeChild(styleSheet);
+    };
   }, []);
 
   return (
@@ -165,10 +177,10 @@ const Index = () => {
           <div className="text-center mb-16 relative overflow-hidden">
             <h2 className="text-3xl font-bold mb-4">Powered by</h2>
             
-            {/* Static Web3 Logos */}
+            {/* Floating Web3 Logos */}
             <div className="h-20 w-full relative mb-6">
               {logoUrls.map((url, index) => (
-                <StaticLogo 
+                <FloatingLogo 
                   key={index} 
                   imageUrl={url} 
                   index={index} 

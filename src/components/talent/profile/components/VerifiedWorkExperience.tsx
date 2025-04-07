@@ -1,9 +1,11 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileSymlink } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { FileSymlink, ExternalLink, Briefcase } from 'lucide-react';
 import { useWeb3WorkExperience } from '@/hooks/useWeb3WorkExperience';
 import { useBlockchainProfile, useLatestTransactions } from '@/hooks/useEtherscan';
+import { format } from 'date-fns';
 
 interface VerifiedWorkExperienceProps {
   walletAddress?: string;
@@ -23,7 +25,6 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {/* Increased icon size to match the skills icon */}
             <img src="https://cdn.cdnlogo.com/logos/e/39/ethereum.svg" alt="Ethereum" className="h-6 w-6" />
             <div>
               <CardTitle>Blockchain Experience</CardTitle>
