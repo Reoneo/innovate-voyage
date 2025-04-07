@@ -4,7 +4,5 @@
   "clean_urls": true,
   "routes": {
     "/**": "index.html"
-  },
-  "https_only": true,
-  "trailing_slash": true
+  }
 }

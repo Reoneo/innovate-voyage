@@ -25,9 +25,21 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="https://cdn.cdnlogo.com/logos/e/39/ethereum.svg" alt="Ethereum" className="h-6 w-6" />
+            <img src="https://cdn.cdnlogo.com/logos/e/39/ethereum.svg" alt="Ethereum" className="h-8 w-8" />
             <div>
               <CardTitle>Blockchain Experience</CardTitle>
+              <CardDescription className="flex items-center gap-1">
+                Verified via{" "}
+                <a 
+                  href={`https://etherscan.io/address/${walletAddress}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline flex items-center"
+                >
+                  Etherscan.io
+                  <ExternalLink className="h-3 w-3 ml-0.5" />
+                </a>
+              </CardDescription>
             </div>
           </div>
         </div>
