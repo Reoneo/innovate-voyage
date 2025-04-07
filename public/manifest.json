@@ -1,0 +1,22 @@
+
+{
+  "name": "Recruitment.box - Decentralized CV & Recruitment Engine",
+  "short_name": "Recruitment.box",
+  "description": "A decentralized CV & recruitment engine powered by blockchain data.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6d28d9",
+  "icons": [
+    {
+      "src": "/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

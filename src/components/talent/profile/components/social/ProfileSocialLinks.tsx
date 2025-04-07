@@ -83,7 +83,9 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
         socialLinks[platform.key] && (
           <a 
             key={platform.key}
-            href={platform.key === 'whatsapp' ? `https://wa.me/${socialLinks[platform.key]}` : socialLinks[platform.key]} 
+            href={platform.key === 'whatsapp' ? `https://wa.me/${socialLinks[platform.key]}` : 
+                 platform.key === 'location' ? `https://www.google.com/maps/search/${encodeURIComponent(socialLinks[platform.key])}` : 
+                 socialLinks[platform.key]} 
             target="_blank" 
             rel="noopener noreferrer"
             className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full flex items-center justify-center"
@@ -91,7 +93,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
           >
             <SocialIcon 
               type={platform.type as any} 
-              size={20}
+              size={22} // Increased by 10% from 20 to 22
             />
           </a>
         )
@@ -102,7 +104,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
           className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full flex items-center justify-center"
           aria-label="Send email"
         >
-          <SocialIcon type="mail" size={20} />
+          <SocialIcon type="mail" size={22} /> {/* Increased by 10% */}
         </a>
       )}
       

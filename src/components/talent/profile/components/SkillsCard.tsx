@@ -62,7 +62,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
           console.error('Failed to fetch skills from TalentProtocol:', await skillsResponse.text());
         }
 
-        // Fetch passport credentials - fixing the API call with correct headers and URL
+        // Fetch passport credentials with correct API endpoint and headers
         const credentialsResponse = await fetch('https://api.talentprotocol.com/api/v1/passport_credentials', {
           headers: {
             'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
