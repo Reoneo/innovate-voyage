@@ -12,8 +12,7 @@ export default defineConfig({
     },
   },
   server: {
-    // Add historyApiFallback for SPA routing
-    historyApiFallback: true
+    port: 8080
   },
   // Handle SPA routing by redirecting all 404s to index.html
   build: {
