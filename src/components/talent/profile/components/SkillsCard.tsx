@@ -8,7 +8,7 @@ interface SkillsCardProps {
   skills: Array<{ name: string; proof?: string }>;
 }
 
-// Define types for the API response
+// Define types for the API responses
 interface TalentProtocolSkill {
   id: number;
   name: string;
@@ -18,47 +18,79 @@ interface TalentProtocolApiResponse {
   data: TalentProtocolSkill[];
 }
 
+interface PassportCredential {
+  earned_at: string;
+  id: string;
+  category: string;
+  last_calculated_at: string;
+  max_score: number;
+  name: string;
+  score: number;
+  type: string;
+  value: string;
+}
+
+interface PassportCredentialsApiResponse {
+  passport_credentials: PassportCredential[];
+}
+
 const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
   const [talentSkills, setTalentSkills] = useState<string[]>([]);
+  const [credentialSkills, setCredentialSkills] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!walletAddress) return;
 
-    const fetchTalentSkills = async () => {
+    const fetchTalentData = async () => {
       setIsLoading(true);
       try {
-        // Using the provided API token for authorization
-        const response = await fetch('https://api.talentprotocol.com/api/v2/skills?verified=true', {
+        // Fetch skills from TalentProtocol
+        const skillsResponse = await fetch('https://api.talentprotocol.com/api/v2/skills?verified=true', {
           headers: {
             'Authorization': 'Bearer 2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
           }
         });
         
-        if (response.ok) {
-          const data = await response.json() as TalentProtocolApiResponse;
-          
-          // Extract skill names from the response with proper type checking
-          const skillNames = data?.data?.map((skill: TalentProtocolSkill) => skill.name) || [];
-          
-          // Remove duplicates
+        if (skillsResponse.ok) {
+          const skillsData = await skillsResponse.json() as TalentProtocolApiResponse;
+          const skillNames = skillsData?.data?.map((skill: TalentProtocolSkill) => skill.name) || [];
           const uniqueSkills = [...new Set(skillNames)];
           setTalentSkills(uniqueSkills);
-          
-          // Log the response for debugging
-          console.log('TalentProtocol API response:', data);
-          console.log('Extracted skills:', uniqueSkills);
+          console.log('TalentProtocol Skills API response:', skillsData);
         } else {
-          console.error('Failed to fetch skills from TalentProtocol:', await response.text());
+          console.error('Failed to fetch skills from TalentProtocol:', await skillsResponse.text());
+        }
+
+        // Fetch passport credentials
+        const credentialsResponse = await fetch('https://api.talentprotocol.com/api/v1/passport_credentials', {
+          headers: {
+            'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
+          }
+        });
+        
+        if (credentialsResponse.ok) {
+          const credentialsData = await credentialsResponse.json() as PassportCredentialsApiResponse;
+          const credentialNames = credentialsData?.passport_credentials?.map(cred => cred.name) || [];
+          
+          // Add the credential category to make it more descriptive
+          const formattedCredentials = credentialsData?.passport_credentials?.map(cred => 
+            `${cred.name} (${cred.category})`
+          ) || [];
+          
+          setCredentialSkills(formattedCredentials);
+          console.log('TalentProtocol Credentials API response:', credentialsData);
+        } else {
+          console.error('Failed to fetch credentials from TalentProtocol:', await credentialsResponse.text());
         }
       } catch (error) {
-        console.error('Error fetching TalentProtocol skills:', error);
+        console.error('Error fetching TalentProtocol data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchTalentSkills();
+    fetchTalentData();
   }, [walletAddress]);
 
   if (!walletAddress) {
@@ -76,8 +108,14 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
     proof: 'https://talentprotocol.com'
   }));
 
-  // Combine skills
-  const allSkills = [...filteredSkills, ...talentProtocolSkills];
+  // Create skill objects from credential API
+  const credentialBasedSkills = credentialSkills.map(skillName => ({
+    name: skillName,
+    proof: 'https://talentprotocol.com/credentials'
+  }));
+
+  // Combine all skills
+  const allSkills = [...filteredSkills, ...talentProtocolSkills, ...credentialBasedSkills];
 
   return (
     <Card id="skills-card-section" className="mt-4">
@@ -100,7 +138,12 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
           <div className="flex flex-wrap gap-2">
             {allSkills.map((skill, index) => (
               <Badge key={index} variant={skill.proof ? "default" : "outline"} 
-                className={skill.proof ? "bg-green-500 hover:bg-green-600" : "text-gray-600 border-gray-400"}>
+                className={skill.proof && skill.proof.includes('credentials') 
+                  ? "bg-blue-500 hover:bg-blue-600" 
+                  : skill.proof 
+                    ? "bg-green-500 hover:bg-green-600" 
+                    : "text-gray-600 border-gray-400"
+                }>
                 {skill.name}
               </Badge>
             ))}
@@ -110,6 +153,26 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
             <p className="text-muted-foreground text-sm">
               No verified skills found.
             </p>
+          </div>
+        )}
+        
+        {allSkills && allSkills.length > 0 && (
+          <div className="mt-4 border-t pt-3">
+            <h4 className="text-sm font-medium mb-2">Legend:</h4>
+            <div className="flex flex-wrap gap-3 text-xs">
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-green-500 mr-1.5"></div>
+                <span>Verified Skill</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-blue-500 mr-1.5"></div>
+                <span>Credential Skill</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-gray-400 mr-1.5"></div>
+                <span>Unverified Skill</span>
+              </div>
+            </div>
           </div>
         )}
       </CardContent>
