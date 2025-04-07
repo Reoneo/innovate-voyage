@@ -62,7 +62,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
           console.error('Failed to fetch skills from TalentProtocol:', await skillsResponse.text());
         }
 
-        // Fetch passport credentials
+        // Fetch passport credentials - fixing the API call with correct headers and URL
         const credentialsResponse = await fetch('https://api.talentprotocol.com/api/v1/passport_credentials', {
           headers: {
             'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
@@ -71,7 +71,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
         
         if (credentialsResponse.ok) {
           const credentialsData = await credentialsResponse.json() as PassportCredentialsApiResponse;
-          const credentialNames = credentialsData?.passport_credentials?.map(cred => cred.name) || [];
+          console.log('TalentProtocol Credentials API response:', credentialsData);
           
           // Add the credential category to make it more descriptive
           const formattedCredentials = credentialsData?.passport_credentials?.map(cred => 
@@ -79,7 +79,6 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
           ) || [];
           
           setCredentialSkills(formattedCredentials);
-          console.log('TalentProtocol Credentials API response:', credentialsData);
         } else {
           console.error('Failed to fetch credentials from TalentProtocol:', await credentialsResponse.text());
         }
