@@ -35,15 +35,15 @@ export function useProfilePage() {
       setLoadingTimeout(true);
     }, 5000);
 
-    // Set viewport for desktop view (but not zoomed in)
+    // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
-      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
+      metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0');
     }
 
     return () => {
       clearTimeout(timeoutId);
-      // Reset viewport when leaving the page
+      // Reset viewport to mobile-friendly when leaving the page
       if (metaViewport) {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }

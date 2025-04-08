@@ -3,3 +3,4 @@
 
 # Add trailing slash rewrite rule
 /:ensNameOrAddress  /:ensNameOrAddress/   301
+
