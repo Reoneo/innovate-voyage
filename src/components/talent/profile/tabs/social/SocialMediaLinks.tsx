@@ -15,6 +15,11 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   if (updatedSocials.linkedin === "https://linkedin.com") {
     updatedSocials.linkedin = "https://www.linkedin.com/in/thirdweb/";
   }
+  // Replace linkedin with telegram if needed
+  if (updatedSocials.linkedin === "https://www.linkedin.com/company/thridweb") {
+    updatedSocials.telegram = "https://t.me/recruitmentbox";
+    delete updatedSocials.linkedin;
+  }
   
   if (isLoading) {
     return (

@@ -1,20 +1,24 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { FileSymlink, ExternalLink, Briefcase } from 'lucide-react';
-import { useWeb3WorkExperience } from '@/hooks/useWeb3WorkExperience';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useBlockchainProfile, useLatestTransactions } from '@/hooks/useEtherscan';
-import { format } from 'date-fns';
 
 interface VerifiedWorkExperienceProps {
   walletAddress?: string;
 }
 
 const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletAddress }) => {
-  const { experience } = useWeb3WorkExperience(walletAddress);
   const { data: blockchainProfile, isLoading: loadingProfile } = useBlockchainProfile(walletAddress);
   const { data: transactions } = useLatestTransactions(walletAddress, 10);
+
+  const formatDate = (timestamp: string) => {
+    const date = new Date(parseInt(timestamp) * 1000);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  };
+
+  // Find first and latest transactions
+  const latestTransaction = transactions && transactions.length > 0 ? transactions[0] : null;
+  const firstTransaction = transactions && transactions.length > 0 ? transactions[transactions.length - 1] : null;
 
   if (!walletAddress) {
     return null;
@@ -39,14 +43,49 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
           </div>
         ) : blockchainProfile ? (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-4">
               <div className="border rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileSymlink className="h-4 w-4 text-primary" />
-                  <h3 className="font-medium">Total Transactions</h3>
-                </div>
+                <h3 className="font-medium mb-2">TRANSACTIONS SENT</h3>
                 <p className="text-2xl font-bold">{blockchainProfile.transactionCount || 'Unknown'}</p>
               </div>
+              
+              {latestTransaction && (
+                <div className="border rounded-lg p-4">
+                  <h3 className="font-medium mb-2">Latest Transaction</h3>
+                  <div className="text-sm">
+                    <p><span className="font-medium">Date:</span> {formatDate(latestTransaction.timeStamp)}</p>
+                    <p><span className="font-medium">Hash:</span> 
+                      <a 
+                        href={`https://etherscan.io/tx/${latestTransaction.hash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline ml-1"
+                      >
+                        {latestTransaction.hash.substring(0, 10)}...{latestTransaction.hash.substring(latestTransaction.hash.length - 8)}
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {firstTransaction && firstTransaction !== latestTransaction && (
+                <div className="border rounded-lg p-4">
+                  <h3 className="font-medium mb-2">First Transaction</h3>
+                  <div className="text-sm">
+                    <p><span className="font-medium">Date:</span> {formatDate(firstTransaction.timeStamp)}</p>
+                    <p><span className="font-medium">Hash:</span> 
+                      <a 
+                        href={`https://etherscan.io/tx/${firstTransaction.hash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline ml-1"
+                      >
+                        {firstTransaction.hash.substring(0, 10)}...{firstTransaction.hash.substring(firstTransaction.hash.length - 8)}
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
