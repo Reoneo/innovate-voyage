@@ -10,10 +10,12 @@ interface SocialMediaLinksProps {
 }
 
 const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading = false }) => {
-  // Update LinkedIn URL if it's the default value
+  // Create a filtered version of socials without LinkedIn for home page
   const updatedSocials = { ...socials };
-  if (updatedSocials.linkedin === "https://linkedin.com") {
-    updatedSocials.linkedin = "https://www.linkedin.com/in/thirdweb/";
+  
+  // Remove LinkedIn if we're on the home page
+  if (window.location.pathname === '/' && updatedSocials.linkedin) {
+    delete updatedSocials.linkedin;
   }
   
   if (isLoading) {

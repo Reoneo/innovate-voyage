@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileSymlink, ExternalLink, Briefcase } from 'lucide-react';
+import { ExternalLink, Briefcase } from 'lucide-react';
 import { useWeb3WorkExperience } from '@/hooks/useWeb3WorkExperience';
 import { useBlockchainProfile, useLatestTransactions } from '@/hooks/useEtherscan';
 import { format } from 'date-fns';
@@ -41,9 +41,8 @@ const VerifiedWorkExperience: React.FC<VerifiedWorkExperienceProps> = ({ walletA
           <div className="space-y-6">
             <div className="grid grid-cols-1 gap-4">
               <div className="border rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileSymlink className="h-4 w-4 text-primary" />
-                  <h3 className="font-medium">Total Transactions</h3>
+                <div className="mb-2">
+                  <h3 className="font-medium">Transactions Sent</h3>
                 </div>
                 <p className="text-2xl font-bold">{blockchainProfile.transactionCount || 'Unknown'}</p>
               </div>

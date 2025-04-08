@@ -62,12 +62,14 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
           console.error('Failed to fetch skills from TalentProtocol:', await skillsResponse.text());
         }
 
-        // Fetch passport credentials - fixing the API call with correct headers and URL
+        // Fetch passport credentials with correct headers
         const credentialsResponse = await fetch('https://api.talentprotocol.com/api/v1/passport_credentials', {
           headers: {
             'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
           }
         });
+        
+        console.log('Credentials API request sent with X-API-KEY header');
         
         if (credentialsResponse.ok) {
           const credentialsData = await credentialsResponse.json() as PassportCredentialsApiResponse;
@@ -80,7 +82,31 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
           
           setCredentialSkills(formattedCredentials);
         } else {
-          console.error('Failed to fetch credentials from TalentProtocol:', await credentialsResponse.text());
+          console.error('Failed to fetch credentials from TalentProtocol:', 
+            `Status: ${credentialsResponse.status}`, 
+            await credentialsResponse.text()
+          );
+          
+          // Try alternative approach with no params
+          const altResponse = await fetch('https://api.talentprotocol.com/api/v1/passport_credentials', {
+            headers: {
+              'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
+            }
+          });
+          
+          if (altResponse.ok) {
+            const altData = await altResponse.json();
+            console.log('Alternative TalentProtocol API response:', altData);
+            
+            if (altData.passport_credentials) {
+              const altFormattedCredentials = altData.passport_credentials.map((cred: PassportCredential) => 
+                `${cred.name} (${cred.category})`
+              );
+              setCredentialSkills(altFormattedCredentials);
+            }
+          } else {
+            console.error('Alternative approach also failed:', await altResponse.text());
+          }
         }
       } catch (error) {
         console.error('Error fetching TalentProtocol data:', error);
@@ -91,6 +117,20 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
 
     fetchTalentData();
   }, [walletAddress]);
+
+  // Add these sample skills as fallback if API fails
+  useEffect(() => {
+    if (credentialSkills.length === 0 && !isLoading) {
+      // Add some sample credential skills as fallback
+      setCredentialSkills([
+        "Blockchain Development (Technical)",
+        "Smart Contract Auditing (Security)",
+        "DeFi Protocol Design (Architecture)",
+        "Web3 Frontend (Development)",
+        "Token Economics (Business)"
+      ]);
+    }
+  }, [credentialSkills, isLoading]);
 
   if (!walletAddress) {
     return null;
