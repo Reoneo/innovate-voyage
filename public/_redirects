@@ -1,3 +1,6 @@
 
 /*    /index.html   200
 
+# Add trailing slash rewrite rule
+/:ensNameOrAddress  /:ensNameOrAddress/   301
+
