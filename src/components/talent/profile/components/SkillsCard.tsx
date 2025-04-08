@@ -34,9 +34,17 @@ interface PassportCredentialsApiResponse {
   passport_credentials: PassportCredential[];
 }
 
+interface TalentScoreResponse {
+  score: {
+    points: number;
+    last_calculated_at: string | null;
+  }
+}
+
 const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
   const [talentSkills, setTalentSkills] = useState<string[]>([]);
   const [credentialSkills, setCredentialSkills] = useState<string[]>([]);
+  const [talentScore, setTalentScore] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -62,14 +70,45 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
           console.error('Failed to fetch skills from TalentProtocol:', await skillsResponse.text());
         }
 
-        // Fetch passport credentials with correct headers
-        const credentialsResponse = await fetch('https://api.talentprotocol.com/api/v1/passport_credentials', {
+        // Fetch score from TalentProtocol using the score endpoint
+        const scoreResponse = await fetch(`https://api.talentprotocol.com/score?id=${walletAddress}&account_source=wallet`, {
           headers: {
             'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
           }
         });
         
-        console.log('Credentials API request sent with X-API-KEY header');
+        console.log('Score API request sent with X-API-KEY header');
+        
+        if (scoreResponse.ok) {
+          const scoreData = await scoreResponse.json() as TalentScoreResponse;
+          console.log('TalentProtocol Score API response:', scoreData);
+          setTalentScore(scoreData.score?.points || null);
+          
+          // Generate skills based on score
+          if (scoreData.score?.points) {
+            const scoreSkills = [
+              `Talent Score: ${scoreData.score.points} points`,
+              `Web3 Contributor`,
+              `Blockchain Participant`,
+              scoreData.score.points > 50 ? 'Advanced Web3 User' : 'Web3 User',
+              scoreData.score.points > 75 ? 'Web3 Expert' : 'Web3 Enthusiast'
+            ];
+            
+            setCredentialSkills(prevSkills => [...prevSkills, ...scoreSkills]);
+          }
+        } else {
+          console.error('Failed to fetch score from TalentProtocol:', 
+            `Status: ${scoreResponse.status}`, 
+            await scoreResponse.text()
+          );
+        }
+
+        // Also try the passport credentials endpoint as a fallback
+        const credentialsResponse = await fetch('https://api.talentprotocol.com/api/v1/passport_credentials', {
+          headers: {
+            'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
+          }
+        });
         
         if (credentialsResponse.ok) {
           const credentialsData = await credentialsResponse.json() as PassportCredentialsApiResponse;
@@ -80,33 +119,12 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
             `${cred.name} (${cred.category})`
           ) || [];
           
-          setCredentialSkills(formattedCredentials);
+          setCredentialSkills(prevSkills => [...prevSkills, ...formattedCredentials]);
         } else {
           console.error('Failed to fetch credentials from TalentProtocol:', 
             `Status: ${credentialsResponse.status}`, 
             await credentialsResponse.text()
           );
-          
-          // Try alternative approach with no params
-          const altResponse = await fetch('https://api.talentprotocol.com/api/v1/passport_credentials', {
-            headers: {
-              'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
-            }
-          });
-          
-          if (altResponse.ok) {
-            const altData = await altResponse.json();
-            console.log('Alternative TalentProtocol API response:', altData);
-            
-            if (altData.passport_credentials) {
-              const altFormattedCredentials = altData.passport_credentials.map((cred: PassportCredential) => 
-                `${cred.name} (${cred.category})`
-              );
-              setCredentialSkills(altFormattedCredentials);
-            }
-          } else {
-            console.error('Alternative approach also failed:', await altResponse.text());
-          }
         }
       } catch (error) {
         console.error('Error fetching TalentProtocol data:', error);
@@ -166,6 +184,11 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
               Skills
             </CardTitle>
           </div>
+          {talentScore !== null && (
+            <div className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+              Score: {talentScore} pts
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent>
