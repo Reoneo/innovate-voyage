@@ -18,11 +18,6 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
     delete updatedSocials.linkedin;
   }
   
-  // Change LinkedIn link to Telegram link on homepage
-  if (window.location.pathname === '/') {
-    updatedSocials.telegram = "https://t.me/PortofSpain";
-  }
-  
   if (isLoading) {
     return (
       <div className="col-span-full flex items-center gap-2 text-muted-foreground">
