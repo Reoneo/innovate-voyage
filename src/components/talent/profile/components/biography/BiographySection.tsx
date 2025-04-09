@@ -1,50 +1,83 @@
 
-import React, { useState, useEffect } from 'react';
-import { getEnsBio } from '@/utils/ens/ensRecords';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Edit, Save } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { useState } from 'react';
 
 interface BiographySectionProps {
-  bio?: string;
-  identity?: string;
+  biography?: string;
+  isOwner?: boolean;
+  onSave?: (bio: string) => void;
 }
 
-const BiographySection: React.FC<BiographySectionProps> = ({ bio, identity }) => {
-  const [biography, setBiography] = useState<string | null>(bio || null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    // If no bio provided and we have an ENS identity, try to fetch it
-    if (!biography && identity && (identity.includes('.eth') || identity.includes('.box'))) {
-      setIsLoading(true);
-      
-      getEnsBio(identity)
-        .then(fetchedBio => {
-          if (fetchedBio) {
-            console.log(`Got bio for ${identity}:`, fetchedBio);
-            setBiography(fetchedBio);
-          }
-        })
-        .catch(error => {
-          console.error(`Error fetching bio for ${identity}:`, error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+const BiographySection: React.FC<BiographySectionProps> = ({
+  biography,
+  isOwner = false,
+  onSave
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [bioValue, setBioValue] = useState(biography || '');
+  
+  const handleSave = () => {
+    if (onSave) {
+      onSave(bioValue);
     }
-  }, [biography, identity]);
-
+    setIsEditing(false);
+  };
+  
   return (
-    <div className="w-full mt-4 mb-2 text-center">
-      <h3 className="text-lg font-medium mb-2">Bio</h3>
-      {isLoading ? (
-        <p className="text-muted-foreground italic">Loading bio...</p>
-      ) : biography ? (
-        <p className="text-xl font-normal text-black whitespace-pre-wrap break-words">
-          {biography}
-        </p>
-      ) : (
-        <p className="text-muted-foreground italic">No bio available</p>
-      )}
-    </div>
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-xl">Biography</CardTitle>
+        {isOwner && (
+          isEditing ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSave}
+              className="h-8 px-2"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+              className="h-8 px-2"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+          )
+        )}
+      </CardHeader>
+      <CardContent>
+        {isEditing ? (
+          <Textarea
+            value={bioValue}
+            onChange={(e) => setBioValue(e.target.value)}
+            placeholder="Write your professional biography here..."
+            className="min-h-[150px]"
+          />
+        ) : (
+          <div className="space-y-2">
+            {biography ? (
+              <p className="text-base text-black font-medium leading-relaxed whitespace-pre-wrap">
+                {biography}
+              </p>
+            ) : (
+              <p className="text-muted-foreground italic">
+                No biography available
+              </p>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

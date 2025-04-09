@@ -19,11 +19,15 @@ export function useProfilePage() {
   
   useEffect(() => {
     if (targetIdentifier) {
+      // Direct address check - immediately use as address if valid
       if (isValidEthereumAddress(targetIdentifier)) {
+        console.log(`Valid Ethereum address detected: ${targetIdentifier}`);
         setAddress(targetIdentifier);
         setEns(undefined); // Clear ENS when looking up by address
       } else {
+        // Not a valid address, treat as ENS or domain
         const ensValue = targetIdentifier.includes('.') ? targetIdentifier : `${targetIdentifier}.eth`;
+        console.log(`Treating as ENS: ${ensValue}`);
         setEns(ensValue);
         setAddress(undefined); // Clear address when looking up by ENS
       }

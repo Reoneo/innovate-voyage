@@ -69,14 +69,14 @@ export function useTalentProtocolSkills(walletAddress?: string): UseTalentProtoc
           console.error('Failed to fetch skills from TalentProtocol:', await skillsResponse.text());
         }
 
-        // Fetch score from TalentProtocol using the score endpoint
+        // Primary method: Fetch score directly with the wallet address
         const scoreResponse = await fetch(`https://api.talentprotocol.com/score?id=${walletAddress}`, {
           headers: {
             'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
           }
         });
         
-        console.log('Score API request sent with X-API-KEY header');
+        console.log('Score API request sent with wallet address:', walletAddress);
         
         if (scoreResponse.ok) {
           const scoreData = await scoreResponse.json() as TalentScoreResponse;
@@ -165,8 +165,9 @@ export function useTalentProtocolSkills(walletAddress?: string): UseTalentProtoc
 
   // Add these sample skills as fallback if API fails
   useEffect(() => {
-    if (credentialSkills.length === 0 && !isLoading) {
+    if (credentialSkills.length === 0 && !isLoading && talentScore === null) {
       // Add some sample credential skills as fallback
+      console.log('Using fallback skills data');
       setCredentialSkills([
         "Blockchain Development (Technical)",
         "Smart Contract Auditing (Security)",
@@ -175,7 +176,7 @@ export function useTalentProtocolSkills(walletAddress?: string): UseTalentProtoc
         "Token Economics (Business)"
       ]);
     }
-  }, [credentialSkills, isLoading]);
+  }, [credentialSkills, isLoading, talentScore]);
 
   return {
     talentSkills,

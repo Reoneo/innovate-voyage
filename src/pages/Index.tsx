@@ -25,6 +25,12 @@ const logoUrls = [
   "https://etherscan.io/images/brandassets/etherscan-logo.svg"
 ];
 
+interface FloatingLogoProps {
+  imageUrl: string;
+  index: number;
+  totalLogos: number;
+}
+
 const FloatingLogo: React.FC<FloatingLogoProps> = ({ imageUrl, index, totalLogos }) => {
   const spacing = 100 / totalLogos;
   const position = spacing * index + spacing / 2;
@@ -33,7 +39,6 @@ const FloatingLogo: React.FC<FloatingLogoProps> = ({ imageUrl, index, totalLogos
     <div 
       className="absolute" 
       style={{
-        animation: `floatRight 20s linear infinite`,
         left: `${position}%`, 
         transform: 'translateX(-50%)',
         top: '50%',
@@ -75,21 +80,6 @@ const Index = () => {
     navigate(`/${searchValue}`);
     toast.success(`Looking up profile for ${searchValue}`);
   };
-
-  useEffect(() => {
-    const styleSheet = document.createElement("style");
-    styleSheet.textContent = `
-      @keyframes floatRight {
-        0% { transform: translateX(-100%) translateY(-50%); }
-        100% { transform: translateX(100vw) translateY(-50%); }
-      }
-    `;
-    document.head.appendChild(styleSheet);
-    
-    return () => {
-      document.head.removeChild(styleSheet);
-    };
-  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -276,7 +266,7 @@ const Index = () => {
             <a href="mailto:hello@smith.box" aria-label="Email" className="text-gray-600 hover:text-primary">
               <Mail className="h-6 w-6" />
             </a>
-            <a href="https://t.me/PortofSpain" target="_blank" rel="noopener noreferrer" aria-label="Telegram" className="text-gray-600 hover:text-primary">
+            <a href="https://t.me/recruitmentbox" target="_blank" rel="noopener noreferrer" aria-label="Telegram" className="text-gray-600 hover:text-primary">
               <img src="https://cdn-icons-png.flaticon.com/512/5968/5968804.png" className="h-6 w-6" alt="Telegram" />
             </a>
             <a href="https://www.smith.box" target="_blank" rel="noopener noreferrer" aria-label="Website" className="text-gray-600 hover:text-primary">
