@@ -24,7 +24,7 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="h-60 overflow-y-auto border rounded-md p-3 space-y-2 bg-gray-50">
+      <div className="h-60 overflow-y-auto border rounded-md p-3 space-y-2 bg-background">
         <XmtpMessageList 
           messages={messages} 
           currentUserAddress={window.connectedWalletAddress} 

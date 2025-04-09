@@ -18,16 +18,18 @@ const XmtpMessageList: React.FC<XmtpMessageListProps> = ({
 }) => {
   if (messages.length === 0) {
     return (
-      <p className="text-center text-muted-foreground text-sm">No messages yet</p>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-center text-muted-foreground text-sm">No messages yet</p>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="flex flex-col space-y-3">
       {messages.map((msg, idx) => (
         <div 
           key={idx} 
-          className={`p-2 rounded-lg max-w-[80%] ${
+          className={`p-3 rounded-lg max-w-[80%] ${
             msg.senderAddress === currentUserAddress 
               ? 'bg-primary text-primary-foreground ml-auto' 
               : 'bg-secondary text-secondary-foreground'
@@ -39,7 +41,7 @@ const XmtpMessageList: React.FC<XmtpMessageListProps> = ({
           </p>
         </div>
       ))}
-    </>
+    </div>
   );
 };
 
