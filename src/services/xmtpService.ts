@@ -1,6 +1,11 @@
 
 import { Client } from '@xmtp/xmtp-js';
 import { ethers } from 'ethers';
+// Import Buffer polyfill
+import { Buffer } from 'buffer';
+
+// Make Buffer available globally
+window.Buffer = Buffer;
 
 export const initXMTP = async () => {
   try {
