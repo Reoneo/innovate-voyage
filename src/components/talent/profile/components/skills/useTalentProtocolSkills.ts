@@ -70,7 +70,7 @@ export function useTalentProtocolSkills(walletAddress?: string): UseTalentProtoc
         }
 
         // Fetch score from TalentProtocol using the score endpoint
-        const scoreResponse = await fetch(`https://api.talentprotocol.com/score?id=${walletAddress}&account_source=wallet`, {
+        const scoreResponse = await fetch(`https://api.talentprotocol.com/score?id=${walletAddress}`, {
           headers: {
             'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
           }
@@ -100,6 +100,34 @@ export function useTalentProtocolSkills(walletAddress?: string): UseTalentProtoc
             `Status: ${scoreResponse.status}`, 
             await scoreResponse.text()
           );
+          
+          // Try with the account_source parameter
+          const retryScoreResponse = await fetch(`https://api.talentprotocol.com/score?id=${walletAddress}&account_source=wallet`, {
+            headers: {
+              'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
+            }
+          });
+          
+          if (retryScoreResponse.ok) {
+            const retryScoreData = await retryScoreResponse.json() as TalentScoreResponse;
+            console.log('TalentProtocol Score retry API response:', retryScoreData);
+            setTalentScore(retryScoreData.score?.points || null);
+            
+            if (retryScoreData.score?.points) {
+              const scoreSkills = [
+                `Talent Score: ${retryScoreData.score.points} points`,
+                `Web3 Contributor`,
+                `Blockchain Participant`
+              ];
+              
+              setCredentialSkills(prevSkills => [...prevSkills, ...scoreSkills]);
+            }
+          } else {
+            console.error('Retry also failed to fetch score from TalentProtocol:', 
+              `Status: ${retryScoreResponse.status}`, 
+              await retryScoreResponse.text()
+            );
+          }
         }
 
         // Also try the passport credentials endpoint as a fallback

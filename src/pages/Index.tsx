@@ -8,7 +8,6 @@ import {
   Search,
   Shield,
   Mail,
-  Linkedin,
   Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,6 @@ import { isValidEthereumAddress } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
 
-// Image URLs for floating logos
 const logoUrls = [
   "https://altcoinsbox.com/wp-content/uploads/2023/04/full-ethereum-name-service-logo.png",
   "https://web3.bio/web3bio-logo.png",
@@ -27,15 +25,7 @@ const logoUrls = [
   "https://etherscan.io/images/brandassets/etherscan-logo.svg"
 ];
 
-// Floating Logo Component
-interface FloatingLogoProps {
-  imageUrl: string;
-  index: number;
-  totalLogos: number;
-}
-
 const FloatingLogo: React.FC<FloatingLogoProps> = ({ imageUrl, index, totalLogos }) => {
-  // Calculate logo position with equal spacing
   const spacing = 100 / totalLogos;
   const position = spacing * index + spacing / 2;
   
@@ -76,20 +66,16 @@ const Index = () => {
       return;
     }
     
-    // Normalize the input
     let searchValue = searchInput.trim();
     
-    // If input looks like a simple name without extension, assume it's an ENS name
     if (!searchValue.includes('.') && !isValidEthereumAddress(searchValue) && /^[a-zA-Z0-9]+$/.test(searchValue)) {
       searchValue = `${searchValue}.eth`;
     }
     
-    // Navigate to the profile page
     navigate(`/${searchValue}`);
     toast.success(`Looking up profile for ${searchValue}`);
   };
 
-  // Add keyframes for the floating animation to the document
   useEffect(() => {
     const styleSheet = document.createElement("style");
     styleSheet.textContent = `
@@ -123,7 +109,6 @@ const Index = () => {
       </Helmet>
       
       <div className="container mx-auto px-4 sm:px-6 py-8">
-        {/* Hero Section with Logo */}
         <div className="flex flex-col items-center text-center mb-16">
           <div className="mb-8">
             <div className="flex justify-center mb-6">
@@ -142,7 +127,6 @@ const Index = () => {
               Find talent on the blockchain with our decentralized CV & recruitment engine
             </p>
             
-            {/* Simple Search Form */}
             <div className="max-w-md mx-auto mb-8">
               <form onSubmit={handleSearch} className="flex gap-2">
                 <div className="relative flex-grow">
@@ -172,12 +156,10 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Features Section */}
         <div id="features" className="py-16">
           <div className="text-center mb-16 relative overflow-hidden">
             <h2 className="text-3xl font-bold mb-4">Powered by</h2>
             
-            {/* Floating Web3 Logos */}
             <div className="h-20 w-full relative mb-6">
               {logoUrls.map((url, index) => (
                 <FloatingLogo 
@@ -241,7 +223,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Roadmap Section - Replacing the CTA Section */}
         <div className="py-16 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold mb-6">Product Roadmap</h2>
@@ -290,14 +271,13 @@ const Index = () => {
           </div>
         </div>
         
-        {/* Footer with social links */}
         <footer className="py-8 border-t border-gray-200 mt-8">
           <div className="flex justify-center space-x-6">
             <a href="mailto:hello@smith.box" aria-label="Email" className="text-gray-600 hover:text-primary">
               <Mail className="h-6 w-6" />
             </a>
-            <a href="https://www.linkedin.com/company/thridweb" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-gray-600 hover:text-primary">
-              <Linkedin className="h-6 w-6" />
+            <a href="https://t.me/PortofSpain" target="_blank" rel="noopener noreferrer" aria-label="Telegram" className="text-gray-600 hover:text-primary">
+              <img src="https://cdn-icons-png.flaticon.com/512/5968/5968804.png" className="h-6 w-6" alt="Telegram" />
             </a>
             <a href="https://www.smith.box" target="_blank" rel="noopener noreferrer" aria-label="Website" className="text-gray-600 hover:text-primary">
               <Globe className="h-6 w-6" />

@@ -21,9 +21,11 @@ export function useProfilePage() {
     if (targetIdentifier) {
       if (isValidEthereumAddress(targetIdentifier)) {
         setAddress(targetIdentifier);
+        setEns(undefined); // Clear ENS when looking up by address
       } else {
         const ensValue = targetIdentifier.includes('.') ? targetIdentifier : `${targetIdentifier}.eth`;
         setEns(ensValue);
+        setAddress(undefined); // Clear address when looking up by ENS
       }
     }
 
