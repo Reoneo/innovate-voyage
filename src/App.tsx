@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
 import WalletConnectModal from "./components/wallet/WalletConnectModal";
+import XmtpMessageModal from "./components/wallet/XmtpMessageModal";
 
 // Create a persistent QueryClient instance
 const queryClient = new QueryClient({
@@ -72,6 +73,7 @@ const App = () => {
               <Route path="*" element={<Navigate to="/404" />} />
             </Routes>
             <WalletConnectModal />
+            <XmtpMessageModal />
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>

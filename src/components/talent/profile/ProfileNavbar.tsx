@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Wallet, LogOut, Save, Download, ArrowLeft } from 'lucide-react';
+import { Wallet, LogOut, Save, Download, ArrowLeft, MessageSquare } from 'lucide-react';
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
@@ -23,6 +23,12 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   onSaveChanges,
   onExportPdf
 }) => {
+  const handleOpenXmtpModal = () => {
+    if (window.xmtpMessageModal) {
+      window.xmtpMessageModal.showModal();
+    }
+  };
+
   return (
     <div className="flex items-center mb-4">
       <Link to="/">
@@ -32,7 +38,23 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
         </Button>
       </Link>
       
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center space-x-2">
+        {/* XMTP Message Button */}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleOpenXmtpModal}
+          className="h-9 w-9"
+          title="XMTP Messages"
+        >
+          <img 
+            src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
+            alt="Message" 
+            className="h-4 w-4"
+          />
+        </Button>
+
+        {/* Wallet Button */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
