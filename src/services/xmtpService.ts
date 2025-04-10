@@ -15,6 +15,11 @@ export const initXMTP = async () => {
       throw new Error("No Ethereum provider found. Please install MetaMask.");
     }
     
+    // Ensure Buffer is available before XMTP initialization
+    if (typeof window !== 'undefined' && !window.Buffer) {
+      window.Buffer = Buffer;
+    }
+    
     const provider = new ethers.BrowserProvider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
     const signer = await provider.getSigner();

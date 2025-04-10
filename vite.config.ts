@@ -27,12 +27,10 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  server: {
-    host: '::',
-    port: 8080
-  },
-  // Handle SPA routing by redirecting all 404s to index.html
   build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -40,5 +38,9 @@ export default defineConfig(({ mode }) => ({
         },
       },
     },
+  },
+  server: {
+    host: '::',
+    port: 8080
   },
 }));
