@@ -22,4 +22,15 @@ if (typeof window !== 'undefined' && !window.Buffer) {
   console.log("Main: Buffer is available:", !!window.Buffer);
 }
 
+// Workaround to make Buffer globally available for dependencies that use it
+// @ts-ignore - deliberately setting global object property
+if (typeof window !== 'undefined' && typeof global === 'undefined') {
+  // @ts-ignore - setting window.global
+  window.global = window;
+  // @ts-ignore - ensure global.Buffer exists too
+  if (window.global && !window.global.Buffer) {
+    window.global.Buffer = window.Buffer;
+  }
+}
+
 createRoot(document.getElementById("root")!).render(<App />);

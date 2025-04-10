@@ -8,6 +8,19 @@ import { Buffer } from 'buffer';
 if (typeof window !== 'undefined') {
   window.Buffer = window.Buffer || Buffer;
   console.log("xmtpService: Buffer available:", !!window.Buffer);
+  
+  // Ensure global.Buffer is also set for libraries that use it
+  // @ts-ignore - deliberately setting global object property
+  if (typeof global === 'undefined') {
+    // @ts-ignore - setting window.global
+    window.global = window;
+  }
+  
+  // @ts-ignore - ensure global.Buffer exists too
+  if (window.global && !window.global.Buffer) {
+    // @ts-ignore
+    window.global.Buffer = window.Buffer;
+  }
 }
 
 export const initXMTP = async () => {
