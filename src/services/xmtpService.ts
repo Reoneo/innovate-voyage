@@ -5,7 +5,9 @@ import { ethers } from 'ethers';
 import { Buffer } from 'buffer';
 
 // Make Buffer available globally
-window.Buffer = Buffer;
+if (typeof window !== 'undefined') {
+  window.Buffer = window.Buffer || Buffer;
+}
 
 export const initXMTP = async () => {
   try {

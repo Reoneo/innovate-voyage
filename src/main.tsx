@@ -1,7 +1,11 @@
 
 // Polyfill Buffer for browser environment
 import { Buffer } from 'buffer';
-window.Buffer = Buffer;
+
+// Make Buffer available globally
+if (typeof window !== 'undefined') {
+  window.Buffer = window.Buffer || Buffer;
+}
 
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
