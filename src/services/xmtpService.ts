@@ -1,3 +1,4 @@
+
 import { Client } from '@xmtp/xmtp-js';
 import { ethers } from 'ethers';
 // Import Buffer polyfill
@@ -83,7 +84,7 @@ export async function canMessage(client: any, addressOrName: string): Promise<bo
       
       // For ENS names, resolve to address
       try {
-        const provider = new ethers.providers.JsonRpcProvider(
+        const provider = new ethers.JsonRpcProvider(
           "https://eth-mainnet.g.alchemy.com/v2/demo"
         );
         address = await provider.resolveName(addressOrName);
