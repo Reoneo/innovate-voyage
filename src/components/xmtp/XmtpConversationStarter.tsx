@@ -33,8 +33,18 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
     if (!inputValue.trim()) {
       toast({
         title: "Invalid Input",
-        description: "Please enter a valid Ethereum address or ENS name",
+        description: "Please enter a valid Ethereum address, ENS name, or Lens handle",
         variant: "destructive",
+      });
+      return;
+    }
+    
+    // If it's a Lens handle or other protocol ID that doesn't need resolution
+    if (inputValue.endsWith('.lens')) {
+      setRecipient(inputValue);
+      toast({
+        title: "Lens Handle",
+        description: `Using Lens handle: ${inputValue}`,
       });
       return;
     }
@@ -46,11 +56,20 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
         description: resolvedEns ? `Resolved to ${resolvedEns}` : `Address is valid`,
       });
     } else if (!isResolvingEns) {
-      toast({
-        title: "Resolution Failed",
-        description: "Could not resolve the address or ENS name",
-        variant: "destructive",
-      });
+      // If input is a valid Ethereum address, use it directly
+      if (inputValue.startsWith('0x') && inputValue.length === 42) {
+        setRecipient(inputValue);
+        toast({
+          title: "Using Ethereum Address",
+          description: `Address appears valid: ${inputValue.substring(0, 6)}...${inputValue.substring(38)}`,
+        });
+      } else {
+        toast({
+          title: "Resolution Failed",
+          description: "Could not resolve the address, ENS name, or Lens handle",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -58,7 +77,7 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
     if (!recipient) {
       toast({
         title: "Invalid Recipient",
-        description: "Please enter and lookup a valid Ethereum address or ENS name",
+        description: "Please enter and lookup a valid Ethereum address, ENS name, or Lens handle",
         variant: "destructive",
       });
       return;
@@ -72,7 +91,8 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
       const canMessageRecipient = await canMessage(xmtpClient, recipient);
       
       if (!canMessageRecipient) {
-        const displayAddress = resolvedEns || `${recipient.substring(0, 6)}...${recipient.substring(38)}`;
+        const displayAddress = resolvedEns || (recipient.endsWith('.lens') ? recipient : 
+          `${recipient.substring(0, 6)}...${recipient.substring(38)}`);
         setErrorMessage(`${displayAddress} is not on the XMTP network yet`);
         throw new Error(`Recipient ${recipient} is not on the XMTP network`);
       }
@@ -84,7 +104,8 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
       
       onConversationStarted(conversation, existingMessages);
       
-      const displayAddress = resolvedEns || `${recipient.substring(0, 6)}...${recipient.substring(38)}`;
+      const displayAddress = resolvedEns || (recipient.endsWith('.lens') ? recipient : 
+        `${recipient.substring(0, 6)}...${recipient.substring(38)}`);
       toast({
         title: "Conversation Started",
         description: `You can now message ${displayAddress}`,
@@ -106,13 +127,13 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium">Recipient Address or ENS</label>
+        <label className="text-sm font-medium">Recipient Address, ENS or Lens Handle</label>
         <div className="flex gap-2">
           <Input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="0x... or name.eth"
+            placeholder="0x... or name.eth or user.lens"
             className="flex-1"
             disabled={isLoading}
           />
@@ -132,6 +153,12 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
             ) : (
               <>Address: {resolvedAddress.substring(0, 6)}...{resolvedAddress.substring(38)}</>
             )}
+          </div>
+        )}
+        
+        {inputValue.endsWith('.lens') && (
+          <div className="text-xs text-purple-500">
+            Lens Handle: {inputValue}
           </div>
         )}
       </div>

@@ -11,15 +11,16 @@ interface SkillsCardProps {
 }
 
 const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
-  const { talentSkills, credentialSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress);
+  const { talentSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress);
 
   if (!walletAddress) {
     return null;
   }
 
-  // Filter out the mock TalentProtocol skills
+  // Filter out credential skills and TalentProtocol mock skills
   const filteredSkills = skills.filter(skill => 
-    !skill.proof?.includes('talentprotocol.com')
+    !skill.proof?.includes('talentprotocol.com') &&
+    !skill.proof?.includes('credentials')
   );
 
   // Create skill objects from TalentProtocol API
@@ -28,14 +29,8 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
     proof: 'https://talentprotocol.com'
   }));
 
-  // Create skill objects from credential API
-  const credentialBasedSkills = credentialSkills.map(skillName => ({
-    name: skillName,
-    proof: 'https://talentprotocol.com/credentials'
-  }));
-
-  // Combine all skills
-  const allSkills = [...filteredSkills, ...talentProtocolSkills, ...credentialBasedSkills];
+  // Combine all skills without credential skills
+  const allSkills = [...filteredSkills, ...talentProtocolSkills];
 
   return (
     <Card id="skills-card-section" className="mt-4">

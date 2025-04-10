@@ -1,24 +1,41 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Message {
   content: string;
   senderAddress: string;
   sent: Date;
+  id?: string;
 }
 
 interface XmtpMessageListProps {
   messages: Message[];
   currentUserAddress: string | null;
+  onDeleteMessage?: (messageId: string) => Promise<void>;
 }
 
-const MessageBubble = ({ message, isOwnMessage, currentUserAddress }: { 
+const MessageBubble = ({ 
+  message, 
+  isOwnMessage, 
+  currentUserAddress,
+  onDelete
+}: { 
   message: Message, 
   isOwnMessage: boolean,
-  currentUserAddress: string | null
+  currentUserAddress: string | null,
+  onDelete?: () => Promise<void>
 }) => {
+  const [isDeleting, setIsDeleting] = useState(false);
   const address = isOwnMessage ? currentUserAddress : message.senderAddress;
   const { resolvedEns, avatarUrl } = useEnsResolver(undefined, address || undefined);
   
@@ -27,9 +44,22 @@ const MessageBubble = ({ message, isOwnMessage, currentUserAddress }: {
     : 'Unknown';
     
   const displayName = resolvedEns || shortAddress;
+
+  const handleDelete = async () => {
+    if (onDelete) {
+      setIsDeleting(true);
+      try {
+        await onDelete();
+      } catch (error) {
+        console.error("Error deleting message:", error);
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
   
   return (
-    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4`}>
+    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4 group`}>
       {!isOwnMessage && (
         <Avatar className="h-8 w-8 mr-2 mt-1 border">
           <AvatarImage src={avatarUrl || ''} alt={displayName} />
@@ -39,7 +69,7 @@ const MessageBubble = ({ message, isOwnMessage, currentUserAddress }: {
         </Avatar>
       )}
       
-      <div className={`max-w-[80%]`}>
+      <div className={`max-w-[80%] relative`}>
         {!isOwnMessage && (
           <div className="text-xs text-muted-foreground mb-1 ml-1">{displayName}</div>
         )}
@@ -53,6 +83,29 @@ const MessageBubble = ({ message, isOwnMessage, currentUserAddress }: {
             {new Date(message.sent).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
           </p>
         </div>
+        
+        {isOwnMessage && message.id && onDelete && (
+          <div className="absolute right-0 top-0 -mt-1 -mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-6 w-6">
+                  <span className="sr-only">Message options</span>
+                  <span className="text-xs">•••</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  className="text-destructive focus:text-destructive flex items-center" 
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {isDeleting ? "Deleting..." : "Delete message"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
       
       {isOwnMessage && (
@@ -69,7 +122,8 @@ const MessageBubble = ({ message, isOwnMessage, currentUserAddress }: {
 
 const XmtpMessageList: React.FC<XmtpMessageListProps> = ({
   messages,
-  currentUserAddress
+  currentUserAddress,
+  onDeleteMessage
 }) => {
   if (messages.length === 0) {
     return (
@@ -105,6 +159,9 @@ const XmtpMessageList: React.FC<XmtpMessageListProps> = ({
               message={msg}
               isOwnMessage={msg.senderAddress === currentUserAddress}
               currentUserAddress={currentUserAddress}
+              onDelete={onDeleteMessage && msg.id && msg.senderAddress === currentUserAddress 
+                ? () => onDeleteMessage(msg.id!) 
+                : undefined}
             />
           ))}
         </div>

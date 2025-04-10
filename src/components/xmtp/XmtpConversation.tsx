@@ -1,10 +1,11 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import XmtpMessageList from './XmtpMessageList';
 import XmtpMessageComposer from './XmtpMessageComposer';
-import { streamMessages } from '@/services/xmtpService';
+import { streamMessages, deleteMessage } from '@/services/xmtpService';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
 
 interface XmtpConversationProps {
   conversation: any;
@@ -23,16 +24,58 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { resolvedEns, avatarUrl } = useEnsResolver(undefined, conversation?.peerAddress);
+  const [hasLensHandle, setHasLensHandle] = useState(false);
+  const { toast } = useToast();
   
   const peerAddress = conversation?.peerAddress;
   const shortAddress = peerAddress 
     ? `${peerAddress.substring(0, 6)}...${peerAddress.substring(peerAddress.length - 4)}`
     : '';
   
+  // Check if the address is a Lens handle
+  useEffect(() => {
+    const checkLensHandle = async () => {
+      try {
+        // Check if address or ENS contains lens
+        const isLens = resolvedEns?.includes('.lens') || peerAddress?.toLowerCase().includes('lens');
+        setHasLensHandle(!!isLens);
+      } catch (error) {
+        console.error("Error checking Lens handle:", error);
+      }
+    };
+    
+    if (peerAddress) {
+      checkLensHandle();
+    }
+  }, [peerAddress, resolvedEns]);
+  
   const displayName = resolvedEns || shortAddress;
 
   const handleMessageSent = (newMessage: any) => {
     setMessages(prev => [...prev, newMessage]);
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      // Delete the message using XMTP API
+      await deleteMessage(conversation, messageId);
+      
+      // Remove the message from the UI
+      setMessages(prev => prev.filter(message => message.id !== messageId));
+      
+      toast({
+        title: "Message deleted",
+        description: "Message was successfully deleted"
+      });
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      toast({
+        title: "Error deleting message",
+        description: "There was a problem deleting your message",
+        variant: "destructive"
+      });
+      throw error; // Re-throw to handle in the UI
+    }
   };
 
   // Scroll to bottom when messages change
@@ -97,6 +140,9 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
         <div>
           <div className="font-medium text-sm">{displayName}</div>
           {resolvedEns && <div className="text-xs text-muted-foreground">{shortAddress}</div>}
+          {hasLensHandle && (
+            <div className="text-xs text-purple-500">Lens Profile</div>
+          )}
         </div>
       </div>
       
@@ -104,7 +150,8 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
       <div className="h-[250px] overflow-y-auto border rounded-md p-3 space-y-2 bg-background">
         <XmtpMessageList 
           messages={messages} 
-          currentUserAddress={window.connectedWalletAddress} 
+          currentUserAddress={window.connectedWalletAddress}
+          onDeleteMessage={handleDeleteMessage}
         />
         <div ref={messagesEndRef} />
       </div>
