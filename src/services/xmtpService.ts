@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 // Import Buffer polyfill
 import { Buffer } from 'buffer';
 
-// Make Buffer available globally
+// Make Buffer available globally if not already present
 if (typeof window !== 'undefined') {
   window.Buffer = window.Buffer || Buffer;
 }
@@ -15,10 +15,17 @@ export const initXMTP = async () => {
       throw new Error("No Ethereum provider found. Please install MetaMask.");
     }
     
-    // Ensure Buffer is available before XMTP initialization
-    if (typeof window !== 'undefined' && !window.Buffer) {
+    // Triple-check Buffer is available before we try to use XMTP
+    if (!window.Buffer) {
+      console.error("Buffer is not available, attempting to set it");
       window.Buffer = Buffer;
+      
+      if (!window.Buffer) {
+        throw new Error("Failed to initialize Buffer polyfill");
+      }
     }
+    
+    console.log("Using Buffer:", !!window.Buffer);
     
     const provider = new ethers.BrowserProvider(window.ethereum);
     await provider.send("eth_requestAccounts", []);

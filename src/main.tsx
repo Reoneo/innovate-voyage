@@ -1,19 +1,22 @@
 
-// Import Buffer polyfill first
+// Polyfill Buffer first - before any other imports
 import { Buffer } from 'buffer';
 
-// Make Buffer available globally before any other imports
+// Make Buffer globally available
 if (typeof window !== 'undefined') {
-  window.Buffer = window.Buffer || Buffer;
+  window.Buffer = Buffer;
+  console.log("Buffer polyfill initialized:", !!window.Buffer);
 }
 
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// Ensure Buffer is definitely available before rendering
-if (typeof window !== 'undefined') {
-  console.log("Buffer polyfill loaded:", !!window.Buffer);
+// Double-check Buffer is available
+if (typeof window !== 'undefined' && !window.Buffer) {
+  console.error("Buffer polyfill failed to load!");
+} else {
+  console.log("Buffer is available:", !!window.Buffer);
 }
 
 createRoot(document.getElementById("root")!).render(<App />);

@@ -9,7 +9,7 @@ interface Window {
   connectWalletModal: HTMLDialogElement;
   xmtpMessageModal: HTMLDialogElement;
   connectedWalletAddress: string | null;
-  Buffer: typeof Buffer;
+  Buffer: typeof Buffer & { from: (data: any, encoding?: string) => Buffer };
 }
 
 interface ImportMetaEnv {
