@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { startNewConversation, getMessages, canMessage } from '@/services/xmtpService';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useEnsResolver } from '@/hooks/useEnsResolver';
 
 interface XmtpConversationStarterProps {
   xmtpClient: any;
@@ -20,15 +21,44 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
   isLoading,
   setIsLoading
 }) => {
+  const [inputValue, setInputValue] = useState('');
   const [recipient, setRecipient] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { toast } = useToast();
+  
+  // Use ENS resolver to get address from ENS or vice versa
+  const { resolvedAddress, resolvedEns, isLoading: isResolvingEns } = useEnsResolver(inputValue);
+
+  const handleLookupRecipient = () => {
+    if (!inputValue.trim()) {
+      toast({
+        title: "Invalid Input",
+        description: "Please enter a valid Ethereum address or ENS name",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (resolvedAddress) {
+      setRecipient(resolvedAddress);
+      toast({
+        title: "Address Resolved",
+        description: resolvedEns ? `Resolved to ${resolvedEns}` : `Address is valid`,
+      });
+    } else if (!isResolvingEns) {
+      toast({
+        title: "Resolution Failed",
+        description: "Could not resolve the address or ENS name",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleStartConversation = async () => {
-    if (!recipient.trim()) {
+    if (!recipient) {
       toast({
         title: "Invalid Recipient",
-        description: "Please enter a valid Ethereum address",
+        description: "Please enter and lookup a valid Ethereum address or ENS name",
         variant: "destructive",
       });
       return;
@@ -42,7 +72,8 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
       const canMessageRecipient = await canMessage(xmtpClient, recipient);
       
       if (!canMessageRecipient) {
-        setErrorMessage(`Address ${recipient.substring(0, 6)}...${recipient.substring(38)} is not on the XMTP network yet`);
+        const displayAddress = resolvedEns || `${recipient.substring(0, 6)}...${recipient.substring(38)}`;
+        setErrorMessage(`${displayAddress} is not on the XMTP network yet`);
         throw new Error(`Recipient ${recipient} is not on the XMTP network`);
       }
       
@@ -53,9 +84,10 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
       
       onConversationStarted(conversation, existingMessages);
       
+      const displayAddress = resolvedEns || `${recipient.substring(0, 6)}...${recipient.substring(38)}`;
       toast({
         title: "Conversation Started",
-        description: `You can now message ${recipient.substring(0, 6)}...${recipient.substring(38)}`,
+        description: `You can now message ${displayAddress}`,
       });
     } catch (error: any) {
       // Don't show toast for the XMTP network error since we're displaying it in the UI
@@ -74,14 +106,34 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium">Recipient Address</label>
-        <Input
-          type="text"
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
-          placeholder="0x..."
-          className="w-full"
-        />
+        <label className="text-sm font-medium">Recipient Address or ENS</label>
+        <div className="flex gap-2">
+          <Input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="0x... or name.eth"
+            className="flex-1"
+            disabled={isLoading}
+          />
+          <Button 
+            onClick={handleLookupRecipient} 
+            variant="outline"
+            disabled={isLoading || !inputValue.trim() || isResolvingEns}
+          >
+            {isResolvingEns ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+          </Button>
+        </div>
+        
+        {resolvedAddress && (
+          <div className="text-xs text-muted-foreground">
+            {resolvedEns ? (
+              <>ENS: {resolvedEns} → {resolvedAddress.substring(0, 6)}...{resolvedAddress.substring(38)}</>
+            ) : (
+              <>Address: {resolvedAddress.substring(0, 6)}...{resolvedAddress.substring(38)}</>
+            )}
+          </div>
+        )}
       </div>
       
       {errorMessage && (

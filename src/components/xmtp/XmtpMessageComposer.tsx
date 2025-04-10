@@ -1,9 +1,8 @@
 
 import React, { useState } from 'react';
-import { Loader2, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
+import { Loader2, SendHorizonal } from 'lucide-react';
 import { sendMessage } from '@/services/xmtpService';
 
 interface XmtpMessageComposerProps {
@@ -19,57 +18,55 @@ const XmtpMessageComposer: React.FC<XmtpMessageComposerProps> = ({
   isLoading,
   setIsLoading
 }) => {
-  const [message, setMessage] = useState('');
-  const { toast } = useToast();
+  const [messageContent, setMessageContent] = useState('');
 
-  const handleSendMessage = async () => {
-    if (!message.trim() || !conversation) return;
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!messageContent.trim() || isLoading) return;
     
     setIsLoading(true);
     try {
-      await sendMessage(conversation, message);
-      
-      // Add message to UI
-      const newMessage = {
-        content: message,
-        senderAddress: window.connectedWalletAddress,
-        sent: new Date()
-      };
-      
-      onMessageSent(newMessage);
-      setMessage(''); // Clear input
-      
-      toast({
-        title: "Message Sent",
-        description: "Your message has been sent successfully",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send message",
-        variant: "destructive",
-      });
+      const sentMessage = await sendMessage(conversation, messageContent.trim());
+      onMessageSent(sentMessage);
+      setMessageContent('');
+    } catch (error) {
+      console.error("Error sending message:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Handle Enter key to send message (Shift+Enter for new line)
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(e);
+    }
+  };
+
   return (
-    <div className="flex space-x-2">
+    <form onSubmit={handleSendMessage} className="flex gap-2 items-end">
       <Textarea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type your message..."
-        className="resize-none"
+        value={messageContent}
+        onChange={(e) => setMessageContent(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Type a message..."
+        className="resize-none min-h-[60px] h-[60px]"
       />
       <Button 
+        type="submit" 
         size="icon" 
-        onClick={handleSendMessage}
-        disabled={isLoading || !message.trim()}
+        disabled={!messageContent.trim() || isLoading}
+        className="h-[60px]"
       >
-        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        {isLoading ? (
+          <Loader2 className="h-5 w-5 animate-spin" />
+        ) : (
+          <SendHorizonal className="h-5 w-5" />
+        )}
       </Button>
-    </div>
+    </form>
   );
 };
 

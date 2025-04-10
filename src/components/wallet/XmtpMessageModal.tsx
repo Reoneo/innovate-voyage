@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, MessageSquare, PlusCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import XmtpConnectionSection from '../xmtp/XmtpConnectionSection';
 import XmtpConversationStarter from '../xmtp/XmtpConversationStarter';
@@ -84,9 +84,12 @@ const XmtpMessageModal: React.FC = () => {
   return (
     <dialog id="xmtpMessageModal" className="modal backdrop:bg-black/50 backdrop:backdrop-blur-sm rounded-lg shadow-xl p-0 w-[90%] max-w-md">
       <div className="bg-background p-6 rounded-lg">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">XMTP Messaging</h3>
-          <Button variant="ghost" size="icon" onClick={closeModal}>
+        <div className="flex justify-between items-center mb-4 border-b pb-3">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <MessageSquare className="h-5 w-5" />
+            XMTP Messaging
+          </h3>
+          <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -102,12 +105,13 @@ const XmtpMessageModal: React.FC = () => {
             {currentConversation ? (
               <>
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm" 
                   onClick={backToConversations}
-                  className="mb-2"
+                  className="pl-1"
                 >
-                  ← Back to conversations
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Back
                 </Button>
                 <XmtpConversation
                   conversation={currentConversation}
@@ -120,12 +124,13 @@ const XmtpMessageModal: React.FC = () => {
             ) : showNewConversation ? (
               <>
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm" 
                   onClick={backToConversations}
-                  className="mb-2"
+                  className="pl-1"
                 >
-                  ← Back to conversations
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Back
                 </Button>
                 <XmtpConversationStarter
                   xmtpClient={xmtpClient}
@@ -139,8 +144,10 @@ const XmtpMessageModal: React.FC = () => {
                 <Button 
                   onClick={startNewConversation} 
                   className="w-full mb-4"
+                  variant="outline"
                 >
-                  Start New Conversation
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  New Conversation
                 </Button>
                 <ConversationList 
                   conversations={conversations}

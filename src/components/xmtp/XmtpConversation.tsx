@@ -1,8 +1,10 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import XmtpMessageList from './XmtpMessageList';
 import XmtpMessageComposer from './XmtpMessageComposer';
 import { streamMessages } from '@/services/xmtpService';
+import { useEnsResolver } from '@/hooks/useEnsResolver';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface XmtpConversationProps {
   conversation: any;
@@ -19,9 +21,24 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
   isLoading,
   setIsLoading
 }) => {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { resolvedEns, avatarUrl } = useEnsResolver(undefined, conversation?.peerAddress);
+  
+  const peerAddress = conversation?.peerAddress;
+  const shortAddress = peerAddress 
+    ? `${peerAddress.substring(0, 6)}...${peerAddress.substring(peerAddress.length - 4)}`
+    : '';
+  
+  const displayName = resolvedEns || shortAddress;
+
   const handleMessageSent = (newMessage: any) => {
     setMessages(prev => [...prev, newMessage]);
   };
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   // Set up message streaming to receive new messages
   useEffect(() => {
@@ -68,14 +85,31 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
   }, [conversation, setMessages]);
 
   return (
-    <div className="space-y-4">
-      <div className="h-60 overflow-y-auto border rounded-md p-3 space-y-2 bg-background">
+    <div className="space-y-3">
+      {/* Conversation header with peer info */}
+      <div className="p-2 border-b flex items-center gap-2">
+        <Avatar className="h-8 w-8">
+          <AvatarImage src={avatarUrl || ''} alt={displayName} />
+          <AvatarFallback className="bg-primary/10 text-primary text-xs">
+            {displayName.substring(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <div className="font-medium text-sm">{displayName}</div>
+          {resolvedEns && <div className="text-xs text-muted-foreground">{shortAddress}</div>}
+        </div>
+      </div>
+      
+      {/* Messages container */}
+      <div className="h-[250px] overflow-y-auto border rounded-md p-3 space-y-2 bg-background">
         <XmtpMessageList 
           messages={messages} 
           currentUserAddress={window.connectedWalletAddress} 
         />
+        <div ref={messagesEndRef} />
       </div>
       
+      {/* Message composer */}
       <XmtpMessageComposer
         conversation={conversation}
         onMessageSent={handleMessageSent}
