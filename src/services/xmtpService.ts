@@ -7,6 +7,7 @@ import { Buffer } from 'buffer';
 // Make Buffer available globally if not already present
 if (typeof window !== 'undefined') {
   window.Buffer = window.Buffer || Buffer;
+  console.log("xmtpService: Buffer available:", !!window.Buffer);
 }
 
 export const initXMTP = async () => {
@@ -17,7 +18,7 @@ export const initXMTP = async () => {
     
     // Triple-check Buffer is available before we try to use XMTP
     if (!window.Buffer) {
-      console.error("Buffer is not available, attempting to set it");
+      console.error("Buffer is not available, attempting to set it again");
       window.Buffer = Buffer;
       
       if (!window.Buffer) {
@@ -25,7 +26,7 @@ export const initXMTP = async () => {
       }
     }
     
-    console.log("Using Buffer:", !!window.Buffer);
+    console.log("XMTP initialization using Buffer:", !!window.Buffer);
     
     const provider = new ethers.BrowserProvider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
