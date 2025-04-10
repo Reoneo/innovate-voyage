@@ -63,8 +63,23 @@ export const getConversations = async (client: Client) => {
   }
 };
 
+export const canMessage = async (client: Client, address: string) => {
+  try {
+    return await client.canMessage(address);
+  } catch (error) {
+    console.error(`Error checking if can message ${address}:`, error);
+    return false;
+  }
+};
+
 export const startNewConversation = async (client: Client, recipientAddress: string) => {
   try {
+    // First check if the recipient can be messaged
+    const canMessageRecipient = await canMessage(client, recipientAddress);
+    if (!canMessageRecipient) {
+      throw new Error(`Recipient ${recipientAddress} is not on the XMTP network`);
+    }
+    
     return await client.conversations.newConversation(recipientAddress);
   } catch (error) {
     console.error(`Error starting conversation with ${recipientAddress}:`, error);
