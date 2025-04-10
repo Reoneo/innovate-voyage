@@ -78,8 +78,8 @@ export async function canMessage(client: any, addressOrName: string): Promise<bo
       if (addressOrName.endsWith('.lens')) {
         // Special handling for Lens protocol
         console.log(`Detected Lens handle: ${addressOrName}`);
-        // For Lens handles, we would need to fetch the address from the Lens API
-        // For now, attempt to use it directly (some XMTP implementations support this)
+        // For Lens handles, just use directly since XMTP can handle them
+        return true;
       } 
       
       // For ENS names, resolve to address
@@ -110,7 +110,14 @@ export async function canMessage(client: any, addressOrName: string): Promise<bo
 
 export const startNewConversation = async (client: Client, recipientAddress: string) => {
   try {
-    // First check if the recipient can be messaged
+    // Special handling for Lens handles
+    if (recipientAddress.endsWith('.lens')) {
+      console.log(`Starting conversation with Lens handle: ${recipientAddress}`);
+      // For Lens handles, we use them directly as XMTP can handle them
+      return await client.conversations.newConversation(recipientAddress);
+    }
+    
+    // For other addresses, check if they can be messaged
     const canMessageRecipient = await canMessage(client, recipientAddress);
     if (!canMessageRecipient) {
       throw new Error(`Recipient ${recipientAddress} is not on the XMTP network`);

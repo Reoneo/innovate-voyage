@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Wallet, LogOut, Save, Download, ArrowLeft, MessageSquare } from 'lucide-react';
+import { Download, LogOut, Save } from 'lucide-react';
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
@@ -33,8 +33,11 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
     <div className="flex items-center mb-4">
       <Link to="/">
         <Button variant="outline" size="sm" className="gap-1">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Home
+          <img 
+            src="https://img.icons8.com/?size=512&id=uNaaq8c2jqFp&format=png" 
+            alt="Back to Home" 
+            className="h-8 w-8"
+          />
         </Button>
       </Link>
       
@@ -44,25 +47,29 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           variant="outline"
           size="icon"
           onClick={handleOpenXmtpModal}
-          className="h-9 w-9"
+          className="h-12 w-12"
           title="XMTP Messages"
         >
           <img 
             src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
             alt="Message" 
-            className="h-4 w-4"
+            className="h-8 w-8"
           />
         </Button>
 
-        {/* Wallet Button */}
+        {/* Wallet Button - Only showing save/export options */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Wallet className="h-4 w-4" />
+            <Button variant="outline" size="icon" className="h-12 w-12">
+              <img 
+                src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" 
+                alt="Options" 
+                className="h-8 w-8"
+              />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {connectedWallet ? (
+            {connectedWallet && (
               <>
                 <DropdownMenuItem onClick={onSaveChanges}>
                   <Save className="mr-2 h-4 w-4" />
@@ -73,11 +80,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                   Disconnect
                 </DropdownMenuItem>
               </>
-            ) : (
-              <DropdownMenuItem onClick={() => document.dispatchEvent(new Event('open-wallet-connect'))}>
-                <Wallet className="mr-2 h-4 w-4" />
-                Connect Wallet
-              </DropdownMenuItem>
             )}
             <DropdownMenuItem onClick={onExportPdf}>
               <Download className="mr-2 h-4 w-4" />

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, SendHorizonal } from 'lucide-react';
+import { Loader2, SendHorizontal, Paperclip, Smile } from 'lucide-react';
 import { sendMessage } from '@/services/xmtpService';
 
 interface XmtpMessageComposerProps {
@@ -46,24 +46,45 @@ const XmtpMessageComposer: React.FC<XmtpMessageComposerProps> = ({
   };
 
   return (
-    <form onSubmit={handleSendMessage} className="flex gap-2 items-end">
+    <form onSubmit={handleSendMessage} className="flex items-end gap-2">
+      <Button 
+        type="button" 
+        variant="ghost" 
+        size="icon" 
+        className="rounded-full h-10 w-10 flex-shrink-0"
+        disabled={isLoading}
+      >
+        <Paperclip className="h-5 w-5 text-gray-500" />
+      </Button>
+      
       <Textarea
         value={messageContent}
         onChange={(e) => setMessageContent(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Type a message..."
-        className="resize-none min-h-[60px] h-[60px]"
+        className="resize-none min-h-[50px] rounded-full px-4 py-2 bg-gray-100 border-0 focus-visible:ring-1 focus-visible:ring-gray-300"
       />
+      
+      <Button 
+        type="button" 
+        variant="ghost" 
+        size="icon" 
+        className="rounded-full h-10 w-10 flex-shrink-0"
+        disabled={isLoading}
+      >
+        <Smile className="h-5 w-5 text-gray-500" />
+      </Button>
+      
       <Button 
         type="submit" 
         size="icon" 
         disabled={!messageContent.trim() || isLoading}
-        className="h-[60px]"
+        className="rounded-full h-10 w-10 bg-blue-500 hover:bg-blue-600 flex-shrink-0"
       >
         {isLoading ? (
           <Loader2 className="h-5 w-5 animate-spin" />
         ) : (
-          <SendHorizonal className="h-5 w-5" />
+          <SendHorizontal className="h-5 w-5" />
         )}
       </Button>
     </form>

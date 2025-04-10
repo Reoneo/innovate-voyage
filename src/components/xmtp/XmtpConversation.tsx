@@ -128,17 +128,17 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
   }, [conversation, setMessages]);
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Conversation header with peer info */}
-      <div className="p-2 border-b flex items-center gap-2">
-        <Avatar className="h-8 w-8">
+      <div className="p-3 border-b flex items-center gap-3 bg-white shadow-sm">
+        <Avatar className="h-10 w-10">
           <AvatarImage src={avatarUrl || ''} alt={displayName} />
-          <AvatarFallback className="bg-primary/10 text-primary text-xs">
+          <AvatarFallback className="bg-primary/10 text-primary text-sm">
             {displayName.substring(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div>
-          <div className="font-medium text-sm">{displayName}</div>
+          <div className="font-semibold text-base">{displayName}</div>
           {resolvedEns && <div className="text-xs text-muted-foreground">{shortAddress}</div>}
           {hasLensHandle && (
             <div className="text-xs text-purple-500">Lens Profile</div>
@@ -146,8 +146,14 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
         </div>
       </div>
       
-      {/* Messages container */}
-      <div className="h-[250px] overflow-y-auto border rounded-md p-3 space-y-2 bg-background">
+      {/* Messages container with background pattern similar to the image */}
+      <div 
+        className="flex-1 overflow-y-auto p-4 space-y-2 bg-opacity-30"
+        style={{
+          backgroundImage: "url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22%3E%3Cg fill-rule=%22evenodd%22%3E%3Cg fill=%22%23edf2fa%22%3E%3Cpath opacity=%22.5%22 d=%22M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')",
+          backgroundColor: "#f6f9fc"
+        }}
+      >
         <XmtpMessageList 
           messages={messages} 
           currentUserAddress={window.connectedWalletAddress}
@@ -157,12 +163,14 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
       </div>
       
       {/* Message composer */}
-      <XmtpMessageComposer
-        conversation={conversation}
-        onMessageSent={handleMessageSent}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
-      />
+      <div className="p-3 border-t bg-white">
+        <XmtpMessageComposer
+          conversation={conversation}
+          onMessageSent={handleMessageSent}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+        />
+      </div>
     </div>
   );
 };
