@@ -1,10 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import XmtpConnectionSection from '../xmtp/XmtpConnectionSection';
 import XmtpConversationStarter from '../xmtp/XmtpConversationStarter';
 import XmtpConversation from '../xmtp/XmtpConversation';
+import ConversationList from '../xmtp/ConversationList';
+import { getConversations } from '@/services/xmtpService';
 
 const XmtpMessageModal: React.FC = () => {
   const [messages, setMessages] = useState<any[]>([]);
@@ -12,21 +14,71 @@ const XmtpMessageModal: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [currentConversation, setCurrentConversation] = useState<any>(null);
   const [xmtpClient, setXmtpClient] = useState<any>(null);
+  const [conversations, setConversations] = useState<any[]>([]);
+  const [showNewConversation, setShowNewConversation] = useState(false);
 
-  const handleConnect = (client: any) => {
+  const handleConnect = async (client: any) => {
     setXmtpClient(client);
     setIsConnected(true);
+    
+    // Load existing conversations
+    setIsLoading(true);
+    try {
+      const existingConversations = await getConversations(client);
+      setConversations(existingConversations);
+    } catch (error) {
+      console.error("Error loading conversations:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleConversationStarted = (conversation: any, existingMessages: any[]) => {
+  const handleConversationStarted = async (conversation: any, existingMessages: any[]) => {
     setCurrentConversation(conversation);
     setMessages(existingMessages);
+    setShowNewConversation(false);
+    
+    // Add to conversations list if not already there
+    const conversationExists = conversations.some(
+      conv => conv.peerAddress === conversation.peerAddress
+    );
+    
+    if (!conversationExists) {
+      setConversations(prev => [conversation, ...prev]);
+    }
+  };
+
+  const handleSelectConversation = async (conversation: any) => {
+    if (currentConversation?.peerAddress === conversation.peerAddress) return;
+    
+    setIsLoading(true);
+    setCurrentConversation(conversation);
+    
+    try {
+      // Load messages for the selected conversation
+      const existingMessages = await conversation.messages();
+      setMessages(existingMessages);
+    } catch (error) {
+      console.error("Error loading messages:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const closeModal = () => {
     if (window.xmtpMessageModal) {
       window.xmtpMessageModal.close();
     }
+  };
+
+  const startNewConversation = () => {
+    setCurrentConversation(null);
+    setShowNewConversation(true);
+  };
+
+  const backToConversations = () => {
+    setCurrentConversation(null);
+    setShowNewConversation(false);
   };
 
   return (
@@ -47,21 +99,55 @@ const XmtpMessageModal: React.FC = () => {
           />
         ) : (
           <div className="space-y-4">
-            {!currentConversation ? (
-              <XmtpConversationStarter
-                xmtpClient={xmtpClient}
-                onConversationStarted={handleConversationStarted}
-                isLoading={isLoading}
-                setIsLoading={setIsLoading}
-              />
+            {currentConversation ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={backToConversations}
+                  className="mb-2"
+                >
+                  ← Back to conversations
+                </Button>
+                <XmtpConversation
+                  conversation={currentConversation}
+                  messages={messages}
+                  setMessages={setMessages}
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
+                />
+              </>
+            ) : showNewConversation ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={backToConversations}
+                  className="mb-2"
+                >
+                  ← Back to conversations
+                </Button>
+                <XmtpConversationStarter
+                  xmtpClient={xmtpClient}
+                  onConversationStarted={handleConversationStarted}
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
+                />
+              </>
             ) : (
-              <XmtpConversation
-                conversation={currentConversation}
-                messages={messages}
-                setMessages={setMessages}
-                isLoading={isLoading}
-                setIsLoading={setIsLoading}
-              />
+              <>
+                <Button 
+                  onClick={startNewConversation} 
+                  className="w-full mb-4"
+                >
+                  Start New Conversation
+                </Button>
+                <ConversationList 
+                  conversations={conversations}
+                  onSelectConversation={handleSelectConversation}
+                  isLoading={isLoading}
+                />
+              </>
             )}
           </div>
         )}

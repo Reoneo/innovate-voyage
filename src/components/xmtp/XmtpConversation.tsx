@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import XmtpMessageList from './XmtpMessageList';
 import XmtpMessageComposer from './XmtpMessageComposer';
+import { streamMessages } from '@/services/xmtpService';
 
 interface XmtpConversationProps {
   conversation: any;
@@ -21,6 +22,50 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
   const handleMessageSent = (newMessage: any) => {
     setMessages(prev => [...prev, newMessage]);
   };
+
+  // Set up message streaming to receive new messages
+  useEffect(() => {
+    if (!conversation) return;
+
+    // Only set up streaming if we have a conversation
+    let isMounted = true;
+    
+    const setupMessageStream = async () => {
+      try {
+        // This will listen for new incoming messages
+        const stream = await conversation.streamMessages();
+        
+        (async () => {
+          for await (const msg of stream) {
+            // Only add messages if component is still mounted
+            if (isMounted) {
+              // Make sure we don't duplicate messages
+              setMessages(prev => {
+                const messageExists = prev.some(m => 
+                  m.id === msg.id || 
+                  (m.content === msg.content && 
+                   m.senderAddress === msg.senderAddress &&
+                   m.sent.getTime() === msg.sent.getTime())
+                );
+                
+                if (messageExists) return prev;
+                return [...prev, msg];
+              });
+            }
+          }
+        })();
+      } catch (error) {
+        console.error("Error streaming messages:", error);
+      }
+    };
+
+    setupMessageStream();
+    
+    // Cleanup function to prevent memory leaks
+    return () => {
+      isMounted = false;
+    };
+  }, [conversation, setMessages]);
 
   return (
     <div className="space-y-4">

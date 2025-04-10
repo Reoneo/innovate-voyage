@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { startNewConversation, getMessages } from '@/services/xmtpService';
 
@@ -56,15 +57,15 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <div className="space-y-2">
         <label className="text-sm font-medium">Recipient Address</label>
-        <input
+        <Input
           type="text"
           value={recipient}
           onChange={(e) => setRecipient(e.target.value)}
           placeholder="0x..."
-          className="w-full p-2 border rounded-md"
+          className="w-full"
         />
       </div>
       <Button 
