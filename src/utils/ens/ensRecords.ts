@@ -9,6 +9,18 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
   try {
     console.log(`Getting avatar for ${ensName}`);
     
+    // Handle EIP155 formatted avatar URIs directly
+    if (ensName.startsWith('eip155:1/erc721:')) {
+      // For EIP155 formatted NFT avatars, we'll use the getRealAvatar function
+      // which has dedicated handling for this format
+      const { getRealAvatar } = await import('../../api/services/avatarService');
+      const avatar = await getRealAvatar(ensName);
+      if (avatar) {
+        console.log(`Got avatar for EIP155 format: ${ensName} -> ${avatar}`);
+        return avatar;
+      }
+    }
+    
     // Try web3.bio API first - preferred method
     const profile = await fetchWeb3BioProfile(ensName);
     if (profile && profile.avatar) {
