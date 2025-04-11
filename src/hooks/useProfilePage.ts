@@ -58,7 +58,7 @@ export function useProfilePage() {
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
   
-  const { profileRef, exportAsPDF } = usePdfExport();
+  const { profileRef } = usePdfExport();
 
   const handleDisconnect = () => {
     localStorage.removeItem('connectedWalletAddress');
@@ -76,12 +76,6 @@ export function useProfilePage() {
     });
   };
 
-  // Handler for the export PDF dropdown item
-  const handleExportPdf = () => {
-    // This correctly calls the function returned by useReactToPrint
-    exportAsPDF();
-  };
-
   return {
     ensNameOrAddress: targetIdentifier,
     loading,
@@ -92,7 +86,6 @@ export function useProfilePage() {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges,
-    handleExportPdf
+    handleSaveChanges
   };
 }

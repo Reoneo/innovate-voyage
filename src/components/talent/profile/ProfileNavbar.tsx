@@ -8,20 +8,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Download, LogOut, Save } from 'lucide-react';
+import { LogOut, Save } from 'lucide-react';
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
   onDisconnect: () => void;
   onSaveChanges: () => void;
-  onExportPdf: () => void;
 }
 
 const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   connectedWallet,
   onDisconnect,
-  onSaveChanges,
-  onExportPdf
+  onSaveChanges
 }) => {
   const handleOpenXmtpModal = () => {
     if (window.xmtpMessageModal) {
@@ -32,11 +30,11 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   return (
     <div className="flex items-center mb-4">
       <Link to="/">
-        <Button variant="outline" size="sm" className="gap-1">
+        <Button variant="ghost" size="sm" className="gap-1 p-0">
           <img 
             src="https://img.icons8.com/?size=512&id=uNaaq8c2jqFp&format=png" 
             alt="Back to Home" 
-            className="h-8 w-8"
+            className="h-10 w-10"
           />
         </Button>
       </Link>
@@ -44,27 +42,27 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
       <div className="ml-auto flex items-center space-x-2">
         {/* XMTP Message Button */}
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
           onClick={handleOpenXmtpModal}
-          className="h-12 w-12"
+          className="h-10 w-10 p-0"
           title="XMTP Messages"
         >
           <img 
             src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
             alt="Message" 
-            className="h-8 w-8"
+            className="h-10 w-10"
           />
         </Button>
 
-        {/* Wallet Button - Only showing save/export options */}
+        {/* Wallet Button - Only showing save option */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="h-12 w-12">
+            <Button variant="ghost" size="icon" className="h-10 w-10 p-0">
               <img 
                 src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" 
                 alt="Options" 
-                className="h-8 w-8"
+                className="h-10 w-10"
               />
             </Button>
           </DropdownMenuTrigger>
@@ -81,10 +79,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                 </DropdownMenuItem>
               </>
             )}
-            <DropdownMenuItem onClick={onExportPdf}>
-              <Download className="mr-2 h-4 w-4" />
-              Export as PDF
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

@@ -8,10 +8,11 @@ import { useTalentProtocolSkills } from './skills/useTalentProtocolSkills';
 interface SkillsCardProps {
   walletAddress?: string;
   skills: Array<{ name: string; proof?: string }>;
+  passportId?: string;
 }
 
-const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
-  const { talentSkills, credentialSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress);
+const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, passportId }) => {
+  const { talentSkills, credentialSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress, passportId);
 
   if (!walletAddress) {
     return null;

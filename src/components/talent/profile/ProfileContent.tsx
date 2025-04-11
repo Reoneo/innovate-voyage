@@ -67,6 +67,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               <SkillsCard
                 walletAddress={passport.owner_address}
                 skills={passport.skills || []}
+                passportId={passport.passport_id}
               />
               <PoapSection
                 walletAddress={passport.owner_address}
