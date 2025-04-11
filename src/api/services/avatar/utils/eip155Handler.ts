@@ -9,44 +9,15 @@ import { avatarCache } from '../../../utils/web3/index';
 export async function handleEip155Avatar(identity: string): Promise<string | null> {
   try {
     console.log(`Parsing EIP155 format: ${identity}`);
-    // Extract contract address and token ID from the EIP155 format
-    const parts = identity.split('/');
-    const nftInfo = identity.split(':');
     
-    // Extract contract address from the EIP155 format
-    let contractAddress = '';
-    if (nftInfo.length >= 3) {
-      contractAddress = nftInfo[2].split('/')[0];
-    }
-    
-    // Extract token ID - may be the last part of the string
-    let tokenId = '';
-    if (parts.length >= 3) {
-      tokenId = parts[2];
-    } else if (nftInfo.length >= 4) {
-      tokenId = nftInfo[3];
-    }
+    // Parse the EIP155 format to extract contract address and token ID
+    const { contractAddress, tokenId } = parseEip155Format(identity);
     
     console.log(`Parsed EIP155: Contract=${contractAddress}, TokenId=${tokenId}`);
     
     if (contractAddress && tokenId) {
-      // Try the ENS avatar service with the EIP155 format directly
-      const avatar = await tryEnsMetadataService(identity);
-      if (avatar) return avatar;
-      
-      // Try OpenSea API format
-      const openseaAvatar = await tryOpenSeaApi(contractAddress, tokenId);
-      if (openseaAvatar) return openseaAvatar;
-      
-      // Try NFT.Storage gateway format
-      const nftStorageAvatar = await tryNftStorageGateway(tokenId);
-      if (nftStorageAvatar) return nftStorageAvatar;
-      
-      // Try direct IPFS gateway using the token ID if it looks like an IPFS hash
-      if (tokenId && tokenId.length > 30) {
-        const ipfsAvatar = await tryIpfsGateway(tokenId);
-        if (ipfsAvatar) return ipfsAvatar;
-      }
+      // Try multiple resolution methods in sequence
+      return await resolveNftAvatar(identity, contractAddress, tokenId);
     }
     
     return null;
@@ -54,6 +25,62 @@ export async function handleEip155Avatar(identity: string): Promise<string | nul
     console.error(`Error handling EIP155 avatar for ${identity}:`, error);
     return null;
   }
+}
+
+/**
+ * Parse EIP155 format to extract contract address and token ID
+ * @param identity EIP155 formatted string
+ * @returns Object with contractAddress and tokenId
+ */
+function parseEip155Format(identity: string): { contractAddress: string, tokenId: string } {
+  // Extract contract address and token ID from the EIP155 format
+  const parts = identity.split('/');
+  const nftInfo = identity.split(':');
+  
+  // Extract contract address from the EIP155 format
+  let contractAddress = '';
+  if (nftInfo.length >= 3) {
+    contractAddress = nftInfo[2].split('/')[0];
+  }
+  
+  // Extract token ID - may be the last part of the string
+  let tokenId = '';
+  if (parts.length >= 3) {
+    tokenId = parts[2];
+  } else if (nftInfo.length >= 4) {
+    tokenId = nftInfo[3];
+  }
+  
+  return { contractAddress, tokenId };
+}
+
+/**
+ * Attempts to resolve an NFT avatar using multiple methods
+ * @param identity Original EIP155 identity
+ * @param contractAddress NFT contract address
+ * @param tokenId NFT token ID
+ * @returns Resolved avatar URL or null
+ */
+async function resolveNftAvatar(identity: string, contractAddress: string, tokenId: string): Promise<string | null> {
+  // Try the ENS avatar service with the EIP155 format directly
+  const avatar = await tryEnsMetadataService(identity);
+  if (avatar) return avatar;
+  
+  // Try OpenSea API format
+  const openseaAvatar = await tryOpenSeaApi(contractAddress, tokenId);
+  if (openseaAvatar) return openseaAvatar;
+  
+  // Try NFT.Storage gateway format
+  const nftStorageAvatar = await tryNftStorageGateway(tokenId);
+  if (nftStorageAvatar) return nftStorageAvatar;
+  
+  // Try direct IPFS gateway using the token ID if it looks like an IPFS hash
+  if (tokenId && tokenId.length > 30) {
+    const ipfsAvatar = await tryIpfsGateway(tokenId);
+    if (ipfsAvatar) return ipfsAvatar;
+  }
+  
+  return null;
 }
 
 /**
