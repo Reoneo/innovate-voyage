@@ -1,4 +1,3 @@
-
 import { avatarCache, fetchWeb3BioProfile, generateFallbackAvatar } from '../../utils/web3/index';
 
 /**
@@ -23,76 +22,95 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
       try {
         // Try to fetch the NFT image directly using the token ID
         const parts = identity.split('/');
-        if (parts.length >= 2) {
-          const nftInfo = parts[1].split(':');
-          if (nftInfo.length >= 2) {
-            const contractAddress = nftInfo[1];
-            
-            // Extract token ID - may be in the third part or at the end of the second part
-            let tokenId = '';
-            if (parts.length >= 3) {
-              tokenId = parts[2];
-            } else if (nftInfo.length >= 3) {
-              tokenId = nftInfo[2];
+        const nftInfo = identity.split(':');
+        
+        // Extract contract address from the EIP155 format
+        let contractAddress = '';
+        if (nftInfo.length >= 3) {
+          contractAddress = nftInfo[2].split('/')[0];
+        }
+        
+        // Extract token ID - may be the last part of the string
+        let tokenId = '';
+        if (parts.length >= 3) {
+          tokenId = parts[2];
+        } else if (nftInfo.length >= 4) {
+          tokenId = nftInfo[3];
+        }
+        
+        console.log(`Parsed EIP155: Contract=${contractAddress}, TokenId=${tokenId}`);
+        
+        if (contractAddress && tokenId) {
+          // Try the ENS avatar service with the EIP155 format directly
+          const ensAvatarUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
+          try {
+            const response = await fetch(ensAvatarUrl, { method: 'HEAD' });
+            if (response.ok) {
+              console.log(`Found avatar via ENS metadata for EIP155 ${identity}`);
+              avatarCache[identity] = ensAvatarUrl;
+              return ensAvatarUrl;
             }
-            
-            if (contractAddress && tokenId) {
-              // Try OpenSea API format (this is an example, actual endpoint may vary)
-              const openseaUrl = `https://api.opensea.io/api/v1/asset/${contractAddress}/${tokenId}/?format=json`;
-              try {
-                const response = await fetch(openseaUrl);
-                if (response.ok) {
-                  const data = await response.json();
-                  if (data.image_url) {
-                    console.log(`Found avatar via OpenSea for ${identity}`);
-                    avatarCache[identity] = data.image_url;
-                    return data.image_url;
-                  }
-                }
-              } catch (error) {
-                console.error(`Error fetching from OpenSea for ${identity}:`, error);
+          } catch (error) {
+            console.error(`Error fetching from ENS metadata for ${identity}:`, error);
+          }
+          
+          // Try OpenSea API format
+          const openseaUrl = `https://api.opensea.io/api/v1/asset/${contractAddress}/${tokenId}/?format=json`;
+          try {
+            const response = await fetch(openseaUrl);
+            if (response.ok) {
+              const data = await response.json();
+              if (data.image_url) {
+                console.log(`Found avatar via OpenSea for ${identity}`);
+                avatarCache[identity] = data.image_url;
+                return data.image_url;
               }
-              
-              // Try NFT.Storage gateway format
-              const nftStorageUrl = `https://nftstorage.link/ipfs/${tokenId}`;
-              try {
-                const response = await fetch(nftStorageUrl, { method: 'HEAD' });
-                if (response.ok) {
-                  console.log(`Found avatar via NFT.Storage for ${identity}`);
-                  avatarCache[identity] = nftStorageUrl;
-                  return nftStorageUrl;
-                }
-              } catch (error) {
-                console.error(`Error fetching from NFT.Storage for ${identity}:`, error);
+            }
+          } catch (error) {
+            console.error(`Error fetching from OpenSea for ${identity}:`, error);
+          }
+          
+          // Try NFT.Storage gateway format
+          const nftStorageUrl = `https://nftstorage.link/ipfs/${tokenId}`;
+          try {
+            const response = await fetch(nftStorageUrl, { method: 'HEAD' });
+            if (response.ok) {
+              console.log(`Found avatar via NFT.Storage for ${identity}`);
+              avatarCache[identity] = nftStorageUrl;
+              return nftStorageUrl;
+            }
+          } catch (error) {
+            console.error(`Error fetching from NFT.Storage for ${identity}:`, error);
+          }
+          
+          // Try direct IPFS gateway using the token ID if it looks like an IPFS hash
+          if (tokenId && tokenId.length > 30) {
+            const ipfsUrl = `https://ipfs.io/ipfs/${tokenId}`;
+            try {
+              const response = await fetch(ipfsUrl, { method: 'HEAD' });
+              if (response.ok) {
+                console.log(`Found avatar via IPFS for ${identity}`);
+                avatarCache[identity] = ipfsUrl;
+                return ipfsUrl;
               }
-              
-              // Try direct IPFS gateway using the token ID if it looks like an IPFS hash
-              if (tokenId.length > 30) {
-                const ipfsUrl = `https://ipfs.io/ipfs/${tokenId}`;
-                try {
-                  const response = await fetch(ipfsUrl, { method: 'HEAD' });
-                  if (response.ok) {
-                    console.log(`Found avatar via IPFS for ${identity}`);
-                    avatarCache[identity] = ipfsUrl;
-                    return ipfsUrl;
-                  }
-                } catch (error) {
-                  console.error(`Error fetching from IPFS for ${identity}:`, error);
-                }
+            } catch (error) {
+              console.error(`Error fetching from IPFS for ${identity}:`, error);
+            }
+          }
+          
+          // Try direct ipfs:// URI format conversion
+          if (identity.includes('ipfs://')) {
+            const ipfsPath = identity.replace('ipfs://', '');
+            const ipfsUrl = `https://ipfs.io/ipfs/${ipfsPath}`;
+            try {
+              const response = await fetch(ipfsUrl, { method: 'HEAD' });
+              if (response.ok) {
+                console.log(`Found avatar via IPFS gateway for ${identity}`);
+                avatarCache[identity] = ipfsUrl;
+                return ipfsUrl;
               }
-              
-              // Try the ENS avatar service with the EIP155 format directly
-              const ensAvatarUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
-              try {
-                const response = await fetch(ensAvatarUrl, { method: 'HEAD' });
-                if (response.ok) {
-                  console.log(`Found avatar via ENS metadata for EIP155 ${identity}`);
-                  avatarCache[identity] = ensAvatarUrl;
-                  return ensAvatarUrl;
-                }
-              } catch (error) {
-                console.error(`Error fetching from ENS metadata for ${identity}:`, error);
-              }
+            } catch (error) {
+              console.error(`Error fetching from IPFS gateway for ${identity}:`, error);
             }
           }
         }

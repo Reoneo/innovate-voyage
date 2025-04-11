@@ -11,7 +11,7 @@ interface SkillsCardProps {
 }
 
 const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
-  const { talentSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress);
+  const { talentSkills, credentialSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress);
 
   if (!walletAddress) {
     return null;
@@ -28,9 +28,15 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
     name: skillName,
     proof: 'https://talentprotocol.com'
   }));
+  
+  // Create skill objects from credential skills
+  const credentialProtocolSkills = credentialSkills.map(skillName => ({
+    name: skillName,
+    proof: 'credentials.talentprotocol.com'
+  }));
 
-  // Combine all skills without credential skills
-  const allSkills = [...filteredSkills, ...talentProtocolSkills];
+  // Combine all skills
+  const allSkills = [...filteredSkills, ...talentProtocolSkills, ...credentialProtocolSkills];
 
   return (
     <Card id="skills-card-section" className="mt-4">

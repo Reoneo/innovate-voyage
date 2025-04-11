@@ -1,6 +1,7 @@
 
 import { mainnetProvider } from '../ethereumProviders';
 import { fetchWeb3BioProfile } from '../../api/utils/web3Utils';
+import { getRealAvatar } from '../../api/services/avatarService';
 
 /**
  * Gets avatar for an ENS name
@@ -13,7 +14,6 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
     if (ensName.startsWith('eip155:1/erc721:')) {
       // For EIP155 formatted NFT avatars, we'll use the getRealAvatar function
       // which has dedicated handling for this format
-      const { getRealAvatar } = await import('../../api/services/avatarService');
       const avatar = await getRealAvatar(ensName);
       if (avatar) {
         console.log(`Got avatar for EIP155 format: ${ensName} -> ${avatar}`);
@@ -42,6 +42,16 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
           
           if (avatar) {
             console.log(`Got avatar for ${ensName}:`, avatar);
+            
+            // If the avatar is in EIP155 format, use getRealAvatar to resolve it
+            if (avatar.startsWith('eip155:1/erc721:')) {
+              const resolvedAvatar = await getRealAvatar(avatar);
+              if (resolvedAvatar) {
+                console.log(`Resolved EIP155 avatar for ${ensName}:`, resolvedAvatar);
+                return resolvedAvatar;
+              }
+            }
+            
             return avatar;
           } else {
             console.log(`No avatar found for ${ensName} in resolver`);
