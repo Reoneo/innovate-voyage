@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import SocialMediaLinks from '../../tabs/social/SocialMediaLinks';
 import { Link } from 'lucide-react';
 import { getEnsLinks } from '@/utils/ens/ensLinks';
+import WebacySecurity from '../security/WebacySecurity';
 
 interface SocialLinksSectionProps {
   socials: Record<string, string>;
@@ -37,12 +38,21 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
     }
   }, [identity]);
 
+  // Extract owner address from socials or use undefined
+  const ownerAddress = socials?.ethereum || socials?.walletAddress;
+
   return (
     <div className="w-full mt-6">
       <h3 className="flex items-center gap-2 text-xl font-medium mb-4">
-        <Link className="h-5 w-5" /> Social Links
+        <Link className="h-5 w-5" /> Links
       </h3>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      
+      {/* Security Threat Level - New Component */}
+      <div className="mb-4">
+        <WebacySecurity walletAddress={ownerAddress} />
+      </div>
+      
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
       </div>
     </div>
