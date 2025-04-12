@@ -18,7 +18,17 @@ const WebacySecurity: React.FC<WebacySecurityProps> = ({ walletAddress }) => {
     setDialogOpen(true);
   };
 
-  if (!walletAddress) return null;
+  // If there's no wallet address, don't render anything
+  if (!walletAddress) {
+    console.log("No wallet address provided to WebacySecurity component");
+    return null;
+  }
+
+  console.log("WebacySecurity rendering with data:", { 
+    walletAddress, 
+    isLoading, 
+    threatLevel: securityData?.threatLevel 
+  });
 
   return (
     <>

@@ -50,7 +50,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   ownerAddress={passport.owner_address}
                   socials={{
                     ...passport.socials,
-                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
+                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined,
+                    // Add wallet address as ethereum if available
+                    ethereum: passport.owner_address
                   }}
                   bio={passport.bio}
                   displayIdentity={ensNameOrAddress}

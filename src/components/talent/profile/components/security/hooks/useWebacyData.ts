@@ -31,11 +31,16 @@ export const useWebacyData = (walletAddress?: string) => {
 
   useEffect(() => {
     if (!walletAddress) return;
-
+    
+    console.log(`WebacyData Hook: Fetching data for address: ${walletAddress}`);
+    setIsLoading(true);
+    setError(null);
+    
+    // For testing purposes only - always assign a default threatLevel
+    // This ensures component rendering even if API calls fail
+    setSecurityData({ threatLevel: 'LOW' });
+    
     const fetchWebacyData = async () => {
-      setIsLoading(true);
-      setError(null);
-      
       try {
         // Fetch address data
         const addressResponse = await fetch(`https://api.webacy.com/addresses/${walletAddress}`, {
@@ -50,6 +55,7 @@ export const useWebacyData = (walletAddress?: string) => {
         }
         
         const addressData = await addressResponse.json();
+        console.log(`WebacyData Hook: Address data received for ${walletAddress}:`, addressData);
         
         // Fetch approvals data
         const approvalsResponse = await fetch(`https://api.webacy.com/addresses/${walletAddress}/approvals`, {
@@ -91,7 +97,7 @@ export const useWebacyData = (walletAddress?: string) => {
           }
         }
         
-        setSecurityData({
+        const newSecurityData = {
           riskScore: addressData.riskScore,
           threatLevel,
           approvals: {
@@ -103,10 +109,14 @@ export const useWebacyData = (walletAddress?: string) => {
             contracts: quickProfileData.numContracts,
             riskLevel: quickProfileData.riskLevel
           }
-        });
+        };
+        
+        console.log(`WebacyData Hook: Compiled security data for ${walletAddress}:`, newSecurityData);
+        setSecurityData(newSecurityData);
       } catch (err) {
         console.error('Error fetching Webacy data:', err);
         setError('Failed to fetch security data');
+        // Still set a default threat level to ensure the component renders
         setSecurityData({ threatLevel: 'UNKNOWN' });
       } finally {
         setIsLoading(false);

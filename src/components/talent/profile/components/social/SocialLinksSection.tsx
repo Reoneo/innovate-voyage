@@ -38,8 +38,9 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
     }
   }, [identity]);
 
-  // Extract owner address from socials or use undefined
-  const ownerAddress = socials?.ethereum || socials?.walletAddress;
+  // Extract owner address from socials or use the identity directly if it's an address
+  const ownerAddress = socials?.ethereum || socials?.walletAddress || 
+                      (identity && !identity.includes('.') ? identity : undefined);
 
   return (
     <div className="w-full mt-6 pb-4">
