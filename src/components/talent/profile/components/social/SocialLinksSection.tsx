@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import SocialMediaLinks from '../../tabs/social/SocialMediaLinks';
-import { Link } from 'lucide-react';
+import { Link, Shield } from 'lucide-react';
 import { getEnsLinks } from '@/utils/ens/ensLinks';
 import WebacySecurity from '../security/WebacySecurity';
 
@@ -44,21 +44,25 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
 
   return (
     <div className="w-full mt-6 pb-4">
-      <h3 className="flex items-center gap-2 text-xl font-medium mb-4">
+      {/* Links Section */}
+      <h3 className="flex items-center justify-center md:justify-start gap-2 text-xl font-medium mb-4">
         <Link className="h-5 w-5" /> Links
       </h3>
       
-      {/* Security Threat Level */}
+      {/* Social links grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-8">
+        <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
+      </div>
+      
+      {/* Security Section - as separate section */}
       {ownerAddress && (
-        <div className="mb-6">
+        <div className="mt-8">
+          <h3 className="flex items-center justify-center md:justify-start gap-2 text-xl font-medium mb-4">
+            <Shield className="h-5 w-5" /> Security
+          </h3>
           <WebacySecurity walletAddress={ownerAddress} />
         </div>
       )}
-      
-      {/* Increased size of social links with larger grid cells */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-        <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
-      </div>
     </div>
   );
 };

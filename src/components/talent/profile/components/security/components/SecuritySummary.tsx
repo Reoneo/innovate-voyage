@@ -43,7 +43,7 @@ const SecuritySummary: React.FC<SecuritySummaryProps> = ({
       onClick={onClick}
       className={`flex flex-col items-center gap-2 p-4 rounded-lg ${bgGradient} cursor-pointer transition-all hover:opacity-80`}
     >
-      <h3 className="text-xl font-semibold text-gray-900">Threat Level</h3>
+      <h3 className="text-xl font-semibold text-gray-900 text-center">Threat Level</h3>
       <div className={`text-4xl font-bold px-4 py-2 rounded-md ${getThreatBgColor(threatLevel)}`}>
         {threatLevel || 'UNKNOWN'}
       </div>

@@ -43,7 +43,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-10 gap-8">
             {/* Left column with avatar and social links - 30% width */}
             <div className="md:col-span-3">
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center md:items-start">
                 <AvatarSection 
                   avatarUrl={passport.avatar_url}
                   name={passport.name}
