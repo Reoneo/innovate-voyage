@@ -42,17 +42,20 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   const ownerAddress = socials?.ethereum || socials?.walletAddress;
 
   return (
-    <div className="w-full mt-6">
+    <div className="w-full mt-6 pb-4">
       <h3 className="flex items-center gap-2 text-xl font-medium mb-4">
         <Link className="h-5 w-5" /> Links
       </h3>
       
-      {/* Security Threat Level - New Component */}
-      <div className="mb-4">
-        <WebacySecurity walletAddress={ownerAddress} />
-      </div>
+      {/* Security Threat Level */}
+      {ownerAddress && (
+        <div className="mb-6">
+          <WebacySecurity walletAddress={ownerAddress} />
+        </div>
+      )}
       
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {/* Increased size of social links with larger grid cells */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
         <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
       </div>
     </div>

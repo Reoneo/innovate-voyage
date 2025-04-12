@@ -7,7 +7,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { LogOut, Save } from 'lucide-react';
 
 interface ProfileNavbarProps {
@@ -27,22 +26,24 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
     }
   };
 
+  const iconSize = "h-8 w-8";
+
   return (
     <div className="flex items-center mb-4">
       <Link to="/">
         <img 
           src="https://img.icons8.com/?size=512&id=uNaaq8c2jqFp&format=png" 
           alt="Back to Home" 
-          className="h-10 w-10"
+          className={iconSize}
         />
       </Link>
       
-      <div className="ml-auto flex items-center space-x-4">
+      <div className="ml-auto flex items-center space-x-6">
         {/* XMTP Message Button */}
         <img 
           src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
           alt="Message" 
-          className="h-10 w-10 cursor-pointer hover:opacity-80"
+          className={`${iconSize} cursor-pointer hover:opacity-80`}
           onClick={handleOpenXmtpModal}
           title="XMTP Messages"
         />
@@ -53,7 +54,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             <img 
               src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" 
               alt="Options" 
-              className="h-10 w-10 cursor-pointer hover:opacity-80"
+              className={`${iconSize} cursor-pointer hover:opacity-80`}
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
