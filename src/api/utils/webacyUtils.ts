@@ -33,7 +33,9 @@ export async function fetchWalletSecurityProfile(address: string) {
       return null;
     }
     
-    return await response.json();
+    const data = await response.json();
+    console.log('Webacy security data:', data);
+    return data;
   } catch (error) {
     console.error('Error fetching Webacy security profile:', error);
     return null;
@@ -89,6 +91,7 @@ export function calculateSecurityScore(securityData: any) {
   
   try {
     const { risk_level, risk_description } = securityData;
+    console.log('Risk data:', risk_level, risk_description);
     
     // Map risk level to a numeric score
     let score = 0;

@@ -51,8 +51,8 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     }
   };
 
-  if (!walletAddress) {
-    return null;
+  if (!walletAddress || (poaps.length === 0 && !isLoading)) {
+    return null; // Don't render the section if there are no POAPs
   }
 
   return (
@@ -113,13 +113,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
               ))}
             </div>
           </div>
-        ) : (
-          <div className="text-center py-4">
-            <p className="text-muted-foreground text-sm">
-              No POAPs found for this wallet address.
-            </p>
-          </div>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );

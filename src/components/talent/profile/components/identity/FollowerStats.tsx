@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useEthFollowData } from '@/hooks/useEthFollowData';
 

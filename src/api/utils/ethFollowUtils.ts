@@ -10,7 +10,7 @@ const ETHFOLLOW_API_BASE_URL = 'https://api.ethfollow.xyz/api/v1';
  */
 export async function fetchFollowerStats(addressOrEns: string) {
   if (!addressOrEns) {
-    return { followers_count: 0, following_count: 0 };
+    return { followers_count: '0', following_count: '0' };
   }
   
   try {
@@ -21,13 +21,13 @@ export async function fetchFollowerStats(addressOrEns: string) {
     
     if (!response.ok) {
       console.error(`EthFollow API error: ${response.status} ${response.statusText}`);
-      return { followers_count: 0, following_count: 0 };
+      return { followers_count: '0', following_count: '0' };
     }
     
     return await response.json();
   } catch (error) {
     console.error('Error fetching EthFollow stats:', error);
-    return { followers_count: 0, following_count: 0 };
+    return { followers_count: '0', following_count: '0' };
   }
 }
 
