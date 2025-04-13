@@ -8,7 +8,7 @@ interface HeaderContainerProps {
 
 const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
   return (
-    <Card className="bg-white shadow-md rounded-sm w-full" style={{
+    <Card className="bg-white shadow-md rounded-sm w-full mx-auto" style={{
       height: 'auto',
       width: '100%',
       maxWidth: '21cm', /* A4 width */
@@ -16,7 +16,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
       padding: 0,
       overflow: 'hidden', /* Changed from auto to hidden to prevent scrollbars in PDF */
     }}>
-      <CardContent className="p-6 md:p-8 print:p-4">
+      <CardContent className="p-4 sm:p-6 md:p-8 print:p-4">
         {children}
       </CardContent>
     </Card>

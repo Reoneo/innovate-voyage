@@ -41,10 +41,10 @@ export function useProfilePage() {
       setLoadingTimeout(true);
     }, 20000);
 
-    // Always optimize for desktop on profile page
+    // Always optimize for desktop on profile page - works for both mobile and desktop
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
-      metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0');
+      metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
     }
 
     return () => {

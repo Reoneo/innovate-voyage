@@ -58,6 +58,8 @@
     @apply bg-background text-foreground;
     overflow-x: hidden;
     max-width: 100vw;
+    position: relative;
+    touch-action: pan-y;
   }
   
   html {
@@ -115,4 +117,24 @@ body.generating-pdf {
 @keyframes floatRight {
   0% { transform: translateX(100vw); }
   100% { transform: translateX(-20vw); }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  
+  /* Ensure no horizontal overflow on mobile */
+  .overflow-x-auto {
+    max-width: 100vw;
+    overflow-x: hidden !important;
+  }
+  
+  /* Adjust card widths on mobile */
+  .card {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }

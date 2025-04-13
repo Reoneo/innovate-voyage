@@ -39,7 +39,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
 
   return (
     <div className="w-full mt-6">
-      <h3 className="flex items-center justify-center gap-2 text-xl font-medium mb-4">
+      <h3 className="flex items-center justify-center gap-2 text-xl font-medium mb-4 text-center">
         <Link className="h-5 w-5" /> Links
       </h3>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

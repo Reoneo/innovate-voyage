@@ -33,18 +33,18 @@ const FollowerStats: React.FC<FollowerStatsProps> = ({
     <div className="flex items-center justify-center gap-4 w-full mt-2 text-sm text-black">
       <Link 
         to={`/${profileBaseUrl}/followers/`} 
-        className="flex items-center gap-1 hover:text-primary transition-colors"
+        className="flex items-center gap-1 hover:text-primary transition-colors text-black"
       >
-        <span className="font-medium">{loading ? '...' : formatCount(followersCount)}</span>
-        <span>Followers</span>
+        <span className="font-medium text-black">{loading ? '...' : formatCount(followersCount)}</span>
+        <span className="text-black">Followers</span>
       </Link>
       
       <Link 
         to={`/${profileBaseUrl}/following/`}
-        className="flex items-center gap-1 hover:text-primary transition-colors"
+        className="flex items-center gap-1 hover:text-primary transition-colors text-black"
       >
-        <span className="font-medium">{loading ? '...' : formatCount(followingCount)}</span>
-        <span>Following</span>
+        <span className="font-medium text-black">{loading ? '...' : formatCount(followingCount)}</span>
+        <span className="text-black">Following</span>
       </Link>
     </div>
   );
