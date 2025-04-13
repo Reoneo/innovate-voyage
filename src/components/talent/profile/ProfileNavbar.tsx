@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { LogOut, Save } from 'lucide-react';
 
 interface ProfileNavbarProps {
@@ -26,36 +27,44 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
     }
   };
 
-  const iconSize = "h-8 w-8";
-
   return (
     <div className="flex items-center mb-4">
       <Link to="/">
-        <img 
-          src="https://img.icons8.com/?size=512&id=uNaaq8c2jqFp&format=png" 
-          alt="Back to Home" 
-          className={iconSize}
-        />
+        <Button variant="ghost" size="sm" className="gap-1 p-0">
+          <img 
+            src="https://img.icons8.com/?size=512&id=uNaaq8c2jqFp&format=png" 
+            alt="Back to Home" 
+            className="h-10 w-10"
+          />
+        </Button>
       </Link>
       
-      <div className="ml-auto flex items-center space-x-6">
+      <div className="ml-auto flex items-center space-x-2">
         {/* XMTP Message Button */}
-        <img 
-          src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
-          alt="Message" 
-          className={`${iconSize} cursor-pointer hover:opacity-80`}
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={handleOpenXmtpModal}
+          className="h-10 w-10 p-0"
           title="XMTP Messages"
-        />
+        >
+          <img 
+            src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
+            alt="Message" 
+            className="h-10 w-10"
+          />
+        </Button>
 
-        {/* Wallet Options */}
+        {/* Wallet Button - Only showing save option */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" 
-              alt="Options" 
-              className={`${iconSize} cursor-pointer hover:opacity-80`}
-            />
+            <Button variant="ghost" size="icon" className="h-10 w-10 p-0">
+              <img 
+                src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" 
+                alt="Options" 
+                className="h-10 w-10"
+              />
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {connectedWallet && (

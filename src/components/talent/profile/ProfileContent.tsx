@@ -43,16 +43,14 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-10 gap-8">
             {/* Left column with avatar and social links - 30% width */}
             <div className="md:col-span-3">
-              <div className="flex flex-col items-center md:items-start">
+              <div className="flex flex-col items-center">
                 <AvatarSection 
                   avatarUrl={passport.avatar_url}
                   name={passport.name}
                   ownerAddress={passport.owner_address}
                   socials={{
                     ...passport.socials,
-                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined,
-                    // Add wallet address as ethereum if available
-                    ethereum: passport.owner_address
+                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
                   }}
                   bio={passport.bio}
                   displayIdentity={ensNameOrAddress}

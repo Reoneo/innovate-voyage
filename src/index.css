@@ -116,19 +116,3 @@ body.generating-pdf {
   0% { transform: translateX(100vw); }
   100% { transform: translateX(-20vw); }
 }
-
-/* Webacy threat level styles */
-.webacy-threat-low {
-  background: linear-gradient(90deg, #d1fae5 0%, #ecfdf5 100%);
-  color: #065f46;
-}
-
-.webacy-threat-medium {
-  background: linear-gradient(90deg, #fef3c7 0%, #fffbeb 100%);
-  color: #92400e;
-}
-
-.webacy-threat-high {
-  background: linear-gradient(90deg, #fee2e2 0%, #fef2f2 100%);
-  color: #b91c1c;
-}

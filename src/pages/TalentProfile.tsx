@@ -18,7 +18,7 @@ const TalentProfile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 md:py-8 overflow-x-hidden">
-      <div className="container mx-auto px-4 max-w-screen-lg">
+      <div className="container mx-auto px-4" style={{ maxWidth: '100%', width: '100%' }}>
         {/* Navigation Bar */}
         <ProfileNavbar 
           connectedWallet={connectedWallet}
