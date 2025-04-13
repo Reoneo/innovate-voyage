@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AlertCircle, Info, Shield } from 'lucide-react';
+import { AlertCircle, Info } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { WebacyData } from '../hooks/useWebacyData';
 import { getThreatColor } from '../utils/securityUtils';

@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
-import { Shield } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useWebacyData } from './hooks/useWebacyData';
 import SecuritySummary from './components/SecuritySummary';
 import SecurityDetailContent from './components/SecurityDetailContent';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface WebacySecurityProps {
   walletAddress?: string;
@@ -13,6 +13,11 @@ interface WebacySecurityProps {
 const WebacySecurity: React.FC<WebacySecurityProps> = ({ walletAddress }) => {
   const { securityData, isLoading, error } = useWebacyData(walletAddress);
   const [dialogOpen, setDialogOpen] = useState(false);
+  
+  // Reset dialog state when wallet address changes
+  useEffect(() => {
+    setDialogOpen(false);
+  }, [walletAddress]);
 
   const handleClick = () => {
     setDialogOpen(true);
@@ -41,18 +46,20 @@ const WebacySecurity: React.FC<WebacySecurityProps> = ({ walletAddress }) => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Shield className={`h-5 w-5 ${securityData?.threatLevel ? 
-                (securityData.threatLevel === 'LOW' ? 'text-green-500' : 
-                 securityData.threatLevel === 'MEDIUM' ? 'text-yellow-500' : 
-                 securityData.threatLevel === 'HIGH' ? 'text-red-500' : 
-                 'text-gray-500') : 'text-gray-500'}`} 
-              />
-              Wallet Security Analysis
-            </DialogTitle>
-            <DialogDescription>
-              Powered by Webacy security intelligence
-            </DialogDescription>
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src="https://img.cryptorank.io/coins/webacy1675847088001.png" alt="Webacy" />
+                <AvatarFallback>W</AvatarFallback>
+              </Avatar>
+              <div>
+                <DialogTitle className="text-left">
+                  Wallet Security Analysis
+                </DialogTitle>
+                <DialogDescription className="text-left">
+                  Powered by Webacy security intelligence
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           
           <SecurityDetailContent 
