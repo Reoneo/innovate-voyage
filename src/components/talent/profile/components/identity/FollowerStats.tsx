@@ -2,22 +2,22 @@
 import React from 'react';
 import { Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useEthFollowData } from '@/hooks/useEthFollowData';
 
 interface FollowerStatsProps {
   address?: string;
   ensName?: string;
-  followersCount?: number;
-  followingCount?: number;
 }
 
 const FollowerStats: React.FC<FollowerStatsProps> = ({ 
   address, 
-  ensName, 
-  followersCount = 0, 
-  followingCount = 0 
+  ensName
 }) => {
   // Use ENS name for profile link if available, otherwise use address
   const profileBaseUrl = ensName || address;
+  const addressOrEns = ensName || address;
+  
+  const { followersCount, followingCount, loading } = useEthFollowData(addressOrEns);
   
   if (!profileBaseUrl) return null;
   
@@ -31,12 +31,12 @@ const FollowerStats: React.FC<FollowerStatsProps> = ({
   };
   
   return (
-    <div className="flex items-center justify-center gap-4 w-full mt-2 text-sm text-muted-foreground">
+    <div className="flex items-center justify-center gap-4 w-full mt-2 text-sm text-black">
       <Link 
         to={`/${profileBaseUrl}/followers/`} 
         className="flex items-center gap-1 hover:text-primary transition-colors"
       >
-        <span className="font-medium">{formatCount(followersCount)}</span>
+        <span className="font-medium">{loading ? '...' : formatCount(followersCount)}</span>
         <span>Followers</span>
       </Link>
       
@@ -44,7 +44,7 @@ const FollowerStats: React.FC<FollowerStatsProps> = ({
         to={`/${profileBaseUrl}/following/`}
         className="flex items-center gap-1 hover:text-primary transition-colors"
       >
-        <span className="font-medium">{formatCount(followingCount)}</span>
+        <span className="font-medium">{loading ? '...' : formatCount(followingCount)}</span>
         <span>Following</span>
       </Link>
     </div>

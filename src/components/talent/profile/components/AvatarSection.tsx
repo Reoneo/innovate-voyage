@@ -49,10 +49,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   // Use WhatsApp as telephone if available and no direct telephone
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
   
-  // Mock follower/following counts - replace with actual API calls in production
-  const followersCount = 128;
-  const followingCount = 93;
-  
   return (
     <div className="flex flex-col items-center gap-2 w-full text-center">
       {/* Avatar */}
@@ -72,8 +68,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       <FollowerStats
         address={ownerAddress}
         ensName={displayIdentity}
-        followersCount={followersCount}
-        followingCount={followingCount}
       />
       
       {/* Additional ENS Domains */}
