@@ -63,8 +63,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             
             {/* Right column - Professional info - 70% width */}
             <div className="flex flex-col gap-6 md:col-span-7">
-              {/* Hide Blockchain Experience Section */}
-              {/* <VerifiedWorkExperience walletAddress={passport.owner_address} /> */}
+              <VerifiedWorkExperience 
+                walletAddress={passport.owner_address} 
+              />
               
               {/* Only show skills card if we have verified skills */}
               {hasVerifiedSkills && (

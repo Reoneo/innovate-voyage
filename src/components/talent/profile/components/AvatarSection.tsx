@@ -6,7 +6,6 @@ import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
 import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
-import FollowersSection from './FollowersSection';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -65,12 +64,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       
       {/* Additional ENS Domains */}
       <AdditionalEnsDomains domains={additionalEnsDomains} />
-      
-      {/* Followers and Following */}
-      <FollowersSection 
-        walletAddress={ownerAddress}
-        ensName={displayIdentity?.includes('.eth') ? displayIdentity : undefined}
-      />
       
       {/* Contact Info */}
       <ProfileContact 
