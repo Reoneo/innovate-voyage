@@ -15,12 +15,14 @@ interface ProfileNavbarProps {
   connectedWallet: string | null;
   onDisconnect: () => void;
   onSaveChanges: () => void;
+  onSearch: (query: string) => void;
 }
 
 const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   connectedWallet,
   onDisconnect,
-  onSaveChanges
+  onSaveChanges,
+  onSearch
 }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,7 +41,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/${searchQuery.trim()}`);
+      onSearch(searchQuery.trim());
     }
   };
 
