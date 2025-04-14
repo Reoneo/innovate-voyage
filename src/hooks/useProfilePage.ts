@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
@@ -13,6 +13,7 @@ export function useProfilePage() {
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
+  const navigate = useNavigate();
   
   // Determine which parameter to use (either regular path or recruitment.box path)
   const targetIdentifier = userId || ensNameOrAddress;
@@ -44,15 +45,27 @@ export function useProfilePage() {
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
-      metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0');
+      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
     }
+
+    // Add CSS to prevent horizontal scrolling on mobile
+    const style = document.createElement('style');
+    style.textContent = `
+      body, html {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+    `;
+    document.head.appendChild(style);
 
     return () => {
       clearTimeout(timeoutId);
-      // Reset viewport to mobile-friendly when leaving the page
+      // Reset viewport to default when leaving the page
       if (metaViewport) {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }
+      // Remove the added style
+      document.head.removeChild(style);
     };
   }, [targetIdentifier]);
 
@@ -76,6 +89,12 @@ export function useProfilePage() {
     });
   };
 
+  const handleSearch = (query: string) => {
+    if (query.trim()) {
+      navigate(`/${query.trim()}`);
+    }
+  };
+
   return {
     ensNameOrAddress: targetIdentifier,
     loading,
@@ -86,6 +105,7 @@ export function useProfilePage() {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges
+    handleSaveChanges,
+    handleSearch
   };
 }

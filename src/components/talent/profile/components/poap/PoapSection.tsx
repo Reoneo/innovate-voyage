@@ -51,7 +51,8 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     }
   };
 
-  if (!walletAddress) {
+  // Don't render anything if there are no POAPs and we're not loading
+  if (!walletAddress || (!isLoading && poaps.length === 0)) {
     return null;
   }
 
@@ -61,12 +62,12 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
+              {/* Double the size of the POAP icon and remove the text */}
               <img 
                 src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
-                className="h-6 w-6" 
+                className="h-12 w-12" 
                 alt="Proof of Attendance Protocol" 
               />
-              Proof of Attendance
             </CardTitle>
           </div>
         </div>
@@ -113,13 +114,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
               ))}
             </div>
           </div>
-        ) : (
-          <div className="text-center py-4">
-            <p className="text-muted-foreground text-sm">
-              No POAPs found for this wallet address.
-            </p>
-          </div>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );

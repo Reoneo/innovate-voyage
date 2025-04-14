@@ -34,41 +34,46 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     margin: '0 auto'
   };
 
+  // Determine if we have verified skills
+  const hasVerifiedSkills = passport?.skills?.some((skill: any) => skill.proof !== undefined);
+
   return (
     <div ref={profileRef} id="resume-pdf" style={centerStyle}>
       {loading && !loadingTimeout ? (
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className="grid grid-cols-1 md:grid-cols-10 gap-8">
-            {/* Left column with avatar and social links - 30% width */}
-            <div className="md:col-span-3">
-              <div className="flex flex-col items-center">
-                <AvatarSection 
-                  avatarUrl={passport.avatar_url}
-                  name={passport.name}
-                  ownerAddress={passport.owner_address}
-                  socials={{
-                    ...passport.socials,
-                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
-                  }}
-                  bio={passport.bio}
-                  displayIdentity={ensNameOrAddress}
-                  additionalEnsDomains={passport.additionalEnsDomains}
-                />
-              </div>
+          {/* For mobile, use a single column layout */}
+          <div className="grid grid-cols-1 gap-8">
+            <div>
+              <AvatarSection 
+                avatarUrl={passport.avatar_url}
+                name={passport.name}
+                ownerAddress={passport.owner_address}
+                socials={{
+                  ...passport.socials,
+                  linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
+                }}
+                bio={passport.bio}
+                displayIdentity={ensNameOrAddress}
+                additionalEnsDomains={passport.additionalEnsDomains}
+              />
             </div>
             
-            {/* Right column with work experience - 70% width */}
-            <div className="md:col-span-7">
+            <div>
               <VerifiedWorkExperience 
                 walletAddress={passport.owner_address} 
               />
-              <SkillsCard
-                walletAddress={passport.owner_address}
-                skills={passport.skills || []}
-                passportId={passport.passport_id}
-              />
+              
+              {/* Only show skills card if we have verified skills */}
+              {hasVerifiedSkills && (
+                <SkillsCard
+                  walletAddress={passport.owner_address}
+                  skills={passport.skills || []}
+                  passportId={passport.passport_id}
+                />
+              )}
+              
               <PoapSection
                 walletAddress={passport.owner_address}
               />
