@@ -43,7 +43,7 @@ interface UseTalentProtocolSkillsResult {
 // API key for TalentProtocol
 const TALENT_PROTOCOL_API_KEY = "2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f";
 
-export function useTalentProtocolSkills(walletAddress?: string): UseTalentProtocolSkillsResult {
+export function useTalentProtocolSkills(walletAddress?: string, passportId?: string): UseTalentProtocolSkillsResult {
   const [talentSkills, setTalentSkills] = useState<string[]>([]);
   const [credentialSkills, setCredentialSkills] = useState<string[]>([]);
   const [talentScore, setTalentScore] = useState<number | null>(null);
@@ -72,8 +72,12 @@ export function useTalentProtocolSkills(walletAddress?: string): UseTalentProtoc
           console.error('Failed to fetch skills from TalentProtocol:', await skillsResponse.text());
         }
 
-        // Fetch credentials from TalentProtocol
-        const credentialsResponse = await fetch('https://api.talentprotocol.com/api/v1/passport_credentials', {
+        // Fetch credentials from TalentProtocol using passport ID if available
+        const credentialsUrl = passportId 
+          ? `https://api.talentprotocol.com/api/v1/passport_credentials?passport_id=${encodeURIComponent(passportId)}`
+          : 'https://api.talentprotocol.com/api/v1/passport_credentials';
+          
+        const credentialsResponse = await fetch(credentialsUrl, {
           headers: {
             'X-API-KEY': TALENT_PROTOCOL_API_KEY
           }
@@ -164,7 +168,7 @@ export function useTalentProtocolSkills(walletAddress?: string): UseTalentProtoc
     };
 
     fetchTalentData();
-  }, [walletAddress]);
+  }, [walletAddress, passportId]);
 
   // Add these sample skills as fallback if API fails
   useEffect(() => {
