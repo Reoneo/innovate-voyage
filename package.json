@@ -51,6 +51,7 @@
     "d3": "^7.9.0",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
+    "ethereum-identity-kit": "^0.2.31",
     "ethers": "^6.13.5",
     "framer-motion": "^12.6.2",
     "html2canvas": "^1.4.1",
@@ -72,6 +73,7 @@
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.3",
+    "viem": "^2.26.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
