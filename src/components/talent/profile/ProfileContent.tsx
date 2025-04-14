@@ -43,9 +43,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          {/* For mobile, use a single column layout */}
-          <div className="grid grid-cols-1 gap-8">
-            <div>
+          {/* Two-column layout for desktop, single column for mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            {/* Left column - Avatar and personal info */}
+            <div className="flex flex-col gap-6">
               <AvatarSection 
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
@@ -60,7 +61,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               />
             </div>
             
-            <div>
+            {/* Right column - Professional info */}
+            <div className="flex flex-col gap-6">
               <VerifiedWorkExperience 
                 walletAddress={passport.owner_address} 
               />

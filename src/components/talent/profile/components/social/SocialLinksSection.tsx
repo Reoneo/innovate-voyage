@@ -37,9 +37,8 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   }, [identity]);
 
   return (
-    <div className="w-full mt-6">
-      {/* Removed the Links header as requested */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="w-full mt-4">
+      <div className="grid grid-cols-3 md:grid-cols-3 gap-3">
         <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
       </div>
     </div>
