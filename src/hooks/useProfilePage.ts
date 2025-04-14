@@ -36,29 +36,16 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading - increased to 20 seconds
+    // Set a timeout for loading
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 20000);
+    }, 5000);
 
-    // ALWAYS optimize for desktop mode on the profile page, regardless of device
+    // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
-      metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+      metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0');
     }
-    
-    // Add CSS to prevent horizontal scrolling on mobile
-    const style = document.createElement('style');
-    style.textContent = `
-      body {
-        overflow-x: hidden;
-        max-width: 100vw;
-      }
-      html, body {
-        overscroll-behavior-x: none;
-      }
-    `;
-    document.head.appendChild(style);
 
     return () => {
       clearTimeout(timeoutId);
@@ -66,14 +53,12 @@ export function useProfilePage() {
       if (metaViewport) {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }
-      // Remove the style element when component unmounts
-      document.head.removeChild(style);
     };
   }, [targetIdentifier]);
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
   
-  const { profileRef } = usePdfExport();
+  const { profileRef, exportAsPDF } = usePdfExport();
 
   const handleDisconnect = () => {
     localStorage.removeItem('connectedWalletAddress');
@@ -91,6 +76,12 @@ export function useProfilePage() {
     });
   };
 
+  // Handler for the export PDF dropdown item
+  const handleExportPdf = () => {
+    // This correctly calls the function returned by useReactToPrint
+    exportAsPDF();
+  };
+
   return {
     ensNameOrAddress: targetIdentifier,
     loading,
@@ -101,6 +92,7 @@ export function useProfilePage() {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges
+    handleSaveChanges,
+    handleExportPdf
   };
 }

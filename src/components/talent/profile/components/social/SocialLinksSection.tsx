@@ -7,14 +7,9 @@ import { getEnsLinks } from '@/utils/ens/ensLinks';
 interface SocialLinksSectionProps {
   socials: Record<string, string>;
   identity?: string;
-  showHeader?: boolean;
 }
 
-const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ 
-  socials, 
-  identity, 
-  showHeader = true 
-}) => {
+const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identity }) => {
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>(socials || {});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,11 +39,9 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
 
   return (
     <div className="w-full mt-6">
-      {showHeader && (
-        <h3 className="flex items-center justify-center gap-2 text-xl font-medium mb-4 text-center">
-          <Link className="h-5 w-5" /> Links
-        </h3>
-      )}
+      <h3 className="flex items-center gap-2 text-xl font-medium mb-4">
+        <Link className="h-5 w-5" /> Social Links
+      </h3>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
       </div>

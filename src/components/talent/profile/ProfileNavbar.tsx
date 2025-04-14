@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -8,102 +8,85 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { LogOut, Save, Search } from 'lucide-react';
+import { Download, LogOut, Save } from 'lucide-react';
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
   onDisconnect: () => void;
   onSaveChanges: () => void;
+  onExportPdf: () => void;
 }
 
 const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   connectedWallet,
   onDisconnect,
-  onSaveChanges
+  onSaveChanges,
+  onExportPdf
 }) => {
-  const navigate = useNavigate();
-  
   const handleOpenXmtpModal = () => {
     if (window.xmtpMessageModal) {
       window.xmtpMessageModal.showModal();
     }
   };
-  
-  const handleSearchClick = () => {
-    // Open a prompt asking for an ENS name or address
-    const searchInput = prompt("Enter an ENS name or Ethereum address");
-    if (searchInput && searchInput.trim() !== '') {
-      navigate(`/${searchInput.trim()}`);
-    }
-  };
 
   return (
-    <div className="flex items-center justify-center mb-4 w-full max-w-[21cm] mx-auto">
-      <div className="flex items-center justify-between w-full">
-        <Link to="/">
-          <Button variant="ghost" size="sm" className="gap-1 p-0">
-            <img 
-              src="https://img.icons8.com/?size=512&id=uNaaq8c2jqFp&format=png" 
-              alt="Back to Home" 
-              className="h-10 w-10"
-            />
-          </Button>
-        </Link>
-        
-        <div className="flex items-center space-x-2">
-          {/* XMTP Message Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleOpenXmtpModal}
-            className="h-10 w-10 p-0"
-            title="XMTP Messages"
-          >
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
-              alt="Message" 
-              className="h-10 w-10"
-            />
-          </Button>
+    <div className="flex items-center mb-4">
+      <Link to="/">
+        <Button variant="outline" size="sm" className="gap-1">
+          <img 
+            src="https://img.icons8.com/?size=512&id=uNaaq8c2jqFp&format=png" 
+            alt="Back to Home" 
+            className="h-8 w-8"
+          />
+        </Button>
+      </Link>
+      
+      <div className="ml-auto flex items-center space-x-2">
+        {/* XMTP Message Button */}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleOpenXmtpModal}
+          className="h-12 w-12"
+          title="XMTP Messages"
+        >
+          <img 
+            src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
+            alt="Message" 
+            className="h-8 w-8"
+          />
+        </Button>
 
-          {/* Search Button */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-10 w-10 p-0" 
-            title="Search Profiles"
-            onClick={handleSearchClick}
-          >
-            <Search className="h-6 w-6" />
-          </Button>
-
-          {/* Options Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-10 w-10 p-0">
-                <img 
-                  src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" 
-                  alt="Options" 
-                  className="h-10 w-10"
-                />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {connectedWallet && (
-                <>
-                  <DropdownMenuItem onClick={onSaveChanges}>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Changes
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onDisconnect}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Disconnect
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {/* Wallet Button - Only showing save/export options */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" className="h-12 w-12">
+              <img 
+                src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" 
+                alt="Options" 
+                className="h-8 w-8"
+              />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {connectedWallet && (
+              <>
+                <DropdownMenuItem onClick={onSaveChanges}>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Changes
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onDisconnect}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Disconnect
+                </DropdownMenuItem>
+              </>
+            )}
+            <DropdownMenuItem onClick={onExportPdf}>
+              <Download className="mr-2 h-4 w-4" />
+              Export as PDF
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

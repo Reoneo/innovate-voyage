@@ -4,10 +4,8 @@ import ProfileAvatar from './ProfileAvatar';
 import ProfileContact from './ProfileContact';
 import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
-import FollowerStats from './identity/FollowerStats';
 import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
-import WebacySecurity from './security/WebacySecurity';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -64,12 +62,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         displayIdentity={displayIdentity}
       />
       
-      {/* Followers/Following Stats */}
-      <FollowerStats
-        address={ownerAddress}
-        ensName={displayIdentity}
-      />
-      
       {/* Additional ENS Domains */}
       <AdditionalEnsDomains domains={additionalEnsDomains} />
       
@@ -80,20 +72,17 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         isOwner={isOwner}
       />
       
-      {/* ENS Bio - Only show if bio exists */}
-      {bio && bio.trim() !== '' && (
-        <div className="w-full px-4 py-2">
+      {/* ENS Bio - No border */}
+      <div className="w-full px-4 py-2">
+        {bio && (
           <div className="mt-2">
             <p className="text-sm text-muted-foreground">{bio}</p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       
-      {/* Social Links - without header */}
-      <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} showHeader={false} />
-      
-      {/* Webacy Security Section */}
-      <WebacySecurity walletAddress={ownerAddress} />
+      {/* Social Links */}
+      <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
     </div>
   );
 };
