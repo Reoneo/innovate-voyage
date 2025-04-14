@@ -33,6 +33,12 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     maxWidth: '950px',
     margin: '0 auto'
   };
+  
+  // Check if the skill section should be shown
+  const hasSkills = passport && 
+                    passport.skills && 
+                    passport.skills.length > 0 && 
+                    passport.owner_address;
 
   return (
     <div ref={profileRef} id="resume-pdf" style={centerStyle}>
@@ -40,9 +46,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className="grid grid-cols-1 md:grid-cols-10 gap-4 md:gap-8">
-            {/* Left column with avatar and social links - 30% width */}
-            <div className="md:col-span-3 w-full">
+          <div className="flex flex-col lg:grid lg:grid-cols-10 gap-4 md:gap-8">
+            {/* Left column with avatar and social links - 30% width on desktop only */}
+            <div className="lg:col-span-3 w-full">
               <div className="flex flex-col items-center w-full">
                 <AvatarSection 
                   avatarUrl={passport.avatar_url}
@@ -59,16 +65,21 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               </div>
             </div>
             
-            {/* Right column with work experience - 70% width */}
-            <div className="md:col-span-7 w-full">
+            {/* Right column with work experience - 70% width on desktop only */}
+            <div className="lg:col-span-7 w-full">
               <VerifiedWorkExperience 
                 walletAddress={passport.owner_address} 
               />
-              <SkillsCard
-                walletAddress={passport.owner_address}
-                skills={passport.skills || []}
-                passportId={passport.passport_id}
-              />
+              
+              {/* Only show skills card if there are skills */}
+              {hasSkills && (
+                <SkillsCard
+                  walletAddress={passport.owner_address}
+                  skills={passport.skills || []}
+                  passportId={passport.passport_id}
+                />
+              )}
+              
               <PoapSection
                 walletAddress={passport.owner_address}
               />

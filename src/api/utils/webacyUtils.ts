@@ -2,7 +2,7 @@
 import { enforceRateLimit } from './web3/rateLimiter';
 
 const WEBACY_API_KEY = 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb';
-const WEBACY_API_BASE_URL = 'https://api.webacy.com';
+const WEBACY_API_BASE_URL = 'https://api.webacy.com/v1';
 
 /**
  * Fetches the security profile for a wallet address from Webacy
@@ -20,7 +20,7 @@ export async function fetchWalletSecurityProfile(address: string) {
     await enforceRateLimit(300);
     
     // Call the Webacy API
-    const response = await fetch(`${WEBACY_API_BASE_URL}/quick-profile/${address}`, {
+    const response = await fetch(`${WEBACY_API_BASE_URL}/addresses/${address}`, {
       method: 'GET',
       headers: {
         'X-API-KEY': WEBACY_API_KEY,
@@ -90,31 +90,69 @@ export function calculateSecurityScore(securityData: any) {
   }
   
   try {
-    const { risk_level, risk_description } = securityData;
-    console.log('Risk data:', risk_level, risk_description);
+    // Check if we have the risk_score field
+    if (securityData.risk_score) {
+      const riskScore = parseInt(securityData.risk_score);
+      
+      // Map risk score to a level
+      let level = 'UNKNOWN';
+      let description = 'No security issues detected.';
+      
+      if (riskScore <= 20) {
+        level = 'LOW';
+        description = 'This wallet has a low security risk.';
+      } else if (riskScore <= 50) {
+        level = 'MEDIUM';
+        description = 'This wallet has a moderate security risk.';
+      } else if (riskScore <= 80) {
+        level = 'HIGH';
+        description = 'This wallet has a high security risk.';
+      } else {
+        level = 'CRITICAL';
+        description = 'This wallet has a critical security risk.';
+      }
+      
+      return {
+        score: 100 - riskScore, // Convert risk score to security score
+        level,
+        description
+      };
+    } 
     
-    // Map risk level to a numeric score
-    let score = 0;
-    let level = 'UNKNOWN';
-    
-    if (risk_level === 'LOW') {
-      score = 85;
-      level = 'LOW';
-    } else if (risk_level === 'MEDIUM') {
-      score = 50;
-      level = 'MEDIUM';
-    } else if (risk_level === 'HIGH') {
-      score = 20;
-      level = 'HIGH';
-    } else if (risk_level === 'CRITICAL') {
-      score = 5;
-      level = 'CRITICAL';
+    // Fallback if risk_score isn't available but risk_level is
+    if (securityData.risk_level) {
+      const { risk_level, risk_description } = securityData;
+      
+      // Map risk level to a numeric score
+      let score = 0;
+      let level = 'UNKNOWN';
+      
+      if (risk_level === 'LOW') {
+        score = 85;
+        level = 'LOW';
+      } else if (risk_level === 'MEDIUM') {
+        score = 50;
+        level = 'MEDIUM';
+      } else if (risk_level === 'HIGH') {
+        score = 20;
+        level = 'HIGH';
+      } else if (risk_level === 'CRITICAL') {
+        score = 5;
+        level = 'CRITICAL';
+      }
+      
+      return {
+        score,
+        level,
+        description: risk_description || 'No security issues detected.'
+      };
     }
     
+    // Default response if neither risk_score nor risk_level is available
     return {
-      score,
-      level,
-      description: risk_description || 'No security issues detected.'
+      score: 50, // Default middle score
+      level: 'UNKNOWN',
+      description: 'Security level information unavailable.'
     };
   } catch (error) {
     console.error('Error calculating security score:', error);

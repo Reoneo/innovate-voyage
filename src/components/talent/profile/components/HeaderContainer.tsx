@@ -11,12 +11,12 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
     <Card className="bg-white shadow-md rounded-sm w-full mx-auto" style={{
       height: 'auto',
       width: '100%',
-      maxWidth: '21cm', /* A4 width */
+      maxWidth: '100%',
       margin: '0 auto',
       padding: 0,
-      overflow: 'hidden', /* Changed from auto to hidden to prevent scrollbars in PDF */
+      overflow: 'hidden', /* Changed from auto to hidden to prevent scrollbars */
     }}>
-      <CardContent className="p-4 sm:p-6 md:p-8 print:p-4">
+      <CardContent className="p-4 print:p-4">
         {children}
       </CardContent>
     </Card>

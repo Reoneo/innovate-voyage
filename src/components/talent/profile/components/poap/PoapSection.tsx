@@ -51,8 +51,9 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     }
   };
 
+  // Don't render anything if no wallet address, still loading, or no POAPs found
   if (!walletAddress || (poaps.length === 0 && !isLoading)) {
-    return null; // Don't render the section if there are no POAPs
+    return null;
   }
 
   return (

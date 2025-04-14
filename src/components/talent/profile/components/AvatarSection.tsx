@@ -80,17 +80,17 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         isOwner={isOwner}
       />
       
-      {/* ENS Bio - No border */}
-      <div className="w-full px-4 py-2">
-        {bio && (
+      {/* ENS Bio - Only show if bio exists */}
+      {bio && bio.trim() !== '' && (
+        <div className="w-full px-4 py-2">
           <div className="mt-2">
             <p className="text-sm text-muted-foreground">{bio}</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
       
-      {/* Social Links */}
-      <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
+      {/* Social Links - without header */}
+      <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} showHeader={false} />
       
       {/* Webacy Security Section */}
       <WebacySecurity walletAddress={ownerAddress} />

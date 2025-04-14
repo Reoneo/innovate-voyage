@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -21,9 +21,19 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   onDisconnect,
   onSaveChanges
 }) => {
+  const navigate = useNavigate();
+  
   const handleOpenXmtpModal = () => {
     if (window.xmtpMessageModal) {
       window.xmtpMessageModal.showModal();
+    }
+  };
+  
+  const handleSearchClick = () => {
+    // Open a prompt asking for an ENS name or address
+    const searchInput = prompt("Enter an ENS name or Ethereum address");
+    if (searchInput && searchInput.trim() !== '') {
+      navigate(`/${searchInput.trim()}`);
     }
   };
 
@@ -56,12 +66,16 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             />
           </Button>
 
-          {/* Search Button - replaces person icon */}
-          <Link to="/search">
-            <Button variant="ghost" size="icon" className="h-10 w-10 p-0" title="Search Profiles">
-              <Search className="h-6 w-6" />
-            </Button>
-          </Link>
+          {/* Search Button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-10 w-10 p-0" 
+            title="Search Profiles"
+            onClick={handleSearchClick}
+          >
+            <Search className="h-6 w-6" />
+          </Button>
 
           {/* Options Menu */}
           <DropdownMenu>

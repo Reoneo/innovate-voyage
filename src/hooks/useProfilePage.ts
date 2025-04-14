@@ -41,11 +41,24 @@ export function useProfilePage() {
       setLoadingTimeout(true);
     }, 20000);
 
-    // Always optimize for desktop on profile page - works for both mobile and desktop
+    // ALWAYS optimize for desktop mode on the profile page, regardless of device
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
       metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
     }
+    
+    // Add CSS to prevent horizontal scrolling on mobile
+    const style = document.createElement('style');
+    style.textContent = `
+      body {
+        overflow-x: hidden;
+        max-width: 100vw;
+      }
+      html, body {
+        overscroll-behavior-x: none;
+      }
+    `;
+    document.head.appendChild(style);
 
     return () => {
       clearTimeout(timeoutId);
@@ -53,6 +66,8 @@ export function useProfilePage() {
       if (metaViewport) {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }
+      // Remove the style element when component unmounts
+      document.head.removeChild(style);
     };
   }, [targetIdentifier]);
 
