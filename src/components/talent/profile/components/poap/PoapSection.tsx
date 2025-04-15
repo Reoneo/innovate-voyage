@@ -60,15 +60,15 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     <Card id="poap-card-section" className="mt-4">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              {/* Double the size of the POAP icon and remove the text */}
-              <img 
-                src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
-                className="h-12 w-12" 
-                alt="Proof of Attendance Protocol" 
-              />
-            </CardTitle>
+          <div className="flex items-center gap-3">
+            {/* POAP Icon */}
+            <img 
+              src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
+              className="h-12 w-12" 
+              alt="Proof of Attendance Protocol" 
+            />
+            {/* Added Proof of Attendance text */}
+            <CardTitle className="text-xl">Proof of Attendance</CardTitle>
           </div>
         </div>
       </CardHeader>

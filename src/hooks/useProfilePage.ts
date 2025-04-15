@@ -5,11 +5,13 @@ import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { fetchEnsData } from '@/api/services/ethFollowService';
 
 export function useProfilePage() {
   const { ensNameOrAddress, userId } = useParams<{ensNameOrAddress?: string, userId?: string}>();
   const [address, setAddress] = useState<string | undefined>(undefined);
   const [ens, setEns] = useState<string | undefined>(undefined);
+  const [location, setLocation] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
@@ -58,6 +60,35 @@ export function useProfilePage() {
     `;
     document.head.appendChild(style);
 
+    // Set ENS avatar as favicon for bookmarking
+    const updateFavicon = async () => {
+      if (ens) {
+        try {
+          const ensData = await fetchEnsData(ens);
+          if (ensData && ensData.ens && ensData.ens.avatar) {
+            const link = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
+            if (link) {
+              link.href = ensData.ens.avatar;
+            } else {
+              const newLink = document.createElement('link');
+              newLink.rel = 'icon';
+              newLink.href = ensData.ens.avatar;
+              document.head.appendChild(newLink);
+            }
+            
+            // Set location if available
+            if (ensData.ens.records && ensData.ens.records.location) {
+              setLocation(ensData.ens.records.location);
+            }
+          }
+        } catch (error) {
+          console.error('Error setting ENS avatar as favicon:', error);
+        }
+      }
+    };
+    
+    updateFavicon();
+
     return () => {
       clearTimeout(timeoutId);
       // Reset viewport to default when leaving the page
@@ -66,8 +97,14 @@ export function useProfilePage() {
       }
       // Remove the added style
       document.head.removeChild(style);
+      
+      // Reset favicon
+      const link = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
+      if (link) {
+        link.href = '/favicon.ico';
+      }
     };
-  }, [targetIdentifier]);
+  }, [targetIdentifier, ens]);
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
   
@@ -91,7 +128,8 @@ export function useProfilePage() {
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
-      navigate(`/${query.trim()}`);
+      // Redirect to the recruitment.box URL format
+      window.location.href = `/recruitment.box/${query.trim()}/`;
     }
   };
 
@@ -104,6 +142,7 @@ export function useProfilePage() {
     avatarUrl,
     profileRef,
     connectedWallet,
+    location,
     handleDisconnect,
     handleSaveChanges,
     handleSearch
