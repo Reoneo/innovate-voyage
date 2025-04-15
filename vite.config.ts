@@ -92,6 +92,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     },
     // Add this section explicitly to help with the Vite initialization
     cacheDir: 'node_modules/.vite',
+    // Ensure we can find all required files
+    root: process.cwd(),
+    base: '/',
   };
   
   return config;
