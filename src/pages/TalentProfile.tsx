@@ -12,7 +12,6 @@ const TalentProfile = () => {
     passport, 
     profileRef,
     connectedWallet,
-    location,
     handleDisconnect,
     handleSaveChanges,
     handleSearch
@@ -21,8 +20,8 @@ const TalentProfile = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-4 md:py-8 overflow-x-hidden">
       <div className="container mx-auto px-4" style={{ maxWidth: '950px', width: '100%' }}>
-        {/* Navigation Bar - Centered above the profile and sticky */}
-        <div className="flex justify-center mb-6 md:mb-8 sticky top-0 z-50">
+        {/* Navigation Bar - Centered above the profile */}
+        <div className="flex justify-center mb-6 md:mb-8">
           <ProfileNavbar 
             connectedWallet={connectedWallet}
             onDisconnect={handleDisconnect}
@@ -38,7 +37,6 @@ const TalentProfile = () => {
           passport={passport}
           profileRef={profileRef}
           ensNameOrAddress={ensNameOrAddress}
-          location={location}
         />
       </div>
     </div>

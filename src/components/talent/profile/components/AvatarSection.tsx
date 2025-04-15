@@ -6,8 +6,7 @@ import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
 import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
-import FollowersSection from './social/FollowersSection';
-import WebacyScoreSection from './webacy/WebacyScoreSection';
+import FollowersSection from './FollowersSection';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -17,7 +16,6 @@ interface AvatarSectionProps {
   additionalEnsDomains?: string[];
   bio?: string;
   displayIdentity?: string;
-  location?: string;
 }
 
 const AvatarSection: React.FC<AvatarSectionProps> = ({ 
@@ -27,8 +25,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   socials = {},
   additionalEnsDomains = [],
   bio,
-  displayIdentity,
-  location
+  displayIdentity
 }) => {
   const [isOwner, setIsOwner] = useState(false);
   
@@ -66,20 +63,14 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         displayIdentity={displayIdentity}
       />
       
-      {/* Location Display */}
-      {location && (
-        <div className="text-sm text-muted-foreground">
-          📍 {location}
-        </div>
-      )}
+      {/* Additional ENS Domains */}
+      <AdditionalEnsDomains domains={additionalEnsDomains} />
       
       {/* Followers and Following */}
       <FollowersSection 
-        ensNameOrAddress={displayIdentity || ownerAddress} 
+        walletAddress={ownerAddress}
+        ensName={displayIdentity?.includes('.eth') ? displayIdentity : undefined}
       />
-      
-      {/* Additional ENS Domains */}
-      <AdditionalEnsDomains domains={additionalEnsDomains} />
       
       {/* Contact Info */}
       <ProfileContact 
@@ -97,9 +88,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       
       {/* Social Links */}
       <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
-      
-      {/* Webacy Score */}
-      <WebacyScoreSection walletAddress={ownerAddress} />
     </div>
   );
 };

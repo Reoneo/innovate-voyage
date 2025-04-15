@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { LogOut, Save, Home, Search, MessageSquare } from 'lucide-react';
+import { LogOut, Save, Home, Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 
 interface ProfileNavbarProps {
@@ -41,8 +41,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Instead of calling onSearch, redirect to the new URL format
-      window.location.href = `/recruitment.box/${searchQuery.trim()}/`;
+      onSearch(searchQuery.trim());
     }
   };
 
@@ -51,13 +50,13 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-center mb-4 gap-4 sticky top-0 z-50 bg-white py-3 px-4">
-      {/* Home Icon Button - Increased size */}
+    <div className="flex items-center justify-center mb-4 gap-4">
+      {/* Home Icon Button */}
       <Button
         variant="ghost"
         size="icon"
         onClick={handleHomeClick}
-        className="h-14 w-14 p-0"
+        className="h-12 w-12 p-0"
         title="Home"
       >
         <Home className="h-8 w-8" />
@@ -81,33 +80,37 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
         ) : null}
       </div>
       
-      {/* XMTP Message Button - Replaced with MessageSquare icon */}
+      {/* XMTP Message Button */}
       <Button
         variant="ghost"
         size="icon"
         onClick={handleOpenXmtpModal}
-        className="h-14 w-14 p-0"
+        className="h-12 w-12 p-0"
         title="XMTP Messages"
       >
-        <MessageSquare className="h-8 w-8" />
+        <img 
+          src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
+          alt="Message" 
+          className="h-8 w-8"
+        />
       </Button>
 
-      {/* Search Button - Increased size */}
+      {/* Search Button */}
       <Button
         variant="ghost"
         size="icon"
         onClick={toggleSearch}
-        className="h-14 w-14 p-0"
+        className="h-12 w-12 p-0"
         title="Search"
       >
         <Search className="h-8 w-8" />
       </Button>
 
-      {/* Save Options Button - Only showing for connected wallets - Increased size */}
+      {/* Save Options Button - Only showing for connected wallets */}
       {connectedWallet && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-14 w-14 p-0">
+            <Button variant="ghost" size="icon" className="h-12 w-12 p-0">
               <Save className="h-8 w-8" />
             </Button>
           </DropdownMenuTrigger>
