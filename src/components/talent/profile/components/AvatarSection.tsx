@@ -6,6 +6,7 @@ import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
 import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
+import FollowersSection from './FollowersSection';
 import WebacyScoreSection from './WebacyScoreSection';
 
 interface AvatarSectionProps {
@@ -16,7 +17,6 @@ interface AvatarSectionProps {
   additionalEnsDomains?: string[];
   bio?: string;
   displayIdentity?: string;
-  location?: string;
 }
 
 const AvatarSection: React.FC<AvatarSectionProps> = ({ 
@@ -26,10 +26,37 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   socials = {},
   additionalEnsDomains = [],
   bio,
-  displayIdentity,
-  location
+  displayIdentity
 }) => {
   const [isOwner, setIsOwner] = useState(false);
+  
+  // Add a meta tag for thumbnail when saving to favorites
+  useEffect(() => {
+    // Remove any existing thumbnail meta tags
+    const existingThumbnailTags = document.querySelectorAll('meta[property="og:image"], meta[name="thumbnail"]');
+    existingThumbnailTags.forEach(tag => tag.remove());
+    
+    // Add new thumbnail meta tags if avatar URL exists
+    if (avatarUrl) {
+      // Open Graph image tag (used by many platforms)
+      const ogImage = document.createElement('meta');
+      ogImage.setAttribute('property', 'og:image');
+      ogImage.setAttribute('content', avatarUrl);
+      document.head.appendChild(ogImage);
+      
+      // Standard thumbnail tag
+      const thumbnail = document.createElement('meta');
+      thumbnail.setAttribute('name', 'thumbnail');
+      thumbnail.setAttribute('content', avatarUrl);
+      document.head.appendChild(thumbnail);
+      
+      // Apple touch icon (for iOS devices)
+      const appleIcon = document.createElement('link');
+      appleIcon.setAttribute('rel', 'apple-touch-icon');
+      appleIcon.setAttribute('href', avatarUrl);
+      document.head.appendChild(appleIcon);
+    }
+  }, [avatarUrl]);
   
   useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -63,11 +90,19 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         name={name} 
         ownerAddress={ownerAddress}
         displayIdentity={displayIdentity}
-        location={location}
       />
       
       {/* Additional ENS Domains */}
       <AdditionalEnsDomains domains={additionalEnsDomains} />
+      
+      {/* Followers and Following */}
+      <FollowersSection 
+        walletAddress={ownerAddress}
+        ensName={displayIdentity?.includes('.eth') ? displayIdentity : undefined}
+      />
+      
+      {/* Webacy Score Section */}
+      <WebacyScoreSection walletAddress={ownerAddress} />
       
       {/* Contact Info */}
       <ProfileContact 
@@ -75,9 +110,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         telephone={telephone}
         isOwner={isOwner}
       />
-      
-      {/* Webacy Score Section */}
-      <WebacyScoreSection walletAddress={ownerAddress} />
       
       {/* ENS Bio - Only show if bio exists */}
       {bio && (

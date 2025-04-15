@@ -1,68 +1,118 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Skeleton } from "@/components/ui/skeleton";
+import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
 import PoapCard from './PoapCard';
-import { fetchPoapsByAddress } from '@/api/services/poapService';
+import { Button } from '@/components/ui/button';
 
 interface PoapSectionProps {
-  walletAddress: string;
+  walletAddress?: string;
 }
 
 const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
-  const [poaps, setPoaps] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [poaps, setPoaps] = useState<Poap[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  
+  const scrollContainer = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!walletAddress) return;
+    
     const loadPoaps = async () => {
-      if (!walletAddress) return;
-      
-      setLoading(true);
+      setIsLoading(true);
       try {
-        const poapData = await fetchPoapsByAddress(walletAddress);
-        setPoaps(poapData || []);
-      } catch (err) {
-        console.error('Error fetching POAPs:', err);
-        setError('Failed to load POAPs');
+        // Fetch all POAPs
+        const fetchedPoaps = await fetchPoapsByAddress(walletAddress);
+        setPoaps(fetchedPoaps);
+      } catch (error) {
+        console.error('Error loading POAPs:', error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
     
     loadPoaps();
   }, [walletAddress]);
-  
-  // If no POAPs and not loading, don't render the section
-  if (poaps.length === 0 && !loading) {
+
+  const scrollLeft = () => {
+    if (scrollContainer.current) {
+      scrollContainer.current.scrollBy({ left: -200, behavior: 'smooth' });
+      setScrollPosition(scrollContainer.current.scrollLeft - 200);
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainer.current) {
+      scrollContainer.current.scrollBy({ left: 200, behavior: 'smooth' });
+      setScrollPosition(scrollContainer.current.scrollLeft + 200);
+    }
+  };
+
+  // Don't render anything if there are no POAPs and we're not loading
+  if (!walletAddress || (!isLoading && poaps.length === 0)) {
     return null;
   }
 
   return (
-    <Card>
+    <Card id="poap-card-section" className="mt-4">
       <CardHeader className="pb-2">
-        <div className="flex items-center gap-2">
-          <Badge className="h-5 w-5 text-primary" />
-          <CardTitle className="flex items-center gap-2">
-            Proof of Attendance
-          </CardTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <img 
+              src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
+              className="h-8 w-8" 
+              alt="POAP" 
+            />
+            <CardTitle className="text-base">Proof of Attendance</CardTitle>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <div className="flex items-center justify-center py-4">
-            <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
-            <span className="ml-2 text-sm text-muted-foreground">Loading POAPs...</span>
-          </div>
-        ) : error ? (
-          <div className="text-center py-4 text-sm text-red-500">{error}</div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {poaps.map((poap, index) => (
-              <PoapCard key={`poap-${index}`} poap={poap} />
+        {isLoading ? (
+          <div className="flex flex-wrap gap-4 justify-center">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-16 w-16 rounded-full" />
             ))}
           </div>
-        )}
+        ) : poaps.length > 0 ? (
+          <div className="relative">
+            {poaps.length > 4 && (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/80 rounded-full"
+                  onClick={scrollLeft}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/80 rounded-full"
+                  onClick={scrollRight}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+            <div 
+              ref={scrollContainer}
+              className="flex gap-4 overflow-x-auto py-2 px-2 scrollbar-hide scroll-smooth"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
+              {poaps.map((poap) => (
+                <PoapCard key={poap.tokenId} poap={poap} />
+              ))}
+            </div>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

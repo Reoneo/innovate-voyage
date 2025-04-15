@@ -1,15 +1,14 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Copy, MapPin } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AddressDisplayProps {
   address: string;
-  location?: string;
 }
 
-const AddressDisplay: React.FC<AddressDisplayProps> = ({ address, location }) => {
+const AddressDisplay: React.FC<AddressDisplayProps> = ({ address }) => {
   const copyAddressToClipboard = () => {
     if (address) {
       navigator.clipboard.writeText(address);
@@ -24,27 +23,19 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ address, location }) =>
   };
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="flex items-center">
-        <span className="text-sm text-muted-foreground">
-          {address && typeof address === 'string' ? customTruncateAddress(address) : ''}
-        </span>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="h-6 w-6 p-0" 
-          onClick={copyAddressToClipboard}
-          disabled={!address}
-        >
-          <Copy className="h-3.5 w-3.5" />
-        </Button>
-      </div>
-      
-      {location && (
-        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-          <span>📍{location}</span>
-        </div>
-      )}
+    <div className="flex items-center gap-1">
+      <span className="text-sm text-muted-foreground">
+        {address && typeof address === 'string' ? customTruncateAddress(address) : ''}
+      </span>
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="h-6 w-6 p-0" 
+        onClick={copyAddressToClipboard}
+        disabled={!address}
+      >
+        <Copy className="h-3.5 w-3.5" />
+      </Button>
     </div>
   );
 };

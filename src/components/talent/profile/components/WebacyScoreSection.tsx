@@ -1,137 +1,137 @@
 
-import React, { useState, useEffect } from 'react';
-import { Shield, AlertCircle } from 'lucide-react';
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import React, { useState } from 'react';
+import { useWebacyScore } from '@/hooks/useWebacyScore';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Shield, AlertTriangle, Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface WebacyScoreSectionProps {
-  walletAddress: string;
-}
-
-interface WebacyData {
-  riskScore?: number;
-  riskLevel?: string;
-  approvals?: any[];
-  quickProfile?: any;
+  walletAddress?: string;
 }
 
 const WebacyScoreSection: React.FC<WebacyScoreSectionProps> = ({ walletAddress }) => {
-  const [webacyData, setWebacyData] = useState<WebacyData>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { score, approvals, profileData, loading, error } = useWebacyScore(walletAddress);
+  const [showDetails, setShowDetails] = useState(false);
 
-  useEffect(() => {
-    const fetchWebacyData = async () => {
-      if (!walletAddress) return;
-      
-      setLoading(true);
-      setError(null);
+  if (!walletAddress || error) return null;
 
-      try {
-        const headers = {
-          'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb'
-        };
-
-        // Fetch main address data
-        const addressResponse = await fetch(
-          `https://api.webacy.com/addresses/${walletAddress}`,
-          { headers, cache: 'no-store' }
-        );
-        
-        // Fetch approvals data
-        const approvalsResponse = await fetch(
-          `https://api.webacy.com/addresses/${walletAddress}/approvals`,
-          { headers, cache: 'no-store' }
-        );
-        
-        // Fetch quick profile data
-        const quickProfileResponse = await fetch(
-          `https://api.webacy.com/quick-profile/${walletAddress}`,
-          { headers, cache: 'no-store' }
-        );
-
-        if (!addressResponse.ok) {
-          throw new Error(`Address data fetch failed: ${addressResponse.status}`);
-        }
-
-        const addressData = await addressResponse.json();
-        const approvalsData = approvalsResponse.ok ? await approvalsResponse.json() : [];
-        const quickProfileData = quickProfileResponse.ok ? await quickProfileResponse.json() : {};
-
-        setWebacyData({
-          riskScore: addressData.riskScore,
-          riskLevel: addressData.riskLevel,
-          approvals: approvalsData,
-          quickProfile: quickProfileData
-        });
-      } catch (err) {
-        console.error('Error fetching Webacy data:', err);
-        setError('Failed to load security score');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWebacyData();
-  }, [walletAddress]);
-
-  // Function to determine color based on risk score
-  const getRiskColor = (score?: number): string => {
-    if (score === undefined) return 'text-gray-400';
-    if (score < 30) return 'text-green-500';
-    if (score < 70) return 'text-yellow-500';
-    return 'text-red-500';
+  // Calculate a normalized score out of 100
+  const normalizedScore = score !== undefined ? Math.min(Math.max(score * 20, 0), 100) : 0;
+  
+  // Determine score level
+  const getScoreLevel = () => {
+    if (score === undefined) return { text: 'Unknown', color: 'bg-gray-400' };
+    if (score >= 4) return { text: 'Excellent', color: 'bg-green-500' };
+    if (score >= 3) return { text: 'Good', color: 'bg-blue-500' };
+    if (score >= 2) return { text: 'Fair', color: 'bg-yellow-500' };
+    return { text: 'Poor', color: 'bg-red-500' };
   };
-
-  // Function to get risk label
-  const getRiskLabel = (level?: string): string => {
-    if (!level) return 'Unknown';
-    return level.charAt(0).toUpperCase() + level.slice(1).toLowerCase();
-  };
+  
+  const scoreLevel = getScoreLevel();
 
   return (
-    <div className="mt-4 flex flex-col items-center">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center gap-2 cursor-help">
-              <Shield className={`h-5 w-5 ${getRiskColor(webacyData.riskScore)}`} />
-              <span className="font-medium">Security Score</span>
+    <>
+      <Card className="mt-4" onClick={() => setShowDetails(true)} style={{ cursor: 'pointer' }}>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              <CardTitle className="text-base">Wallet Score</CardTitle>
             </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Security score by Webacy</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-
-      {loading ? (
-        <div className="mt-2 text-sm text-muted-foreground">Loading score...</div>
-      ) : error ? (
-        <div className="mt-2 text-sm text-red-500 flex items-center gap-1">
-          <AlertCircle className="h-4 w-4" />
-          {error}
-        </div>
-      ) : (
-        <div className="mt-2 flex flex-col items-center">
-          <div className={`text-lg font-bold ${getRiskColor(webacyData.riskScore)}`}>
-            {typeof webacyData.riskScore === 'number' ? webacyData.riskScore : 'N/A'}
           </div>
-          <div className="text-xs text-muted-foreground">
-            {getRiskLabel(webacyData.riskLevel)} Risk
-          </div>
-          {webacyData.approvals && webacyData.approvals.length > 0 && (
-            <div className="text-xs text-muted-foreground mt-1">
-              {webacyData.approvals.length} Active Approvals
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex justify-center py-2">
+              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">{scoreLevel.text}</span>
+                <span className="text-sm font-bold">{score?.toFixed(1) || 'N/A'}/5</span>
+              </div>
+              <Progress value={normalizedScore} className="h-2" />
             </div>
           )}
-        </div>
-      )}
-    </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Wallet Security Score</DialogTitle>
+          </DialogHeader>
+          
+          {loading ? (
+            <div className="flex justify-center py-4">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-bold text-lg mb-2">Score: {score?.toFixed(1) || 'N/A'}/5</h3>
+                <Progress value={normalizedScore} className="h-3 mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  This score represents the overall security rating of this wallet based on transaction history and behavior.
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="font-medium">Security Insights:</h3>
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2 p-2 border rounded">
+                    <div className="mt-0.5">
+                      {approvals && approvals > 5 ? (
+                        <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                      ) : (
+                        <Check className="h-5 w-5 text-green-500" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">Contract Approvals</p>
+                      <p className="text-xs text-muted-foreground">
+                        {approvals !== undefined ? (
+                          approvals > 5 
+                            ? `This wallet has ${approvals} contract approvals, which may increase risk.` 
+                            : `This wallet has only ${approvals} contract approvals.`
+                        ) : 'No approval data available.'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {profileData?.firstTx && (
+                    <div className="flex items-start gap-2 p-2 border rounded">
+                      <div className="mt-0.5">
+                        <Check className="h-5 w-5 text-green-500" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Wallet Age</p>
+                        <p className="text-xs text-muted-foreground">
+                          First transaction: {new Date(profileData.firstTx * 1000).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex justify-end">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => setShowDetails(false)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

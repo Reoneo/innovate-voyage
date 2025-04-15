@@ -91,10 +91,12 @@ export function useProfilePage() {
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
-      // Check if we're on recruitment.box domain
-      if (window.location.hostname.includes('recruitment.box')) {
+      // Check if we're already on a recruitment.box URL path
+      if (window.location.pathname.includes('recruitment.box')) {
+        // Navigate to the recruitment.box format
         window.location.href = `/recruitment.box/${query.trim()}`;
       } else {
+        // Complete page refresh for the new user's profile
         window.location.href = `/${query.trim()}`;
       }
     }

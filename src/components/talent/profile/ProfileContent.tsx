@@ -5,6 +5,7 @@ import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import VerifiedWorkExperience from './components/VerifiedWorkExperience';
+import SkillsCard from './components/SkillsCard';
 import PoapSection from './components/poap/PoapSection';
 
 interface ProfileContentProps {
@@ -33,6 +34,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     margin: '0 auto'
   };
 
+  // Determine if we have verified skills
+  const hasVerifiedSkills = passport?.skills?.some((skill: any) => skill.proof !== undefined);
+
   return (
     <div ref={profileRef} id="resume-pdf" style={centerStyle}>
       {loading && !loadingTimeout ? (
@@ -54,15 +58,22 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 bio={passport.bio}
                 displayIdentity={ensNameOrAddress}
                 additionalEnsDomains={passport.additionalEnsDomains}
-                location={passport.location || passport.socials?.location || null}
               />
             </div>
             
             {/* Right column - Professional info - 70% width */}
             <div className="flex flex-col gap-6 md:col-span-7">
-              <VerifiedWorkExperience 
-                walletAddress={passport.owner_address} 
-              />
+              {/* Hide Blockchain Experience Section */}
+              {/* <VerifiedWorkExperience walletAddress={passport.owner_address} /> */}
+              
+              {/* Only show skills card if we have verified skills */}
+              {hasVerifiedSkills && (
+                <SkillsCard
+                  walletAddress={passport.owner_address}
+                  skills={passport.skills || []}
+                  passportId={passport.passport_id}
+                />
+              )}
               
               <PoapSection
                 walletAddress={passport.owner_address}
