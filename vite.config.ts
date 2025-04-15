@@ -90,6 +90,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       host: '::',
       port: 8080
     },
+    // Add this section explicitly to help with the Vite initialization
+    cacheDir: 'node_modules/.vite',
   };
   
   return config;
