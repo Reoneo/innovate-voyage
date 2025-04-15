@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { LogOut, Save, Home, Search } from 'lucide-react';
+import { LogOut, Save, Home, Search, MessageSquare } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 
 interface ProfileNavbarProps {
@@ -41,7 +41,13 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      onSearch(searchQuery.trim());
+      // Navigate to recruitment.box format when possible
+      if (window.location.hostname.includes('recruitment.box')) {
+        window.location.href = `/recruitment.box/${searchQuery.trim()}`;
+      } else {
+        // Navigate to standard format
+        window.location.href = `/${searchQuery.trim()}`;
+      }
     }
   };
 
@@ -50,16 +56,16 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-center mb-4 gap-4">
-      {/* Home Icon Button */}
+    <div className="flex items-center justify-center mb-4 gap-4 sticky top-0 z-30 bg-white/80 backdrop-blur-sm p-2 rounded-md">
+      {/* Home Icon Button - Increased size */}
       <Button
         variant="ghost"
         size="icon"
         onClick={handleHomeClick}
-        className="h-10 w-10 p-0"
+        className="h-12 w-12 p-0"
         title="Home"
       >
-        <Home className="h-6 w-6" />
+        <Home className="h-7 w-7" />
       </Button>
       
       {/* Search Component */}
@@ -80,38 +86,34 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
         ) : null}
       </div>
       
-      {/* XMTP Message Button */}
+      {/* XMTP Message Button - Using generic icon and increased size */}
       <Button
         variant="ghost"
         size="icon"
         onClick={handleOpenXmtpModal}
-        className="h-10 w-10 p-0"
+        className="h-12 w-12 p-0"
         title="XMTP Messages"
       >
-        <img 
-          src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
-          alt="Message" 
-          className="h-6 w-6"
-        />
+        <MessageSquare className="h-7 w-7" />
       </Button>
 
-      {/* Search Button */}
+      {/* Search Button - Increased size */}
       <Button
         variant="ghost"
         size="icon"
         onClick={toggleSearch}
-        className="h-10 w-10 p-0"
+        className="h-12 w-12 p-0"
         title="Search"
       >
-        <Search className="h-6 w-6" />
+        <Search className="h-7 w-7" />
       </Button>
 
-      {/* Save Options Button - Only showing for connected wallets */}
+      {/* Save Options Button - Only showing for connected wallets with increased size */}
       {connectedWallet && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-10 w-10 p-0">
-              <Save className="h-6 w-6" />
+            <Button variant="ghost" size="icon" className="h-12 w-12 p-0">
+              <Save className="h-7 w-7" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

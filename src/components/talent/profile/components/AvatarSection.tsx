@@ -6,6 +6,7 @@ import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
 import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
+import WebacyScoreSection from './WebacyScoreSection';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -15,6 +16,7 @@ interface AvatarSectionProps {
   additionalEnsDomains?: string[];
   bio?: string;
   displayIdentity?: string;
+  location?: string;
 }
 
 const AvatarSection: React.FC<AvatarSectionProps> = ({ 
@@ -24,7 +26,8 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   socials = {},
   additionalEnsDomains = [],
   bio,
-  displayIdentity
+  displayIdentity,
+  location
 }) => {
   const [isOwner, setIsOwner] = useState(false);
   
@@ -60,6 +63,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         name={name} 
         ownerAddress={ownerAddress}
         displayIdentity={displayIdentity}
+        location={location}
       />
       
       {/* Additional ENS Domains */}
@@ -71,6 +75,9 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         telephone={telephone}
         isOwner={isOwner}
       />
+      
+      {/* Webacy Score Section */}
+      <WebacyScoreSection walletAddress={ownerAddress} />
       
       {/* ENS Bio - Only show if bio exists */}
       {bio && (

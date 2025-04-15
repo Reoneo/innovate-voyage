@@ -91,7 +91,12 @@ export function useProfilePage() {
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
-      navigate(`/${query.trim()}`);
+      // Check if we're on recruitment.box domain
+      if (window.location.hostname.includes('recruitment.box')) {
+        window.location.href = `/recruitment.box/${query.trim()}`;
+      } else {
+        window.location.href = `/${query.trim()}`;
+      }
     }
   };
 
