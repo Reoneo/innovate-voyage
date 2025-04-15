@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from 'lucide-react';
 import PoapCard from './PoapCard';
-import { fetchPoaps } from '@/api/services/poapService';
+import { fetchPoapsByAddress } from '@/api/services/poapService';
 
 interface PoapSectionProps {
   walletAddress: string;
@@ -20,7 +20,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
       
       setLoading(true);
       try {
-        const poapData = await fetchPoaps(walletAddress);
+        const poapData = await fetchPoapsByAddress(walletAddress);
         setPoaps(poapData || []);
       } catch (err) {
         console.error('Error fetching POAPs:', err);
