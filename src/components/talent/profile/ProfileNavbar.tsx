@@ -56,10 +56,10 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
         variant="ghost"
         size="icon"
         onClick={handleHomeClick}
-        className="h-10 w-10 p-0"
+        className="h-12 w-12 p-0"
         title="Home"
       >
-        <Home className="h-6 w-6" />
+        <Home className="h-8 w-8" />
       </Button>
       
       {/* Search Component */}
@@ -85,13 +85,13 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
         variant="ghost"
         size="icon"
         onClick={handleOpenXmtpModal}
-        className="h-10 w-10 p-0"
+        className="h-12 w-12 p-0"
         title="XMTP Messages"
       >
         <img 
           src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
           alt="Message" 
-          className="h-6 w-6"
+          className="h-8 w-8"
         />
       </Button>
 
@@ -100,18 +100,18 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
         variant="ghost"
         size="icon"
         onClick={toggleSearch}
-        className="h-10 w-10 p-0"
+        className="h-12 w-12 p-0"
         title="Search"
       >
-        <Search className="h-6 w-6" />
+        <Search className="h-8 w-8" />
       </Button>
 
       {/* Save Options Button - Only showing for connected wallets */}
       {connectedWallet && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-10 w-10 p-0">
-              <Save className="h-6 w-6" />
+            <Button variant="ghost" size="icon" className="h-12 w-12 p-0">
+              <Save className="h-8 w-8" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
