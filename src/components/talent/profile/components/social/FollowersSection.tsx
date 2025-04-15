@@ -22,11 +22,19 @@ interface FollowerData {
   ens_name?: string;
 }
 
+interface FollowingData {
+  address: string;
+  record_type?: string;
+  data?: string; // ENS name or address the user is following
+  tags?: string[];
+  updated_at?: string;
+}
+
 const FollowersSection: React.FC<FollowersSectionProps> = ({ ensNameOrAddress }) => {
   const [stats, setStats] = useState<FollowStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [followers, setFollowers] = useState<FollowerData[]>([]);
-  const [following, setFollowing] = useState<FollowerData[]>([]);
+  const [following, setFollowing] = useState<FollowingData[]>([]);
   const [showFollowersDialog, setShowFollowersDialog] = useState(false);
   const [showFollowingDialog, setShowFollowingDialog] = useState(false);
   const navigate = useNavigate();
