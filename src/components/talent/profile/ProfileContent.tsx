@@ -5,7 +5,7 @@ import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import VerifiedWorkExperience from './components/VerifiedWorkExperience';
-// Removed import for PoapSection
+import PoapSection from './components/poap/PoapSection';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -64,7 +64,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 walletAddress={passport.owner_address} 
               />
               
-              {/* Removed PoapSection component */}
+              <PoapSection
+                walletAddress={passport.owner_address}
+              />
             </div>
           </div>
         </HeaderContainer>
