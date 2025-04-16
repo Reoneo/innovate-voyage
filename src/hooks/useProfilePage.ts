@@ -42,10 +42,10 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading
+    // Set a timeout for loading - increased from 5s to 15s to prevent premature timeout errors
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 5000);
+    }, 15000); // Increased from 5000 to 15000 ms (15 seconds)
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');

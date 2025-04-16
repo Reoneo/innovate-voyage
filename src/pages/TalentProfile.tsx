@@ -44,6 +44,7 @@ const TalentProfile = () => {
           onDisconnect={handleDisconnect}
           onSaveChanges={handleSaveChanges}
           onSearch={handleSearch}
+          avatarUrl={avatarUrl}
         />
         
         {/* Content with padding top to account for fixed navbar */}
