@@ -58,7 +58,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             
             {/* Right column - Professional info - 70% width */}
             <div className="flex flex-col gap-6 md:col-span-7">
-              {/* Place Webacy Score at the top of the right column */}
+              {/* Webacy Score at the top of the right column */}
               <WebacyScoreSection walletAddress={passport.owner_address} />
               
               {/* POAP section removed to avoid performance issues */}

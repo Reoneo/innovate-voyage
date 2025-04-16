@@ -40,23 +40,24 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Correct the URL format for searches
-      window.location.href = `/recruitment.box/${searchQuery.trim()}/`;
+      // Fix the URL format for searches - ensure proper formatting
+      const formattedQuery = searchQuery.trim();
+      window.location.href = `/${formattedQuery}/`;
     }
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-white z-50 py-2 shadow-md">
+    <div className="fixed top-0 left-0 right-0 bg-white z-50 py-1 shadow-md">
       <div className="flex items-center justify-center gap-4 max-w-screen-lg mx-auto">
         {/* Home Icon Button - Increased size */}
         <Button
           variant="ghost"
           size="icon"
           onClick={handleHomeClick}
-          className="h-16 w-16 p-0" 
+          className="h-10 w-10 p-0" 
           title="Home"
         >
-          <Home className="h-12 w-12" />
+          <Home className="h-6 w-6" />
         </Button>
         
         {/* Search Bar - Always visible */}
@@ -80,18 +81,18 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           variant="ghost"
           size="icon"
           onClick={handleOpenXmtpModal}
-          className="h-16 w-16 p-0"
+          className="h-10 w-10 p-0"
           title="XMTP Messages"
         >
-          <MessageSquare className="h-12 w-12" />
+          <MessageSquare className="h-6 w-6" />
         </Button>
 
         {/* Save Options Button - Only showing for connected wallets - Increased size */}
         {connectedWallet && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-16 w-16 p-0">
-                <Save className="h-12 w-12" />
+              <Button variant="ghost" size="icon" className="h-10 w-10 p-0">
+                <Save className="h-6 w-6" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
