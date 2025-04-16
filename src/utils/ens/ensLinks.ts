@@ -32,7 +32,7 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
     // Try to get social media links
     const socials: Record<string, string> = {};
     
-    // Common ENS text records for social media and contact info
+    // Extended list of ENS text records for social media and contact info
     const socialKeys = [
       'com.github', 
       'com.twitter', 
@@ -41,13 +41,13 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
       'email', 
       'com.facebook',
       'org.whatsapp.phone',
-      'com.facebook.messenger',
-      'com.discord',
-      'com.reddit',
       'org.telegram',
       'com.instagram',
       'com.youtube',
-      'bsky.app',
+      'com.discord',
+      'com.reddit',
+      'org.telegram',
+      'bsky',           // For Bluesky
       'phone',
       'location',
     ];
@@ -82,12 +82,7 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
             socials.facebook = value;
             break;
           case 'org.whatsapp.phone':
-            // Use WhatsApp phone as telephone if no direct phone record exists
-            socials.telephone = socials.telephone || value;
             socials.whatsapp = value;
-            break;
-          case 'com.facebook.messenger':
-            socials.messenger = value;
             break;
           case 'com.discord':
             socials.discord = value;
@@ -104,7 +99,7 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
           case 'com.youtube':
             socials.youtube = value;
             break;
-          case 'bsky.app':
+          case 'bsky':
             socials.bluesky = value;
             break;
           case 'phone':
@@ -117,12 +112,13 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
       }
     });
 
+    // Log the retrieved socials
+    console.log(`Retrieved social links for ${ensName}:`, socials);
+
     // Try to get additional ENS names
     // This is a simplified implementation - in a real app you would query an ENS indexer
     // For demonstration, we'll just return the current ENS name
     const ensLinks = [ensName];
-
-    console.log(`Got ENS links for ${ensName}:`, { socials, ensLinks });
     
     return {
       socials,
