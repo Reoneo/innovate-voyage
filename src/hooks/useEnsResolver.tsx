@@ -65,7 +65,6 @@ export function useEnsResolver(ensName?: string, address?: string) {
     setIsLoading(true);
     setError(null);
     
-    console.log(`Starting ENS resolution for ${normalizedEnsName}`);
     resolveEns(normalizedEnsName).finally(() => setIsLoading(false));
   }, [normalizedEnsName, directAddress]);
 
@@ -76,18 +75,8 @@ export function useEnsResolver(ensName?: string, address?: string) {
     setIsLoading(true);
     setError(null);
     
-    console.log(`Starting address lookup for ${adjustedAddress}`);
     lookupAddress(adjustedAddress).finally(() => setIsLoading(false));
   }, [adjustedAddress, isEns, directAddress]);
-
-  // Log the state to aid debugging
-  useEffect(() => {
-    console.log('ENS Resolver state:', { 
-      resolvedAddress: state.resolvedAddress, 
-      resolvedEns: state.resolvedEns,
-      socials: state.ensLinks?.socials
-    });
-  }, [state]);
 
   return {
     resolvedAddress: state.resolvedAddress || directAddress,

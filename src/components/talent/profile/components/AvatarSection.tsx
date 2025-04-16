@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileContact from './ProfileContact';
@@ -58,11 +57,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       setIsOwner(true);
     }
   }, [ownerAddress]);
-  
-  // Log social links to help with debugging
-  useEffect(() => {
-    console.log("AvatarSection - Social links:", socials);
-  }, [socials]);
   
   const normalizedSocials: Record<string, string> = {};
   Object.entries(socials || {}).forEach(([key, value]) => {
