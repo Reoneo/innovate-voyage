@@ -98,15 +98,15 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   return (
     <div className="fixed top-0 left-0 right-0 bg-white z-50 py-1 shadow-md">
       <div className="flex items-center justify-center gap-4 max-w-screen-lg mx-auto">
-        {/* Home Icon Button - Increased size */}
+        {/* Home Icon Button - Doubled size */}
         <Button
           variant="ghost"
           size="icon"
           onClick={handleHomeClick}
-          className="h-10 w-10 p-0" 
+          className="h-12 w-12 p-0" 
           title="Home"
         >
-          <Home className="h-6 w-6" />
+          <Home className="h-8 w-8" />
         </Button>
         
         {/* Search Bar - Always visible */}
@@ -130,23 +130,23 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </form>
         </div>
         
-        {/* XMTP Message Button - Increased size */}
+        {/* XMTP Message Button - Doubled size */}
         <Button
           variant="ghost"
           size="icon"
           onClick={handleOpenXmtpModal}
-          className="h-10 w-10 p-0"
+          className="h-12 w-12 p-0"
           title="XMTP Messages"
         >
-          <MessageSquare className="h-6 w-6" />
+          <MessageSquare className="h-8 w-8" />
         </Button>
 
-        {/* Save Options Button - Only showing for connected wallets - Increased size */}
+        {/* Save Options Button - Only showing for connected wallets - Doubled size */}
         {connectedWallet && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-10 w-10 p-0">
-                <Save className="h-6 w-6" />
+              <Button variant="ghost" size="icon" className="h-12 w-12 p-0">
+                <Save className="h-8 w-8" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
