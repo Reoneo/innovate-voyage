@@ -4,7 +4,7 @@ import { useWebacyScore } from '@/hooks/useWebacyScore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Shield, AlertTriangle, Check } from 'lucide-react';
+import { Shield, AlertTriangle, Check, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface WebacyScoreSectionProps {
@@ -33,12 +33,16 @@ const WebacyScoreSection: React.FC<WebacyScoreSectionProps> = ({ walletAddress }
 
   return (
     <>
-      <Card className="mt-4" onClick={() => setShowDetails(true)} style={{ cursor: 'pointer' }}>
+      <Card onClick={() => setShowDetails(true)} style={{ cursor: 'pointer' }}>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <CardTitle className="text-base">Wallet Score</CardTitle>
+              <Shield className="h-6 w-6 text-primary" />
+              <CardTitle className="text-lg">Wallet Security Score</CardTitle>
+            </div>
+            <div className="flex items-center">
+              <span className="text-lg font-bold mr-2">{score?.toFixed(1) || 'N/A'}/5</span>
+              <Info className="h-4 w-4 text-muted-foreground" />
             </div>
           </div>
         </CardHeader>
@@ -48,12 +52,33 @@ const WebacyScoreSection: React.FC<WebacyScoreSectionProps> = ({ walletAddress }
               <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">{scoreLevel.text}</span>
-                <span className="text-sm font-bold">{score?.toFixed(1) || 'N/A'}/5</span>
+                <span className="text-sm">{approvals !== undefined ? `${approvals} contract approvals` : ''}</span>
               </div>
-              <Progress value={normalizedScore} className="h-2" />
+              <Progress value={normalizedScore} className="h-3" />
+              
+              {/* Quick security insights */}
+              <div className="flex flex-wrap gap-2 mt-3 text-xs">
+                {profileData?.firstTx && (
+                  <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full">
+                    <Check className="h-3 w-3 text-green-500" />
+                    <span>Active since {new Date(profileData.firstTx * 1000).getFullYear()}</span>
+                  </div>
+                )}
+                
+                {approvals !== undefined && (
+                  <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${approvals > 5 ? 'bg-yellow-100' : 'bg-green-100'}`}>
+                    {approvals > 5 ? (
+                      <AlertTriangle className="h-3 w-3 text-yellow-600" />
+                    ) : (
+                      <Check className="h-3 w-3 text-green-600" />
+                    )}
+                    <span>{approvals > 5 ? 'Multiple approvals' : 'Few approvals'}</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </CardContent>
@@ -72,8 +97,8 @@ const WebacyScoreSection: React.FC<WebacyScoreSectionProps> = ({ walletAddress }
           ) : (
             <div className="space-y-4">
               <div className="p-4 border rounded-lg">
-                <h3 className="font-bold text-lg mb-2">Score: {score?.toFixed(1) || 'N/A'}/5</h3>
-                <Progress value={normalizedScore} className="h-3 mb-2" />
+                <h3 className="font-bold text-xl mb-2">Score: {score?.toFixed(1) || 'N/A'}/5</h3>
+                <Progress value={normalizedScore} className="h-3 mb-3" />
                 <p className="text-sm text-muted-foreground">
                   This score represents the overall security rating of this wallet based on transaction history and behavior.
                 </p>
@@ -82,7 +107,7 @@ const WebacyScoreSection: React.FC<WebacyScoreSectionProps> = ({ walletAddress }
               <div className="space-y-2">
                 <h3 className="font-medium">Security Insights:</h3>
                 <div className="space-y-2">
-                  <div className="flex items-start gap-2 p-2 border rounded">
+                  <div className="flex items-start gap-2 p-3 border rounded">
                     <div className="mt-0.5">
                       {approvals && approvals > 5 ? (
                         <AlertTriangle className="h-5 w-5 text-yellow-500" />
@@ -91,26 +116,42 @@ const WebacyScoreSection: React.FC<WebacyScoreSectionProps> = ({ walletAddress }
                       )}
                     </div>
                     <div>
-                      <p className="font-medium text-sm">Contract Approvals</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="font-medium">Contract Approvals</p>
+                      <p className="text-sm text-muted-foreground">
                         {approvals !== undefined ? (
                           approvals > 5 
                             ? `This wallet has ${approvals} contract approvals, which may increase risk.` 
-                            : `This wallet has only ${approvals} contract approvals.`
+                            : `This wallet has only ${approvals} contract approvals, which is good for security.`
                         ) : 'No approval data available.'}
                       </p>
                     </div>
                   </div>
                   
                   {profileData?.firstTx && (
-                    <div className="flex items-start gap-2 p-2 border rounded">
+                    <div className="flex items-start gap-2 p-3 border rounded">
                       <div className="mt-0.5">
                         <Check className="h-5 w-5 text-green-500" />
                       </div>
                       <div>
-                        <p className="font-medium text-sm">Wallet Age</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="font-medium">Wallet Age</p>
+                        <p className="text-sm text-muted-foreground">
                           First transaction: {new Date(profileData.firstTx * 1000).toLocaleDateString()}
+                          <br/>
+                          Wallet has been active for {new Date().getFullYear() - new Date(profileData.firstTx * 1000).getFullYear()} years.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {profileData?.totalTransactions && (
+                    <div className="flex items-start gap-2 p-3 border rounded">
+                      <div className="mt-0.5">
+                        <Info className="h-5 w-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Transaction History</p>
+                        <p className="text-sm text-muted-foreground">
+                          Total transactions: {profileData.totalTransactions}
                         </p>
                       </div>
                     </div>

@@ -1,7 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import SocialMediaLinks from '../../tabs/social/SocialMediaLinks';
-import { getEnsLinks } from '@/utils/ens/ensLinks';
 
 interface SocialLinksSectionProps {
   socials: Record<string, string>;
@@ -9,37 +8,18 @@ interface SocialLinksSectionProps {
 }
 
 const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identity }) => {
-  const [socialLinks, setSocialLinks] = useState<Record<string, string>>(socials || {});
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    // Only attempt to fetch additional social links if we have an ENS identity
-    if (identity && (identity.includes('.eth') || identity.includes('.box'))) {
-      setIsLoading(true);
-      
-      getEnsLinks(identity)
-        .then(links => {
-          if (links && links.socials) {
-            console.log(`Got additional social links for ${identity}:`, links.socials);
-            setSocialLinks(prevLinks => ({
-              ...prevLinks,
-              ...links.socials
-            }));
-          }
-        })
-        .catch(error => {
-          console.error(`Error fetching social links for ${identity}:`, error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [identity]);
-
+  // Check if we have any actual social links
+  const hasSocialLinks = Object.entries(socials || {}).some(([_, val]) => val && val.trim() !== '');
+  
+  // Don't render anything if no links are available
+  if (!hasSocialLinks) {
+    return null;
+  }
+  
   return (
-    <div className="w-full mt-4">
-      <div className="grid grid-cols-3 md:grid-cols-3 gap-3">
-        <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
+    <div className="w-full mt-2">
+      <div className="grid grid-cols-3 gap-2 justify-items-center">
+        <SocialMediaLinks socials={socials} />
       </div>
     </div>
   );

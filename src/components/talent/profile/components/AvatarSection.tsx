@@ -7,7 +7,6 @@ import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
 import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
 import FollowersSection from './FollowersSection';
-import WebacyScoreSection from './WebacyScoreSection';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -92,17 +91,16 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         displayIdentity={displayIdentity}
       />
       
-      {/* Additional ENS Domains */}
-      <AdditionalEnsDomains domains={additionalEnsDomains} />
+      {/* Additional ENS Domains - Limit to improve performance */}
+      {additionalEnsDomains && additionalEnsDomains.length > 0 && (
+        <AdditionalEnsDomains domains={additionalEnsDomains.slice(0, 50)} />
+      )}
       
       {/* Followers and Following */}
       <FollowersSection 
         walletAddress={ownerAddress}
         ensName={displayIdentity?.includes('.eth') ? displayIdentity : undefined}
       />
-      
-      {/* Webacy Score Section */}
-      <WebacyScoreSection walletAddress={ownerAddress} />
       
       {/* Contact Info */}
       <ProfileContact 

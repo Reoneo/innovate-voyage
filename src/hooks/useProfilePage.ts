@@ -20,14 +20,19 @@ export function useProfilePage() {
   
   useEffect(() => {
     if (targetIdentifier) {
+      // Clean up the identifier - remove any trailing slashes
+      const cleanIdentifier = targetIdentifier.endsWith('/') 
+        ? targetIdentifier.slice(0, -1) 
+        : targetIdentifier;
+      
       // Direct address check - immediately use as address if valid
-      if (isValidEthereumAddress(targetIdentifier)) {
-        console.log(`Valid Ethereum address detected: ${targetIdentifier}`);
-        setAddress(targetIdentifier);
+      if (isValidEthereumAddress(cleanIdentifier)) {
+        console.log(`Valid Ethereum address detected: ${cleanIdentifier}`);
+        setAddress(cleanIdentifier);
         setEns(undefined); // Clear ENS when looking up by address
       } else {
         // Not a valid address, treat as ENS or domain
-        const ensValue = targetIdentifier.includes('.') ? targetIdentifier : `${targetIdentifier}.eth`;
+        const ensValue = cleanIdentifier.includes('.') ? cleanIdentifier : `${cleanIdentifier}.eth`;
         console.log(`Treating as ENS: ${ensValue}`);
         setEns(ensValue);
         setAddress(undefined); // Clear address when looking up by ENS
@@ -91,13 +96,13 @@ export function useProfilePage() {
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
-      // Check if we're already on a recruitment.box URL path
+      // Correct search URL format
       if (window.location.pathname.includes('recruitment.box')) {
         // Navigate to the recruitment.box format
-        window.location.href = `/recruitment.box/${query.trim()}`;
+        window.location.href = `/recruitment.box/${query.trim()}/`;
       } else {
         // Complete page refresh for the new user's profile
-        window.location.href = `/${query.trim()}`;
+        window.location.href = `/${query.trim()}/`;
       }
     }
   };
