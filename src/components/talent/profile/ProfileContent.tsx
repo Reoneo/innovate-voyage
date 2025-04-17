@@ -1,10 +1,8 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
-import WebacyScoreSection from './components/WebacyScoreSection';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -58,10 +56,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             
             {/* Right column - Professional info - 70% width */}
             <div className="flex flex-col gap-6 md:col-span-7">
-              {/* Webacy Score at the top of the right column */}
-              <WebacyScoreSection walletAddress={passport.owner_address} />
-              
-              {/* POAP section removed to avoid performance issues */}
+              {/* WebacyScoreSection removed to improve loading performance */}
+              {/* Other sections can be added here if needed */}
             </div>
           </div>
         </HeaderContainer>

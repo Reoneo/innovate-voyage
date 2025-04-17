@@ -29,8 +29,8 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   console.log('Rendering social links:', normalizedSocials);
   
   return (
-    <div className="w-full mt-2 border-t border-border pt-2">
-      <div className="grid grid-cols-4 gap-2 justify-items-center">
+    <div className="w-full mt-2 pt-2">
+      <div className="grid grid-cols-4 gap-3 justify-items-center">
         {/* Display available social platforms */}
         {socialPlatforms.map(platform => 
           normalizedSocials[platform.key] && (

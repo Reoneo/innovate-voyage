@@ -47,8 +47,8 @@ const TalentProfile = () => {
           avatarUrl={avatarUrl}
         />
         
-        {/* Content with padding top to account for fixed navbar */}
-        <div className="container mx-auto px-4 pt-24 pb-8" style={{ maxWidth: '950px', width: '100%' }}>
+        {/* Content with padding top to account for fixed navbar - reduced by half */}
+        <div className="container mx-auto px-4 pt-12 pb-8" style={{ maxWidth: '950px', width: '100%' }}>
           {/* Profile Content */}
           <ProfileContent 
             loading={loading}

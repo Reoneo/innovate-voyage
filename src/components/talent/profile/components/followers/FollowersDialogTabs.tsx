@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import FollowerListItem from './FollowerListItem';
 
 interface FollowerData {
@@ -14,8 +13,6 @@ interface FollowerData {
 interface FollowersDialogTabsProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  sortOption: string;
-  setSortOption: (option: string) => void;
   followers: FollowerData[];
   following: FollowerData[];
   followersLoading: boolean;
@@ -27,8 +24,6 @@ interface FollowersDialogTabsProps {
 const FollowersDialogTabs: React.FC<FollowersDialogTabsProps> = ({
   activeTab,
   setActiveTab,
-  sortOption,
-  setSortOption,
   followers,
   following,
   followersLoading,
@@ -62,7 +57,7 @@ const FollowersDialogTabs: React.FC<FollowersDialogTabsProps> = ({
         onValueChange={setActiveTab}
         className="w-full"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
+        <div className="flex items-center justify-center mb-4">
           <TabsList className="h-auto p-1 bg-gray-100 rounded-lg">
             <TabsTrigger 
               value="following" 
@@ -77,28 +72,15 @@ const FollowersDialogTabs: React.FC<FollowersDialogTabsProps> = ({
               Followers <span className="font-bold ml-1">{followersCount || "0"}</span>
             </TabsTrigger>
           </TabsList>
-          
-          <div className="ml-auto">
-            <Select value={sortOption} onValueChange={setSortOption}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sort: Recent" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recent">Sort: Recent</SelectItem>
-                <SelectItem value="followers">Sort: Followers</SelectItem>
-                <SelectItem value="following">Sort: Following</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
-        <TabsContent value="followers" className="h-[40vh] overflow-y-auto">
+        <TabsContent value="followers" className="h-[45vh] overflow-y-auto">
           {followersLoading ? renderLoadingState() : 
             followers && followers.length > 0 ? renderUserList(followers) : 
             renderEmptyState("No followers found")}
         </TabsContent>
 
-        <TabsContent value="following" className="h-[40vh] overflow-y-auto">
+        <TabsContent value="following" className="h-[45vh] overflow-y-auto">
           {followingLoading ? renderLoadingState() : 
             following && following.length > 0 ? renderUserList(following) : 
             renderEmptyState("No following found")}

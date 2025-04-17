@@ -43,10 +43,10 @@ const FollowersDialogHeader: React.FC<FollowersDialogHeaderProps> = ({
       <div className="flex flex-col items-center py-6">
         <Avatar className="h-20 w-20 mb-4">
           <AvatarImage src={ensName ? `https://metadata.ens.domains/mainnet/avatar/${ensName}` : undefined} />
-          <AvatarFallback>{ensName?.substring(0, 2).toUpperCase() || walletAddress?.substring(0, 2).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>{(ensName || "").substring(0, 2).toUpperCase() || (walletAddress || "").substring(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
         <h3 className="text-xl font-bold mb-1">
-          {ensName || walletAddress?.substring(0, 6) + '...' + walletAddress?.substring(38)}
+          {ensName || (walletAddress ? `${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}` : 'Unknown')}
         </h3>
       </div>
     </>

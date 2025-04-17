@@ -23,8 +23,6 @@ interface FollowersDialogProps {
   followingCount: string | number;
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  sortOption: string;
-  setSortOption: (option: string) => void;
   followersLoading: boolean;
   followingLoading: boolean;
 }
@@ -40,14 +38,12 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
   followingCount,
   activeTab,
   setActiveTab,
-  sortOption,
-  setSortOption,
   followersLoading,
   followingLoading
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className="sm:max-w-md max-h-[80vh] max-w-[95vw] overflow-hidden p-0 rounded-lg">
         <div className="flex flex-col h-full">
           <FollowersDialogHeader 
             ensName={ensName}
@@ -58,8 +54,6 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
           <FollowersDialogTabs 
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            sortOption={sortOption}
-            setSortOption={setSortOption}
             followers={followers}
             following={following}
             followersLoading={followersLoading}
@@ -68,10 +62,10 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
             followingCount={followingCount}
           />
           
-          {/* Connect wallet button */}
+          {/* Connect wallet button updated to just say "Follow" */}
           <div className="mt-auto p-4 border-t">
             <Button className="w-full flex items-center justify-center gap-2">
-              <span>🔗</span> Connect Wallet and Follow
+              <span>🔗</span> Follow
             </Button>
           </div>
         </div>

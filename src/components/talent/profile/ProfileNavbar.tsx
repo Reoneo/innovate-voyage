@@ -103,10 +103,10 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           variant="ghost"
           size="icon"
           onClick={handleHomeClick}
-          className="h-12 w-12 p-0" 
+          className="h-14 w-14 p-0" 
           title="Home"
         >
-          <Home className="h-8 w-8" />
+          <Home className="h-10 w-10" />
         </Button>
         
         {/* Search Bar - Always visible */}
@@ -135,18 +135,18 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           variant="ghost"
           size="icon"
           onClick={handleOpenXmtpModal}
-          className="h-12 w-12 p-0"
+          className="h-14 w-14 p-0"
           title="XMTP Messages"
         >
-          <MessageSquare className="h-8 w-8" />
+          <MessageSquare className="h-10 w-10" />
         </Button>
 
         {/* Save Options Button - Only showing for connected wallets - Doubled size */}
         {connectedWallet && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-12 w-12 p-0">
-                <Save className="h-8 w-8" />
+              <Button variant="ghost" size="icon" className="h-14 w-14 p-0">
+                <Save className="h-10 w-10" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

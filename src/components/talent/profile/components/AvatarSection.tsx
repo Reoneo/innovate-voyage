@@ -107,6 +107,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         </div>
       )}
       
+      {/* Social links section - now more prominent */}
       <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
     </div>
   );

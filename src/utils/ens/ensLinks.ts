@@ -50,6 +50,14 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
       'bsky',           // For Bluesky
       'phone',
       'location',
+      'twitter', // Legacy key
+      'github', // Legacy key
+      'linkedin', // Legacy key
+      'discord', // Legacy key
+      'telegram', // Legacy key
+      'instagram', // Legacy key
+      'facebook', // Legacy key
+      'reddit', // Legacy key
     ];
     
     // Try to get each social media link in parallel for efficiency
@@ -62,14 +70,20 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
       if (result.status === 'fulfilled' && result.value.value) {
         const { key, value } = result.value;
         
+        // Skip empty values
+        if (!value || value.trim() === '') return;
+        
         switch (key) {
           case 'com.github':
+          case 'github':
             socials.github = value;
             break;
           case 'com.twitter':
+          case 'twitter':
             socials.twitter = value;
             break;
           case 'com.linkedin':
+          case 'linkedin':
             socials.linkedin = value;
             break;
           case 'url':
@@ -79,24 +93,31 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
             socials.email = value;
             break;
           case 'com.facebook':
+          case 'facebook':
             socials.facebook = value;
             break;
           case 'org.whatsapp.phone':
+          case 'whatsapp':
             socials.whatsapp = value;
             break;
           case 'com.discord':
+          case 'discord':
             socials.discord = value;
             break;
           case 'com.reddit':
+          case 'reddit':
             socials.reddit = value;
             break;
           case 'org.telegram':
+          case 'telegram':
             socials.telegram = value;
             break;
           case 'com.instagram':
+          case 'instagram':
             socials.instagram = value;
             break;
           case 'com.youtube':
+          case 'youtube':
             socials.youtube = value;
             break;
           case 'bsky':
