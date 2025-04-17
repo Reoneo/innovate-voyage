@@ -96,7 +96,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-white z-50 py-1 shadow-md">
+    <div className="bg-white z-50 py-1 shadow-md">
       <div className="flex items-center justify-center gap-4 max-w-screen-lg mx-auto">
         {/* Home Icon Button - Doubled size */}
         <Button

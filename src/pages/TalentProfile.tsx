@@ -47,8 +47,8 @@ const TalentProfile = () => {
           avatarUrl={avatarUrl}
         />
         
-        {/* Content with small gap after navbar - added profile-container class */}
-        <div className="container mx-auto px-4 pt-6 pb-8 profile-container" style={{ maxWidth: '950px', width: '100%' }}>
+        {/* Add padding-top to create space after navbar */}
+        <div className="container mx-auto px-4 pt-20 pb-8 profile-container" style={{ maxWidth: '950px', width: '100%' }}>
           {/* Profile Content */}
           <ProfileContent 
             loading={loading}
