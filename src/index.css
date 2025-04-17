@@ -118,8 +118,9 @@ body.generating-pdf {
 }
 
 /* Gap between navbar and profile content */
-header + .profile-container {
-  margin-top: 8px;
+header + .profile-container,
+navbar + .profile-container {
+  margin-top: 8px !important;
 }
 
 /* Profile social links styles */
