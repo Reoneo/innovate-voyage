@@ -34,31 +34,21 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
     
     // Extended list of ENS text records for social media and contact info
     const socialKeys = [
-      'com.github', 
-      'com.twitter', 
-      'com.linkedin', 
-      'url', 
-      'email', 
-      'com.facebook',
-      'org.whatsapp.phone',
-      'org.telegram',
-      'com.instagram',
-      'com.youtube',
-      'com.discord',
-      'com.reddit',
-      'org.telegram',
-      'bsky',           // For Bluesky
-      'phone',
-      'location',
-      'twitter', // Legacy key
-      'github', // Legacy key
-      'linkedin', // Legacy key
-      'discord', // Legacy key
-      'telegram', // Legacy key
-      'instagram', // Legacy key
-      'facebook', // Legacy key
-      'reddit', // Legacy key
+      // Standard ENS keys
+      'com.github', 'com.twitter', 'com.linkedin', 'url', 'email', 'com.facebook',
+      'org.whatsapp.phone', 'org.telegram', 'com.instagram', 'com.youtube',
+      'com.discord', 'com.reddit', 'bsky', 'phone', 'location',
+      
+      // Legacy and alternative keys
+      'twitter', 'github', 'linkedin', 'discord', 'telegram', 'instagram', 
+      'facebook', 'reddit', 'youtube', 'website', 'eth.ens.delegate',
+      
+      // Direct social handles without prefix
+      'discord', 'whatsapp', 'bluesky', 'farcaster', 'lens'
     ];
+    
+    // Log the keys we're trying to fetch
+    console.log(`Trying to fetch social keys for ${ensName}:`, socialKeys);
     
     // Try to get each social media link in parallel for efficiency
     const results = await Promise.allSettled(
@@ -73,6 +63,7 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
         // Skip empty values
         if (!value || value.trim() === '') return;
         
+        // Normalize keys to standard format
         switch (key) {
           case 'com.github':
           case 'github':
@@ -87,6 +78,7 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
             socials.linkedin = value;
             break;
           case 'url':
+          case 'website':
             socials.website = value;
             break;
           case 'email':
@@ -121,6 +113,7 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
             socials.youtube = value;
             break;
           case 'bsky':
+          case 'bluesky':
             socials.bluesky = value;
             break;
           case 'phone':
@@ -129,6 +122,15 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
           case 'location':
             socials.location = value;
             break;
+          case 'farcaster':
+            socials.farcaster = value;
+            break;
+          case 'lens':
+            socials.lens = value;
+            break;
+          default:
+            // For unknown keys, store them with their original key
+            socials[key] = value;
         }
       }
     });

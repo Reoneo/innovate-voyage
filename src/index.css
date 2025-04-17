@@ -116,3 +116,37 @@ body.generating-pdf {
   0% { transform: translateX(100vw); }
   100% { transform: translateX(-20vw); }
 }
+
+/* Gap between navbar and profile content */
+header + .profile-container {
+  margin-top: 8px;
+}
+
+/* Profile social links styles */
+.profile-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.profile-social img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.profile-social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background-color: var(--secondary);
+  border-radius: 50%;
+  transition: opacity 0.2s ease;
+}
+
+.profile-social a:hover {
+  opacity: 0.8;
+}
