@@ -16,7 +16,6 @@ const FollowersSection: React.FC<FollowersSectionProps> = ({ walletAddress, ensN
   
   const [showFollowDialog, setShowFollowDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('followers');
-  const [sortOption, setSortOption] = useState<string>('recent');
   
   // Only fetch follower/following data when the dialog is opened
   const { followers, loading: followersLoading } = useEthFollowFollowers(
@@ -60,8 +59,6 @@ const FollowersSection: React.FC<FollowersSectionProps> = ({ walletAddress, ensN
         followingCount={stats?.following_count || "0"}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        sortOption={sortOption}
-        setSortOption={setSortOption}
         followersLoading={followersLoading}
         followingLoading={followingLoading}
       />

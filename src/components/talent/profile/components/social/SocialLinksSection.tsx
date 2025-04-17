@@ -20,24 +20,28 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   // Check if we have any actual social links
   const hasSocialLinks = Object.keys(normalizedSocials).length > 0;
   
-  // Don't render anything if no links are available
+  // For debugging
+  console.log('Rendering social links:', normalizedSocials);
+  
   if (!hasSocialLinks) {
     return null;
   }
   
-  // For debugging
-  console.log('Rendering social links:', normalizedSocials);
-  
   return (
-    <div className="w-full mt-2 pt-2">
+    <div className="w-full mt-4 pt-3 border-t border-gray-100">
+      <h4 className="text-sm font-medium text-gray-500 mb-3 px-1">Social Links</h4>
       <div className="grid grid-cols-4 gap-3 justify-items-center">
-        {/* Display available social platforms */}
-        {socialPlatforms.map(platform => 
-          normalizedSocials[platform.key] && (
+        {/* Display available social platforms in preferred order */}
+        {[
+          'github', 'twitter', 'linkedin', 'facebook', 'instagram', 
+          'youtube', 'telegram', 'bluesky', 'discord', 'website', 
+          'whatsapp', 'email', 'telephone', 'location'
+        ].map(platformKey => 
+          normalizedSocials[platformKey] && (
             <SocialLinkItem 
-              key={platform.key}
-              platformType={platform.type} 
-              url={normalizedSocials[platform.key]} 
+              key={platformKey}
+              platformType={platformKey} 
+              url={normalizedSocials[platformKey]} 
             />
           )
         )}
@@ -45,7 +49,9 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
         {/* Handle any custom social links not in our predefined list */}
         {Object.entries(normalizedSocials).map(([key, value]) => {
           // Skip if this platform is already handled above or if value is empty
-          if (!value || socialPlatforms.some(p => p.key === key)) {
+          if (!value || ['github', 'twitter', 'linkedin', 'facebook', 'instagram', 
+                        'youtube', 'telegram', 'bluesky', 'discord', 'website', 
+                        'whatsapp', 'email', 'telephone', 'location'].includes(key)) {
             return null;
           }
           
