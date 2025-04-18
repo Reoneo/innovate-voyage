@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -30,40 +29,32 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [buttonColor, setButtonColor] = useState('#7C3AED'); // Default color (purple)
 
-  // Extract dominant color from avatar image if available
   useEffect(() => {
     if (avatarUrl) {
-      // Use a simple color extraction approach - load the image and sample a pixel color
       const img = new Image();
       img.crossOrigin = 'Anonymous';
       img.onload = () => {
         try {
-          // Create a canvas to draw the image
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
           if (!ctx) return;
           
-          // Set canvas size to match image size
           canvas.width = img.width;
           canvas.height = img.height;
           
-          // Draw the image on the canvas
           ctx.drawImage(img, 0, 0);
           
-          // Sample a pixel from the middle of the image
           const pixelData = ctx.getImageData(
             Math.floor(img.width / 2), 
             Math.floor(img.height / 2), 
             1, 1
           ).data;
           
-          // Convert RGB to hex
           const r = pixelData[0];
           const g = pixelData[1];
           const b = pixelData[2];
           const hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
           
-          // Set the button color
           setButtonColor(hexColor);
         } catch (err) {
           console.error('Error extracting color from avatar:', err);
@@ -89,7 +80,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Fix the URL format for searches - ensure proper formatting
       const formattedQuery = searchQuery.trim();
       window.location.href = `/${formattedQuery}/`;
     }
@@ -98,7 +88,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   return (
     <div className="bg-white z-50 py-1 shadow-md">
       <div className="flex items-center justify-center gap-4 max-w-screen-lg mx-auto">
-        {/* Home Icon Button - Doubled size */}
         <Button
           variant="ghost"
           size="icon"
@@ -109,7 +98,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           <Home className="h-10 w-10" />
         </Button>
         
-        {/* Search Bar - Always visible */}
         <div className="flex-1 max-w-md">
           <form onSubmit={handleSearch} className="flex gap-2">
             <Input
@@ -130,7 +118,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </form>
         </div>
         
-        {/* XMTP Message Button - Doubled size */}
         <Button
           variant="ghost"
           size="icon"
@@ -141,7 +128,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           <MessageSquare className="h-10 w-10" />
         </Button>
 
-        {/* Save Options Button - Only showing for connected wallets - Doubled size */}
         {connectedWallet && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

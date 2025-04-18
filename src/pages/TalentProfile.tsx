@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
@@ -19,7 +18,6 @@ const TalentProfile = () => {
     avatarUrl
   } = useProfilePage();
 
-  // Use the avatar image for the document favicon
   useEffect(() => {
     if (avatarUrl) {
       const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
@@ -38,7 +36,6 @@ const TalentProfile = () => {
       </Helmet>
       
       <div className="min-h-screen bg-gray-50 overflow-x-hidden">
-        {/* Navigation Bar - Fixed at the top */}
         <ProfileNavbar 
           connectedWallet={connectedWallet}
           onDisconnect={handleDisconnect}
@@ -47,9 +44,7 @@ const TalentProfile = () => {
           avatarUrl={avatarUrl}
         />
         
-        {/* Add padding-top to create space after navbar */}
-        <div className="container mx-auto px-4 pt-20 pb-8 profile-container" style={{ maxWidth: '950px', width: '100%' }}>
-          {/* Profile Content */}
+        <div className="container mx-auto px-4 pt-4 pb-8 profile-container" style={{ maxWidth: '950px', width: '100%' }}>
           <ProfileContent 
             loading={loading}
             loadingTimeout={loadingTimeout}
