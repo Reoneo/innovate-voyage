@@ -99,6 +99,7 @@
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
 }
+
 .profile-container {
   margin-top: 8px !important;
 }
@@ -107,7 +108,9 @@
   display: flex;
   gap: 12px;
   margin-top: 16px;
+  justify-content: center;
 }
+
 .profile-social img {
   width: 24px;
   height: 24px;
@@ -115,6 +118,7 @@
   opacity: 0.8;
   transition: opacity 0.3s ease;
 }
+
 .profile-social img:hover {
   opacity: 1;
 }
