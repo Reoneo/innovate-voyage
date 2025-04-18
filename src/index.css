@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -76,9 +77,10 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -102,6 +104,10 @@
 
 .profile-container {
   margin-top: 8px !important;
+  max-width: 950px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1rem;
 }
 
 .profile-social {
@@ -109,6 +115,8 @@
   gap: 12px;
   margin-top: 16px;
   justify-content: center;
+  flex-wrap: wrap;
+  padding: 0.5rem;
 }
 
 .profile-social img {
@@ -116,9 +124,24 @@
   height: 24px;
   border-radius: 50%;
   opacity: 0.8;
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
+  will-change: transform, opacity;
 }
 
 .profile-social img:hover {
   opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Optimize performance with content-visibility */
+.profile-container > * {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* Preload critical images */
+@media (prefers-reduced-motion: no-preference) {
+  .profile-social img {
+    transform: translateZ(0);
+  }
 }
