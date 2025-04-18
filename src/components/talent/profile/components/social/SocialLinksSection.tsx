@@ -1,7 +1,7 @@
 
 import React from 'react';
-import SocialLinkItem from './SocialLinkItem';
-import { socialPlatforms } from '@/constants/socialPlatforms';
+import PlatformLinks from './PlatformLinks';
+import CustomLinks from './CustomLinks';
 
 interface SocialLinksSectionProps {
   socials: Record<string, string>;
@@ -26,43 +26,22 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   if (!hasSocialLinks) {
     return null;
   }
+
+  const standardPlatforms = [
+    'github', 'twitter', 'linkedin', 'facebook', 'instagram', 
+    'youtube', 'telegram', 'bluesky', 'discord', 'website', 
+    'whatsapp', 'email', 'telephone', 'location'
+  ];
   
   return (
     <div className="w-full mt-4 pt-3 border-t border-gray-100">
       <h4 className="text-sm font-medium text-gray-500 mb-3 px-1">Social Links</h4>
       <div className="grid grid-cols-4 gap-3 justify-items-center">
-        {/* Display available social platforms in preferred order */}
-        {[
-          'github', 'twitter', 'linkedin', 'facebook', 'instagram', 
-          'youtube', 'telegram', 'bluesky', 'discord', 'website', 
-          'whatsapp', 'email', 'telephone', 'location'
-        ].map(platformKey => 
-          normalizedSocials[platformKey] && (
-            <SocialLinkItem 
-              key={platformKey}
-              platformType={platformKey} 
-              url={normalizedSocials[platformKey]} 
-            />
-          )
-        )}
-        
-        {/* Handle any custom social links not in our predefined list */}
-        {Object.entries(normalizedSocials).map(([key, value]) => {
-          // Skip if this platform is already handled above or if value is empty
-          if (!value || ['github', 'twitter', 'linkedin', 'facebook', 'instagram', 
-                        'youtube', 'telegram', 'bluesky', 'discord', 'website', 
-                        'whatsapp', 'email', 'telephone', 'location'].includes(key)) {
-            return null;
-          }
-          
-          return (
-            <SocialLinkItem
-              key={key}
-              platformType={key}
-              url={value}
-            />
-          );
-        })}
+        <PlatformLinks normalizedSocials={normalizedSocials} />
+        <CustomLinks 
+          normalizedSocials={normalizedSocials} 
+          standardPlatforms={standardPlatforms} 
+        />
       </div>
     </div>
   );
