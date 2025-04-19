@@ -1,3 +1,5 @@
-/*      /index.html   200
+# 1) Add the slash on *any* non‑file path
+/:splat    /:splat/    301!
 
-/:splat  /:splat/     301!
+# 2) Then rewrite *all* requests to your SPA entrypoint
+/*         /index.html 200
