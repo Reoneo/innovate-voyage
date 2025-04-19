@@ -17,12 +17,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
     value && typeof value === 'string' && value.trim() !== '');
   
   if (!hasSocialLinks) {
-    return (
-      <div className="w-full mt-4 pt-3 border-t border-gray-100">
-        <h4 className="text-sm font-medium text-gray-500 mb-3 px-4">Social Links</h4>
-        <p className="text-sm text-gray-400 px-4">No social links available</p>
-      </div>
-    );
+    return null;
   }
 
   const standardPlatforms = [
