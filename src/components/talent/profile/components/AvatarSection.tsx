@@ -37,11 +37,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       setIsOwner(true);
     }
   }, [ownerAddress]);
-  
-  // Log social links to help with debugging
-  useEffect(() => {
-    console.log("AvatarSection - Social links:", socials);
-  }, [socials]);
 
   // Check if we have any actual social links
   const hasSocialLinks = socials && Object.values(socials).some(value => 
@@ -86,8 +81,8 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       )}
 
       <ProfileContact 
-        email={socials.email}
-        telephone={socials.telephone || socials.whatsapp}
+        email={socials?.email}
+        telephone={socials?.telephone || socials?.whatsapp}
         isOwner={isOwner}
       />
     </div>
