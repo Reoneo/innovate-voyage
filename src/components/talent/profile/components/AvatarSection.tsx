@@ -67,19 +67,23 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         ensName={displayIdentity?.includes('.eth') ? displayIdentity : undefined}
       />
       
+      {bio && (
+        <div className="w-full px-4 py-2 border-b border-gray-100">
+          <p className="text-sm text-muted-foreground">{bio}</p>
+        </div>
+      )}
+      
+      {/* Social Links Section after bio */}
+      <SocialLinksSection 
+        socials={socials} 
+        identity={displayIdentity}
+      />
+
       <ProfileContact 
         email={socials.email}
         telephone={socials.telephone || socials.whatsapp}
         isOwner={isOwner}
       />
-      
-      {bio && (
-        <div className="w-full px-4 py-2">
-          <p className="text-sm text-muted-foreground">{bio}</p>
-        </div>
-      )}
-      
-      <SocialLinksSection socials={socials} />
     </div>
   );
 };

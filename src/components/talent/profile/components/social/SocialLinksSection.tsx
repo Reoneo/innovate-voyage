@@ -34,9 +34,9 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   ];
   
   return (
-    <div className="w-full mt-4 pt-3 border-t border-gray-100">
-      <h4 className="text-sm font-medium text-gray-500 mb-3 px-1">Social Links</h4>
-      <div className="grid grid-cols-4 gap-3 justify-items-center">
+    <div className="w-full mt-4 pt-3">
+      <h4 className="text-sm font-medium text-gray-500 mb-3 px-4">Social Links</h4>
+      <div className="grid grid-cols-4 gap-3 px-4">
         <PlatformLinks normalizedSocials={normalizedSocials} />
         <CustomLinks 
           normalizedSocials={normalizedSocials} 
