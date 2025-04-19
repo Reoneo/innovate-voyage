@@ -1,5 +1,5 @@
-# 1) Add the slash on *any* non‑file path
-/:splat    /:splat/    301!
 
-# 2) Then rewrite *all* requests to your SPA entrypoint
-/*         /index.html 200
+/*    /index.html   200
+
+# Redirect URLs without trailing slash to URLs with trailing slash
+/:ensNameOrAddress  /:ensNameOrAddress/   301

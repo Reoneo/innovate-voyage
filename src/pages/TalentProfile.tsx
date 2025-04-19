@@ -1,9 +1,8 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
-import { Helmet } from 'react-helmet-async';
 
 const TalentProfile = () => {
   const { 
@@ -14,48 +13,29 @@ const TalentProfile = () => {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges,
-    handleSearch,
-    avatarUrl
+    handleSaveChanges
   } = useProfilePage();
 
-  useEffect(() => {
-    if (avatarUrl) {
-      const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
-      if (link) {
-        link.href = avatarUrl;
-      }
-    }
-  }, [avatarUrl]);
-
   return (
-    <>
-      <Helmet>
-        <title>{ensNameOrAddress || 'Profile'}</title>
-        <meta name="description" content={`View ${ensNameOrAddress}'s blockchain passport and credentials`} />
-        {avatarUrl && <meta property="og:image" content={avatarUrl} />}
-      </Helmet>
-      
-      <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 py-4 md:py-8 overflow-x-hidden">
+      <div className="container mx-auto px-4" style={{ maxWidth: '100%', width: '100%' }}>
+        {/* Navigation Bar */}
         <ProfileNavbar 
           connectedWallet={connectedWallet}
           onDisconnect={handleDisconnect}
           onSaveChanges={handleSaveChanges}
-          onSearch={handleSearch}
-          avatarUrl={avatarUrl}
         />
         
-        <div className="container mx-auto px-4 pt-4 pb-8 profile-container" style={{ maxWidth: '950px', width: '100%' }}>
-          <ProfileContent 
-            loading={loading}
-            loadingTimeout={loadingTimeout}
-            passport={passport}
-            profileRef={profileRef}
-            ensNameOrAddress={ensNameOrAddress}
-          />
-        </div>
+        {/* Profile Content */}
+        <ProfileContent 
+          loading={loading}
+          loadingTimeout={loadingTimeout}
+          passport={passport}
+          profileRef={profileRef}
+          ensNameOrAddress={ensNameOrAddress}
+        />
       </div>
-    </>
+    </div>
   );
 };
 
