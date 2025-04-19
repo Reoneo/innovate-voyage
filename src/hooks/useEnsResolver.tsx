@@ -46,17 +46,17 @@ export function useEnsResolver(ensName?: string, address?: string) {
     !!isEns,
     (newState) => {
       setState(prev => {
-        // Only update if there are actually new social links
+        // Debug log to check what social links were found
+        console.log("Updating state with web3bio data:", newState);
+        
+        // Only update if there are actually new social links or other data
         const hasSocialLinks = newState.ensLinks?.socials && 
           Object.keys(newState.ensLinks.socials).length > 0;
         
-        if (hasSocialLinks) {
-          console.log('Updating state with web3bio data:', newState);
-          // Trigger re-render when we get social links
-          setTimeout(() => setCacheBuster(prev => prev + 1), 10);
-          return { ...prev, ...newState };
-        }
-        return prev;
+        // Always trigger re-render to ensure social links get updated
+        setTimeout(() => setCacheBuster(prev => prev + 1), 10);
+        
+        return { ...prev, ...newState };
       });
     }
   );
@@ -103,6 +103,11 @@ export function useEnsResolver(ensName?: string, address?: string) {
       .catch(err => console.error('Address lookup error:', err))
       .finally(() => setIsLoading(false));
   }, [adjustedAddress, isEns, directAddress, cacheBuster]);
+
+  // Log the social links in the state for debugging
+  useEffect(() => {
+    console.log('useEnsResolver - Current state social links:', state.ensLinks?.socials);
+  }, [state.ensLinks?.socials]);
 
   return {
     resolvedAddress: state.resolvedAddress || directAddress,

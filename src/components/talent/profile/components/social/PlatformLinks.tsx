@@ -14,6 +14,9 @@ const PlatformLinks: React.FC<PlatformLinksProps> = ({ normalizedSocials }) => {
     'whatsapp', 'email', 'telephone', 'location'
   ];
 
+  // Log the platform links being rendered
+  console.log('PlatformLinks - Normalized socials:', normalizedSocials);
+  
   return (
     <>
       {platformOrder.map(platformKey => 

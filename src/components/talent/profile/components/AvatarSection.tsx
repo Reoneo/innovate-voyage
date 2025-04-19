@@ -42,6 +42,10 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   useEffect(() => {
     console.log("AvatarSection - Social links:", socials);
   }, [socials]);
+
+  // Check if we have any actual social links
+  const hasSocialLinks = socials && Object.values(socials).some(value => 
+    value && typeof value === 'string' && value.trim() !== '');
   
   return (
     <div className="flex flex-col items-center gap-2 w-full text-center">
@@ -74,10 +78,12 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       )}
       
       {/* Social Links Section after bio */}
-      <SocialLinksSection 
-        socials={socials} 
-        identity={displayIdentity}
-      />
+      {hasSocialLinks && (
+        <SocialLinksSection 
+          socials={socials} 
+          identity={displayIdentity}
+        />
+      )}
 
       <ProfileContact 
         email={socials.email}
