@@ -83,10 +83,10 @@ const XmtpMessageModal: React.FC = () => {
 
   return (
     <dialog id="xmtpMessageModal" className="modal backdrop:bg-black/50 backdrop:backdrop-blur-sm rounded-lg shadow-xl p-0 w-[90%] max-w-md">
-      <div className="bg-background p-0 rounded-lg flex flex-col h-[650px]">
-        <div className="flex justify-between items-center p-4 border-b">
+      <div className="bg-background p-6 rounded-lg">
+        <div className="flex justify-between items-center mb-4 border-b pb-3">
           <h3 className="text-lg font-semibold flex items-center gap-2">
-            <img src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" alt="XMTP Logo" className="h-6" />
+            <MessageSquare className="h-5 w-5" />
             XMTP Messaging
           </h3>
           <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8">
@@ -95,48 +95,42 @@ const XmtpMessageModal: React.FC = () => {
         </div>
         
         {!isConnected ? (
-          <div className="p-4 flex-1 flex items-center justify-center">
-            <XmtpConnectionSection 
-              onConnect={handleConnect}
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
-            />
-          </div>
+          <XmtpConnectionSection 
+            onConnect={handleConnect}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
         ) : (
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="space-y-4">
             {currentConversation ? (
-              <div className="flex flex-col h-full">
-                <div className="p-2 border-b">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={backToConversations}
-                    className="pl-1"
-                  >
-                    <ArrowLeft className="h-4 w-4 mr-1" />
-                    Back to Conversations
-                  </Button>
-                </div>
-                <div className="flex-1 overflow-hidden">
-                  <XmtpConversation
-                    conversation={currentConversation}
-                    messages={messages}
-                    setMessages={setMessages}
-                    isLoading={isLoading}
-                    setIsLoading={setIsLoading}
-                  />
-                </div>
-              </div>
-            ) : showNewConversation ? (
-              <div className="p-4">
+              <>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={backToConversations}
-                  className="pl-1 mb-4"
+                  className="pl-1"
                 >
                   <ArrowLeft className="h-4 w-4 mr-1" />
-                  Back to Conversations
+                  Back
+                </Button>
+                <XmtpConversation
+                  conversation={currentConversation}
+                  messages={messages}
+                  setMessages={setMessages}
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
+                />
+              </>
+            ) : showNewConversation ? (
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={backToConversations}
+                  className="pl-1"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Back
                 </Button>
                 <XmtpConversationStarter
                   xmtpClient={xmtpClient}
@@ -144,9 +138,9 @@ const XmtpMessageModal: React.FC = () => {
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
                 />
-              </div>
+              </>
             ) : (
-              <div className="p-4 space-y-4 flex-1 overflow-y-auto">
+              <>
                 <Button 
                   onClick={startNewConversation} 
                   className="w-full mb-4"
@@ -160,7 +154,7 @@ const XmtpMessageModal: React.FC = () => {
                   onSelectConversation={handleSelectConversation}
                   isLoading={isLoading}
                 />
-              </div>
+              </>
             )}
           </div>
         )}

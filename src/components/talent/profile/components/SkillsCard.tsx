@@ -8,20 +8,18 @@ import { useTalentProtocolSkills } from './skills/useTalentProtocolSkills';
 interface SkillsCardProps {
   walletAddress?: string;
   skills: Array<{ name: string; proof?: string }>;
-  passportId?: string;
 }
 
-const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, passportId }) => {
-  const { talentSkills, credentialSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress, passportId);
+const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
+  const { talentSkills, credentialSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress);
 
   if (!walletAddress) {
     return null;
   }
 
-  // Filter out credential skills and TalentProtocol mock skills
+  // Filter out the mock TalentProtocol skills
   const filteredSkills = skills.filter(skill => 
-    !skill.proof?.includes('talentprotocol.com') &&
-    !skill.proof?.includes('credentials')
+    !skill.proof?.includes('talentprotocol.com')
   );
 
   // Create skill objects from TalentProtocol API
@@ -29,15 +27,15 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, passport
     name: skillName,
     proof: 'https://talentprotocol.com'
   }));
-  
-  // Create skill objects from credential skills
-  const credentialProtocolSkills = credentialSkills.map(skillName => ({
+
+  // Create skill objects from credential API
+  const credentialBasedSkills = credentialSkills.map(skillName => ({
     name: skillName,
-    proof: 'credentials.talentprotocol.com'
+    proof: 'https://talentprotocol.com/credentials'
   }));
 
   // Combine all skills
-  const allSkills = [...filteredSkills, ...talentProtocolSkills, ...credentialProtocolSkills];
+  const allSkills = [...filteredSkills, ...talentProtocolSkills, ...credentialBasedSkills];
 
   return (
     <Card id="skills-card-section" className="mt-4">

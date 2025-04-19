@@ -40,10 +40,7 @@ interface UseTalentProtocolSkillsResult {
   isLoading: boolean;
 }
 
-// API key for TalentProtocol
-const TALENT_PROTOCOL_API_KEY = "2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f";
-
-export function useTalentProtocolSkills(walletAddress?: string, passportId?: string): UseTalentProtocolSkillsResult {
+export function useTalentProtocolSkills(walletAddress?: string): UseTalentProtocolSkillsResult {
   const [talentSkills, setTalentSkills] = useState<string[]>([]);
   const [credentialSkills, setCredentialSkills] = useState<string[]>([]);
   const [talentScore, setTalentScore] = useState<number | null>(null);
@@ -58,7 +55,7 @@ export function useTalentProtocolSkills(walletAddress?: string, passportId?: str
         // Fetch skills from TalentProtocol
         const skillsResponse = await fetch('https://api.talentprotocol.com/api/v2/skills?verified=true', {
           headers: {
-            'Authorization': `Bearer ${TALENT_PROTOCOL_API_KEY}`
+            'Authorization': 'Bearer 2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
           }
         });
         
@@ -72,38 +69,10 @@ export function useTalentProtocolSkills(walletAddress?: string, passportId?: str
           console.error('Failed to fetch skills from TalentProtocol:', await skillsResponse.text());
         }
 
-        // Fetch credentials from TalentProtocol using passport ID if available
-        const credentialsUrl = passportId 
-          ? `https://api.talentprotocol.com/api/v1/passport_credentials?passport_id=${encodeURIComponent(passportId)}`
-          : 'https://api.talentprotocol.com/api/v1/passport_credentials';
-          
-        const credentialsResponse = await fetch(credentialsUrl, {
-          headers: {
-            'X-API-KEY': TALENT_PROTOCOL_API_KEY
-          }
-        });
-        
-        if (credentialsResponse.ok) {
-          const credentialsData = await credentialsResponse.json() as PassportCredentialsApiResponse;
-          console.log('TalentProtocol Credentials API response:', credentialsData);
-          
-          // Add the credential category to make it more descriptive
-          const formattedCredentials = credentialsData?.passport_credentials?.map(cred => 
-            `${cred.name} (${cred.category})`
-          ) || [];
-          
-          setCredentialSkills(prevSkills => [...prevSkills, ...formattedCredentials]);
-        } else {
-          console.error('Failed to fetch credentials from TalentProtocol:', 
-            `Status: ${credentialsResponse.status}`, 
-            await credentialsResponse.text()
-          );
-        }
-
         // Primary method: Fetch score directly with the wallet address
         const scoreResponse = await fetch(`https://api.talentprotocol.com/score?id=${walletAddress}`, {
           headers: {
-            'X-API-KEY': TALENT_PROTOCOL_API_KEY
+            'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
           }
         });
         
@@ -135,7 +104,7 @@ export function useTalentProtocolSkills(walletAddress?: string, passportId?: str
           // Try with the account_source parameter
           const retryScoreResponse = await fetch(`https://api.talentprotocol.com/score?id=${walletAddress}&account_source=wallet`, {
             headers: {
-              'X-API-KEY': TALENT_PROTOCOL_API_KEY
+              'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
             }
           });
           
@@ -160,6 +129,30 @@ export function useTalentProtocolSkills(walletAddress?: string, passportId?: str
             );
           }
         }
+
+        // Also try the passport credentials endpoint as a fallback
+        const credentialsResponse = await fetch('https://api.talentprotocol.com/api/v1/passport_credentials', {
+          headers: {
+            'X-API-KEY': '2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f'
+          }
+        });
+        
+        if (credentialsResponse.ok) {
+          const credentialsData = await credentialsResponse.json() as PassportCredentialsApiResponse;
+          console.log('TalentProtocol Credentials API response:', credentialsData);
+          
+          // Add the credential category to make it more descriptive
+          const formattedCredentials = credentialsData?.passport_credentials?.map(cred => 
+            `${cred.name} (${cred.category})`
+          ) || [];
+          
+          setCredentialSkills(prevSkills => [...prevSkills, ...formattedCredentials]);
+        } else {
+          console.error('Failed to fetch credentials from TalentProtocol:', 
+            `Status: ${credentialsResponse.status}`, 
+            await credentialsResponse.text()
+          );
+        }
       } catch (error) {
         console.error('Error fetching TalentProtocol data:', error);
       } finally {
@@ -168,7 +161,7 @@ export function useTalentProtocolSkills(walletAddress?: string, passportId?: str
     };
 
     fetchTalentData();
-  }, [walletAddress, passportId]);
+  }, [walletAddress]);
 
   // Add these sample skills as fallback if API fails
   useEffect(() => {

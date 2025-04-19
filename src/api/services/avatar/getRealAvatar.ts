@@ -1,11 +1,5 @@
 
 import { avatarCache, fetchWeb3BioProfile, generateFallbackAvatar } from '../../utils/web3/index';
-import { handleEip155Avatar } from './utils/eip155Handler';
-import { handleEnsAvatar } from './utils/ensAvatarHandler';
-import { handleDotBoxAvatar } from './utils/dotBoxHandler';
-import { handleIpfsUri } from './utils/ipfsHandler';
-import { handleDirectImageUrl } from './utils/directImageHandler';
-import { generateDeterministicAvatar } from './utils/fallbackAvatarHandler';
 
 /**
  * Get real avatar for any domain type using web3.bio
@@ -24,12 +18,6 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
   try {
     console.log(`Fetching avatar for ${identity}`);
     
-    // Handle EIP155 formatted avatar URIs
-    if (identity.startsWith('eip155:1/erc721:')) {
-      const eip155Avatar = await handleEip155Avatar(identity);
-      if (eip155Avatar) return eip155Avatar;
-    }
-    
     // Try Web3Bio API first - works for all domain types
     const profile = await fetchWeb3BioProfile(identity);
     if (profile && profile.avatar) {
@@ -40,26 +28,90 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     
     // If it's an ENS name, try multiple sources
     if (identity.endsWith('.eth')) {
-      const ensAvatar = await handleEnsAvatar(identity);
-      if (ensAvatar) return ensAvatar;
+      // Try the ENS metadata service (more reliable for newer ENS domains)
+      try {
+        // First try the ENS metadata service
+        const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
+        const metadataResponse = await fetch(metadataUrl, { 
+          method: 'HEAD',
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        if (metadataResponse.ok) {
+          console.log(`Found avatar via ENS metadata for ${identity}`);
+          avatarCache[identity] = metadataUrl;
+          return metadataUrl;
+        }
+      } catch (ensError) {
+        console.error(`Error fetching ENS avatar from metadata service for ${identity}:`, ensError);
+      }
+      
+      // Try the Ethereum Avatar Service
+      try {
+        const ethAvatarUrl = `https://eth-avatar-api.herokuapp.com/${identity}`;
+        const ethAvatarResponse = await fetch(ethAvatarUrl, { method: 'HEAD' });
+        if (ethAvatarResponse.ok) {
+          console.log(`Found avatar via Ethereum Avatar Service for ${identity}`);
+          avatarCache[identity] = ethAvatarUrl;
+          return ethAvatarUrl;
+        }
+      } catch (ethAvatarError) {
+        console.error(`Error fetching from Ethereum Avatar Service for ${identity}:`, ethAvatarError);
+      }
+      
+      // Try the official ENS Avatar API
+      try {
+        const ensAvatarUrl = `https://avatar.ens.domains/${identity}`;
+        const ensAvatarResponse = await fetch(ensAvatarUrl, { method: 'HEAD' });
+        if (ensAvatarResponse.ok) {
+          console.log(`Found avatar via ENS Avatar API for ${identity}`);
+          avatarCache[identity] = ensAvatarUrl;
+          return ensAvatarUrl;
+        }
+      } catch (ensAvatarError) {
+        console.error(`Error fetching from ENS Avatar API for ${identity}:`, ensAvatarError);
+      }
     }
     
     // For .box domains, try specific approach
     if (identity.endsWith('.box')) {
-      const boxAvatar = await handleDotBoxAvatar(identity);
-      if (boxAvatar) return boxAvatar;
+      try {
+        // Try direct web3.bio approach for .box domains
+        const boxProfile = await fetch(`https://api.web3.bio/profile/dotbit/${identity}?nocache=${Date.now()}`, {
+          headers: {
+            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20`,
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        if (boxProfile.ok) {
+          const boxData = await boxProfile.json();
+          if (boxData && boxData.avatar) {
+            console.log(`Found .box avatar for ${identity}`);
+            avatarCache[identity] = boxData.avatar;
+            return boxData.avatar;
+          }
+        }
+      } catch (boxError) {
+        console.error(`Error fetching .box avatar for ${identity}:`, boxError);
+      }
     }
     
-    // Try to resolve IPFS URIs
-    const ipfsAvatar = await handleIpfsUri(identity);
-    if (ipfsAvatar) return ipfsAvatar;
-    
-    // Check if the identity is a direct URL to an image
-    const directImageUrl = handleDirectImageUrl(identity);
-    if (directImageUrl) return directImageUrl;
-    
     // Generate a deterministic fallback avatar
-    return generateDeterministicAvatar(identity);
+    console.log(`Using fallback avatar for ${identity}`);
+    let seed = 0;
+    for (let i = 0; i < identity.length; i++) {
+      seed += identity.charCodeAt(i);
+    }
+    seed = seed % 30 + 1; // Range 1-30
+    
+    const avatarUrl = `https://i.pravatar.cc/300?img=${seed}`;
+    avatarCache[identity] = avatarUrl;
+    return avatarUrl;
   } catch (error) {
     console.error(`Error fetching avatar for ${identity}:`, error);
     return generateFallbackAvatar();

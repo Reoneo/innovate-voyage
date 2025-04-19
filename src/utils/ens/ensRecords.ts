@@ -1,6 +1,6 @@
+
 import { mainnetProvider } from '../ethereumProviders';
 import { fetchWeb3BioProfile } from '../../api/utils/web3Utils';
-import { getRealAvatar } from '../../api/services/avatarService';
 
 /**
  * Gets avatar for an ENS name
@@ -9,13 +9,14 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
   try {
     console.log(`Getting avatar for ${ensName}`);
     
-    // Handle EIP155 formatted avatar URIs directly or any other format
-    // by using the refactored getRealAvatar function which handles all cases
-    const avatar = await getRealAvatar(ensName);
-    if (avatar) {
-      console.log(`Got avatar for ${ensName} -> ${avatar}`);
-      return avatar;
+    // Try web3.bio API first - preferred method
+    const profile = await fetchWeb3BioProfile(ensName);
+    if (profile && profile.avatar) {
+      console.log(`Got avatar for ${ensName} from web3.bio:`, profile.avatar);
+      return profile.avatar;
     }
+    
+    console.log(`No avatar found for ${ensName} in web3.bio, falling back to other methods`);
     
     // Fallback: Try to use resolver directly - only for ENS domains on mainnet
     if (ensName.endsWith('.eth')) {
@@ -29,10 +30,7 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
           
           if (avatar) {
             console.log(`Got avatar for ${ensName}:`, avatar);
-            
-            // If the avatar is in EIP155 format or any other format,
-            // use getRealAvatar to resolve it
-            return await getRealAvatar(avatar);
+            return avatar;
           } else {
             console.log(`No avatar found for ${ensName} in resolver`);
           }

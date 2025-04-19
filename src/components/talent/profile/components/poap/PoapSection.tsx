@@ -51,8 +51,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     }
   };
 
-  // Don't render anything if there are no POAPs and we're not loading
-  if (!walletAddress || (!isLoading && poaps.length === 0)) {
+  if (!walletAddress) {
     return null;
   }
 
@@ -60,13 +59,15 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     <Card id="poap-card-section" className="mt-4">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img 
-              src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
-              className="h-8 w-8" 
-              alt="POAP" 
-            />
-            <CardTitle className="text-base">Proof of Attendance</CardTitle>
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <img 
+                src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
+                className="h-6 w-6" 
+                alt="Proof of Attendance Protocol" 
+              />
+              Proof of Attendance
+            </CardTitle>
           </div>
         </div>
       </CardHeader>
@@ -112,7 +113,13 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
               ))}
             </div>
           </div>
-        ) : null}
+        ) : (
+          <div className="text-center py-4">
+            <p className="text-muted-foreground text-sm">
+              No POAPs found for this wallet address.
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

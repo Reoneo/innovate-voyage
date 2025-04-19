@@ -1,3 +1,4 @@
+
 import { Client } from '@xmtp/xmtp-js';
 import { ethers } from 'ethers';
 // Import Buffer polyfill
@@ -62,61 +63,18 @@ export const getConversations = async (client: Client) => {
   }
 };
 
-/**
- * Check if a recipient can be messaged (is on the XMTP network)
- * @param client The XMTP client
- * @param addressOrName Recipient Ethereum address or ENS name
- * @returns Promise<boolean>
- */
-export async function canMessage(client: any, addressOrName: string): Promise<boolean> {
+export const canMessage = async (client: Client, address: string) => {
   try {
-    // If it's an ENS name, we need to first resolve it
-    let address = addressOrName;
-    if (addressOrName.includes('.') && !addressOrName.startsWith('0x')) {
-      // This might be a Lens handle or other protocol as well
-      if (addressOrName.endsWith('.lens')) {
-        // Special handling for Lens protocol
-        console.log(`Detected Lens handle: ${addressOrName}`);
-        // For Lens handles, just use directly since XMTP can handle them
-        return true;
-      } 
-      
-      // For ENS names, resolve to address
-      try {
-        const provider = new ethers.JsonRpcProvider(
-          "https://eth-mainnet.g.alchemy.com/v2/demo"
-        );
-        address = await provider.resolveName(addressOrName);
-        if (!address) {
-          console.log(`Could not resolve ${addressOrName} to an address`);
-          return false;
-        }
-      } catch (error) {
-        console.error(`Error resolving ${addressOrName}:`, error);
-        // Continue with original input, some XMTP implementations may support direct handles
-        address = addressOrName;
-      }
-    }
-    
-    // Check if the address is on the XMTP network
-    const canMessageRecipient = await client.canMessage(address);
-    return canMessageRecipient;
+    return await client.canMessage(address);
   } catch (error) {
-    console.error("Error checking if can message:", error);
+    console.error(`Error checking if can message ${address}:`, error);
     return false;
   }
-}
+};
 
 export const startNewConversation = async (client: Client, recipientAddress: string) => {
   try {
-    // Special handling for Lens handles
-    if (recipientAddress.endsWith('.lens')) {
-      console.log(`Starting conversation with Lens handle: ${recipientAddress}`);
-      // For Lens handles, we use them directly as XMTP can handle them
-      return await client.conversations.newConversation(recipientAddress);
-    }
-    
-    // For other addresses, check if they can be messaged
+    // First check if the recipient can be messaged
     const canMessageRecipient = await canMessage(client, recipientAddress);
     if (!canMessageRecipient) {
       throw new Error(`Recipient ${recipientAddress} is not on the XMTP network`);
@@ -157,38 +115,3 @@ export const streamMessages = async (conversation: any, callback: (msg: any) => 
     throw error;
   }
 };
-
-/**
- * Delete a message from a conversation 
- * @param conversation The XMTP conversation
- * @param messageId The ID of the message to delete
- * @returns Promise<void>
- */
-export async function deleteMessage(conversation: any, messageId: string): Promise<void> {
-  if (!conversation) {
-    throw new Error("No conversation provided");
-  }
-
-  try {
-    // For XMTP v11+, use the built-in delete method if available
-    if (conversation.delete) {
-      await conversation.delete(messageId);
-    } else {
-      // Fallback: Send a deletion message that clients can interpret
-      // This is a workaround since actual deletion might not be available in all XMTP versions
-      const deletionMessage = {
-        messageType: "deletion",
-        messageId: messageId,
-        timestamp: new Date().toISOString()
-      };
-      
-      await conversation.send(JSON.stringify(deletionMessage), {
-        contentType: "application/json",
-        contentFallback: `Message deleted`
-      });
-    }
-  } catch (error) {
-    console.error("Error deleting message:", error);
-    throw error;
-  }
-}
