@@ -1,5 +1,3 @@
+/*      /index.html   200
 
-/*    /index.html   200
-
-# Redirect URLs without trailing slash to URLs with trailing slash
-/:ensNameOrAddress  /:ensNameOrAddress/   301
+/:splat  /:splat/     301!
