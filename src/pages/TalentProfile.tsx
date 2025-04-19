@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
@@ -30,7 +31,7 @@ const TalentProfile = () => {
   return (
     <>
       <Helmet>
-        <title>{ensNameOrAddress || 'Profile'} | Blockchain Passport</title>
+        <title>{ensNameOrAddress || 'Profile'}</title>
         <meta name="description" content={`View ${ensNameOrAddress}'s blockchain passport and credentials`} />
         {avatarUrl && <meta property="og:image" content={avatarUrl} />}
       </Helmet>
