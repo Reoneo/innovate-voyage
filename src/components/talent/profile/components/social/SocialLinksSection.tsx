@@ -1,8 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
-import SocialMediaLinks from '../../tabs/social/SocialMediaLinks';
-import { Link } from 'lucide-react';
-import { getEnsLinks } from '@/utils/ens/ensLinks';
+import React from 'react';
+import PlatformLinks from './PlatformLinks';
+import CustomLinks from './CustomLinks';
 
 interface SocialLinksSectionProps {
   socials: Record<string, string>;
@@ -10,40 +9,37 @@ interface SocialLinksSectionProps {
 }
 
 const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identity }) => {
-  const [socialLinks, setSocialLinks] = useState<Record<string, string>>(socials || {});
-  const [isLoading, setIsLoading] = useState(false);
+  // Log the received social links
+  console.log('SocialLinksSection - Received socials:', socials);
 
-  useEffect(() => {
-    // Only attempt to fetch additional social links if we have an ENS identity
-    if (identity && (identity.includes('.eth') || identity.includes('.box'))) {
-      setIsLoading(true);
-      
-      getEnsLinks(identity)
-        .then(links => {
-          if (links && links.socials) {
-            console.log(`Got additional social links for ${identity}:`, links.socials);
-            setSocialLinks(prevLinks => ({
-              ...prevLinks,
-              ...links.socials
-            }));
-          }
-        })
-        .catch(error => {
-          console.error(`Error fetching social links for ${identity}:`, error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [identity]);
+  // Check if we have any actual social links
+  const hasSocialLinks = socials && Object.values(socials).some(value => 
+    value && typeof value === 'string' && value.trim() !== '');
+  
+  if (!hasSocialLinks) {
+    return (
+      <div className="w-full mt-4 pt-3 border-t border-gray-100">
+        <h4 className="text-sm font-medium text-gray-500 mb-3 px-4">Social Links</h4>
+        <p className="text-sm text-gray-400 px-4">No social links available</p>
+      </div>
+    );
+  }
 
+  const standardPlatforms = [
+    'github', 'twitter', 'linkedin', 'facebook', 'instagram', 
+    'youtube', 'telegram', 'bluesky', 'discord', 'website', 
+    'whatsapp', 'email', 'telephone', 'location'
+  ];
+  
   return (
-    <div className="w-full mt-6">
-      <h3 className="flex items-center gap-2 text-xl font-medium mb-4">
-        <Link className="h-5 w-5" /> Social Links
-      </h3>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
+    <div className="w-full mt-4 pt-3 border-t border-gray-100">
+      <h4 className="text-sm font-medium text-gray-500 mb-3 px-4">Social Links</h4>
+      <div className="grid grid-cols-4 gap-3 px-4">
+        <PlatformLinks normalizedSocials={socials} />
+        <CustomLinks 
+          normalizedSocials={socials} 
+          standardPlatforms={standardPlatforms} 
+        />
       </div>
     </div>
   );

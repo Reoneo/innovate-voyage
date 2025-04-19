@@ -30,8 +30,12 @@ export function useEnsResolution(ensName?: string, address?: string) {
 
   const resolveEns = async (ensName: string) => {
     try {
+      console.log(`Resolving ENS name: ${ensName}`);
       const resolvedAddress = await resolveEnsToAddress(ensName);
+      
       if (resolvedAddress) {
+        console.log(`Resolved address for ${ensName}: ${resolvedAddress}`);
+        
         // Fetch links, avatar and bio in parallel
         const [links, avatar, bio] = await Promise.all([
           getEnsLinks(ensName, 'mainnet'),
@@ -53,16 +57,23 @@ export function useEnsResolution(ensName?: string, address?: string) {
           avatarUrl: avatar || prev.avatarUrl,
           ensBio: bio || links.description || prev.ensBio
         }));
+      } else {
+        console.log(`No address found for ${ensName}`);
       }
     } catch (error) {
       console.error(`Error resolving ${ensName}:`, error);
+      setError(`Failed to resolve ENS: ${error}`);
     }
   };
 
   const lookupAddress = async (address: string) => {
     try {
+      console.log(`Looking up ENS name for address: ${address}`);
       const result = await resolveAddressToEns(address);
-      if (result) {
+      
+      if (result && result.ensName) {
+        console.log(`Found ENS name for ${address}: ${result.ensName}`);
+        
         // Fetch links, avatar and bio in parallel
         const [links, avatar, bio] = await Promise.all([
           getEnsLinks(result.ensName, 'mainnet'),
@@ -84,9 +95,12 @@ export function useEnsResolution(ensName?: string, address?: string) {
           avatarUrl: avatar || prev.avatarUrl,
           ensBio: bio || links.description || prev.ensBio
         }));
+      } else {
+        console.log(`No ENS name found for ${address}`);
       }
     } catch (error) {
       console.error(`Error looking up ENS for address ${address}:`, error);
+      setError(`Failed to lookup address: ${error}`);
     }
   };
 
