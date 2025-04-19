@@ -38,9 +38,8 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     }
   }, [ownerAddress]);
 
-  // Check if we have any actual social links
-  const hasSocialLinks = socials && Object.values(socials).some(value => 
-    value && typeof value === 'string' && value.trim() !== '');
+  // Log social links for debugging
+  console.log('AvatarSection - Received socials:', socials);
   
   return (
     <div className="flex flex-col items-center gap-2 w-full text-center">
@@ -72,13 +71,11 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         </div>
       )}
       
-      {/* Social Links Section after bio */}
-      {hasSocialLinks && (
-        <SocialLinksSection 
-          socials={socials} 
-          identity={displayIdentity}
-        />
-      )}
+      {/* Always render SocialLinksSection to show either links or "No social links" message */}
+      <SocialLinksSection 
+        socials={socials} 
+        identity={displayIdentity}
+      />
 
       <ProfileContact 
         email={socials?.email}

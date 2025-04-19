@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -24,46 +25,45 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
 
-  // Add a style to center the content
-  const centerStyle = {
-    maxWidth: '950px',
-    margin: '0 auto'
+  // A4 page style with proper dimensions (210mm × 297mm)
+  const a4Style = {
+    width: '210mm',
+    minHeight: '297mm',
+    margin: '0 auto',
+    background: 'white',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+    padding: '20mm',
+    boxSizing: 'border-box' as const
   };
 
   return (
-    <div ref={profileRef} id="resume-pdf" style={centerStyle}>
-      {loading && !loadingTimeout ? (
-        <ProfileSkeleton />
-      ) : passport ? (
-        <HeaderContainer>
-          {/* Two-column layout with 30:70 ratio for desktop, single column for mobile */}
-          <div className="grid grid-cols-1 md:grid-cols-10 gap-6 md:gap-8">
-            {/* Left column - Avatar and personal info - 30% width */}
-            <div className="flex flex-col gap-6 md:col-span-3">
-              <AvatarSection 
-                avatarUrl={passport.avatar_url}
-                name={passport.name}
-                ownerAddress={passport.owner_address}
-                socials={{
-                  ...passport.socials,
-                  linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
-                }}
-                bio={passport.bio}
-                displayIdentity={ensNameOrAddress}
-                additionalEnsDomains={passport.additionalEnsDomains}
-              />
+    <div className="bg-gray-50 py-8">
+      <div ref={profileRef} id="resume-pdf" style={a4Style}>
+        {loading && !loadingTimeout ? (
+          <ProfileSkeleton />
+        ) : passport ? (
+          <HeaderContainer>
+            <div className="grid grid-cols-1 md:grid-cols-10 gap-6 md:gap-8">
+              <div className="flex flex-col gap-6 md:col-span-3">
+                <AvatarSection 
+                  avatarUrl={passport.avatar_url}
+                  name={passport.name}
+                  ownerAddress={passport.owner_address}
+                  socials={passport.socials}
+                  bio={passport.bio}
+                  displayIdentity={ensNameOrAddress}
+                  additionalEnsDomains={passport.additionalEnsDomains}
+                />
+              </div>
+              <div className="flex flex-col gap-6 md:col-span-7">
+                {/* Right column content */}
+              </div>
             </div>
-            
-            {/* Right column - Professional info - 70% width */}
-            <div className="flex flex-col gap-6 md:col-span-7">
-              {/* WebacyScoreSection removed to improve loading performance */}
-              {/* Other sections can be added here if needed */}
-            </div>
-          </div>
-        </HeaderContainer>
-      ) : (
-        <ProfileNotFound />
-      )}
+          </HeaderContainer>
+        ) : (
+          <ProfileNotFound />
+        )}
+      </div>
     </div>
   );
 };
