@@ -1,8 +1,6 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import SkillsList from './skills/SkillsList';
-import SkillsLegend from './skills/SkillsLegend';
 import { useTalentProtocolSkills } from './skills/useTalentProtocolSkills';
 
 interface SkillsCardProps {
@@ -11,31 +9,14 @@ interface SkillsCardProps {
 }
 
 const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
-  const { talentSkills, credentialSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress);
+  const { talentScore } = useTalentProtocolSkills(walletAddress);
 
-  if (!walletAddress) {
+  if (!walletAddress || !talentScore) {
     return null;
   }
 
-  // Filter out the mock TalentProtocol skills
-  const filteredSkills = skills.filter(skill => 
-    !skill.proof?.includes('talentprotocol.com')
-  );
-
-  // Create skill objects from TalentProtocol API
-  const talentProtocolSkills = talentSkills.map(skillName => ({
-    name: skillName,
-    proof: 'https://talentprotocol.com'
-  }));
-
-  // Create skill objects from credential API
-  const credentialBasedSkills = credentialSkills.map(skillName => ({
-    name: skillName,
-    proof: 'https://talentprotocol.com/credentials'
-  }));
-
-  // Combine all skills
-  const allSkills = [...filteredSkills, ...talentProtocolSkills, ...credentialBasedSkills];
+  // Only display verified skills
+  const verifiedSkills = skills.filter(skill => skill.proof);
 
   return (
     <Card id="skills-card-section" className="mt-4">
@@ -44,20 +25,25 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
           <div>
             <CardTitle className="flex items-center gap-2">
               <img src="https://world-id-assets.com/app_51fb239afc33541eb0a5cf76aaeb67bb/59c4ed38-f2ec-4362-af2c-17a196365fca.png" className="h-6 w-6" alt="Talent Protocol" />
-              Skills
+              Verified Skills
             </CardTitle>
           </div>
-          {talentScore !== null && (
-            <div className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
-              Score: {talentScore} pts
-            </div>
-          )}
+          <div className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+            Score: {talentScore} pts
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        <SkillsList skills={allSkills} isLoading={isLoading} />
-        
-        {allSkills && allSkills.length > 0 && <SkillsLegend />}
+        <div className="flex flex-wrap gap-2">
+          {verifiedSkills.map((skill, index) => (
+            <span 
+              key={index}
+              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary"
+            >
+              {skill.name}
+            </span>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
