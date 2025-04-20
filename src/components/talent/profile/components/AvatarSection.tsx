@@ -4,7 +4,6 @@ import ProfileAvatar from './ProfileAvatar';
 import ProfileContact from './ProfileContact';
 import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
-import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
 
 interface AvatarSectionProps {
@@ -72,14 +71,14 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         isOwner={isOwner}
       />
       
-      {/* ENS Bio - No border */}
-      <div className="w-full px-4 py-2">
-        {bio && (
+      {/* ENS Bio - Only display if bio exists */}
+      {bio && bio.trim() && (
+        <div className="w-full px-4 py-2">
           <div className="mt-2">
             <p className="text-sm text-muted-foreground">{bio}</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
       
       {/* Social Links */}
       <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />

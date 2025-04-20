@@ -1,6 +1,5 @@
 
 import React, { useEffect } from 'react';
-import { Button } from "@/components/ui/button";
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
@@ -23,6 +22,7 @@ const TalentProfile = () => {
   // Update page title and favicon dynamically
   useEffect(() => {
     if (passport?.name) {
+      // Set only the name as title without "| Blockchain Passport" suffix
       document.title = passport.name;
       
       // Update favicon and apple touch icon
@@ -38,7 +38,7 @@ const TalentProfile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-4">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 flex flex-col items-center">
         <ProfileNavbar 
           connectedWallet={connectedWallet}
           onDisconnect={handleDisconnect}
