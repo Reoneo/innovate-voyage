@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { 
@@ -16,14 +17,29 @@ interface PoapCardProps {
 
 const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
   const [isOpen, setIsOpen] = useState(false);
+  
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'Unknown';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  // Generate the correct POAP collector URL
+  const getPoapCollectorUrl = () => {
+    return `https://collectors.poap.xyz/token/${poap.tokenId}`;
+  };
 
   return (
     <>
       <div 
-        className="relative cursor-pointer group w-48 h-48"
+        className="relative cursor-pointer group"
         onClick={() => setIsOpen(true)}
       >
-        <div className="w-full h-full overflow-hidden rounded-full transition-all duration-300 group-hover:shadow-[0_0_30px_rgba(155,135,245,0.3)]">
+        <div className="w-40 h-40 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md">
           <img 
             src={poap.event.image_url} 
             alt={poap.event.name} 
@@ -31,7 +47,7 @@ const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
           />
         </div>
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-full transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
-          <ExternalLink className="w-6 h-6 text-white" />
+          <ExternalLink className="w-5 h-5 text-white" />
         </div>
       </div>
 
