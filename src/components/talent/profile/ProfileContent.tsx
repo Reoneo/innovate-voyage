@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -35,15 +34,12 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <HeaderContainer>
           <div className="flex flex-col md:flex-row gap-8">
             {/* Left column - Avatar and social info */}
-            <div className="md:w-1/3">
+            <div className="w-full md:w-1/3">
               <AvatarSection 
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
                 ownerAddress={passport.owner_address}
-                socials={{
-                  ...passport.socials,
-                  linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
-                }}
+                socials={passport.socials}
                 bio={passport.bio}
                 displayIdentity={ensNameOrAddress}
                 additionalEnsDomains={passport.additionalEnsDomains}
@@ -51,7 +47,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             </div>
             
             {/* Right column - Experience, skills, POAPs */}
-            <div className="md:w-2/3">
+            <div className="w-full md:w-2/3 space-y-4">
               <VerifiedWorkExperience 
                 walletAddress={passport.owner_address} 
               />

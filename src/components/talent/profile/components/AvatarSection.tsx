@@ -43,6 +43,9 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     }
   });
 
+  // Check if there are any social links
+  const hasSocialLinks = Object.values(normalizedSocials).some(value => value && value.trim() !== '');
+
   // Use WhatsApp as telephone if available and no direct telephone
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
   
@@ -80,8 +83,10 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         </div>
       )}
       
-      {/* Social Links */}
-      <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
+      {/* Social Links - Only display if there are any social links */}
+      {hasSocialLinks && (
+        <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
+      )}
     </div>
   );
 };
