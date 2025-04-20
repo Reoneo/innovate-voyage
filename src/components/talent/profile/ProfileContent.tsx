@@ -33,9 +33,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className="flex flex-col md:flex-row gap-8">
+          <div className="flex flex-col md:flex-row md:gap-8">
             {/* Left column - Avatar and social info */}
-            <div className="md:w-1/3">
+            <div className="w-full md:w-1/3 mb-8 md:mb-0">
               <AvatarSection 
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
@@ -51,19 +51,21 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             </div>
             
             {/* Right column - Experience, skills, POAPs */}
-            <div className="md:w-2/3">
-              <VerifiedWorkExperience 
-                walletAddress={passport.owner_address} 
-              />
-              
-              <SkillsCard
-                walletAddress={passport.owner_address}
-                skills={passport.skills || []}
-              />
-              
-              <PoapSection
-                walletAddress={passport.owner_address}
-              />
+            <div className="w-full md:w-2/3">
+              <div className="space-y-6">
+                <VerifiedWorkExperience 
+                  walletAddress={passport.owner_address} 
+                />
+                
+                <SkillsCard
+                  walletAddress={passport.owner_address}
+                  skills={passport.skills || []}
+                />
+                
+                <PoapSection
+                  walletAddress={passport.owner_address}
+                />
+              </div>
             </div>
           </div>
         </HeaderContainer>
