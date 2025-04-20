@@ -1,10 +1,8 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
-import VerifiedWorkExperience from './components/VerifiedWorkExperience';
 import SkillsCard from './components/SkillsCard';
 import PoapSection from './components/poap/PoapSection';
 
@@ -40,23 +38,16 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
                 ownerAddress={passport.owner_address}
-                socials={{
-                  ...passport.socials,
-                  linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
-                }}
+                socials={passport.socials}
                 bio={passport.bio}
                 displayIdentity={ensNameOrAddress}
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
             </div>
             
-            {/* Right column - Experience, skills, POAPs */}
+            {/* Right column - skills and POAPs */}
             <div className="w-full md:w-2/3">
               <div className="space-y-6">
-                <VerifiedWorkExperience 
-                  walletAddress={passport.owner_address} 
-                />
-                
                 <SkillsCard
                   walletAddress={passport.owner_address}
                   skills={passport.skills || []}
