@@ -7,6 +7,8 @@ import AvatarSection from './components/AvatarSection';
 import VerifiedWorkExperience from './components/VerifiedWorkExperience';
 import SkillsCard from './components/SkillsCard';
 import PoapSection from './components/poap/PoapSection';
+// 👇 NEW import
+import TalentScoreBanner from './components/TalentScoreBanner';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -23,12 +25,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   profileRef,
   ensNameOrAddress
 }) => {
-  // If loading timeout occurred and still loading, show error message
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
 
-  // Add a style to center the content
   const centerStyle = {
     maxWidth: '950px',
     margin: '0 auto'
@@ -41,7 +41,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
       ) : passport ? (
         <HeaderContainer>
           <div className="grid grid-cols-1 md:grid-cols-10 gap-8">
-            {/* Left column with avatar and social links - 30% width */}
             <div className="md:col-span-3">
               <div className="flex flex-col items-center">
                 <AvatarSection 
@@ -58,12 +57,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 />
               </div>
             </div>
-            
-            {/* Right column with work experience - 70% width */}
+            {/* Right column with Talent Score on top */}
             <div className="md:col-span-7">
-              <VerifiedWorkExperience 
-                walletAddress={passport.owner_address} 
-              />
+              <TalentScoreBanner walletAddress={passport.owner_address} />
+              <VerifiedWorkExperience walletAddress={passport.owner_address} />
               <SkillsCard
                 walletAddress={passport.owner_address}
                 skills={passport.skills || []}
