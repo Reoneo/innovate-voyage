@@ -5,9 +5,16 @@ import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { normalizeInput } from '@/utils/normalizeInput';
+
+// For postal code detection placeholder
+function isPostalCode(str: string): boolean {
+  // Simple check: any string that is 4-8 chars, alphanumeric, optional space
+  return /^[A-Za-z0-9 ]{4,8}$/.test(str) && /[0-9]/.test(str); // simplistic
+}
 
 export function useProfilePage() {
-  const { ensNameOrAddress, userId } = useParams<{ensNameOrAddress?: string, userId?: string}>();
+  const { ensNameOrAddress, userId } = useParams<{ ensNameOrAddress?: string, userId?: string }>();
   const [address, setAddress] = useState<string | undefined>(undefined);
   const [ens, setEns] = useState<string | undefined>(undefined);
   const { toast } = useToast();
@@ -16,20 +23,22 @@ export function useProfilePage() {
   
   // Determine which parameter to use (either regular path or recruitment.box path)
   const targetIdentifier = userId || ensNameOrAddress;
-  
+
   useEffect(() => {
     if (targetIdentifier) {
-      // Direct address check - immediately use as address if valid
-      if (isValidEthereumAddress(targetIdentifier)) {
-        console.log(`Valid Ethereum address detected: ${targetIdentifier}`);
-        setAddress(targetIdentifier);
-        setEns(undefined); // Clear ENS when looking up by address
+      // Normalize with updated logic (no brute-forcing)
+      const normalized = normalizeInput(targetIdentifier, isPostalCode);
+
+      // Handle routing
+      if (/^0x[0-9A-Fa-f]{40}$/.test(normalized)) {
+        setAddress(normalized);
+        setEns(undefined);
+      } else if (/\.eth$/i.test(normalized)) {
+        setEns(normalized);
+        setAddress(undefined);
       } else {
-        // Not a valid address, treat as ENS or domain
-        const ensValue = targetIdentifier.includes('.') ? targetIdentifier : `${targetIdentifier}.eth`;
-        console.log(`Treating as ENS: ${ensValue}`);
-        setEns(ensValue);
-        setAddress(undefined); // Clear address when looking up by ENS
+        setEns(normalized);
+        setAddress(undefined);
       }
     }
 
@@ -57,7 +66,6 @@ export function useProfilePage() {
   }, [targetIdentifier]);
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
-  
   const { profileRef, exportAsPDF } = usePdfExport();
 
   const handleDisconnect = () => {
@@ -76,9 +84,7 @@ export function useProfilePage() {
     });
   };
 
-  // Handler for the export PDF dropdown item
   const handleExportPdf = () => {
-    // This correctly calls the function returned by useReactToPrint
     exportAsPDF();
   };
 
