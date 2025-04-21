@@ -66,7 +66,7 @@ const BiographySection: React.FC<BiographySectionProps> = ({
         ) : (
           <div className="space-y-2">
             {biography ? (
-              <p className="text-base text-black font-medium leading-relaxed whitespace-pre-wrap">
+              <p className="text-xl text-black font-medium leading-relaxed whitespace-pre-wrap">
                 {biography}
               </p>
             ) : (

@@ -4,7 +4,10 @@ import ProfileAvatar from './ProfileAvatar';
 import ProfileContact from './ProfileContact';
 import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
+import FollowerStats from './identity/FollowerStats';
+import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
+import WebacySecurity from './security/WebacySecurity';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -46,6 +49,10 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   // Use WhatsApp as telephone if available and no direct telephone
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
   
+  // Mock follower/following counts - replace with actual API calls in production
+  const followersCount = 128;
+  const followingCount = 93;
+  
   return (
     <div className="flex flex-col items-center gap-2 w-full text-center">
       {/* Avatar */}
@@ -61,6 +68,14 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         displayIdentity={displayIdentity}
       />
       
+      {/* Followers/Following Stats */}
+      <FollowerStats
+        address={ownerAddress}
+        ensName={displayIdentity}
+        followersCount={followersCount}
+        followingCount={followingCount}
+      />
+      
       {/* Additional ENS Domains */}
       <AdditionalEnsDomains domains={additionalEnsDomains} />
       
@@ -71,17 +86,20 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         isOwner={isOwner}
       />
       
-      {/* ENS Bio - Only display if bio exists */}
-      {bio && bio.trim() && (
-        <div className="w-full px-4 py-2">
+      {/* ENS Bio - No border */}
+      <div className="w-full px-4 py-2">
+        {bio && (
           <div className="mt-2">
             <p className="text-sm text-muted-foreground">{bio}</p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       
       {/* Social Links */}
       <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
+      
+      {/* Webacy Security Section */}
+      <WebacySecurity walletAddress={ownerAddress} />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
@@ -12,40 +12,21 @@ const TalentProfile = () => {
     passport, 
     profileRef,
     connectedWallet,
-    blockchainProfile,
-    avatarUrl,
     handleDisconnect,
-    handleSaveChanges,
-    handleExportPdf
+    handleSaveChanges
   } = useProfilePage();
 
-  // Update page title and favicon dynamically
-  useEffect(() => {
-    if (passport?.name) {
-      // Set only the name as title without "| Blockchain Passport" suffix
-      document.title = passport.name;
-      
-      // Update favicon and apple touch icon
-      const avatarUrl = passport.avatar_url || '/placeholder.svg';
-      document.getElementById('dynamic-favicon')?.setAttribute('href', avatarUrl);
-      document.getElementById('dynamic-apple-touch-icon')?.setAttribute('href', avatarUrl);
-      document.getElementById('dynamic-og-image')?.setAttribute('content', avatarUrl);
-      
-      // Update apple mobile web app title
-      document.querySelector('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content', passport.name);
-    }
-  }, [passport]);
-
   return (
-    <div className="min-h-screen bg-gray-50 py-4">
-      <div className="container mx-auto px-4 flex flex-col items-center">
+    <div className="min-h-screen bg-gray-50 py-4 md:py-8 overflow-x-hidden">
+      <div className="container mx-auto px-4" style={{ maxWidth: '100%', width: '100%' }}>
+        {/* Navigation Bar */}
         <ProfileNavbar 
           connectedWallet={connectedWallet}
           onDisconnect={handleDisconnect}
           onSaveChanges={handleSaveChanges}
-          onExportPdf={handleExportPdf}
         />
         
+        {/* Profile Content */}
         <ProfileContent 
           loading={loading}
           loadingTimeout={loadingTimeout}

@@ -36,10 +36,10 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading
+    // Set a timeout for loading - increased to 10 seconds
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 5000);
+    }, 10000);
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
@@ -58,7 +58,7 @@ export function useProfilePage() {
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
   
-  const { profileRef, exportAsPDF } = usePdfExport();
+  const { profileRef } = usePdfExport();
 
   const handleDisconnect = () => {
     localStorage.removeItem('connectedWalletAddress');
@@ -76,12 +76,6 @@ export function useProfilePage() {
     });
   };
 
-  // Handler for the export PDF dropdown item
-  const handleExportPdf = () => {
-    // This correctly calls the function returned by useReactToPrint
-    exportAsPDF();
-  };
-
   return {
     ensNameOrAddress: targetIdentifier,
     loading,
@@ -92,7 +86,6 @@ export function useProfilePage() {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges,
-    handleExportPdf
+    handleSaveChanges
   };
 }

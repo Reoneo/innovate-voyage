@@ -23,49 +23,55 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   profileRef,
   ensNameOrAddress
 }) => {
+  // If loading timeout occurred and still loading, show error message
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
 
+  // Add a style to center the content
+  const centerStyle = {
+    maxWidth: '950px',
+    margin: '0 auto'
+  };
+
   return (
-    <div ref={profileRef} id="resume-pdf">
+    <div ref={profileRef} id="resume-pdf" style={centerStyle}>
       {loading && !loadingTimeout ? (
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className="flex flex-col md:flex-row md:gap-8">
-            {/* Left column - Avatar and social info */}
-            <div className="w-full md:w-1/3 mb-8 md:mb-0">
-              <AvatarSection 
-                avatarUrl={passport.avatar_url}
-                name={passport.name}
-                ownerAddress={passport.owner_address}
-                socials={{
-                  ...passport.socials,
-                  linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
-                }}
-                bio={passport.bio}
-                displayIdentity={ensNameOrAddress}
-                additionalEnsDomains={passport.additionalEnsDomains}
-              />
-            </div>
-            
-            {/* Right column - Experience, skills, POAPs */}
-            <div className="w-full md:w-2/3">
-              <div className="space-y-6">
-                <VerifiedWorkExperience 
-                  walletAddress={passport.owner_address} 
-                />
-                
-                <SkillsCard
-                  walletAddress={passport.owner_address}
-                  skills={passport.skills || []}
-                />
-                
-                <PoapSection
-                  walletAddress={passport.owner_address}
+          <div className="grid grid-cols-1 md:grid-cols-10 gap-4 md:gap-8">
+            {/* Left column with avatar and social links - 30% width */}
+            <div className="md:col-span-3 w-full">
+              <div className="flex flex-col items-center w-full">
+                <AvatarSection 
+                  avatarUrl={passport.avatar_url}
+                  name={passport.name}
+                  ownerAddress={passport.owner_address}
+                  socials={{
+                    ...passport.socials,
+                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
+                  }}
+                  bio={passport.bio}
+                  displayIdentity={ensNameOrAddress}
+                  additionalEnsDomains={passport.additionalEnsDomains}
                 />
               </div>
+            </div>
+            
+            {/* Right column with work experience - 70% width */}
+            <div className="md:col-span-7 w-full">
+              <VerifiedWorkExperience 
+                walletAddress={passport.owner_address} 
+              />
+              <SkillsCard
+                walletAddress={passport.owner_address}
+                skills={passport.skills || []}
+                passportId={passport.passport_id}
+              />
+              <PoapSection
+                walletAddress={passport.owner_address}
+              />
             </div>
           </div>
         </HeaderContainer>
@@ -76,6 +82,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   );
 };
 
+export default ProfileContent;
+
+// Internal component for timeout error
 const ProfileTimeoutError: React.FC<{ensNameOrAddress?: string}> = ({ ensNameOrAddress }) => (
   <div className="min-h-screen bg-gray-50 py-4 md:py-8">
     <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
@@ -90,5 +99,3 @@ const ProfileTimeoutError: React.FC<{ensNameOrAddress?: string}> = ({ ensNameOrA
     </div>
   </div>
 );
-
-export default ProfileContent;
