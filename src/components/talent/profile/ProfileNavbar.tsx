@@ -30,41 +30,31 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   return (
     <div className="flex items-center mb-4">
       <Link to="/">
-        <Button variant="ghost" size="sm" className="gap-1 p-0">
-          <img 
-            src="https://img.icons8.com/?size=512&id=uNaaq8c2jqFp&format=png" 
-            alt="Back to Home" 
-            className="h-10 w-10"
-          />
-        </Button>
+        <img 
+          src="https://img.icons8.com/?size=512&id=uNaaq8c2jqFp&format=png" 
+          alt="Back to Home" 
+          className="h-10 w-10"
+        />
       </Link>
       
-      <div className="ml-auto flex items-center space-x-2">
+      <div className="ml-auto flex items-center space-x-4">
         {/* XMTP Message Button */}
-        <Button
-          variant="ghost"
-          size="icon"
+        <img 
+          src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
+          alt="Message" 
+          className="h-10 w-10 cursor-pointer hover:opacity-80"
           onClick={handleOpenXmtpModal}
-          className="h-10 w-10 p-0"
           title="XMTP Messages"
-        >
-          <img 
-            src="https://cdn-icons-png.flaticon.com/512/953/953810.png" 
-            alt="Message" 
-            className="h-10 w-10"
-          />
-        </Button>
+        />
 
-        {/* Wallet Button - Only showing save option */}
+        {/* Wallet Options */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-10 w-10 p-0">
-              <img 
-                src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" 
-                alt="Options" 
-                className="h-10 w-10"
-              />
-            </Button>
+            <img 
+              src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" 
+              alt="Options" 
+              className="h-10 w-10 cursor-pointer hover:opacity-80"
+            />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {connectedWallet && (

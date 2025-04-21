@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
 import { Check, Copy } from 'lucide-react';
@@ -79,11 +80,11 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
     return (
       <button
         onClick={handleCopyDiscord}
-        className="hover:opacity-70 transition-opacity bg-secondary/30 p-2 rounded-full flex items-center justify-center group relative"
+        className="hover:opacity-70 transition-opacity bg-secondary/30 p-4 rounded-full flex items-center justify-center group relative"
         title={`Copy Discord: ${displayText}`}
         data-social-link={platformType}
       >
-        <SocialIcon type={platformType} size={22} />
+        <SocialIcon type={platformType} size={28} />
         <span className="absolute top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
           {copied ? <Check size={12} className="inline mr-1" /> : <Copy size={12} className="inline mr-1" />} 
           {copied ? "Copied!" : "Copy Discord"}
@@ -97,11 +98,11 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       href={formattedUrl} 
       target="_blank" 
       rel="noopener noreferrer"
-      className="hover:opacity-70 transition-opacity bg-secondary/30 p-2 rounded-full flex items-center justify-center"
+      className="hover:opacity-70 transition-opacity bg-secondary/30 p-4 rounded-full flex items-center justify-center"
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
       data-social-link={platformType}
     >
-      <SocialIcon type={platformType as any} size={22} />
+      <SocialIcon type={platformType as any} size={28} />
     </a>
   );
 };
