@@ -4,7 +4,6 @@ import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
-import VerifiedWorkExperience from './components/VerifiedWorkExperience';
 import SkillsCard from './components/SkillsCard';
 import PoapSection from './components/poap/PoapSection';
 
@@ -50,13 +49,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               />
             </div>
             
-            {/* Right column - Experience, skills, POAPs */}
+            {/* Right column - Skills and POAPs */}
             <div className="w-full md:w-2/3">
               <div className="space-y-6">
-                <VerifiedWorkExperience 
-                  walletAddress={passport.owner_address} 
-                />
-                
                 <SkillsCard
                   walletAddress={passport.owner_address}
                   skills={passport.skills || []}

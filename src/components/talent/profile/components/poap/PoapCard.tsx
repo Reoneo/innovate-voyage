@@ -18,6 +18,7 @@ interface PoapCardProps {
 const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
   const [isOpen, setIsOpen] = useState(false);
   
+  // Format date helper function
   const formatDate = (dateString: string) => {
     if (!dateString) return 'Unknown';
     const date = new Date(dateString);
