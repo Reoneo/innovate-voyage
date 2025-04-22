@@ -24,8 +24,19 @@
     <link rel="apple-touch-icon" sizes="167x167" href="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" />
     
     <link rel="icon" href="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" type="image/png" />
-  </head>
 
+    <script>
+      // If path doesn't end with "/" and isn't a file asset, add it
+      if (
+        !location.pathname.endsWith("/") &&
+        !location.pathname.includes(".")
+      ) {
+        const newPath =
+          location.pathname + "/" + location.search + location.hash;
+        location.replace(newPath);
+      }
+    </script>
+  </head>
   <body>
     <div id="root"></div>
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->

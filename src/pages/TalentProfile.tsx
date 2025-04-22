@@ -14,47 +14,38 @@ const TalentProfile = () => {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges
+    handleSaveChanges,
+    handleSearch,
+    avatarUrl
   } = useProfilePage();
 
   useEffect(() => {
-    // Set favicon to user's avatar if available
-    if (passport?.avatar_url) {
+    if (avatarUrl) {
       const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
       if (link) {
-        link.href = passport.avatar_url;
-      } else {
-        const newLink = document.createElement('link');
-        newLink.rel = 'icon';
-        newLink.href = passport.avatar_url;
-        document.head.appendChild(newLink);
+        link.href = avatarUrl;
       }
     }
-  }, [passport?.avatar_url]);
+  }, [avatarUrl]);
 
   return (
     <>
       <Helmet>
         <title>{ensNameOrAddress || 'Profile'}</title>
-        {passport?.avatar_url && (
-          <>
-            <link rel="apple-touch-icon" href={passport.avatar_url} />
-            <meta name="apple-mobile-web-app-title" content={ensNameOrAddress || 'Profile'} />
-            <meta name="application-name" content={ensNameOrAddress || 'Profile'} />
-            <meta property="og:image" content={passport.avatar_url} />
-          </>
-        )}
+        <meta name="description" content={`View ${ensNameOrAddress}'s blockchain passport and credentials`} />
+        {avatarUrl && <meta property="og:image" content={avatarUrl} />}
       </Helmet>
-      <div className="min-h-screen bg-gray-50 py-4 md:py-8 overflow-hidden">
-        <div className="container mx-auto px-4" style={{ maxWidth: '950px' }}>
-          {/* Navigation Bar */}
-          <ProfileNavbar 
-            connectedWallet={connectedWallet}
-            onDisconnect={handleDisconnect}
-            onSaveChanges={handleSaveChanges}
-          />
-          
-          {/* Profile Content */}
+      
+      <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+        <ProfileNavbar 
+          connectedWallet={connectedWallet}
+          onDisconnect={handleDisconnect}
+          onSaveChanges={handleSaveChanges}
+          onSearch={handleSearch}
+          avatarUrl={avatarUrl}
+        />
+        
+        <div className="container mx-auto px-4 pt-4 pb-8 profile-container" style={{ maxWidth: '950px', width: '100%' }}>
           <ProfileContent 
             loading={loading}
             loadingTimeout={loadingTimeout}

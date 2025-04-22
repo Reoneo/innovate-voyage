@@ -1,4 +1,3 @@
-
 import { Client } from '@xmtp/xmtp-js';
 import { ethers } from 'ethers';
 // Import Buffer polyfill

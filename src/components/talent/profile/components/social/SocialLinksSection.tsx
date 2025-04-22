@@ -1,12 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
-import SocialMediaLinks from '../../tabs/social/SocialMediaLinks';
-import { getEnsLinks } from '@/utils/ens/ensLinks';
-import WebacySecurity from '../security/WebacySecurity';
-
-// Centered, larger header styles for the links section
-const linkHeaderClasses =
-  "flex items-center justify-center text-xl font-semibold mb-4 text-gradient-primary tracking-wide";
+import React from 'react';
+import PlatformLinks from './PlatformLinks';
+import CustomLinks from './CustomLinks';
 
 interface SocialLinksSectionProps {
   socials: Record<string, string>;
@@ -14,43 +9,32 @@ interface SocialLinksSectionProps {
 }
 
 const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identity }) => {
-  const [socialLinks, setSocialLinks] = useState<Record<string, string>>(socials || {});
-  const [isLoading, setIsLoading] = useState(false);
+  // Log the received social links
+  console.log('SocialLinksSection - Received socials:', socials);
 
-  useEffect(() => {
-    if (identity && (identity.includes('.eth') || identity.includes('.box'))) {
-      setIsLoading(true);
-      getEnsLinks(identity)
-        .then(links => {
-          if (links && links.socials) {
-            setSocialLinks(prevLinks => ({
-              ...prevLinks,
-              ...links.socials
-            }));
-          }
-        })
-        .catch(error => {
-          console.error(`Error fetching social links for ${identity}:`, error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [identity]);
+  // Check if we have any actual social links
+  const hasSocialLinks = socials && Object.values(socials).some(value => 
+    value && typeof value === 'string' && value.trim() !== '');
+  
+  if (!hasSocialLinks) {
+    return null;
+  }
 
-  // Extract owner address from socials or use undefined
-  const ownerAddress = socials?.ethereum || socials?.walletAddress;
-
+  const standardPlatforms = [
+    'github', 'twitter', 'linkedin', 'facebook', 'instagram', 
+    'youtube', 'telegram', 'bluesky', 'discord', 'website', 
+    'whatsapp', 'email', 'telephone', 'location'
+  ];
+  
   return (
-    <div className="w-full mt-6">
-      <h3 className={linkHeaderClasses}>
-        Links
-      </h3>
-      <div className="mb-4">
-        <WebacySecurity walletAddress={ownerAddress} />
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
+    <div className="w-full mt-4 pt-3 border-t border-gray-100">
+      <h4 className="text-sm font-medium text-gray-500 mb-3 px-4">Social Links</h4>
+      <div className="grid grid-cols-4 gap-3 px-4">
+        <PlatformLinks normalizedSocials={socials} />
+        <CustomLinks 
+          normalizedSocials={socials} 
+          standardPlatforms={standardPlatforms} 
+        />
       </div>
     </div>
   );

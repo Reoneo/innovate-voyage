@@ -6,6 +6,8 @@ import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
 import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
+import FollowersSection from './followers';
+import MetaTags from './MetaTags';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -35,54 +37,54 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       setIsOwner(true);
     }
   }, [ownerAddress]);
-  
-  // Format socials object to ensure all keys are lowercase for consistency
-  const normalizedSocials: Record<string, string> = {};
-  Object.entries(socials || {}).forEach(([key, value]) => {
-    if (value && typeof value === 'string' && value.trim() !== '') {
-      normalizedSocials[key.toLowerCase()] = value;
-    }
-  });
 
-  // Use WhatsApp as telephone if available and no direct telephone
-  const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
+  // Check if we have any actual social links
+  const hasSocialLinks = socials && Object.values(socials).some(value => 
+    value && typeof value === 'string' && value.trim() !== '');
   
   return (
     <div className="flex flex-col items-center gap-2 w-full text-center">
-      {/* Avatar */}
+      <MetaTags avatarUrl={avatarUrl} />
+      
       <ProfileAvatar 
         avatarUrl={avatarUrl} 
         name={name} 
       />
       
-      {/* Name and Address */}
       <NameSection 
         name={name} 
         ownerAddress={ownerAddress}
         displayIdentity={displayIdentity}
       />
       
-      {/* Additional ENS Domains */}
-      <AdditionalEnsDomains domains={additionalEnsDomains} />
+      {additionalEnsDomains && additionalEnsDomains.length > 0 && (
+        <AdditionalEnsDomains domains={additionalEnsDomains.slice(0, 50)} />
+      )}
       
-      {/* Contact Info */}
-      <ProfileContact 
-        email={normalizedSocials.email}
-        telephone={telephone}
-        isOwner={isOwner}
+      <FollowersSection 
+        walletAddress={ownerAddress}
+        ensName={displayIdentity?.includes('.eth') ? displayIdentity : undefined}
       />
       
-      {/* ENS Bio - No border */}
-      <div className="w-full px-4 py-2">
-        {bio && (
-          <div className="mt-2">
-            <p className="text-sm text-muted-foreground">{bio}</p>
-          </div>
-        )}
-      </div>
+      {bio && (
+        <div className="w-full px-4 py-2 border-b border-gray-100">
+          <p className="text-sm text-muted-foreground">{bio}</p>
+        </div>
+      )}
       
-      {/* Social Links */}
-      <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
+      {/* Social Links Section after bio */}
+      {hasSocialLinks && (
+        <SocialLinksSection 
+          socials={socials} 
+          identity={displayIdentity}
+        />
+      )}
+
+      <ProfileContact 
+        email={socials?.email}
+        telephone={socials?.telephone || socials?.whatsapp}
+        isOwner={isOwner}
+      />
     </div>
   );
 };
