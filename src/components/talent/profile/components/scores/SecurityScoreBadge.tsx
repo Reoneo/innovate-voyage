@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { ShieldAlert, Skeleton } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { getThreatColor } from './utils/scoreUtils';
 import type { WebacyData, ScoreBadgeProps } from './types';
 

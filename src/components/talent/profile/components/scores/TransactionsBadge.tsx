@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { SendHorizontal, Skeleton } from 'lucide-react';
+import { SendHorizontal } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ScoreBadgeProps } from './types';
 
 interface TransactionsBadgeProps extends ScoreBadgeProps {

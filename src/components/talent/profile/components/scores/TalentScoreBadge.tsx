@@ -1,7 +1,6 @@
-
 import React from 'react';
-import { Star, Skeleton } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Star } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { getBuilderTitle } from './utils/scoreUtils';
 import { ScoreBadgeProps } from './types';
 
