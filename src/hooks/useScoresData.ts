@@ -31,26 +31,55 @@ export function useScoresData(walletAddress: string) {
         }
 
         // Fetch Webacy Data
-        const [addressData, approvalsData, quickProfileData] = await Promise.all([
-          fetch(`https://api.webacy.com/addresses/${walletAddress}`, {
+        try {
+          // Fetch address risk data
+          const addressResp = await fetch(`https://api.webacy.com/addresses/${walletAddress}`, {
             headers: {
               'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
               'Key-ID': 'eujjkt9ao5'
             }
-          }).then(r => r.json()),
-          fetch(`https://api.webacy.com/addresses/${walletAddress}/approvals`, {
-            headers: {
-              'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-              'Key-ID': 'eujjkt9ao5'
-            }
-          }).then(r => r.json()),
-          fetch(`https://api.webacy.com/quick-profile/${walletAddress}`, {
-            headers: {
-              'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-              'Key-ID': 'eujjkt9ao5'
-            }
-          }).then(r => r.json())
-        ]);
+          });
+          
+          if (addressResp.ok) {
+            const addressData = await addressResp.json();
+            
+            // Fetch approvals data
+            const approvalsResp = await fetch(`https://api.webacy.com/addresses/${walletAddress}/approvals`, {
+              headers: {
+                'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
+                'Key-ID': 'eujjkt9ao5'
+              }
+            });
+            
+            const approvalsData = approvalsResp.ok ? await approvalsResp.json() : { totalCount: 0, riskyCount: 0 };
+            
+            // Fetch quick profile data
+            const quickProfileResp = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}`, {
+              headers: {
+                'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
+                'Key-ID': 'eujjkt9ao5'
+              }
+            });
+            
+            const quickProfileData = quickProfileResp.ok ? await quickProfileResp.json() : {};
+            
+            setWebacyData({
+              riskScore: addressData.riskScore,
+              threatLevel: getThreatLevel(addressData.riskScore),
+              approvals: {
+                count: approvalsData.totalCount || 0,
+                riskyCount: approvalsData.riskyCount || 0
+              },
+              quickProfile: {
+                transactions: quickProfileData.numTransactions,
+                contracts: quickProfileData.numContracts,
+                riskLevel: quickProfileData.riskLevel
+              }
+            });
+          }
+        } catch (webacyError) {
+          console.error('Error fetching Webacy data:', webacyError);
+        }
 
         // Fetch Transaction Count from Etherscan
         const etherscanResp = await fetch(
@@ -63,20 +92,6 @@ export function useScoresData(walletAddress: string) {
             setTxCount(data.result.length);
           }
         }
-
-        setWebacyData({
-          riskScore: addressData.riskScore,
-          threatLevel: getThreatLevel(addressData.riskScore),
-          approvals: {
-            count: approvalsData.totalCount || 0,
-            riskyCount: approvalsData.riskyCount || 0
-          },
-          quickProfile: {
-            transactions: quickProfileData.numTransactions,
-            contracts: quickProfileData.numContracts,
-            riskLevel: quickProfileData.riskLevel
-          }
-        });
 
       } catch (error) {
         console.error('Error fetching data:', error);

@@ -10,12 +10,12 @@ interface TransactionsBadgeProps extends ScoreBadgeProps {
 
 const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ txCount, onClick, isLoading }) => {
   if (isLoading) {
-    return <Skeleton className="h-20 w-full" />;
+    return <Skeleton className="h-32 w-full" />;
   }
 
   return (
     <div onClick={onClick} className="cursor-pointer transition-all hover:opacity-80">
-      <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gradient-to-r from-blue-300/20 to-blue-100/10">
+      <div className="flex flex-col items-center gap-2 p-6 rounded-lg bg-gradient-to-r from-blue-300/20 to-blue-100/10 h-full">
         <SendHorizontal className="h-8 w-8 text-blue-500" />
         <div className="text-center">
           <h3 className="text-lg font-semibold text-gray-700">Transactions</h3>
