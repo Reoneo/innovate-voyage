@@ -6,6 +6,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { HelmetProvider } from 'react-helmet-async';
+import { WagmiProvider } from 'wagmi';
+import { TransactionProvider } from 'ethereum-identity-kit';
+import { wagmiConfig } from '@/lib/wagmi';
+import 'ethereum-identity-kit/css';
 import Index from "./pages/Index";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
@@ -58,24 +62,28 @@ const App = () => {
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              {/* Special route for recruitment.box domain */}
-              <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-              {/* Regular profile route */}
-              <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-              {/* Handle 404 and redirects */}
-              <Route path="/404" element={<NotFound />} />
-              <Route path="*" element={<Navigate to="/404" />} />
-            </Routes>
-            <WalletConnectModal />
-            <XmtpMessageModal />
-          </BrowserRouter>
-        </TooltipProvider>
+        <WagmiProvider config={wagmiConfig}>
+          <TransactionProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  {/* Special route for recruitment.box domain */}
+                  <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+                  {/* Regular profile route */}
+                  <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+                  {/* Handle 404 and redirects */}
+                  <Route path="/404" element={<NotFound />} />
+                  <Route path="*" element={<Navigate to="/404" />} />
+                </Routes>
+                <WalletConnectModal />
+                <XmtpMessageModal />
+              </BrowserRouter>
+            </TooltipProvider>
+          </TransactionProvider>
+        </WagmiProvider>
       </QueryClientProvider>
     </HelmetProvider>
   );
