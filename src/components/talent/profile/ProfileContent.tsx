@@ -5,9 +5,7 @@ import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import VerifiedWorkExperience from './components/VerifiedWorkExperience';
-import SkillsCard from './components/SkillsCard';
 import PoapSection from './components/poap/PoapSection';
-// 👇 NEW import
 import TalentScoreBanner from './components/TalentScoreBanner';
 
 interface ProfileContentProps {
@@ -57,18 +55,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 />
               </div>
             </div>
-            {/* Right column with Talent Score on top */}
             <div className="md:col-span-7">
               <TalentScoreBanner walletAddress={passport.owner_address} />
               <VerifiedWorkExperience walletAddress={passport.owner_address} />
-              <SkillsCard
-                walletAddress={passport.owner_address}
-                skills={passport.skills || []}
-                passportId={passport.passport_id}
-              />
-              <PoapSection
-                walletAddress={passport.owner_address}
-              />
+              <PoapSection walletAddress={passport.owner_address} />
             </div>
           </div>
         </HeaderContainer>
