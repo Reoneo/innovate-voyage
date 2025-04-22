@@ -16,9 +16,6 @@ export function useProfileData(ensName?: string, address?: string) {
   // Fetch blockchain data
   const blockchainData = useBlockchainData(resolvedAddress, resolvedEns);
   
-  // Log the social links from ensLinks
-  console.log('useProfileData - Social links from ENS resolver:', ensLinks?.socials);
-  
   // Enhance blockchain profile with ENS links
   const enhancedBlockchainProfile = blockchainData.blockchainProfile 
     ? {
@@ -53,9 +50,6 @@ export function useProfileData(ensName?: string, address?: string) {
     blockchainProfileDesc: enhancedBlockchainProfile?.description,
     passportBio: passport?.bio
   });
-  
-  // Log the socials in the passport
-  console.log('useProfileData - Social links in passport:', passport?.socials);
 
   return {
     loading,
