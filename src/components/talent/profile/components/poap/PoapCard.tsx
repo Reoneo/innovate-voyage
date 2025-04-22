@@ -1,44 +1,123 @@
 
-import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import React, { useState } from 'react';
+import { ExternalLink } from 'lucide-react';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+import { Badge } from '@/components/ui/badge';
+import { type Poap } from '@/api/services/poapService';
 
 interface PoapCardProps {
-  imageUrl: string;
-  name: string;
-  date: string;
-  location?: string;
+  poap: Poap;
 }
 
-const PoapCard: React.FC<PoapCardProps> = ({ imageUrl, name, date, location }) => {
+const PoapCard: React.FC<PoapCardProps> = ({ poap }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'Unknown';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  // Generate the correct POAP collector URL
+  const getPoapCollectorUrl = () => {
+    return `https://collectors.poap.xyz/token/${poap.tokenId}`;
+  };
+
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="relative group cursor-pointer transform transition-all duration-300 hover:scale-105">
-            <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-500 opacity-50 blur-sm group-hover:opacity-75 group-hover:blur transition duration-300"></div>
-            <div className="relative bg-gray-900/40 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50">
+    <>
+      <div 
+        className="relative cursor-pointer group"
+        onClick={() => setIsOpen(true)}
+      >
+        <div className="w-40 h-40 overflow-hidden rounded-full border-2 border-primary/20 transition-all duration-200 group-hover:border-primary/50 group-hover:shadow-md">
+          <img 
+            src={poap.event.image_url} 
+            alt={poap.event.name} 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-full transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <ExternalLink className="w-5 h-5 text-white" />
+        </div>
+      </div>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl">{poap.event.name}</DialogTitle>
+            <DialogDescription className="text-center flex justify-center">
+              <Badge variant="outline" className="mt-1">ID #{poap.tokenId}</Badge>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex justify-center mb-4">
+            <div className="w-80 h-80 overflow-hidden rounded-full border-2 border-primary/20">
               <img 
-                src={imageUrl} 
-                alt={name} 
-                className="w-full h-auto aspect-square object-cover"
-                loading="lazy"
+                src={poap.event.image_url} 
+                alt={poap.event.name}
+                className="w-full h-full object-cover" 
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-2 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="truncate font-semibold">{name}</div>
-                <div className="text-xs opacity-70">{date}</div>
-              </div>
             </div>
           </div>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-[200px]">
-          <div className="text-sm font-medium">{name}</div>
-          <div className="text-xs opacity-70">{date}</div>
-          {location && <div className="text-xs opacity-70">{location}</div>}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+          
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-medium mb-1">Description</h4>
+              <p className="text-sm text-muted-foreground">
+                {poap.event.description || "No description available"}
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <h4 className="font-medium mb-1">Event Date</h4>
+                <p className="text-muted-foreground">
+                  {formatDate(poap.event.start_date)}
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium mb-1">Year</h4>
+                <p className="text-muted-foreground">{poap.event.year}</p>
+              </div>
+              {poap.event.city && (
+                <div>
+                  <h4 className="font-medium mb-1">Location</h4>
+                  <p className="text-muted-foreground">
+                    {poap.event.city}, {poap.event.country}
+                  </p>
+                </div>
+              )}
+              <div>
+                <h4 className="font-medium mb-1">Supply</h4>
+                <p className="text-muted-foreground">{poap.event.supply || "Unlimited"}</p>
+              </div>
+            </div>
+            
+            <div className="pt-2">
+              <a 
+                href={getPoapCollectorUrl()} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline text-sm flex items-center"
+              >
+                View on POAP.xyz
+                <ExternalLink className="ml-1 h-3 w-3" />
+              </a>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

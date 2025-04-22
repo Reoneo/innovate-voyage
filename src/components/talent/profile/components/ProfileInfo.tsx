@@ -4,19 +4,15 @@ import { CardTitle } from '@/components/ui/card';
 import ProfileSocialLinks from './social/ProfileSocialLinks';
 
 interface ProfileInfoProps {
-  name?: string;
   passportId: string;
   ownerAddress: string;
   socials: Record<string, string>;
-  identity?: string;
 }
 
 const ProfileInfo: React.FC<ProfileInfoProps> = ({ 
-  name,
   passportId, 
   ownerAddress, 
-  socials,
-  identity
+  socials 
 }) => {
   const [isOwner, setIsOwner] = useState(false);
 
@@ -34,7 +30,7 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
   return (
     <div data-owner-address={ownerAddress}>
       <div className="mb-3">
-        <CardTitle className="text-2xl">{name || passportId}</CardTitle>
+        <CardTitle className="text-2xl">{passportId}</CardTitle>
       </div>
       
       <ProfileSocialLinks 

@@ -9,39 +9,33 @@ interface ProfileContactProps {
   isOwner?: boolean;
   passportId?: string;
   ownerAddress?: string;
-  socials?: Record<string, string>;
 }
 
 const ProfileContact: React.FC<ProfileContactProps> = ({ 
   email, 
   telephone, 
   isOwner = false,
-  socials = {},
   // We're adding passportId and ownerAddress to the props but not using them
   // in this component directly - they might be needed for future functionality
   passportId, 
   ownerAddress 
 }) => {
-  // Use email and telephone from props or extract from socials
-  const contactEmail = email || socials?.email;
-  const contactPhone = telephone || socials?.telephone;
-  
-  if (!contactEmail && !contactPhone && !isOwner) {
+  if (!email && !telephone && !isOwner) {
     return null;
   }
 
   return (
     <div className="w-full text-sm text-muted-foreground space-y-1 mt-2 text-center">
-      {contactPhone && (
+      {telephone && (
         <div className="flex items-center gap-2 justify-center">
           <Phone className="h-4 w-4" />
-          <span>Tel: {contactPhone}</span>
+          <span>Tel: {telephone}</span>
         </div>
       )}
-      {contactEmail && (
+      {email && (
         <div className="flex items-center gap-2 justify-center">
           <Mail className="h-4 w-4" />
-          <span>Email: {contactEmail}</span>
+          <span>Email: {email}</span>
         </div>
       )}
     </div>
