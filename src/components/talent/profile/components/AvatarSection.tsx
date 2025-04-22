@@ -33,9 +33,11 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         name={name} 
       />
       <ProfileInfo 
-        name={name} 
+        name={name}
+        passportId={name}
         ownerAddress={ownerAddress}
         identity={displayIdentity}
+        socials={socials}
       />
       
       {/* Add follower stats */}
@@ -45,11 +47,19 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         {bio && (
           <p className="text-gray-800 text-center mb-4">{bio}</p>
         )}
-        <ProfileContact socials={socials} />
+        <ProfileContact 
+          email={socials?.email}
+          telephone={socials?.telephone}
+          ownerAddress={ownerAddress}
+          socials={socials}
+        />
       </div>
       
       <div className="w-full flex justify-center">
-        <ProfileSocialLinks socials={socials} />
+        <ProfileSocialLinks 
+          passportId={name}
+          initialSocials={socials}
+        />
       </div>
       
       {additionalEnsDomains && additionalEnsDomains.length > 0 && (

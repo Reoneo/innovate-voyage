@@ -7,13 +7,16 @@ import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
 interface ProfileSocialLinksProps {
   passportId: string;
   initialSocials: Record<string, string>;
+  socials?: Record<string, string>; // Add this for compatibility with AvatarSection
 }
 
 const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({ 
   passportId, 
-  initialSocials
+  initialSocials,
+  socials // This is provided for backward compatibility
 }) => {
-  const [socialLinks, setSocialLinks] = useState<Record<string, string>>(initialSocials || {});
+  // Use either socials or initialSocials, giving priority to initialSocials
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>(initialSocials || socials || {});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

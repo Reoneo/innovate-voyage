@@ -21,6 +21,12 @@ interface TalentProtocolScoreResponse {
 
 type ThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
 
+interface WebacyQuickProfileData {
+  numTransactions?: number;
+  numContracts?: number;
+  riskLevel?: string;
+}
+
 interface WebacyData {
   riskScore?: number;
   threatLevel?: ThreatLevel;
@@ -28,11 +34,7 @@ interface WebacyData {
     count: number;
     riskyCount: number;
   };
-  quickProfile?: {
-    transactions?: number;
-    contracts?: number;
-    riskLevel?: string;
-  };
+  quickProfile?: WebacyQuickProfileData;
 }
 
 // Get talent level based on score
@@ -142,9 +144,16 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
           }
         });
         
-        let quickProfileData = {};
+        let quickProfileData: WebacyQuickProfileData = {};
         if (quickProfileResponse.ok) {
-          quickProfileData = await quickProfileResponse.json();
+          const responseData = await quickProfileResponse.json();
+          
+          // Safely extract properties that might not exist
+          quickProfileData = {
+            numTransactions: responseData.numTransactions,
+            numContracts: responseData.numContracts,
+            riskLevel: responseData.riskLevel
+          };
         }
         
         // Determine threat level
@@ -166,11 +175,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             count: approvalsData.totalCount || 0,
             riskyCount: approvalsData.riskyCount || 0
           },
-          quickProfile: {
-            transactions: quickProfileData.numTransactions,
-            contracts: quickProfileData.numContracts,
-            riskLevel: quickProfileData.riskLevel
-          }
+          quickProfile: quickProfileData
         });
       } catch (err) {
         console.error('Error fetching Webacy data:', err);
