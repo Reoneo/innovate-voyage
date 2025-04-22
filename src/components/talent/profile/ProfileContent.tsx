@@ -5,9 +5,7 @@ import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import VerifiedWorkExperience from './components/VerifiedWorkExperience';
-import SkillsCard from './components/SkillsCard';
 import PoapSection from './components/poap/PoapSection';
-// 👇 NEW import
 import TalentScoreBanner from './components/TalentScoreBanner';
 
 interface ProfileContentProps {
@@ -41,6 +39,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
       ) : passport ? (
         <HeaderContainer>
           <div className="grid grid-cols-1 md:grid-cols-10 gap-8">
+            {/* Left column with avatar and info */}
             <div className="md:col-span-3">
               <div className="flex flex-col items-center">
                 <AvatarSection 
@@ -57,18 +56,21 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 />
               </div>
             </div>
-            {/* Right column with Talent Score on top */}
+            
+            {/* Right column with scoring information and other sections */}
             <div className="md:col-span-7">
+              {/* Score Badges Section */}
               <TalentScoreBanner walletAddress={passport.owner_address} />
-              <VerifiedWorkExperience walletAddress={passport.owner_address} />
-              <SkillsCard
-                walletAddress={passport.owner_address}
-                skills={passport.skills || []}
-                passportId={passport.passport_id}
-              />
-              <PoapSection
-                walletAddress={passport.owner_address}
-              />
+              
+              {/* Work Experience - No borders */}
+              <div className="rounded-xl bg-gradient-to-br from-[#1A1F2C]/80 via-[#7E69AB]/30 to-[#0FA0CE]/20 shadow-[0_2px_10px_#3f397cee] p-0 mt-4">
+                <VerifiedWorkExperience walletAddress={passport.owner_address} />
+              </div>
+              
+              {/* POAP Section - No borders, futuristic style */}
+              <div className="mt-4">
+                <PoapSection walletAddress={passport.owner_address} />
+              </div>
             </div>
           </div>
         </HeaderContainer>

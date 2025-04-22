@@ -1,124 +1,96 @@
 
-import React, { useState, useEffect } from 'react';
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Skeleton } from "@/components/ui/skeleton";
-import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
+import React, { useEffect, useState } from 'react';
 import PoapCard from './PoapCard';
-import { Button } from '@/components/ui/button';
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface PoapSectionProps {
   walletAddress?: string;
 }
 
-// Futuristic gradient utilities
-const futuristicBox = "bg-gradient-to-br from-[#23234d]/80 via-[#6E59A5]/30 to-[#0FA0CE]/20 border-0 shadow-[0_6px_24px_-6px_#657ae76a,0_1.5px_0.5px_#76acf361_inset,0_0_24px_2px_#7e69abe6_inset] glass-morphism";
+interface Poap {
+  event: {
+    id: number;
+    name: string;
+    description: string;
+    image_url: string;
+    country: string;
+    city: string;
+    start_date: string;
+    end_date: string;
+    year: number;
+  };
+  tokenId: string;
+}
+
+// Remove Card/box, style with glassy background and no border
+const containerClasses = "rounded-xl bg-gradient-to-br from-[#1A1F2C]/80 via-[#7E69AB]/30 to-[#0FA0CE]/20 shadow-[0_2px_10px_#3f397cee,0_0px_0px_#7E69AB00_inset] p-0";
 
 const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   const [poaps, setPoaps] = useState<Poap[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const scrollContainer = React.useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    if (!walletAddress) return;
-    
-    const loadPoaps = async () => {
+    const fetchPoaps = async () => {
+      if (!walletAddress) return;
+      
       setIsLoading(true);
       try {
-        const fetchedPoaps = await fetchPoapsByAddress(walletAddress);
-        setPoaps(fetchedPoaps);
+        const response = await fetch(`https://api.poap.tech/actions/scan/${walletAddress}`, {
+          headers: {
+            'Accept': 'application/json',
+            'X-API-Key': '7xwPLTiwF4NAxB24aX2uu0iQZyB6Ixbp2m5hjHxqfUWs6UNQa4qvmn7anDDLOSrv'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setPoaps(data);
+        } else {
+          console.error('Failed to fetch POAPs:', response.statusText);
+        }
       } catch (error) {
-        console.error('Error loading POAPs:', error);
+        console.error('Error fetching POAPs:', error);
       } finally {
         setIsLoading(false);
       }
     };
     
-    loadPoaps();
+    fetchPoaps();
   }, [walletAddress]);
-
-  const scrollLeft = () => {
-    if (scrollContainer.current) {
-      scrollContainer.current.scrollBy({ left: -200, behavior: 'smooth' });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollContainer.current) {
-      scrollContainer.current.scrollBy({ left: 200, behavior: 'smooth' });
-    }
-  };
 
   if (!walletAddress) {
     return null;
   }
 
   return (
-    <section id="poap-card-section" className={`mt-4 rounded-xl ${futuristicBox} p-0`}>
-      <CardHeader className="pb-1 bg-transparent">
-        <div className="flex justify-center">
-          <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gradient-primary tracking-wide">
-            <img 
-              src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
-              className="h-7 w-7" 
-              alt="Proof of Attendance Protocol" 
-            />
-            Proof of Attendance
-          </CardTitle>
-        </div>
+    <section id="poap-section" className={containerClasses}>
+      <CardHeader className="pb-2 bg-transparent">
+        <CardTitle className="flex items-center justify-center text-xl font-semibold text-gradient-primary tracking-wide">
+          Proof of Attendance
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="flex flex-wrap gap-4 justify-center">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-16 w-16 rounded-full" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-24 rounded-lg animate-pulse bg-gradient-to-r from-gray-300/20 to-gray-300/30"></div>
             ))}
           </div>
         ) : poaps.length > 0 ? (
-          <div className="relative">
-            {poaps.length > 4 && (
-              <>
-                <Button 
-                  variant="outline"
-                  size="icon"
-                  className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/70 shadow-glass rounded-full border-none hover:bg-gradient-to-r hover:from-[#9b87f5] hover:to-[#0FA0CE]"
-                  onClick={scrollLeft}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="outline"
-                  size="icon"
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/70 shadow-glass rounded-full border-none hover:bg-gradient-to-l hover:from-[#9b87f5] hover:to-[#0FA0CE]"
-                  onClick={scrollRight}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </>
-            )}
-            <div 
-              ref={scrollContainer}
-              className="flex gap-4 overflow-x-auto py-2 px-2 scrollbar-hide scroll-smooth"
-              style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-              }}
-            >
-              {poaps.map((poap) => (
-                <div key={poap.tokenId}
-                  className="transition-transform duration-300 hover:scale-105 will-change-transform select-none"
-                >
-                  <PoapCard poap={poap} />
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
+            {poaps.map((poap) => (
+              <PoapCard 
+                key={poap.tokenId} 
+                name={poap.event.name}
+                imageUrl={poap.event.image_url}
+                date={new Date(poap.event.start_date).toLocaleDateString()}
+                location={poap.event.city || poap.event.country}
+              />
+            ))}
           </div>
         ) : (
-          <div className="text-center py-4">
-            <p className="text-muted-foreground text-sm">
-              No POAPs found for this wallet address.
-            </p>
+          <div className="text-center py-6 text-muted-foreground">
+            No POAP tokens found
           </div>
         )}
       </CardContent>

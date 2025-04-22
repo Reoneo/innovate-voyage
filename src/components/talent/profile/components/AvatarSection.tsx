@@ -1,88 +1,60 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ProfileAvatar from './ProfileAvatar';
+import ProfileInfo from './ProfileInfo';
 import ProfileContact from './ProfileContact';
-import NameSection from './identity/NameSection';
+import ProfileSocialLinks from './social/ProfileSocialLinks';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
-import BiographySection from './biography/BiographySection';
-import SocialLinksSection from './social/SocialLinksSection';
+import FollowerStats from './identity/FollowerStats';
 
 interface AvatarSectionProps {
-  avatarUrl: string;
+  avatarUrl?: string;
   name: string;
   ownerAddress: string;
-  socials?: Record<string, string>;
-  additionalEnsDomains?: string[];
+  socials: Record<string, string>;
   bio?: string;
   displayIdentity?: string;
+  additionalEnsDomains?: string[];
 }
 
-const AvatarSection: React.FC<AvatarSectionProps> = ({ 
-  avatarUrl, 
-  name, 
+const AvatarSection: React.FC<AvatarSectionProps> = ({
+  avatarUrl,
+  name,
   ownerAddress,
-  socials = {},
-  additionalEnsDomains = [],
+  socials,
   bio,
-  displayIdentity
+  displayIdentity,
+  additionalEnsDomains
 }) => {
-  const [isOwner, setIsOwner] = useState(false);
-  
-  useEffect(() => {
-    const connectedWallet = localStorage.getItem('connectedWalletAddress');
-    if (connectedWallet && ownerAddress && 
-        connectedWallet.toLowerCase() === ownerAddress.toLowerCase()) {
-      setIsOwner(true);
-    }
-  }, [ownerAddress]);
-  
-  // Format socials object to ensure all keys are lowercase for consistency
-  const normalizedSocials: Record<string, string> = {};
-  Object.entries(socials || {}).forEach(([key, value]) => {
-    if (value && typeof value === 'string' && value.trim() !== '') {
-      normalizedSocials[key.toLowerCase()] = value;
-    }
-  });
-
-  // Use WhatsApp as telephone if available and no direct telephone
-  const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
-  
   return (
-    <div className="flex flex-col items-center gap-2 w-full text-center">
-      {/* Avatar */}
+    <div className="w-full flex flex-col items-center">
       <ProfileAvatar 
         avatarUrl={avatarUrl} 
         name={name} 
       />
-      
-      {/* Name and Address */}
-      <NameSection 
+      <ProfileInfo 
         name={name} 
         ownerAddress={ownerAddress}
-        displayIdentity={displayIdentity}
+        identity={displayIdentity}
       />
       
-      {/* Additional ENS Domains */}
-      <AdditionalEnsDomains domains={additionalEnsDomains} />
+      {/* Add follower stats */}
+      <FollowerStats walletAddress={ownerAddress} />
       
-      {/* Contact Info */}
-      <ProfileContact 
-        email={normalizedSocials.email}
-        telephone={telephone}
-        isOwner={isOwner}
-      />
-      
-      {/* ENS Bio - No border */}
-      <div className="w-full px-4 py-2">
+      <div className="mt-2 mb-3 px-5 py-3 w-full">
         {bio && (
-          <div className="mt-2">
-            <p className="text-sm text-muted-foreground">{bio}</p>
-          </div>
+          <p className="text-gray-800 text-center mb-4">{bio}</p>
         )}
+        <ProfileContact socials={socials} />
       </div>
       
-      {/* Social Links */}
-      <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
+      <div className="w-full flex justify-center">
+        <ProfileSocialLinks socials={socials} />
+      </div>
+      
+      {additionalEnsDomains && additionalEnsDomains.length > 0 && (
+        <AdditionalEnsDomains domains={additionalEnsDomains} />
+      )}
     </div>
   );
 };
