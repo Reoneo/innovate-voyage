@@ -1,12 +1,15 @@
 
 import { ThreatLevel } from '../types';
 
+// Updated according to request
 export const getBuilderTitle = (score: number) => {
-  if (score >= 800) return 'Expert Builder';
-  if (score >= 600) return 'Advanced Builder';
-  if (score >= 400) return 'Intermediate Builder';
-  if (score >= 200) return 'Growing Builder';
-  return 'Beginner Builder';
+  if (score >= 250) return 'Master';
+  if (score >= 170) return 'Expert';
+  if (score >= 120) return 'Advanced';
+  if (score >= 80) return 'Practitioner';
+  if (score >= 40) return 'Apprentice';
+  if (score >= 0) return 'Novice';
+  return 'Novice';
 };
 
 export const getThreatLevel = (riskScore?: number): ThreatLevel => {

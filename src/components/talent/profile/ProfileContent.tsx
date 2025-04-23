@@ -6,6 +6,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import PoapSection from './components/poap/PoapSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -15,17 +16,17 @@ interface ProfileContentProps {
   ensNameOrAddress?: string;
 }
 
-const ProfileContent: React.FC<ProfileContentProps> = ({ 
-  loading, 
+const ProfileContent: React.FC<ProfileContentProps> = ({
+  loading,
   loadingTimeout,
-  passport, 
+  passport,
   profileRef,
   ensNameOrAddress
 }) => {
+  const isMobile = useIsMobile();
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
-
   const centerStyle = {
     maxWidth: '950px',
     margin: '0 auto'
@@ -37,24 +38,22 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className="grid grid-cols-1 md:grid-cols-10 gap-8">
-            <div className="md:col-span-3">
-              <div className="flex flex-col items-center">
-                <AvatarSection 
-                  avatarUrl={passport.avatar_url}
-                  name={passport.name}
-                  ownerAddress={passport.owner_address}
-                  socials={{
-                    ...passport.socials,
-                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
-                  }}
-                  bio={passport.bio}
-                  displayIdentity={ensNameOrAddress}
-                  additionalEnsDomains={passport.additionalEnsDomains}
-                />
-              </div>
+          <div className={`w-full ${isMobile ? 'flex flex-col gap-8' : 'grid grid-cols-10 gap-8'}`}>
+            <div className={isMobile ? '' : 'md:col-span-3 flex flex-col items-center'}>
+              <AvatarSection
+                avatarUrl={passport.avatar_url}
+                name={passport.name}
+                ownerAddress={passport.owner_address}
+                socials={{
+                  ...passport.socials,
+                  linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
+                }}
+                bio={passport.bio}
+                displayIdentity={ensNameOrAddress}
+                additionalEnsDomains={passport.additionalEnsDomains}
+              />
             </div>
-            <div className="md:col-span-7">
+            <div className={isMobile ? '' : 'md:col-span-7'}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               <PoapSection walletAddress={passport.owner_address} />
             </div>
@@ -70,7 +69,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
 export default ProfileContent;
 
 // Internal component for timeout error
-const ProfileTimeoutError: React.FC<{ensNameOrAddress?: string}> = ({ ensNameOrAddress }) => (
+const ProfileTimeoutError: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameOrAddress }) => (
   <div className="min-h-screen bg-gray-50 py-4 md:py-8">
     <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
       <HeaderContainer>
