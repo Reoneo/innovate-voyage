@@ -31,22 +31,19 @@ export function useScoresData(walletAddress: string) {
           setScore(data.score?.points ?? null);
         }
 
-        // Fetch Webacy Data using the correct API endpoint with proper headers
+        // Fetch Webacy Data using the correct API endpoint: /addresses/{address}
         try {
           const webacyResp = await fetch(`https://api.webacy.com/addresses/${walletAddress}`, {
             headers: {
               'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-              'accept': 'application/json',
-              'Key-ID': 'eujjkt9ao5' // Adding the Key-ID header as required by Webacy API
+              'accept': 'application/json'
             },
             cache: "no-cache"
           });
 
           if (webacyResp.ok) {
             const webacyDataJson = await webacyResp.json();
-            console.log("Webacy response:", webacyDataJson);
-            
-            // API returns structure with data property containing the actual data
+            // API returns structure: { data: { address, riskScore, ... }, status }
             const riskScore = webacyDataJson.data?.riskScore;
             setWebacyData({
               riskScore: riskScore,
@@ -62,7 +59,6 @@ export function useScoresData(walletAddress: string) {
               }
             });
           } else {
-            console.error('Webacy API error:', await webacyResp.text());
             setWebacyData(null);
           }
         } catch (webacyError) {
