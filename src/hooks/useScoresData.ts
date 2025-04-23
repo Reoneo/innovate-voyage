@@ -31,39 +31,40 @@ export function useScoresData(walletAddress: string) {
           setScore(data.score?.points ?? null);
         }
 
-        // Fetch Webacy Data with the correct API key
+        // Fetch Webacy Data using the correct API endpoint with proper headers
         try {
-          // Fetch quick profile data with proper headers
-          const quickProfileResp = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}`, {
+          const webacyResp = await fetch(`https://api.webacy.com/addresses/${walletAddress}`, {
             headers: {
-              'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-              'Key-ID': 'eujjkt9ao5',
-              'accept': 'application/json'
+              'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
+              'accept': 'application/json',
+              'Key-ID': 'eujjkt9ao5' // Adding the Key-ID header as required by Webacy API
             },
-            cache: "no-cache" // Force fetch fresh data
+            cache: "no-cache"
           });
-          
-          const quickProfileData = quickProfileResp.ok ? await quickProfileResp.json() : {};
-          console.log('Webacy quick profile data:', quickProfileData);
-          
-          // Determine risk score and threat level
-          const riskScore = quickProfileData.riskLevel === 'low' ? 25 : 
-                           quickProfileData.riskLevel === 'medium' ? 50 :
-                           quickProfileData.riskLevel === 'high' ? 75 : 0;
-          
-          setWebacyData({
-            riskScore: riskScore,
-            threatLevel: getThreatLevel(riskScore),
-            approvals: {
-              count: 0, // Placeholder values
-              riskyCount: 0
-            },
-            quickProfile: {
-              transactions: quickProfileData.numTransactions || 0,
-              contracts: quickProfileData.numContracts || 0,
-              riskLevel: quickProfileData.riskLevel || 'unknown'
-            }
-          });
+
+          if (webacyResp.ok) {
+            const webacyDataJson = await webacyResp.json();
+            console.log("Webacy response:", webacyDataJson);
+            
+            // API returns structure with data property containing the actual data
+            const riskScore = webacyDataJson.data?.riskScore;
+            setWebacyData({
+              riskScore: riskScore,
+              threatLevel: getThreatLevel(riskScore),
+              approvals: {
+                count: 0,
+                riskyCount: 0
+              },
+              quickProfile: {
+                transactions: 0,
+                contracts: 0,
+                riskLevel: getThreatLevel(riskScore)
+              }
+            });
+          } else {
+            console.error('Webacy API error:', await webacyResp.text());
+            setWebacyData(null);
+          }
         } catch (webacyError) {
           console.error('Error fetching Webacy data:', webacyError);
         }
@@ -71,7 +72,7 @@ export function useScoresData(walletAddress: string) {
         // Fetch Transaction Count from Etherscan
         const etherscanResp = await fetch(
           `https://api.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=1000&sort=desc&apikey=5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM`,
-          { cache: "no-cache" } // Force fetch fresh data
+          { cache: "no-cache" }
         );
         
         if (etherscanResp.ok) {

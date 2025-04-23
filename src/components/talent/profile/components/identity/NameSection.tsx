@@ -12,6 +12,10 @@ interface NameSectionProps {
   displayIdentity?: string;
 }
 
+function shortenAddress(addr: string) {
+  return addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "";
+}
+
 const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayIdentity }) => {
   const displayName = displayIdentity || (name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/)
     ? `${name}.eth`
@@ -30,6 +34,9 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     setDialogType('following');
     setDialogOpen(true);
   };
+
+  // Common logo
+  const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
 
   return (
     <div className="mt-2 text-center">
@@ -66,7 +73,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <img 
-                src="https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png"
+                src={efpLogo}
                 className="h-6 w-6 rounded-full"
                 alt="EFP"
               />
@@ -75,19 +82,23 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
           </DialogHeader>
           
           <div className="py-4">
-            {dialogType === 'followers' && followersList && followersList.length > 0 ? (
-              <div className="space-y-3">
+            {(dialogType === 'followers' && followersList && followersList.length > 0) ? (
+              <div className="space-y-3 max-h-72 overflow-y-auto">
                 {followersList.map((follower, index) => (
                   <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
                     <div className="flex items-center gap-3">
                       <Avatar>
                         <AvatarImage src={follower.avatar} />
-                        <AvatarFallback>{follower.ensName?.substring(0, 2) || "EN"}</AvatarFallback>
+                        <AvatarFallback>
+                          {follower.ensName
+                            ? follower.ensName.substring(0, 2).toUpperCase()
+                            : shortenAddress(follower.address).substring(0, 2)}
+                        </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{follower.ensName || follower.address}</p>
+                        <p className="font-medium">{follower.ensName || shortenAddress(follower.address)}</p>
                         {follower.ensName && (
-                          <p className="text-xs text-muted-foreground">{follower.address}</p>
+                          <p className="text-xs text-muted-foreground">{shortenAddress(follower.address)}</p>
                         )}
                       </div>
                     </div>
@@ -101,19 +112,23 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                   </div>
                 ))}
               </div>
-            ) : dialogType === 'following' && followingList && followingList.length > 0 ? (
-              <div className="space-y-3">
+            ) : (dialogType === 'following' && followingList && followingList.length > 0) ? (
+              <div className="space-y-3 max-h-72 overflow-y-auto">
                 {followingList.map((following, index) => (
                   <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
                     <div className="flex items-center gap-3">
                       <Avatar>
                         <AvatarImage src={following.avatar} />
-                        <AvatarFallback>{following.ensName?.substring(0, 2) || "EN"}</AvatarFallback>
+                        <AvatarFallback>
+                          {following.ensName
+                            ? following.ensName.substring(0, 2).toUpperCase()
+                            : shortenAddress(following.address).substring(0, 2)}
+                        </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{following.ensName || following.address}</p>
+                        <p className="font-medium">{following.ensName || shortenAddress(following.address)}</p>
                         {following.ensName && (
-                          <p className="text-xs text-muted-foreground">{following.address}</p>
+                          <p className="text-xs text-muted-foreground">{shortenAddress(following.address)}</p>
                         )}
                       </div>
                     </div>
