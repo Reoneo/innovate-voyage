@@ -4,10 +4,8 @@ import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
-// Assume you also have these components for column 2 display:
-import SkillsListSection from './components/skills/SkillsListSection';
-import WorkExperienceSection from './components/WorkExperienceSection';
 import PoapSection from './components/poap/PoapSection';
+import TalentScoreBanner from './components/TalentScoreBanner';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -24,12 +22,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   profileRef,
   ensNameOrAddress
 }) => {
-  // If loading timeout occurred and still loading, show error message
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
 
-  // Add a style to center the content
   const centerStyle = {
     maxWidth: '950px',
     margin: '0 auto'
@@ -41,31 +37,26 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          {/* Two-column layout with 30:70 ratio for desktop, single column for mobile */}
-          <div className="grid grid-cols-1 md:grid-cols-10 gap-6 md:gap-8">
-            {/* Left column - Avatar and personal info - 30% width */}
-            <div className="flex flex-col gap-6 md:col-span-3">
-              <AvatarSection 
-                avatarUrl={passport.avatar_url}
-                name={passport.name}
-                ownerAddress={passport.owner_address}
-                socials={{
-                  ...passport.socials,
-                  linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
-                }}
-                bio={passport.bio}
-                displayIdentity={ensNameOrAddress}
-                additionalEnsDomains={passport.additionalEnsDomains}
-              />
+          <div className="grid grid-cols-1 md:grid-cols-10 gap-8">
+            <div className="md:col-span-3">
+              <div className="flex flex-col items-center">
+                <AvatarSection 
+                  avatarUrl={passport.avatar_url}
+                  name={passport.name}
+                  ownerAddress={passport.owner_address}
+                  socials={{
+                    ...passport.socials,
+                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
+                  }}
+                  bio={passport.bio}
+                  displayIdentity={ensNameOrAddress}
+                  additionalEnsDomains={passport.additionalEnsDomains}
+                />
+              </div>
             </div>
-            {/* Right column - Professional info - 70% width */}
-            <div className="flex flex-col gap-6 md:col-span-7">
-              {/* ---- COLUMN 2: Match the "profile page UI changes" refactor ---- */}
-              {/* Example: */}
-              <SkillsListSection skills={passport?.skills || []} />
-              <WorkExperienceSection workExperience={passport?.workExperience || []} />
-              <PoapSection poaps={passport?.poaps || []} />
-              {/* You may add more sections here if the design requires */}
+            <div className="md:col-span-7">
+              <TalentScoreBanner walletAddress={passport.owner_address} />
+              <PoapSection walletAddress={passport.owner_address} />
             </div>
           </div>
         </HeaderContainer>
@@ -93,4 +84,3 @@ const ProfileTimeoutError: React.FC<{ensNameOrAddress?: string}> = ({ ensNameOrA
     </div>
   </div>
 );
-

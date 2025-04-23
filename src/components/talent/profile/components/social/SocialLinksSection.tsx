@@ -1,50 +1,56 @@
 
-import React from 'react';
-import PlatformLinks from './PlatformLinks';
-import CustomLinks from './CustomLinks';
+import React, { useState, useEffect } from 'react';
+import SocialMediaLinks from '../../tabs/social/SocialMediaLinks';
+import { getEnsLinks } from '@/utils/ens/ensLinks';
+import WebacySecurity from '../security/WebacySecurity';
+
+// Centered, larger header styles for the links section
+const linkHeaderClasses =
+  "flex items-center justify-center text-xl font-semibold mb-4 text-gradient-primary tracking-wide";
 
 interface SocialLinksSectionProps {
   socials: Record<string, string>;
-  displayIdentity?: string;
+  identity?: string;
 }
 
-const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, displayIdentity }) => {
-  // Filter out empty values and create a normalized social object
-  const normalizedSocials: Record<string, string> = {};
-  Object.entries(socials || {}).forEach(([key, value]) => {
-    if (value && typeof value === 'string' && value.trim() !== '') {
-      normalizedSocials[key.toLowerCase()] = value;
+const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identity }) => {
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>(socials || {});
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (identity && (identity.includes('.eth') || identity.includes('.box'))) {
+      setIsLoading(true);
+      getEnsLinks(identity)
+        .then(links => {
+          if (links && links.socials) {
+            setSocialLinks(prevLinks => ({
+              ...prevLinks,
+              ...links.socials
+            }));
+          }
+        })
+        .catch(error => {
+          console.error(`Error fetching social links for ${identity}:`, error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
-  });
+  }, [identity]);
 
-  // Check if we have any actual social links
-  const hasSocialLinks = Object.keys(normalizedSocials).length > 0;
+  // Extract owner address from socials or use undefined
+  const ownerAddress = socials?.ethereum || socials?.walletAddress;
 
-  // For debugging
-  console.log('Rendering social links:', normalizedSocials);
-
-  if (!hasSocialLinks) {
-    return null;
-  }
-
-  const standardPlatforms = [
-    'github', 'twitter', 'linkedin', 'facebook', 'instagram',
-    'youtube', 'telegram', 'bluesky', 'discord', 'website',
-    'whatsapp', 'email', 'telephone', 'location'
-  ];
-
-  // Style: links/text/buttons should use #8E9196 (Neutral Gray from palette)
   return (
-    <div className="w-full max-w-full px-3">
-      <h4 className="text-sm font-medium mb-2" style={{ color: '#8E9196' }}>
-        Social Links
-      </h4>
-      <div className="grid grid-cols-4 gap-3 justify-items-center">
-        <PlatformLinks normalizedSocials={normalizedSocials} />
-        <CustomLinks 
-          normalizedSocials={normalizedSocials} 
-          standardPlatforms={standardPlatforms} 
-        />
+    <div className="w-full mt-6">
+      <h3 className={linkHeaderClasses}>
+        Links
+      </h3>
+      <div className="mb-4">
+        <WebacySecurity walletAddress={ownerAddress} />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
       </div>
     </div>
   );
