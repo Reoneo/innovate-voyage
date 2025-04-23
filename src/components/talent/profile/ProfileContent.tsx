@@ -24,9 +24,11 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   ensNameOrAddress
 }) => {
   const isMobile = useIsMobile();
+  
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
+  
   const centerStyle = {
     maxWidth: '950px',
     margin: '0 auto'
@@ -38,8 +40,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className={`w-full ${isMobile ? 'flex flex-col gap-8' : 'grid grid-cols-10 gap-8'}`}>
-            <div className={isMobile ? '' : 'md:col-span-3 flex flex-col items-center'}>
+          <div className="w-full grid grid-cols-1 md:grid-cols-10 gap-8">
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col items-center`}>
               <AvatarSection
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
@@ -53,7 +55,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
             </div>
-            <div className={isMobile ? '' : 'md:col-span-7'}>
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'}`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               <PoapSection walletAddress={passport.owner_address} />
             </div>

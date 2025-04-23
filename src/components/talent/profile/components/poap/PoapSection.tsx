@@ -1,11 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
 import PoapCard from './PoapCard';
-import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PoapSectionProps {
   walletAddress?: string;
@@ -14,8 +13,8 @@ interface PoapSectionProps {
 const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   const [poaps, setPoaps] = useState<Poap[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const scrollContainer = React.useRef<HTMLDivElement>(null);
+  const [selectedPoap, setSelectedPoap] = useState<Poap | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -23,7 +22,12 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
       setIsLoading(true);
       try {
         const fetchedPoaps = await fetchPoapsByAddress(walletAddress);
-        setPoaps(fetchedPoaps);
+        // Sort POAPs by supply (ascending) so limited editions show first
+        const sortedPoaps = [...fetchedPoaps].sort((a, b) => (a.event.supply || 999999) - (b.event.supply || 999999));
+        setPoaps(sortedPoaps);
+        if (sortedPoaps.length > 0) {
+          setSelectedPoap(sortedPoaps[0]);
+        }
       } catch (error) {
         console.error('Error loading POAPs:', error);
       } finally {
@@ -33,17 +37,11 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     loadPoaps();
   }, [walletAddress]);
 
-  const showLeft = poaps.length > 1 && activeIndex > 0;
-  const showRight = poaps.length > 1 && activeIndex < poaps.length - 1;
-
-  const goLeft = () => setActiveIndex(Math.max(activeIndex - 1, 0));
-  const goRight = () => setActiveIndex(Math.min(activeIndex + 1, poaps.length - 1));
-
   if (!walletAddress) return null;
 
   return (
-    <section className="mt-4 bg-gradient-to-br from-[#e5deff] via-[#d3e4fd]/50 to-[#fafbfe] rounded-xl shadow-lg px-2 py-6 mb-2 min-h-[230px] max-w-full">
-      <CardHeader className="pb-1 bg-transparent">
+    <section className="mt-4 bg-white rounded-xl shadow-sm px-0 py-0 mb-2 overflow-hidden max-w-full">
+      <CardHeader className="pb-1 bg-gradient-to-br from-[#e5deff] to-[#fafbfe] py-4">
         <div className="flex justify-center">
           <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gradient-primary tracking-wide">
             <img
@@ -51,50 +49,40 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
               className="h-7 w-7"
               alt="Proof of Attendance Protocol"
             />
-            Proof of Attendance
+            POAPs
           </CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col items-center justify-center">
+      
+      <CardContent className="p-0">
         {isLoading ? (
-          <div className="flex gap-4 justify-center">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-28 w-28 rounded-full" />
-            ))}
+          <div className="flex gap-4 justify-center p-6">
+            <Skeleton className="h-28 w-full rounded-lg" />
           </div>
-        ) : poaps.length > 0 ? (
-          <div className="relative w-full flex flex-col items-center">
-            <div className="flex items-center justify-center w-full mt-2 max-w-xl mx-auto gap-2">
-              {showLeft && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={goLeft}
-                  className="rounded-full bg-white border shadow transition hover:bg-[#e5deff]/70"
-                  aria-label="Previous"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </Button>
-              )}
-              <div className="flex-grow flex justify-center">
-                <div className="transition-transform duration-300">
-                  <PoapCard poap={poaps[activeIndex]} />
-                  <div className="mt-2 text-xs text-center text-muted-foreground opacity-80">
-                    {activeIndex + 1} / {poaps.length}
+        ) : poaps.length > 0 && selectedPoap ? (
+          <div className="flex flex-col">
+            {/* Featured POAP display */}
+            <div className="p-4 bg-white">
+              <PoapCard poap={selectedPoap} detailed={true} />
+            </div>
+            
+            {/* Thumbnail list */}
+            <div className="overflow-x-auto scrollbar-hide px-4 py-3 bg-gray-50 border-t">
+              <div className="flex gap-3">
+                {poaps.map((poap, index) => (
+                  <div 
+                    key={poap.tokenId} 
+                    onClick={() => setSelectedPoap(poap)}
+                    className={`cursor-pointer flex-shrink-0 ${selectedPoap.tokenId === poap.tokenId ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                  >
+                    <img 
+                      src={poap.event.image_url}
+                      alt={poap.event.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
                   </div>
-                </div>
+                ))}
               </div>
-              {showRight && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={goRight}
-                  className="rounded-full bg-white border shadow transition hover:bg-[#e5deff]/70"
-                  aria-label="Next"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </Button>
-              )}
             </div>
           </div>
         ) : (

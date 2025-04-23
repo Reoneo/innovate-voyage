@@ -18,6 +18,32 @@ export function useProfilePage() {
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
+    // Clear any browser cache to ensure fresh data loads
+    const clearCaches = async () => {
+      try {
+        // Clear memory cache by adding timestamp to prevent browser caching
+        const timestamp = new Date().getTime();
+        if (window.location.href.indexOf('?t=') === -1) {
+          // Add timestamp param to force reload without cache
+          window.history.replaceState(null, '', `${window.location.pathname}?t=${timestamp}`);
+        }
+        
+        // Attempt to clear fetch cache if available
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          for (const cacheName of cacheNames) {
+            if (cacheName.includes('fetch-cache')) {
+              await caches.delete(cacheName);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error clearing caches:', err);
+      }
+    };
+    
+    clearCaches();
+    
     if (targetIdentifier) {
       // Direct address check - immediately use as address if valid
       if (isValidEthereumAddress(targetIdentifier)) {
@@ -44,12 +70,12 @@ export function useProfilePage() {
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
-      metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0');
+      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
     }
 
     return () => {
       clearTimeout(timeoutId);
-      // Reset viewport to mobile-friendly when leaving the page
+      // Reset viewport when leaving the page
       if (metaViewport) {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }

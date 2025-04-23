@@ -1,7 +1,7 @@
 
 import { ThreatLevel } from '../types';
 
-// Updated according to request
+// Updated Builder Score levels according to Talent Protocol standards
 export const getBuilderTitle = (score: number) => {
   if (score >= 250) return 'Master';
   if (score >= 170) return 'Expert';
