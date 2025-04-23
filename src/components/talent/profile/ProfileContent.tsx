@@ -1,8 +1,13 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
+// Assume you also have these components for column 2 display:
+import SkillsListSection from './components/skills/SkillsListSection';
+import WorkExperienceSection from './components/WorkExperienceSection';
+import PoapSection from './components/poap/PoapSection';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -53,11 +58,14 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
             </div>
-            
             {/* Right column - Professional info - 70% width */}
             <div className="flex flex-col gap-6 md:col-span-7">
-              {/* WebacyScoreSection removed to improve loading performance */}
-              {/* Other sections can be added here if needed */}
+              {/* ---- COLUMN 2: Match the "profile page UI changes" refactor ---- */}
+              {/* Example: */}
+              <SkillsListSection skills={passport?.skills || []} />
+              <WorkExperienceSection workExperience={passport?.workExperience || []} />
+              <PoapSection poaps={passport?.poaps || []} />
+              {/* You may add more sections here if the design requires */}
             </div>
           </div>
         </HeaderContainer>
@@ -85,3 +93,4 @@ const ProfileTimeoutError: React.FC<{ensNameOrAddress?: string}> = ({ ensNameOrA
     </div>
   </div>
 );
+

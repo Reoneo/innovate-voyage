@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileContact from './ProfileContact';
@@ -38,7 +37,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     }
   }, [ownerAddress]);
   
-  // Log social links to help with debugging
   useEffect(() => {
     console.log("AvatarSection - Social links:", socials);
   }, [socials]);
@@ -79,7 +77,9 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         </div>
       )}
       
-      <SocialLinksSection socials={socials} />
+      <div className="w-full flex justify-center mt-2">
+        <SocialLinksSection socials={socials} displayIdentity={displayIdentity} />
+      </div>
     </div>
   );
 };
