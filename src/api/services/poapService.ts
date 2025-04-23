@@ -39,6 +39,7 @@ export async function fetchPoapsByAddress(address: string): Promise<Poap[]> {
     await enforceRateLimit(300);
     
     const url = `${POAP_API_BASE_URL}/actions/scan/${address}`;
+    console.log(`Fetching POAPs from: ${url}`);
     
     const response = await fetch(url, {
       method: 'GET',
@@ -50,13 +51,27 @@ export async function fetchPoapsByAddress(address: string): Promise<Poap[]> {
     
     if (!response.ok) {
       console.error(`POAP API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`POAP API error details: ${errorText}`);
       return [];
     }
     
     const data = await response.json();
+    console.log(`POAP API returned ${Array.isArray(data) ? data.length : 0} POAPs`);
     
     // Return all POAPs
     const poaps = Array.isArray(data) ? data : [];
+    
+    // Log the first POAP for debugging
+    if (poaps.length > 0) {
+      console.log("Sample POAP data:", {
+        tokenId: poaps[0].tokenId,
+        eventName: poaps[0].event.name,
+        imageUrl: poaps[0].event.image_url,
+        description: poaps[0].event.description
+      });
+    }
+    
     return poaps;
   } catch (error) {
     console.error('Error fetching POAPs:', error);
