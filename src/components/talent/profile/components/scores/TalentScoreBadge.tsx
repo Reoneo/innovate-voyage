@@ -17,7 +17,7 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, isL
     <div onClick={onClick} className="cursor-pointer transition-all hover:opacity-80">
       <div className="flex flex-col items-center gap-2 p-6 rounded-lg bg-black h-full">
         <img 
-          src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1745424000000&signature=pukHgWBup44dUkcNvZ3kNuSwwsHf8sh8vHkObZqgaNA&downloadName=logomark_dark.jpg" 
+          src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1745337600000&signature=wtFyv79TZFAr2obmOsbtKMwG9InwnvLtOVGSOMWFFUw&downloadName=logomark_dark.jpg" 
           alt="Talent Protocol" 
           className="h-8 w-8 rounded-full" 
         />
@@ -34,4 +34,3 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, isL
 };
 
 export default TalentScoreBadge;
-
