@@ -48,28 +48,28 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
 
   return (
     <section className="mt-4 bg-white rounded-xl shadow-sm px-0 py-0 mb-2 overflow-hidden max-w-full transition-all">
+      <CardHeader className="pb-1 bg-gradient-to-br from-[#e5deff] to-[#fafbfe] py-3 px-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gradient-primary tracking-wide">
+            <img
+              src={mainPoapImg}
+              className="h-6 w-6"
+              alt="Proof of Attendance"
+            />
+            Proof of Attendance
+          </CardTitle>
+          <CollapsibleTrigger asChild>
+            <button
+              onClick={() => setOpen((v) => !v)}
+              className="ml-auto group rounded-full p-1 hover:bg-gray-100 transition"
+              aria-label={open ? 'Hide POAP details' : 'Show POAP details'}
+            >
+              <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+            </button>
+          </CollapsibleTrigger>
+        </div>
+      </CardHeader>
       <Collapsible open={open} onOpenChange={setOpen}>
-        <CardHeader className="pb-1 bg-gradient-to-br from-[#e5deff] to-[#fafbfe] py-3 px-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gradient-primary tracking-wide">
-              <img
-                src={mainPoapImg}
-                className="h-6 w-6"
-                alt="Proof of Attendance"
-              />
-              Proof of Attendance
-            </CardTitle>
-            <CollapsibleTrigger asChild>
-              <button
-                onClick={() => setOpen(!open)}
-                className="ml-auto group rounded-full p-1 hover:bg-gray-100 transition"
-                aria-label={open ? 'Hide POAP details' : 'Show POAP details'}
-              >
-                <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
-              </button>
-            </CollapsibleTrigger>
-          </div>
-        </CardHeader>
         <CollapsibleContent>
           <CardContent className="pt-2 pb-3 px-3 flex flex-col items-center min-h-0">
             {isLoading ? (
@@ -120,3 +120,4 @@ function formatDate(dateString?: string) {
 }
 
 export default PoapSection;
+
