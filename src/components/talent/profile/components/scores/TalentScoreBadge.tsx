@@ -34,4 +34,3 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, isL
 };
 
 export default TalentScoreBadge;
-

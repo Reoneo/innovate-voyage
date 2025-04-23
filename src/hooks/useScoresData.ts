@@ -31,7 +31,7 @@ export function useScoresData(walletAddress: string) {
           setScore(data.score?.points ?? null);
         }
 
-        // Fetch Webacy Data with the correct API key and endpoint: /addresses/{address}
+        // Fetch Webacy Data using the correct API endpoint: /addresses/{address}
         try {
           const webacyResp = await fetch(`https://api.webacy.com/addresses/${walletAddress}`, {
             headers: {
