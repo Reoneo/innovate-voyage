@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import AddressDisplay from './AddressDisplay';
 import { useEfpStats } from '@/hooks/useEfpStats';
@@ -61,6 +62,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     }
   };
 
+  // Common logo
   const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
 
   return (
@@ -69,6 +71,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       <div className="flex items-center justify-center gap-2 mt-1">
         <AddressDisplay address={ownerAddress} />
       </div>
+      {/* EFP stats - updated with black text */}
       <div className="mt-1 flex items-center justify-center text-black font-semibold space-x-1 text-sm">
         {loading ? (
           <span>Loading...</span>
@@ -90,7 +93,8 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
           </>
         )}
       </div>
-      
+
+      {/* Dialog for followers/following */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
