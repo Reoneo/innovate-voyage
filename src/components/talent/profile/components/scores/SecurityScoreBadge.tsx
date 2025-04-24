@@ -12,6 +12,19 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({ webacyData, onC
   if (isLoading) {
     return <Skeleton className="h-32 w-full" />;
   }
+  
+  // Risk color based on score (0 = green, 100 = red)
+  const getRiskColor = (score?: number) => {
+    if (score === undefined || score === null) return 'bg-gray-200 text-gray-700';
+    
+    // Calculate a color gradient from green to red
+    if (score <= 10) return 'bg-green-500 text-white';
+    if (score <= 30) return 'bg-green-400 text-white';
+    if (score <= 50) return 'bg-yellow-400 text-white';
+    if (score <= 70) return 'bg-orange-400 text-white';
+    if (score <= 90) return 'bg-red-400 text-white';
+    return 'bg-red-600 text-white';
+  };
 
   return (
     <div onClick={onClick} className="cursor-pointer transition-all hover:opacity-80">
@@ -23,7 +36,7 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({ webacyData, onC
         />
         <div className="text-center">
           <h3 className="text-lg font-semibold text-gray-700">Risk Score</h3>
-          <div className={`text-3xl font-bold ${getThreatColor(webacyData?.threatLevel)}`}>
+          <div className={`text-3xl font-bold px-3 py-1 rounded ${getRiskColor(webacyData?.riskScore)}`}>
             {webacyData?.riskScore !== undefined ? webacyData.riskScore : 'N/A'}
           </div>
         </div>
