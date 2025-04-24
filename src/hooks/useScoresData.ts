@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { WebacyData, ThreatLevel } from '@/components/talent/profile/components/scores/types';
 import { getThreatLevel } from '@/components/talent/profile/components/scores/utils/scoreUtils';
@@ -14,45 +15,54 @@ export function useScoresData(walletAddress: string) {
     const fetchData = async () => {
       setLoading(true);
       
-      // Fetch all data in parallel
-      try {
-        const [talentResp, webacyResp, etherscanResp] = await Promise.all([
-          fetch(
-            `https://api.talentprotocol.com/score?id=${walletAddress}&account_source=wallet`,
-            {
-              headers: {
-                "X-API-KEY": "2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f",
-              },
-              cache: "no-store" // Force fresh data
-            }
-          ),
-          fetch(`https://api.webacy.com/addresses/${walletAddress}`, {
+      // Create an array of promises for parallel fetching
+      const fetchPromises = [
+        // Fetch Talent Protocol Score
+        fetch(
+          `https://api.talentprotocol.com/score?id=${walletAddress}&account_source=wallet`,
+          {
             headers: {
-              'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-              'accept': 'application/json',
-              'Key-ID': 'eujjkt9ao5'
+              "X-API-KEY": "2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f",
             },
-            cache: "no-store"
-          }),
-          fetch(
-            `https://api.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=1000&sort=desc&apikey=5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM`,
-            { cache: "no-store" }
-          )
-        ]);
+            cache: "no-cache"
+          }
+        ),
+        
+        // Fetch Webacy Data
+        fetch(`https://api.webacy.com/addresses/${walletAddress}`, {
+          headers: {
+            'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
+            'accept': 'application/json',
+            'Key-ID': 'eujjkt9ao5'
+          },
+          cache: "no-cache"
+        }),
+        
+        // Fetch Transaction Count
+        fetch(
+          `https://api.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=1000&sort=desc&apikey=5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM`,
+          { cache: "no-cache" }
+        )
+      ];
 
+      try {
+        const [talentResp, webacyResp, etherscanResp] = await Promise.all(fetchPromises);
+        
         // Process Talent Protocol response
         if (talentResp.ok) {
-          const data = await talentResp.json();
-          setScore(data.score?.points ?? null);
+          const talentData = await talentResp.json();
+          setScore(talentData.score?.points ?? null);
         }
 
         // Process Webacy response
         if (webacyResp.ok) {
           const webacyDataJson = await webacyResp.json();
           const riskScore = webacyDataJson.data?.riskScore;
+          
           setWebacyData({
             riskScore,
             threatLevel: getThreatLevel(riskScore),
+            walletAddress,
             approvals: {
               count: 0,
               riskyCount: 0
@@ -67,14 +77,14 @@ export function useScoresData(walletAddress: string) {
 
         // Process Etherscan response
         if (etherscanResp.ok) {
-          const data = await etherscanResp.json();
-          if (data.status === '1') {
-            setTxCount(data.result.length);
+          const etherscanData = await etherscanResp.json();
+          if (etherscanData.status === '1') {
+            setTxCount(etherscanData.result.length);
           }
         }
 
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching scores data:', error);
       } finally {
         setLoading(false);
       }
