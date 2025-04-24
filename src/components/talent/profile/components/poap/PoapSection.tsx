@@ -1,11 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { ChevronDown, ArrowLeft, ArrowRight } from "lucide-react";
+import { ChevronDown, ArrowLeft, ArrowRight, X } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface PoapSectionProps {
   walletAddress?: string;
@@ -14,8 +14,10 @@ interface PoapSectionProps {
 const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   const [poaps, setPoaps] = useState<Poap[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [currentPoapIndex, setCurrentPoapIndex] = useState(0);
+  const [enlargeOpen, setEnlargeOpen] = useState(false);
+  const [selectedPoapImage, setSelectedPoapImage] = useState<string>("");
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -25,14 +27,13 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
       try {
         const fetchedPoaps = await fetchPoapsByAddress(walletAddress);
         console.log("Fetched POAPs:", fetchedPoaps);
-        // Sort POAPs by supply (ascending) so most limited supply first
         const sortedPoaps = [...fetchedPoaps].sort((a, b) => {
           const aSupply = a.event.supply ?? 999999;
           const bSupply = b.event.supply ?? 999999;
           return aSupply - bSupply;
         });
         setPoaps(sortedPoaps);
-        setCurrentPoapIndex(0); // Reset to first POAP when loading new ones
+        setCurrentPoapIndex(0);
       } catch (error) {
         console.error('Error loading POAPs:', error);
       } finally {
@@ -52,9 +53,15 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     }
   };
 
+  const openEnlargeDialog = (imageUrl: string) => {
+    setSelectedPoapImage(imageUrl);
+    setEnlargeOpen(true);
+  };
+
   if (!walletAddress) return null;
 
-  // Poap main image override
+  const displayedPoaps = poaps.slice(0, Math.min(poaps.length, 12));
+
   const mainPoapImg = "https://imgur.com/Eb2LIkP.png";
   const currentPoap = poaps.length > 0 ? poaps[currentPoapIndex] : undefined;
 
@@ -88,53 +95,73 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
               <div className="flex gap-4 justify-center pt-8 pb-8 w-full">
                 <Skeleton className="h-20 w-full rounded-lg" />
               </div>
-            ) : currentPoap ? (
-              <div className="flex flex-col w-full">
-                <div className="flex flex-row items-center w-full gap-4">
-                  <div className="relative flex-shrink-0">
-                    <img
-                      src={currentPoap.event.image_url}
-                      alt={currentPoap.event.name}
-                      className="w-16 h-16 rounded-full object-cover border border-gray-300 shadow-sm"
-                      style={{ background: "#f6f2ff" }}
-                    />
+            ) : displayedPoaps.length > 0 ? (
+              <>
+                <div className="w-full overflow-x-auto pb-4 hide-scrollbar">
+                  <div className="grid grid-cols-4 gap-2 w-full min-w-max">
+                    {displayedPoaps.map((poap, index) => (
+                      <div 
+                        key={poap.tokenId}
+                        onClick={() => {
+                          setCurrentPoapIndex(index);
+                          openEnlargeDialog(poap.event.image_url);
+                        }}
+                        className="aspect-square w-24 cursor-pointer hover:opacity-90 transition-all"
+                      >
+                        <img
+                          src={poap.event.image_url}
+                          alt={poap.event.name}
+                          className="w-full h-full object-cover rounded-md border border-gray-200 shadow-sm"
+                          style={{ background: "#f6f2ff" }}
+                        />
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm mb-1 line-clamp-2">{currentPoap.event.description || "No description available"}</p>
-                    <div className="flex flex-wrap gap-3 mt-2 items-center">
-                      <span className="text-xs px-2 py-1 bg-gray-100 rounded">
-                        ID #{currentPoap.tokenId}
-                      </span>
-                      <span className="text-xs px-2 py-1 bg-gray-100 rounded">
-                        {formatDate(currentPoap.event.start_date)}
-                      </span>
-                      <span className="text-xs px-2 py-1 bg-gray-100 rounded">
-                        Supply: {currentPoap.event.supply || "Unlimited"}
-                      </span>
-                      
-                      <div className="flex items-center ml-auto">
-                        <button 
-                          onClick={() => navigatePoap('prev')}
-                          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                          aria-label="Previous POAP"
-                        >
-                          <ArrowLeft className="h-4 w-4" />
-                        </button>
-                        <span className="text-xs mx-2">
-                          {currentPoapIndex + 1}/{poaps.length}
+                </div>
+                
+                {currentPoap && (
+                  <div className="flex flex-col w-full border-t pt-3 mt-2">
+                    <div className="overflow-hidden">
+                      <p className="text-sm mb-1 line-clamp-2">{currentPoap.event.description || "No description available"}</p>
+                      <div className="flex flex-wrap gap-3 mt-2 items-center">
+                        <span className="text-xs px-2 py-1 bg-gray-100 rounded">
+                          ID #{currentPoap.tokenId}
                         </span>
-                        <button 
-                          onClick={() => navigatePoap('next')}
-                          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                          aria-label="Next POAP"
-                        >
-                          <ArrowRight className="h-4 w-4" />
-                        </button>
+                        <span className="text-xs px-2 py-1 bg-gray-100 rounded">
+                          {formatDate(currentPoap.event.start_date)}
+                        </span>
+                        <span className="text-xs px-2 py-1 bg-gray-100 rounded">
+                          Supply: {currentPoap.event.supply || "Unlimited"}
+                        </span>
+                        
+                        <div className="flex items-center ml-auto">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigatePoap('prev');
+                            }}
+                            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                          >
+                            <ArrowLeft className="h-4 w-4" />
+                          </button>
+                          <span className="text-xs mx-2">
+                            {currentPoapIndex + 1}/{poaps.length}
+                          </span>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigatePoap('next');
+                            }}
+                            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                          >
+                            <ArrowRight className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-8">
                 <p className="text-muted-foreground text-sm">
@@ -145,6 +172,26 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
           </CardContent>
         </CollapsibleContent>
       </Collapsible>
+
+      {enlargeOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+          onClick={() => setEnlargeOpen(false)}
+        >
+          <button 
+            onClick={() => setEnlargeOpen(false)}
+            className="absolute top-4 right-4 text-white hover:text-gray-300"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <img 
+            src={selectedPoapImage} 
+            alt="POAP" 
+            className="max-w-full max-h-[80vh] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </section>
   );
 };

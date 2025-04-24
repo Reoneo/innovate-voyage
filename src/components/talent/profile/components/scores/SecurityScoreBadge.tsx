@@ -39,9 +39,6 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({ webacyData, onC
           <div className={`text-3xl font-bold px-3 py-1 rounded ${getRiskColor(webacyData?.riskScore)}`}>
             {webacyData?.riskScore !== undefined ? webacyData.riskScore : 'N/A'}
           </div>
-          <p className="text-sm text-gray-600">
-            {webacyData?.threatLevel || 'Unknown Level'}
-          </p>
         </div>
       </div>
     </div>
