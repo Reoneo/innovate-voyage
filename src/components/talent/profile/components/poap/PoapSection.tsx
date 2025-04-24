@@ -62,8 +62,8 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
 
   if (!walletAddress) return null;
 
-  // Display more POAPs in a grid
-  const displayedPoaps = poaps.slice(0, Math.min(poaps.length, 9));
+  // Display more POAPs in a grid (increased from 9 to 12)
+  const displayedPoaps = poaps.slice(0, Math.min(poaps.length, 12));
 
   // Poap main image override
   const mainPoapImg = "https://imgur.com/Eb2LIkP.png";
@@ -101,9 +101,9 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
               </div>
             ) : displayedPoaps.length > 0 ? (
               <>
-                {/* POAP Grid */}
-                <div className="grid grid-cols-3 gap-3 w-full mb-3">
-                  {displayedPoaps.map((poap, index) => (
+                {/* POAP Grid - now 4x3 grid layout */}
+                <div className="grid grid-cols-4 gap-2 w-full mb-3">
+                  {displayedPoaps.map((poap) => (
                     <div 
                       key={poap.tokenId} 
                       className="aspect-square flex items-center justify-center cursor-pointer hover:opacity-90 transition-all"
@@ -134,7 +134,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                       />
                     </div>
                     <div className="flex-1 overflow-hidden">
-                      <p className="text-sm mb-1 line-clamp-2 overflow-ellipsis">{currentPoap.event.description || "No description available"}</p>
+                      <p className="text-sm mb-1 line-clamp-2 overflow-hidden overflow-ellipsis">{currentPoap.event.description || "No description available"}</p>
                       <div className="flex flex-wrap gap-3 mt-2 items-center">
                         <span className="text-xs px-2 py-1 bg-gray-100 rounded">
                           ID #{currentPoap.tokenId}
@@ -187,22 +187,28 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
         </CollapsibleContent>
       </Collapsible>
 
-      {/* Enlarged POAP Dialog */}
-      <Dialog open={enlargeOpen} onOpenChange={setEnlargeOpen}>
-        <DialogContent className="p-1 max-w-xl relative">
-          <button 
-            onClick={() => setEnlargeOpen(false)}
-            className="absolute top-2 right-2 z-10 bg-white rounded-full p-1 shadow-md"
-          >
-            <X className="h-5 w-5" />
-          </button>
-          <img 
-            src={selectedPoapImage} 
-            alt="POAP" 
-            className="w-full h-full object-contain"
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Fullscreen POAP image display without dialog wrapper */}
+      {enlargeOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+          onClick={() => setEnlargeOpen(false)}
+        >
+          <div className="relative max-w-xl max-h-[80vh]">
+            <button 
+              onClick={() => setEnlargeOpen(false)}
+              className="absolute top-2 right-2 z-10 bg-white rounded-full p-1 shadow-md"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <img 
+              src={selectedPoapImage} 
+              alt="POAP" 
+              className="max-w-full max-h-[80vh] object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 };

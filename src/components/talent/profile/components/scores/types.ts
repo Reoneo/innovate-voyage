@@ -1,6 +1,13 @@
 
 export type ThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
 
+export interface WebacyTransaction {
+  id: string;
+  date: string;
+  riskLevel: ThreatLevel;
+  description: string;
+}
+
 export interface WebacyData {
   riskScore?: number;
   threatLevel?: ThreatLevel;
@@ -14,6 +21,7 @@ export interface WebacyData {
     contracts: number;
     riskLevel?: ThreatLevel;
   };
+  riskTransactions?: WebacyTransaction[];
 }
 
 export interface ScoreBadgeProps {

@@ -71,7 +71,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       <div className="flex items-center justify-center gap-2 mt-1">
         <AddressDisplay address={ownerAddress} />
       </div>
-      {/* EFP stats */}
+      {/* EFP stats - updated with black text */}
       <div className="mt-1 flex items-center justify-center text-black font-semibold space-x-1 text-sm">
         {loading ? (
           <span>Loading...</span>
@@ -79,14 +79,14 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
           <>
             <button 
               onClick={openFollowersDialog}
-              className="hover:underline transition-colors"
+              className="text-black hover:underline transition-colors"
             >
               {followers} Followers
             </button>
-            <span className="opacity-70">&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+            <span className="text-black opacity-70">&nbsp;&nbsp;•&nbsp;&nbsp;</span>
             <button 
               onClick={openFollowingDialog}
-              className="hover:underline transition-colors"
+              className="text-black hover:underline transition-colors"
             >
               Following {following}
             </button>
