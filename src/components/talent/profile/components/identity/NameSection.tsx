@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AddressDisplay from './AddressDisplay';
 import { useEfpStats } from '@/hooks/useEfpStats';
@@ -7,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ExternalLink, UserPlus, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { shortenEthAddress } from '@/lib/utils';
 
 interface NameSectionProps {
   name: string;
@@ -71,7 +71,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       <div className="flex items-center justify-center gap-2 mt-1">
         <AddressDisplay address={ownerAddress} />
       </div>
-      {/* EFP stats - updated with black text */}
+      {/* EFP stats with black text */}
       <div className="mt-1 flex items-center justify-center text-black font-semibold space-x-1 text-sm">
         {loading ? (
           <span>Loading...</span>
@@ -119,13 +119,13 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                         <AvatarFallback>
                           {follower.ensName
                             ? follower.ensName.substring(0, 2).toUpperCase()
-                            : shortenAddress(follower.address).substring(0, 2)}
+                            : shortenEthAddress(follower.address).substring(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{follower.ensName || shortenAddress(follower.address)}</p>
+                        <p className="font-medium">{follower.ensName || shortenEthAddress(follower.address)}</p>
                         {follower.ensName && (
-                          <p className="text-xs text-muted-foreground">{shortenAddress(follower.address)}</p>
+                          <p className="text-xs text-muted-foreground">{shortenEthAddress(follower.address)}</p>
                         )}
                       </div>
                     </div>
