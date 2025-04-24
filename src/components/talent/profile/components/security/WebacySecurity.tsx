@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, Info, Shield } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -5,7 +6,7 @@ import ThreatLevelCard from './components/ThreatLevelCard';
 import RiskScoreCard from './components/RiskScoreCard';
 import ContractApprovalsCard from './components/ContractApprovalsCard';
 import WalletActivityCard from './components/WalletActivityCard';
-import type { WebacyData } from '../scores/types';
+import type { WebacyData, ThreatLevel } from '../scores/types';
 
 interface WebacySecurityProps {
   walletAddress?: string;
@@ -82,6 +83,7 @@ const WebacySecurity: React.FC<WebacySecurityProps> = ({ walletAddress }) => {
         setSecurityData({
           riskScore: addressData.riskScore,
           threatLevel,
+          walletAddress,
           approvals: {
             count: approvalsData.totalCount || 0,
             riskyCount: approvalsData.riskyCount || 0

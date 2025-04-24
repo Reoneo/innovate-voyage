@@ -30,6 +30,12 @@ const TalentProfile = () => {
         document.head.appendChild(newLink);
       }
     }
+
+    // Clean URL - remove timestamp query parameter
+    if (window.history && window.location.href.includes('?t=')) {
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
   }, [passport?.avatar_url]);
 
   return (

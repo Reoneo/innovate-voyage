@@ -4,15 +4,21 @@ export type ThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
 export interface WebacyData {
   riskScore?: number;
   threatLevel?: ThreatLevel;
+  walletAddress?: string;
   approvals?: {
     count: number;
     riskyCount: number;
   };
   quickProfile?: {
-    transactions?: number;
-    contracts?: number;
-    riskLevel?: string;
+    transactions: number;
+    contracts: number;
+    riskLevel?: ThreatLevel;
   };
+}
+
+export interface ScoreBadgeProps {
+  onClick?: () => void;
+  isLoading?: boolean;
 }
 
 export interface ScoreDialogProps {
@@ -25,9 +31,4 @@ export interface ScoreDialogProps {
     txCount?: number | null;
     walletAddress: string;
   };
-}
-
-export interface ScoreBadgeProps {
-  onClick: () => void;
-  isLoading: boolean;
 }

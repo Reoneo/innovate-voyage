@@ -4,7 +4,9 @@ import AddressDisplay from './AddressDisplay';
 import { useEfpStats } from '@/hooks/useEfpStats';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, UserPlus, Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface NameSectionProps {
   name: string;
@@ -21,9 +23,11 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     ? `${name}.eth`
     : name);
   
-  const { followers, following, followersList, followingList, loading } = useEfpStats(ownerAddress);
+  const { followers, following, followersList, followingList, loading, followAddress, isFollowing } = useEfpStats(ownerAddress);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<'followers' | 'following'>('followers');
+  const { toast } = useToast();
+  const [followLoading, setFollowLoading] = useState<{[key: string]: boolean}>({});
 
   const openFollowersDialog = () => {
     setDialogType('followers');
@@ -33,6 +37,29 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
   const openFollowingDialog = () => {
     setDialogType('following');
     setDialogOpen(true);
+  };
+
+  const handleFollow = async (address: string) => {
+    if (!address) return;
+    
+    setFollowLoading(prev => ({ ...prev, [address]: true }));
+    
+    try {
+      await followAddress(address);
+      toast({
+        title: "Success!",
+        description: "You are now following this address"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to follow. Please connect your wallet first.",
+        variant: "destructive"
+      });
+      console.error('Follow error:', error);
+    } finally {
+      setFollowLoading(prev => ({ ...prev, [address]: false }));
+    }
   };
 
   // Common logo
@@ -45,7 +72,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
         <AddressDisplay address={ownerAddress} />
       </div>
       {/* EFP stats */}
-      <div className="mt-1 flex items-center justify-center text-[#9b87f5] font-semibold space-x-1 text-sm">
+      <div className="mt-1 flex items-center justify-center text-black font-semibold space-x-1 text-sm">
         {loading ? (
           <span>Loading...</span>
         ) : (
@@ -102,13 +129,31 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                         )}
                       </div>
                     </div>
-                    <a 
-                      href={`/${follower.ensName || follower.address}`}
-                      target="_blank"
-                      className="text-primary hover:text-primary/80"
-                    >
-                      <ExternalLink size={16} />
-                    </a>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant={isFollowing(follower.address) ? "outline" : "default"}
+                        size="sm"
+                        className="flex items-center gap-1"
+                        disabled={followLoading[follower.address]}
+                        onClick={() => handleFollow(follower.address)}
+                      >
+                        {isFollowing(follower.address) ? (
+                          <>
+                            <Check className="h-4 w-4" /> Following
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus className="h-4 w-4" /> Follow
+                          </>
+                        )}
+                      </Button>
+                      <a 
+                        href={`/${follower.ensName || follower.address}`}
+                        className="text-primary hover:text-primary/80"
+                      >
+                        <ExternalLink size={16} />
+                      </a>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -132,13 +177,23 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                         )}
                       </div>
                     </div>
-                    <a 
-                      href={`/${following.ensName || following.address}`}
-                      target="_blank"
-                      className="text-primary hover:text-primary/80"
-                    >
-                      <ExternalLink size={16} />
-                    </a>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1"
+                        disabled={followLoading[following.address]}
+                        onClick={() => handleFollow(following.address)}
+                      >
+                        <Check className="h-4 w-4" /> Following
+                      </Button>
+                      <a 
+                        href={`/${following.ensName || following.address}`}
+                        className="text-primary hover:text-primary/80"
+                      >
+                        <ExternalLink size={16} />
+                      </a>
+                    </div>
                   </div>
                 ))}
               </div>
