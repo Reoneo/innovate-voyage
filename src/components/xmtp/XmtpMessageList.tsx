@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,7 +21,6 @@ interface XmtpMessageListProps {
   messages: Message[];
   currentUserAddress: string | null;
   onDeleteMessage?: (messageId: string) => Promise<void>;
-  isLoading?: boolean;
 }
 
 const MessageBubble = ({ 
@@ -130,8 +130,7 @@ const MessageBubble = ({
 const XmtpMessageList: React.FC<XmtpMessageListProps> = ({
   messages,
   currentUserAddress,
-  onDeleteMessage,
-  isLoading
+  onDeleteMessage
 }) => {
   if (messages.length === 0) {
     return (
