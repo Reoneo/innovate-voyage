@@ -120,6 +120,6 @@ export function useEnsResolver(ensName?: string, address?: string): EnsResolverR
     ensBio: state.ensBio,
     ensLinks: state.ensLinks,
     isLoading: isLoadingEns || isLoadingWeb3Bio,
-    error
+    error: error || null
   };
 }

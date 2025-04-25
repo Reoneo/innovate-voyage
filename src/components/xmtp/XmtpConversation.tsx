@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { useXmtp } from '@/hooks/useXmtp';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,14 +7,20 @@ import XmtpMessageList from './XmtpMessageList';
 
 interface XmtpConversationProps {
   conversation: any;
+  messages?: any[];
+  isLoading?: boolean;
 }
 
-const XmtpConversation: React.FC<XmtpConversationProps> = ({ conversation }) => {
+const XmtpConversation: React.FC<XmtpConversationProps> = ({ 
+  conversation, 
+  messages: initialMessages = [], 
+  isLoading: initialIsLoading = true 
+}) => {
   const [messageText, setMessageText] = useState('');
   const [sending, setSending] = useState(false);
-  const { client, sendMessage } = useXmtp();
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { client, sendMessage: xmtpSendMessage } = useXmtp();
+  const [messages, setMessages] = useState(initialMessages);
+  const [isLoading, setIsLoading] = useState(initialIsLoading);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -61,16 +66,16 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({ conversation }) => 
 
     setSending(true);
     try {
-      await sendMessage(conversation, messageText);
-      setMessages(prevMessages => [...prevMessages, {
+      await xmtpSendMessage(conversation, messageText);
+      setMessages((prevMessages) => [...prevMessages, {
         content: messageText,
-        contentType: "text/plain",
+        contentType: 'text/plain',
         senderAddress: client?.address,
         timestamp: new Date()
       }]);
       setMessageText('');
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error('Error sending message:', error);
     } finally {
       setSending(false);
     }
@@ -79,7 +84,11 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({ conversation }) => 
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-4">
-        <XmtpMessageList messages={messages} isLoading={isLoading} />
+        <XmtpMessageList 
+          messages={messages} 
+          currentUserAddress={client?.address || null} 
+          isLoading={isLoading} 
+        />
         <div ref={messagesEndRef} />
       </div>
       <div className="p-4 border-t">

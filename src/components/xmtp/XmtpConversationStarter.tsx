@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { Loader2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
