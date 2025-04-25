@@ -1,12 +1,11 @@
-
-import React, { useState } from 'react';
+import React from 'react';
+import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { Loader2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { startNewConversation, getMessages, canMessage } from '@/services/xmtpService';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useEnsResolver } from '@/hooks/useEnsResolver';
 
 interface XmtpConversationStarterProps {
   xmtpClient: any;
@@ -26,7 +25,6 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { toast } = useToast();
   
-  // Use ENS resolver to get address from ENS or vice versa
   const { resolvedAddress, resolvedEns, isLoading: isResolvingEns } = useEnsResolver(inputValue);
 
   const handleLookupRecipient = () => {
@@ -39,7 +37,6 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
       return;
     }
     
-    // If it's a Lens handle or other protocol ID that doesn't need resolution
     if (inputValue.endsWith('.lens')) {
       setRecipient(inputValue);
       toast({
@@ -56,7 +53,6 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
         description: resolvedEns ? `Resolved to ${resolvedEns}` : `Address is valid`,
       });
     } else if (!isResolvingEns) {
-      // If input is a valid Ethereum address, use it directly
       if (inputValue.startsWith('0x') && inputValue.length === 42) {
         setRecipient(inputValue);
         toast({
@@ -87,7 +83,6 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
     setErrorMessage(null);
     
     try {
-      // First check if the recipient is on the XMTP network
       const canMessageRecipient = await canMessage(xmtpClient, recipient);
       
       if (!canMessageRecipient) {
@@ -99,7 +94,6 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
       
       const conversation = await startNewConversation(xmtpClient, recipient);
       
-      // Load existing messages
       const existingMessages = await getMessages(conversation);
       
       onConversationStarted(conversation, existingMessages);
@@ -111,7 +105,6 @@ const XmtpConversationStarter: React.FC<XmtpConversationStarterProps> = ({
         description: `You can now message ${displayAddress}`,
       });
     } catch (error: any) {
-      // Don't show toast for the XMTP network error since we're displaying it in the UI
       if (!error.message.includes('not on the XMTP network')) {
         toast({
           title: "Error",
