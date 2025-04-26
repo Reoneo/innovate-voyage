@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { WebacyData, ThreatLevel } from '@/components/talent/profile/components/scores/types';
 import { getThreatLevel } from '@/components/talent/profile/components/scores/utils/scoreUtils';
@@ -44,7 +45,7 @@ export function useScoresData(walletAddress: string) {
           }
         };
 
-        // Fetch Webacy data with chain parameter
+        // Fetch Webacy data with chain parameter and proper headers
         const fetchWebacyData = async (retries = 2) => {
           for (let i = 0; i <= retries; i++) {
             try {
@@ -65,11 +66,17 @@ export function useScoresData(walletAddress: string) {
                 })
               ]);
 
+              console.log('Webacy Profile Response Status:', profileResp.status);
+              console.log('Webacy Address Response Status:', addressResp.status);
+
               if (profileResp.ok && addressResp.ok) {
                 const [profileData, addressData] = await Promise.all([
                   profileResp.json(),
                   addressResp.json()
                 ]);
+
+                console.log('Webacy Profile Data:', profileData);
+                console.log('Webacy Address Data:', addressData);
 
                 const riskScore = addressData.data?.riskScore;
                 const threatLevel = getThreatLevel(riskScore);

@@ -1,11 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface PoapSectionProps {
   walletAddress?: string;
@@ -17,8 +16,6 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   const [currentPoapIndex, setCurrentPoapIndex] = useState(0);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedPoap, setSelectedPoap] = useState<Poap | null>(null);
-  const [owners, setOwners] = useState<Array<{ address: string; ensName?: string }>>([]);
-  const [ownersLoading, setOwnersLoading] = useState(false);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -28,15 +25,12 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
       setIsLoading(true);
       try {
         const fetchedPoaps = await fetchPoapsByAddress(walletAddress);
-        console.log("Fetched POAPs:", fetchedPoaps);
-        // Sort POAPs by supply (ascending) so most limited supply first
         const sortedPoaps = [...fetchedPoaps].sort((a, b) => {
           const aSupply = a.event.supply ?? 999999;
           const bSupply = b.event.supply ?? 999999;
           return aSupply - bSupply;
         });
         setPoaps(sortedPoaps);
-        setCurrentPoapIndex(0); // Reset to first POAP when loading new ones
       } catch (error) {
         console.error('Error loading POAPs:', error);
       } finally {
@@ -46,20 +40,6 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     
     loadPoaps();
   }, [walletAddress]);
-
-  const resolveOwners = async (addresses: string[]) => {
-    try {
-      const ownersData = await Promise.all(
-        addresses.map(async (address) => ({
-          address,
-          ensName: undefined // We'll implement ENS resolution later
-        }))
-      );
-      setOwners(ownersData);
-    } catch (error) {
-      console.error('Error resolving ENS names:', error);
-    }
-  };
 
   if (!walletAddress) return null;
   
@@ -73,7 +53,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
           <img
             src="/lovable-uploads/78b95b30-fa09-4371-9086-b91b83cd187e.png"
             alt="Badge background"
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 w-full h-full object-contain"
           />
           
           {isLoading ? (
@@ -82,7 +62,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
             <div className="relative flex items-center justify-center h-full">
               <button 
                 onClick={() => currentPoapIndex > 0 && setCurrentPoapIndex(prev => prev - 1)}
-                className="absolute left-0 z-10 p-1 rounded-full bg-white/80 shadow-sm"
+                className="absolute left-0 z-10 p-1 rounded-full bg-white/80 shadow-sm -translate-x-1/2"
                 disabled={currentPoapIndex === 0}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -93,15 +73,15 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                 alt={currentPoap.event.name}
                 onClick={() => {
                   setSelectedPoap(currentPoap);
-                  resolveOwners([currentPoap.owner]);
                   setDetailOpen(true);
                 }}
                 className="w-20 h-20 object-contain rounded-full cursor-pointer absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                style={{ padding: '4px' }}
               />
               
               <button 
                 onClick={() => currentPoapIndex < poaps.length - 1 && setCurrentPoapIndex(prev => prev + 1)}
-                className="absolute right-0 z-10 p-1 rounded-full bg-white/80 shadow-sm"
+                className="absolute right-0 z-10 p-1 rounded-full bg-white/80 shadow-sm translate-x-1/2"
                 disabled={currentPoapIndex === poaps.length - 1}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -115,7 +95,6 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
         </div>
       </div>
 
-      {/* POAP Details Dialog */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="max-w-md">
           {selectedPoap && (
