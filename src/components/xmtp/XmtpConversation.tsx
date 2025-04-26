@@ -7,10 +7,9 @@ import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 
-interface XmtpConversationProps {
+export interface XmtpConversationProps {
   conversation: any;
   messages: any[];
-  setMessages: React.Dispatch<React.SetStateAction<any[]>>;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 }
@@ -18,7 +17,6 @@ interface XmtpConversationProps {
 const XmtpConversation: React.FC<XmtpConversationProps> = ({
   conversation,
   messages,
-  setMessages,
   isLoading,
   setIsLoading
 }) => {
@@ -26,6 +24,12 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
   const { resolvedEns, avatarUrl } = useEnsResolver(undefined, conversation?.peerAddress);
   const [hasLensHandle, setHasLensHandle] = useState(false);
   const { toast } = useToast();
+  const [localMessages, setLocalMessages] = useState<any[]>(messages);
+  
+  // Update local messages when props change
+  useEffect(() => {
+    setLocalMessages(messages);
+  }, [messages]);
   
   const peerAddress = conversation?.peerAddress;
   const shortAddress = peerAddress 
@@ -52,7 +56,7 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
   const displayName = resolvedEns || shortAddress;
 
   const handleMessageSent = (newMessage: any) => {
-    setMessages(prev => [...prev, newMessage]);
+    setLocalMessages(prev => [...prev, newMessage]);
   };
 
   const handleDeleteMessage = async (messageId: string) => {
@@ -61,7 +65,7 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
       await deleteMessage(conversation, messageId);
       
       // Remove the message from the UI
-      setMessages(prev => prev.filter(message => message.id !== messageId));
+      setLocalMessages(prev => prev.filter(message => message.id !== messageId));
       
       toast({
         title: "Message deleted",
@@ -81,7 +85,7 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [localMessages]);
 
   // Set up message streaming to receive new messages
   useEffect(() => {
@@ -100,7 +104,7 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
             // Only add messages if component is still mounted
             if (isMounted) {
               // Make sure we don't duplicate messages
-              setMessages(prev => {
+              setLocalMessages(prev => {
                 const messageExists = prev.some(m => 
                   m.id === msg.id || 
                   (m.content === msg.content && 
@@ -125,7 +129,7 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [conversation, setMessages]);
+  }, [conversation]);
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -155,7 +159,7 @@ const XmtpConversation: React.FC<XmtpConversationProps> = ({
         }}
       >
         <XmtpMessageList 
-          messages={messages} 
+          messages={localMessages} 
           currentUserAddress={window.connectedWalletAddress}
           onDeleteMessage={handleDeleteMessage}
         />

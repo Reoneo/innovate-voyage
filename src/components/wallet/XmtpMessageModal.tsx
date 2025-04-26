@@ -121,7 +121,6 @@ const XmtpMessageModal: React.FC = () => {
                   <XmtpConversation
                     conversation={currentConversation}
                     messages={messages}
-                    setMessages={setMessages}
                     isLoading={isLoading}
                     setIsLoading={setIsLoading}
                   />
