@@ -6,7 +6,6 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ExternalLink, UserPlus, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { shortenEthAddress } from '@/lib/utils';
 
 interface NameSectionProps {
   name: string;
@@ -62,7 +61,6 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     }
   };
 
-  // Common logo
   const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
 
   return (
@@ -71,7 +69,6 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       <div className="flex items-center justify-center gap-2 mt-1">
         <AddressDisplay address={ownerAddress} />
       </div>
-      {/* EFP stats with black text */}
       <div className="mt-1 flex items-center justify-center text-black font-semibold space-x-1 text-sm">
         {loading ? (
           <span>Loading...</span>
@@ -93,8 +90,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
           </>
         )}
       </div>
-
-      {/* Dialog for followers/following */}
+      
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -119,13 +115,13 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                         <AvatarFallback>
                           {follower.ensName
                             ? follower.ensName.substring(0, 2).toUpperCase()
-                            : shortenEthAddress(follower.address).substring(0, 2)}
+                            : shortenAddress(follower.address).substring(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{follower.ensName || shortenEthAddress(follower.address)}</p>
+                        <p className="font-medium">{follower.ensName || shortenAddress(follower.address)}</p>
                         {follower.ensName && (
-                          <p className="text-xs text-muted-foreground">{shortenEthAddress(follower.address)}</p>
+                          <p className="text-xs text-muted-foreground">{shortenAddress(follower.address)}</p>
                         )}
                       </div>
                     </div>
