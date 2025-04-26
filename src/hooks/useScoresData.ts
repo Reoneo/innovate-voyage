@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { WebacyData, ThreatLevel } from '@/components/talent/profile/components/scores/types';
 import { getThreatLevel } from '@/components/talent/profile/components/scores/utils/scoreUtils';
@@ -45,59 +44,44 @@ export function useScoresData(walletAddress: string) {
           }
         };
 
-        // Fetch Webacy data with chain parameter and proper headers
+        // Updated Webacy data fetch with proper headers and chain parameter
         const fetchWebacyData = async (retries = 2) => {
           for (let i = 0; i <= retries; i++) {
             try {
-              const [profileResp, addressResp] = await Promise.all([
-                fetch(`https://api.webacy.com/quick-profile/${walletAddress}?chain=eth`, {
-                  headers: {
-                    'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-                    'accept': 'application/json',
-                    'Key-ID': 'eujjkt9ao5'
-                  }
-                }),
-                fetch(`https://api.webacy.com/addresses/${walletAddress}?chain=eth`, {
-                  headers: {
-                    'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-                    'accept': 'application/json',
-                    'Key-ID': 'eujjkt9ao5'
-                  }
-                })
-              ]);
+              const response = await fetch(`https://api.webacy.com/addresses/${walletAddress}?chain=eth`, {
+                headers: {
+                  'accept': 'application/json',
+                  'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
+                  'Key-ID': 'eujjkt9ao5'
+                }
+              });
 
-              console.log('Webacy Profile Response Status:', profileResp.status);
-              console.log('Webacy Address Response Status:', addressResp.status);
+              if (response.ok) {
+                const data = await response.json();
+                console.log('Webacy Address Data:', data);
+                
+                if (data?.data) {
+                  const riskScore = data.data.riskScore;
+                  const threatLevel = getThreatLevel(riskScore);
 
-              if (profileResp.ok && addressResp.ok) {
-                const [profileData, addressData] = await Promise.all([
-                  profileResp.json(),
-                  addressResp.json()
-                ]);
-
-                console.log('Webacy Profile Data:', profileData);
-                console.log('Webacy Address Data:', addressData);
-
-                const riskScore = addressData.data?.riskScore;
-                const threatLevel = getThreatLevel(riskScore);
-
-                setWebacyData({
-                  riskScore,
-                  threatLevel,
-                  walletAddress,
-                  approvals: {
-                    count: profileData.numContracts || 0,
-                    riskyCount: 0
-                  },
-                  quickProfile: {
-                    transactions: profileData.numTransactions || 0,
-                    contracts: profileData.numContracts || 0,
-                    riskLevel: threatLevel
-                  }
-                });
-                return;
+                  setWebacyData({
+                    riskScore,
+                    threatLevel,
+                    walletAddress,
+                    approvals: {
+                      count: data.data.approvals?.length || 0,
+                      riskyCount: data.data.riskyApprovals?.length || 0
+                    },
+                    quickProfile: {
+                      transactions: data.data.transactions || 0,
+                      contracts: data.data.contracts || 0,
+                      riskLevel: threatLevel
+                    }
+                  });
+                  return;
+                }
               }
-
+              
               console.error(`Attempt ${i + 1} failed for Webacy`);
               if (i < retries) await new Promise(r => setTimeout(r, 1000 * (i + 1)));
             } catch (err) {
