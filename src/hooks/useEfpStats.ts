@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -161,33 +162,57 @@ export function useEfpStats(walletAddress?: string) {
         description: `Connecting to wallet to follow ${shortenAddress(addressToFollow)}...`
       });
 
-      // For a real implementation, we would:
-      // 1. Prompt the user to sign a message with their wallet
-      // 2. Submit that signature to the EFP indexer
-      // 3. Wait for confirmation
-      
-      // Simulate transaction delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Check if we have the Ethereum object available from Metamask
+      if (typeof window.ethereum !== 'undefined') {
+        // Request account access
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        
+        if (!accounts || accounts.length === 0) {
+          throw new Error("No wallet accounts available");
+        }
+        
+        // Get the current user account
+        const userAddress = accounts[0];
+        
+        // To follow on EFP, user needs to sign a message
+        const message = `Follow ${addressToFollow} on ethereum-follow-protocol`;
+        
+        // Request signature from the user
+        const signature = await window.ethereum.request({
+          method: 'personal_sign',
+          params: [message, userAddress]
+        });
+        
+        if (!signature) {
+          throw new Error("Signature was not provided");
+        }
+        
+        console.log(`Successfully signed follow message for ${addressToFollow}`);
+        
+        // In a full implementation, you would now submit this signature to the EFP backend
+        // For now, we'll just simulate success
+        
+        // Add to local following list for UI updates
+        setFollowingAddresses(prev => [...prev, addressToFollow]);
+        setStats(prev => ({
+          ...prev,
+          following: prev.following + 1,
+          followingList: [
+            ...(prev.followingList || []),
+            { address: addressToFollow }
+          ]
+        }));
 
-      // Add to local following list for UI updates
-      setFollowingAddresses(prev => [...prev, addressToFollow]);
-      setStats(prev => ({
-        ...prev,
-        following: prev.following + 1,
-        followingList: [
-          ...(prev.followingList || []),
-          { address: addressToFollow }
-        ]
-      }));
-
-      toast({
-        title: "Success",
-        description: `You are now following ${shortenAddress(addressToFollow)}`
-      });
-
-    } catch (error) {
+        toast({
+          title: "Success",
+          description: `You are now following ${shortenAddress(addressToFollow)}`
+        });
+      } else {
+        throw new Error("Ethereum provider not found. Please install MetaMask.");
+      }
+    } catch (error: any) {
       console.error('Error following address:', error);
-      throw error;
+      throw new Error(error.message || "Failed to follow. Please try again.");
     }
   };
 
@@ -198,4 +223,10 @@ export function useEfpStats(walletAddress?: string) {
     isFollowing,
     refreshData: fetchEfpData
   };
+}
+
+// Helper to shorten addresses
+function shortenAddress(addr: string): string {
+  if (!addr) return "";
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }

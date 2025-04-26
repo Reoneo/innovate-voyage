@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import AddressDisplay from './AddressDisplay';
 import { useEfpStats } from '@/hooks/useEfpStats';
@@ -40,6 +41,21 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
 
   const handleFollow = async (address: string) => {
     if (!address) return;
+
+    // Check if wallet is connected
+    const connectedWalletAddress = localStorage.getItem('connectedWalletAddress');
+    if (!connectedWalletAddress) {
+      // Trigger wallet connect modal
+      const event = new CustomEvent('open-wallet-connect');
+      document.dispatchEvent(event);
+      
+      toast({
+        title: "Wallet Connection Required",
+        description: "Please connect your wallet first to follow this address",
+        variant: "default"
+      });
+      return;
+    }
     
     setFollowLoading(prev => ({ ...prev, [address]: true }));
     
@@ -50,12 +66,12 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
         description: "You are now following this address"
       });
     } catch (error) {
+      console.error('Follow error:', error);
       toast({
         title: "Error",
-        description: "Failed to follow. Please connect your wallet first.",
+        description: "Failed to follow. Please try again.",
         variant: "destructive"
       });
-      console.error('Follow error:', error);
     } finally {
       setFollowLoading(prev => ({ ...prev, [address]: false }));
     }
