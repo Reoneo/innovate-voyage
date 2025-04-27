@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, Info, Shield } from 'lucide-react';
+import { AlertCircle, Info, Shield, TrendingUp } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ThreatLevelCard from './components/ThreatLevelCard';
 import RiskScoreCard from './components/RiskScoreCard';
@@ -17,6 +16,7 @@ const WebacySecurity: React.FC<WebacySecurityProps> = ({ walletAddress }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [riskHistory, setRiskHistory] = useState<any[]>([]);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -26,7 +26,6 @@ const WebacySecurity: React.FC<WebacySecurityProps> = ({ walletAddress }) => {
       setError(null);
       
       try {
-        // Fetch address data
         const addressResponse = await fetch(`https://api.webacy.com/addresses/${walletAddress}`, {
           headers: {
             'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
@@ -40,7 +39,6 @@ const WebacySecurity: React.FC<WebacySecurityProps> = ({ walletAddress }) => {
         
         const addressData = await addressResponse.json();
         
-        // Fetch approvals data
         const approvalsResponse = await fetch(`https://api.webacy.com/addresses/${walletAddress}/approvals`, {
           headers: {
             'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
@@ -54,7 +52,6 @@ const WebacySecurity: React.FC<WebacySecurityProps> = ({ walletAddress }) => {
         
         const approvalsData = await approvalsResponse.json();
         
-        // Fetch quick profile data
         const quickProfileResponse = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}`, {
           headers: {
             'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
@@ -68,7 +65,6 @@ const WebacySecurity: React.FC<WebacySecurityProps> = ({ walletAddress }) => {
         
         const quickProfileData = await quickProfileResponse.json();
         
-        // Determine threat level
         let threatLevel: ThreatLevel = 'UNKNOWN';
         if (addressData.riskScore !== undefined) {
           if (addressData.riskScore < 30) {
@@ -104,10 +100,44 @@ const WebacySecurity: React.FC<WebacySecurityProps> = ({ walletAddress }) => {
     };
     
     fetchWebacyData();
+
+    const fetchRiskHistory = async () => {
+      try {
+        const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}`, {
+          headers: {
+            'accept': 'application/json',
+            'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
+            'Key-ID': 'eujjkt9ao5'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setRiskHistory(data.riskHistory || []);
+        }
+      } catch (err) {
+        console.error('Error fetching risk history:', err);
+      }
+    };
+
+    fetchRiskHistory();
   }, [walletAddress]);
 
   const handleClick = () => {
     setDialogOpen(true);
+  };
+
+  const getThreatColor = (threatLevel: ThreatLevel) => {
+    switch (threatLevel) {
+      case 'LOW':
+        return 'text-green-500';
+      case 'MEDIUM':
+        return 'text-yellow-500';
+      case 'HIGH':
+        return 'text-red-500';
+      default:
+        return 'text-muted-foreground';
+    }
   };
 
   if (!walletAddress) return null;
@@ -139,6 +169,25 @@ const WebacySecurity: React.FC<WebacySecurityProps> = ({ walletAddress }) => {
           <div className="space-y-4 py-4">
             <div className="flex flex-col gap-4">
               <RiskScoreCard webacyData={securityData} />
+              
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp className="h-5 w-5 text-blue-500" />
+                  <h3 className="font-medium">Risk History</h3>
+                </div>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {riskHistory.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between text-sm p-2 rounded bg-muted/50">
+                      <span>{new Date(item.timestamp).toLocaleDateString()}</span>
+                      <span className={getThreatColor(item.riskLevel)}>{item.score}</span>
+                    </div>
+                  ))}
+                  {riskHistory.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center">No risk history available</p>
+                  )}
+                </div>
+              </div>
+
               <ContractApprovalsCard webacyData={securityData} />
               <WalletActivityCard webacyData={securityData} />
               
