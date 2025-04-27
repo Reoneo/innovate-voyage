@@ -193,3 +193,44 @@ export async function deleteMessage(conversation: any, messageId: string): Promi
     throw error;
   }
 }
+
+/**
+ * Delete an entire conversation
+ * @param client The XMTP client
+ * @param conversation The conversation to delete
+ */
+export async function deleteConversation(client: any, conversation: any): Promise<void> {
+  if (!client || !conversation) {
+    throw new Error("Client and conversation are required");
+  }
+
+  try {
+    // Get all messages in the conversation
+    const messages = await conversation.messages();
+    
+    // Mark conversation as deleted by sending a special message
+    await conversation.send(JSON.stringify({
+      messageType: "conversation_deleted",
+      timestamp: new Date().toISOString()
+    }), {
+      contentType: "application/json",
+      contentFallback: "This conversation has been deleted"
+    });
+    
+    // Delete each message if the API supports it
+    if (conversation.delete) {
+      for (const message of messages) {
+        try {
+          await deleteMessage(conversation, message.id);
+        } catch (error) {
+          console.warn(`Failed to delete message ${message.id}`, error);
+        }
+      }
+    }
+    
+    console.log(`Conversation with ${conversation.peerAddress} deleted`);
+  } catch (error) {
+    console.error("Error deleting conversation:", error);
+    throw error;
+  }
+}
