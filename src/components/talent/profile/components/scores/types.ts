@@ -1,10 +1,5 @@
-export type ThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
 
-export interface RiskHistoryItem {
-  timestamp: string;
-  score: number;
-  riskLevel: ThreatLevel;
-}
+export type ThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
 
 export interface WebacyTransaction {
   id: string;
@@ -27,7 +22,6 @@ export interface WebacyData {
     riskLevel?: ThreatLevel;
   };
   riskTransactions?: WebacyTransaction[];
-  riskHistory?: RiskHistoryItem[];
 }
 
 export interface ScoreBadgeProps {
