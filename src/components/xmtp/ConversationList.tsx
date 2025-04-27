@@ -1,16 +1,26 @@
 
 import React from 'react';
-import { Loader2, MessageCircle } from 'lucide-react';
+import { Loader2, MessageCircle, Trash2 } from 'lucide-react';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 
 interface ConversationListProps {
   conversations: any[];
   onSelectConversation: (conversation: any) => void;
+  onDeleteConversation: (conversation: any) => void;
   isLoading: boolean;
 }
 
-const ConversationItem = ({ conversation, onClick }: { conversation: any, onClick: () => void }) => {
+const ConversationItem = ({ 
+  conversation, 
+  onClick, 
+  onDelete 
+}: { 
+  conversation: any, 
+  onClick: () => void,
+  onDelete: () => void
+}) => {
   const peerAddress = conversation.peerAddress;
   
   // Handle Lens handles and other non-Ethereum addresses
@@ -25,17 +35,17 @@ const ConversationItem = ({ conversation, onClick }: { conversation: any, onClic
   const displayName = isLensHandle ? peerAddress : (resolvedEns || displayAddress);
   
   return (
-    <div
-      onClick={onClick}
-      className="p-3 border rounded-md hover:bg-accent cursor-pointer transition-colors flex items-center gap-3"
-    >
+    <div className="p-3 border rounded-md hover:bg-accent transition-colors flex items-center gap-3 group">
       <Avatar className="h-12 w-12 border">
         <AvatarImage src={avatarUrl || ''} alt={displayName} />
         <AvatarFallback className="bg-primary/10 text-primary text-sm">
           {(displayName ? displayName.substring(0, 2).toUpperCase() : 'UN')}
         </AvatarFallback>
       </Avatar>
-      <div className="flex-1 min-w-0">
+      <div 
+        className="flex-1 min-w-0 cursor-pointer"
+        onClick={onClick}
+      >
         <div className="font-semibold text-base truncate">
           {isLoading ? displayAddress : displayName}
         </div>
@@ -45,6 +55,18 @@ const ConversationItem = ({ conversation, onClick }: { conversation: any, onClic
           {isLensHandle && <span className="text-purple-500 ml-1">(Lens)</span>}
         </div>
       </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-600 hover:bg-red-100"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+      >
+        <Trash2 className="h-4 w-4" />
+        <span className="sr-only">Delete</span>
+      </Button>
     </div>
   );
 };
@@ -52,6 +74,7 @@ const ConversationItem = ({ conversation, onClick }: { conversation: any, onClic
 const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
   onSelectConversation,
+  onDeleteConversation,
   isLoading
 }) => {
   if (isLoading) {
@@ -74,12 +97,13 @@ const ConversationList: React.FC<ConversationListProps> = ({
   }
 
   return (
-    <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+    <div className="space-y-3">
       {conversations.map((conversation, index) => (
         <ConversationItem 
           key={index}
           conversation={conversation}
           onClick={() => onSelectConversation(conversation)}
+          onDelete={() => onDeleteConversation(conversation)}
         />
       ))}
     </div>

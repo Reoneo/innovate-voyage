@@ -109,3 +109,37 @@ export async function fetchPoapEventById(eventId: number): Promise<PoapEvent | n
     return null;
   }
 }
+
+/**
+ * Fetch owners of a specific POAP event
+ * @param eventId POAP event ID
+ * @returns Array of owners with their tokenIds
+ */
+export async function fetchPoapEventOwners(eventId: number): Promise<any[]> {
+  try {
+    // Rate limit requests
+    await enforceRateLimit(300);
+    
+    const url = `${POAP_API_BASE_URL}/event/${eventId}/poaps`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'X-API-Key': POAP_API_KEY,
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      console.error(`POAP owners API error: ${response.status}`);
+      return [];
+    }
+    
+    const data = await response.json();
+    console.log(`Fetched ${data.length} owners for event ID ${eventId}`);
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error(`Error fetching POAP event owners for event ${eventId}:`, error);
+    return [];
+  }
+}
