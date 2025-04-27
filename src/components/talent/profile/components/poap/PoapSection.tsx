@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
@@ -46,7 +45,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   return (
     <section className="mt-4 w-full">
       <div className="relative flex items-center justify-center">
-        <div className="relative w-60 h-60 mx-auto"> {/* Increased from w-40 h-40 to w-60 h-60 */}
+        <div className="relative w-48 h-48 mx-auto">
           <img
             src="/lovable-uploads/78b95b30-fa09-4371-9086-b91b83cd187e.png"
             alt="Badge background"
@@ -54,7 +53,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
           />
           
           {isLoading ? (
-            <Skeleton className="h-48 w-48 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" /> // Increased from h-32 w-32 to h-48 w-48
+            <Skeleton className="h-40 w-40 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           ) : poaps.length > 0 ? (
             <div className="relative flex items-center justify-center h-full">
               <button 
@@ -72,9 +71,11 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                   setSelectedPoap(currentPoap);
                   setDetailOpen(true);
                 }}
-                className="w-42 h-42 object-contain rounded-full cursor-pointer absolute top-[45%] left-1/2 transform -translate-x-1/2 -translate-y-1/2" // Increased from w-28 h-28 to w-42 h-42, adjusted top positioning
+                className="w-36 h-36 object-contain cursor-pointer absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[55%]"
                 style={{ 
+                  padding: '4px',
                   objectFit: 'contain',
+                  background: 'white',
                 }}
               />
               
@@ -130,4 +131,3 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
 };
 
 export default PoapSection;
-
