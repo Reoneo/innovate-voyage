@@ -1,11 +1,11 @@
 
 import { delay } from '../jobsApi';
 
-// Get account balance with retry mechanism
+// Get account balance
 export async function getAccountBalance(address: string): Promise<string> {
   try {
     const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
-    const response = await fetchWithRetry(`https://api.etherscan.io/api?module=account&action=balance&address=${address}&tag=latest&apikey=${apiKey}`);
+    const response = await fetch(`https://api.etherscan.io/api?module=account&action=balance&address=${address}&tag=latest&apikey=${apiKey}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -28,13 +28,11 @@ export async function getAccountBalance(address: string): Promise<string> {
   }
 }
 
-// Get transaction count (number of transactions) with retry mechanism
+// Get transaction count (number of transactions)
 export async function getTransactionCount(address: string): Promise<number> {
   try {
     const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
-    const response = await fetchWithRetry(
-      `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=10&sort=desc&apikey=${apiKey}`
-    );
+    const response = await fetch(`https://api.etherscan.io/api?module=proxy&action=eth_getTransactionCount&address=${address}&tag=latest&apikey=${apiKey}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -42,10 +40,11 @@ export async function getTransactionCount(address: string): Promise<number> {
     
     const data = await response.json();
     
-    if (data.status === '1') {
-      return Array.isArray(data.result) ? data.result.length : 0;
+    if (data.result) {
+      // Convert hex to decimal
+      return parseInt(data.result, 16);
     } else {
-      console.warn('Etherscan API returned an error:', data.message);
+      console.warn('Etherscan API returned an error');
       return 0;
     }
   } catch (error) {
@@ -54,13 +53,11 @@ export async function getTransactionCount(address: string): Promise<number> {
   }
 }
 
-// Get latest transactions with retry mechanism
+// Get latest transactions
 export async function getLatestTransactions(address: string, limit: number = 5): Promise<any[]> {
   try {
     const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
-    const response = await fetchWithRetry(
-      `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${apiKey}`
-    );
+    const response = await fetch(`https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${apiKey}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -80,13 +77,11 @@ export async function getLatestTransactions(address: string, limit: number = 5):
   }
 }
 
-// Get ERC-20 token transfers with retry mechanism
+// Get ERC-20 token transfers
 export async function getTokenTransfers(address: string, limit: number = 5): Promise<any[]> {
   try {
     const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
-    const response = await fetchWithRetry(
-      `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&page=1&offset=${limit}&sort=desc&apikey=${apiKey}`
-    );
+    const response = await fetch(`https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&page=1&offset=${limit}&sort=desc&apikey=${apiKey}`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
@@ -104,34 +99,4 @@ export async function getTokenTransfers(address: string, limit: number = 5): Pro
     console.error('Error fetching Etherscan token transfers:', error);
     return [];
   }
-}
-
-// Helper function to fetch with retry logic
-async function fetchWithRetry(url: string, maxRetries = 2): Promise<Response> {
-  let lastError;
-  
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      // Add a small delay between retries
-      if (attempt > 0) {
-        await delay(attempt * 750); // Exponential backoff
-      }
-      
-      const response = await fetch(url, { cache: "no-cache" });
-      
-      // If the response is rate limited, wait and retry
-      if (response.status === 429) {
-        console.log(`Rate limited (attempt ${attempt + 1}/${maxRetries + 1}), retrying...`);
-        continue;
-      }
-      
-      return response;
-    } catch (error) {
-      console.error(`Fetch attempt ${attempt + 1}/${maxRetries + 1} failed:`, error);
-      lastError = error;
-    }
-  }
-  
-  // If we've exhausted all retries, throw the last error
-  throw lastError || new Error('Failed to fetch after multiple retries');
 }
