@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, fetchPoapEventOwners, type Poap } from '@/api/services/poapService';
@@ -49,18 +50,17 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     setLoadingOwners(true);
     try {
       const owners = await fetchPoapEventOwners(eventId);
-      setPoapOwners(owners || []);
+      if (owners && owners.length > 0) {
+        setPoapOwners(owners);
+      } else {
+        setPoapOwners([]);
+      }
     } catch (error) {
       console.error('Error loading POAP owners:', error);
+      setPoapOwners([]);
     } finally {
       setLoadingOwners(false);
     }
-  };
-
-  const handleOpenDetail = (poap: Poap) => {
-    setSelectedPoap(poap);
-    setDetailOpen(true);
-    loadPoapOwners(poap.event.id);
   };
 
   if (!walletAddress) return null;
@@ -70,16 +70,16 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   return (
     <section className="mt-4 w-full">
       <div className="relative flex items-center justify-center">
-        <div className="relative w-80 h-80 mx-auto">
+        <div className="relative w-[400px] h-[400px] mx-auto">
           {isLoading ? (
-            <Skeleton className="h-72 w-72 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            <Skeleton className="h-[360px] w-[360px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           ) : poaps.length > 0 ? (
             <div className="relative flex items-center justify-center h-full">
               <img 
                 src={currentPoap.event.image_url}
                 alt={currentPoap.event.name}
                 onClick={() => handleOpenDetail(currentPoap)}
-                className="w-64 h-64 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[55%] z-10 cursor-pointer"
+                className="w-72 h-72 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[60%] z-10 cursor-pointer"
                 style={{ objectFit: 'contain' }}
               />
 
@@ -151,14 +151,14 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                           </div>
                         ))}
                       </div>
-                    ) : poapOwners.length > 0 ? (
+                    ) : poapOwners && poapOwners.length > 0 ? (
                       <div className="max-h-48 overflow-y-auto space-y-2">
                         {poapOwners.map((owner, index) => (
-                          <PoapOwnerItem key={index} owner={owner} />
+                          <PoapOwnerItem key={`${owner.owner}-${index}`} owner={owner} />
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground">No owner data available</p>
+                      <p className="text-sm text-muted-foreground">Loading owners...</p>
                     )}
                   </div>
                 </div>
