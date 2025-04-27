@@ -81,7 +81,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
         </div>
       </div>
 
-      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+      <Dialog open={detailOpen} onOpenChange={setDetailOpen} className="object-contain">
         <DialogContent className="max-w-md">
           {selectedPoap && <>
               <DialogHeader>
