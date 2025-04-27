@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, fetchPoapEventOwners, type Poap } from '@/api/services/poapService';
@@ -71,21 +70,19 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   return (
     <section className="mt-4 w-full">
       <div className="relative flex items-center justify-center">
-        <div className="relative w-72 h-72 mx-auto">
+        <div className="relative w-80 h-80 mx-auto">
           {isLoading ? (
-            <Skeleton className="h-60 w-60 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            <Skeleton className="h-72 w-72 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           ) : poaps.length > 0 ? (
             <div className="relative flex items-center justify-center h-full">
-              {/* Position the POAP art behind the badge */}
               <img 
                 src={currentPoap.event.image_url}
                 alt={currentPoap.event.name}
                 onClick={() => handleOpenDetail(currentPoap)}
-                className="w-54 h-54 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[60%] z-10 cursor-pointer"
+                className="w-64 h-64 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[55%] z-10 cursor-pointer"
                 style={{ objectFit: 'contain' }}
               />
 
-              {/* Badge background on top */}
               <img
                 src="/lovable-uploads/78b95b30-fa09-4371-9086-b91b83cd187e.png"
                 alt="Badge background"
