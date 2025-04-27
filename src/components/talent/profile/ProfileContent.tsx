@@ -54,10 +54,12 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 displayIdentity={ensNameOrAddress}
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
+              
+              {/* POAP Section - Added after AvatarSection */}
+              <PoapSection walletAddress={passport.owner_address} />
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'}`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
-              <PoapSection walletAddress={passport.owner_address} />
             </div>
           </div>
         </HeaderContainer>
