@@ -32,23 +32,25 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
     // Try to get social media links
     const socials: Record<string, string> = {};
     
-    // Extended list of ENS text records for social media and contact info
+    // Common ENS text records for social media and contact info
     const socialKeys = [
-      // Standard ENS keys
-      'com.github', 'com.twitter', 'com.linkedin', 'url', 'email', 'com.facebook',
-      'org.whatsapp.phone', 'org.telegram', 'com.instagram', 'com.youtube',
-      'com.discord', 'com.reddit', 'bsky', 'phone', 'location',
-      
-      // Legacy and alternative keys
-      'twitter', 'github', 'linkedin', 'discord', 'telegram', 'instagram', 
-      'facebook', 'reddit', 'youtube', 'website', 'eth.ens.delegate',
-      
-      // Direct social handles without prefix
-      'discord', 'whatsapp', 'bluesky', 'farcaster', 'lens'
+      'com.github', 
+      'com.twitter', 
+      'com.linkedin', 
+      'url', 
+      'email', 
+      'com.facebook',
+      'org.whatsapp.phone',
+      'com.facebook.messenger',
+      'com.discord',
+      'com.reddit',
+      'org.telegram',
+      'com.instagram',
+      'com.youtube',
+      'bsky.app',
+      'phone',
+      'location',
     ];
-    
-    // Log the keys we're trying to fetch
-    console.log(`Trying to fetch social keys for ${ensName}:`, socialKeys);
     
     // Try to get each social media link in parallel for efficiency
     const results = await Promise.allSettled(
@@ -60,60 +62,49 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
       if (result.status === 'fulfilled' && result.value.value) {
         const { key, value } = result.value;
         
-        // Skip empty values
-        if (!value || value.trim() === '') return;
-        
-        // Normalize keys to standard format
         switch (key) {
           case 'com.github':
-          case 'github':
             socials.github = value;
             break;
           case 'com.twitter':
-          case 'twitter':
             socials.twitter = value;
             break;
           case 'com.linkedin':
-          case 'linkedin':
             socials.linkedin = value;
             break;
           case 'url':
-          case 'website':
             socials.website = value;
             break;
           case 'email':
             socials.email = value;
             break;
           case 'com.facebook':
-          case 'facebook':
             socials.facebook = value;
             break;
           case 'org.whatsapp.phone':
-          case 'whatsapp':
+            // Use WhatsApp phone as telephone if no direct phone record exists
+            socials.telephone = socials.telephone || value;
             socials.whatsapp = value;
             break;
+          case 'com.facebook.messenger':
+            socials.messenger = value;
+            break;
           case 'com.discord':
-          case 'discord':
             socials.discord = value;
             break;
           case 'com.reddit':
-          case 'reddit':
             socials.reddit = value;
             break;
           case 'org.telegram':
-          case 'telegram':
             socials.telegram = value;
             break;
           case 'com.instagram':
-          case 'instagram':
             socials.instagram = value;
             break;
           case 'com.youtube':
-          case 'youtube':
             socials.youtube = value;
             break;
-          case 'bsky':
-          case 'bluesky':
+          case 'bsky.app':
             socials.bluesky = value;
             break;
           case 'phone':
@@ -122,34 +113,16 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
           case 'location':
             socials.location = value;
             break;
-          case 'farcaster':
-            socials.farcaster = value;
-            break;
-          case 'lens':
-            socials.lens = value;
-            break;
-          default:
-            // For unknown keys, store them with their original key
-            socials[key] = value;
         }
       }
     });
-
-    // Add example social links for testing if needed
-    if (Object.keys(socials).length === 0 && ensName === "30315.eth") {
-      console.log("Adding example social links for testing");
-      socials.github = "github-user";
-      socials.twitter = "twitter-user";
-      socials.linkedin = "linkedin-user";
-    }
-
-    // Log the retrieved socials
-    console.log(`Retrieved social links for ${ensName}:`, socials);
 
     // Try to get additional ENS names
     // This is a simplified implementation - in a real app you would query an ENS indexer
     // For demonstration, we'll just return the current ENS name
     const ensLinks = [ensName];
+
+    console.log(`Got ENS links for ${ensName}:`, { socials, ensLinks });
     
     return {
       socials,

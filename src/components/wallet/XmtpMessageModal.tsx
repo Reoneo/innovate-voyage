@@ -86,7 +86,7 @@ const XmtpMessageModal: React.FC = () => {
       <div className="bg-background p-0 rounded-lg flex flex-col h-[650px]">
         <div className="flex justify-between items-center p-4 border-b">
           <h3 className="text-lg font-semibold flex items-center gap-2">
-            <img src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" alt="XMTP Logo" className="h-6" />
+            <MessageSquare className="h-5 w-5" />
             XMTP Messaging
           </h3>
           <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8">

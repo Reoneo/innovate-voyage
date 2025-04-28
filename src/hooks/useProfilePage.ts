@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
@@ -13,26 +13,37 @@ export function useProfilePage() {
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
-  const navigate = useNavigate();
   
   // Determine which parameter to use (either regular path or recruitment.box path)
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
+    // Attempt to clear any browser cache
+    try {
+      // Force page to be freshly loaded 
+      if ('caches' in window) {
+        const cacheNames = caches.keys();
+        cacheNames.then(names => {
+          for (const name of names) {
+            if (name.includes('fetch-cache')) {
+              caches.delete(name);
+            }
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Error clearing caches:', err);
+    }
+    
     if (targetIdentifier) {
-      // Clean up the identifier - remove any trailing slashes
-      const cleanIdentifier = targetIdentifier.endsWith('/') 
-        ? targetIdentifier.slice(0, -1) 
-        : targetIdentifier;
-      
       // Direct address check - immediately use as address if valid
-      if (isValidEthereumAddress(cleanIdentifier)) {
-        console.log(`Valid Ethereum address detected: ${cleanIdentifier}`);
-        setAddress(cleanIdentifier);
+      if (isValidEthereumAddress(targetIdentifier)) {
+        console.log(`Valid Ethereum address detected: ${targetIdentifier}`);
+        setAddress(targetIdentifier);
         setEns(undefined); // Clear ENS when looking up by address
       } else {
         // Not a valid address, treat as ENS or domain
-        const ensValue = cleanIdentifier.includes('.') ? cleanIdentifier : `${cleanIdentifier}.eth`;
+        const ensValue = targetIdentifier.includes('.') ? targetIdentifier : `${targetIdentifier}.eth`;
         console.log(`Treating as ENS: ${ensValue}`);
         setEns(ensValue);
         setAddress(undefined); // Clear address when looking up by ENS
@@ -42,35 +53,29 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading - increased from 5s to 15s to prevent premature timeout errors
+    // Set a timeout for loading
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 15000); // Increased from 5000 to 15000 ms (15 seconds)
+    }, 5000);
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
-      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
     }
 
-    // Add CSS to prevent horizontal scrolling on mobile
-    const style = document.createElement('style');
-    style.textContent = `
-      body, html {
-        max-width: 100%;
-        overflow-x: hidden;
-      }
-    `;
-    document.head.appendChild(style);
+    // Clean URL - remove timestamp query parameter 
+    if (window.history && window.location.href.includes('?t=')) {
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
 
     return () => {
       clearTimeout(timeoutId);
-      // Reset viewport to default when leaving the page
+      // Reset viewport when leaving the page
       if (metaViewport) {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }
-      // Remove the added style
-      document.head.removeChild(style);
     };
   }, [targetIdentifier]);
 
@@ -94,19 +99,6 @@ export function useProfilePage() {
     });
   };
 
-  const handleSearch = (query: string) => {
-    if (query.trim()) {
-      // Correct search URL format
-      if (window.location.pathname.includes('recruitment.box')) {
-        // Navigate to the recruitment.box format
-        window.location.href = `/recruitment.box/${query.trim()}/`;
-      } else {
-        // Complete page refresh for the new user's profile
-        window.location.href = `/${query.trim()}/`;
-      }
-    }
-  };
-
   return {
     ensNameOrAddress: targetIdentifier,
     loading,
@@ -117,7 +109,6 @@ export function useProfilePage() {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges,
-    handleSearch
+    handleSaveChanges
   };
 }
