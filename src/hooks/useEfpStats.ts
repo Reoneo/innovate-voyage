@@ -1,6 +1,11 @@
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+
+// Util to shorten an Ethereum address
+function shortenAddress(addr: string) {
+  return addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';
+}
 
 export interface EfpPerson {
   address: string;
@@ -15,29 +20,37 @@ export interface EfpStats {
   followersList?: EfpPerson[];
 }
 
-// Fetch user stats from EFP API
-async function fetchEfpStats(ensOrAddress: string): Promise<any> {
+// Helper to resolve ENS/avatars in bulk (very basic for now)
+async function getEnsData(address: string): Promise<{ ensName?: string; avatar?: string }> {
   try {
-    const response = await fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/stats?cache=fresh`);
-    const data = await response.json();
+    // Use ENS registry/public mainnet endpoint or a public ENS lookup API via web3.bio
+    const resp = await fetch(`https://api.web3.bio/profile/${address}`);
+    const data = await resp.json();
     return {
-      followers: parseInt(data.followers_count || '0'),
-      following: parseInt(data.following_count || '0')
+      ensName: data.ens?.name,
+      avatar: data.ens?.avatar,
     };
+  } catch (e) {
+    return {};
+  }
+}
+
+// Fetch account data from EFP API
+async function fetchEfpAccountData(ensOrAddress: string): Promise<any> {
+  try {
+    const response = await fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/account`);
+    return await response.json();
   } catch (error) {
-    console.error('Error fetching EFP stats:', error);
-    return { followers: 0, following: 0 };
+    console.error('Error fetching EFP account:', error);
+    return null;
   }
 }
 
 // Fetch followers from EFP API
 async function fetchEfpFollowers(ensOrAddress: string, limit = 20): Promise<any[]> {
   try {
-    const response = await fetch(
-      `https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/followers?limit=${limit}&sort=latest`
-    );
-    const data = await response.json();
-    return data.followers || [];
+    const response = await fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/followers?limit=${limit}`);
+    return await response.json();
   } catch (error) {
     console.error('Error fetching EFP followers:', error);
     return [];
@@ -47,25 +60,22 @@ async function fetchEfpFollowers(ensOrAddress: string, limit = 20): Promise<any[
 // Fetch following from EFP API
 async function fetchEfpFollowing(ensOrAddress: string, limit = 20): Promise<any[]> {
   try {
-    const response = await fetch(
-      `https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/following?limit=${limit}&sort=latest`
-    );
-    const data = await response.json();
-    return data.following || [];
+    const response = await fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/following?limit=${limit}`);
+    return await response.json();
   } catch (error) {
     console.error('Error fetching EFP following:', error);
     return [];
   }
 }
 
-// Fetch ENS data for an address
-async function fetchEnsData(ensOrAddress: string): Promise<any> {
+// Fetch user stats from EFP API
+async function fetchEfpStats(ensOrAddress: string): Promise<any> {
   try {
-    const response = await fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/ens`);
+    const response = await fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/stats`);
     return await response.json();
   } catch (error) {
-    console.error('Error fetching ENS data:', error);
-    return null;
+    console.error('Error fetching EFP stats:', error);
+    return { followerCount: 0, followingCount: 0 };
   }
 }
 
@@ -80,8 +90,8 @@ export function useEfpStats(walletAddress?: string) {
     setLoading(true);
 
     try {
-      // Fetch basic stats first
-      const stats = await fetchEfpStats(walletAddress);
+      // First fetch the user stats to get follower/following counts
+      const userStats = await fetchEfpStats(walletAddress);
       
       // Then fetch followers and following lists
       const [followers, following] = await Promise.all([
@@ -89,42 +99,64 @@ export function useEfpStats(walletAddress?: string) {
         fetchEfpFollowing(walletAddress)
       ]);
 
+      // Extract just the addresses from the following list for quick lookups
       const followingAddrs = Array.isArray(following) 
-        ? following.map(f => f.data || f.address) 
+        ? following.map(f => f.address) 
         : [];
       
       setFollowingAddresses(followingAddrs);
-
-      // Process followers and following with ENS data
-      const processUsers = async (users: any[]) => {
-        return Promise.all(
-          users.map(async (user) => {
-            const address = user.data || user.address;
-            const ensData = await fetchEnsData(address);
-            return {
-              address,
-              ensName: ensData?.ens?.name,
-              avatar: ensData?.ens?.avatar
+      
+      // Resolve ENS names for all users
+      const resolveUserDetails = async (addresses: string[]) => {
+        const results: EfpPerson[] = [];
+        
+        // Process in chunks to avoid overwhelming the API
+        const chunkSize = 5;
+        for (let i = 0; i < addresses.length; i += chunkSize) {
+          const chunk = addresses.slice(i, i + chunkSize);
+          const promises = chunk.map(async (addr) => {
+            // Try to fetch additional details from EFP API
+            const accountData = await fetchEfpAccountData(addr);
+            
+            // Fall back to basic ENS resolution if needed
+            if (!accountData || !accountData.ensName) {
+              const { ensName, avatar } = await getEnsData(addr);
+              return { address: addr, ensName, avatar };
+            }
+            
+            return { 
+              address: addr, 
+              ensName: accountData.ensName,
+              avatar: accountData.avatar
             };
-          })
-        );
+          });
+          
+          const resolvedChunk = await Promise.all(promises);
+          results.push(...resolvedChunk);
+        }
+        
+        return results;
       };
 
+      // Get follower/following addresses
+      const followerAddrs = Array.isArray(followers) ? followers.map(f => f.address) : [];
+      
+      // Resolve ENS details for both lists
       const [followersList, followingList] = await Promise.all([
-        processUsers(followers),
-        processUsers(following)
+        resolveUserDetails(followerAddrs),
+        resolveUserDetails(followingAddrs)
       ]);
 
       setStats({
-        followers: stats.followers,
-        following: stats.following,
+        followers: userStats.followerCount || followersList.length,
         followersList,
+        following: userStats.followingCount || followingList.length,
         followingList
       });
       
     } catch (e) {
       console.error('Error fetching EFP data:', e);
-      setStats({ followers: 0, following: 0 });
+      setStats({ followers: 0, following: 0, followersList: [], followingList: [] });
     } finally {
       setLoading(false);
     }
@@ -162,57 +194,33 @@ export function useEfpStats(walletAddress?: string) {
         description: `Connecting to wallet to follow ${shortenAddress(addressToFollow)}...`
       });
 
-      // Check if we have the Ethereum object available from Metamask
-      if (typeof window.ethereum !== 'undefined') {
-        // Request account access
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        
-        if (!accounts || accounts.length === 0) {
-          throw new Error("No wallet accounts available");
-        }
-        
-        // Get the current user account
-        const userAddress = accounts[0];
-        
-        // To follow on EFP, user needs to sign a message
-        const message = `Follow ${addressToFollow} on ethereum-follow-protocol`;
-        
-        // Request signature from the user
-        const signature = await window.ethereum.request({
-          method: 'personal_sign',
-          params: [message, userAddress]
-        });
-        
-        if (!signature) {
-          throw new Error("Signature was not provided");
-        }
-        
-        console.log(`Successfully signed follow message for ${addressToFollow}`);
-        
-        // In a full implementation, you would now submit this signature to the EFP backend
-        // For now, we'll just simulate success
-        
-        // Add to local following list for UI updates
-        setFollowingAddresses(prev => [...prev, addressToFollow]);
-        setStats(prev => ({
-          ...prev,
-          following: prev.following + 1,
-          followingList: [
-            ...(prev.followingList || []),
-            { address: addressToFollow }
-          ]
-        }));
+      // For a real implementation, we would:
+      // 1. Prompt the user to sign a message with their wallet
+      // 2. Submit that signature to the EFP indexer
+      // 3. Wait for confirmation
+      
+      // Simulate transaction delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-        toast({
-          title: "Success",
-          description: `You are now following ${shortenAddress(addressToFollow)}`
-        });
-      } else {
-        throw new Error("Ethereum provider not found. Please install MetaMask.");
-      }
-    } catch (error: any) {
+      // Add to local following list for UI updates
+      setFollowingAddresses(prev => [...prev, addressToFollow]);
+      setStats(prev => ({
+        ...prev,
+        following: prev.following + 1,
+        followingList: [
+          ...(prev.followingList || []),
+          { address: addressToFollow }
+        ]
+      }));
+
+      toast({
+        title: "Success",
+        description: `You are now following ${shortenAddress(addressToFollow)}`
+      });
+
+    } catch (error) {
       console.error('Error following address:', error);
-      throw new Error(error.message || "Failed to follow. Please try again.");
+      throw error;
     }
   };
 
@@ -223,10 +231,4 @@ export function useEfpStats(walletAddress?: string) {
     isFollowing,
     refreshData: fetchEfpData
   };
-}
-
-// Helper to shorten addresses
-function shortenAddress(addr: string): string {
-  if (!addr) return "";
-  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
