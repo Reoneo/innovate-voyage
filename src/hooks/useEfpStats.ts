@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -216,12 +215,41 @@ export function useEfpStats(walletAddress?: string) {
     }
   };
 
+  // Create friends property by combining follower and following lists
+  const friends = () => {
+    const friendList: EfpPerson[] = [];
+    const addresses = new Set<string>();
+    
+    // Add followers to friends list
+    if (stats.followersList) {
+      stats.followersList.forEach(follower => {
+        if (!addresses.has(follower.address)) {
+          addresses.add(follower.address);
+          friendList.push(follower);
+        }
+      });
+    }
+    
+    // Add following to friends list
+    if (stats.followingList) {
+      stats.followingList.forEach(following => {
+        if (!addresses.has(following.address)) {
+          addresses.add(following.address);
+          friendList.push(following);
+        }
+      });
+    }
+    
+    return friendList;
+  };
+
   return { 
     ...stats, 
     loading, 
     followAddress,
     isFollowing,
-    refreshData: fetchEfpData
+    refreshData: fetchEfpData,
+    friends: friends()
   };
 }
 

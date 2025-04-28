@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { X, MessageSquare, PlusCircle, ArrowLeft, Trash2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { getConversations, deleteConversation } from '@/services/xmtpService';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { useEfpStats } from '@/hooks/useEfpStats';
+import { useEfpStats, EfpPerson } from '@/hooks/useEfpStats';
 
 const XmtpMessageModal: React.FC = () => {
   const [messages, setMessages] = useState<any[]>([]);
@@ -23,7 +22,7 @@ const XmtpMessageModal: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<any>(null);
   const { toast } = useToast();
-  const { friends } = useEfpStats();
+  const { friends = [] } = useEfpStats(localStorage.getItem('connectedWalletAddress') || undefined);
 
   const handleConnect = async (client: any) => {
     setXmtpClient(client);
@@ -238,7 +237,7 @@ const XmtpMessageModal: React.FC = () => {
                   <TabsContent value="friends" className="mt-2">
                     <div className="max-h-[480px] overflow-y-auto pr-1">
                       <FriendsList 
-                        friends={friends || []}
+                        friends={friends}
                         xmtpClient={xmtpClient}
                         onConversationStarted={handleConversationStarted}
                         isLoading={isLoading}
@@ -285,7 +284,7 @@ const XmtpMessageModal: React.FC = () => {
 };
 
 interface FriendsListProps {
-  friends: any[];
+  friends: EfpPerson[];
   xmtpClient: any;
   onConversationStarted: (conversation: any, messages: any[]) => void;
   isLoading: boolean;
