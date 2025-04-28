@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, fetchPoapEventOwners, type Poap } from '@/api/services/poapService';
@@ -79,15 +78,26 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                 src={currentPoap.event.image_url}
                 alt={currentPoap.event.name}
                 onClick={() => handleOpenDetail(currentPoap)}
-                className="w-72 h-72 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[60%] z-10 cursor-pointer"
+                className="w-72 h-72 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer rounded-full"
                 style={{ objectFit: 'contain' }}
               />
 
-              <img
-                src="/lovable-uploads/78b95b30-fa09-4371-9086-b91b83cd187e.png"
-                alt="Badge background"
-                className="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none"
-              />
+              <svg 
+                viewBox="0 0 500 500" 
+                className="absolute inset-0 w-full h-full z-20 pointer-events-none"
+              >
+                <path
+                  d="M250,30 
+                     C370,30 450,110 450,250 
+                     C450,370 370,450 250,450 
+                     C130,450 50,370 50,250 
+                     C50,110 130,30 250,30 Z"
+                  fill="none"
+                  stroke="#9b87f5"
+                  strokeWidth="8"
+                  className="animate-pulse"
+                />
+              </svg>
               
               <button 
                 onClick={() => currentPoapIndex > 0 && setCurrentPoapIndex(prev => prev - 1)}
