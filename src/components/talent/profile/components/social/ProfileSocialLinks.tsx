@@ -90,8 +90,8 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
             aria-label={`Visit ${platform.key}`}
           >
             <SocialIcon 
-              type={platform.type as any} 
-              size={20}
+              platform={platform.type} 
+              className="h-5 w-5"
             />
           </a>
         )
@@ -102,7 +102,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
           className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full flex items-center justify-center"
           aria-label="Send email"
         >
-          <SocialIcon type="mail" size={20} />
+          <SocialIcon platform="mail" className="h-5 w-5" />
         </a>
       )}
       

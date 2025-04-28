@@ -21,6 +21,16 @@ const FollowButton: React.FC<FollowButtonProps> = ({
   variant = "default"
 }) => {
   const { toast } = useToast();
+  
+  // Ensure addresses are in the correct format (`0x${string}`)
+  const formattedLookupAddress = lookupAddress.startsWith('0x') 
+    ? lookupAddress as `0x${string}` 
+    : `0x${lookupAddress}` as `0x${string}`;
+  
+  const formattedConnectedAddress = connectedAddress && connectedAddress.startsWith('0x')
+    ? connectedAddress as `0x${string}`
+    : connectedAddress ? `0x${connectedAddress}` as `0x${string}` : undefined;
+  
   const { 
     buttonText, 
     buttonState,
@@ -29,8 +39,8 @@ const FollowButton: React.FC<FollowButtonProps> = ({
     disableHover,
     setDisableHover
   } = useFollowButton({
-    lookupAddress,
-    connectedAddress: connectedAddress || undefined,
+    lookupAddress: formattedLookupAddress,
+    connectedAddress: formattedConnectedAddress,
   });
 
   const handleClick = async () => {

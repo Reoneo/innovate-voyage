@@ -5,10 +5,14 @@ import {
   Github, 
   Instagram, 
   Linkedin, 
-  Telegram, 
-  Discord, 
   Globe,
-  MessageSquare
+  MessageSquare,
+  Mail,
+  Phone,
+  MapPin,
+  Youtube,
+  Facebook,
+  MessageCircle
 } from 'lucide-react';
 
 interface SocialIconProps {
@@ -35,9 +39,21 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
       case 'linkedin':
         return <Linkedin className={className} />;
       case 'telegram':
-        return <Telegram className={className} />;
+        return <MessageCircle className={className} />;
       case 'discord':
-        return <Discord className={className} />;
+        return <MessageSquare className={className} />;
+      case 'facebook':
+        return <Facebook className={className} />;
+      case 'youtube':
+        return <Youtube className={className} />;
+      case 'mail':
+      case 'email':
+        return <Mail className={className} />;
+      case 'phone':
+      case 'telephone':
+        return <Phone className={className} />;
+      case 'location':
+        return <MapPin className={className} />;
       case 'bluesky':
         // Custom SVG for Bluesky
         return (

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
 import { Check, Copy } from 'lucide-react';
@@ -84,7 +83,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
         title={`Copy Discord: ${displayText}`}
         data-social-link={platformType}
       >
-        <SocialIcon type={platformType} size={20} />
+        <SocialIcon platform={platformType} className="h-5 w-5" />
         <span className="absolute top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
           {copied ? <Check size={12} className="inline mr-1" /> : <Copy size={12} className="inline mr-1" />} 
           {copied ? "Copied!" : "Copy Discord"}
@@ -102,7 +101,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
       data-social-link={platformType}
     >
-      <SocialIcon type={platformType as any} size={20} />
+      <SocialIcon platform={platformType} className="h-5 w-5" />
     </a>
   );
 };
