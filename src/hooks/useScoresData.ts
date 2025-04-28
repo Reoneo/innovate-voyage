@@ -15,7 +15,7 @@ export function useScoresData(walletAddress: string) {
       setLoading(true);
       
       try {
-        // Fetch Talent Protocol Score with retry
+        // Fetch Talent Protocol Score
         const fetchTalentScore = async (retries = 2) => {
           for (let i = 0; i <= retries; i++) {
             try {
@@ -44,7 +44,7 @@ export function useScoresData(walletAddress: string) {
           }
         };
 
-        // Updated Webacy data fetch with proper headers and chain parameter
+        // Updated Webacy data fetch with correct endpoint and headers
         const fetchWebacyData = async (retries = 2) => {
           for (let i = 0; i <= retries; i++) {
             try {
@@ -61,12 +61,9 @@ export function useScoresData(walletAddress: string) {
                 console.log('Webacy Address Data:', data);
                 
                 if (data?.data) {
-                  const riskScore = data.data.riskScore;
-                  const threatLevel = getThreatLevel(riskScore);
-
                   setWebacyData({
-                    riskScore,
-                    threatLevel,
+                    riskScore: data.data.riskScore,
+                    threatLevel: getThreatLevel(data.data.riskScore),
                     walletAddress,
                     approvals: {
                       count: data.data.approvals?.length || 0,
@@ -75,15 +72,17 @@ export function useScoresData(walletAddress: string) {
                     quickProfile: {
                       transactions: data.data.transactions || 0,
                       contracts: data.data.contracts || 0,
-                      riskLevel: threatLevel
+                      riskLevel: getThreatLevel(data.data.riskScore)
                     }
                   });
                   return;
                 }
               }
               
-              console.error(`Attempt ${i + 1} failed for Webacy`);
-              if (i < retries) await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+              if (i < retries) {
+                console.error(`Attempt ${i + 1} failed for Webacy, retrying...`);
+                await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+              }
             } catch (err) {
               console.error(`Attempt ${i + 1} failed:`, err);
               if (i < retries) await new Promise(r => setTimeout(r, 1000 * (i + 1)));
