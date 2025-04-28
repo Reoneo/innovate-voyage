@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -6,6 +5,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import PoapSection from './components/poap/PoapSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
+import { NftCollectionsSection } from './components/nft/NftCollectionsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -40,8 +40,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className="w-full grid grid-cols-1 md:grid-cols-10 gap-8">
-            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col items-center`}>
+          <div className="w-full grid grid-cols-1 md:grid-cols-10 gap-6">
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
               <AvatarSection
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
@@ -55,11 +55,13 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
               
-              {/* POAP Section - Added after AvatarSection */}
-              <PoapSection walletAddress={passport.owner_address} />
+              <div className="space-y-4">
+                <PoapSection walletAddress={passport.owner_address} />
+              </div>
             </div>
-            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'}`}>
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
+              <NftCollectionsSection walletAddress={passport.owner_address} />
             </div>
           </div>
         </HeaderContainer>
@@ -72,7 +74,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
 
 export default ProfileContent;
 
-// Internal component for timeout error
 const ProfileTimeoutError: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameOrAddress }) => (
   <div className="min-h-screen bg-gray-50 py-4 md:py-8">
     <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
