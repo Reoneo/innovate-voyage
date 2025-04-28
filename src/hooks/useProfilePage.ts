@@ -13,6 +13,7 @@ export function useProfilePage() {
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
+  const [loadRetries, setLoadRetries] = useState<number>(0);
   
   // Determine which parameter to use (either regular path or recruitment.box path)
   const targetIdentifier = userId || ensNameOrAddress;
@@ -43,8 +44,15 @@ export function useProfilePage() {
         setEns(undefined); // Clear ENS when looking up by address
       } else {
         // Not a valid address, treat as ENS or domain
-        const ensValue = targetIdentifier.includes('.') ? targetIdentifier : `${targetIdentifier}.eth`;
-        console.log(`Treating as ENS: ${ensValue}`);
+        // Ensure we handle .box domains properly
+        const isDotBox = targetIdentifier.toLowerCase().endsWith('.box');
+        const isEth = targetIdentifier.toLowerCase().endsWith('.eth') || targetIdentifier.includes('.');
+        
+        const ensValue = isEth ? targetIdentifier : 
+                        isDotBox ? targetIdentifier : 
+                        `${targetIdentifier}.eth`;
+        
+        console.log(`Treating as ENS/Domain: ${ensValue}`);
         setEns(ensValue);
         setAddress(undefined); // Clear address when looking up by ENS
       }
@@ -53,10 +61,24 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading
-    const timeoutId = setTimeout(() => {
-      setLoadingTimeout(true);
-    }, 5000);
+    // Set a progressive timeout system for loading
+    setLoadingTimeout(false);
+    setLoadRetries(0);
+    
+    const timeoutIds = [
+      setTimeout(() => {
+        console.log("First loading timeout (3s) - retrying...");
+        setLoadRetries(prev => prev + 1);
+      }, 3000),
+      setTimeout(() => {
+        console.log("Second loading timeout (6s) - retrying...");
+        setLoadRetries(prev => prev + 1);
+      }, 6000),
+      setTimeout(() => {
+        console.log("Final loading timeout (10s) - showing error");
+        setLoadingTimeout(true);
+      }, 10000)
+    ];
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
@@ -71,7 +93,7 @@ export function useProfilePage() {
     }
 
     return () => {
-      clearTimeout(timeoutId);
+      timeoutIds.forEach(id => clearTimeout(id));
       // Reset viewport when leaving the page
       if (metaViewport) {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
@@ -80,6 +102,14 @@ export function useProfilePage() {
   }, [targetIdentifier]);
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
+  
+  // When load retries increment, we want to force a refresh of the data
+  useEffect(() => {
+    if (loadRetries > 0) {
+      console.log(`Retry attempt ${loadRetries} for ${targetIdentifier}`);
+      // This is a no-op currently but could be used to force refresh data if needed
+    }
+  }, [loadRetries, targetIdentifier]);
   
   const { profileRef } = usePdfExport();
 

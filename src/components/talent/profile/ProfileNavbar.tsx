@@ -35,14 +35,14 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center mb-4 relative">
-      <div className="flex items-center justify-center gap-4 mb-2">
+    <div className="w-full flex flex-col items-center justify-center mb-3 relative">
+      <div className="flex items-center justify-center gap-3 mb-1">
         <Link to="/" className="flex items-center justify-center">
-          <Home className="h-6 w-6 text-primary hover:text-[#8B5CF6] transition-colors" />
+          <Home className="h-5 w-5 text-primary hover:text-[#8B5CF6] transition-colors" />
         </Link>
         <div className="flex items-center justify-center">
           <MessageSquare
-            className="h-6 w-6 cursor-pointer text-[#6E59A5] hover:text-[#0FA0CE] transition-colors"
+            className="h-5 w-5 cursor-pointer text-[#6E59A5] hover:text-[#0FA0CE] transition-colors"
             onClick={handleOpenXmtpModal}
             aria-label="XMTP Messages"
           />
@@ -58,7 +58,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           placeholder="Search ENS username..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-8 pr-4 py-1.5 w-full bg-white border-[1.4px] border-[#9b87f5] rounded-full shadow focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] transition"
+          className="pl-8 pr-4 py-1 w-full bg-white border-[1.4px] border-[#9b87f5] rounded-full shadow focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] transition"
         />
         <Search 
           className="absolute left-3 h-4 w-4 text-[#8B5CF6]"

@@ -23,6 +23,47 @@ export async function handleDotBoxAvatar(identity: string): Promise<string | nul
       }
     }
     
+    // Try The Graph ENS subgraph
+    try {
+      const boxName = identity.toLowerCase();
+      const query = `
+        {
+          domains(where:{name:"${boxName}"}) {
+            name
+            textRecords(where:{key:"avatar"}) {
+              value
+            }
+            contentHash
+          }
+        }
+      `;
+      
+      const graphResponse = await fetch('https://api.thegraph.com/subgraphs/name/ensdomains/ens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      
+      const graphData = await graphResponse.json();
+      const domain = graphData.data?.domains?.[0];
+      
+      if (domain) {
+        const avatar = domain.textRecords.length
+          ? domain.textRecords[0].value
+          : domain.contentHash
+            ? `ipfs://${domain.contentHash}`
+            : null;
+            
+        if (avatar) {
+          console.log(`Found .box avatar via Graph API for ${identity}: ${avatar}`);
+          avatarCache[identity] = avatar;
+          return avatar;
+        }
+      }
+    } catch (graphError) {
+      console.error(`Error fetching .box avatar from Graph for ${identity}:`, graphError);
+    }
+    
     // Fallback to .bit API
     const bitProfile = await fetch(`https://did.id/v1/account/${identity}`);
     if (bitProfile.ok) {

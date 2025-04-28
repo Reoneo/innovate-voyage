@@ -1,107 +1,103 @@
-import React, { useState } from 'react';
-import { SocialIcon } from '@/components/ui/social-icon';
-import { Check, Copy } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import React from 'react';
+import { SocialIcon } from "@/components/ui/social-icon";
 
 interface SocialLinkItemProps {
-  platformType: string;
-  url: string;
+  platform: string;
+  url?: string;
+  username?: string;
+  size?: "sm" | "md" | "lg";
+  showUsername?: boolean;
 }
 
-const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) => {
-  const [copied, setCopied] = useState(false);
+const normalizeUrl = (platform: string, url?: string, username?: string): string => {
+  if (!url && !username) return '#';
   
-  let formattedUrl = url;
-  let displayText = url;
-  
-  switch (platformType) {
-    case 'whatsapp':
-      formattedUrl = url.startsWith('https://') ? url : `https://wa.me/${url.replace(/[^0-9]/g, '')}`;
-      break;
-    case 'website':
-    case 'globe':
-      formattedUrl = url.startsWith('http') ? url : `https://${url}`;
-      break;
-    case 'email':
-    case 'mail':
-      formattedUrl = url.startsWith('mailto:') ? url : `mailto:${url}`;
-      break;
-    case 'phone':
-    case 'telephone':
-      formattedUrl = url.startsWith('tel:') ? url : `tel:${url.replace(/[^0-9+]/g, '')}`;
-      break;
-    case 'location':
-      formattedUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(url)}`;
-      break;
-    case 'twitter':
-      if (!url.startsWith('http')) {
-        formattedUrl = `https://twitter.com/${url.replace('@', '')}`;
-        displayText = `@${url.replace('@', '')}`;
-      }
-      break;
-    case 'github':
-      if (!url.startsWith('http')) {
-        formattedUrl = `https://github.com/${url.replace('@', '')}`;
-        displayText = `@${url.replace('@', '')}`;
-      }
-      break;
-    case 'linkedin':
-      if (!url.startsWith('http')) {
-        formattedUrl = `https://linkedin.com/in/${url.replace('@', '')}`;
-        displayText = `${url.replace('@', '')}`;
-      }
-      break;
-    case 'discord':
-      displayText = url.startsWith('@') ? url : `@${url}`;
-      break;
+  switch (platform.toLowerCase()) {
     case 'telegram':
-      if (!url.startsWith('http')) {
-        formattedUrl = `https://t.me/${url.replace('@', '')}`;
+      if (username) {
+        return `https://t.me/${username.replace(/^@/, '')}`;
       }
-      break;
+      if (url && url.includes('t.me/')) {
+        const telegramUsername = url.split('t.me/')[1]?.split('/')[0];
+        if (telegramUsername) {
+          return `https://t.me/${telegramUsername}`;
+        }
+      }
+      return url || '#';
+      
+    case 'twitter':
+    case 'x':
+      if (username) {
+        return `https://twitter.com/${username.replace(/^@/, '')}`;
+      }
+      return url || '#';
+      
+    case 'instagram':
+      if (username) {
+        return `https://instagram.com/${username.replace(/^@/, '')}`;
+      }
+      return url || '#';
+      
+    case 'github':
+      if (username) {
+        return `https://github.com/${username}`;
+      }
+      return url || '#';
+      
+    case 'linkedin':
+      return url || (username ? `https://linkedin.com/in/${username}` : '#');
+      
+    case 'discord':
+      return url || '#';
+      
+    case 'bluesky':
+      if (username) {
+        return `https://bsky.app/profile/${username.replace(/^@/, '')}`;
+      }
+      return url || '#';
+      
     default:
-      if (!url.startsWith('http') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
-        formattedUrl = `https://${url}`;
+      if (url?.match(/^(https?:)?\/\//)) {
+        return url;
       }
+      return url ? `https://${url.replace(/^https?:\/\//, '')}` : '#';
   }
+};
 
-  const handleCopyDiscord = () => {
-    navigator.clipboard.writeText(displayText);
-    setCopied(true);
-    toast({
-      title: "Discord handle copied!",
-      description: `${displayText} has been copied to clipboard`,
-    });
-    setTimeout(() => setCopied(false), 2000);
+const SocialLinkItem: React.FC<SocialLinkItemProps> = ({
+  platform,
+  url,
+  username,
+  size = "md",
+  showUsername = true
+}) => {
+  const finalUrl = normalizeUrl(platform, url, username);
+  const displayName = username || (url ? new URL(finalUrl).hostname.replace(/^www\./, '') : platform);
+  
+  const iconSizeMap = {
+    sm: "h-5 w-5",
+    md: "h-6 w-6",
+    lg: "h-8 w-8"
   };
-
-  if (platformType === 'discord') {
-    return (
-      <button
-        onClick={handleCopyDiscord}
-        className="hover:opacity-70 transition-opacity flex items-center justify-center group relative"
-        title={`Copy Discord: ${displayText}`}
-        data-social-link={platformType}
-      >
-        <SocialIcon type={platformType} size={32} />
-        <span className="absolute top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-          {copied ? <Check size={12} className="inline mr-1" /> : <Copy size={12} className="inline mr-1" />} 
-          {copied ? "Copied!" : "Copy Discord"}
-        </span>
-      </button>
-    );
-  }
-
+  
+  const containerClass = showUsername ? "flex items-center space-x-2" : "";
+  
   return (
     <a 
-      href={formattedUrl} 
+      href={finalUrl} 
       target="_blank" 
       rel="noopener noreferrer"
-      className="hover:opacity-70 transition-opacity flex items-center justify-center"
-      title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
-      data-social-link={platformType}
+      className={containerClass}
     >
-      <SocialIcon type={platformType as any} size={32} />
+      <SocialIcon
+        platform={platform.toLowerCase()}
+        className={iconSizeMap[size]}
+      />
+      {showUsername && (
+        <span className="text-sm text-muted-foreground">
+          {displayName}
+        </span>
+      )}
     </a>
   );
 };

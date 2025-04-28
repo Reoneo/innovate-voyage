@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 export interface EfpPerson {
@@ -60,11 +61,171 @@ async function fetchEfpFollowing(ensOrAddress: string, limit = 20): Promise<any[
 // Fetch ENS data for an address
 async function fetchEnsData(ensOrAddress: string): Promise<any> {
   try {
+    // First try with ethfollow API
     const response = await fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/ens`);
-    return await response.json();
+    const data = await response.json();
+    
+    // If we got a result, return it
+    if (data?.ens?.name) {
+      return data;
+    }
+    
+    // For .box domains, try the GraphQL API
+    if (ensOrAddress.toLowerCase().endsWith('.box')) {
+      const boxName = ensOrAddress.toLowerCase();
+      const query = `
+        {
+          domains(where:{name:"${boxName}"}) {
+            name
+            textRecords(where:{key:"avatar"}) {
+              value
+            }
+            contentHash
+          }
+        }
+      `;
+      
+      const graphResponse = await fetch('https://api.thegraph.com/subgraphs/name/ensdomains/ens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      
+      const graphData = await graphResponse.json();
+      const domain = graphData.data?.domains?.[0];
+      
+      if (domain) {
+        const avatar = domain.textRecords.length
+          ? domain.textRecords[0].value
+          : domain.contentHash
+            ? `ipfs://${domain.contentHash}`
+            : null;
+            
+        return {
+          ens: {
+            name: boxName,
+            avatar
+          }
+        };
+      }
+    }
+    
+    return data;
   } catch (error) {
     console.error('Error fetching ENS data:', error);
     return null;
+  }
+}
+
+// Function to sign and submit follow request using Ethereum Identity Kit
+async function submitFollowRequest(targetAddress: string, userAddress: string) {
+  if (!userAddress || !targetAddress) return false;
+  
+  try {
+    // Check if we have the Ethereum object available from Metamask
+    if (typeof window.ethereum !== 'undefined') {
+      // Request account access
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      
+      if (!accounts || accounts.length === 0) {
+        throw new Error("No wallet accounts available");
+      }
+      
+      // Prepare the message to sign
+      const message = `Follow ${targetAddress} on ethereum-follow-protocol`;
+      
+      // Request signature from the user
+      const signature = await window.ethereum.request({
+        method: 'personal_sign',
+        params: [message, userAddress]
+      });
+      
+      if (!signature) {
+        throw new Error("Signature was not provided");
+      }
+      
+      // Submit the follow request to EFP API
+      const response = await fetch('https://api.ethfollow.xyz/api/v1/follow', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          follower: userAddress,
+          following: targetAddress,
+          signature,
+          message
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to follow");
+      }
+      
+      return true;
+    } else {
+      throw new Error("Ethereum provider not found. Please install MetaMask.");
+    }
+  } catch (error) {
+    console.error("Error following address:", error);
+    throw error;
+  }
+}
+
+// Function to unfollow a user
+async function submitUnfollowRequest(targetAddress: string, userAddress: string) {
+  if (!userAddress || !targetAddress) return false;
+  
+  try {
+    // Check if we have the Ethereum object available
+    if (typeof window.ethereum !== 'undefined') {
+      // Request account access
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      
+      if (!accounts || accounts.length === 0) {
+        throw new Error("No wallet accounts available");
+      }
+      
+      // Prepare the message to sign
+      const message = `Unfollow ${targetAddress} on ethereum-follow-protocol`;
+      
+      // Request signature from the user
+      const signature = await window.ethereum.request({
+        method: 'personal_sign',
+        params: [message, userAddress]
+      });
+      
+      if (!signature) {
+        throw new Error("Signature was not provided");
+      }
+      
+      // Submit the unfollow request to EFP API
+      const response = await fetch('https://api.ethfollow.xyz/api/v1/unfollow', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          follower: userAddress,
+          following: targetAddress,
+          signature,
+          message
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to unfollow");
+      }
+      
+      return true;
+    } else {
+      throw new Error("Ethereum provider not found. Please install MetaMask.");
+    }
+  } catch (error) {
+    console.error("Error unfollowing address:", error);
+    throw error;
   }
 }
 
@@ -74,7 +235,7 @@ export function useEfpStats(walletAddress?: string) {
   const [followingAddresses, setFollowingAddresses] = useState<string[]>([]);
   const { toast } = useToast();
 
-  const fetchEfpData = async () => {
+  const fetchEfpData = useCallback(async () => {
     if (!walletAddress) return;
     setLoading(true);
 
@@ -127,7 +288,7 @@ export function useEfpStats(walletAddress?: string) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [walletAddress]);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,7 +297,7 @@ export function useEfpStats(walletAddress?: string) {
     fetchEfpData();
     
     return () => { cancelled = true; };
-  }, [walletAddress]);
+  }, [walletAddress, fetchEfpData]);
 
   const isFollowing = (address: string): boolean => {
     return followingAddresses.includes(address);
@@ -160,37 +321,11 @@ export function useEfpStats(walletAddress?: string) {
         title: "Following address",
         description: `Connecting to wallet to follow ${shortenAddress(addressToFollow)}...`
       });
-
-      // Check if we have the Ethereum object available from Metamask
-      if (typeof window.ethereum !== 'undefined') {
-        // Request account access
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        
-        if (!accounts || accounts.length === 0) {
-          throw new Error("No wallet accounts available");
-        }
-        
-        // Get the current user account
-        const userAddress = accounts[0];
-        
-        // To follow on EFP, user needs to sign a message
-        const message = `Follow ${addressToFollow} on ethereum-follow-protocol`;
-        
-        // Request signature from the user
-        const signature = await window.ethereum.request({
-          method: 'personal_sign',
-          params: [message, userAddress]
-        });
-        
-        if (!signature) {
-          throw new Error("Signature was not provided");
-        }
-        
-        console.log(`Successfully signed follow message for ${addressToFollow}`);
-        
-        // In a full implementation, you would now submit this signature to the EFP backend
-        // For now, we'll just simulate success
-        
+      
+      // Use the new submitFollowRequest function
+      const success = await submitFollowRequest(addressToFollow, connectedWalletAddress);
+      
+      if (success) {
         // Add to local following list for UI updates
         setFollowingAddresses(prev => [...prev, addressToFollow]);
         setStats(prev => ({
@@ -206,12 +341,61 @@ export function useEfpStats(walletAddress?: string) {
           title: "Success",
           description: `You are now following ${shortenAddress(addressToFollow)}`
         });
-      } else {
-        throw new Error("Ethereum provider not found. Please install MetaMask.");
       }
     } catch (error: any) {
       console.error('Error following address:', error);
+      toast({
+        title: "Error following address",
+        description: error.message || "Failed to follow. Please try again.",
+        variant: "destructive"
+      });
       throw new Error(error.message || "Failed to follow. Please try again.");
+    }
+  };
+  
+  const unfollowAddress = async (addressToUnfollow: string): Promise<void> => {
+    // Check if wallet is connected
+    const connectedWalletAddress = localStorage.getItem('connectedWalletAddress');
+    if (!connectedWalletAddress) {
+      throw new Error("Please connect your wallet first");
+    }
+
+    try {
+      // If not following, don't do anything
+      if (!isFollowing(addressToUnfollow)) {
+        return;
+      }
+
+      toast({
+        title: "Unfollowing address",
+        description: `Connecting to wallet to unfollow ${shortenAddress(addressToUnfollow)}...`
+      });
+      
+      // Use the new submitUnfollowRequest function
+      const success = await submitUnfollowRequest(addressToUnfollow, connectedWalletAddress);
+      
+      if (success) {
+        // Remove from local following list for UI updates
+        setFollowingAddresses(prev => prev.filter(addr => addr !== addressToUnfollow));
+        setStats(prev => ({
+          ...prev,
+          following: Math.max(0, prev.following - 1),
+          followingList: prev.followingList?.filter(f => f.address !== addressToUnfollow) || []
+        }));
+
+        toast({
+          title: "Success",
+          description: `You are no longer following ${shortenAddress(addressToUnfollow)}`
+        });
+      }
+    } catch (error: any) {
+      console.error('Error unfollowing address:', error);
+      toast({
+        title: "Error unfollowing address",
+        description: error.message || "Failed to unfollow. Please try again.",
+        variant: "destructive"
+      });
+      throw new Error(error.message || "Failed to unfollow. Please try again.");
     }
   };
 
@@ -247,6 +431,7 @@ export function useEfpStats(walletAddress?: string) {
     ...stats, 
     loading, 
     followAddress,
+    unfollowAddress,
     isFollowing,
     refreshData: fetchEfpData,
     friends: friends()

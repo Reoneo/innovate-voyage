@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, fetchPoapEventOwners, type Poap } from '@/api/services/poapService';
@@ -48,6 +49,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
   const loadPoapOwners = async (eventId: number) => {
     if (!eventId) return;
     setLoadingOwners(true);
+    setPoapOwners([]);
     try {
       const owners = await fetchPoapEventOwners(eventId);
       if (owners && owners.length > 0) {
@@ -84,7 +86,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
                 src={currentPoap.event.image_url} 
                 alt={currentPoap.event.name} 
                 onClick={() => handleOpenDetail(currentPoap)}
-                className="w-64 h-64 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[60%] z-10 cursor-pointer" 
+                className="w-56 h-56 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[60%] z-10 cursor-pointer" 
                 style={{
                   objectFit: 'contain'
                 }}
@@ -148,7 +150,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
                           </div>)}
                       </div> : poapOwners && poapOwners.length > 0 ? <div className="max-h-48 overflow-y-auto space-y-2">
                         {poapOwners.map((owner, index) => <PoapOwnerItem key={`${owner.owner}-${index}`} owner={owner} />)}
-                      </div> : <p className="text-sm text-muted-foreground">Loading owners...</p>}
+                      </div> : <p className="text-sm text-muted-foreground">No owner data available</p>}
                   </div>
                 </div>
               </div>

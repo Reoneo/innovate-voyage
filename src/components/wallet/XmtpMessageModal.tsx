@@ -28,7 +28,6 @@ const XmtpMessageModal: React.FC = () => {
     setXmtpClient(client);
     setIsConnected(true);
     
-    // Load existing conversations
     setIsLoading(true);
     try {
       const existingConversations = await getConversations(client);
@@ -45,7 +44,6 @@ const XmtpMessageModal: React.FC = () => {
     setMessages(existingMessages);
     setShowNewConversation(false);
     
-    // Add to conversations list if not already there
     const conversationExists = conversations.some(
       conv => conv.peerAddress === conversation.peerAddress
     );
@@ -62,7 +60,6 @@ const XmtpMessageModal: React.FC = () => {
     setCurrentConversation(conversation);
     
     try {
-      // Load messages for the selected conversation
       const existingMessages = await conversation.messages();
       setMessages(existingMessages);
     } catch (error) {
@@ -100,12 +97,10 @@ const XmtpMessageModal: React.FC = () => {
     try {
       await deleteConversation(xmtpClient, conversationToDelete);
       
-      // Remove from conversations list
       setConversations(prev => 
         prev.filter(c => c.peerAddress !== conversationToDelete.peerAddress)
       );
       
-      // If currently viewing the deleted conversation, go back to list
       if (currentConversation?.peerAddress === conversationToDelete.peerAddress) {
         setCurrentConversation(null);
       }
@@ -251,7 +246,6 @@ const XmtpMessageModal: React.FC = () => {
           </div>
         )}
         
-        {/* Delete Confirmation Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <DialogContent>
             <DialogHeader>
@@ -341,7 +335,7 @@ const FriendsList: React.FC<FriendsListProps> = ({
         >
           <div className="flex-1 min-w-0">
             <div className="font-semibold text-base truncate">
-              {friend.name || `${friend.address.substring(0, 6)}...${friend.address.substring(friend.address.length - 4)}`}
+              {friend.ensName || `${friend.address.substring(0, 6)}...${friend.address.substring(friend.address.length - 4)}`}
             </div>
           </div>
           <Button
