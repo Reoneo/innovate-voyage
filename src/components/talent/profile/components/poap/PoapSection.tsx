@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PoapSectionProps {
   walletAddress?: string;
@@ -16,7 +14,6 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   const [currentPoapIndex, setCurrentPoapIndex] = useState(0);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedPoap, setSelectedPoap] = useState<Poap | null>(null);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -48,8 +45,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   return (
     <section className="mt-4 w-full">
       <div className="relative flex items-center justify-center">
-        <div className="relative w-32 h-32 mx-auto">
-          {/* Badge background image */}
+        <div className="relative w-48 h-48 mx-auto">
           <img
             src="/lovable-uploads/78b95b30-fa09-4371-9086-b91b83cd187e.png"
             alt="Badge background"
@@ -57,7 +53,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
           />
           
           {isLoading ? (
-            <Skeleton className="h-24 w-24 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            <Skeleton className="h-40 w-40 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           ) : poaps.length > 0 ? (
             <div className="relative flex items-center justify-center h-full">
               <button 
@@ -75,8 +71,12 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                   setSelectedPoap(currentPoap);
                   setDetailOpen(true);
                 }}
-                className="w-20 h-20 object-contain rounded-full cursor-pointer absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                style={{ padding: '4px' }}
+                className="w-36 h-36 object-contain cursor-pointer absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[55%]"
+                style={{ 
+                  padding: '4px',
+                  objectFit: 'contain',
+                  background: 'white',
+                }}
               />
               
               <button 
