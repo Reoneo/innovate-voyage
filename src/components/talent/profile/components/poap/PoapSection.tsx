@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, fetchPoapEventOwners, type Poap } from '@/api/services/poapService';
@@ -42,6 +43,14 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     
     loadPoaps();
   }, [walletAddress]);
+
+  const handleOpenDetail = async (poap: Poap) => {
+    setSelectedPoap(poap);
+    setDetailOpen(true);
+    if (poap.event.id) {
+      await loadPoapOwners(poap.event.id);
+    }
+  };
 
   const loadPoapOwners = async (eventId: number) => {
     if (!eventId) return;

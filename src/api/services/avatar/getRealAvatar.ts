@@ -44,7 +44,7 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
       if (ensAvatar) return ensAvatar;
     }
     
-    // For .box domains, try specific approach
+    // For .box domains, use the dedicated CCIP-Read handler
     if (identity.endsWith('.box')) {
       const boxAvatar = await handleDotBoxAvatar(identity);
       if (boxAvatar) return boxAvatar;
