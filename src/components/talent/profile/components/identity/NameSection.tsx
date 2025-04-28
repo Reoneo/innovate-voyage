@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AddressDisplay from './AddressDisplay';
 import { useEfpStats } from '@/hooks/useEfpStats';
@@ -7,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ExternalLink, UserPlus, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { shortenEthAddress } from '@/lib/utils';
 
 interface NameSectionProps {
   name: string;
@@ -41,21 +41,6 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
 
   const handleFollow = async (address: string) => {
     if (!address) return;
-
-    // Check if wallet is connected
-    const connectedWalletAddress = localStorage.getItem('connectedWalletAddress');
-    if (!connectedWalletAddress) {
-      // Trigger wallet connect modal
-      const event = new CustomEvent('open-wallet-connect');
-      document.dispatchEvent(event);
-      
-      toast({
-        title: "Wallet Connection Required",
-        description: "Please connect your wallet first to follow this address",
-        variant: "default"
-      });
-      return;
-    }
     
     setFollowLoading(prev => ({ ...prev, [address]: true }));
     
@@ -66,17 +51,18 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
         description: "You are now following this address"
       });
     } catch (error) {
-      console.error('Follow error:', error);
       toast({
         title: "Error",
-        description: "Failed to follow. Please try again.",
+        description: "Failed to follow. Please connect your wallet first.",
         variant: "destructive"
       });
+      console.error('Follow error:', error);
     } finally {
       setFollowLoading(prev => ({ ...prev, [address]: false }));
     }
   };
 
+  // Common logo
   const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
 
   return (
@@ -85,6 +71,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       <div className="flex items-center justify-center gap-2 mt-1">
         <AddressDisplay address={ownerAddress} />
       </div>
+      {/* EFP stats with black text */}
       <div className="mt-1 flex items-center justify-center text-black font-semibold space-x-1 text-sm">
         {loading ? (
           <span>Loading...</span>
@@ -106,7 +93,8 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
           </>
         )}
       </div>
-      
+
+      {/* Dialog for followers/following */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -131,13 +119,13 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                         <AvatarFallback>
                           {follower.ensName
                             ? follower.ensName.substring(0, 2).toUpperCase()
-                            : shortenAddress(follower.address).substring(0, 2)}
+                            : shortenEthAddress(follower.address).substring(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{follower.ensName || shortenAddress(follower.address)}</p>
+                        <p className="font-medium">{follower.ensName || shortenEthAddress(follower.address)}</p>
                         {follower.ensName && (
-                          <p className="text-xs text-muted-foreground">{shortenAddress(follower.address)}</p>
+                          <p className="text-xs text-muted-foreground">{shortenEthAddress(follower.address)}</p>
                         )}
                       </div>
                     </div>
