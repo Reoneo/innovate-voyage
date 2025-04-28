@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
@@ -13,46 +13,26 @@ export function useProfilePage() {
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
+  const navigate = useNavigate();
   
   // Determine which parameter to use (either regular path or recruitment.box path)
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
-    // Clear any browser cache to ensure fresh data loads
-    const clearCaches = async () => {
-      try {
-        // Clear memory cache by adding timestamp to prevent browser caching
-        const timestamp = new Date().getTime();
-        if (window.location.href.indexOf('?t=') === -1) {
-          // Add timestamp param to force reload without cache
-          window.history.replaceState(null, '', `${window.location.pathname}?t=${timestamp}`);
-        }
-        
-        // Attempt to clear fetch cache if available
-        if ('caches' in window) {
-          const cacheNames = await caches.keys();
-          for (const cacheName of cacheNames) {
-            if (cacheName.includes('fetch-cache')) {
-              await caches.delete(cacheName);
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Error clearing caches:', err);
-      }
-    };
-    
-    clearCaches();
-    
     if (targetIdentifier) {
+      // Clean up the identifier - remove any trailing slashes
+      const cleanIdentifier = targetIdentifier.endsWith('/') 
+        ? targetIdentifier.slice(0, -1) 
+        : targetIdentifier;
+      
       // Direct address check - immediately use as address if valid
-      if (isValidEthereumAddress(targetIdentifier)) {
-        console.log(`Valid Ethereum address detected: ${targetIdentifier}`);
-        setAddress(targetIdentifier);
+      if (isValidEthereumAddress(cleanIdentifier)) {
+        console.log(`Valid Ethereum address detected: ${cleanIdentifier}`);
+        setAddress(cleanIdentifier);
         setEns(undefined); // Clear ENS when looking up by address
       } else {
         // Not a valid address, treat as ENS or domain
-        const ensValue = targetIdentifier.includes('.') ? targetIdentifier : `${targetIdentifier}.eth`;
+        const ensValue = cleanIdentifier.includes('.') ? cleanIdentifier : `${cleanIdentifier}.eth`;
         console.log(`Treating as ENS: ${ensValue}`);
         setEns(ensValue);
         setAddress(undefined); // Clear address when looking up by ENS
@@ -62,23 +42,35 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading
+    // Set a timeout for loading - increased from 5s to 15s to prevent premature timeout errors
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 5000);
+    }, 15000); // Increased from 5000 to 15000 ms (15 seconds)
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
-      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
+      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
     }
+
+    // Add CSS to prevent horizontal scrolling on mobile
+    const style = document.createElement('style');
+    style.textContent = `
+      body, html {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+    `;
+    document.head.appendChild(style);
 
     return () => {
       clearTimeout(timeoutId);
-      // Reset viewport when leaving the page
+      // Reset viewport to default when leaving the page
       if (metaViewport) {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }
+      // Remove the added style
+      document.head.removeChild(style);
     };
   }, [targetIdentifier]);
 
@@ -102,6 +94,19 @@ export function useProfilePage() {
     });
   };
 
+  const handleSearch = (query: string) => {
+    if (query.trim()) {
+      // Correct search URL format
+      if (window.location.pathname.includes('recruitment.box')) {
+        // Navigate to the recruitment.box format
+        window.location.href = `/recruitment.box/${query.trim()}/`;
+      } else {
+        // Complete page refresh for the new user's profile
+        window.location.href = `/${query.trim()}/`;
+      }
+    }
+  };
+
   return {
     ensNameOrAddress: targetIdentifier,
     loading,
@@ -112,6 +117,7 @@ export function useProfilePage() {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges
+    handleSaveChanges,
+    handleSearch
   };
 }

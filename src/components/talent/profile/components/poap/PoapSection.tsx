@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { ChevronDown, ArrowLeft, ArrowRight } from "lucide-react";
-import { useIsMobile } from '@/hooks/use-mobile';
+import PoapCard from './PoapCard';
+import { Button } from '@/components/ui/button';
 
 interface PoapSectionProps {
   walletAddress?: string;
@@ -14,145 +14,108 @@ interface PoapSectionProps {
 const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   const [poaps, setPoaps] = useState<Poap[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [currentPoapIndex, setCurrentPoapIndex] = useState(0);
-  const isMobile = useIsMobile();
+  const [scrollPosition, setScrollPosition] = useState(0);
+  
+  const scrollContainer = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!walletAddress) return;
+    
     const loadPoaps = async () => {
       setIsLoading(true);
       try {
+        // Fetch all POAPs
         const fetchedPoaps = await fetchPoapsByAddress(walletAddress);
-        console.log("Fetched POAPs:", fetchedPoaps);
-        // Sort POAPs by supply (ascending) so most limited supply first
-        const sortedPoaps = [...fetchedPoaps].sort((a, b) => {
-          const aSupply = a.event.supply ?? 999999;
-          const bSupply = b.event.supply ?? 999999;
-          return aSupply - bSupply;
-        });
-        setPoaps(sortedPoaps);
-        setCurrentPoapIndex(0); // Reset to first POAP when loading new ones
+        setPoaps(fetchedPoaps);
       } catch (error) {
         console.error('Error loading POAPs:', error);
       } finally {
         setIsLoading(false);
       }
     };
+    
     loadPoaps();
   }, [walletAddress]);
 
-  const navigatePoap = (direction: 'prev' | 'next') => {
-    if (poaps.length === 0) return;
-    
-    if (direction === 'prev') {
-      setCurrentPoapIndex(prev => (prev > 0 ? prev - 1 : poaps.length - 1));
-    } else {
-      setCurrentPoapIndex(prev => (prev < poaps.length - 1 ? prev + 1 : 0));
+  const scrollLeft = () => {
+    if (scrollContainer.current) {
+      scrollContainer.current.scrollBy({ left: -200, behavior: 'smooth' });
+      setScrollPosition(scrollContainer.current.scrollLeft - 200);
     }
   };
 
-  if (!walletAddress) return null;
+  const scrollRight = () => {
+    if (scrollContainer.current) {
+      scrollContainer.current.scrollBy({ left: 200, behavior: 'smooth' });
+      setScrollPosition(scrollContainer.current.scrollLeft + 200);
+    }
+  };
 
-  // Poap main image override
-  const mainPoapImg = "https://imgur.com/Eb2LIkP.png";
-  const currentPoap = poaps.length > 0 ? poaps[currentPoapIndex] : undefined;
+  // Don't render anything if there are no POAPs and we're not loading
+  if (!walletAddress || (!isLoading && poaps.length === 0)) {
+    return null;
+  }
 
   return (
-    <section className="mt-4 bg-white rounded-xl shadow-sm px-0 py-0 mb-2 overflow-hidden max-w-full transition-all">
-      <Collapsible open={open} onOpenChange={setOpen}>
-        <CardHeader className="pb-1 bg-gradient-to-br from-[#e5deff] to-[#fafbfe] py-3 px-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gradient-primary tracking-wide">
-              <img
-                src={mainPoapImg}
-                className="h-6 w-6"
-                alt="Proof of Attendance"
-              />
-              Proof of Attendance
-            </CardTitle>
-            <CollapsibleTrigger asChild>
-              <button
-                onClick={() => setOpen(!open)}
-                className="ml-auto group rounded-full p-1 hover:bg-gray-100 transition"
-                aria-label={open ? 'Hide POAP details' : 'Show POAP details'}
-              >
-                <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
-              </button>
-            </CollapsibleTrigger>
+    <Card id="poap-card-section" className="mt-4">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <img 
+              src="https://cdn.prod.website-files.com/65217fd9e31608b8b68141ba/65217fd9e31608b8b6814481_F6VrGAv1R6NfwsvJ98qWV-3DIpAg113tZkQOcTEKXS7rfWUDL3vLOGTk6FthuMHVk4Q9GgPslbKcbABUSM5wXdjgkEywl2cNZYrrkxggrpj018IahtxoJPeD4J5McyUO4oNqsF9T_bCJMWtYwSo9nQE.png" 
+              className="h-8 w-8" 
+              alt="POAP" 
+            />
+            <CardTitle className="text-base">Proof of Attendance</CardTitle>
           </div>
-        </CardHeader>
-        <CollapsibleContent>
-          <CardContent className="pt-2 pb-3 px-3 flex flex-col items-center min-h-0">
-            {isLoading ? (
-              <div className="flex gap-4 justify-center pt-8 pb-8 w-full">
-                <Skeleton className="h-20 w-full rounded-lg" />
-              </div>
-            ) : currentPoap ? (
-              <div className="flex flex-col w-full">
-                <div className="flex flex-row items-center w-full gap-4">
-                  <div className="relative flex-shrink-0">
-                    <img
-                      src={currentPoap.event.image_url}
-                      alt={currentPoap.event.name}
-                      className="w-16 h-16 rounded-full object-cover border border-gray-300 shadow-sm"
-                      style={{ background: "#f6f2ff" }}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm mb-1 line-clamp-2">{currentPoap.event.description || "No description available"}</p>
-                    <div className="flex flex-wrap gap-3 mt-2 items-center">
-                      <span className="text-xs px-2 py-1 bg-gray-100 rounded">
-                        ID #{currentPoap.tokenId}
-                      </span>
-                      <span className="text-xs px-2 py-1 bg-gray-100 rounded">
-                        {formatDate(currentPoap.event.start_date)}
-                      </span>
-                      <span className="text-xs px-2 py-1 bg-gray-100 rounded">
-                        Supply: {currentPoap.event.supply || "Unlimited"}
-                      </span>
-                      
-                      <div className="flex items-center ml-auto">
-                        <button 
-                          onClick={() => navigatePoap('prev')}
-                          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                          aria-label="Previous POAP"
-                        >
-                          <ArrowLeft className="h-4 w-4" />
-                        </button>
-                        <span className="text-xs mx-2">
-                          {currentPoapIndex + 1}/{poaps.length}
-                        </span>
-                        <button 
-                          onClick={() => navigatePoap('next')}
-                          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                          aria-label="Next POAP"
-                        >
-                          <ArrowRight className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground text-sm">
-                  No POAPs found for this wallet address.
-                </p>
-              </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex flex-wrap gap-4 justify-center">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-16 w-16 rounded-full" />
+            ))}
+          </div>
+        ) : poaps.length > 0 ? (
+          <div className="relative">
+            {poaps.length > 4 && (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/80 rounded-full"
+                  onClick={scrollLeft}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/80 rounded-full"
+                  onClick={scrollRight}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </>
             )}
-          </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
-    </section>
+            <div 
+              ref={scrollContainer}
+              className="flex gap-4 overflow-x-auto py-2 px-2 scrollbar-hide scroll-smooth"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
+              {poaps.map((poap) => (
+                <PoapCard key={poap.tokenId} poap={poap} />
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 };
-
-function formatDate(dateString?: string) {
-  if (!dateString) return "Unknown";
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
 
 export default PoapSection;

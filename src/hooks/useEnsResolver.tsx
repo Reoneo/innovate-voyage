@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useEnsResolution } from './ens/useEnsResolution';
 import { useWeb3BioData } from './ens/useWeb3BioData';
 import { isValidEthereumAddress } from '@/lib/utils';
@@ -11,6 +11,9 @@ import { isValidEthereumAddress } from '@/lib/utils';
  * @returns Object containing resolved address and ENS name
  */
 export function useEnsResolver(ensName?: string, address?: string) {
+  // Performance optimization - avoid unnecessary rendering cycles
+  const [cacheBuster, setCacheBuster] = useState(0);
+  
   // Check if we're directly dealing with an Ethereum address
   const directAddress = ensName && isValidEthereumAddress(ensName) ? ensName : undefined;
   
@@ -41,10 +44,24 @@ export function useEnsResolver(ensName?: string, address?: string) {
     normalizedEnsName,
     adjustedAddress,
     !!isEns,
-    (newState) => setState(prev => ({ ...prev, ...newState }))
+    (newState) => {
+      setState(prev => {
+        // Only update if there are actually new social links
+        const hasSocialLinks = newState.ensLinks?.socials && 
+          Object.keys(newState.ensLinks.socials).length > 0;
+        
+        if (hasSocialLinks) {
+          console.log('Updating state with web3bio data:', newState);
+          // Trigger re-render when we get social links
+          setTimeout(() => setCacheBuster(prev => prev + 1), 10);
+          return { ...prev, ...newState };
+        }
+        return prev;
+      });
+    }
   );
 
-  // Effect to handle direct address input
+  // Effect to handle direct address input - faster path
   useEffect(() => {
     if (directAddress) {
       console.log(`Direct address detected: ${directAddress}`);
@@ -54,29 +71,38 @@ export function useEnsResolver(ensName?: string, address?: string) {
       }));
       
       // Still lookup possible ENS names for this address
-      lookupAddress(directAddress);
+      lookupAddress(directAddress).catch(err => console.error('Error looking up address:', err));
     }
   }, [directAddress]);
 
-  // Effect to handle ENS resolution
+  // Effect to handle ENS resolution with higher priority
   useEffect(() => {
     if (!normalizedEnsName || directAddress) return;
     
+    console.log(`Starting quick ENS resolution for ${normalizedEnsName}`);
     setIsLoading(true);
     setError(null);
     
-    resolveEns(normalizedEnsName).finally(() => setIsLoading(false));
+    // Fast path for ENS resolution
+    resolveEns(normalizedEnsName)
+      .then(() => console.log('ENS resolution completed'))
+      .catch(err => console.error('ENS resolution error:', err))
+      .finally(() => setIsLoading(false));
   }, [normalizedEnsName, directAddress]);
 
   // Effect to handle address resolution
   useEffect(() => {
     if (!adjustedAddress || isEns || directAddress) return;
     
+    console.log(`Starting address lookup for ${adjustedAddress}`);
     setIsLoading(true);
     setError(null);
     
-    lookupAddress(adjustedAddress).finally(() => setIsLoading(false));
-  }, [adjustedAddress, isEns, directAddress]);
+    lookupAddress(adjustedAddress)
+      .then(() => console.log('Address lookup completed'))
+      .catch(err => console.error('Address lookup error:', err))
+      .finally(() => setIsLoading(false));
+  }, [adjustedAddress, isEns, directAddress, cacheBuster]);
 
   return {
     resolvedAddress: state.resolvedAddress || directAddress,
