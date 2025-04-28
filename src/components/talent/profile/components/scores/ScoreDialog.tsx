@@ -37,12 +37,12 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
                   <div className="text-sm text-muted-foreground">
                     <p className="mb-2">Current Level: {score ? getBuilderTitle(score) : 'Unknown'}</p>
                     <a 
-                      href={`https://talentprotocol.com/profile/${walletAddress}`}
+                      href={`https://app.talentprotocol.com/profile/${walletAddress}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline"
+                      className="text-blue-500 hover:underline flex items-center gap-1"
                     >
-                      View on Talent Protocol →
+                      View on Talent Protocol <ExternalLink size={14} />
                     </a>
                   </div>
                 </CardContent>
@@ -117,21 +117,21 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
                     <h3 className="font-medium mb-4">Security Transactions</h3>
                     <div className="space-y-3 max-h-[300px] overflow-y-auto">
                       {/* This would typically come from the Webacy API */}
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="p-3 border rounded-md">
+                      {webacyData?.quickProfile?.transactions ? (
+                        <div className="p-3 border rounded-md">
                           <div className="flex justify-between items-center">
-                            <span className={`px-2 py-1 rounded text-xs ${i === 1 ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                              {i === 1 ? 'High Risk' : 'Medium Risk'}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {new Date().toLocaleDateString()}
+                            <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-800">
+                              Transaction Stats
                             </span>
                           </div>
-                          <p className="mt-2 text-sm">
-                            {i === 1 ? 'Unlimited token approval' : i === 2 ? 'Interaction with flagged contract' : 'Suspicious token transfer'}
-                          </p>
+                          <div className="mt-2 text-sm space-y-2">
+                            <p>Total Transactions: {webacyData.quickProfile.transactions}</p>
+                            <p>Contract Interactions: {webacyData.quickProfile.contracts || 0}</p>
+                          </div>
                         </div>
-                      ))}
+                      ) : (
+                        <p className="text-center text-muted-foreground">No transaction data available</p>
+                      )}
                     </div>
                     <div className="mt-4 flex justify-end">
                       <Button 
@@ -181,9 +181,9 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
                       href={`https://etherscan.io/address/${walletAddress}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline"
+                      className="text-blue-500 hover:underline flex items-center gap-1"
                     >
-                      View on Etherscan →
+                      View on Etherscan <ExternalLink size={14} />
                     </a>
                   </div>
                 </CardContent>

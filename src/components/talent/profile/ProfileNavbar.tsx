@@ -35,42 +35,40 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center mb-6 relative">
-      {/* Icons above */}
-      <div className="flex items-center justify-center gap-6 mb-2">
+    <div className="w-full flex flex-col items-center justify-center mb-4 relative">
+      <div className="flex items-center justify-center gap-4 mb-2">
         <Link to="/" className="flex items-center justify-center">
-          <Home className="h-7 w-7 text-primary hover:text-[#8B5CF6] transition-colors" />
+          <Home className="h-6 w-6 text-primary hover:text-[#8B5CF6] transition-colors" />
         </Link>
         <div className="flex items-center justify-center">
           <MessageSquare
-            className="h-7 w-7 cursor-pointer text-[#6E59A5] hover:text-[#0FA0CE] transition-colors"
+            className="h-6 w-6 cursor-pointer text-[#6E59A5] hover:text-[#0FA0CE] transition-colors"
             onClick={handleOpenXmtpModal}
             aria-label="XMTP Messages"
           />
         </div>
       </div>
 
-      {/* Search Bar */}
       <form 
         onSubmit={handleSearch} 
-        className={`w-full sm:max-w-md flex items-center relative justify-center`}
+        className="w-full sm:max-w-md flex items-center relative justify-center"
       >
         <Input
           type="text"
           placeholder="Search ENS username..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 pr-4 py-2 w-full bg-white border-[1.4px] border-[#9b87f5] rounded-full shadow focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] transition"
+          className="pl-8 pr-4 py-1.5 w-full bg-white border-[1.4px] border-[#9b87f5] rounded-full shadow focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] transition"
         />
         <Search 
-          className="absolute left-4 h-5 w-5 text-[#8B5CF6]"
+          className="absolute left-3 h-4 w-4 text-[#8B5CF6]"
           aria-hidden="true"
         />
         <Button
           type="submit"
           variant="ghost"
           size="sm"
-          className="absolute right-3 text-primary hover:text-[#8B5CF6] px-2"
+          className="absolute right-2 text-primary hover:text-[#8B5CF6] px-2 py-1"
         >
           Search
         </Button>
