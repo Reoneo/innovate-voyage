@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { X, MessageSquare, PlusCircle, ArrowLeft, Trash2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { getConversations, deleteConversation } from '@/services/xmtpService';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { useEfpStats, EfpPerson } from '@/hooks/useEfpStats';
+import { useEfpStats } from '@/hooks/useEfpStats';
 
 const XmtpMessageModal: React.FC = () => {
   const [messages, setMessages] = useState<any[]>([]);
@@ -22,12 +23,13 @@ const XmtpMessageModal: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<any>(null);
   const { toast } = useToast();
-  const { friends = [] } = useEfpStats(localStorage.getItem('connectedWalletAddress') || undefined);
+  const { friends } = useEfpStats();
 
   const handleConnect = async (client: any) => {
     setXmtpClient(client);
     setIsConnected(true);
     
+    // Load existing conversations
     setIsLoading(true);
     try {
       const existingConversations = await getConversations(client);
@@ -44,6 +46,7 @@ const XmtpMessageModal: React.FC = () => {
     setMessages(existingMessages);
     setShowNewConversation(false);
     
+    // Add to conversations list if not already there
     const conversationExists = conversations.some(
       conv => conv.peerAddress === conversation.peerAddress
     );
@@ -60,6 +63,7 @@ const XmtpMessageModal: React.FC = () => {
     setCurrentConversation(conversation);
     
     try {
+      // Load messages for the selected conversation
       const existingMessages = await conversation.messages();
       setMessages(existingMessages);
     } catch (error) {
@@ -97,10 +101,12 @@ const XmtpMessageModal: React.FC = () => {
     try {
       await deleteConversation(xmtpClient, conversationToDelete);
       
+      // Remove from conversations list
       setConversations(prev => 
         prev.filter(c => c.peerAddress !== conversationToDelete.peerAddress)
       );
       
+      // If currently viewing the deleted conversation, go back to list
       if (currentConversation?.peerAddress === conversationToDelete.peerAddress) {
         setCurrentConversation(null);
       }
@@ -232,7 +238,7 @@ const XmtpMessageModal: React.FC = () => {
                   <TabsContent value="friends" className="mt-2">
                     <div className="max-h-[480px] overflow-y-auto pr-1">
                       <FriendsList 
-                        friends={friends}
+                        friends={friends || []}
                         xmtpClient={xmtpClient}
                         onConversationStarted={handleConversationStarted}
                         isLoading={isLoading}
@@ -246,6 +252,7 @@ const XmtpMessageModal: React.FC = () => {
           </div>
         )}
         
+        {/* Delete Confirmation Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <DialogContent>
             <DialogHeader>
@@ -278,7 +285,7 @@ const XmtpMessageModal: React.FC = () => {
 };
 
 interface FriendsListProps {
-  friends: EfpPerson[];
+  friends: any[];
   xmtpClient: any;
   onConversationStarted: (conversation: any, messages: any[]) => void;
   isLoading: boolean;
@@ -335,7 +342,7 @@ const FriendsList: React.FC<FriendsListProps> = ({
         >
           <div className="flex-1 min-w-0">
             <div className="font-semibold text-base truncate">
-              {friend.ensName || `${friend.address.substring(0, 6)}...${friend.address.substring(friend.address.length - 4)}`}
+              {friend.name || `${friend.address.substring(0, 6)}...${friend.address.substring(friend.address.length - 4)}`}
             </div>
           </div>
           <Button

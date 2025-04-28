@@ -25,7 +25,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
-  if (loadingTimeout && !passport) {
+  if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
   
@@ -36,7 +36,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
 
   return (
     <div ref={profileRef} id="resume-pdf" style={centerStyle}>
-      {loading && !passport ? (
+      {loading && !loadingTimeout ? (
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
@@ -81,9 +81,6 @@ const ProfileTimeoutError: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameO
           <h2 className="text-2xl font-bold mb-2">Error Loading Profile</h2>
           <p className="text-muted-foreground mb-6">
             We couldn't load the profile for {ensNameOrAddress}. The request timed out.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Try refreshing the page. If the problem persists, the user or domain might not exist.
           </p>
         </div>
       </HeaderContainer>

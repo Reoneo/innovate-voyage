@@ -1,103 +1,108 @@
-import React from 'react';
-import { SocialIcon } from "@/components/ui/social-icon";
+
+import React, { useState } from 'react';
+import { SocialIcon } from '@/components/ui/social-icon';
+import { Check, Copy } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 
 interface SocialLinkItemProps {
-  platform: string;
-  url?: string;
-  username?: string;
-  size?: "sm" | "md" | "lg";
-  showUsername?: boolean;
+  platformType: string;
+  url: string;
 }
 
-const normalizeUrl = (platform: string, url?: string, username?: string): string => {
-  if (!url && !username) return '#';
+const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) => {
+  const [copied, setCopied] = useState(false);
   
-  switch (platform.toLowerCase()) {
-    case 'telegram':
-      if (username) {
-        return `https://t.me/${username.replace(/^@/, '')}`;
-      }
-      if (url && url.includes('t.me/')) {
-        const telegramUsername = url.split('t.me/')[1]?.split('/')[0];
-        if (telegramUsername) {
-          return `https://t.me/${telegramUsername}`;
-        }
-      }
-      return url || '#';
-      
+  // Format URL if needed (e.g., adding proper protocol)
+  let formattedUrl = url;
+  let displayText = url;
+  
+  switch (platformType) {
+    case 'whatsapp':
+      formattedUrl = url.startsWith('https://') ? url : `https://wa.me/${url.replace(/[^0-9]/g, '')}`;
+      break;
+    case 'website':
+    case 'globe':
+      formattedUrl = url.startsWith('http') ? url : `https://${url}`;
+      break;
+    case 'email':
+    case 'mail':
+      formattedUrl = url.startsWith('mailto:') ? url : `mailto:${url}`;
+      break;
+    case 'phone':
+    case 'telephone':
+      formattedUrl = url.startsWith('tel:') ? url : `tel:${url.replace(/[^0-9+]/g, '')}`;
+      break;
+    case 'location':
+      // Convert location value to Google Maps search
+      formattedUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(url)}`;
+      break;
     case 'twitter':
-    case 'x':
-      if (username) {
-        return `https://twitter.com/${username.replace(/^@/, '')}`;
+      // Handle both twitter.com and x.com URLs
+      if (!url.startsWith('http')) {
+        formattedUrl = `https://twitter.com/${url.replace('@', '')}`;
+        displayText = `@${url.replace('@', '')}`;
       }
-      return url || '#';
-      
-    case 'instagram':
-      if (username) {
-        return `https://instagram.com/${username.replace(/^@/, '')}`;
-      }
-      return url || '#';
-      
+      break;
     case 'github':
-      if (username) {
-        return `https://github.com/${username}`;
+      if (!url.startsWith('http')) {
+        formattedUrl = `https://github.com/${url.replace('@', '')}`;
+        displayText = `@${url.replace('@', '')}`;
       }
-      return url || '#';
-      
+      break;
     case 'linkedin':
-      return url || (username ? `https://linkedin.com/in/${username}` : '#');
-      
+      if (!url.startsWith('http')) {
+        formattedUrl = `https://linkedin.com/in/${url.replace('@', '')}`;
+        displayText = `${url.replace('@', '')}`;
+      }
+      break;
     case 'discord':
-      return url || '#';
-      
-    case 'bluesky':
-      if (username) {
-        return `https://bsky.app/profile/${username.replace(/^@/, '')}`;
-      }
-      return url || '#';
-      
+      // Just keep the discord handle for copying
+      displayText = url.startsWith('@') ? url : `@${url}`;
+      break;
     default:
-      if (url?.match(/^(https?:)?\/\//)) {
-        return url;
+      // Keep as is if it already has a protocol
+      if (!url.startsWith('http') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
+        formattedUrl = `https://${url}`;
       }
-      return url ? `https://${url.replace(/^https?:\/\//, '')}` : '#';
   }
-};
 
-const SocialLinkItem: React.FC<SocialLinkItemProps> = ({
-  platform,
-  url,
-  username,
-  size = "md",
-  showUsername = true
-}) => {
-  const finalUrl = normalizeUrl(platform, url, username);
-  const displayName = username || (url ? new URL(finalUrl).hostname.replace(/^www\./, '') : platform);
-  
-  const iconSizeMap = {
-    sm: "h-5 w-5",
-    md: "h-6 w-6",
-    lg: "h-8 w-8"
+  const handleCopyDiscord = () => {
+    navigator.clipboard.writeText(displayText);
+    setCopied(true);
+    toast({
+      title: "Discord handle copied!",
+      description: `${displayText} has been copied to clipboard`,
+    });
+    setTimeout(() => setCopied(false), 2000);
   };
-  
-  const containerClass = showUsername ? "flex items-center space-x-2" : "";
-  
+
+  if (platformType === 'discord') {
+    return (
+      <button
+        onClick={handleCopyDiscord}
+        className="hover:opacity-70 transition-opacity bg-secondary/30 p-4 rounded-full flex items-center justify-center group relative"
+        title={`Copy Discord: ${displayText}`}
+        data-social-link={platformType}
+      >
+        <SocialIcon type={platformType} size={28} />
+        <span className="absolute top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+          {copied ? <Check size={12} className="inline mr-1" /> : <Copy size={12} className="inline mr-1" />} 
+          {copied ? "Copied!" : "Copy Discord"}
+        </span>
+      </button>
+    );
+  }
+
   return (
     <a 
-      href={finalUrl} 
+      href={formattedUrl} 
       target="_blank" 
       rel="noopener noreferrer"
-      className={containerClass}
+      className="hover:opacity-70 transition-opacity bg-secondary/30 p-4 rounded-full flex items-center justify-center"
+      title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
+      data-social-link={platformType}
     >
-      <SocialIcon
-        platform={platform.toLowerCase()}
-        className={iconSizeMap[size]}
-      />
-      {showUsername && (
-        <span className="text-sm text-muted-foreground">
-          {displayName}
-        </span>
-      )}
+      <SocialIcon type={platformType as any} size={28} />
     </a>
   );
 };
