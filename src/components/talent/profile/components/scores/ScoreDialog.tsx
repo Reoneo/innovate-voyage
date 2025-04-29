@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Star, ShieldAlert, SendHorizontal, ExternalLink } from 'lucide-react';
+import { ShieldAlert, SendHorizontal, ExternalLink } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScoreDialogProps } from './types';
@@ -18,7 +18,11 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-yellow-500" />
+                <img 
+                  src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1745913600000&signature=oPyIbnGbG5qB98WcRs-e3kZNTk51ULXCIF-X6Jtr8Uc&downloadName=logomark_dark.jpg"
+                  alt="Talent Protocol" 
+                  className="h-5 w-5"
+                />
                 Talent Protocol Score
               </DialogTitle>
               <DialogDescription>
@@ -116,7 +120,6 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
                   <CardContent className="pt-6">
                     <h3 className="font-medium mb-4">Security Transactions</h3>
                     <div className="space-y-3 max-h-[300px] overflow-y-auto">
-                      {/* This would typically come from the Webacy API */}
                       {webacyData?.quickProfile?.transactions ? (
                         <div className="p-3 border rounded-md">
                           <div className="flex justify-between items-center">

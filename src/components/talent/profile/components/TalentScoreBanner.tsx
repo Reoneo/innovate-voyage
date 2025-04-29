@@ -13,12 +13,12 @@ interface TalentScoreBannerProps {
 
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'nfts'>('talent');
+  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions'>('talent');
   const { score, webacyData, txCount, loading } = useScoresData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
 
-  const handleBadgeClick = (type: 'talent' | 'webacy' | 'nfts') => {
-    if (type === 'nfts') {
+  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions') => {
+    if (type === 'transactions') {
       setShowNftCollections(true);
     } else {
       setActiveDialog(type);
@@ -28,23 +28,31 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   if (!walletAddress) return null;
 
+  // Only show scores if data is available
+  const showTalentScore = score !== null && score !== undefined;
+  const showRiskScore = webacyData?.riskScore !== undefined && webacyData.riskScore !== null;
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <TalentScoreBadge 
-          score={score} 
-          onClick={() => handleBadgeClick('talent')}
-          isLoading={loading} 
-        />
-        <SecurityScoreBadge 
-          webacyData={webacyData} 
-          onClick={() => handleBadgeClick('webacy')}
-          isLoading={loading} 
-        />
+        {showTalentScore && (
+          <TalentScoreBadge 
+            score={score} 
+            onClick={() => handleBadgeClick('talent')}
+            isLoading={loading} 
+          />
+        )}
+        {showRiskScore && (
+          <SecurityScoreBadge 
+            webacyData={webacyData} 
+            onClick={() => handleBadgeClick('webacy')}
+            isLoading={loading} 
+          />
+        )}
         <TransactionsBadge 
           txCount={txCount}
           walletAddress={walletAddress}
-          onClick={() => handleBadgeClick('nfts')}
+          onClick={() => handleBadgeClick('transactions')}
           isLoading={loading} 
         />
       </div>

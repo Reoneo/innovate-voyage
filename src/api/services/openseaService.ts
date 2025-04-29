@@ -7,6 +7,7 @@ export interface OpenSeaNft {
   description?: string;
   currentPrice?: string;
   bestOffer?: string;
+  owner?: string;
 }
 
 interface OpenSeaCollection {
@@ -74,7 +75,8 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
         collectionName,
         description: nft.description,
         currentPrice: nft.last_sale?.price,
-        bestOffer: nft.offers?.[0]?.price
+        bestOffer: nft.offers?.[0]?.price,
+        owner: nft.owner
       });
     });
 
@@ -109,10 +111,15 @@ export async function fetchDotBoxAvatar(domainName: string): Promise<string | nu
     // Look for profile NFT or ENS NFT that might be used as avatar
     for (const collection of collections) {
       // If we find an NFT with name matching the domain, that's likely the avatar
-      const matchingNft = collection.nfts.find(nft => 
-        nft.name.toLowerCase() === domainName.toLowerCase() ||
-        nft.name.toLowerCase() === domainName.replace('.box', '').toLowerCase()
-      );
+      const matchingNft = collection.nfts.find(nft => {
+        const nftNameLower = nft.name.toLowerCase();
+        const domainNameLower = domainName.toLowerCase();
+        const domainWithoutSuffix = domainName.replace('.box', '').toLowerCase();
+        
+        return nftNameLower === domainNameLower || 
+               nftNameLower === domainWithoutSuffix ||
+               nftNameLower.includes(domainWithoutSuffix);
+      });
       
       if (matchingNft?.imageUrl) {
         return matchingNft.imageUrl;
