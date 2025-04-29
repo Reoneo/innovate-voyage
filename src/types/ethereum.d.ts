@@ -1,3 +1,4 @@
+
 interface Window {
   ethereum?: {
     isMetaMask?: boolean;
@@ -10,10 +11,6 @@ interface Window {
   connectedWalletAddress: string | null;
   Buffer: typeof Buffer;
   global?: typeof globalThis;
-  walletConnectModal?: {
-    open: () => void;
-    close: () => void;
-  };
 }
 
 interface ImportMetaEnv {
