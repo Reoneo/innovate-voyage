@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, X } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 interface NftCollectionsSectionProps {
   walletAddress?: string;
@@ -183,23 +183,13 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <div className="sticky top-0 z-10 flex justify-between items-center bg-white pb-2">
-            <DialogHeader>
-              <DialogTitle>
-                {selectedType === 'all' ? 'All Collections' : 
-                 selectedType === 'ethereum' ? 'NFT Collections' :
-                 selectedType === 'ens' ? 'ENS Collection' : 'POAP Collection'}
-              </DialogTitle>
-            </DialogHeader>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange?.(false)}
-              className="rounded-full h-8 w-8"
-            >
-              <X size={18} />
-            </Button>
-          </div>
+          <DialogHeader>
+            <DialogTitle>
+              {selectedType === 'all' ? 'All Collections' : 
+               selectedType === 'ethereum' ? 'NFT Collections' :
+               selectedType === 'ens' ? 'ENS Collection' : 'POAP Collection'}
+            </DialogTitle>
+          </DialogHeader>
 
           <div className="flex gap-2 mb-4">
             <Button 
