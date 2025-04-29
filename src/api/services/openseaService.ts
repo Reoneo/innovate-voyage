@@ -88,3 +88,40 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
     return [];
   }
 }
+
+// Function to fetch avatar for .box domain from OpenSea
+export async function fetchDotBoxAvatar(domainName: string): Promise<string | null> {
+  try {
+    // Check if it's a .box domain
+    if (!domainName.endsWith('.box')) return null;
+
+    // Try to find address associated with .box domain
+    const response = await fetch(`https://api.dot.bit/v1/account/info?account=${domainName}`);
+    if (!response.ok) return null;
+    
+    const data = await response.json();
+    if (!data?.data?.address) return null;
+    
+    // Get account's NFTs to find avatar
+    const address = data.data.address;
+    const collections = await fetchUserNfts(address);
+    
+    // Look for profile NFT or ENS NFT that might be used as avatar
+    for (const collection of collections) {
+      // If we find an NFT with name matching the domain, that's likely the avatar
+      const matchingNft = collection.nfts.find(nft => 
+        nft.name.toLowerCase() === domainName.toLowerCase() ||
+        nft.name.toLowerCase() === domainName.replace('.box', '').toLowerCase()
+      );
+      
+      if (matchingNft?.imageUrl) {
+        return matchingNft.imageUrl;
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching .box avatar from OpenSea:', error);
+    return null;
+  }
+}

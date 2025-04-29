@@ -13,12 +13,17 @@ interface TalentScoreBannerProps {
 
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions'>('talent');
+  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'nfts'>('talent');
   const { score, webacyData, txCount, loading } = useScoresData(walletAddress);
+  const [showNftCollections, setShowNftCollections] = useState(false);
 
-  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions') => {
-    setActiveDialog(type);
-    setDialogOpen(true);
+  const handleBadgeClick = (type: 'talent' | 'webacy' | 'nfts') => {
+    if (type === 'nfts') {
+      setShowNftCollections(true);
+    } else {
+      setActiveDialog(type);
+      setDialogOpen(true);
+    }
   };
 
   if (!walletAddress) return null;
@@ -37,13 +42,18 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
           isLoading={loading} 
         />
         <TransactionsBadge 
-          txCount={txCount} 
-          onClick={() => handleBadgeClick('transactions')}
+          txCount={txCount}
+          walletAddress={walletAddress}
+          onClick={() => handleBadgeClick('nfts')}
           isLoading={loading} 
         />
       </div>
 
-      <NftCollectionsSection walletAddress={walletAddress} />
+      <NftCollectionsSection 
+        walletAddress={walletAddress} 
+        showCollections={showNftCollections} 
+        onOpenChange={setShowNftCollections}
+      />
 
       <ScoreDialog 
         open={dialogOpen} 

@@ -1,11 +1,20 @@
 
 import { avatarCache } from '../../../utils/web3/index';
+import { fetchDotBoxAvatar } from '../../openseaService';
 
 export async function handleDotBoxAvatar(identity: string): Promise<string | null> {
   try {
     console.log(`Fetching .box avatar for ${identity}`);
     
-    // First try web3.bio API
+    // First try OpenSea method to get avatar from NFTs
+    const openSeaAvatar = await fetchDotBoxAvatar(identity);
+    if (openSeaAvatar) {
+      console.log(`Found .box avatar via OpenSea for ${identity}:`, openSeaAvatar);
+      avatarCache[identity] = openSeaAvatar;
+      return openSeaAvatar;
+    }
+    
+    // Fallback to web3.bio API
     const boxProfile = await fetch(`https://api.web3.bio/profile/dotbit/${identity}?nocache=${Date.now()}`, {
       headers: {
         'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20`,

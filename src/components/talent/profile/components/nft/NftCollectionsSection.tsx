@@ -8,12 +8,17 @@ import { Button } from "@/components/ui/button";
 
 interface NftCollectionsSectionProps {
   walletAddress?: string;
+  showCollections?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ walletAddress }) => {
+export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ 
+  walletAddress, 
+  showCollections = false,
+  onOpenChange
+}) => {
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCollections, setShowCollections] = useState(false);
   const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
 
   useEffect(() => {
@@ -45,6 +50,18 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ wa
   const hasEnsNfts = collections.some(c => c.type === 'ens');
   const hasPoapNfts = collections.some(c => c.type === 'poap');
 
+  // Get collection icon based on collection name
+  const getCollectionIcon = (collectionName: string) => {
+    if (collectionName.toLowerCase().includes('doodle') || collectionName.toLowerCase().includes('doodles')) {
+      return "https://pbs.twimg.com/profile_images/1907827518700220416/ZUn7WAT8_400x400.jpg";
+    } else if (collectionName.toLowerCase().includes('ens')) {
+      return "https://ens.domains/assets/brand/mark/ens-mark-Blue.svg";
+    } else if (collectionName.toLowerCase().includes('poap')) {
+      return "https://deficon.nyc/wp-content/uploads/2021/12/poap.png";
+    }
+    return "https://cdn-icons-png.flaticon.com/512/6699/6699362.png";
+  };
+
   return (
     <>
       <div className="flex justify-center gap-3 mt-4">
@@ -52,7 +69,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ wa
           <Button 
             onClick={() => {
               setSelectedType('ethereum');
-              setShowCollections(true);
+              if (onOpenChange) onOpenChange(true);
             }}
             variant="outline" 
             size="icon" 
@@ -71,7 +88,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ wa
           <Button 
             onClick={() => {
               setSelectedType('ens');
-              setShowCollections(true);
+              if (onOpenChange) onOpenChange(true);
             }}
             variant="outline" 
             size="icon" 
@@ -90,7 +107,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ wa
           <Button 
             onClick={() => {
               setSelectedType('poap');
-              setShowCollections(true);
+              if (onOpenChange) onOpenChange(true);
             }}
             variant="outline" 
             size="icon" 
@@ -109,7 +126,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ wa
           <Button 
             onClick={() => {
               setSelectedType('all');
-              setShowCollections(true);
+              if (onOpenChange) onOpenChange(true);
             }}
             variant="outline" 
             size="icon" 
@@ -121,7 +138,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ wa
         )}
       </div>
 
-      <Dialog open={showCollections} onOpenChange={setShowCollections}>
+      <Dialog open={showCollections} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
@@ -197,27 +214,11 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ wa
                 <Card key={collection.name} className="overflow-hidden">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-3">
-                      {collection.type === 'ethereum' && (
-                        <img 
-                          src="https://cdn-icons-png.flaticon.com/512/6699/6699362.png" 
-                          alt="NFT" 
-                          className="h-5 w-5"
-                        />
-                      )}
-                      {collection.type === 'ens' && (
-                        <img 
-                          src="https://ens.domains/assets/brand/mark/ens-mark-Blue.svg" 
-                          alt="ENS" 
-                          className="h-5 w-5"
-                        />
-                      )}
-                      {collection.type === 'poap' && (
-                        <img 
-                          src="https://deficon.nyc/wp-content/uploads/2021/12/poap.png" 
-                          alt="POAP" 
-                          className="h-5 w-5"
-                        />
-                      )}
+                      <img 
+                        src={getCollectionIcon(collection.name)} 
+                        alt={collection.name} 
+                        className="h-5 w-5"
+                      />
                       <h4 className="text-md font-medium">{collection.name}</h4>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
