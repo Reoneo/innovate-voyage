@@ -31,7 +31,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   const hasSocialLinks = Object.entries(updatedSocials || {}).some(([key, val]) => val && val.trim() !== '');
   
   if (!hasSocialLinks) {
-    return <span className="text-sm text-muted-foreground col-span-full">No social links available</span>;
+    return null; // Hide completely if no social links are available
   }
   
   return (
