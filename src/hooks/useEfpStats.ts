@@ -73,6 +73,7 @@ export function useEfpStats(walletAddress?: string) {
   const [stats, setStats] = useState<EfpStats>({ followers: 0, following: 0 });
   const [loading, setLoading] = useState(false);
   const [followingAddresses, setFollowingAddresses] = useState<string[]>([]);
+  const [friends, setFriends] = useState<EfpPerson[]>([]);
   const { toast } = useToast();
 
   const fetchEfpData = async () => {
@@ -114,7 +115,16 @@ export function useEfpStats(walletAddress?: string) {
         processUsers(followers),
         processUsers(following)
       ]);
-
+      
+      // Set friends as a combination of followers and following
+      const combinedFriends = [...followersList, ...followingList];
+      // Remove duplicates by address
+      const uniqueFriends = combinedFriends.filter((friend, index, self) =>
+        index === self.findIndex((f) => f.address === friend.address)
+      );
+      
+      setFriends(uniqueFriends);
+      
       setStats({
         followers: stats.followers,
         following: stats.following,
@@ -221,7 +231,8 @@ export function useEfpStats(walletAddress?: string) {
     loading, 
     followAddress,
     isFollowing,
-    refreshData: fetchEfpData
+    refreshData: fetchEfpData,
+    friends // Add this property to the return value
   };
 }
 

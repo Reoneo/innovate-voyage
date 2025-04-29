@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchUserNfts, type OpenSeaNft } from '@/api/services/openseaService';
 import { Card, CardContent } from '@/components/ui/card';
-import { Ethereum } from 'lucide-react';
+import { Coins } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface NftCollectionsSectionProps {
@@ -60,7 +60,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ wa
           <Card key={collection.name} className="overflow-hidden">
             <CardContent className="p-4">
               <h4 className="text-md font-medium mb-3 flex items-center gap-2">
-                <Ethereum className="h-4 w-4" />
+                <Coins className="h-4 w-4" />
                 {collection.name}
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
