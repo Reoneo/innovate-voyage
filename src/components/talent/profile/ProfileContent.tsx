@@ -1,11 +1,10 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
-import PoapSection from './components/poap/PoapSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
-import { NftCollectionsSection } from './components/nft/NftCollectionsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -35,7 +34,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   };
 
   return (
-    <div ref={profileRef} id="resume-pdf" style={centerStyle}>
+    <div ref={profileRef} id="resume-pdf" style={centerStyle} className="pt-16">
       {loading && !loadingTimeout ? (
         <ProfileSkeleton />
       ) : passport ? (
@@ -54,14 +53,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 displayIdentity={ensNameOrAddress}
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
-              
-              <div className="space-y-4">
-                <PoapSection walletAddress={passport.owner_address} />
-              </div>
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
-              <NftCollectionsSection walletAddress={passport.owner_address} />
             </div>
           </div>
         </HeaderContainer>

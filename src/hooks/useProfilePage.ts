@@ -36,14 +36,17 @@ export function useProfilePage() {
     }
     
     if (targetIdentifier) {
+      // Convert the identifier to lowercase for case-insensitive search
+      const normalizedIdentifier = targetIdentifier.toLowerCase();
+      
       // Direct address check - immediately use as address if valid
-      if (isValidEthereumAddress(targetIdentifier)) {
-        console.log(`Valid Ethereum address detected: ${targetIdentifier}`);
-        setAddress(targetIdentifier);
+      if (isValidEthereumAddress(normalizedIdentifier)) {
+        console.log(`Valid Ethereum address detected: ${normalizedIdentifier}`);
+        setAddress(normalizedIdentifier);
         setEns(undefined); // Clear ENS when looking up by address
       } else {
         // Not a valid address, treat as ENS or domain
-        const ensValue = targetIdentifier.includes('.') ? targetIdentifier : `${targetIdentifier}.eth`;
+        const ensValue = normalizedIdentifier.includes('.') ? normalizedIdentifier : `${normalizedIdentifier}.eth`;
         console.log(`Treating as ENS: ${ensValue}`);
         setEns(ensValue);
         setAddress(undefined); // Clear address when looking up by ENS

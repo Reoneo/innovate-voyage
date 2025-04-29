@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
 import TalentScoreBadge from './scores/TalentScoreBadge';
 import SecurityScoreBadge from './scores/SecurityScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
+import { NftCollectionsSection } from './nft/NftCollectionsSection';
 
 interface TalentScoreBannerProps {
   walletAddress: string;
@@ -42,6 +42,8 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
           isLoading={loading} 
         />
       </div>
+
+      <NftCollectionsSection walletAddress={walletAddress} />
 
       <ScoreDialog 
         open={dialogOpen} 

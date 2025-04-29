@@ -51,15 +51,15 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <div className="min-h-screen bg-gray-50 py-4 md:py-8 overflow-hidden">
-        <div className="container mx-auto px-4" style={{ maxWidth: '950px' }}>
-          {/* Navigation Bar */}
-          <ProfileNavbar 
-            connectedWallet={connectedWallet}
-            onDisconnect={handleDisconnect}
-            onSaveChanges={handleSaveChanges}
-          />
-          
+      <div className="min-h-screen bg-gray-50">
+        {/* Navigation Bar */}
+        <ProfileNavbar 
+          connectedWallet={connectedWallet}
+          onDisconnect={handleDisconnect}
+          onSaveChanges={handleSaveChanges}
+        />
+        
+        <div className="container mx-auto px-4 pt-4" style={{ maxWidth: '950px' }}>
           {/* Profile Content */}
           <ProfileContent 
             loading={loading}
