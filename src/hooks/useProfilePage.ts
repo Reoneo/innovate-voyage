@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
@@ -13,20 +13,11 @@ export function useProfilePage() {
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
-  const location = useLocation();
-  const navigate = useNavigate();
   
   // Determine which parameter to use (either regular path or recruitment.box path)
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
-    // Fix URL duplication issue
-    if (location.pathname.includes('/recruitment.box/recruitment.box/')) {
-      const fixedPath = location.pathname.replace('/recruitment.box/recruitment.box/', '/recruitment.box/');
-      navigate(fixedPath, { replace: true });
-      return;
-    }
-    
     // Attempt to clear any browser cache
     try {
       // Force page to be freshly loaded 
@@ -89,7 +80,7 @@ export function useProfilePage() {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }
     };
-  }, [targetIdentifier, location.pathname, navigate]);
+  }, [targetIdentifier]);
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
   

@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import TalentScoreBadge from './scores/TalentScoreBadge';
 import SecurityScoreBadge from './scores/SecurityScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
-import TallyDaoBadge from './dao/TallyDaoBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
@@ -15,11 +14,11 @@ interface TalentScoreBannerProps {
 
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions' | 'tally'>('talent');
+  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions'>('talent');
   const { score, webacyData, txCount, loading } = useScoresData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
 
-  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions' | 'tally') => {
+  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions') => {
     setActiveDialog(type);
     setDialogOpen(true);
   };
@@ -35,7 +34,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {showTalentScore && (
           <TalentScoreBadge 
             score={score} 
@@ -48,13 +47,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
           txCount={txCount}
           walletAddress={walletAddress}
           onClick={handleNftButtonClick}
-          isLoading={loading}
-          buttonText="Collections" 
-        />
-        <TallyDaoBadge 
-          walletAddress={walletAddress}
-          onClick={() => handleBadgeClick('tally')}
-          isLoading={loading}
+          isLoading={loading} 
         />
       </div>
 
