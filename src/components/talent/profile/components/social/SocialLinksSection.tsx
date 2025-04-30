@@ -40,13 +40,6 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
 
   // Extract owner address from socials or use undefined
   const ownerAddress = socials?.ethereum || socials?.walletAddress;
-  
-  // Check if there are any social links
-  const hasSocialLinks = Object.entries(socialLinks || {}).some(([key, val]) => val && val.trim() !== '');
-  
-  if (!hasSocialLinks) {
-    return null; // Hide the entire section if no links available
-  }
 
   return (
     <div className="w-full mt-6">
@@ -56,7 +49,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
       <div className="mb-4">
         <WebacySecurity walletAddress={ownerAddress} />
       </div>
-      <div className="grid grid-cols-3 sm:grid-cols-3 gap-6 justify-items-center">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
       </div>
     </div>

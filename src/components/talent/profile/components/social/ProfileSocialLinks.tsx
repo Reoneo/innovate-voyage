@@ -86,12 +86,12 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
             href={platform.key === 'whatsapp' ? `https://wa.me/${socialLinks[platform.key]}` : socialLinks[platform.key]} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="hover:opacity-80 transition-opacity flex items-center justify-center"
+            className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full flex items-center justify-center"
             aria-label={`Visit ${platform.key}`}
           >
             <SocialIcon 
               type={platform.type as any} 
-              size={32}
+              size={20}
             />
           </a>
         )
@@ -99,10 +99,10 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
       {socialLinks?.email && (
         <a 
           href={`mailto:${socialLinks.email}`}
-          className="hover:opacity-80 transition-opacity flex items-center justify-center"
+          className="hover:opacity-80 transition-opacity bg-secondary/30 p-1.5 rounded-full flex items-center justify-center"
           aria-label="Send email"
         >
-          <SocialIcon type="mail" size={32} />
+          <SocialIcon type="mail" size={20} />
         </a>
       )}
       
