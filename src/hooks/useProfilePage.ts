@@ -67,10 +67,23 @@ export function useProfilePage() {
       metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
     }
 
-    // Clean URL - remove timestamp query parameter 
-    if (window.history && window.location.href.includes('?t=')) {
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
+    // Clean URL - remove timestamp query parameter and fix duplicate recruitment.box
+    if (window.history) {
+      let cleanUrl = window.location.pathname;
+      
+      // Fix duplicate recruitment.box in URL
+      if (cleanUrl.includes('recruitment.box/recruitment.box/')) {
+        cleanUrl = cleanUrl.replace('recruitment.box/recruitment.box/', 'recruitment.box/');
+      }
+      
+      // Remove timestamp parameter
+      if (window.location.href.includes('?t=')) {
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
+      // Fix duplicate recruitment.box without a timestamp parameter
+      else if (cleanUrl !== window.location.pathname) {
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
     }
 
     return () => {

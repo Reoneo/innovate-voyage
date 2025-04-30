@@ -17,7 +17,8 @@ export function useWebacyData(walletAddress?: string) {
       
       try {
         // Use the correct endpoint with chain parameter
-        const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}?chain=eth`, {
+        const response = await fetch(`https://api.webacy.com/v2/quick-profile/${walletAddress}?chain=eth`, {
+          method: 'GET',
           headers: {
             'accept': 'application/json',
             'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
@@ -36,8 +37,9 @@ export function useWebacyData(walletAddress?: string) {
         
         // Fetch risk items if available
         const riskItemsResponse = await fetch(
-          `https://api.webacy.com/addresses/${walletAddress}/risk-items?chain=eth`,
+          `https://api.webacy.com/v2/addresses/${walletAddress}/risk-items?chain=eth`,
           {
+            method: 'GET',
             headers: {
               'accept': 'application/json',
               'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
@@ -78,7 +80,8 @@ export function useWebacyData(walletAddress?: string) {
             contracts: data.numContracts || 0,
             riskLevel: threatLevel
           },
-          riskItems: riskItems
+          riskItems: riskItems,
+          riskHistory: data.riskHistory || []
         });
 
         setRiskHistory(data.riskHistory || []);
