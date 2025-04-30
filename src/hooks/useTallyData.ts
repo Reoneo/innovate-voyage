@@ -21,6 +21,7 @@ export function useTallyData(walletAddress?: string) {
     const fetchTallyData = async () => {
       setIsLoading(true);
       setError(null);
+      setTallyData(null); // Reset data when wallet changes
       
       try {
         // This is a placeholder implementation since we don't have a real API
@@ -31,13 +32,57 @@ export function useTallyData(walletAddress?: string) {
         // Using the provided key as a parameter
         const tallyKey = '823049aef82691e85ae43e20d37e0d2f4b896dafdef53ea5dce0912d78bc1988';
         
-        // Mock response data based on the screenshot
+        // Generate dynamic mock data based on wallet address
+        // Use the last 4 characters of the address to create some variation
+        const addressSuffix = walletAddress.slice(-4);
+        const addressNum = parseInt(addressSuffix, 16) % 100; // Convert to number between 0-99
+        
+        // Pick a DAO based on wallet address
+        const daoOptions = [
+          {
+            name: "ENS",
+            symbol: "ENS",
+            icon: "https://raw.githubusercontent.com/ensdomains/media/master/icons/ENS.png"
+          },
+          {
+            name: "Uniswap",
+            symbol: "UNI",
+            icon: "https://cryptologos.cc/logos/uniswap-uni-logo.png"
+          },
+          {
+            name: "Aave",
+            symbol: "AAVE",
+            icon: "https://cryptologos.cc/logos/aave-aave-logo.png"
+          }
+        ];
+        
+        const daoIndex = parseInt(addressSuffix.substring(0, 2), 16) % daoOptions.length;
+        const selectedDao = daoOptions[daoIndex];
+        
+        // Generate voting power based on wallet address
+        const votingPower = addressNum < 10 ? 
+          `${(addressNum / 100).toFixed(2)} (${addressNum}%)` : 
+          `<0.01 (0.00%)`;
+        
+        // Generate delegation data based on wallet
+        const delegationsCount = (parseInt(addressSuffix.substring(2, 4), 16) % 5);
+        const receivedDelegations = delegationsCount === 0 ? 
+          "No delegations" : 
+          `${delegationsCount} addresses delegating`;
+        
+        // Sometimes add delegating to info
+        const hasDelegation = parseInt(addressSuffix.substring(0, 1), 16) % 3 === 0;
+        const delegatingTo = hasDelegation ? 
+          `0x${addressSuffix}...${addressSuffix.substring(0, 4)}` : 
+          undefined;
+        
         setTallyData({
-          daoName: "ENS",
-          daoSymbol: "ENS",
-          daoIcon: "https://raw.githubusercontent.com/ensdomains/media/master/icons/ENS.png",
-          votingPower: "<0.01 (0.00%)",
-          receivedDelegations: "1 addresses delegating"
+          daoName: selectedDao.name,
+          daoSymbol: selectedDao.symbol,
+          daoIcon: selectedDao.icon,
+          votingPower,
+          receivedDelegations,
+          delegatingTo
         });
       } catch (err) {
         console.error("Error fetching Tally data:", err);
@@ -50,8 +95,7 @@ export function useTallyData(walletAddress?: string) {
     
     fetchTallyData();
     
-    // Don't add tallyData to the dependency array to prevent infinite loop
-  }, [walletAddress]);
+  }, [walletAddress]); // Only depend on walletAddress to trigger refresh
 
   return { tallyData, isLoading, error };
 }

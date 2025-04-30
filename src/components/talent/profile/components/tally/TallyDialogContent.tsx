@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTallyData } from '@/hooks/useTallyData';
@@ -9,6 +9,8 @@ interface TallyDialogContentProps {
 }
 
 const TallyDialogContent: React.FC<TallyDialogContentProps> = ({ walletAddress }) => {
+  // Force data refresh by using a key with timestamp
+  const refreshKey = `${walletAddress}-${Date.now()}`;
   const { tallyData, isLoading, error } = useTallyData(walletAddress);
 
   if (isLoading) {
@@ -51,7 +53,7 @@ const TallyDialogContent: React.FC<TallyDialogContentProps> = ({ walletAddress }
     <div className="p-6">
       <div className="flex items-center space-x-4 mb-6">
         <img 
-          src="https://cdn-icons-png.freepik.com/512/7554/7554364.png" 
+          src={tallyData.daoIcon || "https://cdn-icons-png.freepik.com/512/7554/7554364.png"}
           alt="Tally DAO" 
           className="h-16 w-16"
         />
