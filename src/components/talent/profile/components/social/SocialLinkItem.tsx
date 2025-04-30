@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
-import { SocialIcon } from '@/components/ui/social-icon';
-import { Check, Copy } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import React from 'react';
+import { ExternalLink } from 'lucide-react';
+import { fixTelegramUrl } from '@/utils/socialLinkUtils';
 
 interface SocialLinkItemProps {
   platformType: string;
@@ -10,100 +9,83 @@ interface SocialLinkItemProps {
 }
 
 const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) => {
-  const [copied, setCopied] = useState(false);
+  // Fix for telegram URLs
+  const fixedUrl = platformType.toLowerCase() === 'telegram' ? fixTelegramUrl(url) : url;
   
-  let formattedUrl = url;
-  let displayText = url;
+  // Clean up URL if needed
+  const cleanUrl = fixedUrl.startsWith('http') ? fixedUrl : `https://${fixedUrl}`;
   
-  switch (platformType) {
-    case 'whatsapp':
-      formattedUrl = url.startsWith('https://') ? url : `https://wa.me/${url.replace(/[^0-9]/g, '')}`;
-      break;
-    case 'website':
-    case 'globe':
-      formattedUrl = url.startsWith('http') ? url : `https://${url}`;
-      break;
-    case 'email':
-    case 'mail':
-      formattedUrl = url.startsWith('mailto:') ? url : `mailto:${url}`;
-      break;
-    case 'phone':
-    case 'telephone':
-      formattedUrl = url.startsWith('tel:') ? url : `tel:${url.replace(/[^0-9+]/g, '')}`;
-      break;
-    case 'location':
-      formattedUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(url)}`;
-      break;
+  // Determine icon based on platform type
+  let platformIcon = '';
+  let platformName = platformType;
+  
+  switch (platformType.toLowerCase()) {
     case 'twitter':
-      if (!url.startsWith('http')) {
-        formattedUrl = `https://twitter.com/${url.replace('@', '')}`;
-        displayText = `@${url.replace('@', '')}`;
-      }
+    case 'x':
+      platformIcon = 'https://api.iconify.design/simple-icons:x.svg?color=%23000000';
+      platformName = 'Twitter / X';
       break;
     case 'github':
-      if (!url.startsWith('http')) {
-        formattedUrl = `https://github.com/${url.replace('@', '')}`;
-        displayText = `@${url.replace('@', '')}`;
-      }
+      platformIcon = 'https://api.iconify.design/simple-icons:github.svg?color=%23000000';
       break;
     case 'linkedin':
-      if (!url.startsWith('http')) {
-        formattedUrl = `https://linkedin.com/in/${url.replace('@', '')}`;
-        displayText = `${url.replace('@', '')}`;
-      }
-      break;
-    case 'discord':
-      displayText = url.startsWith('@') ? url : `@${url}`;
+      platformIcon = 'https://api.iconify.design/simple-icons:linkedin.svg?color=%230A66C2';
       break;
     case 'telegram':
-      if (!url.startsWith('http')) {
-        // Always make sure to add https://t.me/ and remove @ if present
-        formattedUrl = `https://t.me/${url.replace('@', '')}`;
-      }
+      platformIcon = 'https://api.iconify.design/simple-icons:telegram.svg?color=%2326A5E4';
+      break;
+    case 'instagram':
+      platformIcon = 'https://api.iconify.design/simple-icons:instagram.svg?color=%23E4405F';
+      break;
+    case 'discord':
+      platformIcon = 'https://api.iconify.design/simple-icons:discord.svg?color=%235865F2';
+      break;
+    case 'youtube':
+      platformIcon = 'https://api.iconify.design/simple-icons:youtube.svg?color=%23FF0000';
+      break;
+    case 'twitch':
+      platformIcon = 'https://api.iconify.design/simple-icons:twitch.svg?color=%23772CE8';
+      break;
+    case 'reddit':
+      platformIcon = 'https://api.iconify.design/simple-icons:reddit.svg?color=%23FF4500';
+      break;
+    case 'medium':
+      platformIcon = 'https://api.iconify.design/simple-icons:medium.svg?color=%23000000';
+      break;
+    case 'lens':
+    case 'lenster':
+      platformIcon = 'https://api.iconify.design/simple-icons:lens.svg?color=%23002318';
+      platformName = 'Lens';
+      break;
+    case 'farcaster':
+      platformIcon = 'https://api.iconify.design/simple-icons:farcaster.svg?color=%23794BC4';
+      break;
+    case 'mirror':
+      platformIcon = 'https://api.iconify.design/simple-icons:mirror.svg?color=%23000000';
       break;
     default:
-      if (!url.startsWith('http') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
-        formattedUrl = `https://${url}`;
-      }
-  }
-
-  const handleCopyDiscord = () => {
-    navigator.clipboard.writeText(displayText);
-    setCopied(true);
-    toast({
-      title: "Discord handle copied!",
-      description: `${displayText} has been copied to clipboard`,
-    });
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  if (platformType === 'discord') {
-    return (
-      <button
-        onClick={handleCopyDiscord}
-        className="hover:opacity-70 transition-opacity flex items-center justify-center group relative"
-        title={`Copy Discord: ${displayText}`}
-        data-social-link={platformType}
-      >
-        <SocialIcon type={platformType} size={64} /> {/* Doubled size */}
-        <span className="absolute top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-          {copied ? <Check size={12} className="inline mr-1" /> : <Copy size={12} className="inline mr-1" />} 
-          {copied ? "Copied!" : "Copy Discord"}
-        </span>
-      </button>
-    );
+      platformIcon = 'https://api.iconify.design/carbon:link.svg?color=%23000000';
+      platformName = platformType.charAt(0).toUpperCase() + platformType.slice(1);
   }
 
   return (
     <a 
-      href={formattedUrl} 
-      target="_blank" 
+      href={cleanUrl}
+      target="_blank"
       rel="noopener noreferrer"
-      className="hover:opacity-70 transition-opacity flex items-center justify-center"
-      title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
-      data-social-link={platformType}
+      className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors p-2"
+      title={platformName}
     >
-      <SocialIcon type={platformType as any} size={64} /> {/* Doubled size */}
+      <div className="flex-shrink-0">
+        <img 
+          src={platformIcon} 
+          alt={platformName}
+          className="w-6 h-6" // Reduced size by 40% from previous 10/10
+          width="24"
+          height="24"
+        />
+      </div>
+      <span className="sr-only">{platformName}</span>
     </a>
   );
 };

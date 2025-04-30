@@ -81,11 +81,11 @@ const MessageBubble = ({
         )}
         <div className={`p-3 rounded-lg ${
           isOwnMessage 
-            ? 'bg-blue-500 text-white rounded-br-none' 
-            : 'bg-gray-100 text-black rounded-bl-none'
+            ? 'bg-teal-600 text-white rounded-br-none' 
+            : 'bg-gray-100 text-navy-900 rounded-bl-none'
         }`}>
           <p className="text-base break-words">{message.content}</p>
-          <p className="text-xs opacity-80 mt-1 text-right">
+          <p className={`text-xs mt-1 text-right ${isOwnMessage ? 'text-white/80' : 'text-gray-500'}`}>
             {timestampDisplay}
           </p>
         </div>

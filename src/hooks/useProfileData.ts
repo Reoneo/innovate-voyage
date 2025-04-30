@@ -2,6 +2,8 @@
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { useBlockchainData } from '@/hooks/useBlockchainData';
 import { usePassportGenerator } from '@/hooks/usePassportGenerator';
+import { useEffect } from 'react';
+import { getSkillNftsByAddress } from '@/api/services/nftService';
 
 /**
  * Hook to fetch and combine all profile data for a blockchain user
@@ -44,12 +46,23 @@ export function useProfileData(ensName?: string, address?: string) {
     }
   );
 
-  console.log('useProfileData - bio sources:', {
-    ensBio,
-    web3BioDescription: blockchainData.web3BioProfile?.description,
-    blockchainProfileDesc: enhancedBlockchainProfile?.description,
-    passportBio: passport?.bio
-  });
+  // Prefetch NFT data when the address is resolved
+  useEffect(() => {
+    if (resolvedAddress) {
+      // Start prefetching NFTs in the background
+      const prefetchNfts = async () => {
+        try {
+          console.log('Prefetching NFTs for address:', resolvedAddress);
+          await getSkillNftsByAddress(resolvedAddress);
+          console.log('NFT prefetch completed');
+        } catch (err) {
+          console.error('Error prefetching NFTs:', err);
+        }
+      };
+      
+      prefetchNfts();
+    }
+  }, [resolvedAddress]);
 
   return {
     loading,

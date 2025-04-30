@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Wallet } from 'lucide-react';
@@ -59,7 +60,8 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   const handleOpenConnectWalletModal = () => {
     if (!connectedWallet) {
       if (typeof window !== 'undefined' && window.walletConnectModal) {
-        window.walletConnectModal.showModal();
+        // Fix the error by checking for open() method instead of showModal()
+        window.walletConnectModal.open();
       } else {
         console.error('WalletConnect modal is not available');
         // Fallback action
@@ -139,7 +141,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             <img 
               src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
               alt="XMTP Messages" 
-              className="h-10 w-10" // Doubled in size
+              className="h-10 w-10" 
             />
           </button>
           
