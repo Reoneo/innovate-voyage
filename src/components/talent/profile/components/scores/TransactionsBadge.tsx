@@ -41,13 +41,11 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
       <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gradient-to-r from-blue-300/20 to-blue-100/10 h-full">
         <div className="text-center relative flex-grow flex flex-col items-center justify-center w-full">
           <div className="relative">
-            <div className="rounded-full bg-black p-2 flex items-center justify-center" style={{ width: '140px', height: '140px' }}>
-              <img 
-                src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1746064800000&signature=NrmlObpAbCJOzeEZfVJ7zb-a2H4jiI9HQ1OcbvA6ckY&downloadName=logomark_dark.jpg" 
-                alt="Builder Score" 
-                className="h-32 w-32"
-              />
-            </div>
+            <img 
+              src="https://cdn-icons-png.flaticon.com/512/6699/6699362.png" 
+              alt="NFT Collection" 
+              className="h-32 w-32 mb-2"
+            />
             {nftCount !== null && nftCount > 0 && (
               <Badge 
                 variant="destructive" 
@@ -57,7 +55,7 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
               </Badge>
             )}
           </div>
-          <p className="text-sm text-gray-600 mt-3">Builder Score</p>
+          <p className="text-sm text-gray-600 mt-1">NFTs</p>
         </div>
       </div>
     </div>
