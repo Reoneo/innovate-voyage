@@ -9,14 +9,14 @@ interface HeaderContainerProps {
 const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
   return (
     <Card className="bg-white shadow-md rounded-sm w-full" style={{
-      height: 'auto',
+      height: 'calc(100vh - 80px)', /* Subtract navbar height */
       width: '100%',
       maxWidth: '21cm', /* A4 width */
       margin: '0 auto',
       padding: 0,
-      overflow: 'hidden', /* Changed from auto to hidden to prevent scrollbars in PDF */
+      overflow: 'auto',
     }}>
-      <CardContent className="p-6 md:p-8 print:p-4">
+      <CardContent className="p-6 md:p-8 print:p-4 h-full">
         {children}
       </CardContent>
     </Card>

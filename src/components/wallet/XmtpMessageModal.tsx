@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { X, MessageSquare, PlusCircle, ArrowLeft, Trash2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -132,12 +131,13 @@ const XmtpMessageModal: React.FC = () => {
   return (
     <dialog id="xmtpMessageModal" className="modal backdrop:bg-black/50 backdrop:backdrop-blur-sm rounded-lg shadow-xl p-0 w-[90%] max-w-md">
       <div className="bg-background p-0 rounded-lg flex flex-col h-[650px]">
-        <div className="flex justify-between items-center p-4 border-b">
+        {/* Header with gradient background */}
+        <div className="flex justify-between items-center p-4 border-b bg-gradient-to-r from-[#9b87f5] to-[#7856FF] text-white">
           <h3 className="text-lg font-semibold flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
             XMTP Messaging
           </h3>
-          <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8 text-white hover:bg-white/20">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -154,7 +154,7 @@ const XmtpMessageModal: React.FC = () => {
           <div className="flex-1 flex flex-col overflow-hidden">
             {currentConversation ? (
               <div className="flex flex-col h-full">
-                <div className="p-2 border-b flex justify-between items-center">
+                <div className="p-2 border-b flex justify-between items-center bg-[#F1F0FB]">
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -207,15 +207,14 @@ const XmtpMessageModal: React.FC = () => {
               <div className="p-4 space-y-4 flex-1 overflow-hidden">
                 <Button 
                   onClick={startNewConversation} 
-                  className="w-full mb-2"
-                  variant="outline"
+                  className="w-full mb-2 bg-gradient-to-r from-[#9b87f5] to-[#7856FF] hover:opacity-90"
                 >
                   <PlusCircle className="h-4 w-4 mr-2" />
                   New Conversation
                 </Button>
                 
                 <Tabs defaultValue="conversations" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
+                  <TabsList className="grid w-full grid-cols-2 bg-[#F1F0FB]">
                     <TabsTrigger value="conversations">
                       <MessageSquare className="h-4 w-4 mr-2" />
                       Conversations
@@ -252,9 +251,9 @@ const XmtpMessageModal: React.FC = () => {
           </div>
         )}
         
-        {/* Delete Confirmation Dialog */}
+        {/* Delete Confirmation Dialog with higher z-index */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent>
+          <DialogContent className="z-[60]">
             <DialogHeader>
               <DialogTitle>Delete Conversation</DialogTitle>
               <DialogDescription>

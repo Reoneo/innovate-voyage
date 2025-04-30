@@ -40,7 +40,7 @@ const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
         <img 
           src={getCollectionIcon(collectionName)} 
           alt={collectionName} 
-          className="h-6 w-6 rounded-full"
+          className="h-5 w-5 rounded-full" // Reduced size from h-6 w-6
         />
         <h4 className="text-md font-medium">{formatCollectionName(collectionName)}</h4>
       </div>
