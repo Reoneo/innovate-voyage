@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useFollowButton, useTransactions } from 'ethereum-identity-kit';
+import { useEfpStats } from '@/hooks/useEfpStats';
 
 interface FollowButtonProps {
   targetAddress: string;
@@ -11,6 +11,7 @@ interface FollowButtonProps {
 }
 
 const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className }) => {
+  const { isFollowing, followAddress, isProcessing } = useEfpStats();
   const { toast } = useToast();
   
   // Don't show follow button for your own profile
@@ -19,92 +20,88 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
     return null;
   }
 
-  // Format addresses properly with 0x prefix
-  const formatAddress = (address: string | null): `0x${string}` | undefined => {
-    if (!address) return undefined;
+  const handleFollow = async () => {
+    if (!targetAddress) return;
     
-    if (address.toLowerCase().startsWith('0x')) {
-      return address.toLowerCase() as `0x${string}`;
+    // Check if wallet is connected
+    if (!connectedWalletAddress) {
+      // Trigger wallet connect modal
+      const event = new CustomEvent('open-wallet-connect');
+      document.dispatchEvent(event);
+      
+      toast({
+        title: "Wallet Connection Required",
+        description: "Please connect your wallet first to follow this address",
+      });
+      return;
     }
     
-    return `0x${address.toLowerCase()}` as `0x${string}`;
+    try {
+      await followAddress(targetAddress);
+    } catch (error: any) {
+      console.error('Follow error:', error);
+      
+      // Special handling for no EFP List case
+      if (error.message && error.message.includes("No EFP List found")) {
+        toast({
+          title: "EFP List Required",
+          description: "You need to create an EFP List on Base network before following. Click the button below to set up your EFP List.",
+          variant: "destructive",
+          action: (
+            <Button 
+              onClick={() => window.open('https://efp.app/', '_blank')}
+              variant="outline"
+              className="mt-2 flex items-center gap-1"
+              size="sm"
+            >
+              Create EFP List <ExternalLink size={14} />
+            </Button>
+          ),
+        });
+      } 
+      // Special handling for when a list exists but is not set as primary
+      else if (error.message && error.message.includes("primary list")) {
+        toast({
+          title: "Set List as Primary",
+          description: "You have an EFP List but haven't set it as your primary list. Click the button below to go to EFP.app and set your list as primary.",
+          variant: "destructive",
+          action: (
+            <Button 
+              onClick={() => window.open('https://efp.app/lists', '_blank')}
+              variant="outline"
+              className="mt-2 flex items-center gap-1"
+              size="sm"
+            >
+              Set Primary List <ExternalLink size={14} />
+            </Button>
+          ),
+        });
+      }
+    }
   };
 
-  const formattedTargetAddress = formatAddress(targetAddress);
-  const formattedConnectedAddress = formatAddress(connectedWalletAddress);
-
-  const handleDisconnectedClick = () => {
-    // Trigger wallet connect modal
-    const event = new CustomEvent('open-wallet-connect');
-    document.dispatchEvent(event);
-    
-    toast({
-      title: "Wallet Connection Required",
-      description: "Please connect your wallet first to follow this address",
-    });
-  };
-
-  // If we don't have both addresses properly formatted, show the disconnected button
-  if (!formattedConnectedAddress || !formattedTargetAddress) {
-    return (
-      <div className={`flex justify-center mt-2 mb-2 ${className || ''}`}>
-        <Button 
-          variant="default"
-          size="sm"
-          className="flex items-center gap-2 mx-auto"
-          onClick={handleDisconnectedClick}
-        >
-          <img 
-            src="https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png"
-            className="h-4 w-4 rounded-full"
-            alt="EFP"
-          />
-          Follow
-        </Button>
-      </div>
-    );
-  }
-
-  // Use the useFollowButton hook for connected users
-  const { 
-    buttonText, 
-    buttonState, 
-    handleAction, 
-    isLoading, 
-    disableHover, 
-    setDisableHover 
-  } = useFollowButton({
-    lookupAddress: formattedTargetAddress,
-    connectedAddress: formattedConnectedAddress,
-  });
-
-  // Access the transaction context
-  const { txModalOpen } = useTransactions();
+  const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
 
   return (
     <div className={`flex justify-center mt-2 mb-2 ${className || ''}`}>
       <Button 
-        variant={buttonState === 'FOLLOWING' ? 'outline' : 'default'}
+        variant={isFollowing(targetAddress) ? "outline" : "default"}
         size="sm"
-        className={`flex items-center gap-2 mx-auto transition-colors ${disableHover ? 'pointer-events-none' : ''}`}
-        onClick={handleAction}
-        onMouseEnter={() => setDisableHover(false)}
-        disabled={isLoading}
+        className="flex items-center gap-2 mx-auto"
+        disabled={isProcessing}
+        onClick={handleFollow}
       >
-        {isLoading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Processing...</span>
-          </>
+        <img 
+          src={efpLogo}
+          className="h-4 w-4 rounded-full"
+          alt="EFP"
+        />
+        {isProcessing ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : isFollowing(targetAddress) ? (
+          "Following"
         ) : (
-          <>
-            <img 
-              src="https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png"
-              className="h-4 w-4 rounded-full"
-              alt="EFP"
-            />
-            {buttonText}
-          </>
+          "Follow"
         )}
       </Button>
     </div>

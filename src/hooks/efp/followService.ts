@@ -75,41 +75,10 @@ export async function executeFollow(
     );
     
     console.log('Preparing to send transaction...');
-    
-    // First, explicitly get the current nonce to ensure fresh transaction
-    const nonce = await provider.getTransactionCount(walletAddress, "pending");
-    console.log('Using nonce:', nonce);
-    
-    // Try to estimate gas first to catch potential errors before showing popup
-    try {
-      console.log('Estimating gas...');
-      const gasEstimate = await listRecords.applyListOp.estimateGas(
-        listLocation.slot, 
-        opBytes
-      );
-      console.log('Estimated gas:', gasEstimate.toString());
-    } catch (gasError) {
-      console.error('Gas estimation failed (transaction would likely fail):', gasError);
-      // Continue anyway, as sometimes estimation fails but transaction succeeds
-    }
-    
-    // Explicitly request accounts to trigger the MetaMask popup if it's locked
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
-    
-    // Force MetaMask to show the confirmation popup with explicit parameters
-    const txRequest = await listRecords.applyListOp.populateTransaction(
-      listLocation.slot, 
-      opBytes
-    );
-    
-    // Add transaction parameters to ensure MetaMask shows the popup
-    txRequest.gasLimit = ethers.toBigInt(300000); // Explicitly set gas limit
-    txRequest.nonce = nonce; // Use fresh nonce
-    
-    console.log('Sending transaction request to MetaMask:', txRequest);
-    
-    // Use the lower level sendTransaction to ensure MetaMask shows the popup
-    const tx = await signer.sendTransaction(txRequest);
+    // Force MetaMask to show the confirmation popup by explicitly setting gasLimit
+    const tx = await listRecords.applyListOp(listLocation.slot, opBytes, {
+      gasLimit: 300000 // Explicitly set gas limit to ensure transaction popup
+    });
     
     console.log('Transaction sent:', tx.hash);
     console.log('Waiting for transaction confirmation...');
@@ -123,20 +92,6 @@ export async function executeFollow(
     
   } catch (error: any) {
     console.error('Error executing follow:', error);
-    
-    // Check for specific MetaMask errors
-    if (error.code === 4001) {
-      return {
-        success: false,
-        error: "Transaction was rejected by the user"
-      };
-    } else if (error.code === -32002) {
-      return {
-        success: false,
-        error: "MetaMask is already processing a request. Please check your MetaMask extension."
-      };
-    }
-    
     return {
       success: false,
       error: error.message || "Unknown error"
