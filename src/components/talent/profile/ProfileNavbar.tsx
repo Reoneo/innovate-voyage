@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Wallet } from 'lucide-react';
@@ -59,7 +60,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   const handleOpenConnectWalletModal = () => {
     if (!connectedWallet) {
       if (typeof window !== 'undefined' && window.walletConnectModal) {
-        window.walletConnectModal.showModal();
+        window.walletConnectModal.open(); // Changed from showModal() to open()
       } else {
         console.error('WalletConnect modal is not available');
         // Fallback action
