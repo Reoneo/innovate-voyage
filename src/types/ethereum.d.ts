@@ -7,6 +7,7 @@ interface Window {
     removeListener: (event: string, callback: (...args: any[]) => void) => void;
   };
   connectWalletModal: HTMLDialogElement;
+  walletConnectModal: HTMLDialogElement;  // Add this property
   xmtpMessageModal: HTMLDialogElement;
   connectedWalletAddress: string | null;
   Buffer: typeof Buffer;

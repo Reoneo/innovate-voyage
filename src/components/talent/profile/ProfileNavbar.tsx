@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Wallet } from 'lucide-react';
@@ -60,8 +59,8 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
 
   const handleOpenConnectWalletModal = () => {
     if (!connectedWallet) {
-      if (window.walletConnectModal) {
-        window.walletConnectModal.showModal();
+      if (window.connectWalletModal) {
+        window.connectWalletModal.showModal();
       }
     } else {
       // Disconnect wallet
