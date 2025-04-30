@@ -38,14 +38,23 @@ const ThreatLevelCard: React.FC<ThreatLevelCardProps> = ({ securityData, isLoadi
   }
 
   return (
-    <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gradient-to-r from-green-300 to-green-100">
-      <h3 className="text-lg font-semibold text-green-900">Threat Level</h3>
-      <div className={`text-4xl font-bold px-4 py-2 rounded-md ${getThreatBgColor(securityData?.threatLevel)}`}>
-        {securityData?.threatLevel || 'UNKNOWN'}
+    <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gradient-to-r from-green-300/20 to-green-100/10 h-full">
+      <div className="text-center space-y-1">
+        <div className="flex items-center justify-center gap-2">
+          <img 
+            src="https://img.cryptorank.io/coins/webacy1675847088001.png" 
+            alt="Webacy Logo" 
+            className="h-6 w-6"
+          />
+          <h3 className="text-lg font-semibold text-gray-700">Risk Score</h3>
+        </div>
+        <div className={`text-3xl font-bold ${getThreatBgColor(securityData?.threatLevel)}`}>
+          {securityData?.threatLevel || 'UNKNOWN'}
+        </div>
+        <p className="text-sm text-center text-green-800">
+          {getThreatDescription(securityData?.threatLevel)}
+        </p>
       </div>
-      <p className="text-sm text-center text-green-800">
-        {getThreatDescription(securityData?.threatLevel)}
-      </p>
     </div>
   );
 };

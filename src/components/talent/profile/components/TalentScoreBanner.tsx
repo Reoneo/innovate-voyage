@@ -6,6 +6,7 @@ import TransactionsBadge from './scores/TransactionsBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
+import WebacySecurity from './security/WebacySecurity';
 
 interface TalentScoreBannerProps {
   walletAddress: string;
@@ -30,7 +31,6 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   // Only show scores if data is available
   const showTalentScore = score !== null && score !== undefined;
-  const showRiskScore = webacyData?.riskScore !== undefined && webacyData.riskScore !== null;
 
   return (
     <>
@@ -42,13 +42,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             isLoading={loading} 
           />
         )}
-        {showRiskScore && (
-          <SecurityScoreBadge 
-            webacyData={webacyData} 
-            onClick={() => handleBadgeClick('webacy')}
-            isLoading={loading} 
-          />
-        )}
+        <WebacySecurity walletAddress={walletAddress} />
         <TransactionsBadge 
           txCount={txCount}
           walletAddress={walletAddress}
