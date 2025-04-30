@@ -76,6 +76,7 @@ const App = () => {
               </Routes>
               <WalletConnectModal />
               <XmtpMessageModal />
+              {/* Explicitly set darkMode to false to match the app's light theme */}
               <TransactionModal darkMode={false} />
             </BrowserRouter>
           </TooltipProvider>

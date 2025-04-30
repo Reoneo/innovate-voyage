@@ -32,13 +32,29 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
 
   const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
 
+  // Ensure addresses are properly formatted with 0x prefix
+  const formatAddress = (address: string | null): `0x${string}` | undefined => {
+    if (!address) return undefined;
+    
+    // If address already starts with 0x, ensure it's the right type
+    if (address.toLowerCase().startsWith('0x')) {
+      return address.toLowerCase() as `0x${string}`;
+    }
+    
+    // If it doesn't have 0x prefix, add it
+    return `0x${address.toLowerCase()}` as `0x${string}`;
+  };
+
+  const formattedTargetAddress = formatAddress(targetAddress);
+  const formattedConnectedAddress = formatAddress(connectedWalletAddress);
+
   // If we have a connected wallet, use the EthIdentityFollowButton
-  if (connectedWalletAddress) {
+  if (connectedWalletAddress && formattedConnectedAddress && formattedTargetAddress) {
     return (
       <div className={`flex justify-center mt-2 mb-2 ${className || ''}`}>
         <EthIdentityFollowButton
-          lookupAddress={targetAddress}
-          connectedAddress={connectedWalletAddress}
+          lookupAddress={formattedTargetAddress}
+          connectedAddress={formattedConnectedAddress}
           onDisconnectedClick={handleDisconnectedClick}
           className="flex items-center gap-2 mx-auto"
         />
