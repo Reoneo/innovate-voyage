@@ -46,6 +46,23 @@ export function useEfpFollow() {
         throw new Error("Ethereum provider not found. Please install MetaMask.");
       }
       
+      // First check if MetaMask is locked
+      try {
+        const accounts = await window.ethereum.request({ 
+          method: 'eth_accounts',
+          params: []
+        });
+        if (!accounts || accounts.length === 0) {
+          toast({
+            title: "Wallet Locked",
+            description: "Please unlock your MetaMask wallet and try again"
+          });
+          throw new Error("MetaMask is locked. Please unlock it and try again.");
+        }
+      } catch (err) {
+        console.error("Error checking MetaMask lock status:", err);
+      }
+      
       toast({
         title: "Preparing transaction",
         description: `Please check your wallet for the transaction popup to follow ${shortenAddress(addressToFollow)}`
@@ -100,7 +117,14 @@ export function useEfpFollow() {
     } 
     else if (errorMessage.includes("primary list")) {
       // This error is handled in the FollowButton component
-    } 
+    }
+    else if (errorMessage.includes("MetaMask is already processing")) {
+      toast({
+        title: "MetaMask Busy",
+        description: "Please check MetaMask - you may have a pending transaction to confirm",
+        variant: "destructive"
+      });
+    }
     else {
       toast({
         title: "Error",
