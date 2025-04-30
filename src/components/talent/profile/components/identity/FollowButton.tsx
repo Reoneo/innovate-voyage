@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { UserPlus, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEfpStats } from '@/hooks/useEfpStats';
 
@@ -38,8 +38,14 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
     
     try {
       await followAddress(targetAddress);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Follow error:', error);
+      
+      // Special handling for no EFP List case
+      if (error.message && error.message.includes("No EFP List found")) {
+        // We'll open ethfollow.xyz in a new tab
+        window.open('https://app.ethfollow.xyz/', '_blank');
+      }
     }
   };
 
@@ -50,7 +56,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
       <Button 
         variant={isFollowing(targetAddress) ? "outline" : "default"}
         size="sm"
-        className="flex items-center gap-1 mx-auto"
+        className="flex items-center gap-2 mx-auto"
         disabled={isProcessing}
         onClick={handleFollow}
       >
