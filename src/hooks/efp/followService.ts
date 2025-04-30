@@ -20,7 +20,7 @@ export async function executeFollow(
 ): Promise<{ success: boolean, txHash?: string, error?: string }> {
   try {
     // 1. Connect wallet and get provider
-    const { provider, signer, walletAddress } = await connectWallet();
+    let { provider, signer, walletAddress } = await connectWallet();
     
     // 2. Check network and switch to Base if needed
     const isBaseNetwork = await checkNetworkIsBase(provider);

@@ -87,12 +87,14 @@ export async function getListStorageLocation(
  */
 export function encodeFollowOperation(addressToFollow: string): Uint8Array {
   // Build the operation bytes: version=1, opcode=1 (Add), recVer=1, recType=1, followed by address
-  const addrHex = ethers.zeroPadBytes(ethers.getBytes(addressToFollow), 20);
+  const addrHex = ethers.getBytes(addressToFollow);
+  const paddedAddr = ethers.zeroPadBytes(addrHex, 20); // Ensure address is 20 bytes
+  
   return ethers.concat([
-    ethers.getBytes("0x01"), // ListOp version
-    ethers.getBytes("0x01"), // opcode=Add record
-    ethers.getBytes("0x01"), // ListRecord version
-    ethers.getBytes("0x01"), // ListRecord type=1 (address)
-    addrHex                  // 20-byte address to follow
+    new Uint8Array([0x01]), // ListOp version
+    new Uint8Array([0x01]), // opcode=Add record
+    new Uint8Array([0x01]), // ListRecord version
+    new Uint8Array([0x01]), // ListRecord type=1 (address)
+    paddedAddr            // 20-byte address to follow
   ]);
 }
