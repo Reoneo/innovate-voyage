@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { OpenSeaNft } from '@/api/services/openseaService';
 import NftItem from './NftItem';
 
@@ -35,25 +36,27 @@ const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
   };
 
   return (
-    <div key={collectionName} className="space-y-3">
-      <div className="flex items-center gap-2 pl-1">
-        <img 
-          src={getCollectionIcon(collectionName)} 
-          alt={collectionName} 
-          className="h-6 w-6 rounded-full"
-        />
-        <h4 className="text-md font-medium">{formatCollectionName(collectionName)}</h4>
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {nfts.map((nft) => (
-          <NftItem 
-            key={nft.id} 
-            nft={nft} 
-            onClick={onNftClick} 
+    <Card key={collectionName} className="overflow-hidden">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <img 
+            src={getCollectionIcon(collectionName)} 
+            alt={collectionName} 
+            className="h-5 w-5"
           />
-        ))}
-      </div>
-    </div>
+          <h4 className="text-md font-medium">{formatCollectionName(collectionName)}</h4>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {nfts.map((nft) => (
+            <NftItem 
+              key={nft.id} 
+              nft={nft} 
+              onClick={onNftClick} 
+            />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

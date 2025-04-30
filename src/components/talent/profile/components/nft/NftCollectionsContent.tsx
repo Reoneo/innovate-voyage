@@ -37,8 +37,8 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Skeleton className="h-40 w-full bg-gray-800" />
-        <Skeleton className="h-40 w-full bg-gray-800" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-40 w-full" />
       </div>
     );
   }
@@ -54,7 +54,7 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
       />
       
       {filteredCollections.length > 0 ? (
-        <div className="space-y-10 pt-4">
+        <div className="space-y-6">
           {filteredCollections.map((collection) => (
             <NftCollectionCard
               key={collection.name}

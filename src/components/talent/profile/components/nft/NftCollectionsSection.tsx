@@ -54,16 +54,16 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
       onOpenChange(false);
     }
     // Navigate to the profile - this will be handled by the parent component
-    window.location.href = `/${name.toLowerCase()}/`;
+    window.location.href = `/recruitment.box/${name.toLowerCase()}/`;
   };
 
   return (
     <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto bg-gradient-to-b from-gray-900 to-gray-950 text-white border-gray-800 p-6">
-          <div className="sticky top-0 z-10 flex justify-between items-center pb-4 border-b border-gray-800 bg-gradient-to-b from-gray-900 to-gray-900/95">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="sticky top-0 z-10 flex justify-between items-center bg-white pb-2">
             <DialogHeader>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-semibold">
                 {selectedType === 'all' ? 'All Collections' : 
                  selectedType === 'ethereum' ? 'NFT Collections' :
                  selectedType === 'ens' ? 'ENS Collection' : 'POAP Collection'}
@@ -73,21 +73,19 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
               variant="ghost"
               size="icon"
               onClick={() => onOpenChange?.(false)}
-              className="rounded-full h-8 w-8 text-gray-400 hover:text-white hover:bg-gray-800"
+              className="rounded-full h-8 w-8"
             >
               <X size={18} />
             </Button>
           </div>
 
-          <div className="pt-4">
-            <NftCollectionsContent 
-              collections={collections}
-              loading={loading}
-              selectedType={selectedType}
-              setSelectedType={setSelectedType}
-              onNftClick={handleNftClick}
-            />
-          </div>
+          <NftCollectionsContent 
+            collections={collections}
+            loading={loading}
+            selectedType={selectedType}
+            setSelectedType={setSelectedType}
+            onNftClick={handleNftClick}
+          />
         </DialogContent>
       </Dialog>
 
