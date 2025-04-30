@@ -36,7 +36,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto p-0">
-        <div className="sticky top-0 z-10 flex justify-between items-center bg-white pb-2 p-4">
+        <div className="sticky top-0 z-10 bg-black text-white flex justify-between items-center pb-2 p-4">
           <h2 className="text-lg font-semibold">
             {getDialogTitle()}
           </h2>
@@ -44,12 +44,12 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
             variant="ghost"
             size="icon"
             onClick={() => onOpenChange(false)}
-            className="rounded-full h-8 w-8"
+            className="rounded-full h-8 w-8 text-white hover:bg-gray-800"
           >
             <X size={18} />
           </Button>
         </div>
-        <div className="p-4">
+        <div className="p-0">
           {renderDialogContent()}
         </div>
       </DialogContent>
