@@ -92,7 +92,21 @@ const TallyDialogContent: React.FC<TallyDialogContentProps> = ({ walletAddress }
           
           <div className="bg-gray-50 p-4 rounded-lg">
             <h4 className="font-medium text-gray-700 mb-2">Received Delegations</h4>
-            <p className="text-xl font-bold">{tallyData.receivedDelegations || "1 addresses delegating"}</p>
+            <p className="text-lg font-medium mb-2">{tallyData.receivedDelegations || "No delegations"}</p>
+            
+            {tallyData.delegators && tallyData.delegators.length > 0 ? (
+              <div className="mt-3 space-y-2 max-h-40 overflow-y-auto">
+                <h5 className="text-sm font-medium text-gray-600">Delegator Addresses:</h5>
+                {tallyData.delegators.map((delegator, index) => (
+                  <div key={index} className="bg-gray-100 p-2 rounded text-sm flex justify-between items-center">
+                    <span className="font-mono">{delegator.address}</span>
+                    <span className="text-xs bg-gray-200 px-2 py-1 rounded">{delegator.votingPower}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm italic">No addresses delegating to this wallet</p>
+            )}
           </div>
           
           <div className="flex justify-end mt-6">
@@ -103,12 +117,17 @@ const TallyDialogContent: React.FC<TallyDialogContentProps> = ({ walletAddress }
         <TabsContent value="delegating" className="mt-4">
           <div className="bg-gray-50 p-4 rounded-lg">
             <h4 className="font-medium text-gray-700 mb-2">Delegating To</h4>
-            {tallyData.delegatingTo ? (
-              <div className="flex items-center space-x-2">
-                <p>{tallyData.delegatingTo}</p>
+            {tallyData.delegations && tallyData.delegations.length > 0 ? (
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {tallyData.delegations.map((delegation, index) => (
+                  <div key={index} className="bg-gray-100 p-2 rounded text-sm flex justify-between items-center">
+                    <span className="font-mono">{delegation.address}</span>
+                    <span className="text-xs bg-gray-200 px-2 py-1 rounded">{delegation.votingPower}</span>
+                  </div>
+                ))}
               </div>
             ) : (
-              <p className="text-gray-500">No delegations found</p>
+              <p className="text-gray-500">Not delegating to any addresses</p>
             )}
           </div>
           

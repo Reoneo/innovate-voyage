@@ -8,6 +8,8 @@ interface TallyData {
   votingPower: string;
   receivedDelegations: string;
   delegatingTo?: string;
+  delegators?: Array<{address: string; votingPower: string}>;
+  delegations?: Array<{address: string; votingPower: string}>;
 }
 
 export function useTallyData(walletAddress?: string) {
@@ -66,12 +68,34 @@ export function useTallyData(walletAddress?: string) {
         
         // Generate delegation data based on wallet
         const delegationsCount = (parseInt(addressSuffix.substring(2, 4), 16) % 5);
+        
+        // Generate list of delegators (people delegating to this wallet)
+        const delegators = Array.from({ length: delegationsCount }).map((_, index) => {
+          const randomPower = ((Math.random() * 0.01) + 0.001).toFixed(4);
+          const randomPercentage = (Math.random() * 0.1).toFixed(2);
+          return {
+            address: `0x${Math.random().toString(16).substring(2, 10)}...${Math.random().toString(16).substring(2, 6)}`,
+            votingPower: `${randomPower} (${randomPercentage}%)`
+          };
+        });
+        
         const receivedDelegations = delegationsCount === 0 ? 
           "No delegations" : 
           `${delegationsCount} addresses delegating`;
         
+        // Generate list of delegations (addresses this wallet is delegating to)
+        const delegationCount = parseInt(addressSuffix.substring(0, 1), 16) % 3;
+        const delegations = Array.from({ length: delegationCount }).map((_, index) => {
+          const randomPower = ((Math.random() * 0.01) + 0.001).toFixed(4);
+          const randomPercentage = (Math.random() * 0.1).toFixed(2);
+          return {
+            address: `0x${Math.random().toString(16).substring(2, 10)}...${Math.random().toString(16).substring(2, 6)}`,
+            votingPower: `${randomPower} (${randomPercentage}%)`
+          };
+        });
+        
         // Sometimes add delegating to info
-        const hasDelegation = parseInt(addressSuffix.substring(0, 1), 16) % 3 === 0;
+        const hasDelegation = delegationCount > 0;
         const delegatingTo = hasDelegation ? 
           `0x${addressSuffix}...${addressSuffix.substring(0, 4)}` : 
           undefined;
@@ -82,7 +106,9 @@ export function useTallyData(walletAddress?: string) {
           daoIcon: selectedDao.icon,
           votingPower,
           receivedDelegations,
-          delegatingTo
+          delegatingTo,
+          delegators: delegators.length > 0 ? delegators : undefined,
+          delegations: delegations.length > 0 ? delegations : undefined
         });
       } catch (err) {
         console.error("Error fetching Tally data:", err);
