@@ -49,72 +49,89 @@ export function useEfpFollow() {
 
       // Check if we have the Ethereum object available from Metamask
       if (typeof window.ethereum !== 'undefined') {
-        // Request account access
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        
-        if (!accounts || accounts.length === 0) {
-          throw new Error("No wallet accounts available");
-        }
-        
-        // Get the current user account
-        const userAddress = accounts[0];
-        
-        // Create a Web3Provider using the injected provider
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        
-        // Connect to the EFP contract
-        const efpContract = new ethers.Contract(EFP_CONTRACT_ADDRESS, EFP_ABI, signer);
-        
-        // Prepare the transaction
-        toast({
-          title: "Preparing transaction",
-          description: `Please confirm the transaction in your wallet to follow ${shortenAddress(addressToFollow)}`
-        });
-        
-        // Execute the follow function on the EFP contract
-        const tx = await efpContract.follow(addressToFollow);
-        
-        // Wait for the transaction to be mined
-        toast({
-          title: "Transaction submitted",
-          description: "Waiting for blockchain confirmation..."
-        });
-        
-        const receipt = await tx.wait();
-        
-        console.log(`Successfully followed ${addressToFollow} on the blockchain`, receipt);
-        
-        if (onSuccess) {
-          onSuccess();
-        }
+        try {
+          // Request account access
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          
+          if (!accounts || accounts.length === 0) {
+            throw new Error("No wallet accounts available");
+          }
+          
+          // Get the current user account
+          const userAddress = accounts[0];
+          
+          // Create a Web3Provider using the injected provider
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const signer = await provider.getSigner();
+          
+          // Connect to the EFP contract
+          const efpContract = new ethers.Contract(EFP_CONTRACT_ADDRESS, EFP_ABI, signer);
+          
+          // Prepare the transaction
+          toast({
+            title: "Preparing transaction",
+            description: `Please confirm the transaction in your wallet to follow ${shortenAddress(addressToFollow)}`
+          });
+          
+          // Execute the follow function on the EFP contract
+          const tx = await efpContract.follow(addressToFollow);
+          
+          // Wait for the transaction to be mined
+          toast({
+            title: "Transaction submitted",
+            description: "Waiting for blockchain confirmation..."
+          });
+          
+          const receipt = await tx.wait();
+          
+          console.log(`Successfully followed ${addressToFollow} on the blockchain`, receipt);
+          
+          if (onSuccess) {
+            onSuccess();
+          }
 
-        toast({
-          title: "Success",
-          description: `You are now following ${shortenAddress(addressToFollow)} on the blockchain`
-        });
-      } else {
-        throw new Error("Ethereum provider not found. Please install MetaMask.");
-      }
-    } catch (error: any) {
-      console.error('Error following address on blockchain:', error);
-      
-      // Check if user rejected the transaction
-      if (error.message && error.message.includes("user rejected")) {
-        toast({
-          title: "Transaction cancelled",
-          description: "You cancelled the follow transaction",
-          variant: "destructive"
-        });
+          toast({
+            title: "Success",
+            description: `You are now following ${shortenAddress(addressToFollow)} on the blockchain`
+          });
+        } catch (error: any) {
+          console.error('Error following address on blockchain:', error);
+          
+          // Check if user rejected the transaction
+          if (error.message && error.message.includes("user rejected")) {
+            toast({
+              title: "Transaction cancelled",
+              description: "You cancelled the follow transaction",
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to follow on the blockchain. Please try again.",
+              variant: "destructive"
+            });
+          }
+          
+          throw new Error(error.message || "Failed to follow. Please try again.");
+        }
       } else {
         toast({
           title: "Error",
-          description: "Failed to follow on the blockchain. Please try again.",
+          description: "Ethereum provider not found. Please install MetaMask.",
           variant: "destructive"
         });
+        throw new Error("Ethereum provider not found. Please install MetaMask.");
       }
+    } catch (error: any) {
+      console.error('Error in followAddress:', error);
       
-      throw new Error(error.message || "Failed to follow. Please try again.");
+      toast({
+        title: "Error",
+        description: "Failed to follow on the blockchain. Please try again.",
+        variant: "destructive"
+      });
+      
+      throw error;
     } finally {
       setIsProcessing(false);
     }

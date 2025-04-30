@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { UserPlus, Check, Loader2 } from 'lucide-react';
+import { UserPlus, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEfpStats } from '@/hooks/useEfpStats';
 
@@ -40,7 +40,6 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
       await followAddress(targetAddress);
     } catch (error) {
       console.error('Follow error:', error);
-      // Error is already handled in useEfpFollow
     }
   };
 
@@ -61,17 +60,11 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
           alt="EFP"
         />
         {isProcessing ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" /> Processing...
-          </>
+          <Loader2 className="h-4 w-4 animate-spin" />
         ) : isFollowing(targetAddress) ? (
-          <>
-            <Check className="h-4 w-4" /> Following
-          </>
+          "Following"
         ) : (
-          <>
-            <UserPlus className="h-4 w-4" /> Follow
-          </>
+          "Follow"
         )}
       </Button>
     </div>

@@ -73,18 +73,16 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         isOwner={isOwner}
       />
       
-      {/* ENS Bio */}
-      <div>
-        {bio && (
-          <div className="mt-2">
-            <p className="text-sm text-muted-foreground">{bio}</p>
-          </div>
-        )}
-      </div>
-      
-      {/* Follow Button - Added before Social Links */}
+      {/* Follow Button - Moved above Bio section */}
       {!isOwner && ownerAddress && (
         <FollowButton targetAddress={ownerAddress} />
+      )}
+      
+      {/* ENS Bio */}
+      {bio && (
+        <div className="mt-2">
+          <p className="text-sm text-muted-foreground">{bio}</p>
+        </div>
       )}
       
       {/* Social Links */}
