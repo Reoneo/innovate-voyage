@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Wallet, Menu, X } from 'lucide-react';
@@ -56,14 +55,16 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   }, []);
 
   const handleOpenXmtpModal = () => {
-    if (window.xmtpMessageModal) {
+    // Check if window.xmtpMessageModal exists and has an open method
+    if (window.xmtpMessageModal && typeof window.xmtpMessageModal.open === 'function') {
       window.xmtpMessageModal.open();
     }
   };
 
   const handleOpenConnectWalletModal = () => {
     if (!connectedWallet) {
-      if (typeof window !== 'undefined' && window.walletConnectModal) {
+      if (typeof window !== 'undefined' && window.walletConnectModal && 
+          typeof window.walletConnectModal.open === 'function') {
         window.walletConnectModal.open();
       } else {
         console.error('WalletConnect modal is not available');
