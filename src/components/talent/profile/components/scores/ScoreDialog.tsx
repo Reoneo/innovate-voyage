@@ -17,7 +17,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
         return (
           <>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
+              <DialogTitle className="flex items-center gap-2 text-blue-900">
                 <img 
                   src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1745913600000&signature=oPyIbnGbG5qB98WcRs-e3kZNTk51ULXCIF-X6Jtr8Uc&downloadName=logomark_dark.jpg"
                   alt="Talent Protocol" 
@@ -30,11 +30,11 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <Card>
+              <Card className="corporate-card">
                 <CardContent className="pt-6">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-medium">Builder Score</h3>
-                    <span className="text-xl font-bold text-yellow-500">
+                    <h3 className="font-medium text-blue-900">Builder Score</h3>
+                    <span className="text-xl font-bold corporate-gold">
                       {score ?? 'N/A'}
                     </span>
                   </div>
@@ -44,7 +44,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
                       href={`https://app.talentprotocol.com/profile/${walletAddress}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline flex items-center gap-1"
+                      className="text-teal-600 hover:underline flex items-center gap-1"
                     >
                       View on Talent Protocol <ExternalLink size={14} />
                     </a>
@@ -59,7 +59,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
         return (
           <>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
+              <DialogTitle className="flex items-center gap-2 text-blue-900">
                 <ShieldAlert className={`h-5 w-5 ${getThreatColor(webacyData?.threatLevel)}`} />
                 Security Analysis
               </DialogTitle>
@@ -69,16 +69,16 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
             </DialogHeader>
             
             <Tabs defaultValue="risk" className="mt-4">
-              <TabsList className="grid grid-cols-2 mb-4">
-                <TabsTrigger value="risk">Risk Score</TabsTrigger>
-                <TabsTrigger value="transactions">Transactions</TabsTrigger>
+              <TabsList className="grid grid-cols-2 mb-4 bg-gray-100">
+                <TabsTrigger value="risk" className="data-[state=active]:bg-white">Risk Score</TabsTrigger>
+                <TabsTrigger value="transactions" className="data-[state=active]:bg-white">Transactions</TabsTrigger>
               </TabsList>
               
               <TabsContent value="risk" className="space-y-4">
-                <Card>
+                <Card className="corporate-card">
                   <CardContent className="pt-6">
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-medium">Risk Score</h3>
+                      <h3 className="font-medium text-blue-900">Risk Score</h3>
                       <span className={`text-xl font-bold ${getThreatColor(webacyData?.threatLevel)}`}>
                         {webacyData?.riskScore !== undefined ? webacyData.riskScore : 'Unknown'}
                       </span>
@@ -94,12 +94,12 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
                   </CardContent>
                 </Card>
                 
-                <Card>
+                <Card className="corporate-card">
                   <CardContent className="pt-6">
-                    <h3 className="font-medium mb-4">Contract Approvals</h3>
+                    <h3 className="font-medium mb-4 text-blue-900">Contract Approvals</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col">
-                        <span className="text-xl font-semibold">
+                        <span className="text-xl font-semibold text-blue-900">
                           {webacyData?.approvals?.count || 0}
                         </span>
                         <span className="text-sm text-muted-foreground">Total Approvals</span>
@@ -116,12 +116,12 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
               </TabsContent>
               
               <TabsContent value="transactions">
-                <Card>
+                <Card className="corporate-card">
                   <CardContent className="pt-6">
-                    <h3 className="font-medium mb-4">Security Transactions</h3>
+                    <h3 className="font-medium mb-4 text-blue-900">Security Transactions</h3>
                     <div className="space-y-3 max-h-[300px] overflow-y-auto">
                       {webacyData?.quickProfile?.transactions ? (
-                        <div className="p-3 border rounded-md">
+                        <div className="p-3 border rounded-md bg-blue-50/50 corporate-shadow-sm">
                           <div className="flex justify-between items-center">
                             <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-800">
                               Transaction Stats
@@ -139,7 +139,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
                     <div className="mt-4 flex justify-end">
                       <Button 
                         variant="outline" 
-                        className="flex items-center gap-1 text-sm"
+                        className="flex items-center gap-1 text-sm border-teal-600 text-teal-600 hover:bg-teal-50"
                         asChild
                       >
                         <a 
@@ -162,8 +162,8 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
         return (
           <>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <SendHorizontal className="h-5 w-5 text-blue-500" />
+              <DialogTitle className="flex items-center gap-2 text-blue-900">
+                <SendHorizontal className="h-5 w-5 text-teal-500" />
                 Transaction History
               </DialogTitle>
               <DialogDescription>
@@ -171,11 +171,11 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <Card>
+              <Card className="corporate-card">
                 <CardContent className="pt-6">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-medium">Total Transactions</h3>
-                    <span className="text-xl font-bold text-blue-500">
+                    <h3 className="font-medium text-blue-900">Total Transactions</h3>
+                    <span className="text-xl font-bold text-teal-600">
                       {txCount ?? 'N/A'}
                     </span>
                   </div>
@@ -184,7 +184,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
                       href={`https://etherscan.io/address/${walletAddress}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline flex items-center gap-1"
+                      className="text-teal-600 hover:underline flex items-center gap-1"
                     >
                       View on Etherscan <ExternalLink size={14} />
                     </a>
@@ -199,7 +199,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md corporate-shadow-md">
         {renderDialogContent()}
       </DialogContent>
     </Dialog>

@@ -68,7 +68,7 @@ const MessageBubble = ({
         <div className="flex flex-col items-center mr-2">
           <Avatar className="h-10 w-10 mb-1">
             <AvatarImage src={avatarUrl || ''} alt={displayName} />
-            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+            <AvatarFallback className="bg-gray-100 text-gray-600 text-xs">
               {displayName.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -81,11 +81,11 @@ const MessageBubble = ({
         )}
         <div className={`p-3 rounded-lg ${
           isOwnMessage 
-            ? 'bg-blue-500 text-white rounded-br-none' 
-            : 'bg-gray-100 text-black rounded-bl-none'
+            ? 'bg-gradient-to-r from-blue-800 to-indigo-700 text-white rounded-br-none shadow-md' 
+            : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 rounded-bl-none shadow-sm'
         }`}>
           <p className="text-base break-words">{message.content}</p>
-          <p className="text-xs opacity-80 mt-1 text-right">
+          <p className={`text-xs mt-1 text-right ${isOwnMessage ? 'text-blue-200' : 'text-gray-500'}`}>
             {timestampDisplay}
           </p>
         </div>
@@ -98,9 +98,9 @@ const MessageBubble = ({
                   <MoreVertical className="h-4 w-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="bg-white border border-gray-200 z-[70]">
                 <DropdownMenuItem 
-                  className="text-destructive focus:text-destructive flex items-center" 
+                  className="text-red-600 focus:text-red-600 flex items-center hover:bg-gray-100" 
                   onClick={handleDelete}
                   disabled={isDeleting}
                 >
@@ -117,7 +117,7 @@ const MessageBubble = ({
         <div className="flex flex-col items-center ml-2">
           <Avatar className="h-10 w-10 mb-1">
             <AvatarImage src={avatarUrl || ''} alt={displayName} />
-            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+            <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
               {displayName.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -155,7 +155,7 @@ const XmtpMessageList: React.FC<XmtpMessageListProps> = ({
       {Object.entries(messagesByDate).map(([date, dateMessages]) => (
         <div key={date}>
           <div className="text-center my-3">
-            <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full">
+            <span className="text-xs bg-blue-900/10 text-blue-800 px-3 py-1 rounded-full font-medium">
               {date === new Date().toLocaleDateString() ? 'Today' : date}
             </span>
           </div>

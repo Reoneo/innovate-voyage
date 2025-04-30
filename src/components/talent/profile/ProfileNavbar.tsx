@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Search, Wallet } from 'lucide-react';
+import { Home, Search, Wallet, Menu, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
@@ -12,10 +14,13 @@ interface ProfileNavbarProps {
 }
 
 const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
-  connectedWallet
+  connectedWallet,
+  onDisconnect
 }) => {
   const [search, setSearch] = useState('');
   const [avatarColor, setAvatarColor] = useState('#6366f1'); // Default color
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
   
   // Get dominant color from avatar
@@ -89,6 +94,10 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
     }
   };
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between h-14">
@@ -98,59 +107,142 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </Link>
         </div>
         
-        <form 
-          onSubmit={handleSearch} 
-          className="flex-1 flex justify-center"
-        >
-          <div className="relative max-w-md w-full">
-            <Search 
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
-              aria-hidden="true"
-            />
-            <Input
-              type="text"
-              placeholder="Search ENS username..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full bg-gray-50 border-gray-200 rounded-full focus:ring-primary focus:border-primary"
-              style={{ 
-                borderColor: avatarColor,
-                '--tw-ring-color': avatarColor, 
-              } as React.CSSProperties}
-            />
-            <Button
-              type="submit"
-              variant="ghost"
-              size="sm"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:text-primary/80 px-3 py-1"
-              style={{ color: avatarColor }}
-            >
-              Search
-            </Button>
-          </div>
-        </form>
+        {/* Mobile Menu Toggle */}
+        {isMobile && (
+          <button 
+            onClick={toggleMobileMenu}
+            className="md:hidden z-50 p-2"
+            aria-label="Toggle mobile menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6 text-gray-700" />
+            ) : (
+              <Menu className="h-6 w-6 text-gray-700" />
+            )}
+          </button>
+        )}
+        
+        {/* Desktop Search Form */}
+        {(!isMobile || (isMobile && !mobileMenuOpen)) && (
+          <form 
+            onSubmit={handleSearch} 
+            className={`${isMobile ? 'hidden md:flex' : 'flex'} flex-1 justify-center`}
+          >
+            <div className="relative max-w-md w-full">
+              <Search 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                aria-hidden="true"
+              />
+              <Input
+                type="text"
+                placeholder="Search ENS username..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 pr-4 py-2 w-full bg-gray-50 border-gray-200 rounded-full focus:ring-primary focus:border-primary"
+                style={{ 
+                  borderColor: avatarColor,
+                  '--tw-ring-color': avatarColor, 
+                } as React.CSSProperties}
+              />
+              <Button
+                type="submit"
+                variant="ghost"
+                size="sm"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:text-primary/80 px-3 py-1"
+                style={{ color: avatarColor }}
+              >
+                Search
+              </Button>
+            </div>
+          </form>
+        )}
 
-        <div className="flex-none w-14 flex justify-end space-x-4">
-          <button
-            onClick={handleOpenXmtpModal}
-            className="flex items-center text-gray-600 hover:text-primary transition-colors"
-            aria-label="XMTP Messages"
-          >
-            <img 
-              src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
-              alt="XMTP Messages" 
-              className="h-10 w-10" // Doubled in size
-            />
-          </button>
-          
-          <button
-            onClick={handleOpenConnectWalletModal}
-            className="flex items-center text-gray-600 hover:text-primary transition-colors ml-4"
-            aria-label="Connect Wallet"
-          >
-            <Wallet className="h-6 w-6" />
-          </button>
-        </div>
+        {/* Desktop Action Icons */}
+        {(!isMobile || (isMobile && !mobileMenuOpen)) && (
+          <div className={`${isMobile ? 'hidden md:flex' : 'flex'} flex-none w-14 justify-end space-x-4`}>
+            <button
+              onClick={handleOpenXmtpModal}
+              className="flex items-center text-gray-600 hover:text-primary transition-colors"
+              aria-label="XMTP Messages"
+            >
+              <img 
+                src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
+                alt="XMTP Messages" 
+                className="h-8 w-8" 
+              />
+            </button>
+            
+            <button
+              onClick={handleOpenConnectWalletModal}
+              className="flex items-center text-gray-600 hover:text-primary transition-colors ml-4"
+              aria-label="Connect Wallet"
+            >
+              <Wallet className="h-6 w-6" />
+            </button>
+          </div>
+        )}
+        
+        {/* Mobile Menu */}
+        {isMobile && mobileMenuOpen && (
+          <div className="fixed inset-0 z-40 bg-white flex flex-col pt-16 px-4 pb-4">
+            <form 
+              onSubmit={handleSearch} 
+              className="mb-6"
+            >
+              <div className="relative w-full">
+                <Search 
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                  aria-hidden="true"
+                />
+                <Input
+                  type="text"
+                  placeholder="Search ENS username..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full bg-gray-50 border-gray-200 rounded-full"
+                />
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1"
+                >
+                  Search
+                </Button>
+              </div>
+            </form>
+            
+            <div className="flex flex-col space-y-4">
+              <button
+                onClick={() => {
+                  handleOpenXmtpModal();
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center text-gray-600 hover:text-primary transition-colors p-2"
+                aria-label="XMTP Messages"
+              >
+                <img 
+                  src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
+                  alt="XMTP Messages" 
+                  className="h-8 w-8 mr-3" 
+                />
+                <span>Messages</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  handleOpenConnectWalletModal();
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center text-gray-600 hover:text-primary transition-colors p-2"
+                aria-label="Connect Wallet"
+              >
+                <Wallet className="h-6 w-6 mr-3" />
+                <span>{connectedWallet ? 'Disconnect Wallet' : 'Connect Wallet'}</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

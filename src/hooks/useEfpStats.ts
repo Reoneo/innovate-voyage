@@ -232,7 +232,7 @@ export function useEfpStats(walletAddress?: string) {
     followAddress,
     isFollowing,
     refreshData: fetchEfpData,
-    friends // Add this property to the return value
+    friends
   };
 }
 
