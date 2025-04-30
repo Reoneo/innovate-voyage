@@ -84,7 +84,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
   return (
     <div className={`flex justify-center mt-2 mb-2 ${className || ''}`}>
       <Button 
-        variant={buttonState === 'following' ? 'outline' : 'default'}
+        variant={buttonState === 'FOLLOWING' ? 'outline' : 'default'}
         size="sm"
         className={`flex items-center gap-2 mx-auto transition-colors ${disableHover ? 'pointer-events-none' : ''}`}
         onClick={handleAction}
