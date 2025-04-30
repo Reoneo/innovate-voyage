@@ -16,6 +16,7 @@ export function useWebacyData(walletAddress?: string) {
       setError(null);
       
       try {
+        // Use the correct endpoint with chain parameter
         const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}?chain=eth`, {
           headers: {
             'accept': 'application/json',
@@ -26,7 +27,8 @@ export function useWebacyData(walletAddress?: string) {
         });
         
         if (!response.ok) {
-          throw new Error('Failed to fetch address data');
+          console.error('Webacy API error:', response.status, response.statusText);
+          throw new Error('Failed to fetch security data');
         }
         
         const data = await response.json();

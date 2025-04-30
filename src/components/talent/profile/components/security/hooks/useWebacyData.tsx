@@ -16,50 +16,49 @@ export function useWebacyData(walletAddress?: string) {
       setError(null);
       
       try {
-        const addressResponse = await fetch(`https://api.webacy.com/addresses/${walletAddress}`, {
+        // Use the correct endpoint with chain parameter
+        const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}?chain=eth`, {
           headers: {
-            'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
+            'accept': 'application/json',
+            'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
             'Key-ID': 'eujjkt9ao5'
-          }
+          },
+          cache: 'no-store' // Ensure no caching
         });
         
-        if (!addressResponse.ok) {
-          throw new Error('Failed to fetch address data');
+        if (!response.ok) {
+          console.error('Webacy API Error:', response.status, response.statusText);
+          throw new Error('Failed to fetch security data');
         }
         
-        const addressData = await addressResponse.json();
+        const data = await response.json();
+        console.log('Webacy Quick Profile Response:', data);
         
-        const approvalsResponse = await fetch(`https://api.webacy.com/addresses/${walletAddress}/approvals`, {
-          headers: {
-            'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-            'Key-ID': 'eujjkt9ao5'
+        // Fetch risk items if available
+        const riskItemsResponse = await fetch(
+          `https://api.webacy.com/addresses/${walletAddress}/risk-items?chain=eth`,
+          {
+            headers: {
+              'accept': 'application/json',
+              'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
+              'Key-ID': 'eujjkt9ao5'
+            },
+            cache: 'no-store'
           }
-        });
+        );
         
-        if (!approvalsResponse.ok) {
-          throw new Error('Failed to fetch approvals data');
+        let riskItems = [];
+        if (riskItemsResponse.ok) {
+          const riskData = await riskItemsResponse.json();
+          console.log('Webacy Risk Items:', riskData);
+          riskItems = riskData.data || [];
         }
-        
-        const approvalsData = await approvalsResponse.json();
-        
-        const quickProfileResponse = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}`, {
-          headers: {
-            'X-API-KEY': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-            'Key-ID': 'eujjkt9ao5'
-          }
-        });
-        
-        if (!quickProfileResponse.ok) {
-          throw new Error('Failed to fetch quick profile data');
-        }
-        
-        const quickProfileData = await quickProfileResponse.json();
         
         let threatLevel: ThreatLevel = 'UNKNOWN';
-        if (addressData.riskScore !== undefined) {
-          if (addressData.riskScore < 30) {
+        if (data.score !== undefined) {
+          if (data.score < 30) {
             threatLevel = 'LOW';
-          } else if (addressData.riskScore < 70) {
+          } else if (data.score < 70) {
             threatLevel = 'MEDIUM';
           } else {
             threatLevel = 'HIGH';
@@ -67,21 +66,22 @@ export function useWebacyData(walletAddress?: string) {
         }
         
         setSecurityData({
-          riskScore: addressData.riskScore,
+          riskScore: data.score || 0,
           threatLevel,
           walletAddress,
           approvals: {
-            count: approvalsData.totalCount || 0,
-            riskyCount: approvalsData.riskyCount || 0
+            count: data.numApprovals || 0,
+            riskyCount: data.numRiskyApprovals || 0
           },
           quickProfile: {
-            transactions: quickProfileData.numTransactions,
-            contracts: quickProfileData.numContracts,
-            riskLevel: quickProfileData.riskLevel
-          }
+            transactions: data.numTransactions || 0,
+            contracts: data.numContracts || 0,
+            riskLevel: threatLevel
+          },
+          riskItems: riskItems
         });
 
-        setRiskHistory(quickProfileData.riskHistory || []);
+        setRiskHistory(data.riskHistory || []);
       } catch (err) {
         console.error('Error fetching Webacy data:', err);
         setError('Failed to fetch security data');
