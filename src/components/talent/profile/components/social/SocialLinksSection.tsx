@@ -45,7 +45,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   }
 
   return (
-    <div className="w-full mt-6">
+    <div className="w-full mt-8">
       <div className="mb-4">
         <WebacySecurity walletAddress={ownerAddress} />
       </div>
