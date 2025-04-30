@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { FollowButton as EthIdentityFollowButton } from 'ethereum-identity-kit';
+import { useFollowButton, useTransactions } from 'ethereum-identity-kit';
 
 interface FollowButtonProps {
   targetAddress: string;
@@ -19,6 +19,20 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
     return null;
   }
 
+  // Format addresses properly with 0x prefix
+  const formatAddress = (address: string | null): `0x${string}` | undefined => {
+    if (!address) return undefined;
+    
+    if (address.toLowerCase().startsWith('0x')) {
+      return address.toLowerCase() as `0x${string}`;
+    }
+    
+    return `0x${address.toLowerCase()}` as `0x${string}`;
+  };
+
+  const formattedTargetAddress = formatAddress(targetAddress);
+  const formattedConnectedAddress = formatAddress(connectedWalletAddress);
+
   const handleDisconnectedClick = () => {
     // Trigger wallet connect modal
     const event = new CustomEvent('open-wallet-connect');
@@ -30,53 +44,68 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
     });
   };
 
-  const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
-
-  // Ensure addresses are properly formatted with 0x prefix
-  const formatAddress = (address: string | null): `0x${string}` | undefined => {
-    if (!address) return undefined;
-    
-    // If address already starts with 0x, ensure it's the right type
-    if (address.toLowerCase().startsWith('0x')) {
-      return address.toLowerCase() as `0x${string}`;
-    }
-    
-    // If it doesn't have 0x prefix, add it
-    return `0x${address.toLowerCase()}` as `0x${string}`;
-  };
-
-  const formattedTargetAddress = formatAddress(targetAddress);
-  const formattedConnectedAddress = formatAddress(connectedWalletAddress);
-
-  // If we have a connected wallet, use the EthIdentityFollowButton
-  if (connectedWalletAddress && formattedConnectedAddress && formattedTargetAddress) {
+  // If we don't have both addresses properly formatted, show the disconnected button
+  if (!formattedConnectedAddress || !formattedTargetAddress) {
     return (
       <div className={`flex justify-center mt-2 mb-2 ${className || ''}`}>
-        <EthIdentityFollowButton
-          lookupAddress={formattedTargetAddress}
-          connectedAddress={formattedConnectedAddress}
-          onDisconnectedClick={handleDisconnectedClick}
+        <Button 
+          variant="default"
+          size="sm"
           className="flex items-center gap-2 mx-auto"
-        />
+          onClick={handleDisconnectedClick}
+        >
+          <img 
+            src="https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png"
+            className="h-4 w-4 rounded-full"
+            alt="EFP"
+          />
+          Follow
+        </Button>
       </div>
     );
   }
 
-  // If no wallet is connected, show our custom button that triggers wallet connect
+  // Use the useFollowButton hook for connected users
+  const { 
+    buttonText, 
+    buttonState, 
+    handleAction, 
+    isLoading, 
+    disableHover, 
+    setDisableHover 
+  } = useFollowButton({
+    lookupAddress: formattedTargetAddress,
+    connectedAddress: formattedConnectedAddress,
+  });
+
+  // Access the transaction context
+  const { txModalOpen } = useTransactions();
+
   return (
     <div className={`flex justify-center mt-2 mb-2 ${className || ''}`}>
       <Button 
-        variant="default"
+        variant={buttonState === 'following' ? 'outline' : 'default'}
         size="sm"
-        className="flex items-center gap-2 mx-auto"
-        onClick={handleDisconnectedClick}
+        className={`flex items-center gap-2 mx-auto transition-colors ${disableHover ? 'pointer-events-none' : ''}`}
+        onClick={handleAction}
+        onMouseEnter={() => setDisableHover(false)}
+        disabled={isLoading}
       >
-        <img 
-          src={efpLogo}
-          className="h-4 w-4 rounded-full"
-          alt="EFP"
-        />
-        Follow
+        {isLoading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Processing...</span>
+          </>
+        ) : (
+          <>
+            <img 
+              src="https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png"
+              className="h-4 w-4 rounded-full"
+              alt="EFP"
+            />
+            {buttonText}
+          </>
+        )}
       </Button>
     </div>
   );
