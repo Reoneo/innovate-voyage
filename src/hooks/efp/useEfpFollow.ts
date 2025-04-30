@@ -23,7 +23,8 @@ const EFP_ACCOUNT_METADATA_ABI = [
 
 // List Registry ABI
 const EFP_LIST_REGISTRY_ABI = [
-  "function getListStorageLocation(uint256 tokenId) external view returns (bytes memory)"
+  "function getListStorageLocation(uint256 tokenId) external view returns (bytes memory)",
+  "function balanceOf(address owner) external view returns (uint256)"
 ];
 
 export function useEfpFollow() {
@@ -139,26 +140,30 @@ export function useEfpFollow() {
             provider
           );
           
-          let primaryData = await accountMetadata.getValue(userAddress, "primary-list");
-          if (primaryData === "0x" || primaryData === null || primaryData.length <= 2) {
-            toast({
-              title: "No EFP List Found",
-              description: "You need to create an EFP List before following. Please visit app.ethfollow.xyz first.",
-              variant: "destructive"
-            });
-            throw new Error("No EFP List found. Visit app.ethfollow.xyz to create one.");
-          }
-          
-          const tokenId = ethers.getBigInt(primaryData);
-          console.log("Primary EFP List tokenId:", tokenId.toString());
-          
-          // Step 2: Get list storage location
           const listRegistry = new ethers.Contract(
             EFP_LIST_REGISTRY,
             EFP_LIST_REGISTRY_ABI,
             provider
           );
           
+          // First check if the user has lists but hasn't set a primary
+          const listsCount = await listRegistry.balanceOf(userAddress);
+          
+          let primaryData = await accountMetadata.getValue(userAddress, "primary-list");
+          if (primaryData === "0x" || primaryData === null || primaryData.length <= 2) {
+            if (listsCount > 0) {
+              // User has lists but no primary list set
+              throw new Error("You have EFP lists but no primary list set. Please visit efp.app to set a primary list.");
+            } else {
+              // No lists at all
+              throw new Error("No EFP List found. Visit efp.app to create one.");
+            }
+          }
+          
+          const tokenId = ethers.getBigInt(primaryData);
+          console.log("Primary EFP List tokenId:", tokenId.toString());
+          
+          // Step 2: Get list storage location
           const locBytes = await listRegistry.getListStorageLocation(tokenId);
           const hex = locBytes;
           
@@ -237,6 +242,8 @@ export function useEfpFollow() {
               variant: "destructive"
             });
           } else if (error.message && error.message.includes("No EFP List found")) {
+            // Error is already handled above
+          } else if (error.message && error.message.includes("primary list")) {
             // Error is already handled above
           } else {
             toast({

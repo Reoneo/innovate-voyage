@@ -49,12 +49,30 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
           variant: "destructive",
           action: (
             <Button 
-              onClick={() => window.open('https://app.ethfollow.xyz/', '_blank')}
+              onClick={() => window.open('https://efp.app/', '_blank')}
               variant="outline"
               className="mt-2 flex items-center gap-1"
               size="sm"
             >
               Create EFP List <ExternalLink size={14} />
+            </Button>
+          ),
+        });
+      } 
+      // Special handling for when a list exists but is not set as primary
+      else if (error.message && error.message.includes("primary list")) {
+        toast({
+          title: "Set List as Primary",
+          description: "You have an EFP List but haven't set it as your primary list. Click the button below to go to EFP.app and set your list as primary.",
+          variant: "destructive",
+          action: (
+            <Button 
+              onClick={() => window.open('https://efp.app/lists', '_blank')}
+              variant="outline"
+              className="mt-2 flex items-center gap-1"
+              size="sm"
+            >
+              Set Primary List <ExternalLink size={14} />
             </Button>
           ),
         });
