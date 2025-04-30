@@ -22,7 +22,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-black border-gray-800 p-0 overflow-hidden">
         {renderDialogContent()}
       </DialogContent>
     </Dialog>
