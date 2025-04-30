@@ -6,6 +6,7 @@ import TalentScoreDialogContent from './dialogs/TalentScoreDialogContent';
 import WebacyDialogContent from './dialogs/WebacyDialogContent';
 import TransactionsDialogContent from './dialogs/TransactionsDialogContent';
 import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, data }) => {
   const { score, webacyData, txCount, walletAddress } = data;
@@ -21,17 +22,36 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
     }
   };
 
+  const getDialogTitle = () => {
+    switch (type) {
+      case 'talent':
+        return 'Builder Score';
+      case 'webacy':
+        return 'Security Score';
+      case 'transactions':
+        return 'Transaction History';
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-black border-gray-800 p-0 overflow-hidden relative">
-        <button 
-          onClick={() => onOpenChange(false)} 
-          className="absolute right-4 top-4 rounded-full p-1 bg-transparent hover:bg-gray-800 transition-colors"
-          aria-label="Close"
-        >
-          <X className="h-4 w-4 text-white" />
-        </button>
-        {renderDialogContent()}
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto p-0">
+        <div className="sticky top-0 z-10 flex justify-between items-center bg-white pb-2 p-4">
+          <h2 className="text-lg font-semibold">
+            {getDialogTitle()}
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onOpenChange(false)}
+            className="rounded-full h-8 w-8"
+          >
+            <X size={18} />
+          </Button>
+        </div>
+        <div className="p-4">
+          {renderDialogContent()}
+        </div>
       </DialogContent>
     </Dialog>
   );
