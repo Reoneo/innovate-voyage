@@ -12,9 +12,6 @@ interface SocialLinkItemProps {
 const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) => {
   const [copied, setCopied] = useState(false);
   
-  // Original icon size was 128px, 40% reduction means multiply by 0.6
-  const iconSize = 76; // 128 * 0.6 = 76.8 rounded to 76
-  
   let formattedUrl = url;
   let displayText = url;
   
@@ -87,7 +84,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
         title={`Copy Discord: ${displayText}`}
         data-social-link={platformType}
       >
-        <SocialIcon type={platformType} size={iconSize} />
+        <SocialIcon type={platformType} size={128} />
         <span className="absolute top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
           {copied ? <Check size={12} className="inline mr-1" /> : <Copy size={12} className="inline mr-1" />} 
           {copied ? "Copied!" : "Copy Discord"}
@@ -105,7 +102,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
       data-social-link={platformType}
     >
-      <SocialIcon type={platformType as any} size={iconSize} />
+      <SocialIcon type={platformType as any} size={128} />
     </a>
   );
 };

@@ -4,7 +4,7 @@ import AddressDisplay from './AddressDisplay';
 import { useEfpStats } from '@/hooks/useEfpStats';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { ExternalLink, UserPlus, Check, Users } from 'lucide-react';
+import { ExternalLink, UserPlus, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,27 +23,11 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     ? `${name}.eth`
     : name);
   
-  const { 
-    followers, 
-    following, 
-    followersList, 
-    followingList, 
-    mutualFollows,
-    mutualFollowsList,
-    loading, 
-    followAddress, 
-    isFollowing 
-  } = useEfpStats(ownerAddress);
-  
+  const { followers, following, followersList, followingList, loading, followAddress, isFollowing } = useEfpStats(ownerAddress);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogType, setDialogType] = useState<'followers' | 'following' | 'mutuals'>('followers');
+  const [dialogType, setDialogType] = useState<'followers' | 'following'>('followers');
   const { toast } = useToast();
   const [followLoading, setFollowLoading] = useState<{[key: string]: boolean}>({});
-
-  // Check if the user is connected
-  const connectedWalletAddress = localStorage.getItem('connectedWalletAddress');
-  const isConnected = !!connectedWalletAddress;
-  const isSelf = connectedWalletAddress && connectedWalletAddress.toLowerCase() === ownerAddress?.toLowerCase();
 
   const openFollowersDialog = () => {
     setDialogType('followers');
@@ -55,16 +39,12 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     setDialogOpen(true);
   };
 
-  const openMutualsDialog = () => {
-    setDialogType('mutuals');
-    setDialogOpen(true);
-  };
-
   const handleFollow = async (address: string) => {
     if (!address) return;
 
     // Check if wallet is connected
-    if (!isConnected) {
+    const connectedWalletAddress = localStorage.getItem('connectedWalletAddress');
+    if (!connectedWalletAddress) {
       // Trigger wallet connect modal
       const event = new CustomEvent('open-wallet-connect');
       document.dispatchEvent(event);
@@ -123,43 +103,9 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
             >
               Following {following}
             </button>
-            
-            {mutualFollows && mutualFollows > 0 && !isSelf && (
-              <>
-                <span className="text-black opacity-70">&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-                <button 
-                  onClick={openMutualsDialog}
-                  className="text-black hover:underline transition-colors flex items-center gap-1"
-                >
-                  <Users className="h-3 w-3" /> {mutualFollows} Mutual
-                </button>
-              </>
-            )}
           </>
         )}
       </div>
-      
-      {!isSelf && isConnected && (
-        <div className="mt-3">
-          <Button 
-            variant={isFollowing(ownerAddress) ? "outline" : "default"}
-            size="sm"
-            className="flex items-center gap-1"
-            disabled={followLoading[ownerAddress]}
-            onClick={() => handleFollow(ownerAddress)}
-          >
-            {isFollowing(ownerAddress) ? (
-              <>
-                <Check className="h-4 w-4" /> Following
-              </>
-            ) : (
-              <>
-                <UserPlus className="h-4 w-4" /> Follow
-              </>
-            )}
-          </Button>
-        </div>
-      )}
       
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
@@ -170,7 +116,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                 className="h-6 w-6 rounded-full"
                 alt="EFP"
               />
-              {dialogType === 'followers' ? 'Followers' : dialogType === 'following' ? 'Following' : 'Mutual Follows'}
+              {dialogType === 'followers' ? 'Followers' : 'Following'}
             </DialogTitle>
           </DialogHeader>
           
@@ -200,7 +146,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                         variant={isFollowing(follower.address) ? "outline" : "default"}
                         size="sm"
                         className="flex items-center gap-1"
-                        disabled={followLoading[follower.address] || !isConnected}
+                        disabled={followLoading[follower.address]}
                         onClick={() => handleFollow(follower.address)}
                       >
                         {isFollowing(follower.address) ? (
@@ -248,51 +194,13 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                         variant="outline"
                         size="sm"
                         className="flex items-center gap-1"
-                        disabled={followLoading[following.address] || !isConnected}
+                        disabled={followLoading[following.address]}
                         onClick={() => handleFollow(following.address)}
                       >
                         <Check className="h-4 w-4" /> Following
                       </Button>
                       <a 
                         href={`/${following.ensName || following.address}`}
-                        className="text-primary hover:text-primary/80"
-                      >
-                        <ExternalLink size={16} />
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (dialogType === 'mutuals' && mutualFollowsList && mutualFollowsList.length > 0) ? (
-              <div className="space-y-3 max-h-72 overflow-y-auto">
-                {mutualFollowsList.map((mutual, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src={mutual.avatar} />
-                        <AvatarFallback>
-                          {mutual.ensName
-                            ? mutual.ensName.substring(0, 2).toUpperCase()
-                            : shortenAddress(mutual.address).substring(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{mutual.ensName || shortenAddress(mutual.address)}</p>
-                        {mutual.ensName && (
-                          <p className="text-xs text-muted-foreground">{shortenAddress(mutual.address)}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-1"
-                      >
-                        <Check className="h-4 w-4" /> Mutual
-                      </Button>
-                      <a 
-                        href={`/${mutual.ensName || mutual.address}`}
                         className="text-primary hover:text-primary/80"
                       >
                         <ExternalLink size={16} />
