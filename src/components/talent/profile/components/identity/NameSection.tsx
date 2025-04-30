@@ -23,11 +23,10 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     ? `${name}.eth`
     : name);
   
-  const { followers, following, followersList, followingList, loading, followAddress, isFollowing } = useEfpStats(ownerAddress);
+  const { followers, following, followersList, followingList, loading, followAddress, isFollowing, followLoading } = useEfpStats(ownerAddress);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<'followers' | 'following'>('followers');
   const { toast } = useToast();
-  const [followLoading, setFollowLoading] = useState<{[key: string]: boolean}>({});
 
   const openFollowersDialog = () => {
     setDialogType('followers');
@@ -57,8 +56,6 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       return;
     }
     
-    setFollowLoading(prev => ({ ...prev, [address]: true }));
-    
     try {
       await followAddress(address);
       toast({
@@ -72,8 +69,6 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
         description: "Failed to follow. Please try again.",
         variant: "destructive"
       });
-    } finally {
-      setFollowLoading(prev => ({ ...prev, [address]: false }));
     }
   };
 
@@ -146,7 +141,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                         variant={isFollowing(follower.address) ? "outline" : "default"}
                         size="sm"
                         className="flex items-center gap-1"
-                        disabled={followLoading[follower.address]}
+                        disabled={followLoading?.[follower.address]}
                         onClick={() => handleFollow(follower.address)}
                       >
                         {isFollowing(follower.address) ? (
@@ -194,7 +189,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                         variant="outline"
                         size="sm"
                         className="flex items-center gap-1"
-                        disabled={followLoading[following.address]}
+                        disabled={followLoading?.[following.address]}
                         onClick={() => handleFollow(following.address)}
                       >
                         <Check className="h-4 w-4" /> Following

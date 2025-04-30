@@ -52,6 +52,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   }, []);
 
   const handleOpenXmtpModal = () => {
+    // Fixed TypeScript error by checking if window.xmtpMessageModal exists
     if (window.xmtpMessageModal) {
       window.xmtpMessageModal.showModal();
     }
