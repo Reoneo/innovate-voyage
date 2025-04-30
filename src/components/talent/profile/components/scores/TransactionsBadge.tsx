@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScoreBadgeProps } from './types';
 import { fetchUserNfts } from '@/api/services/openseaService';
+import { Badge } from '@/components/ui/badge';
 
 interface TransactionsBadgeProps extends ScoreBadgeProps {
   txCount: number | null;
@@ -38,16 +39,23 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
   return (
     <div onClick={onClick} className="cursor-pointer transition-all hover:opacity-80">
       <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gradient-to-r from-blue-300/20 to-blue-100/10 h-full">
-        <div className="text-center">
-          <div className="flex items-center justify-center mb-2">
+        <div className="text-center relative flex-grow flex flex-col items-center justify-center w-full">
+          <div className="relative">
             <img 
               src="https://cdn-icons-png.flaticon.com/512/6699/6699362.png" 
               alt="NFT Collection" 
-              className="h-8 w-8"
+              className="h-16 w-16 mb-2"
             />
+            {nftCount !== null && nftCount > 0 && (
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold px-1.5"
+              >
+                {nftCount > 99 ? '99+' : nftCount}
+              </Badge>
+            )}
           </div>
-          <div className="text-3xl font-bold text-blue-600">{nftCount || '0'}</div>
-          <p className="text-sm text-gray-600">NFTs</p>
+          <p className="text-sm text-gray-600 mt-1">NFTs</p>
         </div>
       </div>
     </div>
