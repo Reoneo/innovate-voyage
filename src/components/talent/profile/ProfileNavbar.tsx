@@ -84,14 +84,17 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
       const searchTerm = search.trim().toLowerCase();
 
       // Fix URL doubling issue - check if already on a recruitment.box route
-      const currentPath = window.location.pathname;
-      if (currentPath.includes('recruitment.box/')) {
-        // Just navigate directly without reloading
-        navigate(`/${searchTerm}/`);
+      let destinationUrl = '';
+      if (searchTerm.includes('recruitment.box/')) {
+        // Extract just the ENS or address part
+        const parts = searchTerm.split('recruitment.box/');
+        destinationUrl = `/recruitment.box/${parts[1]}/`;
       } else {
-        // Use the standard format
-        navigate(`/recruitment.box/${searchTerm}/`);
+        destinationUrl = `/recruitment.box/${searchTerm}/`;
       }
+      
+      // Navigate to the constructed URL
+      navigate(destinationUrl);
     }
   };
 
@@ -145,7 +148,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             <img 
               src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
               alt="XMTP Messages" 
-              className="h-10 w-10 hover:scale-105 transition-transform" 
+              className="h-10 w-10 hover:scale-105 transition-transform object-contain" 
             />
           </button>
           
