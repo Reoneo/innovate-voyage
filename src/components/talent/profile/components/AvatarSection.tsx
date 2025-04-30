@@ -72,8 +72,8 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         isOwner={isOwner}
       />
       
-      {/* ENS Bio - No border */}
-      <div className="w-full px-4 py-2">
+      {/* ENS Bio - Removed styling */}
+      <div>
         {bio && (
           <div className="mt-2">
             <p className="text-sm text-muted-foreground">{bio}</p>
