@@ -29,7 +29,13 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, isL
     <div onClick={handleClick} className="cursor-pointer transition-all hover:opacity-80">
       <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black h-full">
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-white">Talent Score</h3>
+          <div className="flex items-center justify-center mb-1">
+            <img 
+              src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/fb53644d-903e-4508-8f0d-1370a6dd413f/Logo_BuilderScore_dark.jpg?table=block&id=739b3671-3897-4856-868d-eb365612ce70&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1746036000000&signature=s3FclHLaOXqcajs0CEedyhwMIWDp-mg3IZLFcYV_mGQ&downloadName=Logo_BuilderScore_dark.jpg" 
+              alt="Builder Score" 
+              className="h-6" 
+            />
+          </div>
           <div className="text-3xl font-bold text-white">{score || 'N/A'}</div>
           <p className="text-sm text-white/80">
             {score ? getBuilderTitle(score) : 'Unknown Level'}
