@@ -48,9 +48,16 @@ export function useEfpFollow() {
       
       toast({
         title: "Preparing transaction",
-        description: `Please confirm the transaction in your wallet to follow ${shortenAddress(addressToFollow)}`
+        description: `Please check your wallet for the transaction popup to follow ${shortenAddress(addressToFollow)}`
       });
       
+      // Force wallet to refresh connection
+      if (window.ethereum.isMetaMask) {
+        console.log("Requesting accounts to ensure MetaMask is active");
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+      }
+      
+      console.log("Executing follow for address:", addressToFollow);
       const result = await executeFollow(addressToFollow);
       
       if (result.success) {
