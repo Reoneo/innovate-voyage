@@ -1,33 +1,39 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
 interface ProfileNavbarProps {
   connectedWallet: string | null;
   onDisconnect: () => void;
   onSaveChanges: () => void;
 }
+
 const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   connectedWallet
 }) => {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  
   const handleOpenXmtpModal = () => {
     if (window.xmtpMessageModal) {
       window.xmtpMessageModal.showModal();
     }
   };
+  
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (search.trim()) {
       // Convert search to lowercase for case-insensitive matching
       const searchTerm = search.trim().toLowerCase();
       navigate(`/recruitment.box/${searchTerm}/`);
-      window.location.reload();
     }
   };
-  return <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
+  
+  return (
+    <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center h-14">
         <div className="w-1/4">
           <Link to="/" className="flex items-center text-primary font-medium">
@@ -51,6 +57,8 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </button>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default ProfileNavbar;
