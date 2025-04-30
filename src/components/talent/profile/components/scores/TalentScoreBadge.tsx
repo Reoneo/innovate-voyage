@@ -28,7 +28,7 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, isL
   return (
     <div onClick={handleClick} className="cursor-pointer transition-all hover:opacity-80">
       <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black h-full">
-        <div className="flex items-center justify-start w-full">
+        <div className="flex items-center justify-center w-full">
           <div className="text-white text-lg font-semibold">Builder Score</div>
         </div>
         <div className="text-center w-full mt-2">
