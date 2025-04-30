@@ -11,7 +11,8 @@ import { EfpPerson, EfpStats } from "./efp/types";
 import { shortenAddress } from "./efp/utils";
 import { useEfpFollow } from "./efp/useEfpFollow";
 
-export { EfpPerson, EfpStats } from "./efp/types";
+// Using 'export type' syntax instead of just 'export' for types
+export type { EfpPerson, EfpStats } from "./efp/types";
 
 export function useEfpStats(walletAddress?: string) {
   const [stats, setStats] = useState<EfpStats>({ followers: 0, following: 0 });
