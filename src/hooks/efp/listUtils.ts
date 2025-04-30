@@ -1,4 +1,3 @@
-
 import { ethers } from "ethers";
 import { 
   EFP_ACCOUNT_METADATA, 
@@ -87,14 +86,24 @@ export async function getListStorageLocation(
  */
 export function encodeFollowOperation(addressToFollow: string): Uint8Array {
   // Build the operation bytes: version=1, opcode=1 (Add), recVer=1, recType=1, followed by address
-  const addrHex = ethers.getBytes(addressToFollow);
-  const paddedAddr = ethers.zeroPadBytes(addrHex, 20); // Ensure address is 20 bytes
+  const version = new Uint8Array([0x01]);  // ListOp version
+  const opcode = new Uint8Array([0x01]);   // opcode=Add record
+  const recVer = new Uint8Array([0x01]);   // ListRecord version
+  const recType = new Uint8Array([0x01]);  // ListRecord type=1 (address)
   
-  return ethers.concat([
-    new Uint8Array([0x01]), // ListOp version
-    new Uint8Array([0x01]), // opcode=Add record
-    new Uint8Array([0x01]), // ListRecord version
-    new Uint8Array([0x01]), // ListRecord type=1 (address)
-    paddedAddr            // 20-byte address to follow
+  // Get the address as bytes and ensure it's properly padded to 20 bytes
+  const addrBytes = ethers.getBytes(addressToFollow);
+  const paddedAddr = ethers.zeroPadBytes(addrBytes, 20); // Ensure address is 20 bytes
+  
+  // Concatenate all parts into a hex string
+  const operationHex = ethers.concat([
+    version,
+    opcode,
+    recVer,
+    recType,
+    ethers.getBytes(paddedAddr) // Convert the hex string back to Uint8Array
   ]);
+  
+  // Convert the final hex string to Uint8Array to match the return type
+  return ethers.getBytes(operationHex);
 }
