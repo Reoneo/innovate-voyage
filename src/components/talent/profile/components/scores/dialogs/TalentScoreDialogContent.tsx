@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ExternalLink } from 'lucide-react';
@@ -10,7 +11,7 @@ interface TalentScoreDialogContentProps {
 
 const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ score, walletAddress }) => {
   return (
-    <div className="bg-black text-white rounded-lg">
+    <div className="bg-black text-white">
       <div className="p-4">
         <Card className="bg-gray-900 border-gray-700">
           <CardContent className="pt-6">
