@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Wallet, Menu, X } from 'lucide-react';
@@ -55,7 +56,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   }, []);
 
   const handleOpenXmtpModal = () => {
-    // Check if window.xmtpMessageModal exists and has an open method
+    // Fix the TypeScript error by properly checking the object and function
     if (window.xmtpMessageModal && typeof window.xmtpMessageModal.open === 'function') {
       window.xmtpMessageModal.open();
     }
@@ -183,7 +184,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </div>
         )}
         
-        {/* Mobile Menu */}
+        {/* Mobile Menu - Optimized */}
         {isMobile && mobileMenuOpen && (
           <div className="fixed inset-0 z-40 bg-white flex flex-col pt-16 px-4 pb-4">
             <form 

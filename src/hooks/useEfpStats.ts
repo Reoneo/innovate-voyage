@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 export interface EfpPerson {
@@ -13,28 +13,33 @@ export interface EfpStats {
   followers: number;
   followingList?: EfpPerson[];
   followersList?: EfpPerson[];
+  mutualFollows?: number;
 }
 
-// Fetch user stats from EFP API
+// Base API URL for EthIdentityKit
+const EFK_API_BASE = "https://api.ethfollow.xyz/api/v1";
+
+// Fetch user stats from EFK API
 async function fetchEfpStats(ensOrAddress: string): Promise<any> {
   try {
-    const response = await fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/stats?cache=fresh`);
+    const response = await fetch(`${EFK_API_BASE}/users/${ensOrAddress}/stats?cache=fresh`);
     const data = await response.json();
     return {
       followers: parseInt(data.followers_count || '0'),
-      following: parseInt(data.following_count || '0')
+      following: parseInt(data.following_count || '0'),
+      mutualFollows: parseInt(data.mutual_follows_count || '0')
     };
   } catch (error) {
     console.error('Error fetching EFP stats:', error);
-    return { followers: 0, following: 0 };
+    return { followers: 0, following: 0, mutualFollows: 0 };
   }
 }
 
-// Fetch followers from EFP API
+// Fetch followers from EFK API
 async function fetchEfpFollowers(ensOrAddress: string, limit = 20): Promise<any[]> {
   try {
     const response = await fetch(
-      `https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/followers?limit=${limit}&sort=latest`
+      `${EFK_API_BASE}/users/${ensOrAddress}/followers?limit=${limit}&sort=latest`
     );
     const data = await response.json();
     return data.followers || [];
@@ -44,11 +49,11 @@ async function fetchEfpFollowers(ensOrAddress: string, limit = 20): Promise<any[
   }
 }
 
-// Fetch following from EFP API
+// Fetch following from EFK API
 async function fetchEfpFollowing(ensOrAddress: string, limit = 20): Promise<any[]> {
   try {
     const response = await fetch(
-      `https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/following?limit=${limit}&sort=latest`
+      `${EFK_API_BASE}/users/${ensOrAddress}/following?limit=${limit}&sort=latest`
     );
     const data = await response.json();
     return data.following || [];
@@ -58,10 +63,24 @@ async function fetchEfpFollowing(ensOrAddress: string, limit = 20): Promise<any[
   }
 }
 
+// Fetch mutual follows
+async function fetchEfpMutualFollows(address1: string, address2: string): Promise<any[]> {
+  try {
+    const response = await fetch(
+      `${EFK_API_BASE}/users/${address1}/mutual-follows/${address2}?limit=50`
+    );
+    const data = await response.json();
+    return data.mutual_follows || [];
+  } catch (error) {
+    console.error('Error fetching mutual follows:', error);
+    return [];
+  }
+}
+
 // Fetch ENS data for an address
 async function fetchEnsData(ensOrAddress: string): Promise<any> {
   try {
-    const response = await fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/ens`);
+    const response = await fetch(`${EFK_API_BASE}/users/${ensOrAddress}/ens`);
     return await response.json();
   } catch (error) {
     console.error('Error fetching ENS data:', error);
@@ -69,14 +88,27 @@ async function fetchEnsData(ensOrAddress: string): Promise<any> {
   }
 }
 
+// Check if a user is following another user
+async function checkIsFollowing(follower: string, followee: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${EFK_API_BASE}/users/${follower}/follows/${followee}`);
+    const data = await response.json();
+    return data.follows === true;
+  } catch (error) {
+    console.error('Error checking follow status:', error);
+    return false;
+  }
+}
+
 export function useEfpStats(walletAddress?: string) {
-  const [stats, setStats] = useState<EfpStats>({ followers: 0, following: 0 });
+  const [stats, setStats] = useState<EfpStats>({ followers: 0, following: 0, mutualFollows: 0 });
   const [loading, setLoading] = useState(false);
   const [followingAddresses, setFollowingAddresses] = useState<string[]>([]);
   const [friends, setFriends] = useState<EfpPerson[]>([]);
+  const [mutualFollowsList, setMutualFollowsList] = useState<EfpPerson[]>([]);
   const { toast } = useToast();
 
-  const fetchEfpData = async () => {
+  const fetchEfpData = useCallback(async () => {
     if (!walletAddress) return;
     setLoading(true);
 
@@ -124,21 +156,30 @@ export function useEfpStats(walletAddress?: string) {
       );
       
       setFriends(uniqueFriends);
+
+      // Get mutual follows for connected wallet if available
+      const connectedWalletAddress = localStorage.getItem('connectedWalletAddress');
+      if (connectedWalletAddress && connectedWalletAddress !== walletAddress) {
+        const mutuals = await fetchEfpMutualFollows(connectedWalletAddress, walletAddress);
+        const processedMutuals = await processUsers(mutuals);
+        setMutualFollowsList(processedMutuals);
+      }
       
       setStats({
         followers: stats.followers,
         following: stats.following,
+        mutualFollows: stats.mutualFollows,
         followersList,
         followingList
       });
       
     } catch (e) {
       console.error('Error fetching EFP data:', e);
-      setStats({ followers: 0, following: 0 });
+      setStats({ followers: 0, following: 0, mutualFollows: 0 });
     } finally {
       setLoading(false);
     }
-  };
+  }, [walletAddress]);
 
   useEffect(() => {
     let cancelled = false;
@@ -147,11 +188,11 @@ export function useEfpStats(walletAddress?: string) {
     fetchEfpData();
     
     return () => { cancelled = true; };
-  }, [walletAddress]);
+  }, [walletAddress, fetchEfpData]);
 
-  const isFollowing = (address: string): boolean => {
+  const isFollowing = useCallback((address: string): boolean => {
     return followingAddresses.includes(address);
-  };
+  }, [followingAddresses]);
 
   const followAddress = async (addressToFollow: string): Promise<void> => {
     // Check if wallet is connected
@@ -232,7 +273,8 @@ export function useEfpStats(walletAddress?: string) {
     followAddress,
     isFollowing,
     refreshData: fetchEfpData,
-    friends
+    friends,
+    mutualFollowsList
   };
 }
 
