@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEfpStats } from '@/hooks/useEfpStats';
 
@@ -43,8 +43,21 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
       
       // Special handling for no EFP List case
       if (error.message && error.message.includes("No EFP List found")) {
-        // We'll open ethfollow.xyz in a new tab
-        window.open('https://app.ethfollow.xyz/', '_blank');
+        toast({
+          title: "EFP List Required",
+          description: "You need to create an EFP List on Base network before following. Click the button below to set up your EFP List.",
+          variant: "destructive",
+          action: (
+            <Button 
+              onClick={() => window.open('https://app.ethfollow.xyz/', '_blank')}
+              variant="outline"
+              className="mt-2 flex items-center gap-1"
+              size="sm"
+            >
+              Create EFP List <ExternalLink size={14} />
+            </Button>
+          ),
+        });
       }
     }
   };
