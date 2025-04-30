@@ -1,12 +1,11 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { EfpStats, EfpPerson } from "./efpTypes";
+import { EfpStats, EfpPerson, EfpUserData } from "./efpTypes";
 import { fetchEfpStats, fetchEfpFollowers, fetchEfpFollowing, fetchEfpMutualFollows, fetchEnsData } from "./efpApi";
 import { processUsers, removeDuplicates } from "./efpUtils";
 import { useFollowAction } from "./useFollowAction";
 
-export { EfpPerson, EfpStats } from "./efpTypes";
+export type { EfpPerson, EfpStats } from "./efpTypes";
 
 /**
  * Hook for fetching and managing EFP stats

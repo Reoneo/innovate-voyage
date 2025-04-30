@@ -1,3 +1,4 @@
 
 // Export from the refactored implementation
-export { useEfpStats, EfpPerson, EfpStats } from './efp/useEfpStats';
+export type { EfpPerson, EfpStats } from './efp/efpTypes';
+export { useEfpStats } from './efp/useEfpStats';

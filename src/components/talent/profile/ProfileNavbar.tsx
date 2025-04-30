@@ -56,25 +56,29 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   }, []);
 
   const handleOpenXmtpModal = () => {
-    // Fix the TypeScript error by properly checking the object and function
-    if (window.xmtpMessageModal && typeof window.xmtpMessageModal.open === 'function') {
+    // Fixed: Properly check if the function exists before calling it
+    if (typeof window !== 'undefined' && 
+        window.xmtpMessageModal && 
+        typeof window.xmtpMessageModal.open === 'function') {
       window.xmtpMessageModal.open();
     }
   };
 
   const handleOpenConnectWalletModal = () => {
     if (!connectedWallet) {
-      if (typeof window !== 'undefined' && window.walletConnectModal && 
+      if (typeof window !== 'undefined' && 
+          window.walletConnectModal && 
           typeof window.walletConnectModal.open === 'function') {
         window.walletConnectModal.open();
       } else {
         console.error('WalletConnect modal is not available');
-        // Fallback action
       }
     } else {
       // Disconnect wallet
       localStorage.removeItem('connectedWalletAddress');
-      window.connectedWalletAddress = null;
+      if (typeof window !== 'undefined') {
+        window.connectedWalletAddress = null;
+      }
       
       toast({
         title: "Wallet Disconnected",
@@ -103,7 +107,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between h-14">
-        <div className="flex-none w-14">
+        <div className="flex-none w-12">
           <Link to="/" className="flex items-center text-primary font-medium" style={{ color: avatarColor }}>
             <Home className="h-6 w-6" />
           </Link>
@@ -159,24 +163,24 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </form>
         )}
 
-        {/* Desktop Action Icons */}
+        {/* Desktop Action Icons - Positioned closer to search bar */}
         {(!isMobile || (isMobile && !mobileMenuOpen)) && (
-          <div className={`${isMobile ? 'hidden md:flex' : 'flex'} flex-none w-14 justify-end space-x-4`}>
+          <div className={`${isMobile ? 'hidden md:flex' : 'flex'} flex-none items-center space-x-2 ml-2`}>
             <button
               onClick={handleOpenXmtpModal}
-              className="flex items-center text-gray-600 hover:text-primary transition-colors"
+              className="flex items-center justify-center text-gray-600 hover:text-primary transition-colors p-1 rounded-full hover:bg-gray-100"
               aria-label="XMTP Messages"
             >
               <img 
                 src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
                 alt="XMTP Messages" 
-                className="h-8 w-8" 
+                className="h-8 w-8 object-contain" 
               />
             </button>
             
             <button
               onClick={handleOpenConnectWalletModal}
-              className="flex items-center text-gray-600 hover:text-primary transition-colors ml-4"
+              className="flex items-center justify-center text-gray-600 hover:text-primary transition-colors p-1 rounded-full hover:bg-gray-100"
               aria-label="Connect Wallet"
             >
               <Wallet className="h-6 w-6" />
@@ -184,7 +188,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </div>
         )}
         
-        {/* Mobile Menu - Optimized */}
+        {/* Revamped Mobile Menu */}
         {isMobile && mobileMenuOpen && (
           <div className="fixed inset-0 z-40 bg-white flex flex-col pt-16 px-4 pb-4">
             <form 
@@ -220,15 +224,15 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                   handleOpenXmtpModal();
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center text-gray-600 hover:text-primary transition-colors p-2"
+                className="flex items-center text-gray-600 hover:text-primary transition-colors p-3 rounded-lg hover:bg-gray-50"
                 aria-label="XMTP Messages"
               >
                 <img 
                   src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
                   alt="XMTP Messages" 
-                  className="h-8 w-8 mr-3" 
+                  className="h-8 w-8 mr-3 object-contain" 
                 />
-                <span>Messages</span>
+                <span className="font-medium">Messages</span>
               </button>
               
               <button
@@ -236,11 +240,11 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                   handleOpenConnectWalletModal();
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center text-gray-600 hover:text-primary transition-colors p-2"
+                className="flex items-center text-gray-600 hover:text-primary transition-colors p-3 rounded-lg hover:bg-gray-50"
                 aria-label="Connect Wallet"
               >
                 <Wallet className="h-6 w-6 mr-3" />
-                <span>{connectedWallet ? 'Disconnect Wallet' : 'Connect Wallet'}</span>
+                <span className="font-medium">{connectedWallet ? 'Disconnect Wallet' : 'Connect Wallet'}</span>
               </button>
             </div>
           </div>

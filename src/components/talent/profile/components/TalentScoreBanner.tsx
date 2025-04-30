@@ -4,6 +4,7 @@ import TalentScoreBadge from './scores/TalentScoreBadge';
 import SecurityScoreBadge from './scores/SecurityScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
 import ScoreDialog from './scores/ScoreDialog';
+import { TallyDaoSection } from './governance/TallyDaoSection';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
 
@@ -34,7 +35,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         {showTalentScore && (
           <TalentScoreBadge 
             score={score} 
@@ -55,6 +56,10 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
           onClick={() => handleBadgeClick('transactions')}
           isLoading={loading} 
         />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-4">
+        <TallyDaoSection walletAddress={walletAddress} />
       </div>
 
       <NftCollectionsSection 

@@ -18,6 +18,17 @@ const TalentProfile = () => {
   } = useProfilePage();
 
   useEffect(() => {
+    // Set viewport for mobile devices to force desktop mode
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+      viewport.setAttribute('content', 'width=1024, initial-scale=1.0');
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=1024, initial-scale=1.0';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+
     // Set favicon to user's avatar if available
     if (passport?.avatar_url) {
       const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
@@ -36,6 +47,14 @@ const TalentProfile = () => {
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     }
+
+    // Cleanup function to restore viewport
+    return () => {
+      const viewport = document.querySelector('meta[name="viewport"]');
+      if (viewport) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
+      }
+    };
   }, [passport?.avatar_url]);
 
   return (
