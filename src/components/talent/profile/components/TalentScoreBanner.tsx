@@ -18,12 +18,12 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
   const [showNftCollections, setShowNftCollections] = useState(false);
 
   const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions') => {
-    if (type === 'transactions') {
-      setShowNftCollections(true);
-    } else {
-      setActiveDialog(type);
-      setDialogOpen(true);
-    }
+    setActiveDialog(type);
+    setDialogOpen(true);
+  };
+
+  const handleNftButtonClick = () => {
+    setShowNftCollections(true);
   };
 
   if (!walletAddress) return null;
@@ -52,7 +52,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
         <TransactionsBadge 
           txCount={txCount}
           walletAddress={walletAddress}
-          onClick={() => handleBadgeClick('transactions')}
+          onClick={handleNftButtonClick}
           isLoading={loading} 
         />
       </div>
