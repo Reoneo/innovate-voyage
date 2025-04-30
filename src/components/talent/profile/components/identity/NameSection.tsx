@@ -149,6 +149,11 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                         disabled={followLoading[follower.address]}
                         onClick={() => handleFollow(follower.address)}
                       >
+                        <img 
+                          src={efpLogo}
+                          className="h-4 w-4 rounded-full"
+                          alt="EFP"
+                        />
                         {isFollowing(follower.address) ? (
                           <>
                             <Check className="h-4 w-4" /> Following
@@ -197,6 +202,11 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
                         disabled={followLoading[following.address]}
                         onClick={() => handleFollow(following.address)}
                       >
+                        <img 
+                          src={efpLogo}
+                          className="h-4 w-4 rounded-full"
+                          alt="EFP"
+                        />
                         <Check className="h-4 w-4" /> Following
                       </Button>
                       <a 
