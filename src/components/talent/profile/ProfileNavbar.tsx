@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Search, Wallet } from 'lucide-react';
+import { Home, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
@@ -57,29 +57,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
     }
   };
 
-  const handleOpenConnectWalletModal = () => {
-    if (!connectedWallet) {
-      if (typeof window !== 'undefined' && window.walletConnectModal) {
-        window.walletConnectModal.open(); // Changed from showModal() to open()
-      } else {
-        console.error('WalletConnect modal is not available');
-        // Fallback action
-      }
-    } else {
-      // Disconnect wallet
-      localStorage.removeItem('connectedWalletAddress');
-      window.connectedWalletAddress = null;
-      
-      toast({
-        title: "Wallet Disconnected",
-        description: "Your wallet has been disconnected successfully."
-      });
-      
-      // Reload the page to reflect changes
-      setTimeout(() => window.location.reload(), 1500);
-    }
-  };
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (search.trim()) {
@@ -93,8 +70,8 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between h-14">
-        <div className="flex-none w-14">
-          <Link to="/" className="flex items-center text-primary font-medium" style={{ color: avatarColor }}>
+        <div className="flex-none w-14 flex justify-center">
+          <Link to="/" className="flex items-center justify-center text-primary font-medium" style={{ color: avatarColor }}>
             <Home className="h-6 w-6" />
           </Link>
         </div>
@@ -131,25 +108,19 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </div>
         </form>
 
-        <div className="flex-none w-14 flex justify-end space-x-4">
+        <div className="flex-none w-14 flex justify-center">
           <button
             onClick={handleOpenXmtpModal}
-            className="flex items-center text-gray-600 hover:text-primary transition-colors"
+            className="flex items-center justify-center text-gray-600 hover:text-primary transition-colors"
             aria-label="XMTP Messages"
           >
-            <img 
-              src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
-              alt="XMTP Messages" 
-              className="h-10 w-10" // Doubled in size
-            />
-          </button>
-          
-          <button
-            onClick={handleOpenConnectWalletModal}
-            className="flex items-center text-gray-600 hover:text-primary transition-colors ml-4"
-            aria-label="Connect Wallet"
-          >
-            <Wallet className="h-6 w-6" />
+            <div className="h-8 w-8 rounded-full overflow-hidden flex items-center justify-center">
+              <img 
+                src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
+                alt="XMTP Messages" 
+                className="h-8 w-8 object-cover"
+              />
+            </div>
           </button>
         </div>
       </div>

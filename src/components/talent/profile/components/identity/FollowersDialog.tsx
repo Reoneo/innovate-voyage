@@ -2,7 +2,6 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Loader2 } from 'lucide-react';
 import { EfpPerson } from '@/hooks/useEfpStats';
 
 function shortenAddress(addr: string) {
