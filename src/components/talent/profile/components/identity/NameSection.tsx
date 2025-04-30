@@ -5,6 +5,7 @@ import { useEfpStats } from '@/hooks/useEfpStats';
 import { useToast } from '@/hooks/use-toast';
 import FollowStats from './FollowStats';
 import FollowersDialog from './FollowersDialog';
+import WalletConnectDialog from '@/components/wallet/WalletConnectDialog';
 
 interface NameSectionProps {
   name: string;
@@ -20,6 +21,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
   const { followers, following, followersList, followingList, loading, followAddress, isFollowing, isProcessing } = useEfpStats(ownerAddress);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<'followers' | 'following'>('followers');
+  const [walletDialogOpen, setWalletDialogOpen] = useState(false);
   const { toast } = useToast();
   const [followLoading, setFollowLoading] = useState<{[key: string]: boolean}>({});
 
@@ -39,15 +41,8 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     // Check if wallet is connected
     const connectedWalletAddress = localStorage.getItem('connectedWalletAddress');
     if (!connectedWalletAddress) {
-      // Trigger wallet connect modal
-      const event = new CustomEvent('open-wallet-connect');
-      document.dispatchEvent(event);
-      
-      toast({
-        title: "Wallet Connection Required",
-        description: "Please connect your wallet first to follow this address",
-        variant: "default"
-      });
+      // Show wallet connect dialog
+      setWalletDialogOpen(true);
       return;
     }
     
@@ -86,6 +81,12 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
         isFollowing={isFollowing}
         followLoading={followLoading}
         isProcessing={isProcessing}
+      />
+      
+      {/* Wallet Connect Dialog */}
+      <WalletConnectDialog
+        open={walletDialogOpen}
+        onOpenChange={setWalletDialogOpen}
       />
     </div>
   );
