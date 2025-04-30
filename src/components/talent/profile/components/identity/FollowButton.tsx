@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, ExternalLink } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useEfpStats } from '@/hooks/useEfpStats';
+import { FollowButton as EthIdentityFollowButton } from 'ethereum-identity-kit';
 
 interface FollowButtonProps {
   targetAddress: string;
@@ -11,7 +11,6 @@ interface FollowButtonProps {
 }
 
 const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className }) => {
-  const { isFollowing, followAddress, isProcessing } = useEfpStats();
   const { toast } = useToast();
   
   // Don't show follow button for your own profile
@@ -20,89 +19,48 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
     return null;
   }
 
-  const handleFollow = async () => {
-    if (!targetAddress) return;
+  const handleDisconnectedClick = () => {
+    // Trigger wallet connect modal
+    const event = new CustomEvent('open-wallet-connect');
+    document.dispatchEvent(event);
     
-    // Check if wallet is connected
-    if (!connectedWalletAddress) {
-      // Trigger wallet connect modal
-      const event = new CustomEvent('open-wallet-connect');
-      document.dispatchEvent(event);
-      
-      toast({
-        title: "Wallet Connection Required",
-        description: "Please connect your wallet first to follow this address",
-      });
-      return;
-    }
-    
-    try {
-      await followAddress(targetAddress);
-    } catch (error: any) {
-      console.error('Follow error:', error);
-      
-      // Special handling for no EFP List case
-      if (error.message && error.message.includes("No EFP List found")) {
-        toast({
-          title: "EFP List Required",
-          description: "You need to create an EFP List on Base network before following. Click the button below to set up your EFP List.",
-          variant: "destructive",
-          action: (
-            <Button 
-              onClick={() => window.open('https://efp.app/', '_blank')}
-              variant="outline"
-              className="mt-2 flex items-center gap-1"
-              size="sm"
-            >
-              Create EFP List <ExternalLink size={14} />
-            </Button>
-          ),
-        });
-      } 
-      // Special handling for when a list exists but is not set as primary
-      else if (error.message && error.message.includes("primary list")) {
-        toast({
-          title: "Set List as Primary",
-          description: "You have an EFP List but haven't set it as your primary list. Click the button below to go to EFP.app and set your list as primary.",
-          variant: "destructive",
-          action: (
-            <Button 
-              onClick={() => window.open('https://efp.app/lists', '_blank')}
-              variant="outline"
-              className="mt-2 flex items-center gap-1"
-              size="sm"
-            >
-              Set Primary List <ExternalLink size={14} />
-            </Button>
-          ),
-        });
-      }
-    }
+    toast({
+      title: "Wallet Connection Required",
+      description: "Please connect your wallet first to follow this address",
+    });
   };
 
   const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
 
+  // If we have a connected wallet, use the EthIdentityFollowButton
+  if (connectedWalletAddress) {
+    return (
+      <div className={`flex justify-center mt-2 mb-2 ${className || ''}`}>
+        <EthIdentityFollowButton
+          lookupAddress={targetAddress}
+          connectedAddress={connectedWalletAddress}
+          onDisconnectedClick={handleDisconnectedClick}
+          className="flex items-center gap-2 mx-auto"
+        />
+      </div>
+    );
+  }
+
+  // If no wallet is connected, show our custom button that triggers wallet connect
   return (
     <div className={`flex justify-center mt-2 mb-2 ${className || ''}`}>
       <Button 
-        variant={isFollowing(targetAddress) ? "outline" : "default"}
+        variant="default"
         size="sm"
         className="flex items-center gap-2 mx-auto"
-        disabled={isProcessing}
-        onClick={handleFollow}
+        onClick={handleDisconnectedClick}
       >
         <img 
           src={efpLogo}
           className="h-4 w-4 rounded-full"
           alt="EFP"
         />
-        {isProcessing ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : isFollowing(targetAddress) ? (
-          "Following"
-        ) : (
-          "Follow"
-        )}
+        Follow
       </Button>
     </div>
   );
