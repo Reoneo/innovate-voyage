@@ -23,7 +23,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-black border-gray-800 p-0 overflow-hidden relative">
+      <DialogContent className="sm:max-w-md bg-black border-gray-800 p-0 overflow-hidden relative top-[10%] translate-y-0">
         <button 
           onClick={() => onOpenChange(false)} 
           className="absolute right-4 top-4 rounded-full p-1 bg-transparent hover:bg-gray-800 transition-colors"
