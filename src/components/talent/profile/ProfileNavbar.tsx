@@ -57,14 +57,14 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
 
   const handleOpenXmtpModal = () => {
     if (window.xmtpMessageModal) {
-      window.xmtpMessageModal.showModal();
+      window.xmtpMessageModal.open();
     }
   };
 
   const handleOpenConnectWalletModal = () => {
     if (!connectedWallet) {
       if (typeof window !== 'undefined' && window.walletConnectModal) {
-        window.walletConnectModal.showModal();
+        window.walletConnectModal.open();
       } else {
         console.error('WalletConnect modal is not available');
         // Fallback action

@@ -12,10 +12,10 @@ import { useEffect } from 'react';
  */
 export function useProfileData(ensName?: string, address?: string) {
   // Resolve ENS and address - Using eager resolution for faster loading
-  const { resolvedAddress, resolvedEns, avatarUrl, ensLinks, ensBio, loading: ensLoading } = useEnsResolver(ensName, address, { eager: true });
+  const { resolvedAddress, resolvedEns, avatarUrl, ensLinks, ensBio, isLoading: ensLoading } = useEnsResolver(ensName, address);
   
   // Fetch blockchain data
-  const blockchainData = useBlockchainData(resolvedAddress, resolvedEns, { priority: true });
+  const blockchainData = useBlockchainData(resolvedAddress, resolvedEns);
   
   // Enhance blockchain profile with ENS links
   const enhancedBlockchainProfile = blockchainData.blockchainProfile 
@@ -42,8 +42,7 @@ export function useProfileData(ensName?: string, address?: string) {
         ...blockchainData.web3BioProfile,
         description: blockchainData.web3BioProfile?.description || ensBio
       }
-    },
-    { priority: true }
+    }
   );
 
   // Preload NFT data
