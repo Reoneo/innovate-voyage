@@ -2,8 +2,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { ExternalLink, UserPlus, Check, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 import { EfpPerson } from '@/hooks/useEfpStats';
 
 function shortenAddress(addr: string) {
@@ -28,9 +27,6 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
   dialogType, 
   followersList, 
   followingList,
-  handleFollow,
-  isFollowing,
-  followLoading,
   isProcessing = false
 }) => {
   const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
@@ -54,7 +50,10 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
             <div className="space-y-3 max-h-72 overflow-y-auto">
               {followersList.map((follower, index) => (
                 <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
-                  <div className="flex items-center gap-3">
+                  <a 
+                    href={`/${follower.ensName || follower.address}/`}
+                    className="flex items-center gap-3 flex-grow hover:text-primary"
+                  >
                     <Avatar>
                       <AvatarImage src={follower.avatar} />
                       <AvatarFallback>
@@ -69,41 +68,7 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
                         <p className="text-xs text-muted-foreground">{shortenAddress(follower.address)}</p>
                       )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant={isFollowing(follower.address) ? "outline" : "default"}
-                      size="sm"
-                      className="flex items-center gap-1"
-                      disabled={isProcessing}
-                      onClick={() => handleFollow(follower.address)}
-                    >
-                      <img 
-                        src={efpLogo}
-                        className="h-4 w-4 rounded-full"
-                        alt="EFP"
-                      />
-                      {isProcessing ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" /> Processing
-                        </>
-                      ) : isFollowing(follower.address) ? (
-                        <>
-                          <Check className="h-4 w-4" /> Following
-                        </>
-                      ) : (
-                        <>
-                          <UserPlus className="h-4 w-4" /> Follow
-                        </>
-                      )}
-                    </Button>
-                    <a 
-                      href={`/${follower.ensName || follower.address}`}
-                      className="text-primary hover:text-primary/80"
-                    >
-                      <ExternalLink size={16} />
-                    </a>
-                  </div>
+                  </a>
                 </div>
               ))}
             </div>
@@ -111,7 +76,10 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
             <div className="space-y-3 max-h-72 overflow-y-auto">
               {followingList.map((following, index) => (
                 <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
-                  <div className="flex items-center gap-3">
+                  <a 
+                    href={`/${following.ensName || following.address}/`}
+                    className="flex items-center gap-3 flex-grow hover:text-primary"
+                  >
                     <Avatar>
                       <AvatarImage src={following.avatar} />
                       <AvatarFallback>
@@ -126,29 +94,7 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
                         <p className="text-xs text-muted-foreground">{shortenAddress(following.address)}</p>
                       )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-1"
-                      disabled={true}
-                      onClick={() => {}} // No unfollow functionality in EFP
-                    >
-                      <img 
-                        src={efpLogo}
-                        className="h-4 w-4 rounded-full"
-                        alt="EFP"
-                      />
-                      <Check className="h-4 w-4" /> Following
-                    </Button>
-                    <a 
-                      href={`/${following.ensName || following.address}`}
-                      className="text-primary hover:text-primary/80"
-                    >
-                      <ExternalLink size={16} />
-                    </a>
-                  </div>
+                  </a>
                 </div>
               ))}
             </div>
