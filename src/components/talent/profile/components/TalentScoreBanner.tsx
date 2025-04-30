@@ -8,7 +8,6 @@ import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
 import TallyDaoBadge from './dao/TallyDaoBadge';
 import TallyDaoSection from './dao/TallyDaoSection';
-import { Button } from '@/components/ui/button';
 
 interface TalentScoreBannerProps {
   walletAddress: string;
