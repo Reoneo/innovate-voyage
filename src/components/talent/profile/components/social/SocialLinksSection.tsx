@@ -49,14 +49,14 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   }
 
   return (
-    <div className="w-full mt-6">
+    <div>
       <h3 className={linkHeaderClasses}>
         Links
       </h3>
       <div className="mb-4">
         <WebacySecurity walletAddress={ownerAddress} />
       </div>
-      <div className="grid grid-cols-4 sm:grid-cols-5 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
       </div>
     </div>
