@@ -16,8 +16,8 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
       case 'talent':
         return (
           <>
-            <DialogHeader className="border-b pb-4 mb-4">
-              <DialogTitle className="flex items-center gap-2 text-navy-900">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
                 <img 
                   src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1745913600000&signature=oPyIbnGbG5qB98WcRs-e3kZNTk51ULXCIF-X6Jtr8Uc&downloadName=logomark_dark.jpg"
                   alt="Talent Protocol" 
@@ -25,26 +25,26 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
                 />
                 Talent Protocol Score
               </DialogTitle>
-              <DialogDescription className="text-gray-600">
+              <DialogDescription>
                 Builder progression and activity metrics
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <Card className="border border-gray-200 shadow-sm">
+              <Card>
                 <CardContent className="pt-6">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-medium text-navy-900">Builder Score</h3>
-                    <span className="text-xl font-bold text-amber-500">
+                    <h3 className="font-medium">Builder Score</h3>
+                    <span className="text-xl font-bold text-yellow-500">
                       {score ?? 'N/A'}
                     </span>
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     <p className="mb-2">Current Level: {score ? getBuilderTitle(score) : 'Unknown'}</p>
                     <a 
                       href={`https://app.talentprotocol.com/profile/${walletAddress}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-teal-600 hover:underline flex items-center gap-1"
+                      className="text-blue-500 hover:underline flex items-center gap-1"
                     >
                       View on Talent Protocol <ExternalLink size={14} />
                     </a>
@@ -199,7 +199,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-white border-0 shadow-lg font-sans">
+      <DialogContent className="sm:max-w-md">
         {renderDialogContent()}
       </DialogContent>
     </Dialog>

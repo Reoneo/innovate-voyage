@@ -132,16 +132,12 @@ const XmtpMessageModal: React.FC = () => {
   return (
     <dialog id="xmtpMessageModal" className="modal backdrop:bg-black/50 backdrop:backdrop-blur-sm rounded-lg shadow-xl p-0 w-[90%] max-w-md">
       <div className="bg-background p-0 rounded-lg flex flex-col h-[650px]">
-        <div className="flex justify-between items-center p-4 border-b bg-navy-900 text-white">
+        <div className="flex justify-between items-center p-4 border-b">
           <h3 className="text-lg font-semibold flex items-center gap-2">
-            <img 
-              src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
-              alt="XMTP Messaging"
-              className="h-5 w-5" 
-            />
+            <MessageSquare className="h-5 w-5" />
             XMTP Messaging
           </h3>
-          <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8 text-white hover:bg-white/10">
+          <Button variant="ghost" size="icon" onClick={closeModal} className="h-8 w-8">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -256,21 +252,20 @@ const XmtpMessageModal: React.FC = () => {
           </div>
         )}
         
-        {/* Delete Confirmation Dialog - using Portal to ensure it appears on top */}
+        {/* Delete Confirmation Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent className="bg-white border-0 shadow-lg">
-            <DialogHeader className="border-b pb-2">
-              <DialogTitle className="text-lg font-semibold text-navy-900">Delete Conversation</DialogTitle>
-              <DialogDescription className="text-gray-600">
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Conversation</DialogTitle>
+              <DialogDescription>
                 Are you sure you want to delete this conversation? This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter className="pt-4 space-x-2">
+            <DialogFooter>
               <Button 
                 variant="outline" 
                 onClick={() => setDeleteDialogOpen(false)}
                 disabled={isLoading}
-                className="border-navy-900 text-navy-900 hover:bg-navy-50"
               >
                 Cancel
               </Button>
@@ -278,7 +273,6 @@ const XmtpMessageModal: React.FC = () => {
                 variant="destructive" 
                 onClick={handleDeleteConversation}
                 disabled={isLoading}
-                className="bg-red-600 hover:bg-red-700"
               >
                 {isLoading ? "Deleting..." : "Delete"}
               </Button>
