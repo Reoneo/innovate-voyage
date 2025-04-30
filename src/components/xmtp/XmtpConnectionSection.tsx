@@ -9,16 +9,12 @@ interface XmtpConnectionSectionProps {
   onConnect: (client: any) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
-  walletAddress?: string;
-  onClientCreated?: (client: any) => void;
 }
 
 const XmtpConnectionSection: React.FC<XmtpConnectionSectionProps> = ({
   onConnect,
   isLoading,
-  setIsLoading,
-  walletAddress,
-  onClientCreated
+  setIsLoading
 }) => {
   const { toast } = useToast();
 
@@ -26,11 +22,7 @@ const XmtpConnectionSection: React.FC<XmtpConnectionSectionProps> = ({
     setIsLoading(true);
     try {
       const client = await initXMTP();
-      
-      // Call both callbacks for backward compatibility
-      if (onConnect) onConnect(client);
-      if (onClientCreated) onClientCreated(client);
-      
+      onConnect(client);
       toast({
         title: "XMTP Connected",
         description: "You are now connected to XMTP messaging",

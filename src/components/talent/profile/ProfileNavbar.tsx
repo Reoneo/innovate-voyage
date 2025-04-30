@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Wallet } from 'lucide-react';
@@ -59,8 +58,11 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
 
   const handleOpenConnectWalletModal = () => {
     if (!connectedWallet) {
-      if (window.connectWalletModal) {
-        window.connectWalletModal.showModal();
+      if (typeof window !== 'undefined' && window.walletConnectModal) {
+        window.walletConnectModal.showModal();
+      } else {
+        console.error('WalletConnect modal is not available');
+        // Fallback action
       }
     } else {
       // Disconnect wallet
@@ -82,25 +84,14 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
     if (search.trim()) {
       // Convert search to lowercase for case-insensitive matching
       const searchTerm = search.trim().toLowerCase();
-
-      // Fix URL doubling issue - check if already on a recruitment.box route
-      let destinationUrl = '';
-      if (searchTerm.includes('recruitment.box/')) {
-        // Extract just the ENS or address part
-        const parts = searchTerm.split('recruitment.box/');
-        destinationUrl = `/recruitment.box/${parts[1]}/`;
-      } else {
-        destinationUrl = `/recruitment.box/${searchTerm}/`;
-      }
-      
-      // Navigate to the constructed URL
-      navigate(destinationUrl);
+      navigate(`/recruitment.box/${searchTerm}/`);
+      window.location.reload();
     }
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between h-16">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
+      <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between h-14">
         <div className="flex-none w-14">
           <Link to="/" className="flex items-center text-primary font-medium" style={{ color: avatarColor }}>
             <Home className="h-6 w-6" />
@@ -113,7 +104,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
         >
           <div className="relative max-w-md w-full">
             <Search 
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500"
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
               aria-hidden="true"
             />
             <Input
@@ -121,7 +112,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               placeholder="Search ENS username..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-20 py-2 w-full bg-white border-gray-300 rounded-full focus:ring-2 focus:ring-primary/70 focus:border-primary"
+              className="pl-10 pr-4 py-2 w-full bg-gray-50 border-gray-200 rounded-full focus:ring-primary focus:border-primary"
               style={{ 
                 borderColor: avatarColor,
                 '--tw-ring-color': avatarColor, 
@@ -131,7 +122,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               type="submit"
               variant="ghost"
               size="sm"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:bg-gray-100 px-3 py-1 rounded-full font-medium"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:text-primary/80 px-3 py-1"
               style={{ color: avatarColor }}
             >
               Search
@@ -148,7 +139,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             <img 
               src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
               alt="XMTP Messages" 
-              className="h-12 w-12 hover:scale-105 transition-transform object-contain" 
+              className="h-10 w-10" // Doubled in size
             />
           </button>
           
@@ -157,7 +148,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             className="flex items-center text-gray-600 hover:text-primary transition-colors ml-4"
             aria-label="Connect Wallet"
           >
-            <Wallet className="h-6 w-6 hover:scale-105 transition-transform" />
+            <Wallet className="h-6 w-6" />
           </button>
         </div>
       </div>

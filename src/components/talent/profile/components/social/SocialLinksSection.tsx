@@ -4,6 +4,10 @@ import SocialMediaLinks from '../../tabs/social/SocialMediaLinks';
 import { getEnsLinks } from '@/utils/ens/ensLinks';
 import WebacySecurity from '../security/WebacySecurity';
 
+// Centered, larger header styles for the links section
+const linkHeaderClasses =
+  "flex items-center justify-center text-xl font-semibold mb-4 text-gradient-primary tracking-wide";
+
 interface SocialLinksSectionProps {
   socials: Record<string, string>;
   identity?: string;
@@ -45,15 +49,15 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   }
 
   return (
-    <div className="w-full mt-8">
+    <div className="w-full mt-6">
+      <h3 className={linkHeaderClasses}>
+        Links
+      </h3>
       <div className="mb-4">
         <WebacySecurity walletAddress={ownerAddress} />
       </div>
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-4">Connect</h3>
-        <div className="grid grid-cols-3 sm:grid-cols-3 gap-6">
-          <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
-        </div>
+      <div className="grid grid-cols-3 sm:grid-cols-3 gap-6">
+        <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
       </div>
     </div>
   );

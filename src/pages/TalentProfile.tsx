@@ -18,13 +18,6 @@ const TalentProfile = () => {
   } = useProfilePage();
 
   useEffect(() => {
-    // Force desktop mode on mobile devices
-    const metaViewport = document.querySelector('meta[name="viewport"]');
-    if (metaViewport) {
-      // Set a fixed width to ensure desktop mode
-      metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0');
-    }
-    
     // Set favicon to user's avatar if available
     if (passport?.avatar_url) {
       const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
@@ -43,13 +36,6 @@ const TalentProfile = () => {
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     }
-    
-    return () => {
-      // Reset viewport when leaving the page
-      if (metaViewport) {
-        metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
-      }
-    };
   }, [passport?.avatar_url]);
 
   return (
