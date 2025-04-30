@@ -48,7 +48,7 @@ export interface ScoreBadgeProps {
 export interface ScoreDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type: 'talent' | 'webacy' | 'transactions';
+  type: 'talent' | 'webacy' | 'transactions' | 'tally';
   data: {
     score?: number | null;
     webacyData?: WebacyData | null;
