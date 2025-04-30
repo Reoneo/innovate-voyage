@@ -148,7 +148,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             <img 
               src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
               alt="XMTP Messages" 
-              className="h-10 w-10 hover:scale-105 transition-transform object-contain" 
+              className="h-12 w-12 hover:scale-105 transition-transform object-contain" 
             />
           </button>
           

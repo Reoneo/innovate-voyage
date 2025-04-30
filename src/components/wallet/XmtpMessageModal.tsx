@@ -15,6 +15,8 @@ const XmtpMessageModal: React.FC<XmtpMessageModalProps> = ({ address }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [xmtpClient, setXmtpClient] = useState<Client | null>(null);
   const [selectedConversation, setSelectedConversation] = useState<any | null>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const modalRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -92,22 +94,26 @@ const XmtpMessageModal: React.FC<XmtpMessageModalProps> = ({ address }) => {
                 </div>
               </div>
               <XmtpConnectionSection 
-                walletAddress={address} 
-                onClientCreated={handleConnectSuccess}
+                onConnect={handleConnectSuccess}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
               />
             </div>
           ) : selectedConversation ? (
             <XmtpConversation 
-              client={xmtpClient} 
               conversation={selectedConversation}
-              onBack={() => setSelectedConversation(null)}
+              messages={messages}
+              setMessages={setMessages}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
             />
           ) : (
             <div className="h-[70vh] overflow-hidden flex flex-col">
               <ConversationList 
-                client={xmtpClient} 
+                conversations={[]} 
                 onSelectConversation={setSelectedConversation}
-                className="flex-grow overflow-auto"
+                onDeleteConversation={() => {}}
+                isLoading={isLoading}
               />
               <div className="p-4 border-t bg-gray-50">
                 <div className="flex items-center justify-between">
