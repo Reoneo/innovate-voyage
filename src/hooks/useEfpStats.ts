@@ -36,16 +36,22 @@ export function useEfpStats(walletAddress?: string) {
         fetchEfpFollowing(walletAddress)
       ]);
 
-      const followingAddrs = Array.isArray(following) 
+      // Get following addresses from API
+      const apiFollowingAddrs = Array.isArray(following) 
         ? following.map(f => f.data || f.address) 
         : [];
       
-      setFollowingAddresses(followingAddrs);
+      // Get locally stored following addresses
+      const localFollowingAddrs = JSON.parse(localStorage.getItem('efp_following_addresses') || '[]');
+      
+      // Combine API and local following addresses
+      const combinedFollowingAddrs = [...new Set([...apiFollowingAddrs, ...localFollowingAddrs])];
+      setFollowingAddresses(combinedFollowingAddrs);
 
       // Process followers and following with ENS data
       const [followersList, followingList] = await Promise.all([
         processUsers(followers),
-        processUsers(following)
+        processUsers([...following, ...localFollowingAddrs.map(addr => ({ address: addr }))])
       ]);
       
       // Set friends as a combination of followers and following
@@ -59,7 +65,7 @@ export function useEfpStats(walletAddress?: string) {
       
       setStats({
         followers: stats.followers,
-        following: stats.following,
+        following: Math.max(stats.following, combinedFollowingAddrs.length), // Use whichever count is higher
         followersList,
         followingList
       });
@@ -82,22 +88,38 @@ export function useEfpStats(walletAddress?: string) {
   }, [walletAddress]);
 
   const isFollowing = (address: string): boolean => {
-    return followingAddresses.includes(address);
+    // Check both in-memory state and localStorage to be safe
+    if (followingAddresses.includes(address)) {
+      return true;
+    }
+    
+    // Double-check localStorage in case state hasn't been updated yet
+    const localFollowingAddrs = JSON.parse(localStorage.getItem('efp_following_addresses') || '[]');
+    return localFollowingAddrs.includes(address);
   };
 
   const followAddress = async (addressToFollow: string): Promise<void> => {
     try {
       await followAddressAction(addressToFollow, isFollowing(addressToFollow), () => {
         // Add to local following list for UI updates
-        setFollowingAddresses(prev => [...prev, addressToFollow]);
+        setFollowingAddresses(prev => {
+          if (!prev.includes(addressToFollow)) {
+            return [...prev, addressToFollow];
+          }
+          return prev;
+        });
+        
+        // Update stats
         setStats(prev => ({
           ...prev,
-          following: prev.following + 1,
-          followingList: [
-            ...(prev.followingList || []),
-            { address: addressToFollow }
-          ]
+          following: prev.following + (isFollowing(addressToFollow) ? 0 : 1),
+          followingList: isFollowing(addressToFollow) 
+            ? prev.followingList 
+            : [...(prev.followingList || []), { address: addressToFollow }]
         }));
+        
+        // Refresh data after a short delay to reflect changes
+        setTimeout(fetchEfpData, 1000);
       });
     } catch (error) {
       throw error;

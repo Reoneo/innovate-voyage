@@ -6,6 +6,7 @@ import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
 import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
+import FollowButton from './identity/FollowButton';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -72,7 +73,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         isOwner={isOwner}
       />
       
-      {/* ENS Bio - Removed styling */}
+      {/* ENS Bio */}
       <div>
         {bio && (
           <div className="mt-2">
@@ -80,6 +81,11 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
           </div>
         )}
       </div>
+      
+      {/* Follow Button - Added before Social Links */}
+      {!isOwner && ownerAddress && (
+        <FollowButton targetAddress={ownerAddress} />
+      )}
       
       {/* Social Links */}
       <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />

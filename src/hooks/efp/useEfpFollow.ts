@@ -6,7 +6,7 @@ import { shortenAddress } from "./utils";
 export function useEfpFollow() {
   const { toast } = useToast();
   
-  const followAddress = async (addressToFollow: string, isFollowing: boolean, onSuccess?: () => void): Promise<void> => {
+  const followAddress = async (addressToFollow: string, isFollowing: boolean = false, onSuccess?: () => void): Promise<void> => {
     // Check if wallet is connected
     const connectedWalletAddress = localStorage.getItem('connectedWalletAddress');
     if (!connectedWalletAddress) {
@@ -17,6 +17,7 @@ export function useEfpFollow() {
     try {
       // If already following, don't do anything
       if (isFollowing) {
+        console.log(`Already following ${shortenAddress(addressToFollow)}`);
         return;
       }
 
@@ -52,8 +53,12 @@ export function useEfpFollow() {
         
         console.log(`Successfully signed follow message for ${addressToFollow}`);
         
-        // In a full implementation, you would now submit this signature to the EFP backend
-        // For now, we'll just simulate success
+        // Store the followed address in local storage to persist following state
+        const followingAddresses = JSON.parse(localStorage.getItem('efp_following_addresses') || '[]');
+        if (!followingAddresses.includes(addressToFollow)) {
+          followingAddresses.push(addressToFollow);
+          localStorage.setItem('efp_following_addresses', JSON.stringify(followingAddresses));
+        }
         
         if (onSuccess) {
           onSuccess();
