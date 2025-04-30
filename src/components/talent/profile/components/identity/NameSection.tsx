@@ -17,7 +17,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     ? `${name}.eth`
     : name);
   
-  const { followers, following, followersList, followingList, loading, followAddress, isFollowing } = useEfpStats(ownerAddress);
+  const { followers, following, followersList, followingList, loading, followAddress, isFollowing, isProcessing } = useEfpStats(ownerAddress);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<'followers' | 'following'>('followers');
   const { toast } = useToast();
@@ -51,23 +51,11 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       return;
     }
     
-    setFollowLoading(prev => ({ ...prev, [address]: true }));
-    
     try {
       await followAddress(address);
-      toast({
-        title: "Success!",
-        description: "You are now following this address"
-      });
     } catch (error) {
       console.error('Follow error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to follow. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setFollowLoading(prev => ({ ...prev, [address]: false }));
+      // Error is already handled in useEfpFollow
     }
   };
 
@@ -97,6 +85,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
         handleFollow={handleFollow}
         isFollowing={isFollowing}
         followLoading={followLoading}
+        isProcessing={isProcessing}
       />
     </div>
   );

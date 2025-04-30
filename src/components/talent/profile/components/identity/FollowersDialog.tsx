@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { ExternalLink, UserPlus, Check } from 'lucide-react';
+import { ExternalLink, UserPlus, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { EfpPerson } from '@/hooks/useEfpStats';
 
 function shortenAddress(addr: string) {
@@ -20,6 +19,7 @@ interface FollowersDialogProps {
   handleFollow: (address: string) => Promise<void>;
   isFollowing: (address: string) => boolean;
   followLoading: { [key: string]: boolean };
+  isProcessing?: boolean;
 }
 
 const FollowersDialog: React.FC<FollowersDialogProps> = ({ 
@@ -30,7 +30,8 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
   followingList,
   handleFollow,
   isFollowing,
-  followLoading
+  followLoading,
+  isProcessing = false
 }) => {
   const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
 
@@ -74,7 +75,7 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
                       variant={isFollowing(follower.address) ? "outline" : "default"}
                       size="sm"
                       className="flex items-center gap-1"
-                      disabled={followLoading[follower.address]}
+                      disabled={isProcessing}
                       onClick={() => handleFollow(follower.address)}
                     >
                       <img 
@@ -82,7 +83,11 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
                         className="h-4 w-4 rounded-full"
                         alt="EFP"
                       />
-                      {isFollowing(follower.address) ? (
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" /> Processing
+                        </>
+                      ) : isFollowing(follower.address) ? (
                         <>
                           <Check className="h-4 w-4" /> Following
                         </>
@@ -127,8 +132,8 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
                       variant="outline"
                       size="sm"
                       className="flex items-center gap-1"
-                      disabled={followLoading[following.address]}
-                      onClick={() => handleFollow(following.address)}
+                      disabled={true}
+                      onClick={() => {}} // No unfollow functionality in EFP
                     >
                       <img 
                         src={efpLogo}

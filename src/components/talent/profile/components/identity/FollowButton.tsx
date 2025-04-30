@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { UserPlus, Check } from 'lucide-react';
+import { UserPlus, Check, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEfpStats } from '@/hooks/useEfpStats';
 
@@ -11,8 +11,7 @@ interface FollowButtonProps {
 }
 
 const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className }) => {
-  const { isFollowing, followAddress } = useEfpStats();
-  const [loading, setLoading] = useState(false);
+  const { isFollowing, followAddress, isProcessing } = useEfpStats();
   const { toast } = useToast();
   
   // Don't show follow button for your own profile
@@ -37,19 +36,11 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
       return;
     }
     
-    setLoading(true);
-    
     try {
       await followAddress(targetAddress);
     } catch (error) {
       console.error('Follow error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to follow. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+      // Error is already handled in useEfpFollow
     }
   };
 
@@ -61,7 +52,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
         variant={isFollowing(targetAddress) ? "outline" : "default"}
         size="sm"
         className="flex items-center gap-1 mx-auto"
-        disabled={loading}
+        disabled={isProcessing}
         onClick={handleFollow}
       >
         <img 
@@ -69,7 +60,11 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
           className="h-4 w-4 rounded-full"
           alt="EFP"
         />
-        {isFollowing(targetAddress) ? (
+        {isProcessing ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" /> Processing...
+          </>
+        ) : isFollowing(targetAddress) ? (
           <>
             <Check className="h-4 w-4" /> Following
           </>

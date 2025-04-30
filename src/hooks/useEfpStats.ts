@@ -10,6 +10,7 @@ import {
 import { EfpPerson, EfpStats } from "./efp/types";
 import { shortenAddress } from "./efp/utils";
 import { useEfpFollow } from "./efp/useEfpFollow";
+import { mainnetProvider } from "@/utils/ethereumProviders";
 
 // Using 'export type' syntax instead of just 'export' for types
 export type { EfpPerson, EfpStats } from "./efp/types";
@@ -20,13 +21,14 @@ export function useEfpStats(walletAddress?: string) {
   const [followingAddresses, setFollowingAddresses] = useState<string[]>([]);
   const [friends, setFriends] = useState<EfpPerson[]>([]);
   const { toast } = useToast();
-  const { followAddress: followAddressAction } = useEfpFollow();
+  const { followAddress: followAddressAction, isProcessing } = useEfpFollow();
 
   const fetchEfpData = async () => {
     if (!walletAddress) return;
     setLoading(true);
 
     try {
+      console.log("Fetching EFP data for:", walletAddress);
       // Fetch basic stats first
       const stats = await fetchEfpStats(walletAddress);
       
@@ -36,22 +38,20 @@ export function useEfpStats(walletAddress?: string) {
         fetchEfpFollowing(walletAddress)
       ]);
 
+      console.log("Followers data:", followers);
+      console.log("Following data:", following);
+
       // Get following addresses from API
       const apiFollowingAddrs = Array.isArray(following) 
         ? following.map(f => f.data || f.address) 
         : [];
       
-      // Get locally stored following addresses
-      const localFollowingAddrs = JSON.parse(localStorage.getItem('efp_following_addresses') || '[]');
-      
-      // Combine API and local following addresses
-      const combinedFollowingAddrs = [...new Set([...apiFollowingAddrs, ...localFollowingAddrs])];
-      setFollowingAddresses(combinedFollowingAddrs);
+      setFollowingAddresses(apiFollowingAddrs);
 
       // Process followers and following with ENS data
       const [followersList, followingList] = await Promise.all([
         processUsers(followers),
-        processUsers([...following, ...localFollowingAddrs.map(addr => ({ address: addr }))])
+        processUsers(following)
       ]);
       
       // Set friends as a combination of followers and following
@@ -65,7 +65,7 @@ export function useEfpStats(walletAddress?: string) {
       
       setStats({
         followers: stats.followers,
-        following: Math.max(stats.following, combinedFollowingAddrs.length), // Use whichever count is higher
+        following: stats.following,
         followersList,
         followingList
       });
@@ -88,37 +88,14 @@ export function useEfpStats(walletAddress?: string) {
   }, [walletAddress]);
 
   const isFollowing = (address: string): boolean => {
-    // Check both in-memory state and localStorage to be safe
-    if (followingAddresses.includes(address)) {
-      return true;
-    }
-    
-    // Double-check localStorage in case state hasn't been updated yet
-    const localFollowingAddrs = JSON.parse(localStorage.getItem('efp_following_addresses') || '[]');
-    return localFollowingAddrs.includes(address);
+    // Check if the address is in the following list from the API
+    return followingAddresses.includes(address);
   };
 
   const followAddress = async (addressToFollow: string): Promise<void> => {
     try {
       await followAddressAction(addressToFollow, isFollowing(addressToFollow), () => {
-        // Add to local following list for UI updates
-        setFollowingAddresses(prev => {
-          if (!prev.includes(addressToFollow)) {
-            return [...prev, addressToFollow];
-          }
-          return prev;
-        });
-        
-        // Update stats
-        setStats(prev => ({
-          ...prev,
-          following: prev.following + (isFollowing(addressToFollow) ? 0 : 1),
-          followingList: isFollowing(addressToFollow) 
-            ? prev.followingList 
-            : [...(prev.followingList || []), { address: addressToFollow }]
-        }));
-        
-        // Refresh data after a short delay to reflect changes
+        // Only refresh data after a successful follow
         setTimeout(fetchEfpData, 1000);
       });
     } catch (error) {
@@ -132,6 +109,7 @@ export function useEfpStats(walletAddress?: string) {
     followAddress,
     isFollowing,
     refreshData: fetchEfpData,
-    friends
+    friends,
+    isProcessing
   };
 }
