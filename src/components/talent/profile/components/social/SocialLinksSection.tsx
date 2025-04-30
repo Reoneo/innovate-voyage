@@ -56,7 +56,8 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
       <div className="mb-4">
         <WebacySecurity walletAddress={ownerAddress} />
       </div>
-      <div className="grid grid-cols-4 sm:grid-cols-5 gap-4">
+      {/* Updated to ensure consistent sizing on both mobile and desktop */}
+      <div className="grid grid-cols-4 gap-4">
         <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
       </div>
     </div>

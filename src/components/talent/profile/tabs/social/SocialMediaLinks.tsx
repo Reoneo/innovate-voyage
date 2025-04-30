@@ -1,6 +1,6 @@
 
 import React from 'react';
-import SocialLinkItem from './SocialLinkItem';
+import SocialLinkItem from '../../components/social/SocialLinkItem';
 import { socialPlatforms } from '@/constants/socialPlatforms';
 import { Loader2 } from 'lucide-react';
 
