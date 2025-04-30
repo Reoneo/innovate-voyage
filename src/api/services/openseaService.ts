@@ -8,6 +8,7 @@ export interface OpenSeaNft {
   currentPrice?: string;
   bestOffer?: string;
   owner?: string;
+  chain?: string; // Add chain property to indicate which network the NFT is on
 }
 
 interface OpenSeaCollection {
@@ -45,7 +46,10 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
       }
 
       const data = await response.json();
-      return data.nfts || [];
+      return (data.nfts || []).map((nft: any) => ({
+        ...nft,
+        chain: chain.id // Add chain information to each NFT
+      }));
     });
 
     // Wait for all requests to complete
@@ -76,7 +80,8 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
         description: nft.description,
         currentPrice: nft.last_sale?.price,
         bestOffer: nft.offers?.[0]?.price,
-        owner: nft.owner
+        owner: nft.owner,
+        chain: nft.chain // Pass the chain information
       });
     });
 
