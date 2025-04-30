@@ -13,17 +13,17 @@ interface TalentScoreDialogContentProps {
 const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ score, walletAddress }) => {
   return (
     <div className="bg-black text-white rounded-lg">
-      <DialogHeader className="border-b border-white/10">
-        <DialogTitle className="flex items-center gap-2 text-white">
-          <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center overflow-hidden">
+      <DialogHeader className="border-b border-white/10 flex flex-col items-center text-center px-4 py-6">
+        <div className="flex flex-col items-center justify-center">
+          <div className="h-16 w-16 rounded-full bg-white flex items-center justify-center overflow-hidden mb-3">
             <img 
               src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1746064800000&signature=NrmlObpAbCJOzeEZfVJ7zb-a2H4jiI9HQ1OcbvA6ckY&downloadName=logomark_dark.jpg" 
               alt="Builder Score" 
               className="h-full w-full object-cover"
             />
           </div>
-          <span className="ml-2">Builder Score Details</span>
-        </DialogTitle>
+          <DialogTitle className="text-white text-xl">Builder Score Details</DialogTitle>
+        </div>
         <DialogDescription className="text-gray-300">
           Builder progression and activity metrics
         </DialogDescription>
@@ -45,12 +45,12 @@ const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ sco
             <ScoreBreakdownSection />
             <OtherPlatformsSection />
             
-            <div className="mt-4">
+            <div className="mt-4 text-center">
               <a 
                 href={`https://app.talentprotocol.com/profile/${walletAddress}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                className="text-blue-400 hover:text-blue-300 flex items-center gap-1 justify-center"
               >
                 Verify on Talent Protocol <ExternalLink size={14} />
               </a>
