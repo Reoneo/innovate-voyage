@@ -59,6 +59,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
               src={getChainLogo(nft.chain)} 
               alt={chainName(nft.chain)}
               className="h-5 w-5 rounded-full"
+              loading="lazy"
             />
             {nft.name}
           </DialogTitle>
@@ -71,6 +72,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
                 src={nft.imageUrl} 
                 alt={nft.name}
                 className="w-full h-full object-contain"
+                loading="lazy"
               />
             </div>
           </div>
@@ -86,6 +88,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
                 src={getChainLogo(nft.chain)} 
                 alt={chainName(nft.chain)}
                 className="h-5 w-5 rounded-full"
+                loading="lazy"
               />
               <span>{chainName(nft.chain)} Network</span>
             </div>
@@ -148,4 +151,4 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
   );
 };
 
-export default NftDetailsDialog;
+export default React.memo(NftDetailsDialog);
