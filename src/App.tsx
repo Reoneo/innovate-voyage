@@ -41,19 +41,10 @@ const App = () => {
       setIsLoading(false);
     }, 300);
     
-    // Clean up URL - remove duplicate paths and trailing slashes
+    // Listen for URL changes to clean up duplicate recruitment.box in URL
     const cleanupUrl = () => {
-      const path = window.location.pathname;
-      
-      // Fix duplicate recruitment.box in URL
-      if (path.includes('recruitment.box/recruitment.box/')) {
-        const cleanPath = path.replace('recruitment.box/recruitment.box/', 'recruitment.box/');
-        window.history.replaceState({}, document.title, cleanPath);
-      }
-      
-      // Remove trailing slashes
-      if (path.length > 1 && path.endsWith('/')) {
-        const cleanPath = path.replace(/\/+$/, '');
+      if (window.location.pathname.includes('recruitment.box/recruitment.box/')) {
+        const cleanPath = window.location.pathname.replace('recruitment.box/recruitment.box/', 'recruitment.box/');
         window.history.replaceState({}, document.title, cleanPath);
       }
     };
@@ -84,16 +75,12 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              
-              {/* Special route for recruitment.box domain - no trailing slash */}
+              {/* Special route for recruitment.box domain - Fix duplication issue */}
               <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-              
               {/* Catch and fix duplicate paths */}
               <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
-              
-              {/* Regular profile route - no trailing slash */}
+              {/* Regular profile route */}
               <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-              
               {/* Handle 404 and redirects */}
               <Route path="/404" element={<NotFound />} />
               <Route path="*" element={<Navigate to="/404" />} />

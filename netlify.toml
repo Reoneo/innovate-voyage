@@ -8,17 +8,9 @@
   to = "/index.html"
   status = 200
 
-# Remove trailing slash on all URLs (except root)
+# Add a redirect for paths without trailing slashes
 [[redirects]]
-  from = "/*/"
-  to = ":splat"
-  status = 301
-  force = true
-  conditions = {Path = {match = "^/.+/$"}}
-
-# Fix duplicate recruitment.box paths
-[[redirects]]
-  from = "/recruitment.box/recruitment.box/*"
-  to = "/recruitment.box/:splat"
+  from = "/:ensNameOrAddress"
+  to = "/:ensNameOrAddress/"
   status = 301
   force = true

@@ -1,22 +1,17 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTallyData } from '@/hooks/useTallyData';
-import { Button } from '@/components/ui/button';
-import { RefreshCcw } from 'lucide-react';
 
 interface TallyDialogContentProps {
   walletAddress: string;
 }
 
 const TallyDialogContent: React.FC<TallyDialogContentProps> = ({ walletAddress }) => {
-  const [refreshKey, setRefreshKey] = useState(Date.now());
+  // Force data refresh by using a key with timestamp
+  const refreshKey = `${walletAddress}-${Date.now()}`;
   const { tallyData, isLoading, error } = useTallyData(walletAddress);
-
-  const handleRefresh = () => {
-    setRefreshKey(Date.now());
-  };
 
   if (isLoading) {
     return (
@@ -33,14 +28,6 @@ const TallyDialogContent: React.FC<TallyDialogContentProps> = ({ walletAddress }
       <div className="flex flex-col items-center justify-center p-6 text-center">
         <p className="text-red-500 font-medium">Error loading Tally data</p>
         <p className="text-gray-500 text-sm mt-2">{error}</p>
-        <Button 
-          onClick={handleRefresh} 
-          variant="outline" 
-          className="mt-4"
-          size="sm"
-        >
-          <RefreshCcw className="mr-2 h-4 w-4" /> Try Again
-        </Button>
       </div>
     );
   }
@@ -64,25 +51,16 @@ const TallyDialogContent: React.FC<TallyDialogContentProps> = ({ walletAddress }
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
-          <img 
-            src={tallyData.daoIcon || "https://cdn-icons-png.freepik.com/512/7554/7554364.png"}
-            alt="Tally DAO" 
-            className="h-16 w-16"
-          />
-          <div>
-            <h3 className="text-xl font-bold">{tallyData.daoName}</h3>
-            <p className="text-gray-500 text-sm">Governance data for {walletAddress}</p>
-          </div>
+      <div className="flex items-center space-x-4 mb-6">
+        <img 
+          src={tallyData.daoIcon || "https://cdn-icons-png.freepik.com/512/7554/7554364.png"}
+          alt="Tally DAO" 
+          className="h-16 w-16"
+        />
+        <div>
+          <h3 className="text-xl font-bold">Tally DAO</h3>
+          <p className="text-gray-500 text-sm">Governance data for {walletAddress}</p>
         </div>
-        <Button 
-          onClick={handleRefresh} 
-          variant="ghost" 
-          size="sm"
-        >
-          <RefreshCcw className="h-4 w-4" />
-        </Button>
       </div>
 
       <Tabs defaultValue="delegators">
@@ -121,7 +99,7 @@ const TallyDialogContent: React.FC<TallyDialogContentProps> = ({ walletAddress }
                 <h5 className="text-sm font-medium text-gray-600">Delegator Addresses:</h5>
                 {tallyData.delegators.map((delegator, index) => (
                   <div key={index} className="bg-gray-100 p-2 rounded text-sm flex justify-between items-center">
-                    <span className="font-mono truncate max-w-[200px]">{delegator.address}</span>
+                    <span className="font-mono">{delegator.address}</span>
                     <span className="text-xs bg-gray-200 px-2 py-1 rounded">{delegator.votingPower}</span>
                   </div>
                 ))}
@@ -143,7 +121,7 @@ const TallyDialogContent: React.FC<TallyDialogContentProps> = ({ walletAddress }
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {tallyData.delegations.map((delegation, index) => (
                   <div key={index} className="bg-gray-100 p-2 rounded text-sm flex justify-between items-center">
-                    <span className="font-mono truncate max-w-[200px]">{delegation.address}</span>
+                    <span className="font-mono">{delegation.address}</span>
                     <span className="text-xs bg-gray-200 px-2 py-1 rounded">{delegation.votingPower}</span>
                   </div>
                 ))}
