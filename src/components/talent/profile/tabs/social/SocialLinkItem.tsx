@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { SocialIcon } from '@/components/ui/social-icon';
 import { Check, Copy } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
@@ -83,6 +82,44 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Get the appropriate icon URL based on platform
+  const getIconUrl = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'linkedin':
+        return 'https://cdn-icons-png.flaticon.com/512/145/145807.png';
+      case 'whatsapp':
+        return 'https://cdn-icons-png.flaticon.com/512/5968/5968841.png';
+      case 'twitter':
+        return 'https://cdn-icons-png.flaticon.com/512/5969/5969020.png';
+      case 'facebook':
+        return 'https://cdn-icons-png.flaticon.com/512/5968/5968764.png';
+      case 'instagram':
+        return 'https://cdn-icons-png.flaticon.com/512/15707/15707749.png';
+      case 'github':
+        return 'https://cdn-icons-png.flaticon.com/512/1051/1051326.png';
+      case 'youtube':
+        return 'https://cdn-icons-png.flaticon.com/512/3670/3670147.png';
+      case 'telegram':
+        return 'https://cdn-icons-png.flaticon.com/512/5968/5968804.png';
+      case 'bluesky':
+        return 'https://www.iconpacks.net/icons/free-icons-7/free-bluesky-blue-round-circle-logo-icon-24461.png';
+      case 'location':
+      case 'geolocation':
+        return 'https://cdn-icons-png.flaticon.com/512/355/355980.png';
+      case 'email':
+      case 'mail':
+        return 'https://cdn-icons-png.flaticon.com/512/482/482138.png';
+      case 'discord':
+        return 'https://cdn-icons-png.flaticon.com/512/5968/5968756.png';
+      case 'website':
+      case 'globe':
+      case 'url':
+        return 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png';
+      default:
+        return 'https://cdn-icons-png.flaticon.com/512/3059/3059997.png'; // Generic icon
+    }
+  };
+
   if (platformType === 'discord') {
     return (
       <button
@@ -91,7 +128,11 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
         title={`Copy Discord: ${displayText}`}
         data-social-link={platformType}
       >
-        <SocialIcon type={platformType} size={40} />
+        <img 
+          src={getIconUrl('discord')} 
+          alt="Discord" 
+          className="h-10 w-10 rounded-full" 
+        />
         <span className="absolute top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
           {copied ? <Check size={12} className="inline mr-1" /> : <Copy size={12} className="inline mr-1" />} 
           {copied ? "Copied!" : "Copy Discord"}
@@ -109,7 +150,11 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
       data-social-link={platformType}
     >
-      <SocialIcon type={platformType as any} size={40} />
+      <img 
+        src={getIconUrl(platformType)} 
+        alt={platformType} 
+        className="h-10 w-10 rounded-full" 
+      />
     </a>
   );
 };
