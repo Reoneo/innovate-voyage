@@ -41,17 +41,10 @@ const App = () => {
       setIsLoading(false);
     }, 300);
     
-    // Clean URL on load - fix duplicate domain issues
+    // Listen for URL changes to clean up duplicate recruitment.box in URL
     const cleanupUrl = () => {
-      // Check for duplicate recruitment.box in URL
       if (window.location.pathname.includes('recruitment.box/recruitment.box/')) {
         const cleanPath = window.location.pathname.replace('recruitment.box/recruitment.box/', 'recruitment.box/');
-        window.history.replaceState({}, document.title, cleanPath);
-      }
-      
-      // Remove trailing slashes
-      if (window.location.pathname !== '/' && window.location.pathname.endsWith('/')) {
-        const cleanPath = window.location.pathname.slice(0, -1);
         window.history.replaceState({}, document.title, cleanPath);
       }
     };
@@ -82,11 +75,11 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              {/* Special route for recruitment.box domain */}
+              {/* Special route for recruitment.box domain - Fix duplication issue */}
               <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
               {/* Catch and fix duplicate paths */}
               <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
-              {/* Regular profile route - no trailing slash */}
+              {/* Regular profile route */}
               <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
               {/* Handle 404 and redirects */}
               <Route path="/404" element={<NotFound />} />
