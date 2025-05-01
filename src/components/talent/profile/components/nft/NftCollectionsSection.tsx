@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { fetchUserNfts, type OpenSeaNft } from '@/api/services/openseaService';
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { X } from 'lucide-react';
@@ -23,50 +23,39 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
   const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
 
-  // Memoize the NFT click handler
-  const handleNftClick = useCallback((nft: OpenSeaNft) => {
-    setSelectedNft(nft);
-  }, []);
+  useEffect(() => {
+    if (!walletAddress) return;
 
-  // Memoize the profile click handler
-  const handleOpenProfile = useCallback((name: string) => {
+    const loadNfts = async () => {
+      setLoading(true);
+      try {
+        const nftCollections = await fetchUserNfts(walletAddress);
+        setCollections(nftCollections);
+      } catch (error) {
+        console.error('Error loading NFTs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadNfts();
+  }, [walletAddress]);
+
+  if (!walletAddress) return null;
+
+  // Handle NFT click to show details
+  const handleNftClick = (nft: OpenSeaNft) => {
+    setSelectedNft(nft);
+  };
+
+  // Handle profile click from NFT details
+  const handleOpenProfile = (name: string) => {
     if (onOpenChange) {
       onOpenChange(false);
     }
     // Navigate to the profile - this will be handled by the parent component
     window.location.href = `/${name.toLowerCase()}/`;
-  }, [onOpenChange]);
-
-  useEffect(() => {
-    if (!walletAddress || !showCollections) return;
-
-    const abortController = new AbortController();
-    const signal = abortController.signal;
-
-    const loadNfts = async () => {
-      setLoading(true);
-      try {
-        const nftCollections = await fetchUserNfts(walletAddress, { signal });
-        setCollections(nftCollections);
-      } catch (error) {
-        if (!(error instanceof DOMException && error.name === 'AbortError')) {
-          console.error('Error loading NFTs:', error);
-        }
-      } finally {
-        if (!signal.aborted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    loadNfts();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [walletAddress, showCollections]);
-
-  if (!walletAddress) return null;
+  };
 
   return (
     <>

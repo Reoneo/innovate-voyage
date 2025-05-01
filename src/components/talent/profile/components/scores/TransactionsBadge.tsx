@@ -55,7 +55,7 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
               </Badge>
             )}
           </div>
-          <p className="text-sm text-gray-600 mt-1">Collections</p>
+          {/* Removed the "Collections" text from here */}
         </div>
       </div>
     </div>
