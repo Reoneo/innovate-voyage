@@ -70,20 +70,17 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between h-14">
-        <form 
-          onSubmit={handleSearch} 
-          className="flex items-center justify-center space-x-2 flex-1 max-w-2xl mx-auto"
-        >
-          <Link 
-            to="/" 
-            className="flex items-center justify-center text-primary transition-colors duration-300" 
-            style={{ color: avatarColor }}
-            aria-label="Home"
-          >
+        <div className="flex-none w-14 flex justify-center">
+          <Link to="/" className="flex items-center justify-center text-primary font-medium" style={{ color: avatarColor }}>
             <Home className="h-6 w-6" />
           </Link>
-          
-          <div className="relative flex-1">
+        </div>
+        
+        <form 
+          onSubmit={handleSearch} 
+          className="flex-1 flex justify-center"
+        >
+          <div className="relative max-w-md w-full">
             <Search 
               className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
               aria-hidden="true"
@@ -93,7 +90,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               placeholder="Search ENS username..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full bg-gray-50 border-gray-200 rounded-full focus:ring-primary focus:border-primary transition-colors duration-300"
+              className="pl-10 pr-4 py-2 w-full bg-gray-50 border-gray-200 rounded-full focus:ring-primary focus:border-primary"
               style={{ 
                 borderColor: avatarColor,
                 '--tw-ring-color': avatarColor, 
@@ -103,13 +100,15 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               type="submit"
               variant="ghost"
               size="sm"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:text-primary/80 px-3 py-1 transition-colors duration-300"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:text-primary/80 px-3 py-1"
               style={{ color: avatarColor }}
             >
               Search
             </Button>
           </div>
+        </form>
 
+        <div className="flex-none w-14 flex justify-center">
           <button
             onClick={handleOpenXmtpModal}
             className="flex items-center justify-center text-gray-600 hover:text-primary transition-colors"
@@ -123,7 +122,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               />
             </div>
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );
