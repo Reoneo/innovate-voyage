@@ -2,12 +2,16 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScoreBadgeProps } from '../scores/types';
+import { useTallyData } from '@/hooks/useTallyData';
 
 interface TallyBadgeProps extends ScoreBadgeProps {
   walletAddress: string;
 }
 
-const TallyBadge: React.FC<TallyBadgeProps> = ({ walletAddress, onClick, isLoading }) => {
+const TallyBadge: React.FC<TallyBadgeProps> = ({ walletAddress, onClick, isLoading: propIsLoading }) => {
+  const { tallyData, isLoading: hookIsLoading } = useTallyData(walletAddress);
+  const isLoading = propIsLoading || hookIsLoading;
+
   if (isLoading) {
     return <Skeleton className="h-28 w-full" />;
   }
@@ -18,12 +22,20 @@ const TallyBadge: React.FC<TallyBadgeProps> = ({ walletAddress, onClick, isLoadi
         <div className="text-center relative flex-grow flex flex-col items-center justify-center w-full">
           <div className="relative">
             <img 
-              src="https://cdn-icons-png.freepik.com/512/7554/7554364.png" 
+              src={tallyData?.daoIcon || "https://cdn-icons-png.freepik.com/512/7554/7554364.png"} 
               alt="Tally DAO" 
-              className="h-32 w-32 mb-2"
+              className="h-16 w-16 mb-2"
             />
           </div>
-          <p className="text-sm text-gray-600 mt-1">Tally DAO</p>
+          <p className="text-sm font-medium">{tallyData?.daoName || "Tally DAO"}</p>
+          {tallyData && (
+            <p className="text-xs text-gray-500">
+              {tallyData.votingPower ? `Voting Power: ${tallyData.votingPower}` : "No voting power"}
+            </p>
+          )}
+          {!tallyData && (
+            <p className="text-xs text-gray-500">View DAO participation</p>
+          )}
         </div>
       </div>
     </div>

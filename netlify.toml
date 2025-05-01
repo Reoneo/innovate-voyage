@@ -3,22 +3,14 @@
   publish = "dist"
   command = "npm run build"
 
-# Single page app (SPA) handling
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Handle URLs without trailing slashes
+# Add a redirect for paths without trailing slashes
 [[redirects]]
-  from = "/:ensNameOrAddress/*"
-  to = "/:ensNameOrAddress"
-  status = 301
-  force = true
-
-# Avoid duplicate domain names in path
-[[redirects]]
-  from = "/recruitment.box/recruitment.box/*"
-  to = "/recruitment.box/:splat"
+  from = "/:ensNameOrAddress"
+  to = "/:ensNameOrAddress/"
   status = 301
   force = true

@@ -60,9 +60,9 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (search.trim()) {
-      // Remove potential trailing slash and ensure clean URL
+      // Convert search to lowercase for case-insensitive matching
       const searchTerm = search.trim().toLowerCase();
-      navigate(`/recruitment.box/${searchTerm}`);
+      navigate(`/recruitment.box/${searchTerm}/`);
       window.location.reload();
     }
   };
@@ -70,19 +70,17 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between h-14">
+        <div className="flex-none w-14 flex justify-center">
+          <Link to="/" className="flex items-center justify-center text-primary font-medium" style={{ color: avatarColor }}>
+            <Home className="h-6 w-6" />
+          </Link>
+        </div>
+        
         <form 
           onSubmit={handleSearch} 
-          className="relative flex items-center flex-1 max-w-2xl mx-auto"
+          className="flex-1 flex justify-center"
         >
-          <Link 
-            to="/" 
-            className="flex items-center justify-center text-primary font-medium mr-3" 
-            style={{ color: avatarColor }}
-          >
-            <Home className="h-5 w-5" />
-          </Link>
-          
-          <div className="relative flex-1">
+          <div className="relative max-w-md w-full">
             <Search 
               className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
               aria-hidden="true"
@@ -108,21 +106,23 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               Search
             </Button>
           </div>
-          
+        </form>
+
+        <div className="flex-none w-14 flex justify-center">
           <button
             onClick={handleOpenXmtpModal}
-            className="flex items-center justify-center text-gray-600 hover:text-primary transition-colors ml-3"
+            className="flex items-center justify-center text-gray-600 hover:text-primary transition-colors"
             aria-label="XMTP Messages"
           >
-            <div className="h-7 w-7 rounded-full overflow-hidden flex items-center justify-center">
+            <div className="h-8 w-8 rounded-full overflow-hidden flex items-center justify-center">
               <img 
                 src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
                 alt="XMTP Messages" 
-                className="h-7 w-7 object-cover"
+                className="h-8 w-8 object-cover"
               />
             </div>
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );

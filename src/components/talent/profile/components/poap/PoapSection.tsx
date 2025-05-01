@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -20,10 +19,6 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   const [selectedPoap, setSelectedPoap] = useState<Poap | null>(null);
   const [poapOwners, setPoapOwners] = useState<any[]>([]);
   const [loadingOwners, setLoadingOwners] = useState(false);
-  const [hasMoreOwners, setHasMoreOwners] = useState(true);
-  const [page, setPage] = useState(1);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -48,70 +43,28 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     loadPoaps();
   }, [walletAddress]);
 
-  const loadPoapOwners = async (eventId: number, currentPage = 1, reset = true) => {
+  const loadPoapOwners = async (eventId: number) => {
     if (!eventId) return;
-    
     setLoadingOwners(true);
-    
     try {
-      // Get 20 owners per page
       const owners = await fetchPoapEventOwners(eventId);
-      const pageSize = 20;
-      const startIdx = (currentPage - 1) * pageSize;
-      const endIdx = startIdx + pageSize;
-      const pageOwners = owners.slice(startIdx, endIdx);
-      
-      // Check if we have more owners to load
-      setHasMoreOwners(endIdx < owners.length);
-      
-      if (reset) {
-        setPoapOwners(pageOwners);
+      if (owners && owners.length > 0) {
+        setPoapOwners(owners);
       } else {
-        setPoapOwners(prev => [...prev, ...pageOwners]);
+        setPoapOwners([]);
       }
     } catch (error) {
       console.error('Error loading POAP owners:', error);
-      setHasMoreOwners(false);
+      setPoapOwners([]);
     } finally {
       setLoadingOwners(false);
     }
   };
 
-  const loadMoreOwners = useCallback(() => {
-    if (loadingOwners || !hasMoreOwners || !selectedPoap) return;
-    const nextPage = page + 1;
-    setPage(nextPage);
-    loadPoapOwners(selectedPoap.event.id, nextPage, false);
-  }, [loadingOwners, hasMoreOwners, page, selectedPoap]);
-
-  // Set up intersection observer for infinite scrolling
-  useEffect(() => {
-    if (!loadMoreRef.current || loadingOwners || !detailOpen) return;
-    
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMoreOwners) {
-          loadMoreOwners();
-        }
-      },
-      { threshold: 0.5 }
-    );
-    
-    observerRef.current.observe(loadMoreRef.current);
-    
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, [loadingOwners, hasMoreOwners, loadMoreOwners, detailOpen]);
-
   const handleOpenDetail = (poap: Poap) => {
     setSelectedPoap(poap);
     setDetailOpen(true);
-    setPage(1);
-    setHasMoreOwners(true);
-    loadPoapOwners(poap.event.id, 1, true);
+    loadPoapOwners(poap.event.id);
   };
 
   if (!walletAddress) return null;
@@ -177,46 +130,19 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                       <p className="text-xs text-muted-foreground">Supply</p>
                       <p className="text-sm font-medium">{selectedPoap.event.supply || "Unlimited"}</p>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Event Date</p>
-                      <p className="text-sm font-medium">
-                        {new Date(selectedPoap.event.start_date).toLocaleDateString()} - {new Date(selectedPoap.event.end_date).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Location</p>
-                      <p className="text-sm font-medium">
-                        {selectedPoap.event.city}, {selectedPoap.event.country || "Virtual"}
-                      </p>
-                    </div>
                   </div>
 
                   <div className="mt-4">
                     <h3 className="text-sm font-semibold mb-2">POAP Owners</h3>
                     
-                    {loadingOwners && poapOwners.length === 0 ? 
-                      <div className="flex flex-col space-y-2">
-                        {[1, 2, 3].map((_, i) => (
-                          <div key={i} className="flex items-center gap-2">
+                    {loadingOwners ? <div className="flex flex-col space-y-2">
+                        {[1, 2, 3].map((_, i) => <div key={i} className="flex items-center gap-2">
                             <Skeleton className="h-8 w-8 rounded-full" />
                             <Skeleton className="h-4 w-32" />
-                          </div>
-                        ))}
-                      </div> 
-                      : poapOwners && poapOwners.length > 0 ? 
-                        <div className="max-h-64 overflow-y-auto space-y-2">
-                          {poapOwners.map((owner, index) => (
-                            <PoapOwnerItem key={`${owner.owner}-${index}`} owner={owner} />
-                          ))}
-                          {/* Infinite scroll reference element */}
-                          <div ref={loadMoreRef} className="h-4 w-full">
-                            {loadingOwners && <div className="flex justify-center py-2">
-                              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                            </div>}
-                          </div>
-                        </div> 
-                        : <p className="text-sm text-muted-foreground">No owners found</p>
-                    }
+                          </div>)}
+                      </div> : poapOwners && poapOwners.length > 0 ? <div className="max-h-48 overflow-y-auto space-y-2">
+                        {poapOwners.map((owner, index) => <PoapOwnerItem key={`${owner.owner}-${index}`} owner={owner} />)}
+                      </div> : <p className="text-sm text-muted-foreground">Loading owners...</p>}
                   </div>
                 </div>
               </div>
@@ -239,18 +165,13 @@ const PoapOwnerItem = ({
   const shortAddress = `${owner.owner.substring(0, 6)}...${owner.owner.substring(owner.owner.length - 4)}`;
   const displayName = resolvedEns || shortAddress;
 
-  return (
-    <Link 
-      to={`/${resolvedEns || owner.owner}`} 
-      className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-    >
+  return <Link to={`/${resolvedEns || owner.owner}/`} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors">
       <Avatar className="h-8 w-8">
         <AvatarImage src={avatarUrl || ''} />
         <AvatarFallback>{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
       </Avatar>
       <span className="text-sm font-medium">{displayName}</span>
-    </Link>
-  );
+    </Link>;
 };
 
 export default PoapSection;
