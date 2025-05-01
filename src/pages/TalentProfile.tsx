@@ -44,10 +44,15 @@ const TalentProfile = () => {
         <title>{ensNameOrAddress || 'Profile'}</title>
         {passport?.avatar_url && (
           <>
+            <link rel="icon" href={passport.avatar_url} />
             <link rel="apple-touch-icon" href={passport.avatar_url} />
             <meta name="apple-mobile-web-app-title" content={ensNameOrAddress || 'Profile'} />
             <meta name="application-name" content={ensNameOrAddress || 'Profile'} />
             <meta property="og:image" content={passport.avatar_url} />
+            <meta name="msapplication-TileImage" content={passport.avatar_url} />
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+            <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+            <meta name="theme-color" content="#ffffff" />
           </>
         )}
       </Helmet>
