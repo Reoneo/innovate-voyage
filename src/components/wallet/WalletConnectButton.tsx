@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useAccount, useDisconnect } from 'wagmi';
-import { Web3Button } from '@web3modal/react';
+import { useWeb3Modal } from '@web3modal/react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Wallet, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 const WalletConnectButton: React.FC = () => {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
+  const { open } = useWeb3Modal();
   const { toast } = useToast();
 
   // Store the connected address in localStorage and window object
@@ -58,7 +59,16 @@ const WalletConnectButton: React.FC = () => {
     );
   }
 
-  return <Web3Button icon="hide" label="Connect Wallet" balance="hide" />;
+  return (
+    <Button 
+      onClick={() => open()}
+      variant="outline"
+      className="flex items-center gap-2"
+    >
+      <span className="hidden sm:inline">Connect Wallet</span>
+      <Wallet className="h-4 w-4" />
+    </Button>
+  );
 };
 
 export default WalletConnectButton;
