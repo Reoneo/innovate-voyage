@@ -75,12 +75,14 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       
       {/* Follow Button - Moved above Bio section */}
       {!isOwner && ownerAddress && (
-        <FollowButton targetAddress={ownerAddress} />
+        <div className="mb-3">
+          <FollowButton targetAddress={ownerAddress} />
+        </div>
       )}
       
       {/* ENS Bio */}
       {bio && (
-        <div className="mt-2">
+        <div className="mb-3">
           <p className="text-sm text-muted-foreground">{bio}</p>
         </div>
       )}

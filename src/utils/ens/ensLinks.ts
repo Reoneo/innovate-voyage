@@ -1,139 +1,113 @@
 
-import { mainnetProvider } from '../ethereumProviders';
+import { ethers } from 'ethers';
+import { ensProvider } from '../ethereumProviders';
 
-/**
- * Gets all ENS-related links and data from resolver
- */
-export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
+export async function getEnsLinks(ensName: string, networkName: string = 'mainnet') {
+  // Default result structure
+  const result = {
+    socials: {} as Record<string, string>,
+    ensLinks: [] as string[],
+    description: undefined as string | undefined,
+    keywords: [] as string[]
+  };
+  
   try {
-    // Always use mainnet provider regardless of network param
-    const provider = mainnetProvider;
-    const resolver = await provider.getResolver(ensName);
+    // If the name doesn't end with .eth or .box, return empty result
+    if (!ensName.endsWith('.eth') && !ensName.endsWith('.box')) {
+      return result;
+    }
     
+    const resolver = await ensProvider.getResolver(ensName);
+    
+    // Exit if no resolver found
     if (!resolver) {
-      console.log(`No resolver found for ${ensName}`);
-      return {
-        socials: {},
-        ensLinks: []
-      };
+      console.log('No resolver found for', ensName);
+      return result;
     }
-
-    // Try to get bio/description
-    let description;
-    try {
-      description = await resolver.getText('description');
-      if (description) {
-        console.log(`Got description for ${ensName}:`, description);
-      }
-    } catch (error) {
-      console.warn(`Failed to get description for ${ensName}:`, error);
-    }
-
-    // Try to get social media links
-    const socials: Record<string, string> = {};
     
-    // Common ENS text records for social media and contact info
-    const socialKeys = [
-      'com.github', 
-      'com.twitter', 
-      'com.linkedin', 
-      'url', 
-      'email', 
-      'com.facebook',
-      'org.whatsapp.phone',
-      'com.facebook.messenger',
-      'com.discord',
-      'com.reddit',
-      'org.telegram',
-      'com.instagram',
-      'com.youtube',
-      'bsky.app',
-      'phone',
-      'location',
+    // Parallel fetch for all social records
+    const recordsToFetch = [
+      'com.github', 'com.twitter', 'com.discord', 'com.linkedin', 'org.telegram',
+      'com.reddit', 'email', 'url', 'description', 'avatar',
+      'com.instagram', 'io.keybase', 'xyz.lens', 'location', 'com.youtube',
+      'app.bsky', 'com.whatsapp', 'phone', 'name', 'notice', 'keywords'
     ];
     
-    // Try to get each social media link in parallel for efficiency
-    const results = await Promise.allSettled(
-      socialKeys.map(async key => ({ key, value: await resolver.getText(key) }))
+    const records = await Promise.all(
+      recordsToFetch.map(async (key) => {
+        try {
+          const value = await resolver.getText(key);
+          return { key, value };
+        } catch (error) {
+          console.log(`Error fetching ${key} record:`, error);
+          return { key, value: null };
+        }
+      })
     );
     
-    // Process successful results
-    results.forEach(result => {
-      if (result.status === 'fulfilled' && result.value.value) {
-        const { key, value } = result.value;
-        
-        switch (key) {
-          case 'com.github':
-            socials.github = value;
-            break;
-          case 'com.twitter':
-            socials.twitter = value;
-            break;
-          case 'com.linkedin':
-            socials.linkedin = value;
-            break;
-          case 'url':
-            socials.website = value;
-            break;
-          case 'email':
-            socials.email = value;
-            break;
-          case 'com.facebook':
-            socials.facebook = value;
-            break;
-          case 'org.whatsapp.phone':
-            // Use WhatsApp phone as telephone if no direct phone record exists
-            socials.telephone = socials.telephone || value;
-            socials.whatsapp = value;
-            break;
-          case 'com.facebook.messenger':
-            socials.messenger = value;
-            break;
-          case 'com.discord':
-            socials.discord = value;
-            break;
-          case 'com.reddit':
-            socials.reddit = value;
-            break;
-          case 'org.telegram':
-            socials.telegram = value;
-            break;
-          case 'com.instagram':
-            socials.instagram = value;
-            break;
-          case 'com.youtube':
-            socials.youtube = value;
-            break;
-          case 'bsky.app':
-            socials.bluesky = value;
-            break;
-          case 'phone':
-            socials.telephone = value;
-            break;
-          case 'location':
-            socials.location = value;
-            break;
-        }
+    // Map the records to our result structure
+    records.forEach(({ key, value }) => {
+      if (!value) return;
+      
+      switch (key) {
+        case 'com.github':
+          result.socials.github = value;
+          break;
+        case 'com.twitter':
+          result.socials.twitter = value;
+          break;
+        case 'com.discord':
+          result.socials.discord = value;
+          break;
+        case 'com.linkedin':
+          result.socials.linkedin = value;
+          break;
+        case 'org.telegram':
+          result.socials.telegram = value;
+          break;
+        case 'com.reddit':
+          result.socials.reddit = value;
+          break;
+        case 'email':
+          result.socials.email = value;
+          break;
+        case 'com.whatsapp':
+          result.socials.whatsapp = value;
+          break;
+        case 'app.bsky':
+          result.socials.bluesky = value;
+          break;
+        case 'url':
+          result.socials.website = value;
+          break;
+        case 'phone':
+          result.socials.telephone = value;
+          break;
+        case 'location':
+          result.socials.location = value;
+          break;
+        case 'com.instagram':
+          result.socials.instagram = value;
+          break;
+        case 'com.youtube':
+          result.socials.youtube = value;
+          break;
+        case 'description':
+          result.description = value;
+          break;
+        case 'keywords':
+          // Handle keywords - could be comma-separated or space-separated
+          result.keywords = value.split(/[,\s]+/).filter(k => k.trim().length > 0);
+          break;
+        default:
+          break;
       }
     });
-
-    // Try to get additional ENS names
-    // This is a simplified implementation - in a real app you would query an ENS indexer
-    // For demonstration, we'll just return the current ENS name
-    const ensLinks = [ensName];
-
-    console.log(`Got ENS links for ${ensName}:`, { socials, ensLinks });
     
-    return {
-      socials,
-      ensLinks,
-      description
-    };
+    return result;
+    
   } catch (error) {
-    console.error(`Error getting ENS links for ${ensName}:`, error);
-    return {
-      socials: {},
-      ensLinks: []
-    };
+    console.error(`Error fetching ENS links for ${ensName}:`, error);
+    return result;
   }
 }
