@@ -16,6 +16,7 @@ export function useWebacyData(walletAddress?: string) {
     
     // Return cached data if available
     if (responseCache.has(walletAddress)) {
+      console.log('Using cached Webacy data for:', walletAddress);
       const cachedData = responseCache.get(walletAddress);
       setSecurityData(cachedData || null);
       setRiskHistory(cachedData?.riskHistory || []);
@@ -27,6 +28,7 @@ export function useWebacyData(walletAddress?: string) {
       setError(null);
       
       try {
+        console.log('Fetching Webacy data for wallet:', walletAddress);
         // Updated API endpoint without any v2 prefix
         const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}?chain=eth`, {
           method: 'GET',
@@ -78,8 +80,8 @@ export function useWebacyData(walletAddress?: string) {
           }
         }
         
-        const webacyData = {
-          riskScore: data.score || 0,
+        const webacyData: WebacyData = {
+          riskScore: data.score !== undefined ? data.score : 0,
           threatLevel,
           walletAddress,
           approvals: {
@@ -94,6 +96,8 @@ export function useWebacyData(walletAddress?: string) {
           riskItems: riskItems,
           riskHistory: data.riskHistory || []
         };
+
+        console.log('Processed Webacy data:', webacyData);
 
         // Store the result in the cache
         responseCache.set(walletAddress, webacyData);
