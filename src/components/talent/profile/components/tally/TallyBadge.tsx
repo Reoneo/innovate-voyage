@@ -27,7 +27,8 @@ const TallyBadge: React.FC<TallyBadgeProps> = ({ walletAddress, onClick, isLoadi
               className="h-16 w-16 mb-2 object-contain"
               onError={(e) => {
                 // Fallback if image fails to load
-                (e.target as HTMLImageElement).src = "/placeholder.svg";
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder.svg";
               }}
             />
           </div>

@@ -84,15 +84,16 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              
               {/* Special route for recruitment.box domain - no trailing slash */}
               <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+              
               {/* Catch and fix duplicate paths */}
               <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
+              
               {/* Regular profile route - no trailing slash */}
               <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-              {/* Handle trailing slash redirects */}
-              <Route path="/:ensNameOrAddress/" element={<Navigate to="/:ensNameOrAddress" replace />} />
-              <Route path="/recruitment.box/:userId/" element={<Navigate to="/recruitment.box/:userId" replace />} />
+              
               {/* Handle 404 and redirects */}
               <Route path="/404" element={<NotFound />} />
               <Route path="*" element={<Navigate to="/404" />} />

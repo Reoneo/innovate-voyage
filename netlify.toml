@@ -22,4 +22,3 @@
   to = "/recruitment.box/:splat"
   status = 301
   force = true
-

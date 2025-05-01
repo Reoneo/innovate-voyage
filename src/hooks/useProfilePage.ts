@@ -19,12 +19,13 @@ export function useProfilePage() {
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
+    console.log('useProfilePage - targetIdentifier:', targetIdentifier);
+    
     // Attempt to clear any browser cache
     try {
       // Force page to be freshly loaded 
       if ('caches' in window) {
-        const cacheNames = caches.keys();
-        cacheNames.then(names => {
+        caches.keys().then(names => {
           for (const name of names) {
             if (name.includes('fetch-cache')) {
               caches.delete(name);

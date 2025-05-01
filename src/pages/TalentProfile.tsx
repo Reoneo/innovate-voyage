@@ -90,6 +90,7 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
+      
       <div className="min-h-screen bg-gray-50">
         {/* Navigation Bar */}
         <ProfileNavbar 
