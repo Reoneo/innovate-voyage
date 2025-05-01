@@ -52,7 +52,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
 
   return (
     <div className="mt-6">
-      <div className="grid grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-5 gap-4 mb-4">
         <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
       </div>
       
