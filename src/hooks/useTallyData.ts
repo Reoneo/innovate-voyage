@@ -37,6 +37,7 @@ export function useTallyData(walletAddress?: string) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -44,9 +45,10 @@ export function useTallyData(walletAddress?: string) {
     const fetchTallyData = async () => {
       setIsLoading(true);
       setError(null);
-      setTallyData(null); // Reset data when wallet changes
       
       try {
+        console.log(`Fetching Tally data for ${walletAddress}...`);
+        
         const tallyKey = '823049aef82691e85ae43e20d37e0d2f4b896dafdef53ea5dce0912d78bc1988';
         const formattedAddress = formatToCAIP10(walletAddress);
         
@@ -70,7 +72,6 @@ export function useTallyData(walletAddress?: string) {
                       }
                     }
                     votingPower {
-                      value
                       valueSimple
                       percentage
                     }
@@ -79,7 +80,6 @@ export function useTallyData(walletAddress?: string) {
                         address
                       }
                       votingPower {
-                        value
                         valueSimple
                         percentage
                       }
@@ -89,7 +89,6 @@ export function useTallyData(walletAddress?: string) {
                         address
                       }
                       votingPower {
-                        value
                         valueSimple
                         percentage
                       }
@@ -101,7 +100,8 @@ export function useTallyData(walletAddress?: string) {
             variables: {
               address: formattedAddress
             }
-          })
+          }),
+          cache: 'no-store' // Ensure no caching
         });
 
         if (!response.ok) {
@@ -151,15 +151,28 @@ export function useTallyData(walletAddress?: string) {
           delegators: delegators.length > 0 ? delegators : undefined,
           delegations: delegations.length > 0 ? delegations : undefined
         });
+
+        // Reset retry count on success
+        setRetryCount(0);
+        
       } catch (err) {
         console.error("Error fetching Tally data:", err);
-        setError("Failed to fetch DAO data from Tally");
-        toast({
-          title: "Error loading Tally data",
-          description: "Failed to fetch DAO data from Tally",
-          variant: "destructive"
-        });
-        setTallyData(null);
+        
+        // Implement retry logic (max 3 retries)
+        if (retryCount < 3) {
+          console.log(`Retrying Tally data fetch (${retryCount + 1}/3)...`);
+          setRetryCount(prev => prev + 1);
+          setTimeout(() => fetchTallyData(), 1500); // Retry after 1.5 seconds
+        } else {
+          setError("Failed to fetch DAO data after multiple attempts");
+          // Only show toast on final failure
+          toast({
+            title: "Error loading Tally data",
+            description: "Failed to fetch DAO data from Tally",
+            variant: "destructive"
+          });
+          setTallyData(null);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -167,7 +180,7 @@ export function useTallyData(walletAddress?: string) {
     
     fetchTallyData();
     
-  }, [walletAddress, toast]); // Added toast to dependencies
+  }, [walletAddress, retryCount, toast]); // Added retryCount to dependencies
 
   return { tallyData, isLoading, error };
 }

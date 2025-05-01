@@ -8,9 +8,5 @@
   to = "/index.html"
   status = 200
 
-# Add a redirect for paths without trailing slashes
-[[redirects]]
-  from = "/:ensNameOrAddress"
-  to = "/:ensNameOrAddress/"
-  status = 301
-  force = true
+# Remove the redirect for paths without trailing slashes since we now handle this in React
+

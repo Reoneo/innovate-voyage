@@ -39,14 +39,20 @@ export function useProfilePage() {
       // Convert the identifier to lowercase for case-insensitive search
       const normalizedIdentifier = targetIdentifier.toLowerCase();
       
+      // Check if this is a path with a trailing slash and fix it
+      const hasTrailingSlash = normalizedIdentifier.endsWith('/');
+      const cleanIdentifier = hasTrailingSlash 
+        ? normalizedIdentifier.slice(0, -1) 
+        : normalizedIdentifier;
+        
       // Direct address check - immediately use as address if valid
-      if (isValidEthereumAddress(normalizedIdentifier)) {
-        console.log(`Valid Ethereum address detected: ${normalizedIdentifier}`);
-        setAddress(normalizedIdentifier);
+      if (isValidEthereumAddress(cleanIdentifier)) {
+        console.log(`Valid Ethereum address detected: ${cleanIdentifier}`);
+        setAddress(cleanIdentifier);
         setEns(undefined); // Clear ENS when looking up by address
       } else {
         // Not a valid address, treat as ENS or domain
-        const ensValue = normalizedIdentifier.includes('.') ? normalizedIdentifier : `${normalizedIdentifier}.eth`;
+        const ensValue = cleanIdentifier.includes('.') ? cleanIdentifier : `${cleanIdentifier}.eth`;
         console.log(`Treating as ENS: ${ensValue}`);
         setEns(ensValue);
         setAddress(undefined); // Clear address when looking up by ENS
@@ -76,11 +82,16 @@ export function useProfilePage() {
         cleanUrl = cleanUrl.replace('recruitment.box/recruitment.box/', 'recruitment.box/');
       }
       
+      // Remove trailing slash if not the root path
+      if (cleanUrl !== '/' && cleanUrl.endsWith('/')) {
+        cleanUrl = cleanUrl.slice(0, -1);
+      }
+      
       // Remove timestamp parameter
-      if (window.location.href.includes('?t=')) {
+      if (window.location.href.includes('?')) {
         window.history.replaceState({}, document.title, cleanUrl);
       }
-      // Fix duplicate recruitment.box without a timestamp parameter
+      // Apply other URL fixes if needed
       else if (cleanUrl !== window.location.pathname) {
         window.history.replaceState({}, document.title, cleanUrl);
       }

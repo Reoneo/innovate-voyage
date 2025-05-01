@@ -44,10 +44,22 @@ const TalentProfile = () => {
         <title>{ensNameOrAddress || 'Profile'}</title>
         {passport?.avatar_url && (
           <>
+            {/* iOS Home Screen Icon Support */}
             <link rel="apple-touch-icon" href={passport.avatar_url} />
             <meta name="apple-mobile-web-app-title" content={ensNameOrAddress || 'Profile'} />
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+            <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+            
+            {/* Android Home Screen Icon Support */}
+            <link rel="manifest" href={`data:application/manifest+json,{"name":"${ensNameOrAddress || 'Profile'}","icons":[{"src":"${passport.avatar_url}","sizes":"192x192","type":"image/png"}],"start_url":"${window.location.pathname}","display":"standalone"}`} />
             <meta name="application-name" content={ensNameOrAddress || 'Profile'} />
+            <meta name="theme-color" content="#ffffff" />
+            
+            {/* General Meta Tags for Social Sharing & Browser Tab */}
             <meta property="og:image" content={passport.avatar_url} />
+            <meta property="og:title" content={ensNameOrAddress || 'Profile'} />
+            <meta property="twitter:image" content={passport.avatar_url} />
+            <meta name="twitter:card" content="summary" />
           </>
         )}
       </Helmet>
