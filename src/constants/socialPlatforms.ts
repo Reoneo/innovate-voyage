@@ -1,24 +1,24 @@
 
 // Define social platform types and their corresponding icon types
 export const socialPlatforms = [
-  { key: 'github', type: 'github' },
-  { key: 'twitter', type: 'twitter' },
-  { key: 'linkedin', type: 'linkedin' },
-  { key: 'facebook', type: 'facebook' },
-  { key: 'instagram', type: 'instagram' },
-  { key: 'youtube', type: 'youtube' },
   { key: 'bluesky', type: 'bluesky' },
-  { key: 'website', type: 'globe' },
-  { key: 'telegram', type: 'telegram' },
   { key: 'discord', type: 'discord' },
-  { key: 'reddit', type: 'reddit' },
-  { key: 'whatsapp', type: 'whatsapp' },
   { key: 'email', type: 'mail' },
-  { key: 'telephone', type: 'phone' },
-  { key: 'location', type: 'location' },
+  { key: 'facebook', type: 'facebook' },
   { key: 'farcaster', type: 'farcaster' },
+  { key: 'github', type: 'github' },
+  { key: 'instagram', type: 'instagram' },
   { key: 'lens', type: 'lens' },
-  { key: 'opensea', type: 'opensea' }
+  { key: 'linkedin', type: 'linkedin' },
+  { key: 'location', type: 'location' },
+  { key: 'opensea', type: 'opensea' },
+  { key: 'reddit', type: 'reddit' },
+  { key: 'telegram', type: 'telegram' },
+  { key: 'telephone', type: 'phone' },
+  { key: 'twitter', type: 'twitter' },
+  { key: 'website', type: 'globe' },
+  { key: 'whatsapp', type: 'whatsapp' },
+  { key: 'youtube', type: 'youtube' }
 ];
 
 // Define social platform interface

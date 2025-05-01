@@ -33,11 +33,14 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   if (!hasSocialLinks) {
     return null; // Hide completely if no social links are available
   }
+
+  // Sort platforms alphabetically for display
+  const sortedPlatforms = [...socialPlatforms].sort((a, b) => a.key.localeCompare(b.key));
   
   return (
     <>
-      {/* Display standard social platforms first */}
-      {socialPlatforms.map(platform => 
+      {/* Display standard social platforms first in alphabetical order */}
+      {sortedPlatforms.map(platform => 
         updatedSocials[platform.key] && (
           <SocialLinkItem 
             key={platform.key}
@@ -48,20 +51,17 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
       )}
       
       {/* Handle any custom social links not in our predefined list */}
-      {Object.entries(updatedSocials).map(([key, value]) => {
-        // Skip if this platform is already handled above or if value is empty
-        if (!value || socialPlatforms.some(p => p.key === key)) {
-          return null;
-        }
-        
-        return (
+      {Object.entries(updatedSocials)
+        .filter(([key, value]) => value && !socialPlatforms.some(p => p.key === key))
+        .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+        .map(([key, value]) => (
           <SocialLinkItem
             key={key}
             platformType={key}
             url={value}
           />
-        );
-      })}
+        ))
+      }
     </>
   );
 };
