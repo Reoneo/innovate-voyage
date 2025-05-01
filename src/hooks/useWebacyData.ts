@@ -2,6 +2,9 @@
 import { useState, useEffect } from 'react';
 import type { WebacyData, ThreatLevel } from '@/components/talent/profile/components/scores/types';
 
+// Create a cache to store API responses by wallet address
+const responseCache = new Map<string, WebacyData>();
+
 export function useWebacyData(walletAddress?: string) {
   const [securityData, setSecurityData] = useState<WebacyData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -10,14 +13,22 @@ export function useWebacyData(walletAddress?: string) {
 
   useEffect(() => {
     if (!walletAddress) return;
+    
+    // Return cached data if available
+    if (responseCache.has(walletAddress)) {
+      const cachedData = responseCache.get(walletAddress);
+      setSecurityData(cachedData || null);
+      setRiskHistory(cachedData?.riskHistory || []);
+      return;
+    }
 
     const fetchWebacyData = async () => {
       setIsLoading(true);
       setError(null);
       
       try {
-        // Use the correct endpoint with chain parameter
-        const response = await fetch(`https://api.webacy.com/v2/quick-profile/${walletAddress}?chain=eth`, {
+        // Use the correct endpoint without v2 prefix
+        const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}?chain=eth`, {
           method: 'GET',
           headers: {
             'accept': 'application/json',
@@ -37,7 +48,7 @@ export function useWebacyData(walletAddress?: string) {
         
         // Fetch risk items if available
         const riskItemsResponse = await fetch(
-          `https://api.webacy.com/v2/addresses/${walletAddress}/risk-items?chain=eth`,
+          `https://api.webacy.com/addresses/${walletAddress}/risk-items?chain=eth`,
           {
             method: 'GET',
             headers: {
@@ -67,7 +78,7 @@ export function useWebacyData(walletAddress?: string) {
           }
         }
         
-        setSecurityData({
+        const webacyData = {
           riskScore: data.score || 0,
           threatLevel,
           walletAddress,
@@ -82,8 +93,12 @@ export function useWebacyData(walletAddress?: string) {
           },
           riskItems: riskItems,
           riskHistory: data.riskHistory || []
-        });
+        };
 
+        // Store the result in the cache
+        responseCache.set(walletAddress, webacyData);
+        
+        setSecurityData(webacyData);
         setRiskHistory(data.riskHistory || []);
         
       } catch (err) {
