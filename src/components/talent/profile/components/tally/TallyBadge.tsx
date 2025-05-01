@@ -22,9 +22,13 @@ const TallyBadge: React.FC<TallyBadgeProps> = ({ walletAddress, onClick, isLoadi
         <div className="text-center relative flex-grow flex flex-col items-center justify-center w-full">
           <div className="relative">
             <img 
-              src={tallyData?.daoIcon || "https://cdn-icons-png.freepik.com/512/7554/7554364.png"} 
+              src={tallyData?.daoIcon || "/placeholder.svg"} 
               alt="Tally DAO" 
-              className="h-16 w-16 mb-2"
+              className="h-16 w-16 mb-2 object-contain"
+              onError={(e) => {
+                // Fallback if image fails to load
+                (e.target as HTMLImageElement).src = "/placeholder.svg";
+              }}
             />
           </div>
           <p className="text-sm font-medium">{tallyData?.daoName || "Tally DAO"}</p>

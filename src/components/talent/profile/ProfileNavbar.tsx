@@ -32,8 +32,15 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           canvas.height = 1;
           context?.drawImage(profileAvatar, 0, 0, 1, 1);
           const [r, g, b] = context?.getImageData(0, 0, 1, 1).data || [99, 102, 241];
-          const color = `rgb(${r}, ${g}, ${b})`;
-          setAvatarColor(color);
+          // Check if color is too dark or too light (use vibrant colors)
+          const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+          if (brightness < 50) { // Too dark
+            setAvatarColor('#6366f1'); // Use default indigo
+          } else if (brightness > 240) { // Too light
+            setAvatarColor('#4f46e5'); // Use darker indigo
+          } else {
+            setAvatarColor(`rgb(${r}, ${g}, ${b})`);
+          }
         } catch (e) {
           console.log('Error getting avatar color:', e);
         }
@@ -62,53 +69,26 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
     if (search.trim()) {
       // Convert search to lowercase for case-insensitive matching
       const searchTerm = search.trim().toLowerCase();
-      navigate(`/recruitment.box/${searchTerm}/`);
+      navigate(`/${searchTerm}`);
       window.location.reload();
     }
   };
 
+  // CSS variables for dynamic styling
+  const navStyles = {
+    '--avatar-color': avatarColor,
+    '--avatar-color-light': `${avatarColor}33`, // 20% opacity version
+    '--avatar-color-hover': `${avatarColor}66`, // 40% opacity version
+  } as React.CSSProperties;
+
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm" style={navStyles}>
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between h-14">
-        <div className="flex-none w-14 flex justify-center">
+        <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center justify-center text-primary font-medium" style={{ color: avatarColor }}>
             <Home className="h-6 w-6" />
           </Link>
-        </div>
-        
-        <form 
-          onSubmit={handleSearch} 
-          className="flex-1 flex justify-center"
-        >
-          <div className="relative max-w-md w-full">
-            <Search 
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
-              aria-hidden="true"
-            />
-            <Input
-              type="text"
-              placeholder="Search ENS username..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full bg-gray-50 border-gray-200 rounded-full focus:ring-primary focus:border-primary"
-              style={{ 
-                borderColor: avatarColor,
-                '--tw-ring-color': avatarColor, 
-              } as React.CSSProperties}
-            />
-            <Button
-              type="submit"
-              variant="ghost"
-              size="sm"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:text-primary/80 px-3 py-1"
-              style={{ color: avatarColor }}
-            >
-              Search
-            </Button>
-          </div>
-        </form>
-
-        <div className="flex-none w-14 flex justify-center">
+          
           <button
             onClick={handleOpenXmtpModal}
             className="flex items-center justify-center text-gray-600 hover:text-primary transition-colors"
@@ -122,6 +102,42 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               />
             </div>
           </button>
+        </div>
+        
+        <form 
+          onSubmit={handleSearch} 
+          className="flex-1 flex justify-center max-w-md mx-auto"
+        >
+          <div className="relative w-full">
+            <Search 
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+              aria-hidden="true"
+            />
+            <Input
+              type="text"
+              placeholder="Search ENS username..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full bg-gray-50 rounded-full focus:ring-2"
+              style={{ 
+                borderColor: avatarColor,
+                '--tw-ring-color': avatarColor,
+              } as React.CSSProperties}
+            />
+            <Button
+              type="submit"
+              variant="ghost"
+              size="sm"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:bg-transparent px-3 py-1"
+              style={{ color: avatarColor }}
+            >
+              Search
+            </Button>
+          </div>
+        </form>
+
+        <div className="flex-none w-14 flex justify-end">
+          {/* This space is kept empty to balance the navbar */}
         </div>
       </div>
     </div>

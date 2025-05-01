@@ -36,138 +36,122 @@ export function useTallyData(walletAddress?: string) {
   const [tallyData, setTallyData] = useState<TallyData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!walletAddress) return;
-
-    const fetchTallyData = async () => {
-      setIsLoading(true);
-      setError(null);
-      setTallyData(null); // Reset data when wallet changes
+  // Function to fetch data with better error handling
+  const fetchTallyData = async (address: string) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const tallyKey = '823049aef82691e85ae43e20d37e0d2f4b896dafdef53ea5dce0912d78bc1988';
+      const formattedAddress = formatToCAIP10(address);
       
-      try {
-        const tallyKey = '823049aef82691e85ae43e20d37e0d2f4b896dafdef53ea5dce0912d78bc1988';
-        const formattedAddress = formatToCAIP10(walletAddress);
-        
-        // Use proper GraphQL query format for Tally API
-        const response = await fetch(`https://api.tally.xyz/query`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Api-Key': tallyKey
-          },
-          body: JSON.stringify({
-            query: `
-              query GovernanceData($address: AccountID!) {
-                account(id: $address) {
-                  governances {
-                    governance {
-                      name
-                      tokens {
-                        symbol
-                        logoUrl
-                      }
+      // Use a simpler GraphQL query focused on just the essential data
+      const response = await fetch(`https://api.tally.xyz/query`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Api-Key': tallyKey
+        },
+        body: JSON.stringify({
+          query: `
+            query AccountGovernance($address: AccountID!) {
+              account(id: $address) {
+                governances {
+                  governance {
+                    name
+                    tokens {
+                      symbol
+                      logoUrl
                     }
-                    votingPower {
-                      value
-                      valueSimple
-                      percentage
-                    }
-                    delegators {
-                      account {
-                        address
-                      }
-                      votingPower {
-                        value
-                        valueSimple
-                        percentage
-                      }
-                    }
-                    delegatees {
-                      account {
-                        address
-                      }
-                      votingPower {
-                        value
-                        valueSimple
-                        percentage
-                      }
-                    }
+                  }
+                  votingPower {
+                    valueSimple
+                    percentage
                   }
                 }
               }
-            `,
-            variables: {
-              address: formattedAddress
             }
-          })
-        });
+          `,
+          variables: {
+            address: formattedAddress
+          }
+        }),
+        cache: 'no-store'
+      });
 
-        if (!response.ok) {
-          console.error('Tally API response not OK:', response.status, response.statusText);
-          throw new Error(`API error: ${response.status}`);
-        }
+      if (!response.ok) {
+        console.error('Tally API response not OK:', response.status, response.statusText);
+        throw new Error(`API error: ${response.status}`);
+      }
 
-        const result = await response.json();
-        
-        if (result.errors) {
-          console.error('GraphQL errors:', result.errors);
-          throw new Error(result.errors[0].message || 'Error fetching from Tally API');
-        }
-        
-        const accountData = result.data?.account;
-        
-        if (!accountData || !accountData.governances || accountData.governances.length === 0) {
-          console.log('No governance data found for address:', walletAddress);
-          setTallyData(null);
-          setIsLoading(false);
-          return;
-        }
-        
-        // Use the first governance for now (can be expanded to handle multiple)
-        const governance = accountData.governances[0];
-        
-        // Process delegators (people delegating to this wallet)
-        const delegators = governance.delegators?.map(delegator => ({
-          address: delegator.account.address,
-          votingPower: `${delegator.votingPower.valueSimple} (${delegator.votingPower.percentage}%)`
-        })) || [];
-        
-        // Process delegations (addresses this wallet is delegating to)
-        const delegations = governance.delegatees?.map(delegatee => ({
-          address: delegatee.account.address,
-          votingPower: `${delegatee.votingPower.valueSimple} (${delegatee.votingPower.percentage}%)`
-        })) || [];
-        
-        // Format the DAO data
-        setTallyData({
-          daoName: governance.governance.name,
-          daoSymbol: governance.governance.tokens[0]?.symbol || 'DAO',
-          daoIcon: governance.governance.tokens[0]?.logoUrl,
-          votingPower: `${governance.votingPower.valueSimple} (${governance.votingPower.percentage}%)`,
-          receivedDelegations: delegators.length > 0 ? `${delegators.length} addresses delegating` : 'No delegations',
-          delegatingTo: delegations.length > 0 ? delegations[0].address : undefined,
-          delegators: delegators.length > 0 ? delegators : undefined,
-          delegations: delegations.length > 0 ? delegations : undefined
-        });
-      } catch (err) {
-        console.error("Error fetching Tally data:", err);
-        setError("Failed to fetch DAO data from Tally");
+      const result = await response.json();
+      
+      if (result.errors) {
+        console.error('GraphQL errors:', result.errors);
+        throw new Error(result.errors[0]?.message || 'Error fetching from Tally API');
+      }
+      
+      const accountData = result.data?.account;
+      
+      if (!accountData || !accountData.governances || accountData.governances.length === 0) {
+        console.log('No governance data found for address:', address);
+        setTallyData(null);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Use the first governance for displaying basic info
+      const governance = accountData.governances[0];
+      
+      // Format the basic DAO data without fetching delegations
+      setTallyData({
+        daoName: governance.governance.name || "DAO",
+        daoSymbol: governance.governance.tokens?.[0]?.symbol || "DAO",
+        daoIcon: governance.governance.tokens?.[0]?.logoUrl,
+        votingPower: governance.votingPower ? 
+          `${governance.votingPower.valueSimple} (${governance.votingPower.percentage}%)` : 
+          "0",
+        receivedDelegations: "N/A", // Simplified version doesn't fetch delegations
+      });
+    } catch (err) {
+      console.error("Error fetching Tally data:", err);
+      setError("Failed to fetch basic DAO data");
+      
+      // Only show toast on initial load, not on background retries
+      if (retryCount === 0) {
         toast({
-          title: "Error loading Tally data",
-          description: "Failed to fetch DAO data from Tally",
+          title: "DAO data unavailable",
+          description: "Could not fetch DAO participation data",
           variant: "destructive"
         });
-        setTallyData(null);
-      } finally {
-        setIsLoading(false);
       }
-    };
+      
+      setTallyData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Effect to fetch data when wallet address changes
+  useEffect(() => {
+    if (!walletAddress) return;
     
-    fetchTallyData();
-    
-  }, [walletAddress, toast]); // Added toast to dependencies
+    fetchTallyData(walletAddress);
+
+    // Setup automatic retry with exponential backoff if initial fetch fails
+    const retryTimeout = setTimeout(() => {
+      if (error && retryCount < 2) { // Limit to 2 retries
+        console.log(`Retrying Tally data fetch (${retryCount + 1})...`);
+        setRetryCount(prev => prev + 1);
+        fetchTallyData(walletAddress);
+      }
+    }, Math.pow(2, retryCount) * 3000); // 3s, 6s, 12s
+
+    return () => clearTimeout(retryTimeout);
+  }, [walletAddress, error, retryCount, toast]);
 
   return { tallyData, isLoading, error };
 }

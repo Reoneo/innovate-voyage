@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
@@ -13,6 +13,7 @@ export function useProfilePage() {
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
+  const navigate = useNavigate();
   
   // Determine which parameter to use (either regular path or recruitment.box path)
   const targetIdentifier = userId || ensNameOrAddress;
@@ -67,22 +68,30 @@ export function useProfilePage() {
       metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
     }
 
-    // Clean URL - remove timestamp query parameter and fix duplicate recruitment.box
+    // Clean URL - remove trailing slashes and fix duplicate paths
     if (window.history) {
-      let cleanUrl = window.location.pathname;
+      const currentPath = window.location.pathname;
+      let cleanPath = currentPath;
       
       // Fix duplicate recruitment.box in URL
-      if (cleanUrl.includes('recruitment.box/recruitment.box/')) {
-        cleanUrl = cleanUrl.replace('recruitment.box/recruitment.box/', 'recruitment.box/');
+      if (cleanPath.includes('recruitment.box/recruitment.box/')) {
+        cleanPath = cleanPath.replace('recruitment.box/recruitment.box/', 'recruitment.box/');
       }
       
-      // Remove timestamp parameter
-      if (window.location.href.includes('?t=')) {
-        window.history.replaceState({}, document.title, cleanUrl);
+      // Remove trailing slashes
+      if (cleanPath.length > 1 && cleanPath.endsWith('/')) {
+        cleanPath = cleanPath.replace(/\/+$/, '');
       }
-      // Fix duplicate recruitment.box without a timestamp parameter
-      else if (cleanUrl !== window.location.pathname) {
-        window.history.replaceState({}, document.title, cleanUrl);
+      
+      // Apply the cleaned URL if different from current
+      if (cleanPath !== currentPath || window.location.search) {
+        window.history.replaceState({}, document.title, cleanPath);
+        
+        // If this was a significant URL change, redirect to the correct route
+        if (cleanPath !== currentPath && cleanPath !== '/' && currentPath !== '/') {
+          // Navigate to cleaned path (without reloading page)
+          navigate(cleanPath, { replace: true });
+        }
       }
     }
 
@@ -93,7 +102,7 @@ export function useProfilePage() {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }
     };
-  }, [targetIdentifier]);
+  }, [targetIdentifier, navigate]);
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
   
