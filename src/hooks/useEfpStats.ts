@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { 
   fetchEfpStats, 
@@ -22,67 +22,134 @@ export function useEfpStats(walletAddress?: string) {
   const [friends, setFriends] = useState<EfpPerson[]>([]);
   const { toast } = useToast();
   const { followAddress: followAddressAction, isProcessing } = useEfpFollow();
+  
+  // Pagination state
+  const [followersList, setFollowersList] = useState<EfpPerson[]>([]);
+  const [followingList, setFollowingList] = useState<EfpPerson[]>([]);
+  const [followersPage, setFollowersPage] = useState(1);
+  const [followingPage, setFollowingPage] = useState(1);
+  const [hasMoreFollowers, setHasMoreFollowers] = useState(true);
+  const [hasMoreFollowing, setHasMoreFollowing] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const PAGE_SIZE = 20;
 
-  const fetchEfpData = async () => {
+  const fetchBasicStats = async () => {
     if (!walletAddress) return;
     setLoading(true);
 
     try {
       console.log("Fetching EFP data for:", walletAddress);
-      // Fetch basic stats first
+      // Fetch basic stats
       const stats = await fetchEfpStats(walletAddress);
+      setStats(prevStats => ({
+        ...prevStats,
+        followers: stats.followers,
+        following: stats.following
+      }));
+    } catch (e) {
+      console.error('Error fetching EFP stats:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchFollowers = async (page = 1, append = false) => {
+    if (!walletAddress) return;
+    
+    setIsLoadingMore(true);
+    
+    try {
+      // Fetch followers with pagination
+      const followers = await fetchEfpFollowers(walletAddress, PAGE_SIZE);
+      const startIdx = (page - 1) * PAGE_SIZE;
+      const endIdx = startIdx + PAGE_SIZE;
+      const pageFollowers = followers.slice(startIdx, endIdx);
       
-      // Then fetch followers and following lists
-      const [followers, following] = await Promise.all([
-        fetchEfpFollowers(walletAddress),
-        fetchEfpFollowing(walletAddress)
-      ]);
+      // Check if we have more followers to load
+      setHasMoreFollowers(endIdx < followers.length);
+      
+      // Process followers with ENS data
+      const processedFollowers = await processUsers(pageFollowers);
+      
+      if (append) {
+        setFollowersList(prev => [...prev, ...processedFollowers]);
+      } else {
+        setFollowersList(processedFollowers);
+      }
+    } catch (e) {
+      console.error('Error fetching followers:', e);
+      setHasMoreFollowers(false);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
-      console.log("Followers data:", followers);
-      console.log("Following data:", following);
-
+  const fetchFollowing = async (page = 1, append = false) => {
+    if (!walletAddress) return;
+    
+    setIsLoadingMore(true);
+    
+    try {
+      // Fetch following with pagination
+      const following = await fetchEfpFollowing(walletAddress, PAGE_SIZE);
+      const startIdx = (page - 1) * PAGE_SIZE;
+      const endIdx = startIdx + PAGE_SIZE;
+      const pageFollowing = following.slice(startIdx, endIdx);
+      
+      // Check if we have more following to load
+      setHasMoreFollowing(endIdx < following.length);
+      
       // Get following addresses from API
       const apiFollowingAddrs = Array.isArray(following) 
         ? following.map(f => f.data || f.address) 
         : [];
       
       setFollowingAddresses(apiFollowingAddrs);
-
-      // Process followers and following with ENS data
-      const [followersList, followingList] = await Promise.all([
-        processUsers(followers),
-        processUsers(following)
-      ]);
       
-      // Set friends as a combination of followers and following
-      const combinedFriends = [...followersList, ...followingList];
-      // Remove duplicates by address
-      const uniqueFriends = combinedFriends.filter((friend, index, self) =>
-        index === self.findIndex((f) => f.address === friend.address)
-      );
+      // Process following with ENS data
+      const processedFollowing = await processUsers(pageFollowing);
       
-      setFriends(uniqueFriends);
-      
-      setStats({
-        followers: stats.followers,
-        following: stats.following,
-        followersList,
-        followingList
-      });
-      
+      if (append) {
+        setFollowingList(prev => [...prev, ...processedFollowing]);
+      } else {
+        setFollowingList(processedFollowing);
+      }
     } catch (e) {
-      console.error('Error fetching EFP data:', e);
-      setStats({ followers: 0, following: 0 });
+      console.error('Error fetching following:', e);
+      setHasMoreFollowing(false);
     } finally {
-      setLoading(false);
+      setIsLoadingMore(false);
     }
   };
+
+  const loadMoreFollowers = useCallback(() => {
+    if (isLoadingMore || !hasMoreFollowers) return;
+    const nextPage = followersPage + 1;
+    setFollowersPage(nextPage);
+    fetchFollowers(nextPage, true);
+  }, [followersPage, isLoadingMore, hasMoreFollowers]);
+
+  const loadMoreFollowing = useCallback(() => {
+    if (isLoadingMore || !hasMoreFollowing) return;
+    const nextPage = followingPage + 1;
+    setFollowingPage(nextPage);
+    fetchFollowing(nextPage, true);
+  }, [followingPage, isLoadingMore, hasMoreFollowing]);
 
   useEffect(() => {
     let cancelled = false;
     if (!walletAddress) return;
     
-    fetchEfpData();
+    // Reset pagination when wallet address changes
+    setFollowersPage(1);
+    setFollowingPage(1);
+    setHasMoreFollowers(true);
+    setHasMoreFollowing(true);
+    
+    // Fetch initial data
+    fetchBasicStats();
+    fetchFollowers(1);
+    fetchFollowing(1);
     
     return () => { cancelled = true; };
   }, [walletAddress]);
@@ -96,7 +163,11 @@ export function useEfpStats(walletAddress?: string) {
     try {
       await followAddressAction(addressToFollow, isFollowing(addressToFollow), () => {
         // Only refresh data after a successful follow
-        setTimeout(fetchEfpData, 1000);
+        setTimeout(() => {
+          fetchBasicStats();
+          fetchFollowers(1);
+          fetchFollowing(1);
+        }, 1000);
       });
     } catch (error) {
       throw error;
@@ -106,10 +177,17 @@ export function useEfpStats(walletAddress?: string) {
   return { 
     ...stats, 
     loading, 
+    followersList,
+    followingList,
     followAddress,
     isFollowing,
-    refreshData: fetchEfpData,
+    refreshData: fetchBasicStats,
     friends,
-    isProcessing
+    isProcessing,
+    loadMoreFollowers,
+    loadMoreFollowing,
+    hasMoreFollowers,
+    hasMoreFollowing,
+    isLoadingMore
   };
 }

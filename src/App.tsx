@@ -47,6 +47,12 @@ const App = () => {
         const cleanPath = window.location.pathname.replace('recruitment.box/recruitment.box/', 'recruitment.box/');
         window.history.replaceState({}, document.title, cleanPath);
       }
+
+      // Remove trailing slash if present (except for root)
+      if (window.location.pathname !== '/' && window.location.pathname.endsWith('/')) {
+        const cleanPath = window.location.pathname.slice(0, -1);
+        window.history.replaceState({}, document.title, cleanPath);
+      }
     };
     
     // Clean URL on load
@@ -75,12 +81,17 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              {/* Special route for recruitment.box domain - Fix duplication issue */}
+              {/* Profile routes without trailing slash */}
               <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+              <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+              
+              {/* Redirect any route with trailing slash to non-trailing slash version */}
+              <Route path="/recruitment.box/:userId/*" element={<Navigate to="/recruitment.box/:userId" replace />} />
+              <Route path="/:ensNameOrAddress/*" element={<Navigate to="/:ensNameOrAddress" replace />} />
+              
               {/* Catch and fix duplicate paths */}
               <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
-              {/* Regular profile route */}
-              <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+              
               {/* Handle 404 and redirects */}
               <Route path="/404" element={<NotFound />} />
               <Route path="*" element={<Navigate to="/404" />} />

@@ -1,5 +1,9 @@
 
 /*    /index.html   200
 
-# Redirect URLs without trailing slash to URLs with trailing slash
-/:ensNameOrAddress  /:ensNameOrAddress/   301
+# Clean duplicate paths
+/recruitment.box/recruitment.box/*  /recruitment.box/:splat  301
+
+# Handle URLs without requiring trailing slashes
+/:ensNameOrAddress/  /:ensNameOrAddress  301!
+/:ensNameOrAddress   /:ensNameOrAddress  200

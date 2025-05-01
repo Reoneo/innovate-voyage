@@ -17,7 +17,22 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     ? `${name}.eth`
     : name);
   
-  const { followers, following, followersList, followingList, loading, followAddress, isFollowing, isProcessing } = useEfpStats(ownerAddress);
+  const { 
+    followers, 
+    following, 
+    followersList, 
+    followingList, 
+    loading, 
+    followAddress, 
+    isFollowing, 
+    isProcessing,
+    loadMoreFollowers,
+    loadMoreFollowing,
+    hasMoreFollowers,
+    hasMoreFollowing,
+    isLoadingMore
+  } = useEfpStats(ownerAddress);
+  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<'followers' | 'following'>('followers');
   const { toast } = useToast();
@@ -55,7 +70,6 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       await followAddress(address);
     } catch (error) {
       console.error('Follow error:', error);
-      // Error is already handled in useEfpFollow
     }
   };
 
@@ -75,7 +89,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
         openFollowingDialog={openFollowingDialog}
       />
       
-      {/* Followers/Following Dialog */}
+      {/* Followers/Following Dialog with infinite scroll */}
       <FollowersDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -86,6 +100,11 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
         isFollowing={isFollowing}
         followLoading={followLoading}
         isProcessing={isProcessing}
+        loadMoreFollowers={loadMoreFollowers}
+        loadMoreFollowing={loadMoreFollowing}
+        hasMoreFollowers={hasMoreFollowers}
+        hasMoreFollowing={hasMoreFollowing}
+        isLoadingMore={isLoadingMore}
       />
     </div>
   );
