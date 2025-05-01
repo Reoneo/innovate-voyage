@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 import { Web3Button } from '@web3modal/react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Wallet, LogOut } from 'lucide-react';

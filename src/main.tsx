@@ -11,15 +11,15 @@ if (typeof window !== 'undefined') {
 import { createRoot } from 'react-dom/client';
 import {
   WagmiConfig,
-  createClient,
+  createConfig,
   configureChains,
 } from 'wagmi';
 import { mainnet, goerli } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import {
   EthereumClient,
-  w3mProvider,
   w3mConnectors,
+  w3mProvider,
 } from '@web3modal/ethereum';
 import { Web3Modal } from '@web3modal/react';
 import App from './App.tsx';
@@ -51,7 +51,7 @@ if (typeof window !== 'undefined' && typeof global === 'undefined') {
 const projectId = import.meta.env.VITE_WC_PROJECT_ID || "YOUR_PROJECT_ID_FROM_cloud.walletconnect.com";
 
 // Configure chains + providers
-const { chains, provider } = configureChains(
+const { chains, publicClient } = configureChains(
   [mainnet, goerli], // Add more chains as needed
   [
     w3mProvider({ projectId }),
@@ -59,19 +59,19 @@ const { chains, provider } = configureChains(
   ]
 );
 
-// Create wagmi client with Web3Modal connectors
-const wagmiClient = createClient({
+// Create wagmi config with Web3Modal connectors
+const wagmiConfig = createConfig({
   autoConnect: true,
   connectors: w3mConnectors({ projectId, chains }),
-  provider,
+  publicClient,
 });
 
 // Create the Web3Modal "bridge" to wagmi
-const ethereumClient = new EthereumClient(wagmiClient, chains);
+const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
 const root = createRoot(document.getElementById("root")!);
 root.render(
-  <WagmiConfig client={wagmiClient}>
+  <WagmiConfig config={wagmiConfig}>
     <App />
     <Web3Modal
       projectId={projectId}
