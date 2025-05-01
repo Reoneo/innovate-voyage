@@ -52,14 +52,13 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl bg-gradient-to-b from-blue-950 to-blue-900 text-white border-blue-800 shadow-xl shadow-blue-900/20">
-        <DialogHeader className="border-b border-blue-800 pb-3">
+      <DialogContent className="max-w-3xl bg-gradient-to-b from-gray-900 to-gray-950 text-white border-gray-800">
+        <DialogHeader className="border-b border-gray-800 pb-3">
           <DialogTitle className="flex items-center gap-2">
             <img 
               src={getChainLogo(nft.chain)} 
               alt={chainName(nft.chain)}
               className="h-5 w-5 rounded-full"
-              loading="lazy"
             />
             {nft.name}
           </DialogTitle>
@@ -67,61 +66,59 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex justify-center">
-            <div className="rounded-md overflow-hidden w-full aspect-square bg-gradient-to-b from-blue-800 to-blue-900">
+            <div className="rounded-md overflow-hidden w-full aspect-square bg-gradient-to-b from-gray-800 to-gray-900">
               <img 
                 src={nft.imageUrl} 
                 alt={nft.name}
                 className="w-full h-full object-contain"
-                loading="lazy"
               />
             </div>
           </div>
           
           <div className="space-y-4">
-            <div className="bg-blue-800/50 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-200">Collection</h3>
+            <div className="bg-gray-800/50 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-400">Collection</h3>
               <p className="text-white">{nft.collectionName}</p>
             </div>
             
-            <div className="bg-blue-800/50 p-4 rounded-lg flex items-center gap-2">
+            <div className="bg-gray-800/50 p-4 rounded-lg flex items-center gap-2">
               <img 
                 src={getChainLogo(nft.chain)} 
                 alt={chainName(nft.chain)}
                 className="h-5 w-5 rounded-full"
-                loading="lazy"
               />
               <span>{chainName(nft.chain)} Network</span>
             </div>
             
             {nft.description && (
-              <div className="bg-blue-800/50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-200">Description</h3>
-                <p className="text-sm text-blue-100">{nft.description}</p>
+              <div className="bg-gray-800/50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-400">Description</h3>
+                <p className="text-sm text-gray-300">{nft.description}</p>
               </div>
             )}
             
             <div className="flex gap-2">
               {nft.bestOffer && (
-                <div className="flex-1 bg-blue-800/50 p-4 rounded-lg">
-                  <h3 className="text-sm font-medium text-blue-200">Best Offer</h3>
+                <div className="flex-1 bg-gray-800/50 p-4 rounded-lg">
+                  <h3 className="text-sm font-medium text-gray-400">Best Offer</h3>
                   <p>{nft.bestOffer} ETH</p>
                 </div>
               )}
               
               {nft.currentPrice && (
-                <div className="flex-1 bg-blue-800/50 p-4 rounded-lg">
-                  <h3 className="text-sm font-medium text-blue-200">Current Price</h3>
+                <div className="flex-1 bg-gray-800/50 p-4 rounded-lg">
+                  <h3 className="text-sm font-medium text-gray-400">Current Price</h3>
                   <p>{nft.currentPrice} ETH</p>
                 </div>
               )}
             </div>
             
             {nft.owner && (
-              <div className="bg-blue-800/50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-200">Owner</h3>
+              <div className="bg-gray-800/50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-400">Owner</h3>
                 <Button 
                   variant="link" 
-                  className="text-blue-300 p-0 h-auto font-normal hover:text-blue-200"
+                  className="text-blue-400 p-0 h-auto font-normal hover:text-blue-300"
                   onClick={handleProfileClick}
                 >
                   {nft.owner}
@@ -132,7 +129,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
             <div className="pt-2">
               <Button 
                 variant="outline" 
-                className="flex items-center gap-1 bg-blue-800 hover:bg-blue-700 text-white border-blue-600"
+                className="flex items-center gap-1 bg-gray-800 hover:bg-gray-700 text-white border-gray-700"
                 asChild
               >
                 <a 
@@ -151,4 +148,4 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
   );
 };
 
-export default React.memo(NftDetailsDialog);
+export default NftDetailsDialog;

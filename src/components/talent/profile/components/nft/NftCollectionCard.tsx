@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { OpenSeaNft } from '@/api/services/openseaService';
 import NftItem from './NftItem';
 
@@ -14,13 +14,13 @@ const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
   nfts,
   onNftClick 
 }) => {
-  // Format collection name - replace dashes with spaces (memoized)
-  const formattedCollectionName = useMemo(() => {
-    return collectionName.replace(/-/g, ' ');
-  }, [collectionName]);
+  // Format collection name - replace dashes with spaces
+  const formatCollectionName = (name: string) => {
+    return name.replace(/-/g, ' ');
+  };
 
-  // Get collection icon based on collection name (memoized)
-  const collectionIcon = useMemo(() => {
+  // Get collection icon based on collection name
+  const getCollectionIcon = (collectionName: string) => {
     const lowerCaseName = collectionName.toLowerCase();
     if (lowerCaseName.includes('doodle') || lowerCaseName.includes('doodles')) {
       return "https://pbs.twimg.com/profile_images/1907827518700220416/ZUn7WAT8_400x400.jpg";
@@ -32,18 +32,17 @@ const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
       return "https://pbs.twimg.com/profile_images/1746632341378715649/XOOa7TZO_400x400.jpg";
     }
     return "https://cdn-icons-png.flaticon.com/512/6699/6699362.png";
-  }, [collectionName]);
+  };
 
   return (
     <div key={collectionName} className="space-y-3">
       <div className="flex items-center gap-2 pl-1">
         <img 
-          src={collectionIcon} 
+          src={getCollectionIcon(collectionName)} 
           alt={collectionName} 
-          className="h-5 w-5 rounded-full" 
-          loading="lazy" 
+          className="h-5 w-5 rounded-full" // Reduced size from h-6 w-6
         />
-        <h4 className="text-md font-medium text-blue-100">{formattedCollectionName}</h4>
+        <h4 className="text-md font-medium">{formatCollectionName(collectionName)}</h4>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {nfts.map((nft) => (
@@ -58,4 +57,4 @@ const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
   );
 };
 
-export default React.memo(NftCollectionCard);
+export default NftCollectionCard;

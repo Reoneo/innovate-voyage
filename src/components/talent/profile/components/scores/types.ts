@@ -1,4 +1,3 @@
-
 export type ThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
 
 export interface RiskHistoryItem {
@@ -12,14 +11,6 @@ export interface WebacyTransaction {
   date: string;
   riskLevel: ThreatLevel;
   description: string;
-}
-
-export interface RiskItem {
-  id: string;
-  type: string;
-  label: string;
-  address: string;
-  description?: string;
 }
 
 export interface WebacyData {
@@ -37,7 +28,6 @@ export interface WebacyData {
   };
   riskTransactions?: WebacyTransaction[];
   riskHistory?: RiskHistoryItem[];
-  riskItems?: RiskItem[];
 }
 
 export interface ScoreBadgeProps {
@@ -48,7 +38,7 @@ export interface ScoreBadgeProps {
 export interface ScoreDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type: 'talent' | 'webacy' | 'transactions' | 'tally';
+  type: 'talent' | 'webacy' | 'transactions';
   data: {
     score?: number | null;
     webacyData?: WebacyData | null;
