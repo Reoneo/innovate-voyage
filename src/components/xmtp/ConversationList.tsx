@@ -35,7 +35,7 @@ const ConversationItem = ({
   const displayName = isLensHandle ? peerAddress : (resolvedEns || displayAddress);
   
   return (
-    <div className="p-3 border rounded-md hover:bg-accent transition-colors flex items-center gap-3 group">
+    <div className="p-3 border rounded-md hover:bg-accent transition-colors flex items-center gap-3">
       <Avatar className="h-12 w-12 border">
         <AvatarImage src={avatarUrl || ''} alt={displayName} />
         <AvatarFallback className="bg-primary/10 text-primary text-sm">
@@ -58,7 +58,7 @@ const ConversationItem = ({
       <Button
         variant="ghost"
         size="icon"
-        className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-600 hover:bg-red-100"
+        className="text-red-500 hover:text-red-600 hover:bg-red-100"
         onClick={(e) => {
           e.stopPropagation();
           onDelete();
