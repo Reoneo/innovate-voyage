@@ -8,9 +8,22 @@ if (typeof window !== 'undefined') {
   console.log("Main: Buffer polyfill initialized:", !!window.Buffer);
 }
 
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import { createRoot } from 'react-dom/client';
+import {
+  WagmiConfig,
+  createClient,
+  configureChains,
+} from 'wagmi';
+import { mainnet, goerli } from 'wagmi/chains';
+import { publicProvider } from 'wagmi/providers/public';
+import {
+  EthereumClient,
+  w3mProvider,
+  w3mConnectors,
+} from '@web3modal/ethereum';
+import { Web3Modal } from '@web3modal/react';
+import App from './App.tsx';
+import './index.css';
 
 // Double-check Buffer is available
 if (typeof window !== 'undefined' && !window.Buffer) {
@@ -33,4 +46,39 @@ if (typeof window !== 'undefined' && typeof global === 'undefined') {
   }
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+// WalletConnect v2 Project ID
+// For production, this should be in environment variables
+const projectId = import.meta.env.VITE_WC_PROJECT_ID || "YOUR_PROJECT_ID_FROM_cloud.walletconnect.com";
+
+// Configure chains + providers
+const { chains, provider } = configureChains(
+  [mainnet, goerli], // Add more chains as needed
+  [
+    w3mProvider({ projectId }),
+    publicProvider()
+  ]
+);
+
+// Create wagmi client with Web3Modal connectors
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors: w3mConnectors({ projectId, chains }),
+  provider,
+});
+
+// Create the Web3Modal "bridge" to wagmi
+const ethereumClient = new EthereumClient(wagmiClient, chains);
+
+const root = createRoot(document.getElementById("root")!);
+root.render(
+  <WagmiConfig client={wagmiClient}>
+    <App />
+    <Web3Modal
+      projectId={projectId}
+      ethereumClient={ethereumClient}
+      themeMode="light"
+      themeColor="default"
+      themeBackground="themeColor"
+    />
+  </WagmiConfig>
+);

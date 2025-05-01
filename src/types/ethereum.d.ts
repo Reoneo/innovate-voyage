@@ -22,6 +22,7 @@ interface ImportMetaEnv {
   VITE_ETHERSCAN_API_URL?: string;
   VITE_ETHEREUM_RPC_URL?: string;
   VITE_OPTIMISM_RPC_URL?: string;
+  VITE_WC_PROJECT_ID?: string;
   readonly DEV: boolean;
 }
 
