@@ -50,8 +50,8 @@ export function useScoresData(walletAddress: string) {
         const fetchWebacyData = async (retries = 2) => {
           for (let i = 0; i <= retries; i++) {
             try {
-              // Use the updated v2 endpoint with chain parameter
-              const response = await fetch(`https://api.webacy.com/v2/quick-profile/${walletAddress}?chain=eth`, {
+              // Updated API endpoint without v2 prefix
+              const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}?chain=eth`, {
                 method: 'GET',
                 headers: {
                   'accept': 'application/json',
@@ -67,7 +67,7 @@ export function useScoresData(walletAddress: string) {
                 
                 // Fetch risk items if available
                 const riskItemsResponse = await fetch(
-                  `https://api.webacy.com/v2/addresses/${walletAddress}/risk-items?chain=eth`,
+                  `https://api.webacy.com/addresses/${walletAddress}/risk-items?chain=eth`,
                   {
                     method: 'GET',
                     headers: {
