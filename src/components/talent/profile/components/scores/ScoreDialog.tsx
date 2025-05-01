@@ -22,7 +22,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
 
   switch (type) {
     case 'talent':
-      dialogContent = <TalentScoreDialogContent score={data.score} />;
+      dialogContent = <TalentScoreDialogContent score={data.score} walletAddress={data.walletAddress} />;
       break;
     case 'transactions':
       dialogContent = <TransactionsDialogContent txCount={data.txCount} walletAddress={data.walletAddress} />;
