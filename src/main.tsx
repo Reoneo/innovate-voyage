@@ -15,7 +15,7 @@ import {
   configureChains,
 } from 'wagmi';
 import { mainnet, goerli } from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import {
   EthereumClient,
   w3mConnectors,
@@ -55,7 +55,11 @@ const { chains, publicClient } = configureChains(
   [mainnet, goerli], // Add more chains as needed
   [
     w3mProvider({ projectId }),
-    publicProvider()
+    jsonRpcProvider({
+      rpc: (chain) => ({
+        http: chain.rpcUrls.default.http[0],
+      }),
+    })
   ]
 );
 
