@@ -9,15 +9,13 @@ interface RiskScoreCardProps {
 }
 
 const RiskScoreCard: React.FC<RiskScoreCardProps> = ({ webacyData }) => {
-  const score = webacyData?.riskScore !== undefined ? webacyData.riskScore : 'Unknown';
-  
   return (
     <Card>
       <CardContent className="pt-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-medium">Risk Score</h3>
           <span className={`text-xl font-bold ${getThreatColor(webacyData?.threatLevel)}`}>
-            {typeof score === 'number' ? score : score}
+            {webacyData?.riskScore !== undefined ? webacyData.riskScore : 'Unknown'}
           </span>
         </div>
         <div className="text-sm text-muted-foreground">
