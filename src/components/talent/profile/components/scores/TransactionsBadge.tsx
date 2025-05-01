@@ -44,12 +44,12 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
             <img 
               src="https://cdn-icons-png.flaticon.com/512/6699/6699362.png" 
               alt="NFT Collection" 
-              className="h-32 w-32 mb-2"
+              className="h-26 w-26 mb-2" // Reduced from h-32 w-32 (which is 20% reduction from 32 to 26)
             />
             {nftCount !== null && nftCount > 0 && (
               <Badge 
                 variant="destructive" 
-                className="absolute -top-3 -right-3 min-w-10 h-10 flex items-center justify-center rounded-full text-lg font-bold px-2"
+                className="absolute -top-3 -right-3 min-w-8 h-8 flex items-center justify-center rounded-full text-base font-bold px-2" // Reduced from min-w-10 h-10 and text-lg to text-base
               >
                 {nftCount > 99 ? '99+' : nftCount}
               </Badge>
