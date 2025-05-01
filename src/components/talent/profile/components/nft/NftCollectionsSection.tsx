@@ -60,8 +60,8 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   return (
     <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto bg-gradient-to-b from-gray-900 to-gray-950 text-white border-gray-800 p-6">
-          <div className="sticky top-0 z-10 flex justify-between items-center pb-4 border-b border-gray-800 bg-gradient-to-b from-gray-900 to-gray-900/95">
+        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto bg-gradient-to-b from-blue-950 to-blue-900 text-white border-blue-800 p-6 shadow-xl shadow-blue-900/20">
+          <div className="sticky top-0 z-10 flex justify-between items-center pb-4 border-b border-blue-800 bg-gradient-to-b from-blue-950 to-blue-950/95">
             <DialogHeader>
               <h2 className="text-lg font-semibold text-white">
                 {selectedType === 'all' ? 'All Collections' : 
@@ -73,7 +73,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
               variant="ghost"
               size="icon"
               onClick={() => onOpenChange?.(false)}
-              className="rounded-full h-8 w-8 text-gray-400 hover:text-white hover:bg-gray-800"
+              className="rounded-full h-8 w-8 text-blue-300 hover:text-white hover:bg-blue-800"
             >
               <X size={18} />
             </Button>

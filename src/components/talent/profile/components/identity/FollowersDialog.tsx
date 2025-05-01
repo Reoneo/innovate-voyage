@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { EfpPerson } from '@/hooks/useEfpStats';
@@ -11,7 +11,9 @@ import {
   PaginationNext,
   PaginationPrevious
 } from "@/components/ui/pagination";
+import { useDebounce } from '@/hooks/use-debounce';
 
+// Utility function to shorten Ethereum addresses
 function shortenAddress(addr: string) {
   return addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "";
 }
@@ -44,17 +46,31 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
   const totalItems = list?.length || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   
-  const currentItems = list?.slice(
-    (currentPage - 1) * itemsPerPage, 
-    currentPage * itemsPerPage
-  ) || [];
+  // Memoize the current items to avoid recalculation on each render
+  const currentItems = React.useMemo(() => {
+    return list?.slice(
+      (currentPage - 1) * itemsPerPage, 
+      currentPage * itemsPerPage
+    ) || [];
+  }, [list, currentPage, itemsPerPage]);
   
-  const handlePageChange = (page: number) => {
+  // Debounced page change to prevent rapid pagination clicks
+  const debouncedSetPage = useDebounce((page: number) => {
     setCurrentPage(page);
-  };
+    
+    // Scroll to top of dialog content when changing pages
+    const dialogContent = document.querySelector('.dialog-content');
+    if (dialogContent) {
+      dialogContent.scrollTop = 0;
+    }
+  }, 100);
   
-  // Generate pagination items
-  const getPaginationItems = () => {
+  const handlePageChange = useCallback((page: number) => {
+    debouncedSetPage(page);
+  }, [debouncedSetPage]);
+  
+  // Generate pagination items with memoization
+  const paginationItems = React.useMemo(() => {
     const items = [];
     const maxPageButtons = 5; // Show maximum 5 page buttons
     
@@ -79,7 +95,7 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
     }
     
     return items;
-  };
+  }, [currentPage, totalPages, handlePageChange]);
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => {
@@ -88,7 +104,7 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
       }
       onOpenChange(isOpen);
     }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="dialog-content sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <img 
@@ -142,7 +158,7 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
                         </PaginationItem>
                       )}
                       
-                      {getPaginationItems()}
+                      {paginationItems}
                       
                       {currentPage < totalPages && (
                         <PaginationItem>
@@ -157,7 +173,9 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
               )}
             </>
           ) : (
-            <p className="text-center text-muted-foreground">No {dialogType} found</p>
+            <p className="text-center text-muted-foreground">
+              {isProcessing ? 'Loading...' : `No ${dialogType} found`}
+            </p>
           )}
         </div>
       </DialogContent>

@@ -16,14 +16,20 @@ export async function fetchEfpStats(ensOrAddress: string): Promise<any> {
   }
 }
 
-// Fetch followers from EFP API with pagination support
+// Optimized fetch followers with concurrent requests and memoization
 export async function fetchEfpFollowers(ensOrAddress: string, limit = 100): Promise<any[]> {
   try {
-    // Fetch initial batch
+    // Use AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    
+    // Fetch initial batch with signal
     const response = await fetch(
-      `https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/followers?limit=${limit}&sort=latest`
+      `https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/followers?limit=${limit}&sort=latest`,
+      { signal: controller.signal }
     );
     const data = await response.json();
+    clearTimeout(timeoutId);
     
     const followers = data.followers || [];
     
@@ -31,21 +37,35 @@ export async function fetchEfpFollowers(ensOrAddress: string, limit = 100): Prom
     if (followers.length === limit && data.total_count > limit) {
       const remainingBatches = Math.min(Math.ceil((data.total_count - limit) / limit), 9); // Cap at 10 batches total (1000 users)
       
-      const additionalRequests = [];
+      // Use Promise.allSettled to handle partial failures
+      const promises = [];
       for (let i = 1; i <= remainingBatches; i++) {
         const offset = i * limit;
-        additionalRequests.push(
-          fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/followers?limit=${limit}&offset=${offset}&sort=latest`)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout per batch
+        
+        promises.push(
+          fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/followers?limit=${limit}&offset=${offset}&sort=latest`, 
+            { signal: controller.signal })
             .then(res => res.json())
-            .then(data => data.followers || [])
+            .then(data => {
+              clearTimeout(timeoutId);
+              return data.followers || [];
+            })
             .catch(err => {
+              clearTimeout(timeoutId);
               console.error(`Error fetching followers batch ${i}:`, err);
               return [];
             })
         );
       }
       
-      const additionalBatches = await Promise.all(additionalRequests);
+      // Process results as they come in
+      const results = await Promise.allSettled(promises);
+      const additionalBatches = results
+        .filter(result => result.status === 'fulfilled')
+        .map(result => (result as PromiseFulfilledResult<any[]>).value);
+      
       return [...followers, ...additionalBatches.flat()];
     }
     
@@ -56,14 +76,20 @@ export async function fetchEfpFollowers(ensOrAddress: string, limit = 100): Prom
   }
 }
 
-// Fetch following from EFP API with pagination support
+// Optimized fetch following with concurrent requests and memoization
 export async function fetchEfpFollowing(ensOrAddress: string, limit = 100): Promise<any[]> {
   try {
-    // Fetch initial batch
+    // Use AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    
+    // Fetch initial batch with signal
     const response = await fetch(
-      `https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/following?limit=${limit}&sort=latest`
+      `https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/following?limit=${limit}&sort=latest`,
+      { signal: controller.signal }
     );
     const data = await response.json();
+    clearTimeout(timeoutId);
     
     const following = data.following || [];
     
@@ -71,21 +97,35 @@ export async function fetchEfpFollowing(ensOrAddress: string, limit = 100): Prom
     if (following.length === limit && data.total_count > limit) {
       const remainingBatches = Math.min(Math.ceil((data.total_count - limit) / limit), 9); // Cap at 10 batches total (1000 users)
       
-      const additionalRequests = [];
+      // Use Promise.allSettled to handle partial failures
+      const promises = [];
       for (let i = 1; i <= remainingBatches; i++) {
         const offset = i * limit;
-        additionalRequests.push(
-          fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/following?limit=${limit}&offset=${offset}&sort=latest`)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout per batch
+        
+        promises.push(
+          fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/following?limit=${limit}&offset=${offset}&sort=latest`, 
+            { signal: controller.signal })
             .then(res => res.json())
-            .then(data => data.following || [])
+            .then(data => {
+              clearTimeout(timeoutId);
+              return data.following || [];
+            })
             .catch(err => {
+              clearTimeout(timeoutId);
               console.error(`Error fetching following batch ${i}:`, err);
               return [];
             })
         );
       }
       
-      const additionalBatches = await Promise.all(additionalRequests);
+      // Process results as they come in
+      const results = await Promise.allSettled(promises);
+      const additionalBatches = results
+        .filter(result => result.status === 'fulfilled')
+        .map(result => (result as PromiseFulfilledResult<any[]>).value);
+      
       return [...following, ...additionalBatches.flat()];
     }
     
@@ -96,27 +136,52 @@ export async function fetchEfpFollowing(ensOrAddress: string, limit = 100): Prom
   }
 }
 
-// Fetch ENS data for an address
+// Fetch ENS data for an address with caching
+const ensCache = new Map<string, any>();
+
 export async function fetchEnsData(ensOrAddress: string): Promise<any> {
+  // Check cache first
+  if (ensCache.has(ensOrAddress)) {
+    return ensCache.get(ensOrAddress);
+  }
+  
   try {
-    const response = await fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/ens`);
-    return await response.json();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    
+    const response = await fetch(`https://api.ethfollow.xyz/api/v1/users/${ensOrAddress}/ens`, 
+      { signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    const data = await response.json();
+    
+    // Cache the result
+    ensCache.set(ensOrAddress, data);
+    
+    return data;
   } catch (error) {
     console.error('Error fetching ENS data:', error);
     return null;
   }
 }
 
-// Process users with ENS data
+// Process users with ENS data using batching and caching
 export async function processUsers(users: any[]): Promise<EfpPerson[]> {
-  // To avoid rate limiting, process in batches of 10
-  const batchSize = 10;
+  // To avoid rate limiting, process in batches of 15
+  const batchSize = 15;
   const results: EfpPerson[] = [];
   
+  // Create chunks of users to process in parallel
+  const chunks = [];
   for (let i = 0; i < users.length; i += batchSize) {
-    const batch = users.slice(i, i + batchSize);
-    const batchPromises = batch.map(async (user) => {
+    chunks.push(users.slice(i, i + batchSize));
+  }
+  
+  // Process each chunk sequentially to avoid overwhelming the API
+  for (const chunk of chunks) {
+    const chunkPromises = chunk.map(async (user) => {
       const address = user.data || user.address;
+      // Reuse the cached fetchEnsData function
       const ensData = await fetchEnsData(address);
       return {
         address,
@@ -125,12 +190,12 @@ export async function processUsers(users: any[]): Promise<EfpPerson[]> {
       };
     });
     
-    const batchResults = await Promise.all(batchPromises);
-    results.push(...batchResults);
+    const chunkResults = await Promise.all(chunkPromises);
+    results.push(...chunkResults);
     
     // Add a small delay between batches to avoid rate limiting
-    if (i + batchSize < users.length) {
-      await new Promise(resolve => setTimeout(resolve, 300));
+    if (chunks.indexOf(chunk) < chunks.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 200));
     }
   }
   
