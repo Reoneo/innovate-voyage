@@ -1,6 +1,6 @@
 
 import { ethers } from 'ethers';
-import { ensProvider } from '../ethereumProviders';
+import { mainnetProvider } from '../ethereumProviders';
 
 export async function getEnsLinks(ensName: string, networkName: string = 'mainnet') {
   // Default result structure
@@ -17,7 +17,7 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
       return result;
     }
     
-    const resolver = await ensProvider.getResolver(ensName);
+    const resolver = await mainnetProvider.getResolver(ensName);
     
     // Exit if no resolver found
     if (!resolver) {
