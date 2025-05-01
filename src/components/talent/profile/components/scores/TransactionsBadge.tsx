@@ -43,21 +43,19 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
           <div className="text-gray-700 text-lg font-semibold">NFT Collection</div>
         </div>
         <div className="text-center relative flex items-center justify-center w-full mt-2">
-          <div className="relative">
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/6699/6699362.png" 
-              alt="NFT Collection" 
-              className="h-24 w-24" 
-            />
-            {nftCount !== null && nftCount > 0 && (
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-2"
-              >
-                {nftCount > 99 ? '99+' : nftCount}
-              </Badge>
-            )}
-          </div>
+          <img 
+            src="https://cdn-icons-png.flaticon.com/512/6699/6699362.png" 
+            alt="NFT Collection" 
+            className="h-12 w-12" 
+          />
+          {nftCount !== null && nftCount > 0 && (
+            <Badge 
+              variant="destructive" 
+              className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-2"
+            >
+              {nftCount > 99 ? '99+' : nftCount}
+            </Badge>
+          )}
         </div>
       </div>
     </div>
