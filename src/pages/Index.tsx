@@ -104,7 +104,7 @@ const Index = () => {
             <div className="flex justify-center mb-6">
               <a href="https://smith.box" title="Go to smith.box">
                 <Avatar className="h-32 w-32 border-4 border-primary shadow-lg hover:shadow-xl transition-all duration-300">
-                  <AvatarImage src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" alt="Recruitment.box Logo" />
+                  <AvatarImage src="/lovable-uploads/d713fade-f512-4f1f-8c8b-8e24e611845b.png" alt="Recruitment.box Logo" />
                   <AvatarFallback>RB</AvatarFallback>
                 </Avatar>
               </a>

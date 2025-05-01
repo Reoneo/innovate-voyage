@@ -37,8 +37,8 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Skeleton className="h-40 w-full bg-gray-800" />
-        <Skeleton className="h-40 w-full bg-gray-800" />
+        <Skeleton className="h-40 w-full bg-gray-100" />
+        <Skeleton className="h-40 w-full bg-gray-100" />
       </div>
     );
   }

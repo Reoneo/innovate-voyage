@@ -13,15 +13,15 @@ const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
   const getChainLogo = (chain: string | undefined) => {
     switch (chain) {
       case 'ethereum':
-        return 'https://cryptologos.cc/logos/ethereum-eth-logo.svg';
+        return 'https://cdn.creazilla.com/icons/3253747/ethereum-icon-lg.png';
       case 'base':
         return 'https://cryptologos.cc/logos/base-logo.svg';
       case 'optimism':
-        return 'https://cryptologos.cc/logos/optimism-ethereum-op-logo.svg';
+        return 'https://altcoinsbox.com/wp-content/uploads/2023/03/optimism-logo-600x600.webp';
       case 'polygon':
-        return 'https://cryptologos.cc/logos/polygon-matic-logo.svg';
+        return 'https://altcoinsbox.com/wp-content/uploads/2023/03/matic-logo-600x600.webp';
       default:
-        return 'https://cryptologos.cc/logos/ethereum-eth-logo.svg'; // Default to Ethereum
+        return 'https://cdn.creazilla.com/icons/3253747/ethereum-icon-lg.png'; // Default to Ethereum
     }
   };
 
@@ -42,14 +42,15 @@ const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
 
   return (
     <div 
-      className="relative group cursor-pointer overflow-hidden rounded-lg"
+      className="relative group cursor-pointer overflow-hidden rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
       onClick={() => onClick(nft)}
     >
-      <div className="aspect-square w-full relative bg-gradient-to-b from-gray-800 to-gray-900">
+      <div className="aspect-square w-full relative bg-white">
         <img 
           src={nft.imageUrl} 
           alt={nft.name}
           className="w-full h-full object-contain"
+          loading="lazy"
         />
         
         {/* Chain indicator */}
@@ -60,7 +61,7 @@ const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
                 <img 
                   src={getChainLogo(nft.chain)} 
                   alt={chainName(nft.chain)}
-                  className="h-5 w-5 rounded-full bg-gray-800 p-0.5"
+                  className="h-5 w-5 rounded-full bg-white p-0.5 shadow-sm"
                 />
               </div>
             </TooltipTrigger>
@@ -71,8 +72,8 @@ const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
         </TooltipProvider>
       </div>
       
-      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-end">
-        <div className="text-white text-sm">
+      <div className="absolute inset-0 bg-white/80 opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-end">
+        <div className="text-gray-800 text-sm">
           <p className="font-medium truncate">{nft.name}</p>
           {nft.bestOffer && (
             <p className="text-xs">Best offer: {nft.bestOffer} ETH</p>

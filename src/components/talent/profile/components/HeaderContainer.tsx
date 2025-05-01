@@ -16,6 +16,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
       marginTop: '16px', /* Add margin top to prevent covering navbar */
       padding: 0,
       overflow: 'auto',
+      border: '1px solid #f0f0f0',
     }}>
       <CardContent className="p-6 md:p-8 print:p-4 h-full">
         {children}

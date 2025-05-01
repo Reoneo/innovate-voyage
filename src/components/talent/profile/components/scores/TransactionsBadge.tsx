@@ -38,7 +38,7 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
 
   return (
     <div onClick={onClick} className="cursor-pointer transition-all hover:opacity-80">
-      <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gradient-to-r from-blue-300/20 to-blue-100/10 h-full">
+      <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-white shadow-md border border-gray-200 h-full">
         <div className="text-center relative flex-grow flex flex-col items-center justify-center w-full">
           <div className="relative">
             <img 
@@ -55,7 +55,6 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
               </Badge>
             )}
           </div>
-          {/* Removed the "Collections" text from here */}
         </div>
       </div>
     </div>

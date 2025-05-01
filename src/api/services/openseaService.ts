@@ -27,34 +27,66 @@ const SUPPORTED_CHAINS = [
   { id: 'polygon', name: 'Polygon' }
 ];
 
+// Create cache to avoid redundant API calls
+const nftCache = new Map<string, OpenSeaCollection[]>();
+
 export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaCollection[]> {
+  // Check if we have cached data for this address
+  const cacheKey = walletAddress.toLowerCase();
+  if (nftCache.has(cacheKey)) {
+    return nftCache.get(cacheKey) || [];
+  }
+  
   const collections: { [key: string]: { nfts: OpenSeaNft[], type: 'ethereum' | 'ens' | 'poap' } } = {};
   
   // Fetch NFTs from multiple chains
   try {
+    // Use AbortController to cancel stale requests
+    const controller = new AbortController();
+    const signal = controller.signal;
+    
+    // Set a timeout to abort the request if it takes too long
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    
+    // Fetch in parallel to improve performance
     const fetchPromises = SUPPORTED_CHAINS.map(async (chain) => {
-      const response = await fetch(`https://api.opensea.io/api/v2/chain/${chain.id}/account/${walletAddress}/nfts`, {
-        headers: {
-          'X-API-KEY': OPENSEA_API_KEY,
-          'Accept': 'application/json'
+      try {
+        const response = await fetch(`https://api.opensea.io/api/v2/chain/${chain.id}/account/${walletAddress}/nfts`, {
+          headers: {
+            'X-API-KEY': OPENSEA_API_KEY,
+            'Accept': 'application/json'
+          },
+          signal
+        });
+        
+        if (!response.ok) {
+          console.error(`Failed to fetch NFTs from ${chain.name} chain:`, response.status);
+          return [];
         }
-      });
-      
-      if (!response.ok) {
-        console.error(`Failed to fetch NFTs from ${chain.name} chain:`, response.status);
+
+        const data = await response.json();
+        return (data.nfts || []).map((nft: any) => ({
+          ...nft,
+          chain: chain.id // Add chain information to each NFT
+        }));
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          console.log(`Request for ${chain.name} NFTs aborted`);
+        } else {
+          console.error(`Error fetching ${chain.name} NFTs:`, err);
+        }
         return [];
       }
-
-      const data = await response.json();
-      return (data.nfts || []).map((nft: any) => ({
-        ...nft,
-        chain: chain.id // Add chain information to each NFT
-      }));
     });
 
-    // Wait for all requests to complete
-    const results = await Promise.all(fetchPromises);
-    const allNfts = results.flat();
+    // Wait for all requests to complete or timeout
+    const results = await Promise.allSettled(fetchPromises);
+    clearTimeout(timeoutId);
+    
+    const allNfts = results
+      .filter((result): result is PromiseFulfilledResult<any[]> => result.status === 'fulfilled')
+      .map(result => result.value)
+      .flat();
     
     // Group NFTs by collection
     allNfts.forEach((nft: any) => {
@@ -85,11 +117,16 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
       });
     });
 
-    return Object.entries(collections).map(([name, data]) => ({
+    const result = Object.entries(collections).map(([name, data]) => ({
       name,
       nfts: data.nfts,
       type: data.type
     }));
+    
+    // Cache the results to avoid redundant API calls
+    nftCache.set(cacheKey, result);
+    
+    return result;
   } catch (error) {
     console.error('Error fetching NFTs:', error);
     return [];

@@ -23,15 +23,15 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
   const getChainLogo = (chain: string | undefined) => {
     switch (chain) {
       case 'ethereum':
-        return 'https://cryptologos.cc/logos/ethereum-eth-logo.svg';
+        return 'https://cdn.creazilla.com/icons/3253747/ethereum-icon-lg.png';
       case 'base':
         return 'https://cryptologos.cc/logos/base-logo.svg';
       case 'optimism':
-        return 'https://cryptologos.cc/logos/optimism-ethereum-op-logo.svg';
+        return 'https://altcoinsbox.com/wp-content/uploads/2023/03/optimism-logo-600x600.webp';
       case 'polygon':
-        return 'https://cryptologos.cc/logos/polygon-matic-logo.svg';
+        return 'https://altcoinsbox.com/wp-content/uploads/2023/03/matic-logo-600x600.webp';
       default:
-        return 'https://cryptologos.cc/logos/ethereum-eth-logo.svg'; // Default to Ethereum
+        return 'https://cdn.creazilla.com/icons/3253747/ethereum-icon-lg.png'; // Default to Ethereum
     }
   };
 
@@ -52,8 +52,8 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl bg-gradient-to-b from-blue-950 to-blue-900 text-white border-blue-800 shadow-xl shadow-blue-900/20">
-        <DialogHeader className="border-b border-blue-800 pb-3">
+      <DialogContent className="max-w-3xl bg-white text-gray-800 border border-gray-200 shadow-lg">
+        <DialogHeader className="border-b border-gray-200 pb-3">
           <DialogTitle className="flex items-center gap-2">
             <img 
               src={getChainLogo(nft.chain)} 
@@ -66,7 +66,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex justify-center">
-            <div className="rounded-md overflow-hidden w-full aspect-square bg-gradient-to-b from-blue-800 to-blue-900">
+            <div className="rounded-md overflow-hidden w-full aspect-square bg-gray-50">
               <img 
                 src={nft.imageUrl} 
                 alt={nft.name}
@@ -76,12 +76,12 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
           </div>
           
           <div className="space-y-4">
-            <div className="bg-blue-800/50 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-200">Collection</h3>
-              <p className="text-white">{nft.collectionName}</p>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-700">Collection</h3>
+              <p className="text-gray-900">{nft.collectionName}</p>
             </div>
             
-            <div className="bg-blue-800/50 p-4 rounded-lg flex items-center gap-2">
+            <div className="bg-gray-50 p-4 rounded-lg flex items-center gap-2">
               <img 
                 src={getChainLogo(nft.chain)} 
                 alt={chainName(nft.chain)}
@@ -91,34 +91,34 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
             </div>
             
             {nft.description && (
-              <div className="bg-blue-800/50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-200">Description</h3>
-                <p className="text-sm text-blue-100">{nft.description}</p>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-700">Description</h3>
+                <p className="text-sm text-gray-600">{nft.description}</p>
               </div>
             )}
             
             <div className="flex gap-2">
               {nft.bestOffer && (
-                <div className="flex-1 bg-blue-800/50 p-4 rounded-lg">
-                  <h3 className="text-sm font-medium text-blue-200">Best Offer</h3>
+                <div className="flex-1 bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-sm font-medium text-gray-700">Best Offer</h3>
                   <p>{nft.bestOffer} ETH</p>
                 </div>
               )}
               
               {nft.currentPrice && (
-                <div className="flex-1 bg-blue-800/50 p-4 rounded-lg">
-                  <h3 className="text-sm font-medium text-blue-200">Current Price</h3>
+                <div className="flex-1 bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-sm font-medium text-gray-700">Current Price</h3>
                   <p>{nft.currentPrice} ETH</p>
                 </div>
               )}
             </div>
             
             {nft.owner && (
-              <div className="bg-blue-800/50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-200">Owner</h3>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-700">Owner</h3>
                 <Button 
                   variant="link" 
-                  className="text-blue-300 p-0 h-auto font-normal hover:text-blue-200"
+                  className="text-primary p-0 h-auto font-normal hover:text-primary/80"
                   onClick={handleProfileClick}
                 >
                   {nft.owner}
@@ -129,7 +129,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
             <div className="pt-2">
               <Button 
                 variant="outline" 
-                className="flex items-center gap-1 bg-blue-800 hover:bg-blue-700 text-white border-blue-600"
+                className="flex items-center gap-1 border-gray-200 hover:bg-gray-50 text-gray-800"
                 asChild
               >
                 <a 
