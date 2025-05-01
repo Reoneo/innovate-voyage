@@ -1,6 +1,7 @@
 
 import React from 'react';
 import SocialLinkItem from './SocialLinkItem';
+import { socialPlatforms } from '@/constants/socialPlatforms';
 import { Loader2 } from 'lucide-react';
 
 interface SocialMediaLinksProps {
@@ -32,21 +33,35 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   if (!hasSocialLinks) {
     return null; // Hide completely if no social links are available
   }
-
-  // Sort social links alphabetically by key
-  const sortedSocialEntries = Object.entries(updatedSocials)
-    .filter(([_, value]) => value && value.trim() !== '')
-    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
   
   return (
     <>
-      {sortedSocialEntries.map(([key, value]) => (
-        <SocialLinkItem 
-          key={key}
-          platformType={key} 
-          url={value} 
-        />
-      ))}
+      {/* Display standard social platforms first */}
+      {socialPlatforms.map(platform => 
+        updatedSocials[platform.key] && (
+          <SocialLinkItem 
+            key={platform.key}
+            platformType={platform.type} 
+            url={updatedSocials[platform.key]} 
+          />
+        )
+      )}
+      
+      {/* Handle any custom social links not in our predefined list */}
+      {Object.entries(updatedSocials).map(([key, value]) => {
+        // Skip if this platform is already handled above or if value is empty
+        if (!value || socialPlatforms.some(p => p.key === key)) {
+          return null;
+        }
+        
+        return (
+          <SocialLinkItem
+            key={key}
+            platformType={key}
+            url={value}
+          />
+        );
+      })}
     </>
   );
 };
