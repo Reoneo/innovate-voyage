@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import SocialMediaLinks from '../../tabs/social/SocialMediaLinks';
 import { getEnsLinks } from '@/utils/ens/ensLinks';
-import WebacySecurity from '../security/WebacySecurity';
 
 interface SocialLinksSectionProps {
   socials: Record<string, string>;
@@ -46,9 +45,6 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
 
   return (
     <div>
-      <div className="mb-4">
-        <WebacySecurity walletAddress={ownerAddress} />
-      </div>
       <div className="grid grid-cols-4 gap-4">
         <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
       </div>

@@ -41,6 +41,17 @@ const App = () => {
       setIsLoading(false);
     }, 300);
     
+    // Listen for URL changes to clean up duplicate recruitment.box in URL
+    const cleanupUrl = () => {
+      if (window.location.pathname.includes('recruitment.box/recruitment.box/')) {
+        const cleanPath = window.location.pathname.replace('recruitment.box/recruitment.box/', 'recruitment.box/');
+        window.history.replaceState({}, document.title, cleanPath);
+      }
+    };
+    
+    // Clean URL on load
+    cleanupUrl();
+    
     return () => clearTimeout(timer);
   }, []);
 
@@ -64,8 +75,10 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              {/* Special route for recruitment.box domain */}
+              {/* Special route for recruitment.box domain - Fix duplication issue */}
               <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+              {/* Catch and fix duplicate paths */}
+              <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
               {/* Regular profile route */}
               <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
               {/* Handle 404 and redirects */}

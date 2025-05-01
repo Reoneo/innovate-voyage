@@ -1,9 +1,19 @@
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { EfpPerson } from '@/hooks/useEfpStats';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from "@/components/ui/pagination";
+import { useDebounce } from '@/hooks/use-debounce';
 
+// Utility function to shorten Ethereum addresses
 function shortenAddress(addr: string) {
   return addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "";
 }
@@ -29,10 +39,72 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
   isProcessing = false
 }) => {
   const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+  
+  const list = dialogType === 'followers' ? followersList : followingList;
+  const totalItems = list?.length || 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
+  // Memoize the current items to avoid recalculation on each render
+  const currentItems = React.useMemo(() => {
+    return list?.slice(
+      (currentPage - 1) * itemsPerPage, 
+      currentPage * itemsPerPage
+    ) || [];
+  }, [list, currentPage, itemsPerPage]);
+  
+  // Debounced page change to prevent rapid pagination clicks
+  const debouncedSetPage = useDebounce((page: number) => {
+    setCurrentPage(page);
+    
+    // Scroll to top of dialog content when changing pages
+    const dialogContent = document.querySelector('.dialog-content');
+    if (dialogContent) {
+      dialogContent.scrollTop = 0;
+    }
+  }, 100);
+  
+  const handlePageChange = useCallback((page: number) => {
+    debouncedSetPage(page);
+  }, [debouncedSetPage]);
+  
+  // Generate pagination items with memoization
+  const paginationItems = React.useMemo(() => {
+    const items = [];
+    const maxPageButtons = 5; // Show maximum 5 page buttons
+    
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+    
+    if (endPage - startPage < maxPageButtons - 1) {
+      startPage = Math.max(1, endPage - maxPageButtons + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink 
+            isActive={currentPage === i} 
+            onClick={() => handlePageChange(i)}
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    return items;
+  }, [currentPage, totalPages, handlePageChange]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) {
+        setCurrentPage(1); // Reset to page 1 when closing
+      }
+      onOpenChange(isOpen);
+    }}>
+      <DialogContent className="dialog-content sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <img 
@@ -40,65 +112,70 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
               className="h-6 w-6 rounded-full"
               alt="EFP"
             />
-            {dialogType === 'followers' ? 'Followers' : 'Following'}
+            {dialogType === 'followers' ? 'Followers' : 'Following'} 
+            <span className="text-sm font-normal">({totalItems})</span>
           </DialogTitle>
         </DialogHeader>
         
         <div className="py-4">
-          {(dialogType === 'followers' && followersList && followersList.length > 0) ? (
-            <div className="space-y-3 max-h-72 overflow-y-auto">
-              {followersList.map((follower, index) => (
-                <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
-                  <a 
-                    href={`/${follower.ensName || follower.address}/`}
-                    className="flex items-center gap-3 flex-grow hover:text-primary"
-                  >
-                    <Avatar>
-                      <AvatarImage src={follower.avatar} />
-                      <AvatarFallback>
-                        {follower.ensName
-                          ? follower.ensName.substring(0, 2).toUpperCase()
-                          : shortenAddress(follower.address).substring(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{follower.ensName || shortenAddress(follower.address)}</p>
-                      {follower.ensName && (
-                        <p className="text-xs text-muted-foreground">{shortenAddress(follower.address)}</p>
+          {(currentItems && currentItems.length > 0) ? (
+            <>
+              <div className="space-y-3 max-h-72 overflow-y-auto">
+                {currentItems.map((person, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
+                    <a 
+                      href={`/${person.ensName || person.address}/`}
+                      className="flex items-center gap-3 flex-grow hover:text-primary"
+                    >
+                      <Avatar>
+                        <AvatarImage src={person.avatar} />
+                        <AvatarFallback>
+                          {person.ensName
+                            ? person.ensName.substring(0, 2).toUpperCase()
+                            : shortenAddress(person.address).substring(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{person.ensName || shortenAddress(person.address)}</p>
+                        {person.ensName && (
+                          <p className="text-xs text-muted-foreground">{shortenAddress(person.address)}</p>
+                        )}
+                      </div>
+                    </a>
+                  </div>
+                ))}
+              </div>
+              
+              {totalPages > 1 && (
+                <div className="mt-4">
+                  <Pagination>
+                    <PaginationContent>
+                      {currentPage > 1 && (
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => handlePageChange(currentPage - 1)} 
+                          />
+                        </PaginationItem>
                       )}
-                    </div>
-                  </a>
-                </div>
-              ))}
-            </div>
-          ) : (dialogType === 'following' && followingList && followingList.length > 0) ? (
-            <div className="space-y-3 max-h-72 overflow-y-auto">
-              {followingList.map((following, index) => (
-                <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
-                  <a 
-                    href={`/${following.ensName || following.address}/`}
-                    className="flex items-center gap-3 flex-grow hover:text-primary"
-                  >
-                    <Avatar>
-                      <AvatarImage src={following.avatar} />
-                      <AvatarFallback>
-                        {following.ensName
-                          ? following.ensName.substring(0, 2).toUpperCase()
-                          : shortenAddress(following.address).substring(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{following.ensName || shortenAddress(following.address)}</p>
-                      {following.ensName && (
-                        <p className="text-xs text-muted-foreground">{shortenAddress(following.address)}</p>
+                      
+                      {paginationItems}
+                      
+                      {currentPage < totalPages && (
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => handlePageChange(currentPage + 1)} 
+                          />
+                        </PaginationItem>
                       )}
-                    </div>
-                  </a>
+                    </PaginationContent>
+                  </Pagination>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           ) : (
-            <p className="text-center text-muted-foreground">No {dialogType} found</p>
+            <p className="text-center text-muted-foreground">
+              {isProcessing ? 'Loading...' : `No ${dialogType} found`}
+            </p>
           )}
         </div>
       </DialogContent>
