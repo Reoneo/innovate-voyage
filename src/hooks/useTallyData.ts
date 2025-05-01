@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useToast } from './use-toast';
 
 interface TallyDelegator {
   address: string;
@@ -17,10 +18,25 @@ interface TallyData {
   delegations?: TallyDelegator[];
 }
 
+/**
+ * Format an Ethereum address to CAIP-10 format as required by Tally API
+ * @param address Ethereum address
+ * @returns Formatted CAIP-10 ID (eip155:1:0x...)
+ */
+function formatToCAIP10(address: string): string {
+  if (!address) return '';
+  if (address.includes(':')) return address; // Already in CAIP-10 format
+  if (address.startsWith('0x') && address.length === 42) {
+    return `eip155:1:${address}`; // Add Ethereum mainnet prefix
+  }
+  return address; // Return as is if not a standard address
+}
+
 export function useTallyData(walletAddress?: string) {
   const [tallyData, setTallyData] = useState<TallyData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -31,10 +47,10 @@ export function useTallyData(walletAddress?: string) {
       setTallyData(null); // Reset data when wallet changes
       
       try {
-        // Using the API key for Tally
         const tallyKey = '823049aef82691e85ae43e20d37e0d2f4b896dafdef53ea5dce0912d78bc1988';
+        const formattedAddress = formatToCAIP10(walletAddress);
         
-        // Fetch governance data from Tally API
+        // Use proper GraphQL query format for Tally API
         const response = await fetch(`https://api.tally.xyz/query`, {
           method: 'POST',
           headers: {
@@ -43,7 +59,7 @@ export function useTallyData(walletAddress?: string) {
           },
           body: JSON.stringify({
             query: `
-              query AccountData($address: AccountID!) {
+              query GovernanceData($address: AccountID!) {
                 account(id: $address) {
                   governances {
                     governance {
@@ -83,25 +99,27 @@ export function useTallyData(walletAddress?: string) {
               }
             `,
             variables: {
-              address: walletAddress
+              address: formattedAddress
             }
           })
         });
 
         if (!response.ok) {
+          console.error('Tally API response not OK:', response.status, response.statusText);
           throw new Error(`API error: ${response.status}`);
         }
 
         const result = await response.json();
         
         if (result.errors) {
+          console.error('GraphQL errors:', result.errors);
           throw new Error(result.errors[0].message || 'Error fetching from Tally API');
         }
         
         const accountData = result.data?.account;
         
         if (!accountData || !accountData.governances || accountData.governances.length === 0) {
-          // No governance data found
+          console.log('No governance data found for address:', walletAddress);
           setTallyData(null);
           setIsLoading(false);
           return;
@@ -136,6 +154,11 @@ export function useTallyData(walletAddress?: string) {
       } catch (err) {
         console.error("Error fetching Tally data:", err);
         setError("Failed to fetch DAO data from Tally");
+        toast({
+          title: "Error loading Tally data",
+          description: "Failed to fetch DAO data from Tally",
+          variant: "destructive"
+        });
         setTallyData(null);
       } finally {
         setIsLoading(false);
@@ -144,7 +167,7 @@ export function useTallyData(walletAddress?: string) {
     
     fetchTallyData();
     
-  }, [walletAddress]); // Refresh when wallet address changes
+  }, [walletAddress, toast]); // Added toast to dependencies
 
   return { tallyData, isLoading, error };
 }
