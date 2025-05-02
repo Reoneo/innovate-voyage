@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScoreBadgeProps } from './types';
 import { fetchUserNfts } from '@/api/services/openseaService';
 import { Badge } from '@/components/ui/badge';
+import { ProfileDialog } from '@/components/profile/Profile';
 
 interface TransactionsBadgeProps extends ScoreBadgeProps {
   txCount: number | null;
@@ -13,6 +14,10 @@ interface TransactionsBadgeProps extends ScoreBadgeProps {
 const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, onClick, isLoading }) => {
   const [nftCount, setNftCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showProfile, setShowProfile] = useState(false);
+  
+  // This is a mock UUID - in a real app you would map walletAddress to actual user UUIDs
+  const mockUserId = '11111111-1111-1111-1111-111111111111';
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -32,35 +37,52 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
     getNftCount();
   }, [walletAddress]);
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      setShowProfile(true);
+    }
+  };
+
   if (isLoading || loading) {
     return <Skeleton className="h-28 w-full" />;
   }
 
   return (
-    <div onClick={onClick} className="cursor-pointer transition-all hover:opacity-80">
-      <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-white shadow-md border border-gray-200 h-full">
-        <div className="flex items-center justify-center w-full">
-          {/* NFT Collection text removed */}
-        </div>
-        <div className="text-center relative flex items-center justify-center w-full mt-2">
-          <div className="relative">
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/6699/6699362.png" 
-              alt="NFT Collection" 
-              className="h-24 w-24" 
-            />
-            {nftCount !== null && nftCount > 0 && (
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-2"
-              >
-                {nftCount > 99 ? '99+' : nftCount}
-              </Badge>
-            )}
+    <>
+      <div onClick={handleClick} className="cursor-pointer transition-all hover:opacity-80">
+        <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-white shadow-md border border-gray-200 h-full">
+          <div className="flex items-center justify-center w-full">
+            {/* NFT Collection text removed */}
+          </div>
+          <div className="text-center relative flex items-center justify-center w-full mt-2">
+            <div className="relative">
+              <img 
+                src="https://cdn-icons-png.flaticon.com/512/6699/6699362.png" 
+                alt="NFT Collection" 
+                className="h-24 w-24" 
+              />
+              {nftCount !== null && nftCount > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-2"
+                >
+                  {nftCount > 99 ? '99+' : nftCount}
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      
+      {/* Profile Dialog */}
+      <ProfileDialog 
+        userId={mockUserId} 
+        open={showProfile} 
+        onOpenChange={setShowProfile} 
+      />
+    </>
   );
 };
 
