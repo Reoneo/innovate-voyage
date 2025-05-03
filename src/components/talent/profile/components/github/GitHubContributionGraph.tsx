@@ -1,32 +1,59 @@
+
 // src/components/talent/profile/components/github/GitHubContributionGraph.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Props {
   username: string;
 }
 
 export default function GitHubContributionGraph({ username }: Props) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   if (!username) return null;  // nothing to show without a username
 
-  // GitHub’s “undocumented” SVG endpoint for the past year’s calendar
+  // GitHub's "undocumented" SVG endpoint for the past year's calendar
   const url = `https://github.com/users/${username}/contributions`;
 
   useEffect(() => {
     console.log('🔍 Loading GitHub graph from:', url);
+    
+    // Test if the URL is accessible
+    fetch(url, { method: 'HEAD' })
+      .then(response => {
+        console.log(`GitHub graph URL check: ${response.status}`);
+        if (!response.ok) {
+          setError(`Failed to load GitHub contributions (status: ${response.status})`);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error checking GitHub contributions URL:', err);
+        setError('Failed to access GitHub contributions');
+        setLoading(false);
+      });
   }, [url]);
 
   return (
     <div style={{ width: '100%', overflowX: 'auto', marginTop: '1rem' }}>
+      {loading && <div className="text-sm text-gray-500">Loading GitHub activity...</div>}
+      {error && <div className="text-sm text-red-500">{error}</div>}
+      
       <img
         src={url}
         alt={`${username}'s GitHub contributions`}
         style={{
           display: 'block',
           width: '100%',
-          maxHeight: '200px',    // ensure it’s visible
+          maxHeight: '200px',
           objectFit: 'contain',
           border: '1px solid #e1e4e8',
           borderRadius: '4px',
+        }}
+        onLoad={() => console.log('GitHub contribution graph loaded successfully')}
+        onError={(e) => {
+          console.error('GitHub contribution graph failed to load:', e);
+          setError('Failed to load GitHub activity graph');
         }}
       />
     </div>

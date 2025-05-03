@@ -68,6 +68,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     originalValue: passport?.socials?.github
   });
   
+  // Only show GitHub section if there's an actual GitHub account linked
+  const showGitHubSection = isGitHubVerified && githubUsername;
+  
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
       {loading && !loadingTimeout ? (
@@ -92,23 +95,23 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* GitHub Contributions - Try both approaches */}
-              <div className="mt-6">
-                <h3 className="text-xl font-medium mb-3">GitHub Activity</h3>
-                
-                {/* Attempt 1: Using our existing component */}
-                <GitHubContributions 
-                  username={githubUsername || ''} 
-                  isVerified={isGitHubVerified} 
-                />
-                
-                {/* Attempt 2: Using the alternative component */}
-                {isGitHubVerified && githubUsername && (
+              {/* GitHub Contributions - Only show if GitHub is linked */}
+              {showGitHubSection && (
+                <div className="mt-6">
+                  <h3 className="text-xl font-medium mb-3">GitHub Activity</h3>
+                  
+                  {/* Attempt 1: Using our existing component */}
+                  <GitHubContributions 
+                    username={githubUsername} 
+                    isVerified={true} 
+                  />
+                  
+                  {/* Attempt 2: Using the alternative component */}
                   <div className="mt-4">
                     <GitHubContributionGraph username={githubUsername} />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </HeaderContainer>

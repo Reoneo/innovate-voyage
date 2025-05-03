@@ -9,7 +9,7 @@ interface Props {
 const GitHubContributions: React.FC<Props> = ({ username, isVerified }) => {
   console.log('🛠️ GitHubContributions render:', { username, isVerified });
   
-  // Don't render at all if not verified
+  // Don't render at all if not verified or no username
   if (!isVerified || !username) {
     console.log('🛠️ GitHubContributions skipping render - not verified or no username');
     return null;
@@ -36,7 +36,7 @@ const GitHubContributions: React.FC<Props> = ({ username, isVerified }) => {
     <div className="github-heatmap-wrapper" style={{ 
       width: '100%', 
       overflowX: 'auto',
-      border: '1px dashed #ccc',
+      border: '1px solid #e1e4e8',
       padding: '8px',
       marginBottom: '16px'
     }}>
@@ -44,14 +44,12 @@ const GitHubContributions: React.FC<Props> = ({ username, isVerified }) => {
         className="github-heatmap"
         src={contribUrl}
         alt={`${username}'s GitHub contributions`}
-        // Explicit sizing so it's never 0×0
         style={{
           display: 'block',
           width: '100%',
           height: '150px',
           maxHeight: '200px',
           objectFit: 'contain',
-          border: '4px dashed red',
           borderRadius: '4px',
         }}
         onLoad={() => console.log('[GitHubContributions] Image loaded successfully')}
