@@ -59,7 +59,7 @@ const TalentProfile = () => {
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container mx-auto px-4 pt-4" style={{ maxWidth: '950px' }}>
+        <div className="container">
           {/* Profile Content */}
           <ProfileContent 
             loading={loading}
