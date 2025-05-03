@@ -2,6 +2,10 @@
 import { useState, useEffect } from 'react';
 import { ContributionData } from './types';
 
+// Configuration for the local server
+const LOCAL_SERVER_URL = 'http://localhost:4000';
+const USE_LOCAL_SERVER = true; // Toggle between local server and Vercel API
+
 export function useGitHubContributions(username: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,8 +24,13 @@ export function useGitHubContributions(username: string) {
     
     const loadContributions = async () => {
       try {
-        // Use the server-side API endpoint instead of direct GitHub API calls
-        const response = await fetch(`/api/github-contributions?username=${encodeURIComponent(username)}`);
+        // Choose API endpoint based on configuration
+        const apiUrl = USE_LOCAL_SERVER 
+          ? `${LOCAL_SERVER_URL}/api/github-contributions?username=${encodeURIComponent(username)}`
+          : `/api/github-contributions?username=${encodeURIComponent(username)}`;
+        
+        console.log(`Fetching from: ${apiUrl}`);
+        const response = await fetch(apiUrl);
         
         if (!response.ok) {
           // Try to get the error details from the response
@@ -32,6 +41,7 @@ export function useGitHubContributions(username: string) {
         
         const data = await response.json();
         if (data) {
+          console.log(`Received GitHub data for ${username}:`, data);
           setContributionData(data);
           setYearlyTotal(data.totalContributions);
           setError(null); // Clear any previous errors
