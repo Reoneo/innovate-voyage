@@ -9,6 +9,7 @@ export function useGitHubContributions(username: string) {
   const [contributionData, setContributionData] = useState<ContributionData | null>(null);
   const [yearlyTotal, setYearlyTotal] = useState<number | null>(null);
   const [retries, setRetries] = useState(0);
+  const [isUsingFallback, setIsUsingFallback] = useState(false);
   
   useEffect(() => {
     if (!username) {
@@ -21,6 +22,7 @@ export function useGitHubContributions(username: string) {
     
     const loadContributions = async () => {
       try {
+        setIsUsingFallback(false);
         const data = await fetchGitHubContributions(username);
         if (data) {
           setContributionData(data);
@@ -37,13 +39,16 @@ export function useGitHubContributions(username: string) {
         // More specific error messages based on error type
         if (errorMessage.includes('rate limit')) {
           setError('GitHub API rate limit exceeded. Please try again later.');
-        } else if (errorMessage.includes('authentication')) {
-          setError('GitHub API authentication error. Check your API token.');
+        } else if (errorMessage.includes('authentication') || errorMessage.includes('401')) {
+          setError('GitHub API authentication error. Trying fallback method...');
+          
+          // Set flag to indicate we're using fallback
+          setIsUsingFallback(true);
         } else {
           setError(errorMessage);
         }
         
-        // Only retry for certain types of errors (not for authentication issues)
+        // Only retry for certain types of errors
         if (retries < 2 && !errorMessage.includes('authentication')) {
           setRetries(prev => prev + 1);
           console.log(`Retrying GitHub API request (${retries + 1}/3)...`);
@@ -58,5 +63,5 @@ export function useGitHubContributions(username: string) {
     loadContributions();
   }, [username, retries]);
 
-  return { contributionData, loading, error, yearlyTotal };
+  return { contributionData, loading, error, yearlyTotal, isUsingFallback };
 }
