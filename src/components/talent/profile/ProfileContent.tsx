@@ -5,6 +5,7 @@ import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
+import GitHubContributions from './components/github/GitHubContributions';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -51,6 +52,14 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
+              
+              {/* GitHub Contributions - Show if github social link exists and is verified */}
+              {passport.socials && passport.socials.github && (
+                <GitHubContributions 
+                  username={passport.socials.github.split('/').pop() || ''} 
+                  isVerified={true} 
+                />
+              )}
             </div>
           </div>
         </HeaderContainer>
