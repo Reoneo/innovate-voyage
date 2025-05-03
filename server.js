@@ -22,6 +22,40 @@ app.use((req, res, next) => {
   next();
 });
 
+// Simple rate limiting to avoid token expiration
+const requestsMap = new Map();
+const MAX_REQUESTS_PER_MINUTE = 50; // GitHub's rate limit is 60/hour for unauthenticated requests
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+
+function rateLimitMiddleware(req, res, next) {
+  const now = Date.now();
+  const clientIp = req.ip;
+  
+  // Clean up old entries
+  for (const [key, timestamp] of requestsMap.entries()) {
+    if (now - timestamp > RATE_LIMIT_WINDOW) {
+      requestsMap.delete(key);
+    }
+  }
+  
+  const requestCount = Array.from(requestsMap.values()).filter(
+    timestamp => now - timestamp < RATE_LIMIT_WINDOW
+  ).length;
+  
+  if (requestCount >= MAX_REQUESTS_PER_MINUTE) {
+    console.warn(`Rate limit exceeded: ${requestCount} requests in the last minute`);
+    return res.status(429).json({ 
+      error: 'Rate limit exceeded. Please try again later.',
+      retryAfter: '60 seconds'
+    });
+  }
+  
+  requestsMap.set(`${clientIp}:${now}`, now);
+  next();
+}
+
+app.use(rateLimitMiddleware);
+
 app.get('/api/github-contributions', async (req, res) => {
   const { username } = req.query;
 
@@ -167,6 +201,9 @@ app.get('/api/github-contributions', async (req, res) => {
     };
 
     console.log(`Successfully processed GitHub data for ${username}`);
+    
+    // Add caching headers
+    res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
     return res.status(200).json(processed);
     
   } catch (err) {

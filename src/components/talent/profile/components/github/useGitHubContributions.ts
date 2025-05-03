@@ -7,6 +7,10 @@ import { toast } from 'sonner';
 const LOCAL_SERVER_URL = 'http://localhost:4000';
 const USE_LOCAL_SERVER = true; // Set to true to use the local server
 
+// Cache contributions data to reduce API calls
+const contributionsCache = new Map<string, {data: ContributionData, timestamp: number}>();
+const CACHE_TTL = 3600000; // 1 hour in milliseconds
+
 export function useGitHubContributions(username: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +36,17 @@ export function useGitHubContributions(username: string) {
     
     const loadContributions = async () => {
       try {
+        // Check cache first
+        const now = Date.now();
+        const cached = contributionsCache.get(username);
+        if (cached && (now - cached.timestamp < CACHE_TTL)) {
+          console.log(`Using cached GitHub data for ${username}`);
+          setContributionData(cached.data);
+          setYearlyTotal(cached.data.totalContributions);
+          setLoading(false);
+          return;
+        }
+        
         // Choose API endpoint based on configuration
         const apiUrl = USE_LOCAL_SERVER 
           ? `${LOCAL_SERVER_URL}/api/github-contributions?username=${encodeURIComponent(username)}`
@@ -52,8 +67,8 @@ export function useGitHubContributions(username: string) {
         
         if (!response.ok) {
           // Check if token is invalid
-          if (response.status === 401 || data.tokenStatus === 'invalid') {
-            console.error('GitHub API token is invalid or expired');
+          if (response.status === 401 || response.status === 429 || data.tokenStatus === 'invalid') {
+            console.error('GitHub API token is invalid, expired or rate limited');
             setTokenInvalid(true);
             throw new Error('GitHub API token is invalid or expired. Please update your token.');
           }
@@ -68,6 +83,12 @@ export function useGitHubContributions(username: string) {
           setContributionData(data);
           setYearlyTotal(data.totalContributions);
           setError(null); // Clear any previous errors
+          
+          // Cache the successful response
+          contributionsCache.set(username, {
+            data,
+            timestamp: now
+          });
         } else {
           setError('Could not fetch GitHub contribution data');
         }

@@ -10,7 +10,7 @@ This is a local Express server that acts as a proxy for fetching GitHub contribu
 GITHUB_API_TOKEN=your_github_personal_access_token_here
 ```
 
-Be sure to replace the placeholder with a valid GitHub token. Get one from: https://github.com/settings/tokens
+Replace the placeholder with your GitHub token: `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`
 
 ### 2. Install dependencies:
 ```bash
@@ -44,8 +44,3 @@ If your token stops working, simply create a new one on GitHub and update your .
   
 * GET `/health`
   * Health check endpoint that also verifies token availability
-
-## Integration with the Frontend
-
-The React hook `useGitHubContributions.ts` is already configured to use this local server.
-
