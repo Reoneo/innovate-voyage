@@ -7,6 +7,7 @@ export function useScoresData(walletAddress: string) {
   const [score, setScore] = useState<number | null>(null);
   const [webacyData, setWebacyData] = useState<WebacyData | null>(null);
   const [txCount, setTxCount] = useState<number | null>(null);
+  const [githubPoints, setGithubPoints] = useState<number | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,6 +35,26 @@ export function useScoresData(walletAddress: string) {
                 const data = await response.json();
                 console.log("Talent Protocol data:", data);
                 setScore(data.score?.points ?? null);
+                
+                // Extract GitHub points from score breakdown
+                if (data.score?.breakdown) {
+                  const githubBreakdown = data.score.breakdown.find(
+                    (item: any) => item.source === 'github'
+                  );
+                  
+                  if (githubBreakdown) {
+                    console.log("GitHub score breakdown:", githubBreakdown);
+                    // If we have GitHub points data, save it
+                    setGithubPoints(githubBreakdown.points || 0);
+                  } else {
+                    // If no GitHub breakdown found, set to 0
+                    setGithubPoints(0);
+                  }
+                } else {
+                  // If no breakdown data at all, set to undefined to show loading state
+                  setGithubPoints(0);
+                }
+                
                 return;
               }
               
@@ -160,5 +181,5 @@ export function useScoresData(walletAddress: string) {
     fetchData();
   }, [walletAddress]);
 
-  return { score, webacyData, txCount, loading };
+  return { score, webacyData, txCount, githubPoints, loading };
 }

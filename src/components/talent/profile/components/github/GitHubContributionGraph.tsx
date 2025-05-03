@@ -5,13 +5,18 @@ import { useGitHubContributions } from './useGitHubContributions';
 import GitHubLoadingState from './GitHubLoadingState';
 import ContributionGrid from './ContributionGrid';
 import { useTalentProtocolGithub } from '@/hooks/useTalentProtocolGithub';
+import { useScoresData } from '@/hooks/useScoresData';
 
 export default function GitHubContributionGraph({ username }: GitHubContributionProps) {
   const { contributionData, loading, error, yearlyTotal } = useGitHubContributions(username);
+  const walletAddress = window.localStorage.getItem('connectedWalletAddress') || undefined;
   const { isVerified, verifiedUsername, loading: verificationLoading } = useTalentProtocolGithub(
-    window.localStorage.getItem('connectedWalletAddress') || undefined,
+    walletAddress,
     username
   );
+  
+  // Get GitHub score breakdown
+  const { githubPoints, loading: scoreLoading } = useScoresData(walletAddress || '');
   
   // If no username provided, don't show anything
   if (!username) {
@@ -19,9 +24,21 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
     return null;
   }
 
-  // Show loading state during verification check
-  if (verificationLoading) {
+  // Show loading state during verification or score check
+  if (verificationLoading || scoreLoading) {
     return <GitHubLoadingState loading={true} error={null} />;
+  }
+
+  // Only show the graph if GitHub points are greater than zero
+  if (githubPoints !== undefined && githubPoints <= 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-40 w-full bg-gray-900 rounded-lg p-4">
+        <div className="text-amber-500 font-medium mb-2">GitHub contributions disabled</div>
+        <div className="text-xs text-gray-400 text-center">
+          GitHub contributions can be displayed after earning GitHub points on Talent Protocol.
+        </div>
+      </div>
+    );
   }
 
   // Only show the graph if the GitHub account is verified
@@ -58,6 +75,11 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
             </span>
             {verifiedUsername && username === verifiedUsername && (
               <span className="bg-green-800 text-green-100 text-xs px-2 py-0.5 rounded-full">Verified</span>
+            )}
+            {githubPoints !== undefined && githubPoints > 0 && (
+              <span className="bg-blue-800 text-blue-100 text-xs px-2 py-0.5 rounded-full">
+                {githubPoints} GitHub points
+              </span>
             )}
           </div>
           
