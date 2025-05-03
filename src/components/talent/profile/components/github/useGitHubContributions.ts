@@ -1,22 +1,12 @@
-
 import { useState, useEffect } from 'react';
-import { ContributionData } from './types';
 import { toast } from 'sonner';
 
-// Configuration for the local server
-const LOCAL_SERVER_URL = 'http://localhost:4000';
-const USE_LOCAL_SERVER = true; // Set to true to use the local server
-
-// Cache contributions data to reduce API calls
-const contributionsCache = new Map<string, {data: ContributionData, timestamp: number}>();
-const CACHE_TTL = 3600000; // 1 hour in milliseconds
+// No longer need the complex API interaction since the GitHub Calendar library 
+// handles the data fetching directly
 
 export function useGitHubContributions(username: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [contributionData, setContributionData] = useState<ContributionData | null>(null);
-  const [yearlyTotal, setYearlyTotal] = useState<number | null>(null);
-  const [retries, setRetries] = useState(0);
   const [tokenInvalid, setTokenInvalid] = useState(false);
   
   useEffect(() => {
@@ -26,99 +16,57 @@ export function useGitHubContributions(username: string) {
       return;
     }
 
-    // Reset states when username changes
-    setLoading(true);
-    setError(null);
-    setContributionData(null);
-    setTokenInvalid(false);
-    
-    console.log('🔍 Loading GitHub graph for:', username);
-    
-    const loadContributions = async () => {
+    // Load the GitHub Calendar scripts and styles if they haven't been loaded yet
+    const loadScripts = async () => {
       try {
-        // Check cache first
-        const now = Date.now();
-        const cached = contributionsCache.get(username);
-        if (cached && (now - cached.timestamp < CACHE_TTL)) {
-          console.log(`Using cached GitHub data for ${username}`);
-          setContributionData(cached.data);
-          setYearlyTotal(cached.data.totalContributions);
-          setLoading(false);
-          return;
-        }
-        
-        // Choose API endpoint based on configuration
-        const apiUrl = USE_LOCAL_SERVER 
-          ? `${LOCAL_SERVER_URL}/api/github-contributions?username=${encodeURIComponent(username)}`
-          : `/api/github-contributions?username=${encodeURIComponent(username)}`;
-        
-        console.log(`Fetching from: ${apiUrl}`);
-        
-        const response = await fetch(apiUrl, {
-          headers: {
-            'Accept': 'application/json'
-          },
-          // Add cache busting parameter to prevent caching of failed requests
-          cache: 'no-cache'
-        });
-        
-        // Handle response
-        const data = await response.json();
-        
-        if (!response.ok) {
-          // Check if token is invalid
-          if (response.status === 401 || response.status === 429 || data.tokenStatus === 'invalid') {
-            console.error('GitHub API token is invalid, expired or rate limited');
-            setTokenInvalid(true);
-            throw new Error('GitHub API token is invalid or expired. Please update your token.');
-          }
+        // Check if scripts are already loaded
+        if (!document.querySelector('script[src*="github-calendar"]')) {
+          // Load script
+          const script = document.createElement('script');
+          script.src = 'https://unpkg.com/github-calendar@latest/dist/github-calendar.min.js';
+          script.async = true;
           
-          // Try to get the error details from the response
-          const errorMessage = data?.error || `API returned ${response.status}`;
-          throw new Error(errorMessage);
-        }
-        
-        if (data) {
-          console.log(`Received GitHub data for ${username}:`, data);
-          setContributionData(data);
-          setYearlyTotal(data.totalContributions);
-          setError(null); // Clear any previous errors
+          // Load stylesheet
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://unpkg.com/github-calendar@latest/dist/github-calendar-responsive.css';
           
-          // Cache the successful response
-          contributionsCache.set(username, {
-            data,
-            timestamp: now
-          });
+          // Append to document
+          document.head.appendChild(link);
+          
+          // Wait for script to load before setting loading to false
+          script.onload = () => {
+            console.log('GitHub Calendar script loaded');
+            setLoading(false);
+          };
+          
+          script.onerror = (e) => {
+            console.error('Error loading GitHub Calendar script:', e);
+            setError('Failed to load GitHub Calendar library');
+            setLoading(false);
+          };
+          
+          document.head.appendChild(script);
         } else {
-          setError('Could not fetch GitHub contribution data');
+          // Scripts already loaded
+          console.log('GitHub Calendar script already loaded');
+          setLoading(false);
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to access GitHub API';
-        console.error(`GitHub API error (${username}):`, errorMessage);
-        setError(errorMessage);
-        
-        // Show toast for token issues
-        if (errorMessage.includes('token') && USE_LOCAL_SERVER) {
-          toast.error('GitHub API token expired', {
-            description: 'Please update your token in the .env file and restart the server',
-            duration: 8000,
-          });
-        }
-        
-        // Implement retry logic for transient errors, but not for token issues
-        if (retries < 2 && !errorMessage.includes('token')) {
-          setRetries(prev => prev + 1);
-          console.log(`Retrying GitHub API request (${retries + 1}/3)...`);
-          setTimeout(() => loadContributions(), 1000); // Retry after 1 second
-          return;
-        }
-      } finally {
+        console.error('Error in loadScripts:', err);
+        setError('Failed to initialize GitHub Calendar');
         setLoading(false);
       }
     };
+    
+    // Load scripts and styles
+    loadScripts();
+    
+    // Cleanup
+    return () => {
+      // No cleanup needed since we're keeping the scripts loaded for reuse
+    };
+  }, [username]);
 
-    loadContributions();
-  }, [username, retries]);
-
-  return { contributionData, loading, error, yearlyTotal, tokenInvalid };
+  return { loading, error, tokenInvalid };
 }
