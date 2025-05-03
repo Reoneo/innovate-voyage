@@ -8,6 +8,7 @@ export function useGitHubContributions(username: string) {
   const [error, setError] = useState<string | null>(null);
   const [contributionData, setContributionData] = useState<ContributionData | null>(null);
   const [yearlyTotal, setYearlyTotal] = useState<number | null>(null);
+  const [retries, setRetries] = useState(0);
   
   useEffect(() => {
     if (!username) {
@@ -24,18 +25,29 @@ export function useGitHubContributions(username: string) {
         if (data) {
           setContributionData(data);
           setYearlyTotal(data.totalContributions);
+          setError(null); // Clear any previous errors
         } else {
           setError('Could not fetch GitHub contribution data');
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to access GitHub API');
+        const errorMessage = err instanceof Error ? err.message : 'Failed to access GitHub API';
+        console.error(`GitHub API error (${username}):`, errorMessage);
+        setError(errorMessage);
+        
+        // Implement retry logic for transient errors
+        if (retries < 2) {
+          setRetries(prev => prev + 1);
+          console.log(`Retrying GitHub API request (${retries + 1}/3)...`);
+          setTimeout(() => loadContributions(), 1000); // Retry after 1 second
+          return;
+        }
       } finally {
         setLoading(false);
       }
     };
 
     loadContributions();
-  }, [username]);
+  }, [username, retries]);
 
   return { contributionData, loading, error, yearlyTotal };
 }

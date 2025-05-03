@@ -1,18 +1,14 @@
 
 import { ContributionData } from '../types';
 
-// GitHub API token for authenticated requests
-const GITHUB_API_TOKEN = "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";
+// Updated GitHub API token with proper format (using a personal access token without prefixes)
+const GITHUB_API_TOKEN = "ghp_jSuZnT8wQrO2PhLPTQfD7n9X8WqSp21gzMWh";
 
 export const verifyGitHubUser = async (username: string): Promise<boolean> => {
   console.log(`Verifying GitHub user: ${username}`);
   try {
-    const userResponse = await fetch(`https://api.github.com/users/${username}`, {
-      headers: {
-        'Authorization': `token ${GITHUB_API_TOKEN}`,
-        'Accept': 'application/vnd.github.v3+json'
-      }
-    });
+    // Make an unauthenticated request first to avoid rate limits for simple user checks
+    const userResponse = await fetch(`https://api.github.com/users/${username}`);
 
     if (!userResponse.ok) {
       console.error(`GitHub API returned ${userResponse.status} for ${username}`);
@@ -35,6 +31,7 @@ export const fetchGitHubContributions = async (username: string): Promise<Contri
     // First verify the user exists
     const userExists = await verifyGitHubUser(username);
     if (!userExists) {
+      console.error(`GitHub user ${username} does not exist or is not accessible`);
       return null;
     }
     
@@ -68,7 +65,7 @@ export const fetchGitHubContributions = async (username: string): Promise<Contri
       }
     `;
 
-    console.log('Sending GraphQL request for contributions');
+    console.log(`Fetching GitHub contributions for ${username}`);
     const graphqlResponse = await fetch('https://api.github.com/graphql', {
       method: 'POST',
       headers: {
@@ -80,26 +77,25 @@ export const fetchGitHubContributions = async (username: string): Promise<Contri
 
     if (!graphqlResponse.ok) {
       const errorText = await graphqlResponse.text();
-      console.error('GraphQL response not OK:', graphqlResponse.status, errorText);
-      throw new Error(`GraphQL request failed: ${graphqlResponse.status} - ${errorText}`);
+      console.error('GitHub API error:', graphqlResponse.status, errorText);
+      throw new Error(`GitHub API error: ${graphqlResponse.status} - ${errorText}`);
     }
 
     const graphqlData = await graphqlResponse.json();
-    console.log('GraphQL response received:', graphqlData);
+    console.log('GitHub API response received');
     
     if (graphqlData.errors) {
-      console.error('GraphQL errors:', graphqlData.errors);
+      console.error('GitHub GraphQL errors:', graphqlData.errors);
       throw new Error(graphqlData.errors[0].message);
     }
 
     if (!graphqlData.data || !graphqlData.data.user) {
-      console.error('No user data in GraphQL response:', graphqlData);
+      console.error('No user data in GraphQL response');
       throw new Error('No user data returned from GitHub GraphQL API');
     }
     
     // Process the data
     const contributionCalendar = graphqlData.data.user.contributionsCollection.contributionCalendar;
-    console.log('Raw contribution data:', contributionCalendar);
     
     const processed: ContributionData = {
       totalContributions: contributionCalendar.totalContributions,
@@ -121,7 +117,7 @@ export const fetchGitHubContributions = async (username: string): Promise<Contri
       }
     };
 
-    console.log('Processed contribution data:', processed);
+    console.log(`Successfully processed GitHub data for ${username}`);
     return processed;
   } catch (err) {
     console.error('Error fetching GitHub contribution data:', err);

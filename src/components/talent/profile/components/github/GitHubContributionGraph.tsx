@@ -27,6 +27,9 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
               src={contributionData.user.avatarUrl} 
               alt={`${username}'s avatar`} 
               className="w-6 h-6 rounded-full"
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder.svg';
+              }}
             />
             <span className="text-sm text-gray-300">
               {contributionData.user.name || username} • {contributionData.user.repositoriesContributedTo.totalCount} repositories
