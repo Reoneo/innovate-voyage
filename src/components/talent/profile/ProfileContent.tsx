@@ -5,10 +5,8 @@ import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
-import GitHubContributions from './components/github/GitHubContributions';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useTalentProtocolGithub } from '@/hooks/useTalentProtocolGithub';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -34,7 +32,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Extract GitHub username from social links with improved handling
   const extractGitHubUsername = () => {
     if (!passport?.socials?.github) {
-      console.log('No GitHub social link found');
+      console.log('No GitHub social link found in passport');
       return null;
     }
     
@@ -43,6 +41,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     
     // Handle different GitHub URL formats
     if (typeof githubUrl === 'string') {
+      // Handle github.com URL format
       if (githubUrl.includes('github.com/')) {
         const parts = githubUrl.split('github.com/');
         // Get everything after github.com/ and before any query params or hashes
@@ -51,7 +50,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         return username || null;
       }
       
-      // Handle direct username format
+      // Handle direct username format with @ prefix
       if (githubUrl.startsWith('@')) {
         const username = githubUrl.substring(1); // Remove @ prefix
         console.log('Extracted GitHub username from @-prefix:', username);
@@ -69,24 +68,17 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     return null;
   };
 
-  // GitHub integration
+  // Get GitHub username directly from ENS records
   const githubUsername = extractGitHubUsername();
-  const { isVerified: isGithubVerified, verifiedUsername } = useTalentProtocolGithub(
-    passport?.owner_address,
-    githubUsername
-  );
   
   // Debug logging
-  console.log('GitHub data:', {
+  console.log('GitHub data from ENS:', {
     username: githubUsername,
-    originalValue: passport?.socials?.github,
-    verified: isGithubVerified,
-    verifiedUsername
+    originalValue: passport?.socials?.github
   });
   
-  // Only show GitHub section if there's a verified GitHub account
-  const showGitHubSection = isGithubVerified && (verifiedUsername || githubUsername);
-  const displayGithubUsername = verifiedUsername || githubUsername;
+  // Only show GitHub section if there's a GitHub username
+  const showGitHubSection = !!githubUsername;
   
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -112,33 +104,25 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* GitHub Contributions - Only show if GitHub is verified */}
+              {/* GitHub Contributions - Only show if GitHub username is available */}
               {showGitHubSection && (
                 <div className="mt-6 p-4 bg-white rounded-lg shadow-sm">
                   <h3 className="text-xl font-medium mb-3">
                     GitHub Activity
-                    {displayGithubUsername && (
+                    {githubUsername && (
                       <a 
-                        href={`https://github.com/${displayGithubUsername}`}
+                        href={`https://github.com/${githubUsername}`}
                         target="_blank"
                         rel="noopener noreferrer" 
                         className="text-sm text-blue-500 ml-2 hover:underline"
                       >
-                        @{displayGithubUsername}
+                        @{githubUsername}
                       </a>
                     )}
                   </h3>
                   
-                  {/* Use the verified username from TalentProtocol if available */}
-                  <GitHubContributions 
-                    username={displayGithubUsername} 
-                    isVerified={true} 
-                  />
-                  
-                  {/* Alternative component */}
-                  <div className="mt-4">
-                    <GitHubContributionGraph username={displayGithubUsername} />
-                  </div>
+                  {/* Use the GitHub username directly */}
+                  <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}
             </div>

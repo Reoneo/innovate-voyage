@@ -10,18 +10,22 @@ export default function GitHubContributionGraph({ username }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  if (!username) return null;  // nothing to show without a username
+  // If no username provided, don't show anything
+  if (!username) {
+    console.log('No GitHub username provided to GitHubContributionGraph');
+    return null;
+  }
 
   // GitHub's "undocumented" SVG endpoint for the past year's calendar
   const url = `https://github.com/users/${username}/contributions`;
 
   useEffect(() => {
-    console.log('🔍 Loading GitHub graph from:', url);
+    console.log('🔍 Loading GitHub graph for:', username, 'URL:', url);
     
     // Test if the URL is accessible
     fetch(url, { method: 'HEAD' })
       .then(response => {
-        console.log(`GitHub graph URL check: ${response.status}`);
+        console.log(`GitHub graph URL check: ${response.status} for ${username}`);
         if (!response.ok) {
           setError(`Failed to load GitHub contributions (status: ${response.status})`);
         } else {
@@ -34,19 +38,11 @@ export default function GitHubContributionGraph({ username }: Props) {
         setError('Failed to access GitHub contributions');
         setLoading(false);
       });
-  }, [url]);
+  }, [url, username]);
 
   return (
     <div 
-      style={{ 
-        width: '100%', 
-        overflowX: 'auto', 
-        marginTop: '1rem',
-        minHeight: '120px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center'
-      }}
+      className="w-full overflow-x-auto mt-4 min-h-[120px] flex flex-col justify-center"
     >
       {loading && <div className="text-sm text-gray-500">Loading GitHub activity graph...</div>}
       {error && <div className="text-sm text-red-500">{error}</div>}
@@ -55,17 +51,10 @@ export default function GitHubContributionGraph({ username }: Props) {
         <img
           src={url}
           alt={`${username}'s GitHub contributions`}
-          style={{
-            display: 'block',
-            width: '100%',
-            maxHeight: '200px',
-            objectFit: 'contain',
-            border: '1px solid #e1e4e8',
-            borderRadius: '4px',
-          }}
-          onLoad={() => console.log('GitHub contribution graph loaded successfully')}
+          className="block w-full max-h-[200px] object-contain border border-gray-200 rounded-md"
+          onLoad={() => console.log('GitHub contribution graph loaded successfully for', username)}
           onError={(e) => {
-            console.error('GitHub contribution graph failed to load:', e);
+            console.error('GitHub contribution graph failed to load for', username, e);
             setError('Failed to load GitHub activity graph');
             setIsVisible(false);
           }}
