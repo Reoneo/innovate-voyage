@@ -28,7 +28,7 @@ export function useGitHubContributions(username: string) {
           setError(null); // Clear any previous errors
         } else {
           // More specific error messaging
-          setError('Could not fetch GitHub contribution data. GitHub API may have rate-limited the request.');
+          setError('Could not fetch GitHub contribution data.');
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to access GitHub API';
@@ -38,7 +38,7 @@ export function useGitHubContributions(username: string) {
         if (errorMessage.includes('rate limit')) {
           setError('GitHub API rate limit exceeded. Please try again later.');
         } else if (errorMessage.includes('authentication')) {
-          setError('GitHub API requires authentication for this request.');
+          setError('GitHub API authentication error. Check your API token.');
         } else {
           setError(errorMessage);
         }

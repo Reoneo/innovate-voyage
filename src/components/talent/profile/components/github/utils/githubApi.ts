@@ -1,15 +1,18 @@
 
 import { ContributionData } from '../types';
 
-// For public repositories and profiles, we can often work without a token
-// Only use a token when absolutely necessary to avoid rate limits
-const GITHUB_API_TOKEN = ""; // Removing the token - we'll first try without one
+// Use the GitHub API token for authenticated requests
+const GITHUB_API_TOKEN = "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";
 
 export const verifyGitHubUser = async (username: string): Promise<boolean> => {
   console.log(`Verifying GitHub user: ${username}`);
   try {
-    // Make an unauthenticated request for public user profiles
-    const userResponse = await fetch(`https://api.github.com/users/${username}`);
+    // Make an authenticated request to improve rate limits
+    const userResponse = await fetch(`https://api.github.com/users/${username}`, {
+      headers: GITHUB_API_TOKEN ? {
+        'Authorization': `token ${GITHUB_API_TOKEN}`
+      } : {}
+    });
 
     if (!userResponse.ok) {
       console.error(`GitHub API returned ${userResponse.status} for ${username}`);
@@ -68,27 +71,17 @@ export const fetchGitHubContributions = async (username: string): Promise<Contri
 
     console.log(`Fetching GitHub contributions for ${username}`);
     
-    // First try without any token for public profiles
-    let graphqlResponse = await fetch('https://api.github.com/graphql', {
+    // Use the token for GraphQL requests
+    const graphqlResponse = await fetch('https://api.github.com/graphql', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `bearer ${GITHUB_API_TOKEN}`
       },
       body: JSON.stringify({ query })
     });
     
-    // If we hit rate limits, use a fallback mechanism
-    if (graphqlResponse.status === 401 || graphqlResponse.status === 403) {
-      console.log('Unauthenticated request failed, trying alternative approach...');
-      
-      // For public profiles, we could try using the scraping approach as fallback
-      // This involves fetching the public contribution graph from the user's profile page
-      // However, this would require a more complex implementation to parse HTML
-      
-      // For now, we'll provide a more meaningful error
-      throw new Error(`GitHub API authentication required. Rate limit may have been reached.`);
-    }
-
+    // Handle error responses
     if (!graphqlResponse.ok) {
       const errorText = await graphqlResponse.text();
       console.error('GitHub API error:', graphqlResponse.status, errorText);
@@ -135,6 +128,6 @@ export const fetchGitHubContributions = async (username: string): Promise<Contri
     return processed;
   } catch (err) {
     console.error('Error fetching GitHub contribution data:', err);
-    return null;
+    throw err; // Let the error propagate so we can show appropriate error messages
   }
 };
