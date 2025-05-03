@@ -22,7 +22,32 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
     if (!loading && !error && username && calendarRef.current && window.GitHubCalendar) {
       try {
         console.log(`Initializing GitHub Calendar for ${username}`);
-        window.GitHubCalendar(`.github-calendar-${username}`, username, { responsive: true });
+        
+        // Apply the GitHub Calendar with dark theme and responsive options
+        window.GitHubCalendar(`.github-calendar-${username}`, username, { 
+          responsive: true,
+          global_stats: true,
+          tooltips: true,
+          summary_text: '{total} contributions in the last year'
+        });
+        
+        // Apply custom styling to match the reference image after a short delay
+        setTimeout(() => {
+          const calendar = document.querySelector(`.github-calendar-${username}`);
+          if (calendar) {
+            // Add dark theme styles
+            calendar.classList.add('github-calendar-dark');
+            
+            // Find all contribution squares and style them
+            const squares = calendar.querySelectorAll('.day');
+            squares.forEach((square) => {
+              const level = square.getAttribute('data-level');
+              if (level) {
+                square.classList.add(`contribution-level-${level}`);
+              }
+            });
+          }
+        }, 500);
       } catch (err) {
         console.error('Error initializing GitHub Calendar:', err);
       }
@@ -36,7 +61,7 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
   }
 
   return (
-    <div className="w-full overflow-x-auto mt-4 min-h-[200px] flex flex-col justify-center">
+    <div className="w-full overflow-x-auto mt-4 min-h-[230px] flex flex-col justify-center">
       <GitHubLoadingState loading={loading} error={error} />
       
       {tokenInvalid && (
@@ -57,14 +82,14 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
       )}
       
       {!loading && !error && username && (
-        <>
+        <div className="github-calendar-wrapper bg-gray-950 p-4 rounded-lg">
           {/* Container for GitHub Calendar */}
-          <div ref={calendarRef} className={`github-calendar-${username} mb-4`}>
+          <div ref={calendarRef} className={`github-calendar-${username} calendar-container`}>
             {/* Loading message shown until the library loads the calendar */}
             Loading GitHub contribution data...
           </div>
           
-          <div className="mt-2 text-right">
+          <div className="mt-4 text-right">
             <a 
               href={`https://github.com/${username}`}
               target="_blank"
@@ -74,7 +99,7 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
               View GitHub Profile →
             </a>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

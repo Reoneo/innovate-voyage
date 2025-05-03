@@ -127,15 +127,15 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               
               {/* GitHub Contributions - Only show if GitHub username is available */}
               {showGitHubSection && (
-                <div className="mt-6 p-4 bg-gray-900 rounded-lg shadow-sm">
-                  <h3 className="text-xl font-medium mb-3 text-white">
-                    GitHub Activity
+                <div className="mt-6 p-4 bg-gray-950 rounded-lg shadow-sm border border-gray-800">
+                  <h3 className="text-xl font-medium mb-3 text-white flex items-center justify-between">
+                    <span>GitHub Activity</span>
                     {githubUsername && (
                       <a 
                         href={`https://github.com/${githubUsername}`}
                         target="_blank"
                         rel="noopener noreferrer" 
-                        className="text-sm text-blue-400 ml-2 hover:underline"
+                        className="text-sm text-blue-400 hover:underline"
                       >
                         @{githubUsername}
                       </a>
