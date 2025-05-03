@@ -1,10 +1,9 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
 import { Helmet } from 'react-helmet-async';
-import AnimatedBackground from '@/components/ui/animated-background';
 
 const TalentProfile = () => {
   const { 
@@ -17,8 +16,6 @@ const TalentProfile = () => {
     handleDisconnect,
     handleSaveChanges
   } = useProfilePage();
-  
-  const [dominantColor, setDominantColor] = useState<string | null>(null);
 
   useEffect(() => {
     // Set favicon to user's avatar if available
@@ -32,25 +29,6 @@ const TalentProfile = () => {
         newLink.href = passport.avatar_url;
         document.head.appendChild(newLink);
       }
-      
-      // Extract dominant color from avatar
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.src = passport.avatar_url;
-      
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 1;
-        canvas.height = 1;
-        const ctx = canvas.getContext('2d');
-        
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, 1, 1);
-          const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-          const color = `rgb(${r}, ${g}, ${b})`;
-          setDominantColor(color);
-        }
-      };
     }
 
     // Clean URL - remove timestamp query parameter
@@ -73,10 +51,7 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <div className="min-h-screen">
-        {/* Animated Background */}
-        <AnimatedBackground dominantColor={dominantColor} />
-        
+      <div className="min-h-screen bg-gray-50">
         {/* Navigation Bar */}
         <ProfileNavbar 
           connectedWallet={connectedWallet}
@@ -84,7 +59,7 @@ const TalentProfile = () => {
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container relative z-10">
+        <div className="container">
           {/* Profile Content */}
           <ProfileContent 
             loading={loading}
