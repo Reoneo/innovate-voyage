@@ -31,6 +31,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   
   // Extract GitHub username from social links with improved handling
   const extractGitHubUsername = () => {
+    console.log('Extracting GitHub username from:', passport?.socials?.github);
+    
     if (!passport?.socials?.github) return null;
     
     const githubUrl = passport.socials.github;
@@ -40,14 +42,18 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
       const parts = githubUrl.split('github.com/');
       // Get everything after github.com/ and before any query params or hashes
       const username = parts[1].split(/[/?#]/)[0];
+      console.log('Extracted GitHub username from URL:', username);
       return username;
     }
     
     // Handle direct username format
     if (githubUrl.startsWith('@')) {
-      return githubUrl.substring(1); // Remove @ prefix
+      const username = githubUrl.substring(1); // Remove @ prefix
+      console.log('Extracted GitHub username from @-prefix:', username);
+      return username;
     }
     
+    console.log('Using GitHub value directly as username:', githubUrl);
     return githubUrl; // Assume it's already a username
   };
 
@@ -86,12 +92,14 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
               {/* GitHub Contributions - Show if github social link exists */}
-              {isGitHubVerified && githubUsername && (
+              {console.log('Before GitHubContributions render check:', { isGitHubVerified, githubUsername })}
+              <div className="mt-6">
+                <h3 className="text-xl font-medium mb-3">GitHub Activity</h3>
                 <GitHubContributions 
-                  username={githubUsername} 
+                  username={githubUsername || ''} 
                   isVerified={isGitHubVerified} 
                 />
-              )}
+              </div>
             </div>
           </div>
         </HeaderContainer>
