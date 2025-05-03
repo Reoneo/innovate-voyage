@@ -38,14 +38,54 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
             // Add dark theme styles
             calendar.classList.add('github-calendar-dark');
             
-            // Find all contribution squares and style them
+            // Enhance the grid appearance
+            const gridContainer = calendar.querySelector('.js-calendar-graph-svg');
+            if (gridContainer) {
+              gridContainer.setAttribute('style', 'stroke: rgba(255, 255, 255, 0.1); stroke-width: 1px;');
+            }
+            
+            // Find the text elements showing month names and make them more visible
+            const textElements = calendar.querySelectorAll('text.month');
+            textElements.forEach((text) => {
+              text.setAttribute('fill', '#FFFFFF');
+              text.setAttribute('font-weight', '600');
+            });
+            
+            // Find the weekday text elements and make them more visible
+            const weekdayElements = calendar.querySelectorAll('text.wday');
+            weekdayElements.forEach((text) => {
+              text.setAttribute('fill', '#FFFFFF');
+              text.setAttribute('font-weight', '600');
+            });
+            
+            // Add styling to the contribution squares
             const squares = calendar.querySelectorAll('.day');
-            squares.forEach((square) => {
+            squares.forEach((square: Element) => {
               const level = square.getAttribute('data-level');
               if (level) {
                 square.classList.add(`contribution-level-${level}`);
+                
+                // Add grid effect to squares
+                const rect = square as SVGRectElement;
+                rect.setAttribute('stroke', 'rgba(0, 0, 0, 0.2)');
+                rect.setAttribute('stroke-width', '1');
               }
             });
+            
+            // Style the contribution summary text
+            const summaryText = calendar.querySelector('.contrib-number');
+            if (summaryText) {
+              summaryText.setAttribute('style', 'font-size: 24px; font-weight: bold; color: white;');
+            }
+            
+            // Style the date range text
+            const dateText = calendar.querySelector('.contrib-footer .float-left');
+            if (dateText) {
+              dateText.setAttribute('style', 'color: rgba(255, 255, 255, 0.7); margin-top: 4px;');
+            }
+            
+            // Add a distinctive border to the calendar
+            calendar.classList.add('border-white/10', 'border');
           }
         }, 500);
       } catch (err) {
@@ -61,7 +101,7 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
   }
 
   return (
-    <div className="w-full overflow-x-auto mt-4 min-h-[230px] flex flex-col justify-center">
+    <div className="w-full overflow-hidden mt-4 min-h-[230px] flex flex-col justify-center">
       <GitHubLoadingState loading={loading} error={error} />
       
       {tokenInvalid && (
@@ -89,14 +129,35 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
             Loading GitHub contribution data...
           </div>
           
+          {/* Streaks and Stats Display */}
+          <div className="mt-4 grid grid-cols-3 gap-4 py-3 border-t border-white/10 text-center">
+            <div className="flex flex-col">
+              <span className="text-sm text-gray-400">Contributions in the last year</span>
+              <span className="text-2xl font-bold mt-1" id={`${username}-total-contrib`}>-</span>
+              <span className="text-xs text-gray-500 mt-1" id={`${username}-date-range`}>-</span>
+            </div>
+            
+            <div className="flex flex-col border-x border-white/10">
+              <span className="text-sm text-gray-400">Longest streak</span>
+              <span className="text-2xl font-bold mt-1" id={`${username}-longest-streak`}>- days</span>
+              <span className="text-xs text-gray-500 mt-1">Rock - Hard Place</span>
+            </div>
+            
+            <div className="flex flex-col">
+              <span className="text-sm text-gray-400">Current streak</span>
+              <span className="text-2xl font-bold mt-1" id={`${username}-current-streak`}>- days</span>
+              <span className="text-xs text-gray-500 mt-1">Rock - Hard Place</span>
+            </div>
+          </div>
+          
           <div className="mt-4 text-right">
             <a 
               href={`https://github.com/${username}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-blue-500 hover:underline"
+              className="text-blue-500 hover:underline text-sm flex items-center justify-end"
             >
-              View GitHub Profile →
+              View GitHub Profile <ExternalLink className="ml-1 h-3 w-3" />
             </a>
           </div>
         </div>

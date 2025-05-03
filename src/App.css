@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -39,4 +40,140 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* GitHub Calendar Custom Styling */
+.github-calendar-dark {
+  background-color: #0d1117;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.github-calendar-dark .calendar-graph text.month {
+  font-size: 10px;
+  fill: #8b949e;
+}
+
+.github-calendar-dark .calendar-graph text.wday {
+  font-size: 9px;
+  fill: #8b949e;
+}
+
+.github-calendar-dark .day {
+  shape-rendering: geometricPrecision;
+  outline: 1px solid rgba(27, 31, 35, 0.06);
+  outline-offset: -1px;
+  rx: 2;
+  ry: 2;
+}
+
+.github-calendar-dark .day[data-level="0"] {
+  fill: #161b22;
+}
+
+.github-calendar-dark .day[data-level="1"] {
+  fill: #0e4429;
+}
+
+.github-calendar-dark .day[data-level="2"] {
+  fill: #006d32;
+}
+
+.github-calendar-dark .day[data-level="3"] {
+  fill: #26a641;
+}
+
+.github-calendar-dark .day[data-level="4"] {
+  fill: #39d353;
+}
+
+.github-calendar-dark .contrib-footer {
+  padding: 10px 0;
+  margin-top: 16px;
+  border-top: 1px solid #30363d;
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.github-calendar-dark .contrib-legend {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.github-calendar-dark .contrib-legend .legend {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 0 2px;
+  border-radius: 2px;
+}
+
+.github-calendar-dark .text-muted,
+.github-calendar-dark .text-small {
+  color: #8b949e;
+  font-size: 12px;
+}
+
+.github-calendar-dark .contrib-number {
+  font-size: 24px;
+  font-weight: 600;
+  color: #c9d1d9;
+}
+
+.calendar-container {
+  min-height: 160px;
+}
+
+/* Style for the entire calendar wrapper */
+.github-calendar-wrapper {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background-color: #0d1117;
+  padding: 16px;
+}
+
+/* Style the calendar graph cells with grid lines */
+.js-calendar-graph-svg rect {
+  stroke: rgba(0, 0, 0, 0.2) !important;
+  stroke-width: 1px !important;
+}
+
+/* Stats display styling */
+.github-stats-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.github-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.github-stat-item:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.github-stat-title {
+  font-size: 0.875rem;
+  color: #8b949e;
+}
+
+.github-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #c9d1d9;
+  margin-top: 0.25rem;
+}
+
+.github-stat-subtitle {
+  font-size: 0.75rem;
+  color: #8b949e;
+  margin-top: 0.25rem;
 }
