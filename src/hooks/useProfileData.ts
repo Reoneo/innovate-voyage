@@ -16,11 +16,16 @@ export function useProfileData(ensName?: string, address?: string) {
   // Fetch blockchain data
   const blockchainData = useBlockchainData(resolvedAddress, resolvedEns);
   
+  console.log('ENS Links in useProfileData:', ensLinks);
+  
   // Enhance blockchain profile with ENS links
   const enhancedBlockchainProfile = blockchainData.blockchainProfile 
     ? {
         ...blockchainData.blockchainProfile,
-        socials: ensLinks?.socials || {},
+        socials: {
+          ...ensLinks?.socials,
+          ...(blockchainData.blockchainProfile.socials || {})
+        },
         ensLinks: ensLinks?.ensLinks || [],
         description: blockchainData.blockchainProfile.description || 
                      ensLinks?.description || 
@@ -28,6 +33,13 @@ export function useProfileData(ensName?: string, address?: string) {
                      blockchainData.blockchainExtendedData?.description
       }
     : null;
+  
+  // Debug GitHub sources
+  console.log('GitHub sources:', {
+    ensGitHub: ensLinks?.socials?.github,
+    blockchainGitHub: blockchainData.blockchainProfile?.socials?.github,
+    web3BioGitHub: blockchainData.web3BioProfile?.github
+  });
   
   // Generate passport
   const { passport, loading } = usePassportGenerator(
@@ -39,7 +51,9 @@ export function useProfileData(ensName?: string, address?: string) {
       avatarUrl,
       web3BioProfile: {
         ...blockchainData.web3BioProfile,
-        description: blockchainData.web3BioProfile?.description || ensBio
+        description: blockchainData.web3BioProfile?.description || ensBio,
+        // Make sure GitHub username is passed through
+        github: blockchainData.web3BioProfile?.github || ensLinks?.socials?.github
       }
     }
   );

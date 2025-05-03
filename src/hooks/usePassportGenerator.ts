@@ -95,13 +95,21 @@ export function usePassportGenerator(
           skills.push({ name: 'SNS.ID User', proof: 'sns.id' });
         }
         
+        // Prepare social links, giving precedence to blockchainProfile.socials if available
+        // This ensures we capture GitHub username from ENS records
         const socials = {
-          github: web3BioProfile?.github || undefined,
-          twitter: web3BioProfile?.twitter || undefined,
-          linkedin: web3BioProfile?.linkedin ? "https://www.linkedin.com/in/thirdweb" : undefined,
-          website: web3BioProfile?.website || undefined,
-          email: web3BioProfile?.email || undefined
+          github: web3BioProfile?.github || blockchainProfile?.socials?.github || undefined,
+          twitter: web3BioProfile?.twitter || blockchainProfile?.socials?.twitter || undefined,
+          linkedin: web3BioProfile?.linkedin || blockchainProfile?.socials?.linkedin || undefined,
+          website: web3BioProfile?.website || blockchainProfile?.socials?.website || undefined,
+          email: web3BioProfile?.email || blockchainProfile?.socials?.email || undefined
         };
+        
+        // Log the GitHub data sources for debugging
+        console.log('GitHub username sources:', {
+          web3BioGithub: web3BioProfile?.github,
+          blockchainProfileGithub: blockchainProfile?.socials?.github
+        });
         
         // Process the bio correctly from all possible sources
         let bio = '';
@@ -139,6 +147,8 @@ export function usePassportGenerator(
           socials: socials,
           bio: bio
         };
+        
+        console.log('Created passport with GitHub username:', newPassport.socials.github);
         
         setPassport(newPassport);
       } catch (error) {

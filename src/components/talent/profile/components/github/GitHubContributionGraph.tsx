@@ -45,6 +45,7 @@ export default function GitHubContributionGraph({ username }: Props) {
     const fetchGitHubContributions = async () => {
       try {
         // First, verify the GitHub user exists
+        console.log(`Verifying GitHub user: ${username}`);
         const userResponse = await fetch(`https://api.github.com/users/${username}`, {
           headers: {
             'Authorization': `token ${GITHUB_API_TOKEN}`,
@@ -54,6 +55,8 @@ export default function GitHubContributionGraph({ username }: Props) {
 
         if (!userResponse.ok) {
           console.error(`GitHub API returned ${userResponse.status} for ${username}`);
+          const errorText = await userResponse.text();
+          console.error('Error response:', errorText);
           setError(`GitHub user not found (${userResponse.status})`);
           setLoading(false);
           return;
@@ -92,6 +95,7 @@ export default function GitHubContributionGraph({ username }: Props) {
           }
         `;
 
+        console.log('Sending GraphQL request for contributions');
         const graphqlResponse = await fetch('https://api.github.com/graphql', {
           method: 'POST',
           headers: {
@@ -102,10 +106,13 @@ export default function GitHubContributionGraph({ username }: Props) {
         });
 
         if (!graphqlResponse.ok) {
-          throw new Error(`GraphQL request failed: ${graphqlResponse.status}`);
+          const errorText = await graphqlResponse.text();
+          console.error('GraphQL response not OK:', graphqlResponse.status, errorText);
+          throw new Error(`GraphQL request failed: ${graphqlResponse.status} - ${errorText}`);
         }
 
         const graphqlData = await graphqlResponse.json();
+        console.log('GraphQL response received:', graphqlData);
         
         if (graphqlData.errors) {
           console.error('GraphQL errors:', graphqlData.errors);
@@ -113,11 +120,14 @@ export default function GitHubContributionGraph({ username }: Props) {
         }
 
         if (!graphqlData.data || !graphqlData.data.user) {
+          console.error('No user data in GraphQL response:', graphqlData);
           throw new Error('No user data returned from GitHub GraphQL API');
         }
         
         // Process the data
         const contributionCalendar = graphqlData.data.user.contributionsCollection.contributionCalendar;
+        console.log('Raw contribution data:', contributionCalendar);
+        
         const processed = {
           totalContributions: contributionCalendar.totalContributions,
           weeks: contributionCalendar.weeks.map((week: any) => ({
@@ -138,6 +148,7 @@ export default function GitHubContributionGraph({ username }: Props) {
           }
         };
 
+        console.log('Processed contribution data:', processed);
         setContributionData(processed);
         setYearlyTotal(contributionCalendar.totalContributions);
         setLoading(false);
@@ -174,7 +185,7 @@ export default function GitHubContributionGraph({ username }: Props) {
       className="w-full overflow-x-auto mt-4 min-h-[200px] flex flex-col justify-center"
     >
       {loading && <div className="text-sm text-gray-500">Loading GitHub activity graph...</div>}
-      {error && <div className="text-sm text-red-500">{error}</div>}
+      {error && <div className="text-sm text-red-500">Error: {error}</div>}
       
       {!loading && !error && contributionData && (
         <>
@@ -184,7 +195,7 @@ export default function GitHubContributionGraph({ username }: Props) {
               alt={`${username}'s avatar`} 
               className="w-6 h-6 rounded-full"
             />
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-gray-300">
               {contributionData.user.name || username} • {contributionData.user.repositoriesContributedTo.totalCount} repositories
             </span>
           </div>
