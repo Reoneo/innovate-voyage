@@ -16,6 +16,12 @@ if (!TOKEN) {
   process.exit(1);
 }
 
+// Middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 app.get('/api/github-contributions', async (req, res) => {
   const { username } = req.query;
 
@@ -27,13 +33,31 @@ app.get('/api/github-contributions', async (req, res) => {
 
   // First verify the user exists
   try {
-    const userResponse = await fetch(`https://api.github.com/users/${username}`);
+    const userResponse = await fetch(`https://api.github.com/users/${username}`, {
+      headers: {
+        'Authorization': `Bearer ${TOKEN}`,
+        'Accept': 'application/json',
+        'User-Agent': 'GitHub-Contribution-Tracker'
+      }
+    });
+    
+    if (userResponse.status === 401 || userResponse.status === 403) {
+      console.error(`Authentication error: ${userResponse.status}. Token may be expired or invalid.`);
+      return res.status(401).json({ 
+        error: 'GitHub API token is invalid or expired', 
+        tokenStatus: 'invalid'
+      });
+    }
+    
     if (!userResponse.ok) {
       console.error(`GitHub user API returned ${userResponse.status} for ${username}`);
       return res.status(404).json({ 
         error: `GitHub user ${username} does not exist or is not accessible` 
       });
     }
+    
+    const userData = await userResponse.json();
+    console.log(`Verified GitHub user: ${userData.login} (${userData.name || 'No name'})`);
   } catch (error) {
     console.error('Error verifying GitHub user:', error);
     return res.status(500).json({ error: 'Failed to verify GitHub user' });
@@ -76,10 +100,19 @@ app.get('/api/github-contributions', async (req, res) => {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${TOKEN}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'User-Agent': 'GitHub-Contribution-Tracker'
       },
       body: JSON.stringify({ query })
     });
+
+    if (graphqlResponse.status === 401 || graphqlResponse.status === 403) {
+      console.error(`Authentication error: ${graphqlResponse.status}. Token may be expired or invalid.`);
+      return res.status(401).json({ 
+        error: 'GitHub API token is invalid or expired',
+        tokenStatus: 'invalid'
+      });
+    }
 
     if (!graphqlResponse.ok) {
       const status = graphqlResponse.status;
@@ -96,6 +129,14 @@ app.get('/api/github-contributions', async (req, res) => {
     
     if (graphqlData.errors) {
       console.error('GitHub GraphQL errors:', graphqlData.errors);
+      // Check if error is related to authentication
+      if (graphqlData.errors.some(err => err.type === 'UNAUTHORIZED' || err.message.includes('token') || err.message.includes('auth'))) {
+        return res.status(401).json({ 
+          error: 'GitHub API token is invalid or expired',
+          tokenStatus: 'invalid',
+          details: graphqlData.errors[0].message
+        });
+      }
       return res.status(400).json({ 
         error: 'GitHub GraphQL error',
         details: graphqlData.errors[0].message
@@ -139,10 +180,15 @@ app.get('/api/github-contributions', async (req, res) => {
 
 // Basic health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).send('Server is running');
+  res.status(200).json({ 
+    status: 'running',
+    tokenAvailable: !!TOKEN,
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.listen(PORT, () => {
   console.log(`🚀 GitHub API proxy server running on http://localhost:${PORT}`);
+  console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`Try: http://localhost:${PORT}/api/github-contributions?username=octocat`);
 });

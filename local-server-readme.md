@@ -7,8 +7,10 @@ This is a local Express server that acts as a proxy for fetching GitHub contribu
 
 ### 1. Create a .env file in the root directory:
 ```
-GITHUB_API_TOKEN=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
+GITHUB_API_TOKEN=your_github_personal_access_token_here
 ```
+
+Be sure to replace the placeholder with a valid GitHub token. Get one from: https://github.com/settings/tokens
 
 ### 2. Install dependencies:
 ```bash
@@ -22,6 +24,16 @@ node server.js
 
 The server will run on http://localhost:4000 by default.
 
+## GitHub Token Guidelines
+
+GitHub personal access tokens may be revoked if:
+- They are pushed to a public repository
+- They are not used for a year
+- They reach their expiration date
+- They are revoked manually or by GitHub's security systems
+
+If your token stops working, simply create a new one on GitHub and update your .env file.
+
 ## Usage
 
 ### Endpoints:
@@ -31,8 +43,9 @@ The server will run on http://localhost:4000 by default.
   * Response includes totalContributions, weekly contribution data, and user information
   
 * GET `/health`
-  * Simple health check endpoint
+  * Health check endpoint that also verifies token availability
 
 ## Integration with the Frontend
 
 The React hook `useGitHubContributions.ts` is already configured to use this local server.
+
