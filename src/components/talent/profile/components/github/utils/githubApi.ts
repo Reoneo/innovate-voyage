@@ -1,7 +1,7 @@
 import { ContributionData } from '../types';
 
 // Using the updated GitHub API token
-const GITHUB_API_TOKEN = "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";
+const GITHUB_API_TOKEN = "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";
 
 export const verifyGitHubUser = async (username: string): Promise<boolean> => {
   console.log(`Verifying GitHub user: ${username}`);
