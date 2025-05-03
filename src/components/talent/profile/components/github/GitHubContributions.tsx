@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Props {
   username: string;
@@ -7,6 +7,9 @@ interface Props {
 }
 
 const GitHubContributions: React.FC<Props> = ({ username, isVerified }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  
   console.log('🛠️ GitHubContributions render:', { username, isVerified });
   
   // Don't render at all if not verified or no username
@@ -26,9 +29,13 @@ const GitHubContributions: React.FC<Props> = ({ username, isVerified }) => {
     fetch(contribUrl, { method: 'HEAD' })
       .then(response => {
         console.log(`[GitHubContributions] URL check status: ${response.status}`);
+        setIsLoading(false);
+        setHasError(!response.ok);
       })
       .catch(error => {
         console.error('[GitHubContributions] URL check error:', error);
+        setIsLoading(false);
+        setHasError(true);
       });
   }, [contribUrl]);
 
@@ -37,24 +44,44 @@ const GitHubContributions: React.FC<Props> = ({ username, isVerified }) => {
       width: '100%', 
       overflowX: 'auto',
       border: '1px solid #e1e4e8',
-      padding: '8px',
-      marginBottom: '16px'
+      borderRadius: '6px',
+      padding: '12px',
+      backgroundColor: '#f6f8fa',
+      marginBottom: '16px',
+      minHeight: '160px',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center'
     }}>
-      <img
-        className="github-heatmap"
-        src={contribUrl}
-        alt={`${username}'s GitHub contributions`}
-        style={{
-          display: 'block',
-          width: '100%',
-          height: '150px',
-          maxHeight: '200px',
-          objectFit: 'contain',
-          borderRadius: '4px',
-        }}
-        onLoad={() => console.log('[GitHubContributions] Image loaded successfully')}
-        onError={(e) => console.error('[GitHubContributions] Image failed to load:', e)}
-      />
+      {isLoading && (
+        <div className="text-gray-500">Loading GitHub contribution data...</div>
+      )}
+      
+      {hasError && (
+        <div className="text-red-500">Unable to load GitHub contributions graph</div>
+      )}
+      
+      {!isLoading && !hasError && (
+        <img
+          className="github-heatmap"
+          src={contribUrl}
+          alt={`${username}'s GitHub contributions`}
+          style={{
+            display: 'block',
+            width: '100%',
+            height: '150px',
+            maxHeight: '200px',
+            objectFit: 'contain',
+            borderRadius: '4px',
+          }}
+          onLoad={() => console.log('[GitHubContributions] Image loaded successfully')}
+          onError={(e) => {
+            console.error('[GitHubContributions] Image failed to load:', e);
+            setHasError(true);
+          }}
+        />
+      )}
     </div>
   );
 };
