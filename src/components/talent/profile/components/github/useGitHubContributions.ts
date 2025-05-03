@@ -27,18 +27,27 @@ export function useGitHubContributions(username: string) {
           setYearlyTotal(data.totalContributions);
           setError(null); // Clear any previous errors
         } else {
-          setError('Could not fetch GitHub contribution data');
+          // More specific error messaging
+          setError('Could not fetch GitHub contribution data. GitHub API may have rate-limited the request.');
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to access GitHub API';
         console.error(`GitHub API error (${username}):`, errorMessage);
-        setError(errorMessage);
         
-        // Implement retry logic for transient errors
-        if (retries < 2) {
+        // More specific error messages based on error type
+        if (errorMessage.includes('rate limit')) {
+          setError('GitHub API rate limit exceeded. Please try again later.');
+        } else if (errorMessage.includes('authentication')) {
+          setError('GitHub API requires authentication for this request.');
+        } else {
+          setError(errorMessage);
+        }
+        
+        // Only retry for certain types of errors (not for authentication issues)
+        if (retries < 2 && !errorMessage.includes('authentication')) {
           setRetries(prev => prev + 1);
           console.log(`Retrying GitHub API request (${retries + 1}/3)...`);
-          setTimeout(() => loadContributions(), 1000); // Retry after 1 second
+          setTimeout(() => loadContributions(), 2000); // Retry after 2 seconds
           return;
         }
       } finally {

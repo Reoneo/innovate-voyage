@@ -34,6 +34,11 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
             <span className="text-sm text-gray-300">
               {contributionData.user.name || username} • {contributionData.user.repositoriesContributedTo.totalCount} repositories
             </span>
+            
+            {/* Display total contributions for the year */}
+            <span className="text-xs text-gray-400 ml-auto">
+              {yearlyTotal?.toLocaleString()} contributions in the last year
+            </span>
           </div>
           
           <ContributionGrid contributionData={contributionData} />

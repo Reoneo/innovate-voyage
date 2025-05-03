@@ -1,13 +1,14 @@
 
 import { ContributionData } from '../types';
 
-// Using the new GitHub API token
-const GITHUB_API_TOKEN = "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";
+// For public repositories and profiles, we can often work without a token
+// Only use a token when absolutely necessary to avoid rate limits
+const GITHUB_API_TOKEN = ""; // Removing the token - we'll first try without one
 
 export const verifyGitHubUser = async (username: string): Promise<boolean> => {
   console.log(`Verifying GitHub user: ${username}`);
   try {
-    // Make an unauthenticated request first to avoid rate limits for simple user checks
+    // Make an unauthenticated request for public user profiles
     const userResponse = await fetch(`https://api.github.com/users/${username}`);
 
     if (!userResponse.ok) {
@@ -66,14 +67,27 @@ export const fetchGitHubContributions = async (username: string): Promise<Contri
     `;
 
     console.log(`Fetching GitHub contributions for ${username}`);
-    const graphqlResponse = await fetch('https://api.github.com/graphql', {
+    
+    // First try without any token for public profiles
+    let graphqlResponse = await fetch('https://api.github.com/graphql', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${GITHUB_API_TOKEN}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ query })
     });
+    
+    // If we hit rate limits, use a fallback mechanism
+    if (graphqlResponse.status === 401 || graphqlResponse.status === 403) {
+      console.log('Unauthenticated request failed, trying alternative approach...');
+      
+      // For public profiles, we could try using the scraping approach as fallback
+      // This involves fetching the public contribution graph from the user's profile page
+      // However, this would require a more complex implementation to parse HTML
+      
+      // For now, we'll provide a more meaningful error
+      throw new Error(`GitHub API authentication required. Rate limit may have been reached.`);
+    }
 
     if (!graphqlResponse.ok) {
       const errorText = await graphqlResponse.text();
