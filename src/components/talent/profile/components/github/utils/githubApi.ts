@@ -1,8 +1,17 @@
 
 import { ContributionData } from '../types';
 
-// Using the new GitHub API token
-const GITHUB_API_TOKEN = "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";
+// Use the environment variable instead of hardcoding the token
+const getGitHubToken = (): string | null => {
+  // Check for environment variable first
+  if (import.meta.env.VITE_GITHUB_API_TOKEN) {
+    return import.meta.env.VITE_GITHUB_API_TOKEN;
+  }
+  
+  // Fallback for development/testing only
+  console.warn('No GitHub API token found in environment variables. Using unauthenticated requests.');
+  return null;
+};
 
 export const verifyGitHubUser = async (username: string): Promise<boolean> => {
   console.log(`Verifying GitHub user: ${username}`);
@@ -67,61 +76,66 @@ export const fetchGitHubContributions = async (username: string): Promise<Contri
 
     console.log(`Fetching GitHub contributions for ${username}`);
     
-    // First try with authentication
-    try {
-      const graphqlResponse = await fetch('https://api.github.com/graphql', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${GITHUB_API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query })
-      });
-      
-      if (graphqlResponse.ok) {
-        const graphqlData = await graphqlResponse.json();
-        console.log('GitHub API response received with auth');
+    // Get token from environment
+    const token = getGitHubToken();
+    
+    // Try authenticated request if token is available
+    if (token) {
+      try {
+        const graphqlResponse = await fetch('https://api.github.com/graphql', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query })
+        });
         
-        if (graphqlData.errors) {
-          console.error('GitHub GraphQL errors (with auth):', graphqlData.errors);
-          throw new Error(graphqlData.errors[0].message);
+        if (graphqlResponse.ok) {
+          const graphqlData = await graphqlResponse.json();
+          console.log('GitHub API response received with auth');
+          
+          if (graphqlData.errors) {
+            console.error('GitHub GraphQL errors (with auth):', graphqlData.errors);
+            throw new Error(graphqlData.errors[0].message);
+          }
+          
+          return processContributionData(graphqlData, username);
+        } else {
+          console.warn(`Authenticated request failed with status: ${graphqlResponse.status}. Will try unauthenticated.`);
+          throw new Error(`GitHub API error: ${graphqlResponse.status}`);
         }
-        
-        return processContributionData(graphqlData, username);
-      } else {
-        console.warn(`Authenticated request failed with status: ${graphqlResponse.status}. Will try unauthenticated.`);
-        throw new Error(`GitHub API error: ${graphqlResponse.status}`);
+      } catch (authError) {
+        // If authentication fails, fall back to unauthenticated request
+        console.warn('Authenticated request failed, trying unauthenticated request:', authError);
       }
-    } catch (authError) {
-      // If authentication fails (token expired, etc), try without auth
-      console.warn('Authenticated request failed, trying unauthenticated request:', authError);
-      
-      // Attempting an unauthenticated request
-      // Note: This might hit rate limits quickly, but is a fallback
-      const unauthResponse = await fetch('https://api.github.com/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query })
-      });
-
-      if (!unauthResponse.ok) {
-        const errorText = await unauthResponse.text();
-        console.error('Unauthenticated GitHub API error:', unauthResponse.status, errorText);
-        throw new Error(`GitHub API error: ${unauthResponse.status} - ${errorText}`);
-      }
-
-      const graphqlData = await unauthResponse.json();
-      console.log('GitHub API response received (unauth)');
-      
-      if (graphqlData.errors) {
-        console.error('GitHub GraphQL errors (unauth):', graphqlData.errors);
-        throw new Error(graphqlData.errors[0].message);
-      }
-      
-      return processContributionData(graphqlData, username);
     }
+      
+    // Attempting an unauthenticated request as fallback
+    console.log('Making unauthenticated GitHub API request');
+    const unauthResponse = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query })
+    });
+
+    if (!unauthResponse.ok) {
+      const errorText = await unauthResponse.text();
+      console.error('Unauthenticated GitHub API error:', unauthResponse.status, errorText);
+      throw new Error(`GitHub API error: ${unauthResponse.status} - ${errorText}`);
+    }
+
+    const graphqlData = await unauthResponse.json();
+    console.log('GitHub API response received (unauth)');
+    
+    if (graphqlData.errors) {
+      console.error('GitHub GraphQL errors (unauth):', graphqlData.errors);
+      throw new Error(graphqlData.errors[0].message);
+    }
+    
+    return processContributionData(graphqlData, username);
   } catch (err) {
     console.error('Error fetching GitHub contribution data:', err);
     return null;
