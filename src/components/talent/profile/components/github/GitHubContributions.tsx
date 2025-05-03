@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -10,7 +10,14 @@ interface GitHubContributionsProps {
 }
 
 const GitHubContributions: React.FC<GitHubContributionsProps> = ({ username, isVerified }) => {
+  const [useImageFallback, setUseImageFallback] = useState(false);
+  const [errorLoading, setErrorLoading] = useState(false);
+  
   if (!username || !isVerified) return null;
+  
+  // Log the URL to help with debugging
+  const contributionsUrl = `https://github.com/users/${username}/contributions`;
+  console.log('GitHub Contributions URL:', contributionsUrl);
 
   return (
     <div className="relative w-full overflow-hidden rounded-lg border bg-white shadow mb-4">
@@ -24,23 +31,41 @@ const GitHubContributions: React.FC<GitHubContributionsProps> = ({ username, isV
       </div>
 
       <div className="overflow-auto py-2">
-        <iframe
-          title="GitHub contributions"
-          src={`https://github.com/users/${username}/contributions`}
-          style={{ border: 0, width: '100%', height: '120px' }}
-          sandbox="allow-scripts allow-same-origin"
-          loading="lazy"
-          onError={(e) => {
-            // Handle error loading iframe
-            const target = e.target as HTMLIFrameElement;
-            if (target.parentElement) {
-              const errorAlert = document.createElement('div');
-              errorAlert.className = "p-4 text-center text-red-500";
-              errorAlert.textContent = "Failed to load GitHub contributions";
-              target.parentElement.replaceChild(errorAlert, target);
-            }
-          }}
-        />
+        {errorLoading || useImageFallback ? (
+          // Image fallback approach
+          <img
+            alt={`${username}'s GitHub contributions`}
+            src={contributionsUrl}
+            style={{
+              display: 'block',
+              width: '100%',
+              height: '120px',
+              objectFit: 'contain',
+              border: 0
+            }}
+            onError={() => {
+              setErrorLoading(true);
+              console.error('Failed to load GitHub contributions image');
+            }}
+          />
+        ) : (
+          // Primary iframe approach
+          <iframe
+            title="GitHub contributions"
+            src={contributionsUrl}
+            style={{ 
+              border: '0', 
+              width: '100%', 
+              height: '120px',
+              display: 'block'
+            }}
+            loading="lazy"
+            onError={(e) => {
+              console.error('Failed to load GitHub contributions iframe');
+              setUseImageFallback(true); // Try image fallback if iframe fails
+            }}
+          />
+        )}
       </div>
     </div>
   );
