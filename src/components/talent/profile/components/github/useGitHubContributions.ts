@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { fetchGitHubContributions } from './utils/githubApi';
 import { ContributionData } from './types';
 
 export function useGitHubContributions(username: string) {
@@ -21,7 +20,17 @@ export function useGitHubContributions(username: string) {
     
     const loadContributions = async () => {
       try {
-        const data = await fetchGitHubContributions(username);
+        // Use the server-side API endpoint instead of direct GitHub API calls
+        const response = await fetch(`/api/github-contributions?username=${encodeURIComponent(username)}`);
+        
+        if (!response.ok) {
+          // Try to get the error details from the response
+          const errorData = await response.json().catch(() => null);
+          const errorMessage = errorData?.error || `API returned ${response.status}`;
+          throw new Error(errorMessage);
+        }
+        
+        const data = await response.json();
         if (data) {
           setContributionData(data);
           setYearlyTotal(data.totalContributions);
