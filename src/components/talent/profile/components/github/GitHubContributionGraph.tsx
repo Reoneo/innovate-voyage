@@ -4,14 +4,36 @@ import { GitHubContributionProps } from './types';
 import { useGitHubContributions } from './useGitHubContributions';
 import GitHubLoadingState from './GitHubLoadingState';
 import ContributionGrid from './ContributionGrid';
+import { useTalentProtocolGithub } from '@/hooks/useTalentProtocolGithub';
 
 export default function GitHubContributionGraph({ username }: GitHubContributionProps) {
   const { contributionData, loading, error, yearlyTotal } = useGitHubContributions(username);
+  const { isVerified, verifiedUsername, loading: verificationLoading } = useTalentProtocolGithub(
+    window.localStorage.getItem('connectedWalletAddress') || undefined,
+    username
+  );
   
   // If no username provided, don't show anything
   if (!username) {
     console.log('No GitHub username provided to GitHubContributionGraph');
     return null;
+  }
+
+  // Show loading state during verification check
+  if (verificationLoading) {
+    return <GitHubLoadingState loading={true} error={null} />;
+  }
+
+  // Only show the graph if the GitHub account is verified
+  if (!isVerified) {
+    return (
+      <div className="flex flex-col items-center justify-center h-40 w-full bg-gray-900 rounded-lg p-4">
+        <div className="text-amber-500 font-medium mb-2">GitHub account not verified</div>
+        <div className="text-xs text-gray-400 text-center">
+          This GitHub account needs to be verified through Talent Protocol before displaying contributions.
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -34,6 +56,9 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
             <span className="text-sm text-gray-300">
               {contributionData.user.name || username} • {contributionData.user.repositoriesContributedTo.totalCount} repositories
             </span>
+            {verifiedUsername && username === verifiedUsername && (
+              <span className="bg-green-800 text-green-100 text-xs px-2 py-0.5 rounded-full">Verified</span>
+            )}
           </div>
           
           <ContributionGrid contributionData={contributionData} />
