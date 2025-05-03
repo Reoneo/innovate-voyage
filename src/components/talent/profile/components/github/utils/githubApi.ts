@@ -1,29 +1,14 @@
 
 import { ContributionData } from '../types';
 
-// Use the new GitHub API token for authenticated requests
-const GITHUB_API_TOKEN = "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";
+// Using the new GitHub API token
+const GITHUB_API_TOKEN = "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";
 
 export const verifyGitHubUser = async (username: string): Promise<boolean> => {
   console.log(`Verifying GitHub user: ${username}`);
   try {
-    // First try without authentication
-    let userResponse = await fetch(`https://api.github.com/users/${username}`, {
-      headers: {
-        'User-Agent': 'TalentProtocol-App'
-      }
-    });
-    
-    // If we hit rate limits or other issues, retry with token
-    if (!userResponse.ok && userResponse.status === 403) {
-      console.log('Rate limited on unauthenticated request, trying with token...');
-      userResponse = await fetch(`https://api.github.com/users/${username}`, {
-        headers: {
-          'Authorization': `token ${GITHUB_API_TOKEN}`,
-          'User-Agent': 'TalentProtocol-App'
-        }
-      });
-    }
+    // Make an unauthenticated request first to avoid rate limits for simple user checks
+    const userResponse = await fetch(`https://api.github.com/users/${username}`);
 
     if (!userResponse.ok) {
       console.error(`GitHub API returned ${userResponse.status} for ${username}`);
@@ -81,45 +66,15 @@ export const fetchGitHubContributions = async (username: string): Promise<Contri
     `;
 
     console.log(`Fetching GitHub contributions for ${username}`);
-    
-    // Try first without a token (might work for public profiles with no rate limiting)
-    let graphqlResponse;
-    let useToken = false;
-    
-    try {
-      graphqlResponse = await fetch('https://api.github.com/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'TalentProtocol-App'
-        },
-        body: JSON.stringify({ query })
-      });
-      
-      // If we get rate limited or unauthorized, we'll retry with token
-      if (graphqlResponse.status === 401 || graphqlResponse.status === 403) {
-        useToken = true;
-      }
-    } catch (err) {
-      console.log('Error with unauthenticated request, falling back to token');
-      useToken = true;
-    }
-    
-    // If needed, retry with authentication token
-    if (useToken) {
-      console.log('Using authentication token for GraphQL request');
-      graphqlResponse = await fetch('https://api.github.com/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `bearer ${GITHUB_API_TOKEN}`,
-          'User-Agent': 'TalentProtocol-App'
-        },
-        body: JSON.stringify({ query })
-      });
-    }
-    
-    // Handle error responses
+    const graphqlResponse = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GITHUB_API_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query })
+    });
+
     if (!graphqlResponse.ok) {
       const errorText = await graphqlResponse.text();
       console.error('GitHub API error:', graphqlResponse.status, errorText);
@@ -166,6 +121,6 @@ export const fetchGitHubContributions = async (username: string): Promise<Contri
     return processed;
   } catch (err) {
     console.error('Error fetching GitHub contribution data:', err);
-    throw err; // Let the error propagate so we can show appropriate error messages
+    return null;
   }
 };

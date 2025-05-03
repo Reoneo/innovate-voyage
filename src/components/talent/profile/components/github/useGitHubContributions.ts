@@ -9,7 +9,6 @@ export function useGitHubContributions(username: string) {
   const [contributionData, setContributionData] = useState<ContributionData | null>(null);
   const [yearlyTotal, setYearlyTotal] = useState<number | null>(null);
   const [retries, setRetries] = useState(0);
-  const [isUsingFallback, setIsUsingFallback] = useState(false);
   
   useEffect(() => {
     if (!username) {
@@ -22,37 +21,24 @@ export function useGitHubContributions(username: string) {
     
     const loadContributions = async () => {
       try {
-        setIsUsingFallback(false);
         const data = await fetchGitHubContributions(username);
         if (data) {
           setContributionData(data);
           setYearlyTotal(data.totalContributions);
           setError(null); // Clear any previous errors
         } else {
-          // More specific error messaging
-          setError('Could not fetch GitHub contribution data.');
+          setError('Could not fetch GitHub contribution data');
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to access GitHub API';
         console.error(`GitHub API error (${username}):`, errorMessage);
+        setError(errorMessage);
         
-        // More specific error messages based on error type
-        if (errorMessage.includes('rate limit')) {
-          setError('GitHub API rate limit exceeded. Please try again later.');
-        } else if (errorMessage.includes('authentication') || errorMessage.includes('401')) {
-          setError('GitHub API authentication error. Trying fallback method...');
-          
-          // Set flag to indicate we're using fallback
-          setIsUsingFallback(true);
-        } else {
-          setError(errorMessage);
-        }
-        
-        // Only retry for certain types of errors
-        if (retries < 2 && !errorMessage.includes('authentication')) {
+        // Implement retry logic for transient errors
+        if (retries < 2) {
           setRetries(prev => prev + 1);
           console.log(`Retrying GitHub API request (${retries + 1}/3)...`);
-          setTimeout(() => loadContributions(), 2000); // Retry after 2 seconds
+          setTimeout(() => loadContributions(), 1000); // Retry after 1 second
           return;
         }
       } finally {
@@ -63,5 +49,5 @@ export function useGitHubContributions(username: string) {
     loadContributions();
   }, [username, retries]);
 
-  return { contributionData, loading, error, yearlyTotal, isUsingFallback };
+  return { contributionData, loading, error, yearlyTotal };
 }

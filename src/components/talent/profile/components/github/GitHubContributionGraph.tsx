@@ -6,7 +6,7 @@ import GitHubLoadingState from './GitHubLoadingState';
 import ContributionGrid from './ContributionGrid';
 
 export default function GitHubContributionGraph({ username }: GitHubContributionProps) {
-  const { contributionData, loading, error, yearlyTotal, isUsingFallback } = useGitHubContributions(username);
+  const { contributionData, loading, error, yearlyTotal } = useGitHubContributions(username);
   
   // If no username provided, don't show anything
   if (!username) {
@@ -18,7 +18,7 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
     <div 
       className="w-full overflow-x-auto mt-4 min-h-[200px] flex flex-col justify-center"
     >
-      <GitHubLoadingState loading={loading} error={error} isUsingFallback={isUsingFallback} />
+      <GitHubLoadingState loading={loading} error={error} />
       
       {!loading && !error && contributionData && (
         <>
@@ -33,11 +33,6 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
             />
             <span className="text-sm text-gray-300">
               {contributionData.user.name || username} • {contributionData.user.repositoriesContributedTo.totalCount} repositories
-            </span>
-            
-            {/* Display total contributions for the year */}
-            <span className="text-xs text-gray-400 ml-auto">
-              {yearlyTotal?.toLocaleString()} contributions in the last year
             </span>
           </div>
           
