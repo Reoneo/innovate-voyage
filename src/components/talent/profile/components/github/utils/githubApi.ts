@@ -79,59 +79,60 @@ export const fetchGitHubContributions = async (username: string): Promise<Contri
     // Get token from environment
     const token = getGitHubToken();
     
-    // Try authenticated request if token is available
+    // Authentication headers with conditional token
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Only add auth header if token exists
     if (token) {
-      try {
-        const graphqlResponse = await fetch('https://api.github.com/graphql', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ query })
-        });
-        
-        if (graphqlResponse.ok) {
-          const graphqlData = await graphqlResponse.json();
-          console.log('GitHub API response received with auth');
-          
-          if (graphqlData.errors) {
-            console.error('GitHub GraphQL errors (with auth):', graphqlData.errors);
-            throw new Error(graphqlData.errors[0].message);
-          }
-          
-          return processContributionData(graphqlData, username);
-        } else {
-          console.warn(`Authenticated request failed with status: ${graphqlResponse.status}. Will try unauthenticated.`);
-          throw new Error(`GitHub API error: ${graphqlResponse.status}`);
-        }
-      } catch (authError) {
-        // If authentication fails, fall back to unauthenticated request
-        console.warn('Authenticated request failed, trying unauthenticated request:', authError);
-      }
+      headers['Authorization'] = `Bearer ${token}`;
     }
-      
-    // Attempting an unauthenticated request as fallback
-    console.log('Making unauthenticated GitHub API request');
-    const unauthResponse = await fetch('https://api.github.com/graphql', {
+    
+    // Make a single request with proper headers
+    const graphqlResponse = await fetch('https://api.github.com/graphql', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ query })
     });
-
-    if (!unauthResponse.ok) {
-      const errorText = await unauthResponse.text();
-      console.error('Unauthenticated GitHub API error:', unauthResponse.status, errorText);
-      throw new Error(`GitHub API error: ${unauthResponse.status} - ${errorText}`);
+    
+    if (!graphqlResponse.ok) {
+      // Handle specific error cases
+      const status = graphqlResponse.status;
+      const errorText = await graphqlResponse.text();
+      
+      if (status === 401 || status === 403) {
+        console.error(`GitHub API authentication error: ${status}`, errorText);
+        
+        // If auth failed and we used a token, try once more without auth
+        // Only do this if we actually tried with a token
+        if (token) {
+          console.warn('Authentication failed. Attempting unauthenticated request as fallback.');
+          
+          // Try again without the auth header
+          const unauthResponse = await fetch('https://api.github.com/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query })
+          });
+          
+          if (unauthResponse.ok) {
+            const graphqlData = await unauthResponse.json();
+            if (graphqlData.data && !graphqlData.errors) {
+              console.log('Unauthenticated GitHub API request succeeded');
+              return processContributionData(graphqlData, username);
+            }
+          }
+        }
+      }
+      
+      throw new Error(`GitHub API error: ${status} - ${errorText}`);
     }
 
-    const graphqlData = await unauthResponse.json();
-    console.log('GitHub API response received (unauth)');
+    const graphqlData = await graphqlResponse.json();
     
     if (graphqlData.errors) {
-      console.error('GitHub GraphQL errors (unauth):', graphqlData.errors);
+      console.error('GitHub GraphQL errors:', graphqlData.errors);
       throw new Error(graphqlData.errors[0].message);
     }
     
