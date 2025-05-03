@@ -6,6 +6,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributions from './components/github/GitHubContributions';
+import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -91,14 +92,22 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* GitHub Contributions - Show if github social link exists */}
-              {console.log('Before GitHubContributions render check:', { isGitHubVerified, githubUsername })}
+              {/* GitHub Contributions - Try both approaches */}
               <div className="mt-6">
                 <h3 className="text-xl font-medium mb-3">GitHub Activity</h3>
+                
+                {/* Attempt 1: Using our existing component */}
                 <GitHubContributions 
                   username={githubUsername || ''} 
                   isVerified={isGitHubVerified} 
                 />
+                
+                {/* Attempt 2: Using the alternative component */}
+                {isGitHubVerified && githubUsername && (
+                  <div className="mt-4">
+                    <GitHubContributionGraph username={githubUsername} />
+                  </div>
+                )}
               </div>
             </div>
           </div>
