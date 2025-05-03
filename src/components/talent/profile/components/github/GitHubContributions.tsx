@@ -1,4 +1,3 @@
-// src/components/github/GitHubContributions.tsx
 
 import React, { useEffect } from 'react';
 
@@ -7,25 +6,36 @@ interface Props {
   isVerified: boolean;
 }
 
-export default function GitHubContributions({ username, isVerified }: Props) {
+const GitHubContributions: React.FC<Props> = ({ username, isVerified }) => {
+  // Don't render at all if not verified
   if (!isVerified || !username) return null;
 
-  const url = `https://github.com/users/${username}/contributions`;
+  // Construct URL
+  const contribUrl = `https://github.com/users/${username}/contributions`;
 
+  // Debug logging
   useEffect(() => {
-    console.log('Loading GitHub graph from:', url);
-  }, [url]);
+    console.log('[GitHubContributions] Loading:', contribUrl);
+  }, [contribUrl]);
 
   return (
-    <img
-      src={url}
-      alt={`${username}'s contributions`}
-      style={{
-        display: 'block',
-        width: '100%',       // fill its container
-        maxHeight: '200px',  // prevent it from collapsing
-        border: '1px solid #ddd',
-      }}
-    />
+    <div className="github-heatmap-wrapper" style={{ width: '100%', overflowX: 'auto' }}>
+      <img
+        className="github-heatmap"
+        src={contribUrl}
+        alt={`${username}'s GitHub contributions`}
+        // Explicit sizing so it's never 0×0
+        style={{
+          display: 'block',
+          width: '100%',
+          maxHeight: '200px',
+          objectFit: 'contain',
+          border: '1px solid #e1e4e8',
+          borderRadius: '4px',
+        }}
+      />
+    </div>
   );
-}
+};
+
+export default GitHubContributions;
