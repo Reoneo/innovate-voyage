@@ -4,7 +4,7 @@ import { ContributionData } from './types';
 
 // Configuration for the local server
 const LOCAL_SERVER_URL = 'http://localhost:4000';
-const USE_LOCAL_SERVER = true; // Toggle between local server and Vercel API
+const USE_LOCAL_SERVER = true; // Set to true to use the local server
 
 export function useGitHubContributions(username: string) {
   const [loading, setLoading] = useState(true);

@@ -5,17 +5,15 @@ This is a local Express server that acts as a proxy for fetching GitHub contribu
 
 ## Setup
 
-### 1. Install dependencies:
+### 1. Create a .env file in the root directory:
+```
+GITHUB_API_TOKEN=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
+```
+
+### 2. Install dependencies:
 ```bash
-npm install express node-fetch dotenv cors
+npm install
 ```
-
-### 2. Create a .env file in the root directory:
-```
-GITHUB_API_TOKEN=your_github_personal_access_token_here
-```
-
-Make sure to replace the placeholder with your actual GitHub Personal Access Token.
 
 ### 3. Start the server:
 ```bash
@@ -37,10 +35,4 @@ The server will run on http://localhost:4000 by default.
 
 ## Integration with the Frontend
 
-Update the `useGitHubContributions.ts` hook to use this local endpoint instead of the Vercel serverless function.
-
-## Security Notes
-
-* Do not commit your .env file to version control
-* Keep your GitHub token secure
-* For production, consider using proper authentication and more robust security measures
+The React hook `useGitHubContributions.ts` is already configured to use this local server.
