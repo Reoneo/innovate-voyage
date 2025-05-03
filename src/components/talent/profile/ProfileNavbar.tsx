@@ -86,7 +86,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </div>
         </form>
 
-        <div className="flex-none w-14 flex justify-center">
+        <div className="flex-none w-14 flex justify-center bg-black/0">
           <button onClick={handleOpenXmtpModal} className="flex items-center justify-center text-gray-600 hover:text-primary transition-colors" aria-label="XMTP Messages">
             <div className="h-8 w-8 rounded-full overflow-hidden flex items-center justify-center">
               
