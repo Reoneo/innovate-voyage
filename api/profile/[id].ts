@@ -6,8 +6,25 @@ const ParamsSchema = z.object({ id: z.string().uuid() });
 
 // Mock in-memory store - replace with your real data source later
 const users = [
-  { id: '11111111-1111-1111-1111-111111111111', username: 'alice', bio: 'Frontend wizard', avatar: 'https://cdn-icons-png.flaticon.com/512/6699/6699362.png' },
-  { id: '22222222-2222-2222-2222-222222222222', username: 'bob', bio: 'API guru', avatar: 'https://cdn-icons-png.flaticon.com/512/6699/6699362.png' }
+  { 
+    id: '11111111-1111-1111-1111-111111111111', 
+    username: 'alice', 
+    bio: 'Frontend wizard', 
+    avatar: 'https://cdn-icons-png.flaticon.com/512/6699/6699362.png',
+    socials: {
+      github: 'https://github.com/octocat',
+      twitter: 'https://twitter.com/alice_dev'
+    }
+  },
+  { 
+    id: '22222222-2222-2222-2222-222222222222', 
+    username: 'bob', 
+    bio: 'API guru', 
+    avatar: 'https://cdn-icons-png.flaticon.com/512/6699/6699362.png',
+    socials: {
+      github: 'https://github.com/defunkt'
+    }
+  }
 ];
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
@@ -21,6 +38,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   return res.status(200).json({ 
     username: user.username, 
     bio: user.bio,
-    avatar: user.avatar
+    avatar: user.avatar,
+    socials: user.socials
   });
 }

@@ -5,6 +5,7 @@ import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
+import GitHubContributions from './components/github/GitHubContributions';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -27,6 +28,38 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
+  
+  // Extract GitHub username from social links with improved handling
+  const extractGitHubUsername = () => {
+    if (!passport?.socials?.github) return null;
+    
+    const githubUrl = passport.socials.github;
+    
+    // Handle different GitHub URL formats
+    if (githubUrl.includes('github.com/')) {
+      const parts = githubUrl.split('github.com/');
+      // Get everything after github.com/ and before any query params or hashes
+      const username = parts[1].split(/[/?#]/)[0];
+      return username;
+    }
+    
+    // Handle direct username format
+    if (githubUrl.startsWith('@')) {
+      return githubUrl.substring(1); // Remove @ prefix
+    }
+    
+    return githubUrl; // Assume it's already a username
+  };
+
+  // Determine if GitHub is verified with better logging
+  const isGitHubVerified = !!passport?.socials?.github;
+  const githubUsername = extractGitHubUsername();
+  
+  console.log('GitHub data:', {
+    isVerified: isGitHubVerified,
+    username: githubUsername,
+    originalValue: passport?.socials?.github
+  });
   
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -51,6 +84,14 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
+              
+              {/* GitHub Contributions - Show if github social link exists */}
+              {isGitHubVerified && githubUsername && (
+                <GitHubContributions 
+                  username={githubUsername} 
+                  isVerified={isGitHubVerified} 
+                />
+              )}
             </div>
           </div>
         </HeaderContainer>
