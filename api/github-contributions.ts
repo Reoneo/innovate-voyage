@@ -6,6 +6,9 @@ import { ContributionData } from '../src/components/talent/profile/components/gi
 const GITHUB_TOKEN = process.env.GITHUB_API_TOKEN;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Debug log to confirm token exists (remove this in production)
+  console.log(`[API] GitHub token exists: ${Boolean(GITHUB_TOKEN)}`);
+  
   const { username } = req.query;
   
   // Validate username
