@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { WebacyData, ThreatLevel } from '@/components/talent/profile/components/scores/types';
 import { getThreatLevel } from '@/components/talent/profile/components/scores/utils/scoreUtils';
@@ -6,27 +7,19 @@ export function useScoresData(walletAddress: string) {
   const [score, setScore] = useState<number | null>(null);
   const [webacyData, setWebacyData] = useState<WebacyData | null>(null);
   const [txCount, setTxCount] = useState<number | null>(null);
-  const [githubPoints, setGithubPoints] = useState<number | undefined>(undefined);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!walletAddress) {
-      setLoading(false);
-      return;
-    }
+    if (!walletAddress) return;
 
     const fetchData = async () => {
       setLoading(true);
-      setError(null);
       
       try {
-        // Fetch Talent Protocol Score with improved logging
-        const fetchTalentScore = async (retries = 3) => {
+        // Fetch Talent Protocol Score
+        const fetchTalentScore = async (retries = 2) => {
           for (let i = 0; i <= retries; i++) {
             try {
-              console.log(`Fetching Talent Protocol data (attempt ${i + 1}/${retries + 1})...`);
-              
               const response = await fetch(
                 `https://api.talentprotocol.com/score?id=${walletAddress}&account_source=wallet`,
                 {
@@ -41,32 +34,7 @@ export function useScoresData(walletAddress: string) {
                 const data = await response.json();
                 console.log("Talent Protocol data:", data);
                 setScore(data.score?.points ?? null);
-                
-                // Extract GitHub points from score breakdown with better error handling
-                if (data.score?.breakdown) {
-                  const githubBreakdown = data.score.breakdown.find(
-                    (item: any) => item.source === 'github'
-                  );
-                  
-                  if (githubBreakdown) {
-                    console.log("GitHub score breakdown:", githubBreakdown);
-                    // If we have GitHub points data, save it
-                    setGithubPoints(githubBreakdown.points || 0);
-                  } else {
-                    // If no GitHub breakdown found, explicitly set to 0
-                    console.log("No GitHub breakdown found in response, setting to 0");
-                    setGithubPoints(0);
-                  }
-                } else {
-                  // If no breakdown data at all, set to 0
-                  console.log("No breakdown data found in response, setting GitHub points to 0");
-                  setGithubPoints(0);
-                }
-                
-                return true;
-              } else {
-                const errorText = await response.text();
-                console.error(`Talent Protocol API error (${response.status}): ${errorText}`);
+                return;
               }
               
               console.error(`Attempt ${i + 1} failed for Talent Protocol`);
@@ -76,10 +44,6 @@ export function useScoresData(walletAddress: string) {
               if (i < retries) await new Promise(r => setTimeout(r, 1000 * (i + 1)));
             }
           }
-          
-          // If all attempts failed, explicitly set GitHub points to 0
-          setGithubPoints(0);
-          return false;
         };
 
         // Updated Webacy data fetch with correct endpoint and headers
@@ -179,22 +143,15 @@ export function useScoresData(walletAddress: string) {
           }
         };
 
-        // Execute all fetches in parallel with better error handling
-        const results = await Promise.allSettled([
+        // Execute all fetches in parallel
+        await Promise.all([
           fetchTalentScore(),
           fetchWebacyData(),
           fetchEtherscanData()
         ]);
-        
-        // Check if Talent Protocol fetch failed
-        if (results[0].status === 'rejected' || (results[0].status === 'fulfilled' && !results[0].value)) {
-          console.error("Failed to fetch Talent Protocol data after all retries");
-          setError("Failed to fetch score data");
-        }
 
       } catch (error) {
         console.error('Error fetching scores data:', error);
-        setError('Failed to fetch score data');
       } finally {
         setLoading(false);
       }
@@ -203,5 +160,5 @@ export function useScoresData(walletAddress: string) {
     fetchData();
   }, [walletAddress]);
 
-  return { score, webacyData, txCount, githubPoints, loading, error };
+  return { score, webacyData, txCount, loading };
 }
