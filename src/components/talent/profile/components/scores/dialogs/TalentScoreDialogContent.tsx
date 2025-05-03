@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ExternalLink } from 'lucide-react';
 import { getBuilderTitle } from '../utils/scoreUtils';
 import { useScoresData } from '@/hooks/useScoresData';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface TalentScoreDialogContentProps {
   score: number | null;
@@ -11,7 +12,7 @@ interface TalentScoreDialogContentProps {
 }
 
 const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ score, walletAddress }) => {
-  const { githubPoints } = useScoresData(walletAddress);
+  const { githubPoints, loading } = useScoresData(walletAddress);
   
   return (
     <div className="bg-black text-white">
@@ -28,7 +29,7 @@ const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ sco
               <p>Current Level: {score ? getBuilderTitle(score) : 'Unknown'}</p>
             </div>
             
-            <ScoreBreakdownSection githubPoints={githubPoints} />
+            <ScoreBreakdownSection githubPoints={githubPoints} loading={loading} />
             <OtherPlatformsSection />
             
             <div className="mt-4 text-center">
@@ -50,18 +51,26 @@ const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ sco
 
 interface ScoreBreakdownSectionProps {
   githubPoints?: number;
+  loading: boolean;
 }
 
-const ScoreBreakdownSection = ({ githubPoints }: ScoreBreakdownSectionProps) => (
+const ScoreBreakdownSection = ({ githubPoints, loading }: ScoreBreakdownSectionProps) => (
   <div className="border-t border-gray-700 pt-4 mt-4">
     <h4 className="font-medium mb-3 text-white">Score Breakdown</h4>
     <div className="space-y-2">
       <ScoreItem label="Human Checkmark" score="20/20" />
-      <ScoreItem 
-        label="GitHub" 
-        score={githubPoints !== undefined ? `${githubPoints}/130` : "26/130"} 
-        highlight={githubPoints !== undefined && githubPoints > 0}
-      />
+      {loading ? (
+        <div className="flex justify-between">
+          <span className="text-gray-300">GitHub</span>
+          <Skeleton className="h-4 w-16" />
+        </div>
+      ) : (
+        <ScoreItem 
+          label="GitHub" 
+          score={githubPoints !== undefined ? `${githubPoints}/130` : "0/130"} 
+          highlight={githubPoints !== undefined && githubPoints > 0}
+        />
+      )}
       <ScoreItem label="Onchain Activity" score="24/48" />
       <ScoreItem label="Talent Protocol" score="0/20" />
       <ScoreItem label="X/Twitter" score="4/4" />
