@@ -5,7 +5,6 @@ import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
-import GitHubContributions from './components/github/GitHubContributions';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -28,20 +27,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
-  
-  // Extract GitHub username from social links
-  const extractGitHubUsername = () => {
-    if (!passport?.socials?.github) return null;
-    
-    const githubUrl = passport.socials.github;
-    // Handle both URL format and direct username format
-    return githubUrl.includes('github.com/') 
-      ? githubUrl.split('github.com/').pop() 
-      : githubUrl;
-  };
-
-  // Determine if GitHub is verified
-  const isGitHubVerified = !!passport?.socials?.github;
   
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -66,14 +51,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
-              
-              {/* GitHub Contributions - Show if github social link exists */}
-              {passport.socials && passport.socials.github && (
-                <GitHubContributions 
-                  username={extractGitHubUsername() || ''} 
-                  isVerified={isGitHubVerified} 
-                />
-              )}
             </div>
           </div>
         </HeaderContainer>
