@@ -101,6 +101,11 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
   
+  // Check if avatar is a mock/placeholder
+  const isMockAvatar = !passport?.avatar_url || 
+    passport.avatar_url.includes('placeholder') || 
+    passport.avatar_url.includes('avatar-placeholder');
+  
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
       {loading && !loadingTimeout ? (
@@ -120,6 +125,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 bio={passport.bio}
                 displayIdentity={ensNameOrAddress}
                 additionalEnsDomains={passport.additionalEnsDomains}
+                isMockAvatar={isMockAvatar}
               />
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
@@ -128,7 +134,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               {/* GitHub contribution graph moved to column 2 */}
               {showGitHubSection && (
                 <div className="mt-4">
-                  <GitHubContributionGraph username={githubUsername!} />
+                  <GitHubContributionGraph 
+                    username={githubUsername!} 
+                    walletAddress={passport.owner_address}
+                  />
                 </div>
               )}
             </div>

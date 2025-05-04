@@ -16,6 +16,7 @@ interface AvatarSectionProps {
   additionalEnsDomains?: string[];
   bio?: string;
   displayIdentity?: string;
+  isMockAvatar?: boolean;
 }
 
 const AvatarSection: React.FC<AvatarSectionProps> = ({ 
@@ -25,7 +26,8 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   socials = {},
   additionalEnsDomains = [],
   bio,
-  displayIdentity
+  displayIdentity,
+  isMockAvatar = false
 }) => {
   const [isOwner, setIsOwner] = useState(false);
   
@@ -53,7 +55,8 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       {/* Avatar */}
       <ProfileAvatar 
         avatarUrl={avatarUrl} 
-        name={name} 
+        name={name}
+        isMockAvatar={isMockAvatar}
       />
       
       {/* Name and Address */}

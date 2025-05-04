@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Search, MessageSquare } from 'lucide-react';
+import { Home, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
@@ -88,7 +88,11 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
         <div className="flex-none w-14 flex justify-center bg-white/0">
           <button onClick={handleOpenXmtpModal} className="flex items-center justify-center text-black hover:text-gray-700 transition-colors" aria-label="XMTP Messages">
             <div className="h-8 w-8 rounded-full overflow-hidden flex items-center justify-center">
-              <MessageSquare className="h-6 w-6 text-black" />
+              <img 
+                src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1746352800000&signature=frawmQ9xQrLK3ZrZjgZF_1xikkcEiRagAcoptrI4vQY&downloadName=logomark_dark.jpg" 
+                alt="XMTP" 
+                className="h-6 w-6"
+              />
             </div>
           </button>
         </div>

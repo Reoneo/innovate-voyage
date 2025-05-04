@@ -16,7 +16,14 @@ const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ sco
         <Card className="bg-gray-900 border-gray-700">
           <CardContent className="pt-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-medium text-white">Total Builder Score</h3>
+              <div className="flex items-center gap-2">
+                <img 
+                  src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1746352800000&signature=frawmQ9xQrLK3ZrZjgZF_1xikkcEiRagAcoptrI4vQY&downloadName=logomark_dark.jpg" 
+                  alt="Talent Protocol" 
+                  className="h-6 w-6 rounded-full"
+                />
+                <h3 className="font-medium text-white">Total Builder Score</h3>
+              </div>
               <span className="text-xl font-bold text-yellow-400">
                 {score ?? 'N/A'}
               </span>

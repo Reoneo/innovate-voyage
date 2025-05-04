@@ -18,6 +18,11 @@ const TalentProfile = () => {
     handleSaveChanges
   } = useProfilePage();
 
+  // Check if avatar is a mock/placeholder
+  const isMockAvatar = !passport?.avatar_url || 
+    passport?.avatar_url?.includes('placeholder') || 
+    passport?.avatar_url?.includes('avatar-placeholder');
+
   useEffect(() => {
     // Set favicon to user's avatar if available
     if (passport?.avatar_url) {
@@ -53,10 +58,11 @@ const TalentProfile = () => {
         )}
       </Helmet>
       <div className="min-h-screen relative">
-        {/* Animated Background - now takes loading state */}
+        {/* Animated Background - now takes loading state and mock avatar flag */}
         <AnimatedBackground 
           avatarUrl={passport?.avatar_url} 
-          isLoading={loading} 
+          isLoading={loading}
+          isMockAvatar={isMockAvatar}
         />
         
         {/* Navigation Bar */}
