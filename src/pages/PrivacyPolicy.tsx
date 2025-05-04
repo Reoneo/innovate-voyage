@@ -176,10 +176,10 @@ const PrivacyPolicy: React.FC = () => {
               If you have questions about this Privacy Policy or our privacy practices, please contact us at:
             </p>
             <p className="mt-2">
-              <strong>Email:</strong> privacy@recruitment.box
+              <strong>Email:</strong> hello@smith.box
             </p>
             <p>
-              <strong>Address:</strong> Recruitment Box Inc., 123 Blockchain Street, Web3 City, 94103
+              <strong>Address:</strong> Bedford, United Kindom
             </p>
           </section>
         </div>
