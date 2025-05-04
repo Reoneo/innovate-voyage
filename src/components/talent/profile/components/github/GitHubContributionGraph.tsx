@@ -27,12 +27,22 @@ export default function GitHubContributionGraph({
   }
 
   // Custom theme matching the existing dark theme
+  // Updated to follow the ThemeInput type format with light and dark objects
   const theme = {
-    level0: '#161b22', // Empty cells
-    level1: '#0e4429', // Light activity
-    level2: '#006d32', // Medium activity
-    level3: '#26a641', // High activity
-    level4: '#39d353', // Very high activity
+    dark: {
+      level0: '#161b22', // Empty cells
+      level1: '#0e4429', // Light activity
+      level2: '#006d32', // Medium activity
+      level3: '#26a641', // High activity
+      level4: '#39d353', // Very high activity
+    },
+    light: {
+      level0: '#ebedf0', // Empty cells
+      level1: '#9be9a8', // Light activity
+      level2: '#40c463', // Medium activity
+      level3: '#30a14e', // High activity
+      level4: '#216e39', // Very high activity
+    }
   };
 
   return (
