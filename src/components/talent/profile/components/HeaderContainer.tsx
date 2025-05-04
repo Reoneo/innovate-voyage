@@ -8,7 +8,7 @@ interface HeaderContainerProps {
 
 const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
   return (
-    <Card className="bg-white shadow-md rounded-sm w-full" style={{
+    <Card className="bg-white shadow-md rounded-sm w-full backdrop-blur-sm bg-opacity-95" style={{
       height: 'calc(100vh - 80px)', /* Subtract navbar height */
       width: '100%',
       maxWidth: '21cm', /* A4 width */

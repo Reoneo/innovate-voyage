@@ -1,4 +1,3 @@
-
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -200,4 +199,31 @@
 .github-calendar-wrapper .text-xs {
   color: #ffffff !important;
   fill: #ffffff !important;
+}
+
+/* Animation for the gradient background */
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glass morphism effect for profile container */
+.glass-morphism {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Profile content background becomes more transparent */
+.profile-container {
+  position: relative;
+  z-index: 10;
 }
