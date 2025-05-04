@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
@@ -12,10 +12,7 @@ export function useProfilePage() {
   const [ens, setEns] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
-  
-  // Updated loading timeout behavior - we'll no longer show the timeout message unless user opts to see it
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Determine which parameter to use (either regular path or recruitment.box path)
   const targetIdentifier = userId || ensNameOrAddress;
@@ -59,17 +56,10 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading - but make it longer, 15 seconds instead of 10
-    // Clear any existing timeout first
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    
-    // Increase timeout to 15 seconds to allow more time for profiles to load
-    timeoutRef.current = setTimeout(() => {
-      console.log("Loading timeout reached - we'll continue loading in background");
+    // Set a timeout for loading
+    const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 15000);
+    }, 5000);
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
@@ -97,11 +87,7 @@ export function useProfilePage() {
     }
 
     return () => {
-      // Clean up timeout when component unmounts
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      
+      clearTimeout(timeoutId);
       // Reset viewport when leaving the page
       if (metaViewport) {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
@@ -110,13 +96,6 @@ export function useProfilePage() {
   }, [targetIdentifier]);
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
-  
-  // Automatically reset timeout message when data is loaded
-  useEffect(() => {
-    if (!loading && passport && loadingTimeout) {
-      setLoadingTimeout(false);
-    }
-  }, [loading, passport, loadingTimeout]);
   
   const { profileRef } = usePdfExport();
 
@@ -136,18 +115,6 @@ export function useProfilePage() {
     });
   };
 
-  // Add a manual refresh function to allow users to retry loading
-  const handleRetry = () => {
-    if (loadingTimeout) {
-      setLoadingTimeout(false);
-      
-      // Force reload the page with a timestamp to bust cache
-      const timestamp = Date.now();
-      const currentPath = window.location.pathname;
-      window.location.href = `${currentPath}?t=${timestamp}`;
-    }
-  };
-
   return {
     ensNameOrAddress: targetIdentifier,
     loading,
@@ -158,7 +125,6 @@ export function useProfilePage() {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges,
-    handleRetry
+    handleSaveChanges
   };
 }

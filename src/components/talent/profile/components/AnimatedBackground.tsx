@@ -6,7 +6,6 @@ import ColorThief from 'colorthief';
 interface AnimatedBackgroundProps {
   avatarUrl?: string;
   isLoading?: boolean;
-  isMockAvatar?: boolean;
 }
 
 // Function to generate a fallback gradient
@@ -20,22 +19,12 @@ const getFallbackGradient = () => {
   return gradients[Math.floor(Math.random() * gradients.length)];
 };
 
-const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ 
-  avatarUrl, 
-  isLoading = false,
-  isMockAvatar = false
-}) => {
+const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ avatarUrl, isLoading = false }) => {
   const [gradient, setGradient] = useState<string>(getFallbackGradient());
 
   useEffect(() => {
-    // If using a mock avatar or loading, set background to white
-    if (isMockAvatar || isLoading) {
-      setGradient('linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)');
-      return;
-    }
-    
     const extractColors = async () => {
-      if (!avatarUrl) return;
+      if (!avatarUrl || isLoading) return;
       
       try {
         const img = new Image();
@@ -85,19 +74,19 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     };
 
     extractColors();
-  }, [avatarUrl, isLoading, isMockAvatar]);
+  }, [avatarUrl, isLoading]);
 
   return (
     <div
       className="fixed inset-0 -z-10 overflow-hidden transition-all duration-700"
       style={{
-        background: isMockAvatar || isLoading ? '#FFFFFF' : gradient,
+        background: isLoading ? '#FFFFFF' : gradient,
         backgroundSize: '400% 400%',
-        animation: isMockAvatar || isLoading ? 'none' : 'gradient-animation 15s ease infinite',
+        animation: isLoading ? 'none' : 'gradient-animation 15s ease infinite',
       }}
     >
-      {/* Animated overlay patterns - only show when not loading and not using mock avatar */}
-      {!isLoading && !isMockAvatar && (
+      {/* Animated overlay patterns - only show when not loading */}
+      {!isLoading && (
         <>
           <div className="absolute inset-0 opacity-20 mix-blend-overlay">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0,transparent_70%)]"></div>

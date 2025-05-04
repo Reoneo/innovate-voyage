@@ -9,7 +9,6 @@ interface OpenSeaCollection {
   name: string;
   nfts: OpenSeaNft[];
   type: 'ethereum' | 'ens' | 'poap';
-  chain?: string;
 }
 
 interface NftCollectionsContentProps {
@@ -62,7 +61,6 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
               collectionName={collection.name}
               nfts={collection.nfts}
               onNftClick={onNftClick}
-              chain={collection.chain || (collection.type === 'ethereum' ? 'ethereum' : undefined)}
             />
           ))}
         </div>

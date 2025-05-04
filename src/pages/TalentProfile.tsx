@@ -5,8 +5,6 @@ import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
 import AnimatedBackground from '@/components/talent/profile/components/AnimatedBackground';
 import { Helmet } from 'react-helmet-async';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
 
 const TalentProfile = () => {
   const { 
@@ -17,14 +15,8 @@ const TalentProfile = () => {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges,
-    handleRetry
+    handleSaveChanges
   } = useProfilePage();
-
-  // Check if avatar is a mock/placeholder
-  const isMockAvatar = !passport?.avatar_url || 
-    passport?.avatar_url?.includes('placeholder') || 
-    passport?.avatar_url?.includes('avatar-placeholder');
 
   useEffect(() => {
     // Set favicon to user's avatar if available
@@ -61,11 +53,10 @@ const TalentProfile = () => {
         )}
       </Helmet>
       <div className="min-h-screen relative">
-        {/* Animated Background - now takes loading state and mock avatar flag */}
+        {/* Animated Background - now takes loading state */}
         <AnimatedBackground 
           avatarUrl={passport?.avatar_url} 
-          isLoading={loading}
-          isMockAvatar={isMockAvatar}
+          isLoading={loading} 
         />
         
         {/* Navigation Bar */}
@@ -84,19 +75,6 @@ const TalentProfile = () => {
             profileRef={profileRef}
             ensNameOrAddress={ensNameOrAddress}
           />
-          
-          {/* Retry Button - shows only when timeout occurs */}
-          {loadingTimeout && (
-            <div className="fixed bottom-4 right-4 z-50">
-              <Button 
-                onClick={handleRetry}
-                className="bg-primary hover:bg-primary/80 text-white flex items-center gap-2"
-              >
-                <RefreshCw className="h-4 w-4" />
-                Refresh Profile
-              </Button>
-            </div>
-          )}
         </div>
       </div>
     </>

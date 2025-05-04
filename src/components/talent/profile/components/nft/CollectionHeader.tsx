@@ -3,10 +3,9 @@ import React from 'react';
 
 interface CollectionHeaderProps {
   collectionName: string;
-  chain?: string;
 }
 
-const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName, chain }) => {
+const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) => {
   // Format collection name - replace dashes with spaces
   const formatCollectionName = (name: string) => {
     return name.replace(/-/g, ' ');
@@ -27,26 +26,6 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName, cha
     return "https://cdn-icons-png.flaticon.com/512/6699/6699362.png";
   };
 
-  // Get chain icon
-  const getChainIcon = (chain?: string) => {
-    if (!chain) return null;
-    
-    switch(chain.toLowerCase()) {
-      case 'ethereum':
-        return "https://www.citypng.com/public/uploads/preview/ethereum-eth-round-logo-icon-png-701751694969815akblwl2552.png";
-      case 'base':
-        return "https://cryptologos.cc/logos/base-logo.svg";
-      case 'optimism':
-        return "https://altcoinsbox.com/wp-content/uploads/2023/03/optimism-logo-600x600.webp";
-      case 'polygon':
-        return "https://altcoinsbox.com/wp-content/uploads/2023/03/matic-logo-600x600.webp";
-      default:
-        return null;
-    }
-  };
-
-  const chainIcon = getChainIcon(chain);
-
   return (
     <div className="flex items-center gap-2 pl-1">
       <img 
@@ -55,13 +34,6 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName, cha
         className="h-5 w-5 rounded-full" 
       />
       <h4 className="text-md font-medium text-gray-800">{formatCollectionName(collectionName)}</h4>
-      {chainIcon && (
-        <img 
-          src={chainIcon} 
-          alt={chain} 
-          className="h-4 w-4 ml-1" 
-        />
-      )}
     </div>
   );
 };

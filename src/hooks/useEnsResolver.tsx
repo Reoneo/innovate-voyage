@@ -54,10 +54,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
       }));
       
       // Still lookup possible ENS names for this address
-      lookupAddress(directAddress).catch(err => {
-        console.error("Error looking up ENS for address:", err);
-        // Don't set error state - continue with the direct address
-      });
+      lookupAddress(directAddress);
     }
   }, [directAddress]);
 
@@ -68,21 +65,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
     setIsLoading(true);
     setError(null);
     
-    const resolvePromise = async () => {
-      try {
-        await resolveEns(normalizedEnsName);
-      } catch (err) {
-        console.error("Error resolving ENS:", err);
-        // Use partial data if available
-        if (state.resolvedAddress) {
-          console.log("Using partial data despite resolution error");
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    resolvePromise();
+    resolveEns(normalizedEnsName).finally(() => setIsLoading(false));
   }, [normalizedEnsName, directAddress]);
 
   // Effect to handle address resolution
@@ -92,18 +75,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
     setIsLoading(true);
     setError(null);
     
-    const lookupPromise = async () => {
-      try {
-        await lookupAddress(adjustedAddress);
-      } catch (err) {
-        console.error("Error looking up address:", err);
-        // Use partial data if available
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    lookupPromise();
+    lookupAddress(adjustedAddress).finally(() => setIsLoading(false));
   }, [adjustedAddress, isEns, directAddress]);
 
   return {
