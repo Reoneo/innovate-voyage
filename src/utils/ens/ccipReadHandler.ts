@@ -1,4 +1,3 @@
-
 import { mainnetProvider } from '../ethereumProviders';
 
 export interface ResolveDotBitResult {
@@ -6,6 +5,7 @@ export interface ResolveDotBitResult {
   owner?: string;
   avatar?: string;
   socials?: Record<string, string>;
+  _timestamp?: number; // Add the optional timestamp property for caching
 }
 
 /**
@@ -30,12 +30,13 @@ class CCIPReadHandler {
     // Check cache first - with timestamp validation
     if (this.cache.has(ensName)) {
       const cachedData = this.cache.get(ensName);
-      const timestamp = cachedData?._timestamp as number;
+      const timestamp = cachedData?._timestamp;
       
       // If cache is fresh, use it
       if (timestamp && Date.now() - timestamp < this.cacheTtl) {
         console.log(`Using cached resolution for ${ensName}`);
-        const { _timestamp, ...resultWithoutTimestamp } = cachedData as any;
+        // Create a copy without the timestamp to return
+        const { _timestamp, ...resultWithoutTimestamp } = cachedData as ResolveDotBitResult;
         return resultWithoutTimestamp;
       } else {
         console.log(`Cache for ${ensName} is stale, refreshing...`);
@@ -239,7 +240,7 @@ class CCIPReadHandler {
     this.cache.set(ensName, {
       ...result,
       _timestamp: Date.now()
-    } as any);
+    });
   }
   
   /**
