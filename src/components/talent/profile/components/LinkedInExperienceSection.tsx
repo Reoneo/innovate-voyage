@@ -23,7 +23,7 @@ const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({
     return (
       <Card id="linkedin-experience-section">
         <CardHeader>
-          <CardTitle>Work Experience</CardTitle>
+          <CardTitle>LinkedIn Experience</CardTitle>
           <CardDescription>Professional work history</CardDescription>
         </CardHeader>
         <CardContent>
@@ -47,7 +47,7 @@ const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({
     return (
       <Card id="linkedin-experience-section" className="border-red-200">
         <CardHeader>
-          <CardTitle>Work Experience</CardTitle>
+          <CardTitle>LinkedIn Experience</CardTitle>
           <CardDescription className="text-red-500">Error loading experience: {error}</CardDescription>
         </CardHeader>
       </Card>
