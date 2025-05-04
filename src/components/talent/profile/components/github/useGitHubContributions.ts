@@ -26,45 +26,31 @@ export function useGitHubContributions(username: string) {
       // After calendar is loaded, extract contribution stats
       setTimeout(() => {
         try {
-          // Find the contribution count element
           const calendarContainer = document.querySelector(`.github-calendar-${username}`);
           if (calendarContainer) {
+            // Find the contribution count element to extract total contributions
             const totalContribElement = calendarContainer.querySelector('.contrib-number');
             if (totalContribElement) {
               const totalText = totalContribElement.textContent || "";
               const totalMatch = totalText.match(/\d+/);
               if (totalMatch) {
                 const total = parseInt(totalMatch[0], 10);
+                setStats(prev => ({ ...prev, total }));
                 
-                // Update the stats display
+                // Update the stats display with the actual data
                 const totalContribDisplay = document.getElementById(`${username}-total-contrib`);
                 if (totalContribDisplay) {
                   totalContribDisplay.textContent = total.toString();
                 }
                 
-                // Update date range
+                // Update date range with actual period
                 const dateRangeElement = calendarContainer.querySelector('.contrib-footer .float-left');
                 if (dateRangeElement) {
                   const dateRange = dateRangeElement.textContent || "";
                   const dateDisplay = document.getElementById(`${username}-date-range`);
-                  if (dateDisplay) {
+                  if (dateDisplay && dateRange) {
                     dateDisplay.textContent = dateRange.trim();
                   }
-                }
-                
-                // For streaks, we would need additional API data
-                // For now, just use placeholder values
-                const longestStreakDisplay = document.getElementById(`${username}-longest-streak`);
-                const currentStreakDisplay = document.getElementById(`${username}-current-streak`);
-                
-                if (longestStreakDisplay && currentStreakDisplay) {
-                  // If we had streak data:
-                  // longestStreakDisplay.textContent = `${stats.longestStreak} days`;
-                  // currentStreakDisplay.textContent = `${stats.currentStreak} days`;
-                  
-                  // For now use default placeholders
-                  longestStreakDisplay.textContent = "0 days";
-                  currentStreakDisplay.textContent = "0 days";
                 }
               }
             }
@@ -72,8 +58,7 @@ export function useGitHubContributions(username: string) {
         } catch (err) {
           console.error('Error extracting GitHub stats:', err);
         }
-      }, 1000); // Give a bit more time for the calendar to fully load
-      
+      }, 1000);
     } else {
       console.log('GitHub Calendar library not detected, will use the one loaded in index.html');
       
@@ -91,11 +76,6 @@ export function useGitHubContributions(username: string) {
       
       return () => clearTimeout(checkTimer);
     }
-    
-    // Cleanup function
-    return () => {
-      // No specific cleanup needed
-    };
   }, [username]);
 
   return { loading, error, tokenInvalid, stats };
