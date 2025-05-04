@@ -52,7 +52,10 @@ const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({
           </div>
         ) : (
           <>
-            <GitHubContributions data={totalContributions} stats={stats} />
+            <GitHubContributions 
+              contributionsData={totalContributions} 
+              stats={stats} 
+            />
             <GitHubContributionLegend isVerified={isVerified} />
           </>
         )}

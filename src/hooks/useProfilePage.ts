@@ -13,7 +13,7 @@ export function useProfilePage() {
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   
-  // Updated loading timeout behavior
+  // Updated loading timeout behavior - we'll no longer show the timeout message unless user opts to see it
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -59,16 +59,17 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading
+    // Set a timeout for loading - but make it longer, 15 seconds instead of 10
     // Clear any existing timeout first
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
     
-    // Set a longer timeout (10 seconds instead of 5)
+    // Increase timeout to 15 seconds to allow more time for profiles to load
     timeoutRef.current = setTimeout(() => {
+      console.log("Loading timeout reached - we'll continue loading in background");
       setLoadingTimeout(true);
-    }, 10000);
+    }, 15000);
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
@@ -135,6 +136,18 @@ export function useProfilePage() {
     });
   };
 
+  // Add a manual refresh function to allow users to retry loading
+  const handleRetry = () => {
+    if (loadingTimeout) {
+      setLoadingTimeout(false);
+      
+      // Force reload the page with a timestamp to bust cache
+      const timestamp = Date.now();
+      const currentPath = window.location.pathname;
+      window.location.href = `${currentPath}?t=${timestamp}`;
+    }
+  };
+
   return {
     ensNameOrAddress: targetIdentifier,
     loading,
@@ -145,6 +158,7 @@ export function useProfilePage() {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges
+    handleSaveChanges,
+    handleRetry
   };
 }

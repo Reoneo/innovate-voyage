@@ -5,6 +5,8 @@ import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
 import AnimatedBackground from '@/components/talent/profile/components/AnimatedBackground';
 import { Helmet } from 'react-helmet-async';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 const TalentProfile = () => {
   const { 
@@ -15,7 +17,8 @@ const TalentProfile = () => {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges
+    handleSaveChanges,
+    handleRetry
   } = useProfilePage();
 
   // Check if avatar is a mock/placeholder
@@ -81,6 +84,19 @@ const TalentProfile = () => {
             profileRef={profileRef}
             ensNameOrAddress={ensNameOrAddress}
           />
+          
+          {/* Retry Button - shows only when timeout occurs */}
+          {loadingTimeout && (
+            <div className="fixed bottom-4 right-4 z-50">
+              <Button 
+                onClick={handleRetry}
+                className="bg-primary hover:bg-primary/80 text-white flex items-center gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Refresh Profile
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </>
