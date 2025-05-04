@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Search } from 'lucide-react';
+import { Home, Search, MessageSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
@@ -16,7 +16,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   connectedWallet
 }) => {
   const [search, setSearch] = useState('');
-  const [avatarColor, setAvatarColor] = useState('#000000'); // Changed to black
+  const [avatarColor, setAvatarColor] = useState('#000000');
   const navigate = useNavigate();
 
   // Get dominant color from avatar
@@ -88,7 +88,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
         <div className="flex-none w-14 flex justify-center bg-white/0">
           <button onClick={handleOpenXmtpModal} className="flex items-center justify-center text-black hover:text-gray-700 transition-colors" aria-label="XMTP Messages">
             <div className="h-8 w-8 rounded-full overflow-hidden flex items-center justify-center">
-              
+              <MessageSquare className="h-6 w-6 text-black" />
             </div>
           </button>
         </div>
