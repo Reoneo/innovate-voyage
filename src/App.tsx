@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +11,7 @@ import Index from "./pages/Index";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
 import XmtpMessageModal from "./components/wallet/XmtpMessageModal";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 // Create a persistent QueryClient instance
 const queryClient = new QueryClient({
@@ -82,6 +84,7 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               {/* Special route for recruitment.box domain - Fix duplication issue */}
               <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
               {/* Catch and fix duplicate paths */}
