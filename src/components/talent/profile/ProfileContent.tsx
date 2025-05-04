@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
@@ -24,6 +24,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   ensNameOrAddress
 }) => {
   const isMobile = useIsMobile();
+  const [githubSectionVisible, setGithubSectionVisible] = useState(false);
   
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
@@ -101,6 +102,16 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
   
+  // Lazy load the GitHub section when needed
+  useEffect(() => {
+    if (showGitHubSection) {
+      const timer = setTimeout(() => {
+        setGithubSectionVisible(true);
+      }, 100); // Small delay to prioritize main content rendering
+      return () => clearTimeout(timer);
+    }
+  }, [showGitHubSection]);
+  
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
       {loading && !loadingTimeout ? (
@@ -147,7 +158,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
           </div>
           
           {/* GitHub graph container at the bottom spanning full width */}
-          {showGitHubSection && (
+          {showGitHubSection && githubSectionVisible && (
             <div className="w-full mt-8">
               <GitHubContributionGraph username={githubUsername!} />
             </div>
