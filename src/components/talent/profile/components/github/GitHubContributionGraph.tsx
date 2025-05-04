@@ -53,11 +53,18 @@ export default function GitHubContributionGraph({
       
       {!loading && !error && username && (
         <div className="github-calendar-wrapper">
-          {/* Contribution count header */}
+          {/* Contribution count header - Show total contributions prominently */}
           <GitHubContributionHeader 
             totalContributions={totalContributions} 
             username={username}
           />
+          
+          {/* Total contributions banner for emphasis */}
+          <div className="bg-gray-800/50 rounded-md p-3 mb-4 flex items-center justify-center">
+            <div className="text-xl font-semibold text-green-400">
+              <span className="text-2xl font-bold">{totalContributions || 0}</span> total contributions in the last year
+            </div>
+          </div>
           
           {/* GitHub Calendar using the react-github-calendar component */}
           <div className="calendar-container py-2">
@@ -80,12 +87,14 @@ export default function GitHubContributionGraph({
           {/* Legend and info section */}
           <GitHubContributionLegend />
           
-          {/* Stats Display - Now hidden as per design */}
-          <StatsDisplay 
-            username={username}
-            totalContributions={totalContributions}
-            stats={stats}
-          />
+          {/* Stats Display - Now shown to provide more details */}
+          <div className="mt-4 py-3 px-4 bg-gray-800/30 rounded-md">
+            <StatsDisplay 
+              username={username}
+              totalContributions={totalContributions}
+              stats={stats}
+            />
+          </div>
         </div>
       )}
     </div>
