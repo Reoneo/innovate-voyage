@@ -40,6 +40,12 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
         displayText = `@${url.replace('@', '')}`;
       }
       break;
+    case 'bluesky':
+      if (!url.startsWith('http')) {
+        formattedUrl = `https://bsky.app/profile/${url.replace('@', '')}`;
+        displayText = `@${url.replace('@', '')}`;
+      }
+      break;
     case 'github':
       if (!url.startsWith('http')) {
         formattedUrl = `https://github.com/${url.replace('@', '')}`;

@@ -11,6 +11,7 @@ interface ProfileAvatarProps {
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   const [avatar, setAvatar] = useState<string | undefined>(avatarUrl);
   const [isEmojiAvatar, setIsEmojiAvatar] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   
   // Check if avatar is a mock/fallback
   const isMockAvatar = !avatarUrl || 
@@ -21,16 +22,27 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   useEffect(() => {
     // Try to get real avatar if this is an ENS name
     if (name?.endsWith('.eth') && !avatarUrl) {
-      getEnsAvatarUrl(name).then(ensAvatar => {
-        if (ensAvatar) {
-          setAvatar(ensAvatar);
-        } else if (!avatar) {
-          // If no avatar found, use emoji
+      console.log('Fetching ENS avatar for', name);
+      setIsLoading(true);
+      
+      getEnsAvatarUrl(name)
+        .then(ensAvatar => {
+          console.log('ENS Avatar result:', ensAvatar);
+          if (ensAvatar) {
+            setAvatar(ensAvatar);
+            setIsEmojiAvatar(false);
+          } else if (!avatar) {
+            // If no avatar found, use emoji
+            setIsEmojiAvatar(true);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching ENS avatar:', error);
           setIsEmojiAvatar(true);
-        }
-      }).catch(() => {
-        setIsEmojiAvatar(true);
-      });
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     } else if (isMockAvatar) {
       setIsEmojiAvatar(true);
     }
@@ -47,7 +59,11 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
 
   return (
     <Avatar className={`h-48 w-48 border-2 border-white shadow-md mx-auto ${(isMockAvatar || isEmojiAvatar) ? 'bg-white' : ''}`}>
-      {!isEmojiAvatar ? (
+      {isLoading ? (
+        <AvatarFallback className="bg-white animate-pulse">
+          <span className="text-2xl">...</span>
+        </AvatarFallback>
+      ) : !isEmojiAvatar ? (
         <AvatarImage src={avatar || '/placeholder.svg'} alt={name} className="object-cover" />
       ) : (
         <AvatarFallback className="bg-white text-gray-800 text-4xl flex items-center justify-center">

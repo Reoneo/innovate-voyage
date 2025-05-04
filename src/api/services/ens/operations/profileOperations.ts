@@ -57,6 +57,14 @@ export async function fetchEnsProfile(identifier: string): Promise<EnsProfile | 
           socialLinks.telegram = data.records[key];
         } else if (key.includes('instagram')) {
           socialLinks.instagram = data.records[key];
+        } else if (key.includes('youtube')) {
+          socialLinks.youtube = data.records[key];
+        } else if (key.includes('facebook')) {
+          socialLinks.facebook = data.records[key];
+        } else if (key.includes('whatsapp')) {
+          socialLinks.whatsapp = data.records[key];
+        } else if (key.includes('bluesky')) {
+          socialLinks.bluesky = data.records[key];
         }
       }
     }

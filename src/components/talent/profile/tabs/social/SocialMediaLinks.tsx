@@ -14,7 +14,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   const updatedSocials = { ...socials };
   
   // Remove LinkedIn if we're on the home page
-  if (window.location.pathname === '/' && updatedSocials.linkedin) {
+  if (typeof window !== 'undefined' && window.location.pathname === '/' && updatedSocials.linkedin) {
     delete updatedSocials.linkedin;
   }
   
@@ -33,6 +33,8 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   if (!hasSocialLinks) {
     return null; // Hide completely if no social links are available
   }
+  
+  console.log('Rendering social links:', updatedSocials);
   
   return (
     <>
