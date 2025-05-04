@@ -1,27 +1,16 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 
 interface HeaderContainerProps {
   children: React.ReactNode;
+  className?: string;
 }
 
-const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
+const HeaderContainer: React.FC<HeaderContainerProps> = ({ children, className = '' }) => {
   return (
-    <Card className="bg-white shadow-md rounded-sm w-full" style={{
-      height: 'calc(100vh - 80px)', /* Subtract navbar height */
-      width: '100%',
-      maxWidth: '21cm', /* A4 width */
-      margin: '0 auto',
-      marginTop: '16px', /* Add margin top to prevent covering navbar */
-      padding: 0,
-      overflow: 'auto',
-      border: '1px solid #f0f0f0',
-    }}>
-      <CardContent className="p-6 md:p-8 print:p-4 h-full">
-        {children}
-      </CardContent>
-    </Card>
+    <div className={`w-full max-w-6xl mx-auto bg-opacity-50 backdrop-blur-sm rounded-lg border border-white/10 shadow-lg p-6 md:p-8 ${className}`}>
+      {children}
+    </div>
   );
 };
 
