@@ -6,8 +6,6 @@ import {
   fetchEnsProfile,
   resolveEnsName,
   lookupEnsName,
-  getEnsAvatarUrl,
-  getEnsTextRecord
 } from '@/api/services/ens/ensApiClient';
 
 interface EnsResolutionState {

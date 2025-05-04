@@ -1,6 +1,5 @@
 
 import { publicClient } from '../../ens/ensApiClient';
-import { mainnet } from 'viem/chains';
 
 /**
  * Fetch domains using ENS API instead of web3.bio

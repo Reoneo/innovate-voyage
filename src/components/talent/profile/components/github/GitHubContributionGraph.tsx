@@ -1,58 +1,54 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { SkeletonCard } from '@/components/ui/skeleton';
+import { useGitHubContributions } from './useGitHubContributions';
+import { useToast } from '@/hooks/use-toast';
 import GitHubContributions from './GitHubContributions';
 import GitHubLoadingState from './GitHubLoadingState';
 import TokenInvalidAlert from './components/TokenInvalidAlert';
-import { useGitHubContributions } from './useGitHubContributions';
 
 interface GitHubContributionGraphProps {
   username: string;
 }
 
 const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ username }) => {
-  const { 
-    contributionsData, 
-    isLoading, 
+  const {
+    contributionsData,
     error,
-    stats
+    isLoading,
+    isTokenInvalid,
+    refetch
   } = useGitHubContributions(username);
 
-  // Display different states based on loading and error status
+  const { toast } = useToast();
+
   if (isLoading) {
     return <GitHubLoadingState />;
   }
 
+  if (isTokenInvalid) {
+    return <TokenInvalidAlert onRefresh={refetch} />;
+  }
+
   if (error) {
-    // Show token invalid message for specific error types
-    if (error.message?.includes('401') || error.message?.includes('token')) {
-      return (
-        <Card className="rounded-lg border shadow-sm w-full">
-          <CardContent className="p-6">
-            <TokenInvalidAlert username={username} />
-          </CardContent>
-        </Card>
-      );
-    }
-    
-    // Generic error display
     return (
-      <Card className="rounded-lg border shadow-sm w-full">
-        <CardContent className="p-6 text-center">
-          <p className="text-red-500 font-semibold">Error loading GitHub contributions</p>
-          <p className="text-sm text-muted-foreground">{error.message}</p>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-lg border p-4 h-full min-h-[200px] flex flex-col items-center justify-center">
+        <h3 className="text-lg font-semibold mb-2">GitHub API Error</h3>
+        <p className="text-muted-foreground mb-3">
+          Could not fetch GitHub contributions for @{username}
+        </p>
+        <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-w-full">
+          {error instanceof Error ? error.message : String(error)}
+        </pre>
+      </div>
     );
   }
 
-  // Return contribution data
-  return (
-    <GitHubContributions 
-      data={contributionsData || []} 
-      stats={stats} 
-    />
-  );
+  if (contributionsData) {
+    return <GitHubContributions data={contributionsData} username={username} />;
+  }
+
+  return <SkeletonCard className="h-[250px]" />;
 };
 
 export default GitHubContributionGraph;
