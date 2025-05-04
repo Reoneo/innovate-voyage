@@ -96,9 +96,9 @@ export default function GitHubContributionGraph({
           </div>
           
           {/* GitHub Calendar using the react-github-calendar component directly */}
-          <div className="calendar-container py-2 overflow-x-auto">
+          <div className="calendar-container py-2 overflow-x-auto flex justify-center">
             {username && (
-              <div className="w-full min-w-[750px]">
+              <div className="w-full min-w-[750px] flex justify-center">
                 <GitHubCalendar 
                   username={username}
                   colorScheme="dark"
