@@ -11,7 +11,7 @@ const ProfileFooter: React.FC<ProfileFooterProps> = ({ githubUsername }) => {
   if (!githubUsername) return null;
 
   return (
-    <div className="mt-8 w-full bg-gray-950 rounded-lg shadow-md border border-gray-800">
+    <div className="mt-6 w-full bg-gray-950 rounded-lg shadow-md border border-gray-800">
       <div className="p-3">
         <GitHubContributionGraph 
           username={githubUsername} 

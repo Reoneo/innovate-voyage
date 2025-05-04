@@ -100,12 +100,14 @@ const TalentProfile = () => {
             ensNameOrAddress={ensNameOrAddress}
             hideGitHub={true}
           />
-          
-          {/* Profile Footer with GitHub Calendar */}
-          {!loading && !loadingTimeout && passport && githubUsername && (
-            <ProfileFooter githubUsername={githubUsername} />
-          )}
         </div>
+          
+        {/* Profile Footer with GitHub Calendar - Moved outside container for full width */}
+        {!loading && !loadingTimeout && passport && githubUsername && (
+          <div className="container mt-4 mb-8">
+            <ProfileFooter githubUsername={githubUsername} />
+          </div>
+        )}
       </div>
     </>
   );

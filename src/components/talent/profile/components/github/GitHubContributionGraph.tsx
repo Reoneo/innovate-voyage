@@ -50,10 +50,11 @@ export default function GitHubContributionGraph({
     if (!loading && !error) {
       console.log('GitHub contribution data:', { 
         totalContributions, 
-        stats 
+        stats,
+        isFooter
       });
     }
-  }, [loading, error, totalContributions, stats]);
+  }, [loading, error, totalContributions, stats, isFooter]);
 
   return (
     <div className={`w-full overflow-hidden ${!isFooter ? 'mt-4' : 'mt-0'}`}>
@@ -105,8 +106,6 @@ export default function GitHubContributionGraph({
                 blockMargin={isFooter ? 2 : 4}
                 blockRadius={2}
                 fontSize={isFooter ? 8 : 10}
-                // The weekdayLabels prop doesn't exist in the component's type definition
-                // So we need to remove it and use the default labels
                 transformData={(contributions) => {
                   // Use this opportunity to ensure we have the correct total
                   if (Array.isArray(contributions)) {
