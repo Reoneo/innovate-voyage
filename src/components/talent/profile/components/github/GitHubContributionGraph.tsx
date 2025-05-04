@@ -2,7 +2,6 @@
 import React, { useEffect } from 'react';
 import { GitHubContributionProps } from './types';
 import GitHubLoadingState from './GitHubLoadingState';
-import GitHubContributionHeader from './components/GitHubContributionHeader';
 import GitHubContributionLegend from './components/GitHubContributionLegend';
 import TokenInvalidAlert from './components/TokenInvalidAlert';
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
@@ -61,12 +60,6 @@ export default function GitHubContributionGraph({
       
       {!loading && !error && username && (
         <div className="github-calendar-wrapper">
-          {/* Contribution count header - Show total contributions prominently */}
-          <GitHubContributionHeader 
-            totalContributions={totalContributions} 
-            username={username}
-          />
-          
           {/* Total contributions banner for emphasis */}
           <div className="bg-gray-800/50 rounded-md p-3 mb-4 flex items-center justify-center">
             <div className="text-xl font-semibold text-green-400">
