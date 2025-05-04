@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { GitHubContributionProps } from './types';
 import GitHubLoadingState from './GitHubLoadingState';
 import GitHubContributionLegend from './components/GitHubContributionLegend';
@@ -17,6 +17,9 @@ export default function GitHubContributionGraph({
     stats,
     totalContributions
   } = useGitHubCalendar(username);
+  
+  // Store the displayed contribution count to avoid re-renders
+  const [displayedTotal, setDisplayedTotal] = useState<number>(0);
 
   // If no username provided, don't show anything
   if (!username) {
@@ -42,6 +45,20 @@ export default function GitHubContributionGraph({
     ]
   };
 
+  // Memoized transform function to prevent infinite re-renders
+  const transformData = useCallback((contributions) => {
+    if (Array.isArray(contributions)) {
+      const total = contributions.reduce((sum, day) => sum + day.count, 0);
+      console.log(`Calendar data shows ${total} total contributions`);
+      
+      // Update the displayed total without causing re-renders
+      if (total > 0 && total !== displayedTotal) {
+        setDisplayedTotal(total);
+      }
+    }
+    return contributions;
+  }, [displayedTotal]);
+
   // Log contribution data for debugging
   useEffect(() => {
     if (!loading && !error) {
@@ -51,6 +68,15 @@ export default function GitHubContributionGraph({
       });
     }
   }, [loading, error, totalContributions, stats]);
+
+  // Effect to update the banner when totalContributions changes
+  useEffect(() => {
+    if (totalContributions && totalContributions > 0) {
+      setDisplayedTotal(totalContributions);
+    } else if (stats.total > 0) {
+      setDisplayedTotal(stats.total);
+    }
+  }, [totalContributions, stats.total]);
 
   return (
     <div className="w-full overflow-hidden mt-4">
@@ -64,7 +90,7 @@ export default function GitHubContributionGraph({
           <div className="bg-gray-800/50 rounded-md p-3 mb-4 flex items-center justify-center">
             <div className="text-xl font-semibold text-green-400">
               <span className="text-2xl font-bold" id="contribution-count-banner">
-                {totalContributions !== null ? totalContributions : (stats.total || 0)}
+                {displayedTotal || (stats.total || 0)}
               </span> total contributions in the last year
             </div>
           </div>
@@ -83,28 +109,13 @@ export default function GitHubContributionGraph({
                 blockMargin={4}
                 blockRadius={2}
                 fontSize={10}
-                transformData={(contributions) => {
-                  // Use this opportunity to ensure we have the correct total
-                  if (Array.isArray(contributions)) {
-                    const total = contributions.reduce((sum, day) => sum + day.count, 0);
-                    console.log(`Calendar data shows ${total} total contributions`);
-                    
-                    // Update our banner if needed
-                    const bannerElem = document.getElementById('contribution-count-banner');
-                    if (bannerElem && total > 0) {
-                      bannerElem.textContent = String(total);
-                    }
-                  }
-                  return contributions;
-                }}
+                transformData={transformData}
               />
             )}
           </div>
           
           {/* Legend and info section */}
           <GitHubContributionLegend />
-          
-          {/* Removed the Stats Display section that was here */}
         </div>
       )}
     </div>

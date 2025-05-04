@@ -23,15 +23,28 @@ export function useGitHubCalendar(username: string) {
           const apiUrl = `/api/github-contributions?username=${encodeURIComponent(username)}`;
           console.log(`Fetching GitHub contributions from API: ${apiUrl}`);
           
-          const response = await fetch(apiUrl);
-          if (response.ok) {
-            const data = await response.json();
-            if (data && typeof data.totalContributions === 'number') {
-              console.log(`API returned ${data.totalContributions} contributions for ${username}`);
-              setTotalContributions(data.totalContributions);
-              setContributionData(data);
-              return;
+          try {
+            const response = await fetch(apiUrl);
+            if (response.ok) {
+              // Handle potential JSON parsing errors
+              const text = await response.text();
+              let data;
+              try {
+                data = JSON.parse(text);
+                if (data && typeof data.totalContributions === 'number') {
+                  console.log(`API returned ${data.totalContributions} contributions for ${username}`);
+                  setTotalContributions(data.totalContributions);
+                  setContributionData(data);
+                  return;
+                }
+              } catch (jsonError) {
+                console.error('Error parsing JSON response:', jsonError);
+                // Continue to fallback
+              }
             }
+          } catch (fetchError) {
+            console.error('Error fetching from API:', fetchError);
+            // Continue to fallback
           }
           
           // Fallback to direct GitHub scraping
