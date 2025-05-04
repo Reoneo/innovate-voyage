@@ -27,7 +27,6 @@ export default function GitHubContributionGraph({
   }
 
   // Custom theme matching the existing dark theme
-  // Corrected to use arrays instead of objects with named levels
   const theme = {
     dark: [
       '#161b22', // level0: Empty cells
@@ -44,6 +43,16 @@ export default function GitHubContributionGraph({
       '#216e39'  // level4: Very high activity
     ]
   };
+
+  // Log contribution data for debugging
+  React.useEffect(() => {
+    if (!loading && !error) {
+      console.log('GitHub contribution data:', { 
+        totalContributions, 
+        stats 
+      });
+    }
+  }, [loading, error, totalContributions, stats]);
 
   return (
     <div className="w-full overflow-hidden mt-4">
@@ -62,7 +71,9 @@ export default function GitHubContributionGraph({
           {/* Total contributions banner for emphasis */}
           <div className="bg-gray-800/50 rounded-md p-3 mb-4 flex items-center justify-center">
             <div className="text-xl font-semibold text-green-400">
-              <span className="text-2xl font-bold">{totalContributions || 0}</span> total contributions in the last year
+              <span className="text-2xl font-bold" id="contribution-count-banner">
+                {totalContributions !== null ? totalContributions : (stats.total || 0)}
+              </span> total contributions in the last year
             </div>
           </div>
           
@@ -80,6 +91,20 @@ export default function GitHubContributionGraph({
                 blockMargin={4}
                 blockRadius={2}
                 fontSize={10}
+                transformData={(contributions) => {
+                  // Use this opportunity to ensure we have the correct total
+                  if (Array.isArray(contributions)) {
+                    const total = contributions.reduce((sum, day) => sum + day.count, 0);
+                    console.log(`Calendar data shows ${total} total contributions`);
+                    
+                    // Update our banner if needed
+                    const bannerElem = document.getElementById('contribution-count-banner');
+                    if (bannerElem && total > 0) {
+                      bannerElem.textContent = String(total);
+                    }
+                  }
+                  return contributions;
+                }}
               />
             )}
           </div>

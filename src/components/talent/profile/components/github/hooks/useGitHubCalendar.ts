@@ -14,11 +14,28 @@ export function useGitHubCalendar(username: string) {
   const [totalContributions, setTotalContributions] = useState<number | null>(null);
   const [contributionData, setContributionData] = useState<any>(null);
 
-  // Fetch GitHub contribution count directly from GitHub profile page
+  // Fetch GitHub contribution count directly from API
   useEffect(() => {
     if (username && !loading && !error) {
       const fetchContributions = async () => {
         try {
+          // First try the API endpoint
+          const apiUrl = `/api/github-contributions?username=${encodeURIComponent(username)}`;
+          console.log(`Fetching GitHub contributions from API: ${apiUrl}`);
+          
+          const response = await fetch(apiUrl);
+          if (response.ok) {
+            const data = await response.json();
+            if (data && typeof data.totalContributions === 'number') {
+              console.log(`API returned ${data.totalContributions} contributions for ${username}`);
+              setTotalContributions(data.totalContributions);
+              setContributionData(data);
+              return;
+            }
+          }
+          
+          // Fallback to direct GitHub scraping
+          console.log('API fetch failed, trying direct GitHub scraping');
           const data = await fetchGitHubContributions(username);
           if (data && typeof data.total === 'number') {
             setTotalContributions(data.total);
@@ -27,6 +44,16 @@ export function useGitHubCalendar(username: string) {
           }
         } catch (err) {
           console.error('Error fetching GitHub contribution count:', err);
+          // Try direct scraping as last resort
+          try {
+            const data = await fetchGitHubContributions(username);
+            if (data && typeof data.total === 'number') {
+              setTotalContributions(data.total);
+              setContributionData(data);
+            }
+          } catch (fallbackErr) {
+            console.error('Fallback fetch also failed:', fallbackErr);
+          }
         }
       };
       
@@ -34,7 +61,7 @@ export function useGitHubCalendar(username: string) {
     }
   }, [username, loading, error, fetchGitHubContributions]);
 
-  // Use the new hook for calculating statistics
+  // Use the hook for calculating statistics
   const stats = useContributionStats(username, {
     total: totalContributions ?? baseStats.total,
     data: contributionData

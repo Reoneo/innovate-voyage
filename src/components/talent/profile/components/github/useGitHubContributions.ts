@@ -18,6 +18,8 @@ export function useGitHubContributions(username: string) {
     if (!username) return null;
     
     try {
+      // Directly fetch the GitHub profile page
+      console.log(`Fetching GitHub profile for ${username}`);
       const response = await fetch(`https://github.com/${username}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch GitHub profile for ${username}`);
@@ -27,23 +29,45 @@ export function useGitHubContributions(username: string) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
       
-      // Find the contribution count element
+      // Find the contribution count element - updated selector for more reliability
+      let total = 0;
+      
+      // Try multiple selectors to find the contribution count
+      // First try the most specific selector
       const contribHeader = doc.querySelector('h2.f4.text-normal.mb-2');
       if (contribHeader) {
         const text = contribHeader.textContent || '';
         const match = text.match(/(\d+,?\d*) contributions/);
         if (match && match[1]) {
           // Remove commas and convert to number
-          const total = parseInt(match[1].replace(/,/g, ''), 10);
-          
-          // Update the local state
-          setStats(prev => ({ ...prev, total }));
-          
-          return { total };
+          total = parseInt(match[1].replace(/,/g, ''), 10);
+          console.log(`Found ${total} contributions via h2 selector`);
         }
       }
       
-      return null;
+      // If that fails, try alternative selectors
+      if (total === 0) {
+        // Try to find contribution count in the overview tab
+        const contributionsElements = doc.querySelectorAll('.js-yearly-contributions h2');
+        for (const el of contributionsElements) {
+          const text = el.textContent || '';
+          const match = text.match(/(\d+,?\d*) contributions/);
+          if (match && match[1]) {
+            total = parseInt(match[1].replace(/,/g, ''), 10);
+            console.log(`Found ${total} contributions via alternative selector`);
+            break;
+          }
+        }
+      }
+      
+      // Update the local state
+      if (total > 0) {
+        setStats(prev => ({ ...prev, total }));
+        return { total };
+      } else {
+        console.warn(`Could not find contribution count for ${username}`);
+        return null;
+      }
     } catch (err) {
       console.error('Error fetching GitHub contribution data:', err);
       return null;
@@ -73,12 +97,19 @@ export function useGitHubContributions(username: string) {
             .then(contributionData => {
               if (contributionData && typeof contributionData.total === 'number') {
                 console.log(`Found ${contributionData.total} contributions for ${username} via direct fetch`);
+                
+                // Update the stats display with the actual data
+                const totalContribDisplay = document.getElementById(`${username}-total-contrib`);
+                if (totalContribDisplay) {
+                  totalContribDisplay.textContent = contributionData.total.toString();
+                }
               }
             })
             .catch(err => {
               console.error('Error in direct fetch of GitHub contributions:', err);
             });
             
+          // Try to find data in the DOM if available
           const calendarContainer = document.querySelector(`.github-calendar-${username}`);
           if (calendarContainer) {
             // Find the contribution count element to extract total contributions
@@ -90,39 +121,14 @@ export function useGitHubContributions(username: string) {
                 const total = parseInt(totalMatch[0], 10);
                 setStats(prev => ({ ...prev, total }));
                 
-                // Update the stats display with the actual data
-                const totalContribDisplay = document.getElementById(`${username}-total-contrib`);
-                if (totalContribDisplay) {
-                  totalContribDisplay.textContent = total.toString();
-                }
-                
-                // Update date range with actual period
+                // Update the date range with actual period
                 const dateRangeElement = calendarContainer.querySelector('.contrib-footer .float-left');
                 if (dateRangeElement) {
                   const dateRange = dateRangeElement.textContent || "";
                   if (dateRange) {
                     setStats(prev => ({ ...prev, dateRange: dateRange.trim() }));
-                    
-                    const dateDisplay = document.getElementById(`${username}-date-range`);
-                    if (dateDisplay) {
-                      dateDisplay.textContent = dateRange.trim();
-                    }
                   }
                 }
-
-                // Calculate streaks (in a real implementation you would fetch this data from an API)
-                // For this example, we'll just set dummy data since streaks require full commit history analysis
-                // that's not available in the standard GitHub Calendar widget
-                const currentStreak = 0;  // Would need API data for this
-                const longestStreak = 0;  // Would need API data for this
-                
-                setStats(prev => ({ 
-                  ...prev, 
-                  currentStreak,
-                  longestStreak
-                }));
-                
-                console.log('GitHub stats updated:', { total, currentStreak, longestStreak });
               }
             }
           }
