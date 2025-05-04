@@ -6,7 +6,6 @@ export function useGitHubContributions(username: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tokenInvalid, setTokenInvalid] = useState(false);
-  const [totalContributions, setTotalContributions] = useState<number | null>(null);
   const [stats, setStats] = useState({ 
     total: 0, 
     currentStreak: 0, 
@@ -63,7 +62,6 @@ export function useGitHubContributions(username: string) {
       
       // Update the local state
       if (total > 0) {
-        setTotalContributions(total);
         setStats(prev => ({ ...prev, total }));
         return { total };
       } else {
@@ -83,31 +81,28 @@ export function useGitHubContributions(username: string) {
       return;
     }
 
-    setLoading(true);
+    // Since we're not using external GitHub Calendar script anymore,
+    // we can just proceed with our own fetching logic
+    setLoading(false);
     
     // Fetch contribution data directly
     fetchGitHubContributions(username)
       .then(contributionData => {
         if (contributionData && typeof contributionData.total === 'number') {
           console.log(`Found ${contributionData.total} contributions for ${username} via direct fetch`);
-          setTotalContributions(contributionData.total);
+          
+          // Update the stats display with the actual data
+          const totalContribDisplay = document.getElementById(`${username}-total-contrib`);
+          if (totalContribDisplay) {
+            totalContribDisplay.textContent = contributionData.total.toString();
+          }
         }
-        setLoading(false);
       })
       .catch(err => {
         console.error('Error in direct fetch of GitHub contributions:', err);
-        setError('Failed to fetch GitHub contributions');
-        setLoading(false);
       });
 
   }, [username]);
 
-  return { 
-    loading, 
-    error, 
-    tokenInvalid, 
-    totalContributions, 
-    stats, 
-    fetchGitHubContributions 
-  };
+  return { loading, error, tokenInvalid, stats, fetchGitHubContributions };
 }
