@@ -144,14 +144,14 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
             </div>
+            
+            {/* GitHub contribution graph moved to the bottom of the grid, spanning full width */}
+            {showGitHubSection && (
+              <div className="col-span-1 md:col-span-10 mt-8">
+                <GitHubContributionGraph username={githubUsername!} />
+              </div>
+            )}
           </div>
-          
-          {/* GitHub contribution graph moved to the bottom of the page - outside the grid layout */}
-          {showGitHubSection && (
-            <div className="mt-12 w-full">
-              <GitHubContributionGraph username={githubUsername!} />
-            </div>
-          )}
         </HeaderContainer>
       ) : (
         <ProfileNotFound />
