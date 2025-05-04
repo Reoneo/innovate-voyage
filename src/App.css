@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -199,41 +200,4 @@
 .github-calendar-wrapper .text-xs {
   color: #ffffff !important;
   fill: #ffffff !important;
-}
-
-/* Animated Gradient Background Styles */
-.animated-gradient {
-  background-size: 300% 300%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Glassmorphism effect */
-.glass-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* GitHub Calendar styles with white text */
-.github-calendar-wrapper text,
-.github-calendar-wrapper .text-sm,
-.github-calendar-wrapper .text-xs,
-.react-github-calendar .wday-text,
-.react-github-calendar .month-label {
-  color: #ffffff !important;
-  fill: #ffffff !important;
-  font-weight: 600;
 }

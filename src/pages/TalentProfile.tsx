@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
-import AnimatedProfileBackground from '@/components/talent/profile/components/AnimatedProfileBackground';
 import { Helmet } from 'react-helmet-async';
 
 const TalentProfile = () => {
@@ -52,27 +51,25 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <AnimatedProfileBackground avatarUrl={passport?.avatar_url}>
-        <div className="min-h-screen">
-          {/* Navigation Bar */}
-          <ProfileNavbar 
-            connectedWallet={connectedWallet}
-            onDisconnect={handleDisconnect}
-            onSaveChanges={handleSaveChanges}
+      <div className="min-h-screen bg-gray-50">
+        {/* Navigation Bar */}
+        <ProfileNavbar 
+          connectedWallet={connectedWallet}
+          onDisconnect={handleDisconnect}
+          onSaveChanges={handleSaveChanges}
+        />
+        
+        <div className="container">
+          {/* Profile Content */}
+          <ProfileContent 
+            loading={loading}
+            loadingTimeout={loadingTimeout}
+            passport={passport}
+            profileRef={profileRef}
+            ensNameOrAddress={ensNameOrAddress}
           />
-          
-          <div className="container">
-            {/* Profile Content */}
-            <ProfileContent 
-              loading={loading}
-              loadingTimeout={loadingTimeout}
-              passport={passport}
-              profileRef={profileRef}
-              ensNameOrAddress={ensNameOrAddress}
-            />
-          </div>
         </div>
-      </AnimatedProfileBackground>
+      </div>
     </>
   );
 };
