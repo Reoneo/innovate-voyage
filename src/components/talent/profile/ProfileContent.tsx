@@ -121,35 +121,37 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 displayIdentity={ensNameOrAddress}
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
+              
+              {/* GitHub Contributions - Move to column 1 at the bottom */}
+              {showGitHubSection && (
+                <div className="mt-6 p-4 bg-gray-950 rounded-lg shadow-sm border border-gray-800">
+                  <h3 className="text-xl font-medium mb-3 text-white flex items-center justify-between">
+                    <span>GitHub Activity</span>
+                    {githubUsername && (
+                      <a 
+                        href={`https://github.com/${githubUsername}`}
+                        target="_blank"
+                        rel="noopener noreferrer" 
+                        className="text-sm text-blue-400 hover:underline"
+                      >
+                        @{githubUsername}
+                      </a>
+                    )}
+                  </h3>
+                </div>
+              )}
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
-            </div>
-          </div>
-          
-          {/* GitHub Section - Positioned at the bottom of the page, full width */}
-          {showGitHubSection && (
-            <div className="mt-8 w-full">
-              <div className="p-4 bg-gray-950 rounded-lg shadow-sm border border-gray-800">
-                <h3 className="text-xl font-medium mb-3 text-white flex items-center justify-between">
-                  <span>GitHub Activity</span>
-                  {githubUsername && (
-                    <a 
-                      href={`https://github.com/${githubUsername}`}
-                      target="_blank"
-                      rel="noopener noreferrer" 
-                      className="text-sm text-blue-400 hover:underline"
-                    >
-                      @{githubUsername}
-                    </a>
-                  )}
-                </h3>
-                <div className="w-full flex justify-center">
+              
+              {/* GitHub graph container that stretches across columns */}
+              {showGitHubSection && (
+                <div className="-ml-4 md:-ml-[calc(30%+1.5rem)] md:w-[calc(130%+1.5rem)] mt-[-6rem] md:mt-[-3rem]">
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
-              </div>
+              )}
             </div>
-          )}
+          </div>
         </HeaderContainer>
       ) : (
         <ProfileNotFound />
@@ -174,3 +176,4 @@ const ProfileTimeoutError: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameO
     </div>
   </div>
 );
+
