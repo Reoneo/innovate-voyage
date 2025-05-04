@@ -1,14 +1,13 @@
 
-import { avatarCache, fetchWeb3BioProfile, generateFallbackAvatar } from '../../utils/web3/index';
+import { avatarCache, generateFallbackAvatar } from '../../utils/web3/index';
+import { getEnsAvatarUrl } from '../ens/ensApiClient';
 import { handleEip155Avatar } from './utils/eip155Handler';
-import { handleEnsAvatar } from './utils/ensAvatarHandler';
-import { handleDotBoxAvatar } from './utils/dotBoxHandler';
 import { handleIpfsUri } from './utils/ipfsHandler';
 import { handleDirectImageUrl } from './utils/directImageHandler';
 import { generateDeterministicAvatar } from './utils/fallbackAvatarHandler';
 
 /**
- * Get real avatar for any domain type using web3.bio
+ * Get real avatar for any domain type using ENS API
  * @param identity The ENS name, address, or other web3 identity
  * @returns A URL to the avatar image or null
  */
@@ -27,36 +26,35 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     // Handle EIP155 formatted avatar URIs
     if (identity.startsWith('eip155:1/erc721:')) {
       const eip155Avatar = await handleEip155Avatar(identity);
-      if (eip155Avatar) return eip155Avatar;
+      if (eip155Avatar) {
+        avatarCache[identity] = eip155Avatar;
+        return eip155Avatar;
+      }
     }
     
-    // Try Web3Bio API first - works for all domain types
-    const profile = await fetchWeb3BioProfile(identity);
-    if (profile && profile.avatar) {
-      console.log(`Found avatar via Web3.bio for ${identity}`);
-      avatarCache[identity] = profile.avatar;
-      return profile.avatar;
-    }
-    
-    // If it's an ENS name, try multiple sources
-    if (identity.endsWith('.eth')) {
-      const ensAvatar = await handleEnsAvatar(identity);
-      if (ensAvatar) return ensAvatar;
-    }
-    
-    // For .box domains, try specific approach
-    if (identity.endsWith('.box')) {
-      const boxAvatar = await handleDotBoxAvatar(identity);
-      if (boxAvatar) return boxAvatar;
+    // If it's an ENS name, use ENS API
+    if (identity.endsWith('.eth') || identity.endsWith('.box')) {
+      const avatar = await getEnsAvatarUrl(identity);
+      if (avatar) {
+        console.log(`Found avatar via ENS API for ${identity}`);
+        avatarCache[identity] = avatar;
+        return avatar;
+      }
     }
     
     // Try to resolve IPFS URIs
     const ipfsAvatar = await handleIpfsUri(identity);
-    if (ipfsAvatar) return ipfsAvatar;
+    if (ipfsAvatar) {
+      avatarCache[identity] = ipfsAvatar;
+      return ipfsAvatar;
+    }
     
     // Check if the identity is a direct URL to an image
     const directImageUrl = handleDirectImageUrl(identity);
-    if (directImageUrl) return directImageUrl;
+    if (directImageUrl) {
+      avatarCache[identity] = directImageUrl;
+      return directImageUrl;
+    }
     
     // Generate a deterministic fallback avatar
     return generateDeterministicAvatar(identity);
