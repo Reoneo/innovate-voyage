@@ -81,78 +81,27 @@ export function useGitHubContributions(username: string) {
       return;
     }
 
-    // Check if GitHub Calendar script is already loaded
-    const isScriptLoaded = !!window.GitHubCalendar;
+    // Since we're not using external GitHub Calendar script anymore,
+    // we can just proceed with our own fetching logic
+    setLoading(false);
     
-    if (isScriptLoaded) {
-      // If script is already loaded, we can proceed
-      console.log('GitHub Calendar library is already loaded');
-      setLoading(false);
-      
-      // After calendar is loaded, extract contribution stats
-      setTimeout(() => {
-        try {
-          // First, try to fetch contribution data from GitHub directly
-          fetchGitHubContributions(username)
-            .then(contributionData => {
-              if (contributionData && typeof contributionData.total === 'number') {
-                console.log(`Found ${contributionData.total} contributions for ${username} via direct fetch`);
-                
-                // Update the stats display with the actual data
-                const totalContribDisplay = document.getElementById(`${username}-total-contrib`);
-                if (totalContribDisplay) {
-                  totalContribDisplay.textContent = contributionData.total.toString();
-                }
-              }
-            })
-            .catch(err => {
-              console.error('Error in direct fetch of GitHub contributions:', err);
-            });
-            
-          // Try to find data in the DOM if available
-          const calendarContainer = document.querySelector(`.github-calendar-${username}`);
-          if (calendarContainer) {
-            // Find the contribution count element to extract total contributions
-            const totalContribElement = calendarContainer.querySelector('.contrib-number');
-            if (totalContribElement) {
-              const totalText = totalContribElement.textContent || "";
-              const totalMatch = totalText.match(/\d+/);
-              if (totalMatch) {
-                const total = parseInt(totalMatch[0], 10);
-                setStats(prev => ({ ...prev, total }));
-                
-                // Update the date range with actual period
-                const dateRangeElement = calendarContainer.querySelector('.contrib-footer .float-left');
-                if (dateRangeElement) {
-                  const dateRange = dateRangeElement.textContent || "";
-                  if (dateRange) {
-                    setStats(prev => ({ ...prev, dateRange: dateRange.trim() }));
-                  }
-                }
-              }
-            }
+    // Fetch contribution data directly
+    fetchGitHubContributions(username)
+      .then(contributionData => {
+        if (contributionData && typeof contributionData.total === 'number') {
+          console.log(`Found ${contributionData.total} contributions for ${username} via direct fetch`);
+          
+          // Update the stats display with the actual data
+          const totalContribDisplay = document.getElementById(`${username}-total-contrib`);
+          if (totalContribDisplay) {
+            totalContribDisplay.textContent = contributionData.total.toString();
           }
-        } catch (err) {
-          console.error('Error extracting GitHub stats:', err);
         }
-      }, 1000);
-    } else {
-      console.log('GitHub Calendar library not detected, will use the one loaded in index.html');
-      
-      // Wait a short time to ensure the script from index.html is initialized
-      const checkTimer = setTimeout(() => {
-        if (window.GitHubCalendar) {
-          console.log('GitHub Calendar library detected after waiting');
-          setLoading(false);
-        } else {
-          console.error('GitHub Calendar library not found after waiting');
-          setError('GitHub Calendar library could not be loaded');
-          setLoading(false);
-        }
-      }, 1500);
-      
-      return () => clearTimeout(checkTimer);
-    }
+      })
+      .catch(err => {
+        console.error('Error in direct fetch of GitHub contributions:', err);
+      });
+
   }, [username]);
 
   return { loading, error, tokenInvalid, stats, fetchGitHubContributions };

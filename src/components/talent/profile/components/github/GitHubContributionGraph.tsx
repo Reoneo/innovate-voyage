@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { GitHubContributionProps } from './types';
 import GitHubLoadingState from './GitHubLoadingState';
 import GitHubContributionHeader from './components/GitHubContributionHeader';
@@ -45,7 +45,7 @@ export default function GitHubContributionGraph({
   };
 
   // Log contribution data for debugging
-  React.useEffect(() => {
+  useEffect(() => {
     if (!loading && !error) {
       console.log('GitHub contribution data:', { 
         totalContributions, 
@@ -77,7 +77,7 @@ export default function GitHubContributionGraph({
             </div>
           </div>
           
-          {/* GitHub Calendar using the react-github-calendar component */}
+          {/* GitHub Calendar using the react-github-calendar component directly */}
           <div className="calendar-container py-2">
             {username && (
               <GitHubCalendar 
