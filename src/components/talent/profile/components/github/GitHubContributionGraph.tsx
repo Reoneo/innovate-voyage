@@ -35,13 +35,6 @@ export default function GitHubContributionGraph({
       '#006d32', // level2: Medium activity
       '#26a641', // level3: High activity
       '#39d353'  // level4: Very high activity
-    ],
-    light: [
-      '#ebedf0', // level0: Empty cells
-      '#9be9a8', // level1: Light activity
-      '#40c463', // level2: Medium activity
-      '#30a14e', // level3: High activity
-      '#216e39'  // level4: Very high activity
     ]
   };
 

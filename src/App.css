@@ -48,6 +48,7 @@
   padding: 20px;
   background-color: #0d1117;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 2rem;
 }
 
 .github-calendar-dark {
@@ -226,4 +227,3 @@
 .legend-item {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
-
