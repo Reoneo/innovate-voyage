@@ -68,16 +68,17 @@ export default function GitHubContributionGraph({
       
       {!loading && !error && username && (
         <div className="github-calendar-wrapper px-1 py-1">
-          {/* Total contributions banner - made more compact */}
+          {/* Modified header - GitHub Activity with contributions count */}
           <div className="bg-gray-800/50 rounded-md p-1 mb-0 flex items-center justify-center">
-            <div className="text-sm font-semibold text-green-400">
-              <span className="text-base font-bold" id="contribution-count-banner">
+            <div className="text-sm font-semibold text-white">
+              <span className="text-base font-bold">GitHub Activity: </span>
+              <span className="text-base font-bold text-green-400" id="contribution-count-banner">
                 {displayedTotal || (stats.total || 0)}
-              </span> contributions in the last year
+              </span> Contributions in The Last Year
             </div>
           </div>
           
-          {/* GitHub Calendar - even more compact with smaller blocks */}
+          {/* GitHub Calendar - with white text labels */}
           <div className="calendar-container py-0 overflow-x-auto">
             {username && (
               <div className="w-full min-w-[650px]">
