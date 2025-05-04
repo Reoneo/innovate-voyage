@@ -100,9 +100,6 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
     );
   }
 
-  // Cast the platformType to any to resolve the TypeScript error
-  const iconType = platformType as any;
-
   return (
     <a 
       href={formattedUrl} 
@@ -112,7 +109,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
       data-social-link={platformType}
     >
-      <SocialIcon type={iconType} size={48} />
+      <SocialIcon type={platformType} size={48} />
     </a>
   );
 };
