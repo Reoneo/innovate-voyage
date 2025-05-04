@@ -2,6 +2,9 @@
 import { mainnetProvider } from '../ethereumProviders';
 import { ccipReadEnabled, ResolveDotBitResult } from './ccipReadHandler';
 
+// Use ENS API as a more reliable fallback
+const ENS_API_URL = 'https://ens-api.gskril.workers.dev';
+
 /**
  * Resolves an ENS name to an address
  * @param ensName ENS name to resolve
@@ -28,6 +31,21 @@ export async function resolveEnsToAddress(ensName: string) {
     }
   }
   
+  // Try ENS API as our first fallback - works well for both .eth and .box domains
+  try {
+    console.log(`Trying ENS API for ${ensName}`);
+    const response = await fetch(`${ENS_API_URL}/address/${ensName}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.address) {
+        console.log(`ENS API resolution for ${ensName}:`, data.address);
+        return data.address;
+      }
+    }
+  } catch (ensApiError) {
+    console.error(`Error using ENS API for ${ensName}:`, ensApiError);
+  }
+  
   // Default flow for .eth domains or as fallback for .box domains
   const provider = mainnetProvider;
   
@@ -39,7 +57,7 @@ export async function resolveEnsToAddress(ensName: string) {
     
     // Create a timeout promise
     const timeoutPromise = new Promise<null>((_, reject) => 
-      setTimeout(() => reject(new Error('ENS resolution timeout')), 5000)
+      setTimeout(() => reject(new Error('ENS resolution timeout')), 3000)
     );
     
     // Race between the resolution and the timeout
@@ -67,6 +85,21 @@ export async function resolveAddressToEns(address: string) {
     return null;
   }
   
+  // Try ENS API first for reverse resolution
+  try {
+    console.log(`Trying ENS API for address: ${address}`);
+    const response = await fetch(`${ENS_API_URL}/name/${address}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.name) {
+        console.log(`Found ENS name via API for ${address}: ${data.name}`);
+        return { ensName: data.name, network: 'mainnet' as const };
+      }
+    }
+  } catch (ensApiError) {
+    console.error(`Error using ENS API for address lookup ${address}:`, ensApiError);
+  }
+  
   // Try using CCIP-Read for reverse resolution
   try {
     console.log(`Looking up domains for address: ${address} using CCIP-Read handler`);
@@ -79,7 +112,7 @@ export async function resolveAddressToEns(address: string) {
     console.error(`Error in CCIP-Read lookup for ${address}:`, error);
   }
   
-  // Try mainnet lookup as fallback
+  // Try mainnet lookup as final fallback
   try {
     console.log(`Looking up ENS for address: ${address} on Mainnet`);
     
@@ -88,7 +121,7 @@ export async function resolveAddressToEns(address: string) {
     
     // Create a timeout promise
     const timeoutPromise = new Promise<null>((_, reject) => 
-      setTimeout(() => reject(new Error('ENS lookup timeout')), 5000)
+      setTimeout(() => reject(new Error('ENS lookup timeout')), 3000)
     );
     
     // Race between the lookup and the timeout
