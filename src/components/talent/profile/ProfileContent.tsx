@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
@@ -24,7 +24,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   ensNameOrAddress
 }) => {
   const isMobile = useIsMobile();
-  const [githubSectionVisible, setGithubSectionVisible] = useState(false);
   
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
@@ -102,16 +101,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
   
-  // Lazy load the GitHub section when needed
-  useEffect(() => {
-    if (showGitHubSection) {
-      const timer = setTimeout(() => {
-        setGithubSectionVisible(true);
-      }, 100); // Small delay to prioritize main content rendering
-      return () => clearTimeout(timer);
-    }
-  }, [showGitHubSection]);
-  
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
       {loading && !loadingTimeout ? (
@@ -133,7 +122,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
               
-              {/* GitHub header box in column 1 */}
+              {/* GitHub Contributions - Move to column 1 at the bottom */}
               {showGitHubSection && (
                 <div className="mt-6 p-4 bg-gray-950 rounded-lg shadow-sm border border-gray-800">
                   <h3 className="text-xl font-medium mb-3 text-white flex items-center justify-between">
@@ -154,15 +143,15 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
+              
+              {/* GitHub graph container that stretches across columns */}
+              {showGitHubSection && (
+                <div className="-ml-4 md:-ml-[calc(30%+1.5rem)] md:w-[calc(130%+1.5rem)] mt-[-6rem] md:mt-[-3rem]">
+                  <GitHubContributionGraph username={githubUsername!} />
+                </div>
+              )}
             </div>
           </div>
-          
-          {/* GitHub graph container at the bottom spanning full width */}
-          {showGitHubSection && githubSectionVisible && (
-            <div className="w-full mt-8">
-              <GitHubContributionGraph username={githubUsername!} />
-            </div>
-          )}
         </HeaderContainer>
       ) : (
         <ProfileNotFound />
@@ -187,3 +176,4 @@ const ProfileTimeoutError: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameO
     </div>
   </div>
 );
+

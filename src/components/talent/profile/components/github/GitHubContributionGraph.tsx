@@ -18,8 +18,6 @@ export default function GitHubContributionGraph({
     totalContributions
   } = useGitHubCalendar(username);
   
-  // Add loading timeout state
-  const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
   // Store the displayed contribution count to avoid re-renders
   const [displayedTotal, setDisplayedTotal] = useState<number>(0);
 
@@ -46,22 +44,12 @@ export default function GitHubContributionGraph({
       '#216e39'  // level4: Very high activity
     ]
   };
-  
-  // Add timeout for loading
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (loading) {
-        setLoadingTimeout(true);
-      }
-    }, 8000); // Show timeout message after 8 seconds
-
-    return () => clearTimeout(timeoutId);
-  }, [loading]);
 
   // Memoized transform function to prevent infinite re-renders
   const transformData = useCallback((contributions) => {
     if (Array.isArray(contributions)) {
       const total = contributions.reduce((sum, day) => sum + day.count, 0);
+      console.log(`Calendar data shows ${total} total contributions`);
       
       // Update the displayed total without causing re-renders
       if (total > 0 && total !== displayedTotal) {
@@ -70,6 +58,16 @@ export default function GitHubContributionGraph({
     }
     return contributions;
   }, [displayedTotal]);
+
+  // Log contribution data for debugging
+  useEffect(() => {
+    if (!loading && !error) {
+      console.log('GitHub contribution data:', { 
+        totalContributions, 
+        stats 
+      });
+    }
+  }, [loading, error, totalContributions, stats]);
 
   // Effect to update the banner when totalContributions changes
   useEffect(() => {
@@ -82,16 +80,7 @@ export default function GitHubContributionGraph({
 
   return (
     <div className="w-full overflow-hidden">
-      {loading && <GitHubLoadingState loading={!loadingTimeout} error={null} />}
-      
-      {loadingTimeout && loading && (
-        <div className="flex flex-col items-center justify-center h-48 w-full bg-gray-950 rounded-lg border border-gray-800 p-6">
-          <div className="text-amber-500 font-medium mb-2">Taking longer than expected...</div>
-          <div className="text-xs text-gray-400 text-center max-w-md">
-            GitHub activity data is taking too long to load. You can continue browsing or try refreshing the page.
-          </div>
-        </div>
-      )}
+      <GitHubLoadingState loading={loading} error={error} />
       
       {tokenInvalid && <TokenInvalidAlert />}
       
@@ -107,9 +96,9 @@ export default function GitHubContributionGraph({
           </div>
           
           {/* GitHub Calendar using the react-github-calendar component directly */}
-          <div className="calendar-container py-2 overflow-x-auto flex justify-center">
+          <div className="calendar-container py-2 overflow-x-auto">
             {username && (
-              <div className="w-full min-w-[750px] flex justify-center">
+              <div className="w-full min-w-[750px]">
                 <GitHubCalendar 
                   username={username}
                   colorScheme="dark"
@@ -134,15 +123,6 @@ export default function GitHubContributionGraph({
           
           {/* Legend and info section */}
           <GitHubContributionLegend />
-        </div>
-      )}
-      
-      {!loading && error && (
-        <div className="flex flex-col items-center justify-center h-48 w-full bg-gray-950 rounded-lg border border-gray-800 p-6">
-          <div className="text-red-500 font-medium mb-2">Error loading GitHub data</div>
-          <div className="text-xs text-gray-400 text-center max-w-md">
-            {error}
-          </div>
         </div>
       )}
     </div>
