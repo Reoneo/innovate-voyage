@@ -6,7 +6,6 @@ import GitHubContributionLegend from './components/GitHubContributionLegend';
 import TokenInvalidAlert from './components/TokenInvalidAlert';
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
 import GitHubCalendar from 'react-github-calendar';
-import { SocialIcon } from '@/components/ui/social-icon';
 
 export default function GitHubContributionGraph({
   username
@@ -28,7 +27,7 @@ export default function GitHubContributionGraph({
     return null;
   }
 
-  // Custom theme matching the existing dark theme
+  // Custom theme matching the existing dark theme with more compact colors
   const theme = {
     dark: [
       '#161b22', // level0: Empty cells
@@ -43,7 +42,6 @@ export default function GitHubContributionGraph({
   const transformData = useCallback((contributions) => {
     if (Array.isArray(contributions)) {
       const total = contributions.reduce((sum, day) => sum + day.count, 0);
-      console.log(`Calendar data shows ${total} total contributions`);
       
       // Update the displayed total without causing re-renders
       if (total > 0 && total !== displayedTotal) {
@@ -52,16 +50,6 @@ export default function GitHubContributionGraph({
     }
     return contributions;
   }, [displayedTotal]);
-
-  // Log contribution data for debugging
-  useEffect(() => {
-    if (!loading && !error) {
-      console.log('GitHub contribution data:', { 
-        totalContributions, 
-        stats 
-      });
-    }
-  }, [loading, error, totalContributions, stats]);
 
   // Effect to update the banner when totalContributions changes
   useEffect(() => {
@@ -79,55 +67,44 @@ export default function GitHubContributionGraph({
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="github-calendar-wrapper px-2 py-2">
-          {/* Header with Discord icon */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <SocialIcon type="discord" size={20} className="mr-1" />
-              <h3 className="text-lg font-medium text-white">
-                GitHub Contributions in the last year:
-                <span className="text-green-400 font-bold ml-2">
-                  {displayedTotal || (stats.total || 0)}
-                </span>
-              </h3>
+        <div className="github-calendar-wrapper px-1 py-2">
+          {/* Total contributions banner - made more compact */}
+          <div className="bg-gray-800/50 rounded-md p-1 mb-1 flex items-center justify-center">
+            <div className="text-sm font-semibold text-green-400">
+              <span className="text-base font-bold" id="contribution-count-banner">
+                {displayedTotal || (stats.total || 0)}
+              </span> total contributions in the last year
             </div>
-            <a 
-              href={`https://github.com/${username}`}
-              target="_blank"
-              rel="noopener noreferrer" 
-              className="text-sm text-blue-400 hover:underline"
-            >
-              @{username}
-            </a>
           </div>
           
-          {/* GitHub Calendar using the react-github-calendar component directly */}
+          {/* GitHub Calendar - more compact with smaller blocks */}
           <div className="calendar-container py-1 overflow-x-auto">
             {username && (
-              <div className="w-full min-w-[750px]">
+              <div className="w-full min-w-[650px]">
                 <GitHubCalendar 
                   username={username}
                   colorScheme="dark"
                   theme={theme}
                   hideColorLegend={true} // We'll use our custom legend
-                  hideMonthLabels={false} // Show month labels at the top
-                  showWeekdayLabels={true} // Show day labels on the left
-                  blockSize={8} // Smaller blocks for a more compact view
+                  hideMonthLabels={false}
+                  showWeekdayLabels={true}
+                  blockSize={8} // Smaller blocks for more compact display
                   blockMargin={2} // Reduced margin between blocks
-                  blockRadius={2}
-                  fontSize={10}
+                  blockRadius={1} // Smaller radius for more compact look
+                  fontSize={8} // Smaller font for labels
                   transformData={transformData}
                   labels={{
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
-                    totalCount: '{{count}} contributions in the last year'
+                    totalCount: '{{count}} contributions'
                   }}
+                  cache={86400} // Cache for 24 hours (in seconds) to improve loading speed
                 />
               </div>
             )}
           </div>
           
-          {/* Legend and info section */}
+          {/* More compact legend */}
           <GitHubContributionLegend />
         </div>
       )}
