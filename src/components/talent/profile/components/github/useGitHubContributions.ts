@@ -6,7 +6,12 @@ export function useGitHubContributions(username: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tokenInvalid, setTokenInvalid] = useState(false);
-  const [stats, setStats] = useState({ total: 0, currentStreak: 0, longestStreak: 0 });
+  const [stats, setStats] = useState({ 
+    total: 0, 
+    currentStreak: 0, 
+    longestStreak: 0,
+    dateRange: 'May 5, 2024 – May 4, 2025'
+  });
   
   useEffect(() => {
     if (!username) {
@@ -47,11 +52,29 @@ export function useGitHubContributions(username: string) {
                 const dateRangeElement = calendarContainer.querySelector('.contrib-footer .float-left');
                 if (dateRangeElement) {
                   const dateRange = dateRangeElement.textContent || "";
-                  const dateDisplay = document.getElementById(`${username}-date-range`);
-                  if (dateDisplay && dateRange) {
-                    dateDisplay.textContent = dateRange.trim();
+                  if (dateRange) {
+                    setStats(prev => ({ ...prev, dateRange: dateRange.trim() }));
+                    
+                    const dateDisplay = document.getElementById(`${username}-date-range`);
+                    if (dateDisplay) {
+                      dateDisplay.textContent = dateRange.trim();
+                    }
                   }
                 }
+
+                // Calculate streaks (in a real implementation you would fetch this data from an API)
+                // For this example, we'll just set dummy data since streaks require full commit history analysis
+                // that's not available in the standard GitHub Calendar widget
+                const currentStreak = 0;  // Would need API data for this
+                const longestStreak = 0;  // Would need API data for this
+                
+                setStats(prev => ({ 
+                  ...prev, 
+                  currentStreak,
+                  longestStreak
+                }));
+                
+                console.log('GitHub stats updated:', { total, currentStreak, longestStreak });
               }
             }
           }

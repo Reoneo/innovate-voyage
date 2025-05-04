@@ -1,21 +1,25 @@
+
 import React, { useEffect, useRef } from 'react';
 import { GitHubContributionProps } from './types';
 import { useGitHubContributions } from './useGitHubContributions';
 import GitHubLoadingState from './GitHubLoadingState';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ExternalLink, AlertCircle } from 'lucide-react';
+
 declare global {
   interface Window {
     GitHubCalendar: (selector: string, username: string, options?: any) => void;
   }
 }
+
 export default function GitHubContributionGraph({
   username
 }: GitHubContributionProps) {
   const {
     loading,
     error,
-    tokenInvalid
+    tokenInvalid,
+    stats
   } = useGitHubContributions(username);
   const calendarRef = useRef<HTMLDivElement>(null);
 
@@ -29,9 +33,10 @@ export default function GitHubContributionGraph({
         // Apply the GitHub Calendar with dark theme and responsive options
         window.GitHubCalendar(`.github-calendar-${username}`, username, {
           responsive: true,
-          global_stats: true,
+          global_stats: false, // We'll display stats in our custom format
           tooltips: true,
-          summary_text: '{total} contributions in the last year'
+          summary_text: '',
+          dark_theme: true
         });
 
         // Apply custom styling to match the reference image after a short delay
@@ -46,7 +51,7 @@ export default function GitHubContributionGraph({
             squares.forEach((square: Element) => {
               // Add grid effect to all squares - improved grid styling
               const rect = square as SVGRectElement;
-              rect.setAttribute('stroke', 'rgba(27, 31, 35, 0.3)');
+              rect.setAttribute('stroke', 'rgba(27, 31, 35, 0.6)');
               rect.setAttribute('stroke-width', '1');
               rect.setAttribute('rx', '2');
               rect.setAttribute('ry', '2');
@@ -95,7 +100,9 @@ export default function GitHubContributionGraph({
     console.log('No GitHub username provided to GitHubContributionGraph');
     return null;
   }
-  return <div className="w-full overflow-hidden mt-4 min-h-[230px] flex flex-col justify-center">
+
+  return (
+    <div className="w-full overflow-hidden mt-4">
       <GitHubLoadingState loading={loading} error={error} />
       
       {tokenInvalid && <Alert variant="destructive" className="mb-4">
@@ -113,35 +120,68 @@ export default function GitHubContributionGraph({
           </AlertDescription>
         </Alert>}
       
-      {!loading && !error && username && <div className="github-calendar-wrapper bg-gray-950 p-4 rounded-lg">
-          {/* Container for GitHub Calendar */}
-          <div ref={calendarRef} className={`github-calendar-${username} calendar-container`}>
-            {/* Loading message shown until the library loads the calendar */}
-            Loading GitHub contribution data...
+      {!loading && !error && username && (
+        <div className="github-calendar-wrapper">
+          {/* Contribution count header */}
+          <div className="contributions-header flex items-center justify-between mb-4">
+            <h3 className="text-xl font-medium text-gray-200">
+              <span id={`${username}-total-contrib`}>{stats.total || 0}</span> contributions in the last year
+            </h3>
+            <div className="contribution-settings text-gray-400 text-sm">
+              Contribution settings ▼
+            </div>
           </div>
           
-          {/* Streaks and Stats Display */}
-          <div className="github-stats-container">
+          {/* Container for GitHub Calendar */}
+          <div className="calendar-container min-h-[180px] rounded-lg overflow-hidden">
+            <div ref={calendarRef} className={`github-calendar-${username} github-calendar-graph`}>
+              {/* Loading message shown until the library loads the calendar */}
+              Loading GitHub contribution data...
+            </div>
+          </div>
+          
+          {/* Legend and info section */}
+          <div className="flex justify-between items-center mt-4 text-sm text-gray-400">
+            <a href="https://docs.github.com/articles/why-are-my-contributions-not-showing-up-on-my-profile" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               className="hover:text-gray-300 hover:underline">
+              Learn how we count contributions
+            </a>
+            
+            <div className="contribution-legend flex items-center gap-1">
+              <span>Less</span>
+              <div className="legend-item h-3 w-3 bg-[#161b22] rounded-sm border border-[#1e262f]"></div>
+              <div className="legend-item h-3 w-3 bg-[#0e4429] rounded-sm"></div>
+              <div className="legend-item h-3 w-3 bg-[#006d32] rounded-sm"></div>
+              <div className="legend-item h-3 w-3 bg-[#26a641] rounded-sm"></div>
+              <div className="legend-item h-3 w-3 bg-[#39d353] rounded-sm"></div>
+              <span>More</span>
+            </div>
+          </div>
+          
+          {/* Stats Display - Now hidden as per new design */}
+          <div className="github-stats-container hidden">
             <div className="github-stat-item">
               <span className="github-stat-title">Contributions in the last year</span>
-              <span className="github-stat-value" id={`${username}-total-contrib`}>0</span>
+              <span className="github-stat-value" id={`${username}-total-contrib`}>{stats.total || 0}</span>
               <span className="github-stat-subtitle" id={`${username}-date-range`}>May 5, 2024 – May 4, 2025</span>
             </div>
             
             <div className="github-stat-item">
               <span className="github-stat-title">Longest streak</span>
-              <span className="github-stat-value" id={`${username}-longest-streak`}>0 days</span>
+              <span className="github-stat-value" id={`${username}-longest-streak`}>{stats.longestStreak || 0} days</span>
               <span className="github-stat-subtitle">Rock - Hard Place</span>
             </div>
             
             <div className="github-stat-item">
               <span className="github-stat-title">Current streak</span>
-              <span className="github-stat-value" id={`${username}-current-streak`}>0 days</span>
+              <span className="github-stat-value" id={`${username}-current-streak`}>{stats.currentStreak || 0} days</span>
               <span className="github-stat-subtitle">Rock - Hard Place</span>
             </div>
           </div>
-          
-          
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 }
