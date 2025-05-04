@@ -30,26 +30,10 @@ export default function GitHubContributionGraph({
     if (username && !loading && !error) {
       const fetchContributions = async () => {
         try {
-          const response = await fetch(`https://github.com/${username}`);
-          const html = await response.text();
-          
-          // Create a temporary element to parse the HTML
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          
-          // Find the contribution count element
-          const contribHeader = doc.querySelector('h2.f4.text-normal.mb-2');
-          if (contribHeader) {
-            const text = contribHeader.textContent || '';
-            const match = text.match(/(\d+,?\d*) contributions/);
-            if (match && match[1]) {
-              // Remove commas and convert to number
-              const count = parseInt(match[1].replace(/,/g, ''), 10);
-              setTotalContributions(count);
-              console.log(`Found ${count} contributions for ${username}`);
-            }
-          } else {
-            console.log('Could not find contribution count element on GitHub page');
+          const contributionData = await fetchGitHubContributions(username);
+          if (contributionData && typeof contributionData.total === 'number') {
+            setTotalContributions(contributionData.total);
+            console.log(`Found ${contributionData.total} contributions for ${username}`);
           }
         } catch (err) {
           console.error('Error fetching GitHub contribution count:', err);
@@ -58,7 +42,7 @@ export default function GitHubContributionGraph({
       
       fetchContributions();
     }
-  }, [username, loading, error]);
+  }, [username, loading, error, fetchGitHubContributions]);
 
   // Effect to initialize GitHub Calendar when the component mounts or username changes
   useEffect(() => {

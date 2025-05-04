@@ -13,7 +13,7 @@ export function useGitHubContributions(username: string) {
     dateRange: 'May 5, 2024 – May 4, 2025'
   });
   
-  // New function to fetch GitHub contribution data directly
+  // Function to fetch GitHub contribution data directly from GitHub profile page
   const fetchGitHubContributions = async (username: string) => {
     if (!username) return null;
     
@@ -35,6 +35,10 @@ export function useGitHubContributions(username: string) {
         if (match && match[1]) {
           // Remove commas and convert to number
           const total = parseInt(match[1].replace(/,/g, ''), 10);
+          
+          // Update the local state
+          setStats(prev => ({ ...prev, total }));
+          
           return { total };
         }
       }
@@ -64,6 +68,17 @@ export function useGitHubContributions(username: string) {
       // After calendar is loaded, extract contribution stats
       setTimeout(() => {
         try {
+          // First, try to fetch contribution data from GitHub directly
+          fetchGitHubContributions(username)
+            .then(contributionData => {
+              if (contributionData && typeof contributionData.total === 'number') {
+                console.log(`Found ${contributionData.total} contributions for ${username} via direct fetch`);
+              }
+            })
+            .catch(err => {
+              console.error('Error in direct fetch of GitHub contributions:', err);
+            });
+            
           const calendarContainer = document.querySelector(`.github-calendar-${username}`);
           if (calendarContainer) {
             // Find the contribution count element to extract total contributions
