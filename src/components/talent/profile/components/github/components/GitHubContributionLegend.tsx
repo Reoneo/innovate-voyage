@@ -24,9 +24,9 @@ export default function GitHubContributionLegend() {
           className="flex items-center gap-1 hover:text-gray-300 hover:underline text-xs"
         >
           <img 
-            src="/talent-protocol-logo.png" 
+            src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1746352800000&signature=frawmQ9xQrLK3ZrZjgZF_1xikkcEiRagAcoptrI4vQY&downloadName=logomark_dark.jpg" 
             alt="Talent Protocol" 
-            className="w-3 h-3 rounded-full" 
+            className="w-4 h-4 rounded-full" 
           />
           <span>verified by TalentProtocol.com</span>
         </a>

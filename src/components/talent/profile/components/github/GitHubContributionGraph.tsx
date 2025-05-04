@@ -73,7 +73,7 @@ export default function GitHubContributionGraph({
             <div className="text-sm font-semibold text-green-400">
               <span className="text-base font-bold" id="contribution-count-banner">
                 {displayedTotal || (stats.total || 0)}
-              </span> total contributions in the last year
+              </span> contributions in the last year
             </div>
           </div>
           
@@ -98,7 +98,6 @@ export default function GitHubContributionGraph({
                     weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
                     totalCount: '{{count}} contributions'
                   }}
-                  cache={86400} // Cache for 24 hours (in seconds) to improve loading speed
                 />
               </div>
             )}

@@ -58,14 +58,18 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
+/* Month labels - make them clearly visible */
 .github-calendar-dark .calendar-graph text.month {
-  font-size: 7px !important;
+  font-size: 8px !important;
   fill: #8b949e;
+  font-weight: 600;
 }
 
+/* Weekday labels - ensure Mon, Wed, Fri are visible */
 .github-calendar-dark .calendar-graph text.wday {
-  font-size: 7px !important;
+  font-size: 8px !important;
   fill: #8b949e;
+  font-weight: 600;
 }
 
 .github-calendar-dark .day {
@@ -115,8 +119,8 @@
 }
 
 .calendar-container {
-  min-height: 85px; /* Further reduced height */
-  max-height: 100px; /* Reduced max height */
+  min-height: 80px; /* Further reduced height */
+  max-height: 95px; /* Reduced max height */
   margin-top: 0;
   padding-top: 0;
   padding-bottom: 0;
@@ -125,10 +129,11 @@
 /* Make sure weekday and month labels are visible but compact */
 .react-github-calendar .wday-text,
 .react-github-calendar .month-label {
-  font-size: 7px !important;
+  font-size: 8px !important;
   fill: #8b949e !important;
   visibility: visible !important;
   opacity: 1 !important;
+  font-weight: 600;
 }
 
 /* Ensure the graph is responsive but compact */

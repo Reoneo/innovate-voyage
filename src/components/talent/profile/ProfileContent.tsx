@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -123,14 +124,14 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
+              
+              {/* GitHub contribution graph moved to column 2 */}
+              {showGitHubSection && (
+                <div className="mt-4">
+                  <GitHubContributionGraph username={githubUsername!} />
+                </div>
+              )}
             </div>
-            
-            {/* GitHub contribution graph moved to the bottom of the grid, spanning full width */}
-            {showGitHubSection && (
-              <div className="col-span-1 md:col-span-10 mt-4">
-                <GitHubContributionGraph username={githubUsername!} />
-              </div>
-            )}
           </div>
         </HeaderContainer>
       ) : (
