@@ -107,6 +107,13 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   const { experience, isLoading: isLoadingExperience, error: experienceError } = 
     useLinkedInExperience(passport?.socials);
   
+  console.log('LinkedIn experience data:', { 
+    experience, 
+    isLoading: isLoadingExperience, 
+    error: experienceError,
+    linkedinValue: passport?.socials?.linkedin 
+  });
+
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
       {loading && !loadingTimeout ? (

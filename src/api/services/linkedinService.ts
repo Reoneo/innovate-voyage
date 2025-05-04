@@ -1,6 +1,7 @@
 
 import { SocialPlatform } from '@/constants/socialPlatforms';
 import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from 'react';
 
 // LinkedIn API credentials
 const CLIENT_ID = '78tbmy2vayozmc';
@@ -22,11 +23,17 @@ export interface LinkedInJob {
  * @returns Clean LinkedIn handle without URL parts
  */
 export const extractLinkedInHandle = (linkedinValue?: string): string | null => {
-  if (!linkedinValue) return null;
+  if (!linkedinValue) {
+    console.log('LinkedIn value is empty or undefined');
+    return null;
+  }
+  
+  console.log('Extracting LinkedIn handle from:', linkedinValue);
   
   try {
     // Handle direct username format
     if (!linkedinValue.includes('/') && !linkedinValue.includes('.')) {
+      console.log('Using direct username format:', linkedinValue);
       return linkedinValue;
     }
     
@@ -35,6 +42,7 @@ export const extractLinkedInHandle = (linkedinValue?: string): string | null => 
       const parts = linkedinValue.split('linkedin.com/in/');
       // Get everything after linkedin.com/in/ and before any query params or hashes
       const username = parts[1]?.split(/[/?#]/)[0];
+      console.log('Extracted from linkedin.com URL:', username);
       return username?.trim() || null;
     }
     
@@ -42,9 +50,11 @@ export const extractLinkedInHandle = (linkedinValue?: string): string | null => 
     if (linkedinValue.includes('/in/')) {
       const parts = linkedinValue.split('/in/');
       const username = parts[1]?.split(/[/?#]/)[0];
+      console.log('Extracted from /in/ format:', username);
       return username?.trim() || null;
     }
     
+    console.log('Using the value directly as handle:', linkedinValue.trim());
     return linkedinValue.trim();
   } catch (error) {
     console.error('Error extracting LinkedIn handle:', error);
@@ -115,7 +125,10 @@ export function useLinkedInExperience(socials?: Record<string, string>) {
   
   useEffect(() => {
     const fetchExperience = async () => {
+      console.log('LinkedIn social data:', socials?.linkedin);
+      
       if (!socials?.linkedin) {
+        console.log('No LinkedIn profile found in socials data');
         return;
       }
       
@@ -131,6 +144,7 @@ export function useLinkedInExperience(socials?: Record<string, string>) {
       
       try {
         const jobs = await fetchLinkedInExperience(linkedinHandle);
+        console.log('LinkedIn jobs fetched:', jobs);
         setExperience(jobs);
       } catch (err) {
         console.error('Error fetching LinkedIn experience:', err);
@@ -150,6 +164,3 @@ export function useLinkedInExperience(socials?: Record<string, string>) {
   
   return { experience, isLoading, error };
 }
-
-// Missing imports
-import { useState, useEffect } from 'react';
