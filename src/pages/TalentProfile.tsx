@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
+import ProfileFooter from '@/components/talent/profile/ProfileFooter';
 import { Helmet } from 'react-helmet-async';
 
 const TalentProfile = () => {
@@ -38,6 +39,34 @@ const TalentProfile = () => {
     }
   }, [passport?.avatar_url]);
 
+  // Extract GitHub username for the footer
+  const extractGitHubUsername = () => {
+    // First check if we already have github username directly in socials
+    if (passport?.socials?.github) {
+      const directGithub = passport.socials.github;
+      
+      // If it's already a clean username (no URL), return it
+      if (typeof directGithub === 'string' && !directGithub.includes('/') && !directGithub.includes('.')) {
+        if (directGithub.startsWith('@')) {
+          return directGithub.substring(1); // Remove @ prefix
+        }
+        return directGithub;
+      }
+      
+      // Handle github.com URL format
+      if (typeof directGithub === 'string' && directGithub.includes('github.com/')) {
+        const parts = directGithub.split('github.com/');
+        // Get everything after github.com/ and before any query params or hashes
+        const username = parts[1]?.split(/[/?#]/)[0];
+        return username?.trim() || null;
+      }
+    }
+    
+    return null;
+  };
+
+  const githubUsername = passport ? extractGitHubUsername() : null;
+
   return (
     <>
       <Helmet>
@@ -67,7 +96,13 @@ const TalentProfile = () => {
             passport={passport}
             profileRef={profileRef}
             ensNameOrAddress={ensNameOrAddress}
+            hideGitHub={true}
           />
+          
+          {/* Profile Footer with GitHub Calendar */}
+          {!loading && !loadingTimeout && passport && (
+            <ProfileFooter githubUsername={githubUsername} />
+          )}
         </div>
       </div>
     </>

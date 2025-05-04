@@ -14,6 +14,7 @@ interface ProfileContentProps {
   passport: any;
   profileRef: React.RefObject<HTMLDivElement>;
   ensNameOrAddress?: string;
+  hideGitHub?: boolean;
 }
 
 const ProfileContent: React.FC<ProfileContentProps> = ({
@@ -21,7 +22,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   loadingTimeout,
   passport,
   profileRef,
-  ensNameOrAddress
+  ensNameOrAddress,
+  hideGitHub = false
 }) => {
   const isMobile = useIsMobile();
   
@@ -98,8 +100,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     passport: passport ? 'exists' : 'null'
   });
   
-  // Only show GitHub section if there's a GitHub username
-  const showGitHubSection = !!githubUsername;
+  // Only show GitHub section if there's a GitHub username and hideGitHub is false
+  const showGitHubSection = !!githubUsername && !hideGitHub;
   
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -125,7 +127,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* GitHub Contributions - Only show if GitHub username is available */}
+              {/* GitHub Contributions - Only show if GitHub username is available and not hidden */}
               {showGitHubSection && (
                 <div className="mt-6 p-4 bg-gray-950 rounded-lg shadow-sm border border-gray-800">
                   <h3 className="text-xl font-medium mb-3 text-white flex items-center justify-between">
