@@ -6,6 +6,7 @@ import GitHubContributionLegend from './components/GitHubContributionLegend';
 import TokenInvalidAlert from './components/TokenInvalidAlert';
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
 import GitHubCalendar from 'react-github-calendar';
+import { SocialIcon } from '@/components/ui/social-icon';
 
 export default function GitHubContributionGraph({
   username
@@ -78,18 +79,30 @@ export default function GitHubContributionGraph({
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="github-calendar-wrapper px-2 py-3">
-          {/* Total contributions banner for emphasis */}
-          <div className="bg-gray-800/50 rounded-md p-2 mb-2 flex items-center justify-center">
-            <div className="text-base font-semibold text-green-400">
-              <span className="text-xl font-bold" id="contribution-count-banner">
-                {displayedTotal || (stats.total || 0)}
-              </span> total contributions in the last year
+        <div className="github-calendar-wrapper px-2 py-2">
+          {/* Header with Discord icon */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <SocialIcon type="discord" size={20} className="mr-1" />
+              <h3 className="text-lg font-medium text-white">
+                GitHub Contributions in the last year:
+                <span className="text-green-400 font-bold ml-2">
+                  {displayedTotal || (stats.total || 0)}
+                </span>
+              </h3>
             </div>
+            <a 
+              href={`https://github.com/${username}`}
+              target="_blank"
+              rel="noopener noreferrer" 
+              className="text-sm text-blue-400 hover:underline"
+            >
+              @{username}
+            </a>
           </div>
           
           {/* GitHub Calendar using the react-github-calendar component directly */}
-          <div className="calendar-container py-2 overflow-x-auto">
+          <div className="calendar-container py-1 overflow-x-auto">
             {username && (
               <div className="w-full min-w-[750px]">
                 <GitHubCalendar 
@@ -99,8 +112,8 @@ export default function GitHubContributionGraph({
                   hideColorLegend={true} // We'll use our custom legend
                   hideMonthLabels={false} // Show month labels at the top
                   showWeekdayLabels={true} // Show day labels on the left
-                  blockSize={10} // Smaller blocks for a slimmer profile
-                  blockMargin={3} // Reduced margin between blocks
+                  blockSize={8} // Smaller blocks for a more compact view
+                  blockMargin={2} // Reduced margin between blocks
                   blockRadius={2}
                   fontSize={10}
                   transformData={transformData}

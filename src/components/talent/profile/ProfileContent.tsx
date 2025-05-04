@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -122,24 +121,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
               
-              {/* GitHub section header - just the title */}
-              {showGitHubSection && (
-                <div className="mt-6 p-4 bg-gray-950 rounded-lg shadow-sm border border-gray-800">
-                  <h3 className="text-xl font-medium mb-3 text-white flex items-center justify-between">
-                    <span>GitHub Activity</span>
-                    {githubUsername && (
-                      <a 
-                        href={`https://github.com/${githubUsername}`}
-                        target="_blank"
-                        rel="noopener noreferrer" 
-                        className="text-sm text-blue-400 hover:underline"
-                      >
-                        @{githubUsername}
-                      </a>
-                    )}
-                  </h3>
-                </div>
-              )}
+              {/* GitHub section header box removed */}
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
@@ -147,7 +129,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             
             {/* GitHub contribution graph moved to the bottom of the grid, spanning full width */}
             {showGitHubSection && (
-              <div className="col-span-1 md:col-span-10 mt-8">
+              <div className="col-span-1 md:col-span-10 mt-2">
                 <GitHubContributionGraph username={githubUsername!} />
               </div>
             )}

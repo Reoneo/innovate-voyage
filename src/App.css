@@ -1,4 +1,3 @@
-
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -45,10 +44,10 @@
 /* GitHub Calendar Custom Styling */
 .github-calendar-wrapper {
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px;
   background-color: #0d1117;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 .github-calendar-dark {
@@ -60,12 +59,12 @@
 }
 
 .github-calendar-dark .calendar-graph text.month {
-  font-size: 10px;
+  font-size: 9px;
   fill: #8b949e;
 }
 
 .github-calendar-dark .calendar-graph text.wday {
-  font-size: 9px;
+  font-size: 8px;
   fill: #8b949e;
 }
 
@@ -126,13 +125,14 @@
 }
 
 .calendar-container {
-  min-height: 120px;
+  min-height: 100px; /* Reduced height */
+  max-height: 140px; /* Limit maximum height */
 }
 
 /* Make sure weekday and month labels are visible */
 .react-github-calendar .wday-text,
 .react-github-calendar .month-label {
-  font-size: 10px !important;
+  font-size: 9px !important;
   fill: #8b949e !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -154,7 +154,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   background-color: #0d1117;
-  padding: 16px;
+  padding: 12px; /* Reduced padding */
 }
 
 /* Style the calendar graph cells with grid lines */
@@ -166,11 +166,6 @@
 /* Stats display styling - now hidden in the main view */
 .github-stats-container {
   display: none;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1rem;
-  padding-top: 1rem;
-  margin-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .github-stat-item {
@@ -203,7 +198,7 @@
 
 /* New contribution display styles to match the reference image */
 .contributions-header h3 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #e6edf3;
   margin-bottom: 0;
