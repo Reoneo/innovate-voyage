@@ -12,33 +12,6 @@ export async function fetchEnsProfile(identifier: string): Promise<EnsProfile | 
     
     console.log(`Fetching ENS profile for: ${identifier}`);
     
-    // For testing - mock profile for specific ENS
-    if (identifier === "30315.eth") {
-      console.log("Returning mock profile for 30315.eth");
-      return {
-        name: "30315.eth",
-        address: "0xdb2...9d871",
-        avatar: "https://metadata.ens.domains/mainnet/avatar/30315.eth",
-        description: "This is a test description for 30315.eth",
-        records: {
-          description: "This is a test description for 30315.eth",
-          "com.github": "github-user",
-          "com.twitter": "twitter-handle",
-          "com.linkedin": "linkedin-profile",
-          website: "example.com",
-          keywords: "web3,blockchain,developer"
-        },
-        socials: {
-          github: "github-user",
-          twitter: "twitter-handle",
-          linkedin: "linkedin-profile",
-          website: "example.com",
-          telegram: "@telegram-test",
-          discord: "discord-test#1234"
-        }
-      };
-    }
-    
     // Normalize identifier
     const normalizedId = identifier.toLowerCase().trim();
     
@@ -122,19 +95,6 @@ export async function getEnsSocialLinks(ensName: string): Promise<Record<string,
     
     console.log(`Getting social links for ENS: ${ensName}`);
     
-    // For testing - mock links for specific ENS
-    if (ensName === "30315.eth") {
-      console.log("Returning mock social links for 30315.eth");
-      return {
-        github: "github-user",
-        twitter: "twitter-handle",
-        linkedin: "linkedin-profile",
-        website: "example.com",
-        telegram: "@telegram-test",
-        discord: "discord-test#1234"
-      };
-    }
-    
     const profile = await fetchEnsProfile(ensName);
     
     if (profile && profile.socials) {
@@ -159,26 +119,6 @@ export async function getEnsTextRecords(
     if (!ensName || !keys.length) return {};
     
     const results: Record<string, string> = {};
-    
-    // For testing - mock records for specific ENS
-    if (ensName === "30315.eth") {
-      const mockRecords: Record<string, string> = {
-        description: "This is a test description for 30315.eth",
-        "com.github": "github-user",
-        "com.twitter": "twitter-handle",
-        "com.linkedin": "linkedin-profile",
-        website: "example.com",
-        keywords: "web3,blockchain,developer"
-      };
-      
-      for (const key of keys) {
-        if (mockRecords[key]) {
-          results[key] = mockRecords[key];
-        }
-      }
-      
-      return results;
-    }
     
     // Fetch profile - more efficient than individual calls
     const profile = await fetchEnsProfile(ensName);

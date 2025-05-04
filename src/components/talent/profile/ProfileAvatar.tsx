@@ -46,7 +46,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
     } else if (isMockAvatar) {
       setIsEmojiAvatar(true);
     }
-  }, [name, avatarUrl, isMockAvatar]);
+  }, [name, avatarUrl, isMockAvatar, avatar]);
 
   // Get emoji for user (deterministic based on name)
   const getEmoji = () => {

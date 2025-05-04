@@ -20,7 +20,10 @@ const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ usern
     refetch
   } = useGitHubContributions(username);
 
-  const { toast } = useToast();
+  // Early return if no username
+  if (!username) {
+    return null;
+  }
 
   if (isLoading) {
     return <GitHubLoadingState />;

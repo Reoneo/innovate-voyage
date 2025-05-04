@@ -55,12 +55,6 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
       return <Phone size={adjustedSize} className={`text-emerald-600 ${iconClasses}`} />;
     case 'location':
       return <img src="https://cdn-icons-png.flaticon.com/512/355/355980.png" width={iconSize} height={iconSize} alt="Location" className={iconClasses} />;
-    case 'farcaster':
-      return <img src="https://cdn-icons-png.flaticon.com/512/5968/5968872.png" width={iconSize} height={iconSize} alt="Farcaster" className={iconClasses} />;
-    case 'lens':
-      return <img src="https://cdn-icons-png.flaticon.com/512/5968/5968770.png" width={iconSize} height={iconSize} alt="Lens" className={iconClasses} />;
-    case 'opensea':
-      return <img src="https://cdn-icons-png.flaticon.com/512/6001/6001356.png" width={iconSize} height={iconSize} alt="OpenSea" className={iconClasses} />;
     default:
       return <ExternalLink size={adjustedSize} className={`text-gray-500 ${iconClasses}`} />;
   }

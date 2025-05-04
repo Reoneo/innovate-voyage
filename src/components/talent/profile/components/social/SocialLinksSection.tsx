@@ -43,22 +43,6 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
     }
   }, [identity]);
 
-  // Force some test data for 30315.eth
-  useEffect(() => {
-    if (identity === "30315.eth") {
-      console.log("Adding test social links for 30315.eth");
-      setTimeout(() => {
-        setSocialLinks({
-          github: "github-test",
-          twitter: "twitter-test",
-          linkedin: "linkedin-test",
-          telegram: "telegram-test",
-          discord: "discord-test",
-        });
-      }, 500);
-    }
-  }, [identity]);
-
   // Check if there are any social links
   const hasSocialLinks = Object.entries(socialLinks || {}).some(([_key, val]) => val && val.trim() !== '');
   

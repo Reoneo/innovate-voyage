@@ -24,23 +24,6 @@ export async function getEnsLinks(ensName: string, network: string = 'mainnet'):
     
     if (!profile) {
       console.log(`No ENS profile found for ${ensName}`);
-      
-      // For testing - add mock data for specific ENS
-      if (ensName === "30315.eth") {
-        console.log("Adding mock social links for testing");
-        return {
-          socials: {
-            github: "github-user",
-            twitter: "twitter-handle", 
-            linkedin: "linkedin-profile",
-            website: "example.com",
-          },
-          ensLinks: [],
-          description: "This is a test description for 30315.eth",
-          keywords: ["web3", "blockchain", "developer"]
-        };
-      }
-      
       return { socials: {}, ensLinks: [], keywords: [] };
     }
     
@@ -60,23 +43,6 @@ export async function getEnsLinks(ensName: string, network: string = 'mainnet'):
     };
   } catch (error) {
     console.error(`Error getting ENS links: ${error}`);
-    
-    // For testing - add mock data for specific ENS
-    if (ensName === "30315.eth") {
-      console.log("Adding mock social links after error");
-      return {
-        socials: {
-          github: "github-user",
-          twitter: "twitter-handle", 
-          linkedin: "linkedin-profile",
-          website: "example.com",
-        },
-        ensLinks: [],
-        description: "This is a test description for 30315.eth",
-        keywords: ["web3", "blockchain", "developer"]
-      };
-    }
-    
     return { socials: {}, ensLinks: [], keywords: [] };
   }
 }

@@ -31,21 +31,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   
   // Extract GitHub username from social links with improved handling
   const extractGitHubUsername = () => {
-    // First check if we already have github username directly in socials
-    if (passport?.socials?.github) {
-      const directGithub = passport.socials.github;
-      console.log('GitHub from passport.socials.github:', directGithub);
-      
-      // If it's already a clean username (no URL), return it
-      if (typeof directGithub === 'string' && !directGithub.includes('/') && !directGithub.includes('.')) {
-        if (directGithub.startsWith('@')) {
-          return directGithub.substring(1); // Remove @ prefix
-        }
-        return directGithub;
-      }
-    }
-    
-    // If nothing found or we need to extract from URL
     if (!passport?.socials?.github) {
       console.log('No GitHub social link found in passport');
       return null;
@@ -115,7 +100,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 ownerAddress={passport.owner_address}
                 socials={{
                   ...passport.socials,
-                  linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
+                  linkedin: passport.socials?.linkedin || undefined
                 }}
                 bio={passport.bio}
                 displayIdentity={ensNameOrAddress}
@@ -126,9 +111,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
               {/* GitHub contribution graph moved to column 2 */}
-              {showGitHubSection && (
+              {showGitHubSection && githubUsername && (
                 <div className="mt-4">
-                  <GitHubContributionGraph username={githubUsername!} />
+                  <GitHubContributionGraph username={githubUsername} />
                 </div>
               )}
             </div>

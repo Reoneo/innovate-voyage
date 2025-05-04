@@ -35,25 +35,6 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
     );
   }
   
-  // Just for debugging
-  useEffect(() => {
-    console.log("Processed social links:", processedSocials);
-  }, [processedSocials]);
-
-  // Force some social links for 30315.eth for testing
-  useEffect(() => {
-    if (window.location.pathname.includes("30315.eth")) {
-      console.log("Adding test social links for 30315.eth");
-      setProcessedSocials({
-        github: "github-user",
-        twitter: "twitter-handle",
-        linkedin: "linkedin-profile",
-        website: "example.com",
-        // Add more test links as needed
-      });
-    }
-  }, []);
-  
   // Check if we have any actual social links
   const hasSocialLinks = Object.entries(updatedSocials || {}).some(([_key, val]) => val && val.trim() !== '');
   

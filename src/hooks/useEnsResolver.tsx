@@ -90,13 +90,6 @@ export function useEnsResolver(ensName?: string, address?: string) {
   // Extract social links
   const socials = profileQuery.data?.socials || {};
 
-  // Add mock social links for testing if none are found
-  useEffect(() => {
-    if (normalizedEnsName && normalizedEnsName === "30315.eth") {
-      console.log("Adding mock social links for 30315.eth");
-    }
-  }, [normalizedEnsName]);
-
   // Combine into final state
   const state: EnsResolutionState = {
     resolvedAddress: ensNameQuery.data || directAddress || adjustedAddress,
