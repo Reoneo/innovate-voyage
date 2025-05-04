@@ -16,7 +16,15 @@ const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({
   username,
   walletAddress
 }) => {
-  const { contributions, loading, error } = useGitHubContributions(username);
+  const { 
+    loading, 
+    error, 
+    tokenInvalid,
+    totalContributions,
+    stats,
+    fetchGitHubContributions 
+  } = useGitHubContributions(username);
+  
   const { isVerified } = useTalentProtocolGithub(walletAddress, username);
   const [year] = useState(new Date().getFullYear());
 
@@ -37,14 +45,14 @@ const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({
       </CardHeader>
       <CardContent className="p-4 pb-6 bg-[#0d1117]">
         {loading ? (
-          <GitHubLoadingState />
+          <GitHubLoadingState loading={loading} error={error || ''} />
         ) : error ? (
           <div className="text-center py-4">
             <p className="text-sm text-gray-400">Unable to load GitHub contributions</p>
           </div>
         ) : (
           <>
-            <GitHubContributions contributions={contributions} />
+            <GitHubContributions data={totalContributions} stats={stats} />
             <GitHubContributionLegend isVerified={isVerified} />
           </>
         )}

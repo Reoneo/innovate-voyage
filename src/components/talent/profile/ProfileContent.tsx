@@ -7,6 +7,8 @@ import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -25,8 +27,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
+  // Only show timeout error if we're still loading and the timeout has occurred
   if (loadingTimeout && loading) {
-    return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
+    return <ProfileTimeoutState ensNameOrAddress={ensNameOrAddress} />;
   }
   
   // Extract GitHub username from social links with improved handling
@@ -152,17 +155,38 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
 
 export default ProfileContent;
 
-const ProfileTimeoutError: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameOrAddress }) => (
-  <div className="min-h-screen bg-gray-50 py-4 md:py-8">
-    <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
-      <HeaderContainer>
-        <div className="flex flex-col items-center justify-center h-full text-center">
-          <h2 className="text-2xl font-bold mb-2">Error Loading Profile</h2>
-          <p className="text-muted-foreground mb-6">
-            We couldn't load the profile for {ensNameOrAddress}. The request timed out.
-          </p>
-        </div>
-      </HeaderContainer>
+// Updated timeout component with refresh button
+const ProfileTimeoutState: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameOrAddress }) => {
+  // Handler to refresh the page
+  const handleRefresh = () => {
+    // Adding a timestamp parameter to force fresh load
+    const timestamp = new Date().getTime();
+    window.location.href = `${window.location.pathname}?t=${timestamp}`;
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-4 md:py-8">
+      <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
+        <HeaderContainer>
+          <div className="flex flex-col items-center justify-center h-full text-center p-8">
+            <h2 className="text-2xl font-bold mb-2">Loading Profile</h2>
+            <p className="text-muted-foreground mb-6">
+              Please wait while we load data for {ensNameOrAddress}.<br />
+              This may take longer for profiles with many ENS domains.
+            </p>
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm text-muted-foreground">Still working...</span>
+            </div>
+            <div className="mt-6">
+              <Button onClick={handleRefresh} variant="outline" className="flex items-center gap-2">
+                <RefreshCw className="h-4 w-4" />
+                Refresh Page
+              </Button>
+            </div>
+          </div>
+        </HeaderContainer>
+      </div>
     </div>
-  </div>
-);
+  );
+};
