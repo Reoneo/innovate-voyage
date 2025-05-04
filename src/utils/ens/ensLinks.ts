@@ -61,6 +61,7 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
           break;
         case 'com.linkedin':
           result.socials.linkedin = value;
+          console.log('Found LinkedIn in ENS records:', value);
           break;
         case 'org.telegram':
           result.socials.telegram = value;
