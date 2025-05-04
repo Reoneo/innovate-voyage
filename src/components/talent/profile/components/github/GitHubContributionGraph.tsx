@@ -1,43 +1,46 @@
-
 import React, { useEffect, useRef } from 'react';
 import { GitHubContributionProps } from './types';
 import { useGitHubContributions } from './useGitHubContributions';
 import GitHubLoadingState from './GitHubLoadingState';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ExternalLink, AlertCircle } from 'lucide-react';
-
 declare global {
   interface Window {
     GitHubCalendar: (selector: string, username: string, options?: any) => void;
   }
 }
-
-export default function GitHubContributionGraph({ username }: GitHubContributionProps) {
-  const { loading, error, tokenInvalid } = useGitHubContributions(username);
+export default function GitHubContributionGraph({
+  username
+}: GitHubContributionProps) {
+  const {
+    loading,
+    error,
+    tokenInvalid
+  } = useGitHubContributions(username);
   const calendarRef = useRef<HTMLDivElement>(null);
-  
+
   // Effect to initialize GitHub Calendar when the component mounts or username changes
   useEffect(() => {
     // Only try to initialize if we have a username and the component is mounted
     if (!loading && !error && username && calendarRef.current && window.GitHubCalendar) {
       try {
         console.log(`Initializing GitHub Calendar for ${username}`);
-        
+
         // Apply the GitHub Calendar with dark theme and responsive options
-        window.GitHubCalendar(`.github-calendar-${username}`, username, { 
+        window.GitHubCalendar(`.github-calendar-${username}`, username, {
           responsive: true,
           global_stats: true,
           tooltips: true,
           summary_text: '{total} contributions in the last year'
         });
-        
+
         // Apply custom styling to match the reference image after a short delay
         setTimeout(() => {
           const calendar = document.querySelector(`.github-calendar-${username}`);
           if (calendar) {
             // Add dark theme styles
             calendar.classList.add('github-calendar-dark');
-            
+
             // Find all day squares and add grid styling
             const squares = calendar.querySelectorAll('.day');
             squares.forEach((square: Element) => {
@@ -48,7 +51,7 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
               rect.setAttribute('rx', '2');
               rect.setAttribute('ry', '2');
             });
-            
+
             // Update contribution stats with clearer display
             try {
               // Find the contribution count element
@@ -56,16 +59,15 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
               if (totalContribElement) {
                 const totalText = totalContribElement.textContent || "";
                 const totalMatch = totalText.match(/\d+/);
-                
                 if (totalMatch) {
                   const total = parseInt(totalMatch[0], 10);
-                  
+
                   // Update the stats display 
                   const totalContribDisplay = document.getElementById(`${username}-total-contrib`);
                   if (totalContribDisplay) {
                     totalContribDisplay.textContent = total.toString();
                   }
-                  
+
                   // Update date range
                   const dateRangeElement = calendar.querySelector('.contrib-footer .float-left');
                   if (dateRangeElement) {
@@ -93,13 +95,10 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
     console.log('No GitHub username provided to GitHubContributionGraph');
     return null;
   }
-
-  return (
-    <div className="w-full overflow-hidden mt-4 min-h-[230px] flex flex-col justify-center">
+  return <div className="w-full overflow-hidden mt-4 min-h-[230px] flex flex-col justify-center">
       <GitHubLoadingState loading={loading} error={error} />
       
-      {tokenInvalid && (
-        <Alert variant="destructive" className="mb-4">
+      {tokenInvalid && <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>GitHub API Token Expired</AlertTitle>
           <AlertDescription>
@@ -112,11 +111,9 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
               <li>Restart the local server</li>
             </ol>
           </AlertDescription>
-        </Alert>
-      )}
+        </Alert>}
       
-      {!loading && !error && username && (
-        <div className="github-calendar-wrapper bg-gray-950 p-4 rounded-lg">
+      {!loading && !error && username && <div className="github-calendar-wrapper bg-gray-950 p-4 rounded-lg">
           {/* Container for GitHub Calendar */}
           <div ref={calendarRef} className={`github-calendar-${username} calendar-container`}>
             {/* Loading message shown until the library loads the calendar */}
@@ -144,18 +141,7 @@ export default function GitHubContributionGraph({ username }: GitHubContribution
             </div>
           </div>
           
-          <div className="mt-4 text-right">
-            <a 
-              href={`https://github.com/${username}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline text-sm flex items-center justify-end"
-            >
-              View GitHub Profile <ExternalLink className="ml-1 h-3 w-3" />
-            </a>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+          
+        </div>}
+    </div>;
 }
