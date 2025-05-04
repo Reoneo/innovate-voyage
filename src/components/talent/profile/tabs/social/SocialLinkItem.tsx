@@ -12,6 +12,8 @@ interface SocialLinkItemProps {
 const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) => {
   const [copied, setCopied] = useState(false);
   
+  if (!url || !platformType) return null;
+  
   let formattedUrl = url;
   let displayText = url;
   

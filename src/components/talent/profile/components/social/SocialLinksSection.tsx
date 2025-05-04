@@ -5,14 +5,21 @@ import { getEnsLinks } from '@/utils/ens/ensLinks';
 import { Badge } from '@/components/ui/badge';
 
 interface SocialLinksSectionProps {
-  socials: Record<string, string>;
+  socials?: Record<string, string> | null;
   identity?: string;
 }
 
 const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identity }) => {
-  const [socialLinks, setSocialLinks] = useState<Record<string, string>>(socials || {});
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [keywords, setKeywords] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Update state when socials prop changes
+    if (socials) {
+      setSocialLinks(socials);
+    }
+  }, [socials]);
 
   useEffect(() => {
     if (identity && (identity.includes('.eth') || identity.includes('.box'))) {
@@ -44,7 +51,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   }, [identity]);
 
   // Check if there are any social links
-  const hasSocialLinks = Object.entries(socialLinks || {}).some(([_key, val]) => val && val.trim() !== '');
+  const hasSocialLinks = socialLinks && Object.entries(socialLinks).some(([_key, val]) => val && val.trim() !== '');
   
   if (!hasSocialLinks && keywords.length === 0 && !isLoading) {
     return null; // Hide the entire section if no links or keywords available

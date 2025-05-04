@@ -9,13 +9,18 @@ interface GitHubContributionGraphProps {
 }
 
 const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ username }) => {
-  const [githubUsername, setGithubUsername] = useState<string | null>(username);
+  const [githubUsername, setGithubUsername] = useState<string | null>(null);
   const [isInvalidUsername, setIsInvalidUsername] = useState<boolean>(false);
 
   useEffect(() => {
-    if (username) {
+    if (!username) {
+      setIsInvalidUsername(true);
+      return;
+    }
+    
+    try {
       // Strip @ symbol if present
-      const cleanUsername = username.startsWith('@') ? username.substring(1) : username;
+      let cleanUsername = username.startsWith('@') ? username.substring(1) : username;
       
       // If it's a URL, extract just the username part
       if (cleanUsername.includes('github.com')) {
@@ -23,16 +28,23 @@ const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ usern
           const urlObj = new URL(cleanUsername.startsWith('http') ? cleanUsername : `https://${cleanUsername}`);
           const pathParts = urlObj.pathname.split('/').filter(Boolean);
           if (pathParts.length > 0) {
-            setGithubUsername(pathParts[0]);
+            cleanUsername = pathParts[0];
           }
         } catch (error) {
           // If we can't parse as URL, just use as is
-          setGithubUsername(cleanUsername);
+          console.error('Error parsing GitHub URL:', error);
         }
-      } else {
-        setGithubUsername(cleanUsername);
       }
-    } else {
+      
+      // Set the cleaned username if it's valid
+      if (cleanUsername && cleanUsername.trim() !== '') {
+        setGithubUsername(cleanUsername.trim());
+        setIsInvalidUsername(false);
+      } else {
+        setIsInvalidUsername(true);
+      }
+    } catch (error) {
+      console.error('Error processing GitHub username:', error);
       setIsInvalidUsername(true);
     }
   }, [username]);

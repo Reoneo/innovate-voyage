@@ -86,12 +86,17 @@ export async function getEnsTextRecord(ensName: string, key: string): Promise<st
     console.log(`Getting ${key} text record for ENS: ${ensName}`);
     
     // Use viem to get text record
-    const value = await publicClient.getEnsText({
-      name: ensName,
-      key: key,
-    });
-    
-    return value || null;
+    try {
+      const value = await publicClient.getEnsText({
+        name: ensName,
+        key: key,
+      });
+      
+      return value || null;
+    } catch (error) {
+      console.error(`Error getting ${key} text record with viem: ${error}`);
+      return null;
+    }
   } catch (error) {
     console.error(`Error getting ${key} text record for ENS ${ensName}:`, error);
     return null;

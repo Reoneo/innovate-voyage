@@ -31,7 +31,7 @@ export async function getEnsLinks(ensName: string, network: string = 'mainnet'):
     
     // Extract keywords if present
     let keywords: string[] = [];
-    if (profile.records?.keywords) {
+    if (profile.records && profile.records.keywords) {
       keywords = profile.records.keywords.split(',').map(k => k.trim());
     }
     

@@ -98,10 +98,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
                 ownerAddress={passport.owner_address}
-                socials={{
-                  ...passport.socials,
-                  linkedin: passport.socials?.linkedin || undefined
-                }}
+                socials={passport.socials || {}}
                 bio={passport.bio}
                 displayIdentity={ensNameOrAddress}
                 additionalEnsDomains={passport.additionalEnsDomains}

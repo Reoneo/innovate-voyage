@@ -7,6 +7,6 @@ export interface EnsProfile {
   address?: string;
   avatar?: string | null;
   description?: string | null;
-  records?: Record<string, string>;
-  socials?: Record<string, string>;
+  records?: Record<string, string> | null;
+  socials?: Record<string, string> | null;
 }

@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from 'react';
 
 interface GitHubContributionsProps {
-  data: any;
   username: string;
 }
 
-const GitHubContributions: React.FC<GitHubContributionsProps> = ({ data, username }) => {
-  const [isLoading, setIsLoading] = useState(false);
+const GitHubContributions: React.FC<GitHubContributionsProps> = ({ username }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [contributionData, setContributionData] = useState<any>(null);
   
   if (!username) {
     return null;
@@ -18,7 +18,23 @@ const GitHubContributions: React.FC<GitHubContributionsProps> = ({ data, usernam
   const contribUrl = `https://github.com/users/${username}/contributions`;
   
   useEffect(() => {
+    if (!username) return;
+    
     console.log(`Loading GitHub contributions for: ${username}`);
+    setIsLoading(true);
+    setHasError(false);
+    
+    // Try to get cached data first
+    const cachedData = localStorage.getItem(`github_contributions_${username}`);
+    if (cachedData) {
+      try {
+        const parsedData = JSON.parse(cachedData);
+        console.log('Using cached GitHub data', parsedData);
+        setContributionData(parsedData);
+      } catch (err) {
+        console.error('Error parsing cached GitHub data:', err);
+      }
+    }
     
     // Check if the URL is accessible
     fetch(contribUrl, { method: 'HEAD' })
@@ -36,61 +52,39 @@ const GitHubContributions: React.FC<GitHubContributionsProps> = ({ data, usernam
   }, [username, contribUrl]);
   
   return (
-    <div className="mt-6">
-      <h3 className="text-lg font-semibold mb-3">GitHub Contributions</h3>
+    <div className="w-full">
+      {isLoading && (
+        <div className="text-gray-500 text-center py-4">Loading GitHub contribution data...</div>
+      )}
       
-      <div className="github-heatmap-wrapper" style={{ 
-        width: '100%', 
-        overflowX: 'auto',
-        border: '1px solid #e1e4e8',
-        borderRadius: '6px',
-        padding: '12px',
-        backgroundColor: '#f6f8fa',
-        marginBottom: '16px',
-        minHeight: '160px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}>
-        {isLoading && (
-          <div className="text-gray-500">Loading GitHub contribution data...</div>
-        )}
-        
-        {hasError && (
-          <div className="text-red-500">Unable to load GitHub contributions graph</div>
-        )}
-        
-        {!isLoading && !hasError && (
-          <img
-            className="github-heatmap"
-            src={contribUrl}
-            alt={`${username}'s GitHub contributions`}
-            style={{
-              display: 'block',
-              width: '100%',
-              height: '150px',
-              maxHeight: '200px',
-              objectFit: 'contain',
-              borderRadius: '4px',
-            }}
-            onLoad={() => console.log('GitHub contribution image loaded successfully')}
-            onError={(e) => {
-              console.error('GitHub contribution image failed to load:', e);
-              setHasError(true);
-            }}
-          />
-        )}
-      </div>
+      {hasError && (
+        <div className="text-red-500 text-center py-4">Unable to load GitHub contributions graph</div>
+      )}
       
-      {data && (
-        <div className="mt-4">
-          {/* Display contribution stats if available */}
-          {data.contributions && (
-            <div className="text-sm text-muted-foreground">
-              {data.contributions.totalContributions} contributions in the last year
-            </div>
-          )}
+      {!isLoading && !hasError && (
+        <img
+          className="github-heatmap"
+          src={contribUrl}
+          alt={`${username}'s GitHub contributions`}
+          style={{
+            display: 'block',
+            width: '100%',
+            height: 'auto',
+            maxHeight: '150px',
+            objectFit: 'contain',
+            borderRadius: '4px',
+          }}
+          onLoad={() => console.log('GitHub contribution image loaded successfully')}
+          onError={(e) => {
+            console.error('GitHub contribution image failed to load:', e);
+            setHasError(true);
+          }}
+        />
+      )}
+      
+      {contributionData && contributionData.totalContributions && (
+        <div className="text-sm text-muted-foreground mt-2 text-center">
+          {contributionData.totalContributions} contributions in the last year
         </div>
       )}
     </div>

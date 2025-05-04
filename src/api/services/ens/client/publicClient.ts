@@ -8,5 +8,5 @@ export const publicClient = createPublicClient({
   transport: http('https://ethereum-rpc.publicnode.com')
 });
 
-// URL for ENS API - updated to use the deployed API URL
-export const ENS_API_URL = 'https://ens-api.vercel.app';
+// URL for ENS API - updated to use a public API endpoint
+export const ENS_API_URL = 'https://api.ensideas.com/ens';
