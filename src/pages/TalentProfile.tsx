@@ -63,7 +63,7 @@ const TalentProfile = () => {
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container relative z-10">
+        <div className="container px-1 sm:px-4 relative z-10">
           {/* Profile Content */}
           <ProfileContent 
             loading={loading}
