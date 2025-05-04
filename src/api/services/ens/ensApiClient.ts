@@ -1,7 +1,6 @@
 
 import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
-import { getEnsText, getEnsAvatar, getEnsAddress, getEnsName } from '@ensdomains/ensjs/public';
 
 // Create a public client for ENS resolution
 export const publicClient = createPublicClient({
@@ -95,7 +94,7 @@ export async function fetchEnsProfile(identifier: string): Promise<EnsProfile | 
 }
 
 /**
- * Resolve ENS name to address using ensjs directly
+ * Resolve ENS name to address using viem directly
  */
 export async function resolveEnsName(ensName: string): Promise<string | null> {
   try {
@@ -103,9 +102,8 @@ export async function resolveEnsName(ensName: string): Promise<string | null> {
     
     console.log(`Resolving ENS name: ${ensName}`);
     
-    // Use ENS.js to resolve the name
-    const resolved = await getEnsAddress({
-      client: publicClient,
+    // Use viem to resolve the name
+    const resolved = await publicClient.getEnsAddress({
       name: ensName,
     });
     
@@ -117,7 +115,7 @@ export async function resolveEnsName(ensName: string): Promise<string | null> {
 }
 
 /**
- * Reverse resolve address to ENS name using ensjs directly
+ * Reverse resolve address to ENS name using viem directly
  */
 export async function lookupEnsName(address: string): Promise<string | null> {
   try {
@@ -125,9 +123,8 @@ export async function lookupEnsName(address: string): Promise<string | null> {
     
     console.log(`Looking up ENS for address: ${address}`);
     
-    // Use ENS.js to lookup the address
-    const name = await getEnsName({
-      client: publicClient,
+    // Use viem to lookup the address
+    const name = await publicClient.getEnsName({
       address: address as `0x${string}`,
     });
     
@@ -139,7 +136,7 @@ export async function lookupEnsName(address: string): Promise<string | null> {
 }
 
 /**
- * Get ENS avatar using ensjs directly
+ * Get ENS avatar using viem directly
  */
 export async function getEnsAvatarUrl(ensName: string): Promise<string | null> {
   try {
@@ -147,9 +144,8 @@ export async function getEnsAvatarUrl(ensName: string): Promise<string | null> {
     
     console.log(`Getting avatar for ENS: ${ensName}`);
     
-    // Use ENS.js to get avatar
-    const avatar = await getEnsAvatar({
-      client: publicClient,
+    // Use viem to get avatar
+    const avatar = await publicClient.getEnsAvatar({
       name: ensName,
     });
     
@@ -169,9 +165,8 @@ export async function getEnsTextRecord(ensName: string, key: string): Promise<st
     
     console.log(`Getting ${key} text record for ENS: ${ensName}`);
     
-    // Use ENS.js to get text record
-    const value = await getEnsText({
-      client: publicClient,
+    // Use viem to get text record
+    const value = await publicClient.getEnsText({
       name: ensName,
       key: key,
     });
