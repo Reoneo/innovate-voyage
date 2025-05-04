@@ -58,20 +58,21 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
-/* Month labels - now white for better visibility */
+/* Month labels - white for better visibility */
 .github-calendar-dark .calendar-graph text.month {
   font-size: 8px !important;
   fill: #ffffff !important;
   font-weight: 600;
 }
 
-/* Weekday labels - now white for better visibility */
+/* Weekday labels - white for better visibility */
 .github-calendar-dark .calendar-graph text.wday {
   font-size: 8px !important;
   fill: #ffffff !important;
   font-weight: 600;
 }
 
+/* Day cells styling */
 .github-calendar-dark .day {
   shape-rendering: geometricPrecision;
   outline: none;
