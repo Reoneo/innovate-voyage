@@ -28,13 +28,11 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   }
   
   // Check if we have any actual social links
-  const hasSocialLinks = Object.entries(updatedSocials || {}).some(([key, val]) => val && val.trim() !== '');
+  const hasSocialLinks = Object.entries(updatedSocials || {}).some(([_key, val]) => val && val.trim() !== '');
   
   if (!hasSocialLinks) {
     return null; // Hide completely if no social links are available
   }
-  
-  console.log('Rendering social links:', updatedSocials);
   
   return (
     <>

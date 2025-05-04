@@ -109,7 +109,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
       data-social-link={platformType}
     >
-      <SocialIcon type={platformType as any} size={40} />
+      <SocialIcon type={platformType} size={40} />
     </a>
   );
 };

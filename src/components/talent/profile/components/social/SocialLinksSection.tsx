@@ -28,7 +28,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
           
           // Extract keywords from ENS records
           if (links && links.keywords) {
-            setKeywords(Array.isArray(links.keywords) ? links.keywords : [links.keywords]);
+            setKeywords(links.keywords);
           }
         })
         .catch(error => {
@@ -40,11 +40,8 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
     }
   }, [identity]);
 
-  // Extract owner address from socials or use undefined
-  const ownerAddress = socials?.ethereum || socials?.walletAddress;
-  
   // Check if there are any social links
-  const hasSocialLinks = Object.entries(socialLinks || {}).some(([key, val]) => val && val.trim() !== '');
+  const hasSocialLinks = Object.entries(socialLinks || {}).some(([_key, val]) => val && val.trim() !== '');
   
   if (!hasSocialLinks && keywords.length === 0) {
     return null; // Hide the entire section if no links or keywords available

@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { getEnsAvatarUrl } from '@/api/services/ens/ensApiClient';
+import { getEnsAvatarUrl } from '@/api/services/ens/operations/recordOperations';
 
 interface ProfileAvatarProps {
   avatarUrl: string | undefined;
@@ -46,7 +46,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
     } else if (isMockAvatar) {
       setIsEmojiAvatar(true);
     }
-  }, [name, avatarUrl]);
+  }, [name, avatarUrl, avatar, isMockAvatar]);
 
   // Get emoji for user (deterministic based on name)
   const getEmoji = () => {
