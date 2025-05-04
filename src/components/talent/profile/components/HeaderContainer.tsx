@@ -14,6 +14,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
       maxWidth: '21cm', /* A4 width */
       margin: '0 auto',
       marginTop: '16px', /* Add margin top to prevent covering navbar */
+      marginBottom: '16px', /* Add margin bottom for consistency */
       padding: 0,
       overflow: 'auto',
       border: '1px solid #f0f0f0',

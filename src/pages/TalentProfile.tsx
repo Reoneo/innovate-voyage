@@ -53,8 +53,11 @@ const TalentProfile = () => {
         )}
       </Helmet>
       <div className="min-h-screen relative">
-        {/* Animated Background */}
-        <AnimatedBackground avatarUrl={passport?.avatar_url} />
+        {/* Animated Background - now takes loading state */}
+        <AnimatedBackground 
+          avatarUrl={passport?.avatar_url} 
+          isLoading={loading} 
+        />
         
         {/* Navigation Bar */}
         <ProfileNavbar 
