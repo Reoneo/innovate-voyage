@@ -4,16 +4,10 @@ import { GitHubContributionProps } from './types';
 import GitHubLoadingState from './GitHubLoadingState';
 import GitHubContributionHeader from './components/GitHubContributionHeader';
 import GitHubContributionLegend from './components/GitHubContributionLegend';
-import GitHubCalendarRenderer from './components/GitHubCalendarRenderer';
 import TokenInvalidAlert from './components/TokenInvalidAlert';
 import StatsDisplay from './components/StatsDisplay';
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
-
-declare global {
-  interface Window {
-    GitHubCalendar: (selector: string, username: string, options?: any) => void;
-  }
-}
+import GitHubCalendar from 'react-github-calendar';
 
 export default function GitHubContributionGraph({
   username
@@ -32,6 +26,15 @@ export default function GitHubContributionGraph({
     return null;
   }
 
+  // Custom theme matching the existing dark theme
+  const theme = {
+    level0: '#161b22', // Empty cells
+    level1: '#0e4429', // Light activity
+    level2: '#006d32', // Medium activity
+    level3: '#26a641', // High activity
+    level4: '#39d353', // Very high activity
+  };
+
   return (
     <div className="w-full overflow-hidden mt-4">
       <GitHubLoadingState loading={loading} error={error} />
@@ -46,12 +49,21 @@ export default function GitHubContributionGraph({
             username={username}
           />
           
-          {/* Container for GitHub Calendar */}
-          <GitHubCalendarRenderer 
-            username={username}
-            totalContributions={totalContributions}
-            statsTotal={stats.total}
-          />
+          {/* GitHub Calendar using the react-github-calendar component */}
+          <div className="calendar-container py-2">
+            {username && (
+              <GitHubCalendar 
+                username={username}
+                colorScheme="dark"
+                theme={theme}
+                hideColorLegend={true} // We'll use our custom legend
+                blockSize={12}
+                blockMargin={4}
+                blockRadius={2}
+                fontSize={10}
+              />
+            )}
+          </div>
           
           {/* Legend and info section */}
           <GitHubContributionLegend />
