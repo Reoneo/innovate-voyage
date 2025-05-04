@@ -5,7 +5,6 @@ import GitHubLoadingState from './GitHubLoadingState';
 import GitHubContributionHeader from './components/GitHubContributionHeader';
 import GitHubContributionLegend from './components/GitHubContributionLegend';
 import TokenInvalidAlert from './components/TokenInvalidAlert';
-import StatsDisplay from './components/StatsDisplay';
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
 import GitHubCalendar from 'react-github-calendar';
 
@@ -112,14 +111,7 @@ export default function GitHubContributionGraph({
           {/* Legend and info section */}
           <GitHubContributionLegend />
           
-          {/* Stats Display - Now shown to provide more details */}
-          <div className="mt-4 py-3 px-4 bg-gray-800/30 rounded-md">
-            <StatsDisplay 
-              username={username}
-              totalContributions={totalContributions}
-              stats={stats}
-            />
-          </div>
+          {/* Removed the Stats Display section that was here */}
         </div>
       )}
     </div>
