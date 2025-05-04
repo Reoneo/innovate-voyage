@@ -5,3 +5,4 @@ export { resolveEnsName, lookupEnsName } from './operations/nameOperations';
 export { fetchEnsProfile, getEnsSocialLinks, getEnsTextRecords } from './operations/profileOperations';
 export { getEnsAvatarUrl, getEnsTextRecord } from './operations/recordOperations';
 export type { EnsProfile } from './types/ensTypes';
+

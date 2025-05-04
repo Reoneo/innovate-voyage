@@ -27,13 +27,6 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
     case 'mail':
       formattedUrl = url.startsWith('mailto:') ? url : `mailto:${url}`;
       break;
-    case 'phone':
-    case 'telephone':
-      formattedUrl = url.startsWith('tel:') ? url : `tel:${url.replace(/[^0-9+]/g, '')}`;
-      break;
-    case 'location':
-      formattedUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(url)}`;
-      break;
     case 'twitter':
       if (!url.startsWith('http')) {
         formattedUrl = `https://twitter.com/${url.replace('@', '')}`;
@@ -63,12 +56,11 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       break;
     case 'telegram':
       if (!url.startsWith('http')) {
-        // Always make sure to add https://t.me/ and remove @ if present
         formattedUrl = `https://t.me/${url.replace('@', '')}`;
       }
       break;
     default:
-      if (!url.startsWith('http') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
+      if (!url.startsWith('http') && !url.startsWith('mailto:')) {
         formattedUrl = `https://${url}`;
       }
   }

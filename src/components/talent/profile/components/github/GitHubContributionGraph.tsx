@@ -2,7 +2,6 @@
 import React from 'react';
 import { SkeletonCard } from '@/components/ui/skeleton';
 import { useGitHubContributions } from './useGitHubContributions';
-import { useToast } from '@/hooks/use-toast';
 import GitHubContributions from './GitHubContributions';
 import GitHubLoadingState from './GitHubLoadingState';
 import TokenInvalidAlert from './components/TokenInvalidAlert';

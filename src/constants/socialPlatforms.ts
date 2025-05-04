@@ -14,11 +14,7 @@ export const socialPlatforms = [
   { key: 'reddit', type: 'reddit' },
   { key: 'whatsapp', type: 'whatsapp' },
   { key: 'email', type: 'mail' },
-  { key: 'telephone', type: 'phone' },
-  { key: 'location', type: 'location' },
-  { key: 'farcaster', type: 'farcaster' },
-  { key: 'lens', type: 'lens' },
-  { key: 'opensea', type: 'opensea' }
+  { key: 'location', type: 'location' }
 ];
 
 // Define social platform interface

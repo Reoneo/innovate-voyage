@@ -1,12 +1,12 @@
 
-import { useEffect } from 'react';
-import { isValidEthereumAddress } from '@/lib/utils';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   fetchEnsProfile,
   resolveEnsName,
   lookupEnsName,
 } from '@/api/services/ens/ensApiClient';
+import { isValidEthereumAddress } from '@/lib/utils';
 
 interface EnsResolutionState {
   resolvedAddress: string | undefined;
