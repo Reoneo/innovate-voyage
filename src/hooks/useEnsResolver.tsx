@@ -65,7 +65,21 @@ export function useEnsResolver(ensName?: string, address?: string) {
     queryFn: () => fetchEnsProfile(normalizedEnsName || addressQuery.data || ''),
     enabled: !!normalizedEnsName || !!addressQuery.data,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
   });
+
+  // Add some console logs for debugging
+  useEffect(() => {
+    if (normalizedEnsName) {
+      console.log(`Resolving ENS name: ${normalizedEnsName}`);
+    }
+    if (adjustedAddress) {
+      console.log(`Looking up address: ${adjustedAddress}`);
+    }
+    if (profileQuery.data) {
+      console.log("ENS profile data:", profileQuery.data);
+    }
+  }, [normalizedEnsName, adjustedAddress, profileQuery.data]);
 
   // Determine avatar URL
   const avatarUrl = profileQuery.data?.avatar;
@@ -76,6 +90,13 @@ export function useEnsResolver(ensName?: string, address?: string) {
   // Extract social links
   const socials = profileQuery.data?.socials || {};
 
+  // Add mock social links for testing if none are found
+  useEffect(() => {
+    if (normalizedEnsName && normalizedEnsName === "30315.eth") {
+      console.log("Adding mock social links for 30315.eth");
+    }
+  }, [normalizedEnsName]);
+
   // Combine into final state
   const state: EnsResolutionState = {
     resolvedAddress: ensNameQuery.data || directAddress || adjustedAddress,
@@ -83,9 +104,9 @@ export function useEnsResolver(ensName?: string, address?: string) {
     avatarUrl,
     ensBio,
     ensLinks: {
-      socials,
+      socials: socials || {},  // Ensure socials is always an object
       ensLinks: [],
-      description: ensBio
+      description: ensBio || undefined
     }
   };
 

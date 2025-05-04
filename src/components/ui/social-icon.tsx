@@ -2,7 +2,7 @@
 import React from 'react';
 import { Phone, MapPin, ExternalLink } from 'lucide-react';
 
-type SocialIconType = 'github' | 'twitter' | 'linkedin' | 'globe' | 'mail' | 'facebook' | 'whatsapp' | 'messenger' | 'bluesky' | 'instagram' | 'youtube' | 'telegram' | 'reddit' | 'discord' | 'website' | 'email' | 'phone' | 'location' | 'farcaster' | 'lens' | 'opensea' | string;
+type SocialIconType = string;
 
 interface SocialIconProps {
   type: SocialIconType;

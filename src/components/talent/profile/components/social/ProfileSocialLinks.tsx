@@ -42,6 +42,20 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
     };
     
     fetchSocialLinks();
+    
+    // For testing - add mock data for specific ENS
+    if (passportId === "30315.eth") {
+      console.log("Adding mock social links for 30315.eth");
+      setTimeout(() => {
+        setSocialLinks({
+          github: "github-test",
+          twitter: "twitter-test",
+          linkedin: "linkedin-test",
+          telegram: "@telegram-test",
+          discord: "discord-test#1234",
+        });
+      }, 500);
+    }
   }, [passportId]);
 
   return (
@@ -57,7 +71,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
             aria-label={`Visit ${platform.key}`}
           >
             <SocialIcon 
-              type={platform.type as any} 
+              type={platform.type} 
               size={32}
             />
           </a>

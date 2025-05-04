@@ -19,7 +19,7 @@ export const socialPlatforms = [
   { key: 'farcaster', type: 'farcaster' },
   { key: 'lens', type: 'lens' },
   { key: 'opensea', type: 'opensea' }
-] as const;
+];
 
 // Define social platform interface
 export interface SocialPlatform {
