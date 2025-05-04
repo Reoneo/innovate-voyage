@@ -33,7 +33,7 @@ export default function GitHubCalendarRenderer({
     ]
   };
 
-  // Effect to initialize GitHub Calendar when the component mounts or username changes
+  // Effect to update contribution stats display when data changes
   useEffect(() => {
     if (username && calendarRef.current) {
       console.log(`Initializing GitHub Calendar for ${username}`);
@@ -61,6 +61,20 @@ export default function GitHubCalendarRenderer({
         blockMargin={4}
         blockRadius={2}
         fontSize={10}
+        transformData={(contributions) => {
+          // Calculate total from the contribution data
+          if (Array.isArray(contributions)) {
+            const total = contributions.reduce((sum, day) => sum + day.count, 0);
+            console.log(`Calendar data shows ${total} total contributions`);
+            
+            // Update our display if needed
+            const totalDisplay = document.getElementById(`${username}-total-contrib`);
+            if (totalDisplay && total > 0) {
+              totalDisplay.textContent = String(total);
+            }
+          }
+          return contributions;
+        }}
       />
     </div>
   );
