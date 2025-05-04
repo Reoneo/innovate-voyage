@@ -3,22 +3,33 @@ import React from 'react';
 
 export default function GitHubContributionLegend() {
   return (
-    <div className="flex justify-between items-center mt-4 text-sm text-gray-400">
-      <a href="https://docs.github.com/articles/why-are-my-contributions-not-showing-up-on-my-profile" 
-         target="_blank" 
-         rel="noopener noreferrer"
-         className="hover:text-gray-300 hover:underline">
-        Learn how we count contributions
-      </a>
-      
-      <div className="contribution-legend flex items-center gap-1">
+    <div className="legend-container mt-3 mb-1 flex items-center justify-between text-xs text-gray-400">
+      <div className="flex items-center gap-1">
         <span>Less</span>
-        <div className="legend-item h-3 w-3 bg-[#161b22] rounded-sm border border-[#1e262f]"></div>
-        <div className="legend-item h-3 w-3 bg-[#0e4429] rounded-sm"></div>
-        <div className="legend-item h-3 w-3 bg-[#006d32] rounded-sm"></div>
-        <div className="legend-item h-3 w-3 bg-[#26a641] rounded-sm"></div>
-        <div className="legend-item h-3 w-3 bg-[#39d353] rounded-sm"></div>
+        <div className="flex items-center gap-1">
+          <span className="inline-block w-3 h-3 bg-gray-800 border border-gray-700 rounded-sm"></span>
+          <span className="inline-block w-3 h-3 bg-[#0e4429] border border-gray-700 rounded-sm"></span>
+          <span className="inline-block w-3 h-3 bg-[#006d32] border border-gray-700 rounded-sm"></span>
+          <span className="inline-block w-3 h-3 bg-[#26a641] border border-gray-700 rounded-sm"></span>
+          <span className="inline-block w-3 h-3 bg-[#39d353] border border-gray-700 rounded-sm"></span>
+        </div>
         <span>More</span>
+      </div>
+      
+      <div>
+        <a 
+          href="https://talentprotocol.com"
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 hover:text-gray-300 hover:underline"
+        >
+          <img 
+            src="/talent-protocol-logo.png" 
+            alt="Talent Protocol" 
+            className="w-4 h-4 rounded-full" 
+          />
+          <span>verified by TalentProtocol.com</span>
+        </a>
       </div>
     </div>
   );
