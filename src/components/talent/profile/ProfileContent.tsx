@@ -8,7 +8,7 @@ import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import { useIsMobile } from '@/hooks/use-mobile';
 import LinkedInExperienceSection from './components/LinkedInExperienceSection';
-import { useLinkedInExperience, extractLinkedInHandle } from '@/api/services/linkedinService';
+import { useLinkedInExperience } from '@/api/services/linkedinService';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -93,11 +93,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Get GitHub username from ENS records
   const githubUsername = extractGitHubUsername();
   
-  // Extract LinkedIn handle from passport socials
-  const linkedInHandle = passport?.socials?.linkedin ? extractLinkedInHandle(passport.socials.linkedin) : null;
-  
-  console.log('LinkedIn handle extracted:', linkedInHandle);
-  
   // Debug logging
   console.log('GitHub data from passport:', {
     username: githubUsername,
@@ -116,8 +111,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     experience, 
     isLoading: isLoadingExperience, 
     error: experienceError,
-    linkedinValue: passport?.socials?.linkedin,
-    handle: linkedInHandle
+    linkedinValue: passport?.socials?.linkedin 
   });
 
   return (
@@ -157,7 +151,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   experience={experience} 
                   isLoading={isLoadingExperience} 
                   error={experienceError} 
-                  linkedInHandle={linkedInHandle}
                 />
               </div>
             </div>
