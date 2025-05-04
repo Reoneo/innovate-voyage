@@ -27,7 +27,7 @@ export default function GitHubContributionGraph({
     return null;
   }
 
-  // Custom theme matching the existing dark theme with more compact colors
+  // Custom theme matching GitHub's standard theme
   const theme = {
     dark: [
       '#161b22', // level0: Empty cells
@@ -67,9 +67,9 @@ export default function GitHubContributionGraph({
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="github-calendar-wrapper px-1 py-1">
-          {/* Total contributions banner - made more compact */}
-          <div className="bg-gray-800/50 rounded-md p-1 mb-0 flex items-center justify-center">
+        <div className="github-calendar-wrapper px-2 py-2 bg-gray-950 rounded-lg">
+          {/* Total contributions banner */}
+          <div className="bg-gray-800/50 rounded-md p-2 mb-2 flex items-center justify-center">
             <div className="text-sm font-semibold text-green-400">
               <span className="text-base font-bold" id="contribution-count-banner">
                 {displayedTotal || (stats.total || 0)}
@@ -77,8 +77,8 @@ export default function GitHubContributionGraph({
             </div>
           </div>
           
-          {/* GitHub Calendar - even more compact with smaller blocks */}
-          <div className="calendar-container py-0 overflow-x-auto">
+          {/* GitHub Calendar with standard sizing */}
+          <div className="calendar-container overflow-x-auto">
             {username && (
               <div className="w-full min-w-[650px]">
                 <GitHubCalendar 
@@ -88,10 +88,10 @@ export default function GitHubContributionGraph({
                   hideColorLegend={true} // We'll use our custom legend
                   hideMonthLabels={false}
                   showWeekdayLabels={true}
-                  blockSize={7} // Smaller blocks for more compact display
-                  blockMargin={1.5} // Reduced margin between blocks
-                  blockRadius={1} // Smaller radius for more compact look
-                  fontSize={7} // Smaller font for labels
+                  blockSize={10} // Standard block size
+                  blockMargin={2} // Standard margin
+                  blockRadius={2} // Standard radius
+                  fontSize={12} // Larger font for better readability
                   transformData={transformData}
                   labels={{
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -103,7 +103,7 @@ export default function GitHubContributionGraph({
             )}
           </div>
           
-          {/* More compact legend */}
+          {/* Legend */}
           <GitHubContributionLegend />
         </div>
       )}

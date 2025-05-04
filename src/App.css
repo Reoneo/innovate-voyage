@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -41,57 +42,52 @@
   color: #888;
 }
 
-/* GitHub Calendar Custom Styling - optimized for faster loading and more compact display */
+/* GitHub Calendar Standard Styling */
 .github-calendar-wrapper {
   border-radius: 8px;
-  padding: 8px;
+  padding: 16px;
   background-color: #0d1117;
-  margin-top: 0.5rem;
+  margin-top: 1rem;
 }
 
-.github-calendar-dark {
-  background-color: transparent;
-  border-radius: 0;
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+/* Standard calendar styling */
+.react-github-calendar {
+  width: 100%;
 }
 
-/* Month labels - make them clearly visible */
-.github-calendar-dark .calendar-graph text.month {
-  font-size: 8px !important;
+/* Month labels - clear visibility */
+.github-calendar-dark .calendar-graph text.month,
+.react-github-calendar .wday-text,
+.react-github-calendar .month-label {
+  font-size: 12px !important;
   fill: #c9d1d9 !important;
-  font-weight: 600;
+  font-weight: 500;
 }
 
-/* Weekday labels - ensure Mon, Wed, Fri are visible */
-.github-calendar-dark .calendar-graph text.wday {
-  font-size: 8px !important;
+/* Weekday labels - ensure visibility */
+.github-calendar-dark .calendar-graph text.wday,
+.js-calendar-graph-svg text.wday {
+  font-size: 12px !important;
   fill: #c9d1d9 !important;
-  font-weight: 600;
+  font-weight: 500;
 }
 
+/* Standard cell styling */
 .github-calendar-dark .day {
   shape-rendering: geometricPrecision;
-  outline: none;
-  stroke: rgba(27, 31, 35, 0.6) !important;
+  outline: 1px solid rgba(27, 31, 35, 0.3);
   stroke-width: 1px !important;
-  rx: 1px;
-  ry: 1px;
 }
 
-/* Enhanced grid styling with visible borders for all cells */
+/* Calendar grid styling */
 .js-calendar-graph-svg rect.ContributionCalendar-day {
-  stroke: rgba(27, 31, 35, 0.6) !important;
-  stroke-width: 1px !important;
-  rx: 1px;
-  ry: 1px;
+  stroke: rgba(27, 31, 35, 0.3);
+  stroke-width: 1px;
 }
 
-/* Color level refinements for better visualization */
+/* Color level standards */
 .github-calendar-dark .day[data-level="0"] {
   fill: #161b22;
-  stroke: rgba(27, 31, 35, 0.8) !important;
 }
 
 .github-calendar-dark .day[data-level="1"] {
@@ -110,83 +106,23 @@
   fill: #39d353;
 }
 
-/* Hide unnecessary elements for a cleaner, faster display */
-.github-calendar-dark .contrib-footer,
-.github-calendar-dark .contrib-legend,
-.github-calendar-dark .contrib-number {
-  display: none;
-}
-
+/* Calendar container standard height */
 .calendar-container {
-  min-height: 70px; /* Further reduced height */
-  max-height: 90px; /* Reduced max height */
-  margin-top: 0;
-  padding-top: 0;
-  padding-bottom: 0;
+  min-height: 120px;
+  margin: 0 auto;
 }
 
-/* Make sure weekday and month labels are visible but compact */
-.react-github-calendar .wday-text,
-.react-github-calendar .month-label {
-  font-size: 8px !important;
-  fill: #c9d1d9 !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  font-weight: 600;
-}
-
-/* Ensure the graph is responsive but compact */
-.react-github-calendar {
-  width: 100%;
-  overflow-x: auto;
-}
-
-/* Style the calendar graph cells with grid lines - more compact */
-.js-calendar-graph-svg rect {
-  stroke: rgba(27, 31, 35, 0.6) !important;
-  stroke-width: 1px !important;
-}
-
-/* Stats display styling - now hidden in the main view */
-.github-stats-container {
-  display: none;
-}
-
-/* New contribution display styles - more compact */
-.contributions-header h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #e6edf3;
-  margin-bottom: 0;
-}
-
-/* Calendar container - more compact */
-.calendar-container {
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.contribution-legend {
-  font-size: 0.7rem;
-}
-
-/* More compact legend items */
-.legend-item {
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Optimize SVG rendering */
+/* Ensure SVG rendering is clean */
 .react-github-calendar svg {
   width: 100%;
   height: auto;
   display: block;
-  margin-top: 0;
-  padding-top: 0;
 }
 
-/* Further reduce vertical spacing */
-.react-github-calendar {
-  line-height: 0.9;
-  margin-top: 0;
-  padding-top: 0;
+/* Make sure month and weekday labels are visible */
+.react-github-calendar .wday-text,
+.react-github-calendar .month-label {
+  visibility: visible !important;
+  opacity: 1 !important;
 }
+
