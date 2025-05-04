@@ -59,7 +59,7 @@ export function useProfilePage() {
     // Set a timeout for loading
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 15000); // Increased timeout to 15 seconds to give more time for ENS resolution
+    }, 5000);
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
@@ -95,8 +95,8 @@ export function useProfilePage() {
     };
   }, [targetIdentifier]);
 
-  // Important: All hooks are called on every render path
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
+  
   const { profileRef } = usePdfExport();
 
   const handleDisconnect = () => {
