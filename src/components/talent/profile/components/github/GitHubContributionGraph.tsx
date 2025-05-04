@@ -27,7 +27,7 @@ export default function GitHubContributionGraph({
     return null;
   }
 
-  // Custom theme matching the existing dark theme with more compact colors
+  // Custom theme matching the existing dark theme
   const theme = {
     dark: [
       '#161b22', // level0: Empty cells
@@ -42,6 +42,7 @@ export default function GitHubContributionGraph({
   const transformData = useCallback((contributions) => {
     if (Array.isArray(contributions)) {
       const total = contributions.reduce((sum, day) => sum + day.count, 0);
+      console.log(`Calendar data shows ${total} total contributions`);
       
       // Update the displayed total without causing re-renders
       if (total > 0 && total !== displayedTotal) {
@@ -50,6 +51,16 @@ export default function GitHubContributionGraph({
     }
     return contributions;
   }, [displayedTotal]);
+
+  // Log contribution data for debugging
+  useEffect(() => {
+    if (!loading && !error) {
+      console.log('GitHub contribution data:', { 
+        totalContributions, 
+        stats 
+      });
+    }
+  }, [loading, error, totalContributions, stats]);
 
   // Effect to update the banner when totalContributions changes
   useEffect(() => {
@@ -67,44 +78,43 @@ export default function GitHubContributionGraph({
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="github-calendar-wrapper px-1 py-2">
-          {/* Total contributions banner - made more compact */}
-          <div className="bg-gray-800/50 rounded-md p-1 mb-1 flex items-center justify-center">
-            <div className="text-sm font-semibold text-green-400">
-              <span className="text-base font-bold" id="contribution-count-banner">
+        <div className="github-calendar-wrapper px-2 py-3">
+          {/* Total contributions banner for emphasis */}
+          <div className="bg-gray-800/50 rounded-md p-2 mb-2 flex items-center justify-center">
+            <div className="text-base font-semibold text-green-400">
+              <span className="text-xl font-bold" id="contribution-count-banner">
                 {displayedTotal || (stats.total || 0)}
               </span> total contributions in the last year
             </div>
           </div>
           
-          {/* GitHub Calendar - more compact with smaller blocks */}
-          <div className="calendar-container py-1 overflow-x-auto">
+          {/* GitHub Calendar using the react-github-calendar component directly */}
+          <div className="calendar-container py-2 overflow-x-auto">
             {username && (
-              <div className="w-full min-w-[650px]">
+              <div className="w-full min-w-[750px]">
                 <GitHubCalendar 
                   username={username}
                   colorScheme="dark"
                   theme={theme}
                   hideColorLegend={true} // We'll use our custom legend
-                  hideMonthLabels={false}
-                  showWeekdayLabels={true}
-                  blockSize={8} // Smaller blocks for more compact display
-                  blockMargin={2} // Reduced margin between blocks
-                  blockRadius={1} // Smaller radius for more compact look
-                  fontSize={8} // Smaller font for labels
+                  hideMonthLabels={false} // Show month labels at the top
+                  showWeekdayLabels={true} // Show day labels on the left
+                  blockSize={10} // Smaller blocks for a slimmer profile
+                  blockMargin={3} // Reduced margin between blocks
+                  blockRadius={2}
+                  fontSize={10}
                   transformData={transformData}
                   labels={{
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
-                    totalCount: '{{count}} contributions'
+                    totalCount: '{{count}} contributions in the last year'
                   }}
-                  cache={86400} // Cache for 24 hours (in seconds) to improve loading speed
                 />
               </div>
             )}
           </div>
           
-          {/* More compact legend */}
+          {/* Legend and info section */}
           <GitHubContributionLegend />
         </div>
       )}

@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -41,13 +42,13 @@
   color: #888;
 }
 
-/* GitHub Calendar Custom Styling - optimized for faster loading and compact display */
+/* GitHub Calendar Custom Styling */
 .github-calendar-wrapper {
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 12px;
+  padding: 20px;
   background-color: #0d1117;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 
 .github-calendar-dark {
@@ -59,12 +60,12 @@
 }
 
 .github-calendar-dark .calendar-graph text.month {
-  font-size: 8px !important;
+  font-size: 10px;
   fill: #8b949e;
 }
 
 .github-calendar-dark .calendar-graph text.wday {
-  font-size: 8px !important;
+  font-size: 9px;
   fill: #8b949e;
 }
 
@@ -81,14 +82,13 @@
 .js-calendar-graph-svg rect.ContributionCalendar-day {
   stroke: rgba(27, 31, 35, 0.6) !important;
   stroke-width: 1px !important;
-  rx: 1px;
-  ry: 1px;
+  rx: 2px;
+  ry: 2px;
 }
 
-/* Color level refinements for better visualization */
 .github-calendar-dark .day[data-level="0"] {
   fill: #161b22;
-  stroke: rgba(27, 31, 35, 0.8) !important;
+  stroke: rgba(27, 31, 35, 0.8) !important; /* Darker border for empty days */
 }
 
 .github-calendar-dark .day[data-level="1"] {
@@ -107,34 +107,57 @@
   fill: #39d353;
 }
 
-/* Hide unnecessary elements for a cleaner, faster display */
-.github-calendar-dark .contrib-footer,
-.github-calendar-dark .contrib-legend,
+.github-calendar-dark .contrib-footer {
+  display: none; /* Hide the default footer */
+}
+
+.github-calendar-dark .contrib-legend {
+  display: none; /* Hide default legend since we're creating a custom one */
+}
+
+.github-calendar-dark .text-muted,
+.github-calendar-dark .text-small {
+  color: #8b949e;
+  font-size: 12px;
+}
+
 .github-calendar-dark .contrib-number {
-  display: none;
+  display: none; /* Hide the default contrib number */
 }
 
 .calendar-container {
-  min-height: 100px; /* Reduced height */
-  max-height: 120px; /* Added max height */
+  min-height: 120px;
 }
 
-/* Make sure weekday and month labels are visible but compact */
+/* Make sure weekday and month labels are visible */
 .react-github-calendar .wday-text,
 .react-github-calendar .month-label {
-  font-size: 8px !important;
+  font-size: 10px !important;
   fill: #8b949e !important;
   visibility: visible !important;
   opacity: 1 !important;
 }
 
-/* Ensure the graph is responsive but compact */
+/* Ensure the graph is responsive */
 .react-github-calendar {
   width: 100%;
   overflow-x: auto;
 }
 
-/* Style the calendar graph cells with grid lines - more compact */
+/* Force display of all weekday labels */
+.react-github-calendar text.wday {
+  display: block !important;
+}
+
+/* Style for the entire calendar wrapper */
+.github-calendar-wrapper {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background-color: #0d1117;
+  padding: 16px;
+}
+
+/* Style the calendar graph cells with grid lines */
 .js-calendar-graph-svg rect {
   stroke: rgba(27, 31, 35, 0.6) !important;
   stroke-width: 1px !important;
@@ -143,39 +166,64 @@
 /* Stats display styling - now hidden in the main view */
 .github-stats-container {
   display: none;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* New contribution display styles - more compact */
+.github-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.github-stat-item:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.github-stat-title {
+  font-size: 0.875rem;
+  color: #8b949e;
+}
+
+.github-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #c9d1d9;
+  margin-top: 0.25rem;
+}
+
+.github-stat-subtitle {
+  font-size: 0.75rem;
+  color: #8b949e;
+  margin-top: 0.25rem;
+}
+
+/* New contribution display styles to match the reference image */
 .contributions-header h3 {
-  font-size: 1rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: #e6edf3;
   margin-bottom: 0;
 }
 
-/* Calendar container - more compact */
+.contribution-settings {
+  color: #8b949e;
+  cursor: pointer;
+}
+
 .calendar-container {
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
 .contribution-legend {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
 }
 
-/* More compact legend items */
+/* Enhanced border styling for legend items */
 .legend-item {
   border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Optimize SVG rendering */
-.react-github-calendar svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* Reduce vertical spacing */
-.react-github-calendar {
-  line-height: 1;
 }
