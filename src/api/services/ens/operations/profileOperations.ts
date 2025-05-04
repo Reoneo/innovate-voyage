@@ -75,8 +75,8 @@ export async function fetchEnsProfile(identifier: string): Promise<EnsProfile | 
     return {
       name: data.name,
       address: data.address,
-      avatar: data.avatar,
-      description: data.records?.description || data.records?.['com.discord'],
+      avatar: data.avatar || null,
+      description: data.records?.description || data.records?.['com.discord'] || null,
       records: data.records || {},
       socials: socialLinks
     };

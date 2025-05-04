@@ -46,7 +46,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
   // Query for ENS name resolution (ENS → Address)
   const ensNameQuery = useQuery({
     queryKey: ['ens', 'resolve', normalizedEnsName],
-    queryFn: () => normalizedEnsName ? resolveEnsName(normalizedEnsName) : null,
+    queryFn: () => normalizedEnsName ? resolveEnsName(normalizedEnsName) : Promise.resolve(null),
     enabled: !!normalizedEnsName && !directAddress,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -54,7 +54,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
   // Query for address resolution (Address → ENS)
   const addressQuery = useQuery({
     queryKey: ['ens', 'lookup', adjustedAddress],
-    queryFn: () => adjustedAddress ? lookupEnsName(adjustedAddress) : null,
+    queryFn: () => adjustedAddress ? lookupEnsName(adjustedAddress) : Promise.resolve(null),
     enabled: !!adjustedAddress && !isEns,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -62,7 +62,10 @@ export function useEnsResolver(ensName?: string, address?: string) {
   // Query for ENS profile data
   const profileQuery = useQuery({
     queryKey: ['ens', 'profile', normalizedEnsName || addressQuery.data],
-    queryFn: () => fetchEnsProfile(normalizedEnsName || addressQuery.data || ''),
+    queryFn: () => {
+      const ensToQuery = normalizedEnsName || addressQuery.data;
+      return ensToQuery ? fetchEnsProfile(ensToQuery) : Promise.resolve(null);
+    },
     enabled: !!normalizedEnsName || !!addressQuery.data,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 3,

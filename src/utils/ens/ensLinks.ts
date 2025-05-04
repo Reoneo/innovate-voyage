@@ -30,15 +30,16 @@ export async function getEnsLinks(ensName: string, network: string = 'mainnet'):
     console.log(`Profile data for ${ensName}:`, profile);
     
     // Extract keywords if present
-    const keywords = profile.records?.keywords ? 
-      profile.records.keywords.split(',').map(k => k.trim()) : 
-      [];
+    let keywords: string[] = [];
+    if (profile.records?.keywords) {
+      keywords = profile.records.keywords.split(',').map(k => k.trim());
+    }
     
     // Return formatted links
     return {
       socials: profile.socials || {},
       ensLinks: [],
-      description: profile.description,
+      description: profile.description || undefined,
       keywords: keywords
     };
   } catch (error) {
