@@ -67,6 +67,8 @@ const TalentProfile = () => {
 
   const githubUsername = passport ? extractGitHubUsername() : null;
 
+  console.log('GitHub username for footer:', githubUsername);
+
   return (
     <>
       <Helmet>
@@ -100,7 +102,7 @@ const TalentProfile = () => {
           />
           
           {/* Profile Footer with GitHub Calendar */}
-          {!loading && !loadingTimeout && passport && (
+          {!loading && !loadingTimeout && passport && githubUsername && (
             <ProfileFooter githubUsername={githubUsername} />
           )}
         </div>
