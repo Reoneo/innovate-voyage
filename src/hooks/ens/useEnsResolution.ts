@@ -1,10 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { resolveEnsToAddress, resolveAddressToEns } from '@/utils/ensResolution';
-import { getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ensResolution';
-
-// ENS API endpoint for direct access when resolution fails
-const ENS_API_URL = 'https://ens-api.gskril.workers.dev';
+import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ensResolution';
 
 interface EnsResolutionState {
   resolvedAddress: string | undefined;
@@ -37,8 +33,6 @@ export function useEnsResolution(ensName?: string, address?: string) {
 
   // Maximum number of retry attempts
   const MAX_RETRIES = 2;
-  // Shorter timeout for faster retries
-  const RETRY_DELAY_MS = 800;
 
   // Function to resolve ENS name to address with retry logic
   const resolveEns = useCallback(async (ensName: string) => {
@@ -55,37 +49,6 @@ export function useEnsResolution(ensName?: string, address?: string) {
         const resolvedAddress = await resolveEnsToAddress(ensName);
         
         if (resolvedAddress) {
-          // Try ENS API for metadata first (faster and more reliable)
-          try {
-            console.log(`Fetching ENS profile data from API for ${ensName}`);
-            const profileResponse = await fetch(`${ENS_API_URL}/profile/${ensName}`);
-            
-            if (profileResponse.ok) {
-              const profileData = await profileResponse.json();
-              console.log(`Got ENS profile data from API for ${ensName}:`, profileData);
-              
-              // Update with API data
-              setState(prev => ({
-                ...prev,
-                resolvedAddress,
-                avatarUrl: profileData.avatar || prev.avatarUrl,
-                ensBio: profileData.description || prev.ensBio,
-                ensLinks: {
-                  socials: profileData.social || {},
-                  ensLinks: profileData.links || [],
-                  description: profileData.description,
-                  keywords: profileData.keywords || []
-                }
-              }));
-              
-              setIsLoading(false);
-              return;
-            }
-          } catch (apiError) {
-            console.error(`Error fetching ENS profile from API for ${ensName}:`, apiError);
-          }
-          
-          // Fallback to traditional methods if API fails
           // Fetch links, avatar and bio in parallel
           const [links, avatar, bio] = await Promise.all([
             getEnsLinks(ensName, 'mainnet').catch(() => ({ 
@@ -121,7 +84,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
         }
         
         // Wait before retrying
-        await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+        await new Promise(r => setTimeout(r, 1000));
       } catch (error) {
         console.error(`Error resolving ${ensName} (attempt ${currentTry}):`, error);
         
@@ -131,13 +94,13 @@ export function useEnsResolution(ensName?: string, address?: string) {
         }
         
         // Wait before retrying
-        await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+        await new Promise(r => setTimeout(r, 1000));
       }
     }
     
     setIsLoading(false);
     setRetryCount(currentTry);
-  }, [MAX_RETRIES, RETRY_DELAY_MS]);
+  }, [MAX_RETRIES]);
 
   // Function to lookup address to ENS with retry logic
   const lookupAddress = useCallback(async (address: string) => {
@@ -151,39 +114,6 @@ export function useEnsResolution(ensName?: string, address?: string) {
         currentTry++;
         console.log(`Looking up address (attempt ${currentTry}): ${address}`);
         
-        // Try ENS API first (faster and more reliable)
-        try {
-          console.log(`Fetching ENS profile data from API for address ${address}`);
-          const profileResponse = await fetch(`${ENS_API_URL}/address/${address}`);
-          
-          if (profileResponse.ok) {
-            const profileData = await profileResponse.json();
-            if (profileData && profileData.name) {
-              console.log(`Got ENS profile data from API for address ${address}:`, profileData);
-              
-              // Update with API data
-              setState(prev => ({
-                ...prev,
-                resolvedEns: profileData.name,
-                avatarUrl: profileData.avatar || prev.avatarUrl,
-                ensBio: profileData.description || prev.ensBio,
-                ensLinks: {
-                  socials: profileData.social || {},
-                  ensLinks: profileData.links || [],
-                  description: profileData.description,
-                  keywords: profileData.keywords || []
-                }
-              }));
-              
-              setIsLoading(false);
-              return;
-            }
-          }
-        } catch (apiError) {
-          console.error(`Error fetching ENS profile from API for address ${address}:`, apiError);
-        }
-        
-        // Fallback to traditional methods
         const result = await resolveAddressToEns(address);
         
         if (result) {
@@ -223,7 +153,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
         }
         
         // Wait before retrying
-        await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+        await new Promise(r => setTimeout(r, 1000));
       } catch (error) {
         console.error(`Error looking up ENS for address ${address} (attempt ${currentTry}):`, error);
         
@@ -233,13 +163,13 @@ export function useEnsResolution(ensName?: string, address?: string) {
         }
         
         // Wait before retrying
-        await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+        await new Promise(r => setTimeout(r, 1000));
       }
     }
     
     setIsLoading(false);
     setRetryCount(currentTry);
-  }, [MAX_RETRIES, RETRY_DELAY_MS]);
+  }, [MAX_RETRIES]);
 
   return {
     state,

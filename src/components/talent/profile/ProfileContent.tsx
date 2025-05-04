@@ -7,8 +7,6 @@ import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -145,36 +143,17 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
 
 export default ProfileContent;
 
-const ProfileTimeoutError: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameOrAddress }) => {
-  // Function to reload the page
-  const handleRetry = () => {
-    // Add timestamp to prevent caching
-    const timestamp = Date.now();
-    window.location.href = `${window.location.pathname}?t=${timestamp}`;
-  };
-  
-  return (
-    <div className="min-h-screen bg-gray-50 py-4 md:py-8">
-      <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
-        <HeaderContainer>
-          <div className="flex flex-col items-center justify-center h-full text-center p-8">
-            <h2 className="text-2xl font-bold mb-2">Error Loading Profile</h2>
-            <p className="text-muted-foreground mb-6">
-              We couldn't load the profile for {ensNameOrAddress}. The request timed out.
-            </p>
-            <p className="text-sm text-gray-500 mb-4">
-              This could be due to temporary network issues or high server load.
-            </p>
-            <Button 
-              onClick={handleRetry} 
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Retry
-            </Button>
-          </div>
-        </HeaderContainer>
-      </div>
+const ProfileTimeoutError: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameOrAddress }) => (
+  <div className="min-h-screen bg-gray-50 py-4 md:py-8">
+    <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
+      <HeaderContainer>
+        <div className="flex flex-col items-center justify-center h-full text-center">
+          <h2 className="text-2xl font-bold mb-2">Error Loading Profile</h2>
+          <p className="text-muted-foreground mb-6">
+            We couldn't load the profile for {ensNameOrAddress}. The request timed out.
+          </p>
+        </div>
+      </HeaderContainer>
     </div>
-  );
-};
+  </div>
+);

@@ -4,31 +4,12 @@ import { fetchWeb3BioProfile } from '../../api/utils/web3Utils';
 import { getRealAvatar } from '../../api/services/avatarService';
 import { ccipReadEnabled } from './ccipReadHandler';
 
-// ENS API endpoint for direct avatar access
-const ENS_API_URL = 'https://ens-api.gskril.workers.dev';
-
 /**
  * Gets avatar for an ENS name
  */
 export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
   try {
     console.log(`Getting avatar for ${ensName}`);
-    
-    // First try ENS API (fastest and most reliable)
-    try {
-      console.log(`Trying ENS API for ${ensName} avatar`);
-      const response = await fetch(`${ENS_API_URL}/avatar/${ensName}`, {
-        signal: AbortSignal.timeout(2500) // Add timeout
-      });
-      
-      if (response.ok) {
-        const avatarUrl = response.url;
-        console.log(`Got avatar from ENS API for ${ensName}: ${avatarUrl}`);
-        return avatarUrl;
-      }
-    } catch (apiError) {
-      console.error(`ENS API error for ${ensName} avatar:`, apiError);
-    }
     
     // Special handling for .box domains
     if (ensName.endsWith('.box')) {
@@ -91,22 +72,6 @@ export async function getEnsBio(ensName: string, network = 'mainnet'): Promise<s
   try {
     if (!ensName) return null;
     
-    // Try ENS API first
-    try {
-      console.log(`Trying ENS API for ${ensName} bio`);
-      const response = await fetch(`${ENS_API_URL}/profile/${ensName}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.description) {
-          console.log(`Got bio from ENS API for ${ensName}`);
-          return data.description;
-        }
-      }
-    } catch (apiError) {
-      console.error(`ENS API error for ${ensName} bio:`, apiError);
-    }
-    
     // Special handling for .box domains
     if (ensName.endsWith('.box')) {
       console.log(`Using CCIP-Read to get .box bio for ${ensName}`);
@@ -114,18 +79,12 @@ export async function getEnsBio(ensName: string, network = 'mainnet'): Promise<s
       
       // Check for profile description in the dot bit data
       if (boxData) {
-        try {
-          const response = await fetch(`https://indexer-v1.did.id/v1/account/records?account=${ensName}&key=profile.description`, {
-            signal: AbortSignal.timeout(2500) // Add timeout
-          });
-          if (response.ok) {
-            const data = await response.json();
-            if (data && data.data && data.data.length > 0) {
-              return data.data[0].value;
-            }
+        const response = await fetch(`https://indexer-v1.did.id/v1/account/records?account=${ensName}&key=profile.description`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.data && data.data.length > 0) {
+            return data.data[0].value;
           }
-        } catch (error) {
-          console.error(`Error fetching .box bio from dot bit API:`, error);
         }
       }
     }
