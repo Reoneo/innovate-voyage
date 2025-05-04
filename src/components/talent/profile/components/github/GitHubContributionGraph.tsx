@@ -78,21 +78,27 @@ export default function GitHubContributionGraph({
             </div>
           </div>
           
-          {/* GitHub Calendar - with white text labels */}
-          <div className="calendar-container py-0 overflow-x-auto">
+          {/* GitHub Calendar - reset to simple styling */}
+          <div className="calendar-container" style={{ 
+            minHeight: '70px',
+            maxHeight: '90px',
+            overflow: 'auto',
+            padding: '0',
+            margin: '0'
+          }}>
             {username && (
               <div className="w-full min-w-[650px]">
                 <GitHubCalendar 
                   username={username}
                   colorScheme="dark"
                   theme={theme}
-                  hideColorLegend={true} // We'll use our custom legend
+                  hideColorLegend={true} 
                   hideMonthLabels={false}
                   showWeekdayLabels={true}
-                  blockSize={7} // Smaller blocks for more compact display
-                  blockMargin={1.5} // Reduced margin between blocks
-                  blockRadius={1} // Smaller radius for more compact look
-                  fontSize={7} // Smaller font for labels
+                  blockSize={7} 
+                  blockMargin={1.5} 
+                  blockRadius={1} 
+                  fontSize={7} 
                   transformData={transformData}
                   labels={{
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
