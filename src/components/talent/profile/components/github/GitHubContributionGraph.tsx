@@ -1,56 +1,69 @@
 
-import React from 'react';
-import { SkeletonCard } from '@/components/ui/skeleton';
-import { useGitHubContributions } from './useGitHubContributions';
+import React, { useState, useEffect } from 'react';
 import GitHubContributions from './GitHubContributions';
-import GitHubLoadingState from './GitHubLoadingState';
-import TokenInvalidAlert from './components/TokenInvalidAlert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ExternalLink } from 'lucide-react';
 
 interface GitHubContributionGraphProps {
-  username: string;
+  username: string | null;
 }
 
 const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ username }) => {
-  const {
-    contributionsData,
-    error,
-    isLoading,
-    isTokenInvalid,
-    refetch
-  } = useGitHubContributions(username);
+  const [githubUsername, setGithubUsername] = useState<string | null>(username);
+  const [isInvalidUsername, setIsInvalidUsername] = useState<boolean>(false);
 
-  // Early return if no username
-  if (!username) {
+  useEffect(() => {
+    if (username) {
+      // Strip @ symbol if present
+      const cleanUsername = username.startsWith('@') ? username.substring(1) : username;
+      
+      // If it's a URL, extract just the username part
+      if (cleanUsername.includes('github.com')) {
+        try {
+          const urlObj = new URL(cleanUsername.startsWith('http') ? cleanUsername : `https://${cleanUsername}`);
+          const pathParts = urlObj.pathname.split('/').filter(Boolean);
+          if (pathParts.length > 0) {
+            setGithubUsername(pathParts[0]);
+          }
+        } catch (error) {
+          // If we can't parse as URL, just use as is
+          setGithubUsername(cleanUsername);
+        }
+      } else {
+        setGithubUsername(cleanUsername);
+      }
+    } else {
+      setIsInvalidUsername(true);
+    }
+  }, [username]);
+
+  if (isInvalidUsername || !githubUsername) {
     return null;
   }
 
-  if (isLoading) {
-    return <GitHubLoadingState />;
-  }
-
-  if (isTokenInvalid) {
-    return <TokenInvalidAlert onRefresh={refetch} />;
-  }
-
-  if (error) {
-    return (
-      <div className="bg-white rounded-lg border p-4 h-full min-h-[200px] flex flex-col items-center justify-center">
-        <h3 className="text-lg font-semibold mb-2">GitHub API Error</h3>
-        <p className="text-muted-foreground mb-3">
-          Could not fetch GitHub contributions for @{username}
-        </p>
-        <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-w-full">
-          {error instanceof Error ? error.message : String(error)}
-        </pre>
-      </div>
-    );
-  }
-
-  if (contributionsData) {
-    return <GitHubContributions data={contributionsData} username={username} />;
-  }
-
-  return <SkeletonCard className="h-[250px]" />;
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-lg font-semibold">GitHub Contributions</CardTitle>
+          <a 
+            href={`https://github.com/${githubUsername}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-muted-foreground hover:text-primary flex items-center"
+          >
+            github.com/{githubUsername} <ExternalLink className="h-3 w-3 ml-1" />
+          </a>
+        </div>
+        <CardDescription>
+          Open source contributions from {githubUsername}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <GitHubContributions username={githubUsername} />
+      </CardContent>
+    </Card>
+  );
 };
 
 export default GitHubContributionGraph;

@@ -2,7 +2,9 @@
 import { publicClient } from '../client/publicClient';
 
 /**
- * Resolve ENS name to address using viem directly
+ * Resolve an ENS name to an Ethereum address
+ * @param ensName The ENS name to resolve
+ * @returns The resolved address or null if not found
  */
 export async function resolveEnsName(ensName: string): Promise<string | null> {
   try {
@@ -10,12 +12,11 @@ export async function resolveEnsName(ensName: string): Promise<string | null> {
     
     console.log(`Resolving ENS name: ${ensName}`);
     
-    // Use viem to resolve the name
-    const resolved = await publicClient.getEnsAddress({
+    const address = await publicClient.getEnsAddress({
       name: ensName,
     });
     
-    return resolved || null;
+    return address || null;
   } catch (error) {
     console.error(`Error resolving ENS name ${ensName}:`, error);
     return null;
@@ -23,7 +24,9 @@ export async function resolveEnsName(ensName: string): Promise<string | null> {
 }
 
 /**
- * Reverse resolve address to ENS name using viem directly
+ * Look up an Ethereum address to find its primary ENS name
+ * @param address The Ethereum address to look up
+ * @returns The ENS name or null if not found
  */
 export async function lookupEnsName(address: string): Promise<string | null> {
   try {
@@ -31,12 +34,11 @@ export async function lookupEnsName(address: string): Promise<string | null> {
     
     console.log(`Looking up ENS for address: ${address}`);
     
-    // Use viem to lookup the address
-    const name = await publicClient.getEnsName({
+    const ensName = await publicClient.getEnsName({
       address: address as `0x${string}`,
     });
     
-    return name || null;
+    return ensName || null;
   } catch (error) {
     console.error(`Error looking up ENS for address ${address}:`, error);
     return null;
