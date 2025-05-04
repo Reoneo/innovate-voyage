@@ -67,6 +67,8 @@ export default function GitHubContributionGraph({
                 colorScheme="dark"
                 theme={theme}
                 hideColorLegend={true} // We'll use our custom legend
+                hideMonthLabels={false} // Show month labels at the top
+                showWeekdayLabels={true} // Show day labels on the left
                 blockSize={12}
                 blockMargin={4}
                 blockRadius={2}
