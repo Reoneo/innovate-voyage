@@ -125,7 +125,27 @@
 }
 
 .calendar-container {
-  min-height: 160px;
+  min-height: 120px;
+}
+
+/* Make sure weekday and month labels are visible */
+.react-github-calendar .wday-text,
+.react-github-calendar .month-label {
+  font-size: 10px !important;
+  fill: #8b949e !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure the graph is responsive */
+.react-github-calendar {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Force display of all weekday labels */
+.react-github-calendar text.wday {
+  display: block !important;
 }
 
 /* Style for the entire calendar wrapper */
@@ -206,3 +226,4 @@
 .legend-item {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
+

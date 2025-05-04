@@ -79,38 +79,45 @@ export default function GitHubContributionGraph({
   }, [totalContributions, stats.total]);
 
   return (
-    <div className="w-full overflow-hidden mt-4">
+    <div className="w-full overflow-hidden">
       <GitHubLoadingState loading={loading} error={error} />
       
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="github-calendar-wrapper">
+        <div className="github-calendar-wrapper px-2 py-3">
           {/* Total contributions banner for emphasis */}
-          <div className="bg-gray-800/50 rounded-md p-3 mb-4 flex items-center justify-center">
-            <div className="text-xl font-semibold text-green-400">
-              <span className="text-2xl font-bold" id="contribution-count-banner">
+          <div className="bg-gray-800/50 rounded-md p-2 mb-2 flex items-center justify-center">
+            <div className="text-base font-semibold text-green-400">
+              <span className="text-xl font-bold" id="contribution-count-banner">
                 {displayedTotal || (stats.total || 0)}
               </span> total contributions in the last year
             </div>
           </div>
           
           {/* GitHub Calendar using the react-github-calendar component directly */}
-          <div className="calendar-container py-2">
+          <div className="calendar-container py-2 overflow-x-auto">
             {username && (
-              <GitHubCalendar 
-                username={username}
-                colorScheme="dark"
-                theme={theme}
-                hideColorLegend={true} // We'll use our custom legend
-                hideMonthLabels={false} // Show month labels at the top
-                showWeekdayLabels={true} // Show day labels on the left
-                blockSize={12}
-                blockMargin={4}
-                blockRadius={2}
-                fontSize={10}
-                transformData={transformData}
-              />
+              <div className="w-full min-w-[750px]">
+                <GitHubCalendar 
+                  username={username}
+                  colorScheme="dark"
+                  theme={theme}
+                  hideColorLegend={true} // We'll use our custom legend
+                  hideMonthLabels={false} // Show month labels at the top
+                  showWeekdayLabels={true} // Show day labels on the left
+                  blockSize={10} // Smaller blocks for a slimmer profile
+                  blockMargin={3} // Reduced margin between blocks
+                  blockRadius={2}
+                  fontSize={10}
+                  transformData={transformData}
+                  labels={{
+                    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
+                    totalCount: '{{count}} contributions in the last year'
+                  }}
+                />
+              </div>
             )}
           </div>
           
