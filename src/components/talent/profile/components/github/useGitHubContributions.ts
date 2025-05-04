@@ -13,6 +13,39 @@ export function useGitHubContributions(username: string) {
     dateRange: 'May 5, 2024 – May 4, 2025'
   });
   
+  // New function to fetch GitHub contribution data directly
+  const fetchGitHubContributions = async (username: string) => {
+    if (!username) return null;
+    
+    try {
+      const response = await fetch(`https://github.com/${username}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch GitHub profile for ${username}`);
+      }
+      
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      
+      // Find the contribution count element
+      const contribHeader = doc.querySelector('h2.f4.text-normal.mb-2');
+      if (contribHeader) {
+        const text = contribHeader.textContent || '';
+        const match = text.match(/(\d+,?\d*) contributions/);
+        if (match && match[1]) {
+          // Remove commas and convert to number
+          const total = parseInt(match[1].replace(/,/g, ''), 10);
+          return { total };
+        }
+      }
+      
+      return null;
+    } catch (err) {
+      console.error('Error fetching GitHub contribution data:', err);
+      return null;
+    }
+  };
+  
   useEffect(() => {
     if (!username) {
       console.log('No GitHub username provided to useGitHubContributions');
@@ -101,5 +134,5 @@ export function useGitHubContributions(username: string) {
     }
   }, [username]);
 
-  return { loading, error, tokenInvalid, stats };
+  return { loading, error, tokenInvalid, stats, fetchGitHubContributions };
 }

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { GitHubContributionProps } from './types';
 import { useGitHubContributions } from './useGitHubContributions';
 import GitHubLoadingState from './GitHubLoadingState';
@@ -19,9 +19,46 @@ export default function GitHubContributionGraph({
     loading,
     error,
     tokenInvalid,
-    stats
+    stats,
+    fetchGitHubContributions
   } = useGitHubContributions(username);
   const calendarRef = useRef<HTMLDivElement>(null);
+  const [totalContributions, setTotalContributions] = useState<number | null>(null);
+
+  // Fetch GitHub contribution count directly from GitHub profile page
+  useEffect(() => {
+    if (username && !loading && !error) {
+      const fetchContributions = async () => {
+        try {
+          const response = await fetch(`https://github.com/${username}`);
+          const html = await response.text();
+          
+          // Create a temporary element to parse the HTML
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          
+          // Find the contribution count element
+          const contribHeader = doc.querySelector('h2.f4.text-normal.mb-2');
+          if (contribHeader) {
+            const text = contribHeader.textContent || '';
+            const match = text.match(/(\d+,?\d*) contributions/);
+            if (match && match[1]) {
+              // Remove commas and convert to number
+              const count = parseInt(match[1].replace(/,/g, ''), 10);
+              setTotalContributions(count);
+              console.log(`Found ${count} contributions for ${username}`);
+            }
+          } else {
+            console.log('Could not find contribution count element on GitHub page');
+          }
+        } catch (err) {
+          console.error('Error fetching GitHub contribution count:', err);
+        }
+      };
+      
+      fetchContributions();
+    }
+  }, [username, loading, error]);
 
   // Effect to initialize GitHub Calendar when the component mounts or username changes
   useEffect(() => {
@@ -57,35 +94,26 @@ export default function GitHubContributionGraph({
               rect.setAttribute('ry', '2');
             });
 
-            // Update contribution stats with clearer display
+            // Update contribution stats display based on fetched data
+            if (totalContributions !== null) {
+              const totalContribDisplay = document.getElementById(`${username}-total-contrib`);
+              if (totalContribDisplay) {
+                totalContribDisplay.textContent = totalContributions.toString();
+              }
+            }
+
+            // Update date range
             try {
-              // Find the contribution count element
-              const totalContribElement = calendar.querySelector('.contrib-number');
-              if (totalContribElement) {
-                const totalText = totalContribElement.textContent || "";
-                const totalMatch = totalText.match(/\d+/);
-                if (totalMatch) {
-                  const total = parseInt(totalMatch[0], 10);
-
-                  // Update the stats display 
-                  const totalContribDisplay = document.getElementById(`${username}-total-contrib`);
-                  if (totalContribDisplay) {
-                    totalContribDisplay.textContent = total.toString();
-                  }
-
-                  // Update date range
-                  const dateRangeElement = calendar.querySelector('.contrib-footer .float-left');
-                  if (dateRangeElement) {
-                    const dateRange = dateRangeElement.textContent || "";
-                    const dateDisplay = document.getElementById(`${username}-date-range`);
-                    if (dateDisplay) {
-                      dateDisplay.textContent = dateRange.trim();
-                    }
-                  }
+              const dateRangeElement = calendar.querySelector('.contrib-footer .float-left');
+              if (dateRangeElement) {
+                const dateRange = dateRangeElement.textContent || "";
+                const dateDisplay = document.getElementById(`${username}-date-range`);
+                if (dateDisplay) {
+                  dateDisplay.textContent = dateRange.trim();
                 }
               }
             } catch (err) {
-              console.error('Error extracting GitHub stats:', err);
+              console.error('Error extracting GitHub date range:', err);
             }
           }
         }, 500);
@@ -93,7 +121,7 @@ export default function GitHubContributionGraph({
         console.error('Error initializing GitHub Calendar:', err);
       }
     }
-  }, [username, loading, error]);
+  }, [username, loading, error, totalContributions]);
 
   // If no username provided, don't show anything
   if (!username) {
@@ -125,7 +153,7 @@ export default function GitHubContributionGraph({
           {/* Contribution count header */}
           <div className="contributions-header flex items-center justify-between mb-4">
             <h3 className="text-xl font-medium text-gray-200">
-              <span id={`${username}-total-contrib`}>{stats.total || 0}</span> contributions in the last year
+              <span id={`${username}-total-contrib`}>{totalContributions !== null ? totalContributions : (stats.total || 0)}</span> contributions in the last year
             </h3>
             <div className="contribution-settings text-gray-400 text-sm">
               Contribution settings ▼
@@ -164,7 +192,7 @@ export default function GitHubContributionGraph({
           <div className="github-stats-container hidden">
             <div className="github-stat-item">
               <span className="github-stat-title">Contributions in the last year</span>
-              <span className="github-stat-value" id={`${username}-total-contrib`}>{stats.total || 0}</span>
+              <span className="github-stat-value" id={`${username}-total-contrib`}>{totalContributions !== null ? totalContributions : (stats.total || 0)}</span>
               <span className="github-stat-subtitle" id={`${username}-date-range`}>May 5, 2024 – May 4, 2025</span>
             </div>
             
