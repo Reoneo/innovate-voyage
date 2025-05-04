@@ -10,9 +10,8 @@ import { useGitHubCalendar } from './hooks/useGitHubCalendar';
 import GitHubCalendar from 'react-github-calendar';
 
 export default function GitHubContributionGraph({
-  username,
-  isFooter = false
-}: GitHubContributionProps & { isFooter?: boolean }) {
+  username
+}: GitHubContributionProps) {
   const {
     loading,
     error,
@@ -50,14 +49,13 @@ export default function GitHubContributionGraph({
     if (!loading && !error) {
       console.log('GitHub contribution data:', { 
         totalContributions, 
-        stats,
-        isFooter
+        stats 
       });
     }
-  }, [loading, error, totalContributions, stats, isFooter]);
+  }, [loading, error, totalContributions, stats]);
 
   return (
-    <div className={`w-full overflow-hidden ${!isFooter ? 'mt-4' : 'mt-0'}`}>
+    <div className="w-full overflow-hidden mt-4">
       <GitHubLoadingState loading={loading} error={error} />
       
       {tokenInvalid && <TokenInvalidAlert />}
@@ -65,35 +63,22 @@ export default function GitHubContributionGraph({
       {!loading && !error && username && (
         <div className="github-calendar-wrapper">
           {/* Contribution count header - Show total contributions prominently */}
-          {!isFooter && (
-            <GitHubContributionHeader 
-              totalContributions={totalContributions} 
-              username={username}
-            />
-          )}
+          <GitHubContributionHeader 
+            totalContributions={totalContributions} 
+            username={username}
+          />
           
-          {/* Total contributions banner for emphasis - Simplified for footer mode */}
-          {!isFooter ? (
-            <div className="bg-gray-800/50 rounded-md p-3 mb-4 flex items-center justify-center">
-              <div className="text-xl font-semibold text-green-400">
-                <span className="text-2xl font-bold" id="contribution-count-banner">
-                  {totalContributions !== null ? totalContributions : (stats.total || 0)}
-                </span> total contributions in the last year
-              </div>
+          {/* Total contributions banner for emphasis */}
+          <div className="bg-gray-800/50 rounded-md p-3 mb-4 flex items-center justify-center">
+            <div className="text-xl font-semibold text-green-400">
+              <span className="text-2xl font-bold" id="contribution-count-banner">
+                {totalContributions !== null ? totalContributions : (stats.total || 0)}
+              </span> total contributions in the last year
             </div>
-          ) : (
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-base font-medium text-gray-300">GitHub Activity</h4>
-              <div className="text-sm text-green-400">
-                <span className="font-bold" id="contribution-count-banner">
-                  {totalContributions !== null ? totalContributions : (stats.total || 0)}
-                </span> contributions
-              </div>
-            </div>
-          )}
+          </div>
           
           {/* GitHub Calendar using the react-github-calendar component directly */}
-          <div className={`calendar-container py-2 ${isFooter ? 'overflow-x-auto' : ''}`}>
+          <div className="calendar-container py-2">
             {username && (
               <GitHubCalendar 
                 username={username}
@@ -102,10 +87,10 @@ export default function GitHubContributionGraph({
                 hideColorLegend={true} // We'll use our custom legend
                 hideMonthLabels={false} // Show month labels at the top
                 showWeekdayLabels={true} // Show day labels on the left
-                blockSize={isFooter ? 8 : 12}
-                blockMargin={isFooter ? 2 : 4}
+                blockSize={12}
+                blockMargin={4}
                 blockRadius={2}
-                fontSize={isFooter ? 8 : 10}
+                fontSize={10}
                 transformData={(contributions) => {
                   // Use this opportunity to ensure we have the correct total
                   if (Array.isArray(contributions)) {
@@ -124,19 +109,17 @@ export default function GitHubContributionGraph({
             )}
           </div>
           
-          {/* Legend and info section - Only show in full mode */}
-          {!isFooter && <GitHubContributionLegend />}
+          {/* Legend and info section */}
+          <GitHubContributionLegend />
           
-          {/* Stats Display - Only show in full mode */}
-          {!isFooter && (
-            <div className="mt-4 py-3 px-4 bg-gray-800/30 rounded-md">
-              <StatsDisplay 
-                username={username}
-                totalContributions={totalContributions}
-                stats={stats}
-              />
-            </div>
-          )}
+          {/* Stats Display - Now shown to provide more details */}
+          <div className="mt-4 py-3 px-4 bg-gray-800/30 rounded-md">
+            <StatsDisplay 
+              username={username}
+              totalContributions={totalContributions}
+              stats={stats}
+            />
+          </div>
         </div>
       )}
     </div>
