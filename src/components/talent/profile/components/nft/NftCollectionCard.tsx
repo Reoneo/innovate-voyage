@@ -15,15 +15,9 @@ const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
   nfts,
   onNftClick 
 }) => {
-  // Determine the network from the first NFT in the collection
-  const network = nfts[0]?.chain_identifier || 'ethereum';
-  
   return (
     <div key={collectionName} className="space-y-3">
-      <CollectionHeader 
-        collectionName={collectionName} 
-        network={network} 
-      />
+      <CollectionHeader collectionName={collectionName} />
       <NftGrid nfts={nfts} onNftClick={onNftClick} />
     </div>
   );

@@ -1,64 +1,65 @@
 
 import React, { useEffect, useState } from 'react';
 
-interface GitHubContributionsProps {
+interface Props {
   username: string;
+  isVerified: boolean;
 }
 
-const GitHubContributions: React.FC<GitHubContributionsProps> = ({ username }) => {
+const GitHubContributions: React.FC<Props> = ({ username, isVerified }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [contributionData, setContributionData] = useState<any>(null);
   
-  if (!username) {
+  console.log('🛠️ GitHubContributions render:', { username, isVerified });
+  
+  // Don't render at all if not verified or no username
+  if (!isVerified || !username) {
+    console.log('🛠️ GitHubContributions skipping render - not verified or no username');
     return null;
   }
-  
-  // Construct URL for GitHub contributions
+
+  // Construct URL
   const contribUrl = `https://github.com/users/${username}/contributions`;
-  
+
+  // Debug logging
   useEffect(() => {
-    if (!username) return;
-    
-    console.log(`Loading GitHub contributions for: ${username}`);
-    setIsLoading(true);
-    setHasError(false);
-    
-    // Try to get cached data first
-    const cachedData = localStorage.getItem(`github_contributions_${username}`);
-    if (cachedData) {
-      try {
-        const parsedData = JSON.parse(cachedData);
-        console.log('Using cached GitHub data', parsedData);
-        setContributionData(parsedData);
-      } catch (err) {
-        console.error('Error parsing cached GitHub data:', err);
-      }
-    }
+    console.log('[GitHubContributions] Loading:', contribUrl);
     
     // Check if the URL is accessible
     fetch(contribUrl, { method: 'HEAD' })
       .then(response => {
-        console.log(`GitHub contribution URL check status: ${response.status}`);
+        console.log(`[GitHubContributions] URL check status: ${response.status}`);
+        setIsLoading(false);
         setHasError(!response.ok);
       })
       .catch(error => {
-        console.error('GitHub contribution URL check error:', error);
-        setHasError(true);
-      })
-      .finally(() => {
+        console.error('[GitHubContributions] URL check error:', error);
         setIsLoading(false);
+        setHasError(true);
       });
-  }, [username, contribUrl]);
-  
+  }, [contribUrl]);
+
   return (
-    <div className="w-full">
+    <div className="github-heatmap-wrapper" style={{ 
+      width: '100%', 
+      overflowX: 'auto',
+      border: '1px solid #e1e4e8',
+      borderRadius: '6px',
+      padding: '12px',
+      backgroundColor: '#f6f8fa',
+      marginBottom: '16px',
+      minHeight: '160px',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}>
       {isLoading && (
-        <div className="text-gray-500 text-center py-4">Loading GitHub contribution data...</div>
+        <div className="text-gray-500">Loading GitHub contribution data...</div>
       )}
       
       {hasError && (
-        <div className="text-red-500 text-center py-4">Unable to load GitHub contributions graph</div>
+        <div className="text-red-500">Unable to load GitHub contributions graph</div>
       )}
       
       {!isLoading && !hasError && (
@@ -69,23 +70,17 @@ const GitHubContributions: React.FC<GitHubContributionsProps> = ({ username }) =
           style={{
             display: 'block',
             width: '100%',
-            height: 'auto',
-            maxHeight: '150px',
+            height: '150px',
+            maxHeight: '200px',
             objectFit: 'contain',
             borderRadius: '4px',
           }}
-          onLoad={() => console.log('GitHub contribution image loaded successfully')}
+          onLoad={() => console.log('[GitHubContributions] Image loaded successfully')}
           onError={(e) => {
-            console.error('GitHub contribution image failed to load:', e);
+            console.error('[GitHubContributions] Image failed to load:', e);
             setHasError(true);
           }}
         />
-      )}
-      
-      {contributionData && contributionData.totalContributions && (
-        <div className="text-sm text-muted-foreground mt-2 text-center">
-          {contributionData.totalContributions} contributions in the last year
-        </div>
       )}
     </div>
   );

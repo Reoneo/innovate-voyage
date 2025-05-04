@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import SocialLinkItem from './SocialLinkItem';
 import { socialPlatforms } from '@/constants/socialPlatforms';
 import { Loader2 } from 'lucide-react';
@@ -10,19 +10,11 @@ interface SocialMediaLinksProps {
 }
 
 const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading = false }) => {
-  const [processedSocials, setProcessedSocials] = useState<Record<string, string>>(socials || {});
-
-  // Effect to handle socials when they change
-  useEffect(() => {
-    console.log("Social links received:", socials);
-    setProcessedSocials(socials || {});
-  }, [socials]);
-  
   // Create a filtered version of socials without LinkedIn for home page
-  const updatedSocials = { ...processedSocials };
+  const updatedSocials = { ...socials };
   
   // Remove LinkedIn if we're on the home page
-  if (typeof window !== 'undefined' && window.location.pathname === '/' && updatedSocials.linkedin) {
+  if (window.location.pathname === '/' && updatedSocials.linkedin) {
     delete updatedSocials.linkedin;
   }
   
@@ -36,7 +28,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   }
   
   // Check if we have any actual social links
-  const hasSocialLinks = Object.entries(updatedSocials || {}).some(([_key, val]) => val && val.trim() !== '');
+  const hasSocialLinks = Object.entries(updatedSocials || {}).some(([key, val]) => val && val.trim() !== '');
   
   if (!hasSocialLinks) {
     return null; // Hide completely if no social links are available

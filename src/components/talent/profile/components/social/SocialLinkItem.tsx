@@ -40,12 +40,6 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
         displayText = `@${url.replace('@', '')}`;
       }
       break;
-    case 'bluesky':
-      if (!url.startsWith('http')) {
-        formattedUrl = `https://bsky.app/profile/${url.replace('@', '')}`;
-        displayText = `@${url.replace('@', '')}`;
-      }
-      break;
     case 'github':
       if (!url.startsWith('http')) {
         formattedUrl = `https://github.com/${url.replace('@', '')}`;
@@ -100,6 +94,9 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
     );
   }
 
+  // Cast the platformType to any to resolve the TypeScript error
+  const iconType = platformType as any;
+
   return (
     <a 
       href={formattedUrl} 
@@ -109,7 +106,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
       data-social-link={platformType}
     >
-      <SocialIcon type={platformType} size={48} />
+      <SocialIcon type={iconType} size={48} />
     </a>
   );
 };

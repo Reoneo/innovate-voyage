@@ -1,47 +1,60 @@
 
-import { fetchEnsProfile } from '../../services/ens/ensApiClient';
+import { enforceRateLimit, getWeb3BioHeaders } from './rateLimiter';
+import { REQUEST_DELAY_MS } from './config';
 import type { Web3BioProfile } from '../../types/web3Types';
 
 /**
- * Fetches profile data using official ENS API instead of web3.bio
+ * Fetches profile data from web3.bio API
  * @param identity ENS name or Ethereum address
  * @returns Profile data or null if not found
  */
 export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProfile | null> {
   try {
-    if (!identity) return null;
+    // Enforce rate limiting
+    await enforceRateLimit(REQUEST_DELAY_MS);
     
-    console.log(`Fetching ENS profile for: ${identity}`);
+    // Prepare the API URL
+    const apiUrl = `https://api.web3.bio/profile/${identity}`;
     
-    const profile = await fetchEnsProfile(identity);
+    // Make the API request with proper authentication
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: getWeb3BioHeaders()
+    });
     
-    if (!profile) {
-      return null;
+    // Handle API errors
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log(`No web3.bio profile found for ${identity}`);
+        return null;
+      }
+      throw new Error(`Web3.bio API error: ${response.status}`);
     }
     
-    // Convert the ENS profile to our internal Web3BioProfile format
-    const web3Profile: Web3BioProfile = {
-      address: profile.address || '',
-      identity: profile.name || identity,
+    // Parse the response
+    const data = await response.json();
+    
+    // Extract and normalize the profile data
+    const profile: Web3BioProfile = {
+      address: data.address || '',
+      identity: identity,
       platform: 'ethereum',
-      displayName: profile.name || identity,
-      avatar: profile.avatar || null,
-      description: profile.description || null,
-      github: profile.socials?.github || undefined,
-      twitter: profile.socials?.twitter || undefined,
-      telegram: profile.socials?.telegram || undefined,
-      lens: undefined,
-      farcaster: undefined,
-      website: profile.socials?.website || undefined,
-      linkedin: profile.socials?.linkedin || undefined,
-      email: profile.socials?.email || undefined,
-      discord: profile.socials?.discord || undefined,
-      instagram: profile.socials?.instagram || undefined
+      displayName: data.address || identity,
+      avatar: data.avatar || '',
+      description: data.description || '',
+      github: data.github || '',
+      twitter: data.twitter || '',
+      telegram: data.telegram || '',
+      lens: data.lens || '',
+      farcaster: data.farcaster || '',
+      website: data.website || '',
+      linkedin: data.linkedin || '',
+      email: data.email || ''
     };
     
-    return web3Profile;
+    return profile;
   } catch (error) {
-    console.error('Error fetching ENS profile:', error);
+    console.error('Error fetching web3.bio profile:', error);
     return null;
   }
 }

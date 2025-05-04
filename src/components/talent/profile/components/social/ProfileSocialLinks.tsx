@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
 import { socialPlatforms } from '@/constants/socialPlatforms';
-import { getEnsSocialLinks } from '@/api/services/ens/ensApiClient';
+import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
 
 interface ProfileSocialLinksProps {
   passportId: string;
@@ -22,16 +22,49 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
         setLoading(true);
         try {
           console.log("Fetching social links for", passportId);
+          const profile = await fetchWeb3BioProfile(passportId);
           
-          // Use ENS API to get social links
-          const links = await getEnsSocialLinks(passportId);
-          
-          if (links && Object.keys(links).length > 0) {
-            console.log("Received social links:", links);
-            setSocialLinks(prevLinks => ({
-              ...prevLinks,
-              ...links
-            }));
+          if (profile) {
+            console.log("Received profile:", profile);
+            const newSocials: Record<string, string> = {};
+            
+            if (profile.github) newSocials.github = profile.github;
+            if (profile.twitter) newSocials.twitter = profile.twitter;
+            if (profile.linkedin) newSocials.linkedin = profile.linkedin;
+            if (profile.website) newSocials.website = profile.website;
+            if (profile.facebook) newSocials.facebook = profile.facebook;
+            if (profile.instagram) newSocials.instagram = profile.instagram;
+            if (profile.youtube) newSocials.youtube = profile.youtube;
+            if (profile.telegram) newSocials.telegram = profile.telegram;
+            if (profile.bluesky) newSocials.bluesky = profile.bluesky;
+            if (profile.email) newSocials.email = profile.email;
+            if (profile.discord) newSocials.discord = profile.discord;
+            if (profile.whatsapp) newSocials.whatsapp = profile.whatsapp;
+            
+            if (profile.links) {
+              if (profile.links.website?.link) newSocials.website = profile.links.website.link;
+              if (profile.links.github?.link) newSocials.github = profile.links.github.link;
+              if (profile.links.twitter?.link) newSocials.twitter = profile.links.twitter.link;
+              if (profile.links.linkedin?.link) newSocials.linkedin = profile.links.linkedin.link;
+              if (profile.links.facebook?.link) newSocials.facebook = profile.links.facebook.link;
+              if (profile.links.discord?.link) newSocials.discord = profile.links.discord.link;
+              
+              const anyLinks = profile.links as any;
+              if (anyLinks.instagram?.link) newSocials.instagram = anyLinks.instagram.link;
+              if (anyLinks.youtube?.link) newSocials.youtube = anyLinks.youtube.link;
+              if (anyLinks.telegram?.link) newSocials.telegram = anyLinks.telegram.link;
+              if (anyLinks.bluesky?.link) newSocials.bluesky = anyLinks.bluesky.link;
+              if (anyLinks.whatsapp?.link) newSocials.whatsapp = anyLinks.whatsapp.link;
+            }
+            
+            console.log("Mapped social links:", newSocials);
+            
+            if (Object.keys(newSocials).length > 0) {
+              setSocialLinks(prevLinks => ({
+                ...prevLinks,
+                ...newSocials
+              }));
+            }
           }
         } catch (error) {
           console.error("Error fetching social links:", error);
@@ -42,20 +75,6 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
     };
     
     fetchSocialLinks();
-    
-    // For testing - add mock data for specific ENS
-    if (passportId === "30315.eth") {
-      console.log("Adding mock social links for 30315.eth");
-      setTimeout(() => {
-        setSocialLinks({
-          github: "github-test",
-          twitter: "twitter-test",
-          linkedin: "linkedin-test",
-          telegram: "@telegram-test",
-          discord: "discord-test#1234",
-        });
-      }, 500);
-    }
   }, [passportId]);
 
   return (
@@ -71,7 +90,7 @@ const ProfileSocialLinks: React.FC<ProfileSocialLinksProps> = ({
             aria-label={`Visit ${platform.key}`}
           >
             <SocialIcon 
-              type={platform.type} 
+              type={platform.type as any} 
               size={32}
             />
           </a>

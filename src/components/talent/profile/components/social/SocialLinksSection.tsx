@@ -5,30 +5,20 @@ import { getEnsLinks } from '@/utils/ens/ensLinks';
 import { Badge } from '@/components/ui/badge';
 
 interface SocialLinksSectionProps {
-  socials?: Record<string, string> | null;
+  socials: Record<string, string>;
   identity?: string;
 }
 
 const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identity }) => {
-  const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>(socials || {});
   const [isLoading, setIsLoading] = useState(false);
   const [keywords, setKeywords] = useState<string[]>([]);
 
   useEffect(() => {
-    // Update state when socials prop changes
-    if (socials) {
-      setSocialLinks(socials);
-    }
-  }, [socials]);
-
-  useEffect(() => {
     if (identity && (identity.includes('.eth') || identity.includes('.box'))) {
       setIsLoading(true);
-      console.log(`Fetching social links for ${identity}`);
-      
       getEnsLinks(identity)
         .then(links => {
-          console.log(`Received ENS links for ${identity}:`, links);
           if (links && links.socials) {
             setSocialLinks(prevLinks => ({
               ...prevLinks,
@@ -38,7 +28,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
           
           // Extract keywords from ENS records
           if (links && links.keywords) {
-            setKeywords(links.keywords);
+            setKeywords(Array.isArray(links.keywords) ? links.keywords : [links.keywords]);
           }
         })
         .catch(error => {
@@ -50,10 +40,13 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
     }
   }, [identity]);
 
-  // Check if there are any social links
-  const hasSocialLinks = socialLinks && Object.entries(socialLinks).some(([_key, val]) => val && val.trim() !== '');
+  // Extract owner address from socials or use undefined
+  const ownerAddress = socials?.ethereum || socials?.walletAddress;
   
-  if (!hasSocialLinks && keywords.length === 0 && !isLoading) {
+  // Check if there are any social links
+  const hasSocialLinks = Object.entries(socialLinks || {}).some(([key, val]) => val && val.trim() !== '');
+  
+  if (!hasSocialLinks && keywords.length === 0) {
     return null; // Hide the entire section if no links or keywords available
   }
 

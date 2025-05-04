@@ -1,25 +1,8 @@
 
-import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import {
-  fetchEnsProfile,
-  resolveEnsName,
-  lookupEnsName,
-} from '@/api/services/ens/ensApiClient';
+import { useEffect } from 'react';
+import { useEnsResolution } from './ens/useEnsResolution';
+import { useWeb3BioData } from './ens/useWeb3BioData';
 import { isValidEthereumAddress } from '@/lib/utils';
-
-interface EnsResolutionState {
-  resolvedAddress: string | undefined;
-  resolvedEns: string | undefined;
-  avatarUrl: string | undefined;
-  ensBio: string | undefined;
-  ensLinks: {
-    socials: Record<string, string>;
-    ensLinks: string[];
-    description?: string;
-    keywords?: string[];
-  };
-}
 
 /**
  * Hook to resolve ENS name and Ethereum address bidirectionally
@@ -40,81 +23,68 @@ export function useEnsResolver(ensName?: string, address?: string) {
     ? `${adjustedEnsName}.eth` 
     : adjustedEnsName;
   
-  // Determine if we're dealing with an ENS name
-  const isEns = !!normalizedEnsName;
+  // Determine if we're dealing with an ENS name (.eth or .box)
+  const isEns = normalizedEnsName?.includes('.eth') || normalizedEnsName?.includes('.box');
+  
+  const {
+    state,
+    setState,
+    isLoading: isLoadingEns,
+    setIsLoading,
+    error,
+    setError,
+    resolveEns,
+    lookupAddress
+  } = useEnsResolution(normalizedEnsName, adjustedAddress);
 
-  // Query for ENS name resolution (ENS → Address)
-  const ensNameQuery = useQuery({
-    queryKey: ['ens', 'resolve', normalizedEnsName],
-    queryFn: () => normalizedEnsName ? resolveEnsName(normalizedEnsName) : Promise.resolve(null),
-    enabled: !!normalizedEnsName && !directAddress,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  const { isLoading: isLoadingWeb3Bio } = useWeb3BioData(
+    normalizedEnsName,
+    adjustedAddress,
+    !!isEns,
+    (newState) => setState(prev => ({ ...prev, ...newState }))
+  );
 
-  // Query for address resolution (Address → ENS)
-  const addressQuery = useQuery({
-    queryKey: ['ens', 'lookup', adjustedAddress],
-    queryFn: () => adjustedAddress ? lookupEnsName(adjustedAddress) : Promise.resolve(null),
-    enabled: !!adjustedAddress && !isEns,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-
-  // Query for ENS profile data
-  const profileQuery = useQuery({
-    queryKey: ['ens', 'profile', normalizedEnsName || addressQuery.data],
-    queryFn: () => {
-      const ensToQuery = normalizedEnsName || addressQuery.data;
-      return ensToQuery ? fetchEnsProfile(ensToQuery) : Promise.resolve(null);
-    },
-    enabled: !!normalizedEnsName || !!addressQuery.data,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 3,
-  });
-
-  // Add some console logs for debugging
+  // Effect to handle direct address input
   useEffect(() => {
-    if (normalizedEnsName) {
-      console.log(`Resolving ENS name: ${normalizedEnsName}`);
+    if (directAddress) {
+      console.log(`Direct address detected: ${directAddress}`);
+      setState(prev => ({
+        ...prev,
+        resolvedAddress: directAddress
+      }));
+      
+      // Still lookup possible ENS names for this address
+      lookupAddress(directAddress);
     }
-    if (adjustedAddress) {
-      console.log(`Looking up address: ${adjustedAddress}`);
-    }
-    if (profileQuery.data) {
-      console.log("ENS profile data:", profileQuery.data);
-    }
-  }, [normalizedEnsName, adjustedAddress, profileQuery.data]);
+  }, [directAddress]);
 
-  // Determine avatar URL
-  const avatarUrl = profileQuery.data?.avatar;
+  // Effect to handle ENS resolution
+  useEffect(() => {
+    if (!normalizedEnsName || directAddress) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    resolveEns(normalizedEnsName).finally(() => setIsLoading(false));
+  }, [normalizedEnsName, directAddress]);
 
-  // Extract bio/description from profile
-  const ensBio = profileQuery.data?.description;
-
-  // Extract social links
-  const socials = profileQuery.data?.socials || {};
-
-  // Combine into final state
-  const state: EnsResolutionState = {
-    resolvedAddress: ensNameQuery.data || directAddress || adjustedAddress,
-    resolvedEns: normalizedEnsName || addressQuery.data,
-    avatarUrl,
-    ensBio,
-    ensLinks: {
-      socials: socials || {},  // Ensure socials is always an object
-      ensLinks: [],
-      description: ensBio || undefined
-    }
-  };
-
-  // Determine if still loading
-  const isLoading = ensNameQuery.isLoading || addressQuery.isLoading || profileQuery.isLoading;
-
-  // Combine errors
-  const error = ensNameQuery.error || addressQuery.error || profileQuery.error;
+  // Effect to handle address resolution
+  useEffect(() => {
+    if (!adjustedAddress || isEns || directAddress) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    lookupAddress(adjustedAddress).finally(() => setIsLoading(false));
+  }, [adjustedAddress, isEns, directAddress]);
 
   return {
-    ...state,
-    isLoading,
-    error: error ? String(error) : null
+    resolvedAddress: state.resolvedAddress || directAddress,
+    resolvedEns: state.resolvedEns,
+    avatarUrl: state.avatarUrl,
+    ensBio: state.ensBio,
+    ensLinks: state.ensLinks,
+    isLoading: isLoadingEns || isLoadingWeb3Bio,
+    error
   };
 }

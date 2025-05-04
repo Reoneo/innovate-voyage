@@ -12,8 +12,6 @@ interface SocialLinkItemProps {
 const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) => {
   const [copied, setCopied] = useState(false);
   
-  if (!url || !platformType) return null;
-  
   let formattedUrl = url;
   let displayText = url;
   
@@ -28,6 +26,13 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
     case 'email':
     case 'mail':
       formattedUrl = url.startsWith('mailto:') ? url : `mailto:${url}`;
+      break;
+    case 'phone':
+    case 'telephone':
+      formattedUrl = url.startsWith('tel:') ? url : `tel:${url.replace(/[^0-9+]/g, '')}`;
+      break;
+    case 'location':
+      formattedUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(url)}`;
       break;
     case 'twitter':
       if (!url.startsWith('http')) {
@@ -58,11 +63,12 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       break;
     case 'telegram':
       if (!url.startsWith('http')) {
+        // Always make sure to add https://t.me/ and remove @ if present
         formattedUrl = `https://t.me/${url.replace('@', '')}`;
       }
       break;
     default:
-      if (!url.startsWith('http') && !url.startsWith('mailto:')) {
+      if (!url.startsWith('http') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
         formattedUrl = `https://${url}`;
       }
   }
@@ -103,7 +109,7 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
       title={platformType.charAt(0).toUpperCase() + platformType.slice(1)}
       data-social-link={platformType}
     >
-      <SocialIcon type={platformType} size={40} />
+      <SocialIcon type={platformType as any} size={40} />
     </a>
   );
 };
