@@ -1,5 +1,6 @@
 
 import { mainnetProvider } from '../ethereumProviders';
+import { ccipReadEnabled, ResolveDotBitResult } from './ccipReadHandler';
 
 /**
  * Resolves an ENS name to an address
@@ -13,7 +14,21 @@ export async function resolveEnsToAddress(ensName: string) {
     return null;
   }
   
-  // Treat all domains as mainnet domains
+  // Special handling for .box domains - uses CCIP-Read compatible resolver
+  if (ensName.endsWith('.box')) {
+    console.log(`Resolving .box domain: ${ensName} using CCIP-Read handler`);
+    try {
+      const result = await ccipReadEnabled.resolveDotBit(ensName);
+      if (result && result.address) {
+        console.log(`CCIP-Read resolution result for ${ensName}:`, result);
+        return result.address;
+      }
+    } catch (error) {
+      console.error(`CCIP-Read error resolving ${ensName}:`, error);
+    }
+  }
+  
+  // Default flow for .eth domains or as fallback for .box domains
   const provider = mainnetProvider;
   
   console.log(`Resolving domain: ${ensName} using Mainnet provider`);
@@ -52,7 +67,19 @@ export async function resolveAddressToEns(address: string) {
     return null;
   }
   
-  // Try mainnet first
+  // Try using CCIP-Read for reverse resolution
+  try {
+    console.log(`Looking up domains for address: ${address} using CCIP-Read handler`);
+    const boxDomains = await ccipReadEnabled.getDotBitByAddress(address);
+    if (boxDomains && boxDomains.length > 0) {
+      console.log(`Found .box domains for ${address}:`, boxDomains);
+      return { ensName: boxDomains[0], network: 'mainnet' as const };
+    }
+  } catch (error) {
+    console.error(`Error in CCIP-Read lookup for ${address}:`, error);
+  }
+  
+  // Try mainnet lookup as fallback
   try {
     console.log(`Looking up ENS for address: ${address} on Mainnet`);
     

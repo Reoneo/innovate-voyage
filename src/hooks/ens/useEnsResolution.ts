@@ -70,7 +70,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
             resolvedAddress,
             ensLinks: links || prev.ensLinks,
             avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || links?.description || prev.ensBio
+            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
           }));
           
           setIsLoading(false);
@@ -138,7 +138,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
             resolvedEns: result.ensName,
             ensLinks: links || prev.ensLinks,
             avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || (links && 'description' in links ? links.description : null) || prev.ensBio
+            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
           }));
           
           setIsLoading(false);
