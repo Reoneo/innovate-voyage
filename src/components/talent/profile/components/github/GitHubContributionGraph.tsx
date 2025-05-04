@@ -105,7 +105,8 @@ export default function GitHubContributionGraph({
                 blockMargin={isFooter ? 2 : 4}
                 blockRadius={2}
                 fontSize={isFooter ? 8 : 10}
-                weekdayLabels={isFooter ? ['', 'Mon', '', 'Wed', '', 'Fri', ''] : undefined}
+                // The weekdayLabels prop doesn't exist in the component's type definition
+                // So we need to remove it and use the default labels
                 transformData={(contributions) => {
                   // Use this opportunity to ensure we have the correct total
                   if (Array.isArray(contributions)) {
