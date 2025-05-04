@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -41,13 +42,12 @@
   color: #888;
 }
 
-/* GitHub Calendar Custom Styling - optimized for faster loading and compact display */
+/* GitHub Calendar Custom Styling - optimized for faster loading and more compact display */
 .github-calendar-wrapper {
   border-radius: 8px;
-  padding: 12px;
+  padding: 8px;
   background-color: #0d1117;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .github-calendar-dark {
@@ -59,12 +59,12 @@
 }
 
 .github-calendar-dark .calendar-graph text.month {
-  font-size: 8px !important;
+  font-size: 7px !important;
   fill: #8b949e;
 }
 
 .github-calendar-dark .calendar-graph text.wday {
-  font-size: 8px !important;
+  font-size: 7px !important;
   fill: #8b949e;
 }
 
@@ -73,8 +73,8 @@
   outline: none;
   stroke: rgba(27, 31, 35, 0.6) !important;
   stroke-width: 1px !important;
-  rx: 2px;
-  ry: 2px;
+  rx: 1px;
+  ry: 1px;
 }
 
 /* Enhanced grid styling with visible borders for all cells */
@@ -115,14 +115,17 @@
 }
 
 .calendar-container {
-  min-height: 100px; /* Reduced height */
-  max-height: 120px; /* Added max height */
+  min-height: 85px; /* Further reduced height */
+  max-height: 100px; /* Reduced max height */
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 /* Make sure weekday and month labels are visible but compact */
 .react-github-calendar .wday-text,
 .react-github-calendar .month-label {
-  font-size: 8px !important;
+  font-size: 7px !important;
   fill: #8b949e !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -173,9 +176,13 @@
   width: 100%;
   height: auto;
   display: block;
+  margin-top: 0;
+  padding-top: 0;
 }
 
-/* Reduce vertical spacing */
+/* Further reduce vertical spacing */
 .react-github-calendar {
-  line-height: 1;
+  line-height: 0.9;
+  margin-top: 0;
+  padding-top: 0;
 }

@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function GitHubContributionLegend() {
   return (
-    <div className="legend-container mt-1 mb-0 flex items-center justify-between text-xs text-gray-400">
+    <div className="legend-container mt-0 mb-0 flex items-center justify-between text-xs text-gray-400">
       <div className="flex items-center gap-1">
         <span>Less</span>
         <div className="flex items-center gap-0">

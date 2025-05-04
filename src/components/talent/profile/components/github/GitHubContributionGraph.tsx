@@ -67,9 +67,9 @@ export default function GitHubContributionGraph({
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="github-calendar-wrapper px-1 py-2">
+        <div className="github-calendar-wrapper px-1 py-1">
           {/* Total contributions banner - made more compact */}
-          <div className="bg-gray-800/50 rounded-md p-1 mb-1 flex items-center justify-center">
+          <div className="bg-gray-800/50 rounded-md p-1 mb-0 flex items-center justify-center">
             <div className="text-sm font-semibold text-green-400">
               <span className="text-base font-bold" id="contribution-count-banner">
                 {displayedTotal || (stats.total || 0)}
@@ -77,8 +77,8 @@ export default function GitHubContributionGraph({
             </div>
           </div>
           
-          {/* GitHub Calendar - more compact with smaller blocks */}
-          <div className="calendar-container py-1 overflow-x-auto">
+          {/* GitHub Calendar - even more compact with smaller blocks */}
+          <div className="calendar-container py-0 overflow-x-auto">
             {username && (
               <div className="w-full min-w-[650px]">
                 <GitHubCalendar 
@@ -88,10 +88,10 @@ export default function GitHubContributionGraph({
                   hideColorLegend={true} // We'll use our custom legend
                   hideMonthLabels={false}
                   showWeekdayLabels={true}
-                  blockSize={8} // Smaller blocks for more compact display
-                  blockMargin={2} // Reduced margin between blocks
+                  blockSize={7} // Smaller blocks for more compact display
+                  blockMargin={1.5} // Reduced margin between blocks
                   blockRadius={1} // Smaller radius for more compact look
-                  fontSize={8} // Smaller font for labels
+                  fontSize={7} // Smaller font for labels
                   transformData={transformData}
                   labels={{
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
