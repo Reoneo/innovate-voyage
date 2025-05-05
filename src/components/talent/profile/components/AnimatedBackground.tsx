@@ -50,10 +50,9 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ avatarUrl, isLo
               // Create a more dynamic gradient from the extracted colors
               const color1 = `rgb(${palette[0][0]}, ${palette[0][1]}, ${palette[0][2]})`;
               const color2 = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
-              const color3 = palette[1] ? `rgb(${palette[1][0]}, ${palette[1][1]}, ${palette[1][2]})` : color1;
-              const color4 = palette[2] ? `rgb(${palette[2][0]}, ${palette[2][1]}, ${palette[2][2]})` : color2;
               
-              setGradient(`linear-gradient(135deg, ${color1} 0%, ${color2} 33%, ${color3} 66%, ${color4} 100%)`);
+              // Create animated gradient with multiple color stops
+              setGradient(`linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`);
             }
           } catch (error) {
             console.error('Error extracting colors:', error);
