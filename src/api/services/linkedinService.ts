@@ -7,7 +7,6 @@ import { useState, useEffect } from 'react';
 const CLIENT_ID = '78tbmy2vayozmc';
 const CLIENT_SECRET = 'WPL_AP1.UZZde4p0GU2HWbzY.QWNWog==';
 
-// Export the LinkedInJob interface
 export interface LinkedInJob {
   id: string;
   company: string;
