@@ -54,6 +54,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       <ProfileAvatar 
         avatarUrl={avatarUrl} 
         name={name} 
+        size="large" // Now properly typed
       />
       
       {/* Name and Address */}
