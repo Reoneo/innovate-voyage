@@ -17,6 +17,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        // Add alias for estree-walker to fix exports issue
+        'estree-walker': path.resolve(__dirname, 'node_modules/estree-walker/src/index.js'),
         // Force Rollup to resolve the published CJS builds inside node_modules
         '@web3modal/react': path.resolve(
           __dirname,
@@ -73,6 +75,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           NodeModulesPolyfillPlugin() as any,
         ],
       },
+      // Add estree-walker to force pre-bundling
+      include: ['estree-walker'],
     },
     build: {
       rollupOptions: {
