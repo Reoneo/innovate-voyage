@@ -113,7 +113,10 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     },
     server: {
       host: '::',
-      port: 8080
+      port: 8080,
+      allowedHosts: [
+        "bfc742d9-ed3b-4808-8e04-877a3eacf61c.lovableproject.com"
+      ]
     },
   };
   
