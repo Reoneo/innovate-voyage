@@ -5,14 +5,12 @@ import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
 import AnimatedBackground from '@/components/talent/profile/components/AnimatedBackground';
 import { Helmet } from 'react-helmet-async';
-import { AlertCircle } from 'lucide-react';
 
 const TalentProfile = () => {
   const { 
     ensNameOrAddress,
     loading, 
     loadingTimeout,
-    error,
     passport, 
     profileRef,
     connectedWallet,
@@ -55,11 +53,10 @@ const TalentProfile = () => {
         )}
       </Helmet>
       <div className="min-h-screen relative">
-        {/* Animated Background - now takes loading state and error */}
+        {/* Animated Background - now takes loading state */}
         <AnimatedBackground 
           avatarUrl={passport?.avatar_url} 
           isLoading={loading} 
-          hasError={!!error}
         />
         
         {/* Navigation Bar */}
@@ -70,27 +67,10 @@ const TalentProfile = () => {
         />
         
         <div className="container px-1 sm:px-4 relative z-10">
-          {/* Error display */}
-          {error && (
-            <div className="mt-20 bg-red-50 border border-red-200 rounded-xl p-4 shadow-md">
-              <div className="flex items-start">
-                <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-2" />
-                <div>
-                  <h3 className="font-medium text-red-800">Error Loading Profile</h3>
-                  <p className="text-red-600 text-sm">{error}</p>
-                  <p className="text-sm mt-2">
-                    Try refreshing the page or checking that the ENS name or address is correct.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-          
           {/* Profile Content */}
           <ProfileContent 
             loading={loading}
             loadingTimeout={loadingTimeout}
-            error={error}
             passport={passport}
             profileRef={profileRef}
             ensNameOrAddress={ensNameOrAddress}

@@ -13,15 +13,11 @@ export function useProfilePage() {
   const { toast } = useToast();
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // Determine which parameter to use (either regular path or recruitment.box path)
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
-    // Reset error state on new lookup
-    setErrorMessage(null);
-    
     // Attempt to clear any browser cache
     try {
       // Force page to be freshly loaded 
@@ -63,7 +59,7 @@ export function useProfilePage() {
     // Set a timeout for loading
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 7000); // Extended to 7 seconds to give more time for ENS resolution
+    }, 5000);
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
@@ -99,14 +95,7 @@ export function useProfilePage() {
     };
   }, [targetIdentifier]);
 
-  const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl, error } = useProfileData(ens, address);
-  
-  // Update the error state if an error occurs in useProfileData
-  useEffect(() => {
-    if (error) {
-      setErrorMessage(error);
-    }
-  }, [error]);
+  const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
   
   const { profileRef } = usePdfExport();
 
@@ -130,7 +119,6 @@ export function useProfilePage() {
     ensNameOrAddress: targetIdentifier,
     loading,
     loadingTimeout,
-    error: errorMessage,
     passport,
     blockchainProfile,
     avatarUrl,

@@ -6,21 +6,9 @@ import { componentTagger } from 'lovable-tagger';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
-import fs from 'fs';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
-  // Check if estree-walker exists
-  const estreeWalkerPath = path.resolve(__dirname, 'node_modules/estree-walker/src/index.js');
-  const estreeWalkerExists = fs.existsSync(estreeWalkerPath);
-  
-  console.log(`estree-walker path ${estreeWalkerPath} exists: ${estreeWalkerExists}`);
-  
-  // Fallback to dist version if src doesn't exist
-  const estreeWalkerResolvedPath = estreeWalkerExists 
-    ? estreeWalkerPath 
-    : path.resolve(__dirname, 'node_modules/estree-walker/dist/esm/index.js');
-
   const config: UserConfig = {
     plugins: [
       react(),
@@ -29,8 +17,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        // Add alias for estree-walker to fix exports issue
-        'estree-walker': estreeWalkerResolvedPath,
         // Force Rollup to resolve the published CJS builds inside node_modules
         '@web3modal/react': path.resolve(
           __dirname,
@@ -87,8 +73,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           NodeModulesPolyfillPlugin() as any,
         ],
       },
-      // Add estree-walker and other problematic packages to force pre-bundling
-      include: ['estree-walker'],
     },
     build: {
       rollupOptions: {
@@ -113,10 +97,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     },
     server: {
       host: '::',
-      port: 8080,
-      allowedHosts: [
-        "bfc742d9-ed3b-4808-8e04-877a3eacf61c.lovableproject.com"
-      ]
+      port: 8080
     },
   };
   

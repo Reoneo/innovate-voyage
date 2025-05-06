@@ -5,12 +5,11 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 interface ProfileAvatarProps {
   avatarUrl: string | undefined;
   name: string;
-  size?: string;
 }
 
-const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name, size = "h-48 w-48" }) => {
+const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   return (
-    <Avatar className={`${size} border-2 border-white shadow-md mx-auto`}>
+    <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto"> {/* Increased size and centered */}
       <AvatarImage src={avatarUrl || '/placeholder.svg'} alt={name} className="object-cover" />
       <AvatarFallback className="bg-primary/10 text-primary font-medium">
         {name?.substring(0, 2)?.toUpperCase() || 'BP'}

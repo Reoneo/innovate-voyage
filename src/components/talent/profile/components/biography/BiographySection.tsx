@@ -8,21 +8,17 @@ import { useState } from 'react';
 
 interface BiographySectionProps {
   biography?: string;
-  bio?: string; // Added to support both naming conventions
   isOwner?: boolean;
   onSave?: (bio: string) => void;
 }
 
 const BiographySection: React.FC<BiographySectionProps> = ({
   biography,
-  bio, // Support both naming conventions
   isOwner = false,
   onSave
 }) => {
-  // Use either biography or bio, defaulting to biography if both are provided
-  const bioText = biography || bio || '';
   const [isEditing, setIsEditing] = useState(false);
-  const [bioValue, setBioValue] = useState(bioText);
+  const [bioValue, setBioValue] = useState(biography || '');
   
   const handleSave = () => {
     if (onSave) {
@@ -69,9 +65,9 @@ const BiographySection: React.FC<BiographySectionProps> = ({
           />
         ) : (
           <div className="space-y-2">
-            {bioText ? (
+            {biography ? (
               <p className="text-xl text-black font-medium leading-relaxed whitespace-pre-wrap">
-                {bioText}
+                {biography}
               </p>
             ) : (
               <p className="text-muted-foreground italic">

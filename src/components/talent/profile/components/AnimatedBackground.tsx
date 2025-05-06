@@ -6,7 +6,6 @@ import ColorThief from 'colorthief';
 interface AnimatedBackgroundProps {
   avatarUrl?: string;
   isLoading?: boolean;
-  hasError?: boolean;
 }
 
 // Function to generate a fallback gradient
@@ -20,30 +19,12 @@ const getFallbackGradient = () => {
   return gradients[Math.floor(Math.random() * gradients.length)];
 };
 
-// Function to get error gradient
-const getErrorGradient = () => {
-  return 'linear-gradient(135deg, #FCA5A5 0%, #F87171 100%)';
-};
-
-const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ 
-  avatarUrl, 
-  isLoading = false,
-  hasError = false
-}) => {
+const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ avatarUrl, isLoading = false }) => {
   const [gradient, setGradient] = useState<string>(getFallbackGradient());
 
   useEffect(() => {
-    // If there's an error, show the error gradient
-    if (hasError) {
-      setGradient(getErrorGradient());
-      return;
-    }
-
     const extractColors = async () => {
-      if (!avatarUrl || isLoading) {
-        setGradient(getFallbackGradient());
-        return;
-      }
+      if (!avatarUrl || isLoading) return;
       
       try {
         const img = new Image();
@@ -55,10 +36,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
             
-            if (!context) {
-              setGradient(getFallbackGradient());
-              return;
-            }
+            if (!context) return;
             
             canvas.width = img.width;
             canvas.height = img.height;
@@ -72,11 +50,10 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
               // Create a more dynamic gradient from the extracted colors
               const color1 = `rgb(${palette[0][0]}, ${palette[0][1]}, ${palette[0][2]})`;
               const color2 = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
+              const color3 = palette[1] ? `rgb(${palette[1][0]}, ${palette[1][1]}, ${palette[1][2]})` : color1;
+              const color4 = palette[2] ? `rgb(${palette[2][0]}, ${palette[2][1]}, ${palette[2][2]})` : color2;
               
-              // Create animated gradient with multiple color stops
-              setGradient(`linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`);
-            } else {
-              setGradient(getFallbackGradient());
+              setGradient(`linear-gradient(135deg, ${color1} 0%, ${color2} 33%, ${color3} 66%, ${color4} 100%)`);
             }
           } catch (error) {
             console.error('Error extracting colors:', error);
@@ -89,16 +66,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
           setGradient(getFallbackGradient());
         };
         
-        // Handle CORS issues better
-        const imgSrc = avatarUrl.startsWith('http') ? avatarUrl : `https://cors-anywhere.herokuapp.com/${avatarUrl}`;
-        img.src = imgSrc;
-
-        // Set a timeout to prevent hanging if image loading takes too long
-        const timeout = setTimeout(() => {
-          setGradient(getFallbackGradient());
-        }, 3000);
-
-        return () => clearTimeout(timeout);
+        img.src = avatarUrl;
       } catch (error) {
         console.error('Error in color extraction process:', error);
         setGradient(getFallbackGradient());
@@ -106,7 +74,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     };
 
     extractColors();
-  }, [avatarUrl, isLoading, hasError]);
+  }, [avatarUrl, isLoading]);
 
   return (
     <div
