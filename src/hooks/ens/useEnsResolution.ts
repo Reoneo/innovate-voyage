@@ -34,7 +34,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
   // Maximum number of retry attempts
   const MAX_RETRIES = 2;
 
-  // Function to resolve ENS name to address with retry logic
+  // Function to resolve ENS name to address with retry logic and better error handling
   const resolveEns = useCallback(async (ensName: string) => {
     setIsLoading(true);
     setError(null);
@@ -46,16 +46,31 @@ export function useEnsResolution(ensName?: string, address?: string) {
         currentTry++;
         console.log(`Resolving ENS (attempt ${currentTry}): ${ensName}`);
         
-        const resolvedAddress = await resolveEnsToAddress(ensName);
+        // Use a timeout to prevent hanging forever
+        const resolvePromise = resolveEnsToAddress(ensName);
+        const timeoutPromise = new Promise<null>((_, reject) => {
+          setTimeout(() => reject(new Error("ENS resolution timeout")), 5000);
+        });
+        
+        const resolvedAddress = await Promise.race([resolvePromise, timeoutPromise]) as string;
         
         if (resolvedAddress) {
-          // Fetch links, avatar and bio in parallel
+          // Fetch links, avatar and bio in parallel with timeouts
           const [links, avatar, bio] = await Promise.all([
-            getEnsLinks(ensName, 'mainnet').catch(() => ({ 
-              socials: {}, ensLinks: [], keywords: [] 
-            })),
-            getEnsAvatar(ensName, 'mainnet').catch(() => null),
-            getEnsBio(ensName, 'mainnet').catch(() => null)
+            Promise.race([
+              getEnsLinks(ensName, 'mainnet'),
+              new Promise(r => setTimeout(() => r({ socials: {}, ensLinks: [], keywords: [] }), 3000))
+            ]).catch(() => ({ socials: {}, ensLinks: [], keywords: [] })),
+            
+            Promise.race([
+              getEnsAvatar(ensName, 'mainnet'),
+              new Promise(r => setTimeout(() => r(null), 3000))
+            ]).catch(() => null),
+            
+            Promise.race([
+              getEnsBio(ensName, 'mainnet'),
+              new Promise(r => setTimeout(() => r(null), 3000))
+            ]).catch(() => null)
           ]);
           
           console.log(`ENS resolution for ${ensName}:`, { 
@@ -102,7 +117,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
     setRetryCount(currentTry);
   }, [MAX_RETRIES]);
 
-  // Function to lookup address to ENS with retry logic
+  // Function to lookup address to ENS with retry logic and better error handling
   const lookupAddress = useCallback(async (address: string) => {
     setIsLoading(true);
     setError(null);
@@ -114,16 +129,31 @@ export function useEnsResolution(ensName?: string, address?: string) {
         currentTry++;
         console.log(`Looking up address (attempt ${currentTry}): ${address}`);
         
-        const result = await resolveAddressToEns(address);
+        // Use a timeout to prevent hanging forever
+        const lookupPromise = resolveAddressToEns(address);
+        const timeoutPromise = new Promise<null>((_, reject) => {
+          setTimeout(() => reject(new Error("ENS lookup timeout")), 5000);
+        });
+        
+        const result = await Promise.race([lookupPromise, timeoutPromise]);
         
         if (result) {
-          // Fetch links, avatar and bio in parallel
+          // Fetch links, avatar and bio in parallel with timeouts
           const [links, avatar, bio] = await Promise.all([
-            getEnsLinks(result.ensName, 'mainnet').catch(() => ({ 
-              socials: {}, ensLinks: [], keywords: [] 
-            })),
-            getEnsAvatar(result.ensName, 'mainnet').catch(() => null),
-            getEnsBio(result.ensName, 'mainnet').catch(() => null)
+            Promise.race([
+              getEnsLinks(result.ensName, 'mainnet'),
+              new Promise(r => setTimeout(() => r({ socials: {}, ensLinks: [], keywords: [] }), 3000))
+            ]).catch(() => ({ socials: {}, ensLinks: [], keywords: [] })),
+            
+            Promise.race([
+              getEnsAvatar(result.ensName, 'mainnet'),
+              new Promise(r => setTimeout(() => r(null), 3000))
+            ]).catch(() => null),
+            
+            Promise.race([
+              getEnsBio(result.ensName, 'mainnet'),
+              new Promise(r => setTimeout(() => r(null), 3000))
+            ]).catch(() => null)
           ]);
           
           console.log(`Address lookup for ${address}:`, {

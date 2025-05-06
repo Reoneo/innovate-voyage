@@ -9,10 +9,13 @@ import GitHubContributionGraph from './components/github/GitHubContributionGraph
 import { useIsMobile } from '@/hooks/use-mobile';
 import LinkedInExperienceSection from './components/LinkedInExperienceSection';
 import { useLinkedInExperience } from '@/api/services/linkedinService';
+import WorkExperienceSection from './components/WorkExperienceSection';
+import { AlertCircle } from 'lucide-react';
 
 interface ProfileContentProps {
   loading: boolean;
   loadingTimeout: boolean;
+  error?: string | null;
   passport: any;
   profileRef: React.RefObject<HTMLDivElement>;
   ensNameOrAddress?: string;
@@ -21,6 +24,7 @@ interface ProfileContentProps {
 const ProfileContent: React.FC<ProfileContentProps> = ({
   loading,
   loadingTimeout,
+  error,
   passport,
   profileRef,
   ensNameOrAddress
@@ -29,6 +33,25 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
+  }
+  
+  if (error) {
+    return (
+      <div className="min-h-screen py-4 md:py-8">
+        <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
+          <HeaderContainer>
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <AlertCircle className="h-12 w-12 text-red-500 mb-2" />
+              <h2 className="text-2xl font-bold mb-2">Error Loading Profile</h2>
+              <p className="text-muted-foreground mb-6">
+                We couldn't load the profile for {ensNameOrAddress}. 
+                <br />Please try again later or check if the ENS name or address is correct.
+              </p>
+            </div>
+          </HeaderContainer>
+        </div>
+      </div>
+    );
   }
   
   // Extract GitHub username from social links with improved handling
@@ -134,6 +157,11 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 displayIdentity={ensNameOrAddress}
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
+              
+              {/* Added Work Experience section that uses local storage and appears when logged in */}
+              {passport.owner_address && (
+                <WorkExperienceSection ownerAddress={passport.owner_address} />
+              )}
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
@@ -145,12 +173,13 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 </div>
               )}
               
-              {/* LinkedIn work experience section - placed below GitHub graph */}
+              {/* LinkedIn work experience section - now labeled "Work Experience" */}
               <div className="mt-4">
                 <LinkedInExperienceSection 
                   experience={experience} 
                   isLoading={isLoadingExperience} 
                   error={experienceError} 
+                  showLinkedinLogo={true}
                 />
               </div>
             </div>

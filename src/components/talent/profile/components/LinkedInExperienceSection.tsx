@@ -5,25 +5,49 @@ import { Badge } from '@/components/ui/badge';
 import { Building, Calendar, Briefcase, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LinkedInJob } from '@/api/services/linkedinService';
+
+export interface LinkedInJob {
+  id: string;
+  role: string;
+  company: string;
+  startDate: string;
+  endDate: string | null;
+  description?: string;
+  location?: string;
+}
 
 interface LinkedInExperienceSectionProps {
   experience: LinkedInJob[];
   isLoading: boolean;
   error: string | null;
+  showLinkedinLogo?: boolean;
 }
 
 const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({ 
   experience, 
   isLoading,
-  error
+  error,
+  showLinkedinLogo = false
 }) => {
   // Show loading state
   if (isLoading) {
     return (
       <Card id="linkedin-experience-section">
         <CardHeader>
-          <CardTitle>LinkedIn Experience</CardTitle>
+          <CardTitle>
+            {showLinkedinLogo ? (
+              <div className="flex items-center">
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" 
+                  alt="LinkedIn" 
+                  className="w-5 h-5 mr-2"
+                />
+                Work Experience
+              </div>
+            ) : (
+              "Work Experience"
+            )}
+          </CardTitle>
           <CardDescription>Professional work history</CardDescription>
         </CardHeader>
         <CardContent>
@@ -47,7 +71,20 @@ const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({
     return (
       <Card id="linkedin-experience-section" className="border-red-200">
         <CardHeader>
-          <CardTitle>LinkedIn Experience</CardTitle>
+          <CardTitle>
+            {showLinkedinLogo ? (
+              <div className="flex items-center">
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" 
+                  alt="LinkedIn" 
+                  className="w-5 h-5 mr-2"
+                />
+                Work Experience
+              </div>
+            ) : (
+              "Work Experience"
+            )}
+          </CardTitle>
           <CardDescription className="text-red-500">Error loading experience: {error}</CardDescription>
         </CardHeader>
       </Card>
@@ -74,16 +111,20 @@ const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center">
-              <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" 
-                alt="LinkedIn" 
-                className="w-5 h-5 mr-2"
-              />
-              LinkedIn Experience
+              {showLinkedinLogo && (
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" 
+                  alt="LinkedIn" 
+                  className="w-5 h-5 mr-2"
+                />
+              )}
+              Work Experience
             </CardTitle>
-            <CardDescription>Recent professional experience</CardDescription>
+            <CardDescription>Professional experience</CardDescription>
           </div>
-          <Badge variant="outline" className="text-blue-600 border-blue-300">Verified</Badge>
+          <Badge variant="outline" className="text-blue-600 border-blue-300">
+            {showLinkedinLogo ? "LinkedIn" : "Verified"}
+          </Badge>
         </div>
       </CardHeader>
       <CardContent>
