@@ -28,7 +28,7 @@ export function useRetryLogic({
     if (error && retryCount < maxRetries) {
       const timer = setTimeout(() => {
         console.log(`Retrying ENS resolution (${retryCount + 1})`);
-        setRetryCount((prev) => prev + 1);
+        setRetryCount(retryCount + 1);
         
         if (isEnsName && ensName) {
           resolveEns(ensName);
