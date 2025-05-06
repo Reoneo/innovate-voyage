@@ -58,21 +58,20 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
-/* Month labels - white for better visibility */
+/* Month labels - now white for better visibility */
 .github-calendar-dark .calendar-graph text.month {
   font-size: 8px !important;
   fill: #ffffff !important;
   font-weight: 600;
 }
 
-/* Weekday labels - white for better visibility */
+/* Weekday labels - now white for better visibility */
 .github-calendar-dark .calendar-graph text.wday {
   font-size: 8px !important;
   fill: #ffffff !important;
   font-weight: 600;
 }
 
-/* Day cells styling */
 .github-calendar-dark .day {
   shape-rendering: geometricPrecision;
   outline: none;
@@ -200,31 +199,4 @@
 .github-calendar-wrapper .text-xs {
   color: #ffffff !important;
   fill: #ffffff !important;
-}
-
-/* Animation for the gradient background */
-@keyframes gradient-animation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Glass morphism effect for profile container */
-.glass-morphism {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  background-color: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-/* Profile content background becomes more transparent */
-.profile-container {
-  position: relative;
-  z-index: 10;
 }

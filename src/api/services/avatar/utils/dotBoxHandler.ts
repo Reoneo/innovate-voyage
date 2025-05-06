@@ -1,21 +1,12 @@
 
 import { avatarCache } from '../../../utils/web3/index';
 import { fetchDotBoxAvatar } from '../../openseaService';
-import { ccipReadEnabled } from '../../../../utils/ens/ccipReadHandler';
 
 export async function handleDotBoxAvatar(identity: string): Promise<string | null> {
   try {
     console.log(`Fetching .box avatar for ${identity}`);
     
-    // First try CCIP-Read compatible resolver to get the avatar
-    const boxData = await ccipReadEnabled.resolveDotBit(identity);
-    if (boxData && boxData.avatar) {
-      console.log(`Found .box avatar via CCIP-Read for ${identity}:`, boxData.avatar);
-      avatarCache[identity] = boxData.avatar;
-      return boxData.avatar;
-    }
-    
-    // Second, try OpenSea method to get avatar from NFTs
+    // First try OpenSea method to get avatar from NFTs
     const openSeaAvatar = await fetchDotBoxAvatar(identity);
     if (openSeaAvatar) {
       console.log(`Found .box avatar via OpenSea for ${identity}:`, openSeaAvatar);
@@ -41,15 +32,14 @@ export async function handleDotBoxAvatar(identity: string): Promise<string | nul
       }
     }
     
-    // Try the native .bit API
-    const bitProfile = await fetch(`https://indexer-v1.did.id/v1/account/records?account=${identity}&key=profile.avatar`);
+    // Fallback to .bit API
+    const bitProfile = await fetch(`https://did.id/v1/account/${identity}`);
     if (bitProfile.ok) {
       const bitData = await bitProfile.json();
-      if (bitData?.data && bitData.data.length > 0 && bitData.data[0].value) {
-        const avatarUrl = bitData.data[0].value;
-        console.log(`Found .box avatar via .bit API for ${identity}`);
-        avatarCache[identity] = avatarUrl;
-        return avatarUrl;
+      if (bitData?.data?.avatar) {
+        console.log(`Found .box avatar via .bit for ${identity}`);
+        avatarCache[identity] = bitData.data.avatar;
+        return bitData.data.avatar;
       }
     }
     

@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
-import AnimatedBackground from '@/components/talent/profile/components/AnimatedBackground';
 import { Helmet } from 'react-helmet-async';
 
 const TalentProfile = () => {
@@ -52,13 +51,7 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <div className="min-h-screen relative">
-        {/* Animated Background - now takes loading state */}
-        <AnimatedBackground 
-          avatarUrl={passport?.avatar_url} 
-          isLoading={loading} 
-        />
-        
+      <div className="min-h-screen bg-gray-50">
         {/* Navigation Bar */}
         <ProfileNavbar 
           connectedWallet={connectedWallet}
@@ -66,7 +59,7 @@ const TalentProfile = () => {
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container px-1 sm:px-4 relative z-10">
+        <div className="container">
           {/* Profile Content */}
           <ProfileContent 
             loading={loading}
