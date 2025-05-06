@@ -69,24 +69,6 @@ export function useEnsResolver(ensName?: string, address?: string) {
     startResolution();
   }, [ensName, address, resolveEns, lookupAddress, isEnsName, isValidAddress]);
 
-  // Retry resolution if needed
-  useEffect(() => {
-    if (error && retryCount < 2) {
-      const timer = setTimeout(() => {
-        if (DEBUG_ENS) console.log(`useEnsResolver: Retrying resolution (${retryCount + 1})`);
-        setRetryCount(prev => prev + 1);
-        
-        if (isEnsName) {
-          resolveEns(ensName!);
-        } else if (isValidAddress) {
-          lookupAddress(address!);
-        }
-      }, 1500);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [error, retryCount, isEnsName, ensName, resolveEns, isValidAddress, address, lookupAddress]);
-
   // Log the state after all processing
   useEffect(() => {
     if (DEBUG_ENS) {

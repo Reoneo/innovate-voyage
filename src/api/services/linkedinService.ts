@@ -1,9 +1,6 @@
 
 import { useState, useEffect } from 'react';
 
-// Re-export the LinkedInJob interface from the component for use in other files
-export type { LinkedInJob } from '@/components/talent/profile/components/LinkedInExperienceSection';
-
 // Interface for work experience returned by the LinkedIn API
 export interface LinkedInJob {
   id: string;
