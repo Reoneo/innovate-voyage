@@ -1,114 +1,90 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useEnsResolution } from './ens/useEnsResolution';
 import { useWeb3BioData } from './ens/useWeb3BioData';
-import { ethers } from 'ethers';
-
-// Debug flags
-const DEBUG_ENS = true;
+import { isValidEthereumAddress } from '@/lib/utils';
 
 /**
- * A hook for resolving ENS names <-> addresses with additional ENS data
- * @param ensName - The ENS name to resolve
- * @param address - The address to resolve
+ * Hook to resolve ENS name and Ethereum address bidirectionally
+ * @param ensName Optional ENS name to resolve
+ * @param address Optional Ethereum address to resolve
+ * @returns Object containing resolved address and ENS name
  */
 export function useEnsResolver(ensName?: string, address?: string) {
-  const [retryCount, setRetryCount] = useState(0);
+  // Check if we're directly dealing with an Ethereum address
+  const directAddress = ensName && isValidEthereumAddress(ensName) ? ensName : undefined;
+  
+  // If ensName is actually an Ethereum address, reassign variables
+  const adjustedAddress = directAddress || address;
+  const adjustedEnsName = directAddress ? undefined : ensName;
+  
+  // Normalize ENS name if provided without extension
+  const normalizedEnsName = adjustedEnsName && !adjustedEnsName.includes('.') 
+    ? `${adjustedEnsName}.eth` 
+    : adjustedEnsName;
+  
+  // Determine if we're dealing with an ENS name (.eth or .box)
+  const isEns = normalizedEnsName?.includes('.eth') || normalizedEnsName?.includes('.box');
   
   const {
     state,
     setState,
-    isLoading,
+    isLoading: isLoadingEns,
+    setIsLoading,
     error,
+    setError,
     resolveEns,
     lookupAddress
-  } = useEnsResolution(ensName, address);
-  
-  // Determine if we have an ENS name to resolve
-  const isEnsName = !!ensName && 
-    (ensName.includes('.eth') || 
-     ensName.includes('.box') || 
-     ensName.includes('.id'));
+  } = useEnsResolution(normalizedEnsName, adjustedAddress);
 
-  // Check if the input address looks valid
-  const isValidAddress = !!address && ethers.isAddress(address);
-
-  // Update handler for Web3Bio data
-  const updateStateFromWeb3Bio = useCallback((data: any) => {
-    if (DEBUG_ENS) console.log('useEnsResolver: Updating state from Web3Bio', data);
-    setState(prev => ({
-      ...prev,
-      ...data
-    }));
-  }, [setState]);
-
-  // Try Web3Bio as an alternative resolution source
   const { isLoading: isLoadingWeb3Bio } = useWeb3BioData(
-    isEnsName ? ensName : undefined,
-    isValidAddress ? address : undefined,
-    isEnsName,
-    updateStateFromWeb3Bio
+    normalizedEnsName,
+    adjustedAddress,
+    !!isEns,
+    (newState) => setState(prev => ({ ...prev, ...newState }))
   );
 
-  // Start resolution process when inputs change
+  // Effect to handle direct address input
   useEffect(() => {
-    if (DEBUG_ENS) console.log(`useEnsResolver: Inputs changed: ENS=${ensName}, address=${address}`);
-    
-    const startResolution = async () => {
-      if (isEnsName) {
-        // Resolve ENS name to address
-        if (DEBUG_ENS) console.log(`useEnsResolver: Resolving ENS name: ${ensName}`);
-        await resolveEns(ensName);
-      } else if (isValidAddress) {
-        // Resolve address to ENS name
-        if (DEBUG_ENS) console.log(`useEnsResolver: Looking up address: ${address}`);
-        await lookupAddress(address);
-      }
-    };
-
-    startResolution();
-  }, [ensName, address, resolveEns, lookupAddress, isEnsName, isValidAddress]);
-
-  // Retry resolution if needed
-  useEffect(() => {
-    if (error && retryCount < 2) {
-      const timer = setTimeout(() => {
-        if (DEBUG_ENS) console.log(`useEnsResolver: Retrying resolution (${retryCount + 1})`);
-        setRetryCount(prev => prev + 1);
-        
-        if (isEnsName) {
-          resolveEns(ensName!);
-        } else if (isValidAddress) {
-          lookupAddress(address!);
-        }
-      }, 1500);
+    if (directAddress) {
+      console.log(`Direct address detected: ${directAddress}`);
+      setState(prev => ({
+        ...prev,
+        resolvedAddress: directAddress
+      }));
       
-      return () => clearTimeout(timer);
+      // Still lookup possible ENS names for this address
+      lookupAddress(directAddress);
     }
-  }, [error, retryCount, isEnsName, ensName, resolveEns, isValidAddress, address, lookupAddress]);
+  }, [directAddress]);
 
-  // Log the state after all processing
+  // Effect to handle ENS resolution
   useEffect(() => {
-    if (DEBUG_ENS) {
-      console.log('useEnsResolver: Resolution state:', {
-        resolvedAddress: state.resolvedAddress,
-        resolvedEns: state.resolvedEns,
-        avatarUrl: state.avatarUrl,
-        ensLinks: state.ensLinks,
-        error,
-        isLoading: isLoading || isLoadingWeb3Bio,
-        retryCount
-      });
-    }
-  }, [state, error, isLoading, isLoadingWeb3Bio, retryCount]);
+    if (!normalizedEnsName || directAddress) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    resolveEns(normalizedEnsName).finally(() => setIsLoading(false));
+  }, [normalizedEnsName, directAddress]);
+
+  // Effect to handle address resolution
+  useEffect(() => {
+    if (!adjustedAddress || isEns || directAddress) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    lookupAddress(adjustedAddress).finally(() => setIsLoading(false));
+  }, [adjustedAddress, isEns, directAddress]);
 
   return {
-    resolvedAddress: state.resolvedAddress,
+    resolvedAddress: state.resolvedAddress || directAddress,
     resolvedEns: state.resolvedEns,
     avatarUrl: state.avatarUrl,
-    ensLinks: state.ensLinks,
     ensBio: state.ensBio,
-    isLoading: isLoading || isLoadingWeb3Bio,
+    ensLinks: state.ensLinks,
+    isLoading: isLoadingEns || isLoadingWeb3Bio,
     error
   };
 }

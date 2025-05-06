@@ -7,8 +7,6 @@ import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import { useIsMobile } from '@/hooks/use-mobile';
-import LinkedInExperienceSection from './components/LinkedInExperienceSection';
-import { useLinkedInExperience } from '@/api/services/linkedinService';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -103,17 +101,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
   
-  // Fetch LinkedIn work experience
-  const { experience, isLoading: isLoadingExperience, error: experienceError } = 
-    useLinkedInExperience(passport?.socials);
-  
-  console.log('LinkedIn experience data:', { 
-    experience, 
-    isLoading: isLoadingExperience, 
-    error: experienceError,
-    linkedinValue: passport?.socials?.linkedin 
-  });
-
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
       {loading && !loadingTimeout ? (
@@ -138,21 +125,12 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* GitHub contribution graph */}
+              {/* GitHub contribution graph moved to column 2 */}
               {showGitHubSection && (
                 <div className="mt-4">
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}
-              
-              {/* LinkedIn work experience section - placed below GitHub graph */}
-              <div className="mt-4">
-                <LinkedInExperienceSection 
-                  experience={experience} 
-                  isLoading={isLoadingExperience} 
-                  error={experienceError} 
-                />
-              </div>
             </div>
           </div>
         </HeaderContainer>

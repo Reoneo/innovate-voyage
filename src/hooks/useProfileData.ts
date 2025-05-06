@@ -41,13 +41,6 @@ export function useProfileData(ensName?: string, address?: string) {
     web3BioGitHub: blockchainData.web3BioProfile?.github
   });
   
-  // Debug LinkedIn sources
-  console.log('LinkedIn sources:', {
-    ensLinkedIn: ensLinks?.socials?.linkedin,
-    blockchainLinkedIn: blockchainData.blockchainProfile?.socials?.linkedin,
-    web3BioLinkedIn: blockchainData.web3BioProfile?.linkedin
-  });
-  
   // Generate passport
   const { passport, loading } = usePassportGenerator(
     resolvedAddress, 
@@ -60,9 +53,7 @@ export function useProfileData(ensName?: string, address?: string) {
         ...blockchainData.web3BioProfile,
         description: blockchainData.web3BioProfile?.description || ensBio,
         // Make sure GitHub username is passed through
-        github: blockchainData.web3BioProfile?.github || ensLinks?.socials?.github,
-        // Make sure LinkedIn handle is passed through
-        linkedin: blockchainData.web3BioProfile?.linkedin || ensLinks?.socials?.linkedin
+        github: blockchainData.web3BioProfile?.github || ensLinks?.socials?.github
       }
     }
   );
