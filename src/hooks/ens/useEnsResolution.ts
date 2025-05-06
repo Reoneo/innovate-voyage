@@ -80,12 +80,13 @@ export function useEnsResolution(ensName?: string, address?: string) {
             bio
           });
           
+          // Fixed type issues by ensuring we're using the correct types
           setState(prev => ({
             ...prev,
             resolvedAddress,
             ensLinks: links || prev.ensLinks,
-            avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
+            avatarUrl: avatar as string | undefined || prev.avatarUrl,
+            ensBio: bio as string | undefined || (links && 'description' in links ? links.description : undefined) || prev.ensBio
           }));
           
           setIsLoading(false);
@@ -163,12 +164,13 @@ export function useEnsResolution(ensName?: string, address?: string) {
             bio
           });
           
+          // Fixed type issues by ensuring we're using the correct types
           setState(prev => ({
             ...prev,
             resolvedEns: result.ensName,
             ensLinks: links || prev.ensLinks,
-            avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
+            avatarUrl: avatar as string | undefined || prev.avatarUrl,
+            ensBio: bio as string | undefined || (links && 'description' in links ? links.description : undefined) || prev.ensBio
           }));
           
           setIsLoading(false);

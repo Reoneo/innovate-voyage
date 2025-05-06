@@ -99,7 +99,7 @@ export function useProfilePage() {
     };
   }, [targetIdentifier]);
 
-  const { loading, error, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
+  const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl, error } = useProfileData(ens, address);
   
   // Update the error state if an error occurs in useProfileData
   useEffect(() => {
