@@ -1,188 +1,203 @@
 
-import { useCallback } from 'react';
-import { resolveEnsToAddress, resolveAddressToEns, getEnsLinks, getEnsAvatar, getEnsBio } from '@/utils/ensResolution';
+import { useState, useCallback } from 'react';
+import { ethers } from 'ethers';
+import { getEnsAvatar, getEnsBio, getEnsLinks } from '@/utils/ensResolution';
 import { EnsResolverProps, EnsFetchResult } from './types';
 
-export function useEnsResolver({
-  state,
-  setState,
-  isLoading,
-  setIsLoading,
-  error,
-  setError,
-  retryCount,
-  setRetryCount,
-  maxRetries
-}: EnsResolverProps) {
-  
-  // Function to fetch ENS data (avatar, links, bio) with timeout protection
-  const fetchEnsData = useCallback(async (name: string): Promise<EnsFetchResult> => {
+export function useEnsResolver(props: EnsResolverProps) {
+  const { 
+    state, 
+    setState, 
+    isLoading, 
+    setIsLoading, 
+    error, 
+    setError, 
+    retryCount,
+    setRetryCount,
+    maxRetries
+  } = props;
+
+  // Helper function to fetch additional ENS data (avatar, bio, links)
+  const fetchEnsData = useCallback(async (
+    ensName: string
+  ): Promise<Partial<EnsFetchResult>> => {
     try {
-      // Fetch links, avatar and bio in parallel with timeouts
-      const [links, avatar, bio] = await Promise.all([
-        Promise.race([
-          getEnsLinks(name, 'mainnet'),
-          new Promise(r => setTimeout(() => r({ socials: {}, ensLinks: [], keywords: [] }), 3000))
-        ]).catch(() => ({ socials: {}, ensLinks: [], keywords: [] })),
-        
-        Promise.race([
-          getEnsAvatar(name, 'mainnet'),
-          new Promise(r => setTimeout(() => r(null), 3000))
-        ]).catch(() => null),
-        
-        Promise.race([
-          getEnsBio(name, 'mainnet'),
-          new Promise(r => setTimeout(() => r(null), 3000))
-        ]).catch(() => null)
-      ]);
+      // Get ENS avatar
+      const avatar = await getEnsAvatar(ensName);
       
-      return { links, avatar, bio };
+      // Get ENS bio
+      const bio = await getEnsBio(ensName);
+      
+      // Get ENS links
+      const ensLinks = await getEnsLinks(ensName);
+      
+      return { 
+        avatar: avatar as string, 
+        bio: bio as string,
+        ensLinks: ensLinks as EnsFetchResult['ensLinks']
+      };
     } catch (error) {
-      console.error(`Error fetching ENS data for ${name}:`, error);
+      console.error('Error fetching ENS data:', error);
       return {};
     }
   }, []);
 
-  // Function to update state with properly typed values
-  const updateState = useCallback((updates: Partial<EnsFetchResult>, resolvedValue: { address?: string, ensName?: string }) => {
-    setState(prev => ({
-      ...prev,
-      ...(resolvedValue.address && { resolvedAddress: resolvedValue.address }),
-      ...(resolvedValue.ensName && { resolvedEns: resolvedValue.ensName }),
-      ensLinks: updates.links || prev.ensLinks,
-      avatarUrl: (updates.avatar as string | undefined) || prev.avatarUrl,
-      ensBio: (updates.bio as string | undefined) || 
-              (updates.links && 'description' in updates.links ? updates.links.description : undefined) || 
-              prev.ensBio
-    }));
-  }, [setState]);
-
-  // Function to resolve ENS name to address with retry logic and better error handling
-  const resolveEns = useCallback(async (ensName: string) => {
-    setIsLoading(true);
-    setError(null);
-    
-    let currentTry = 0;
-    
-    while (currentTry <= maxRetries) {
-      try {
-        currentTry++;
-        console.log(`Resolving ENS (attempt ${currentTry}): ${ensName}`);
-        
-        // Use a timeout to prevent hanging forever
-        const resolvePromise = resolveEnsToAddress(ensName);
-        const timeoutPromise = new Promise<null>((_, reject) => {
-          setTimeout(() => reject(new Error("ENS resolution timeout")), 5000);
-        });
-        
-        const resolvedAddress = await Promise.race([resolvePromise, timeoutPromise]) as string;
-        
-        if (resolvedAddress) {
-          // Fetch ENS data
-          const ensData = await fetchEnsData(ensName);
-          
-          console.log(`ENS resolution for ${ensName}:`, { 
-            address: resolvedAddress,
-            links: ensData.links,
-            avatar: ensData.avatar,
-            bio: ensData.bio
-          });
-          
-          // Update state with resolved data
-          updateState(ensData, { address: resolvedAddress });
-          
-          setIsLoading(false);
-          return;
-        }
-        
-        // If we got null but no error thrown, try again or give up
-        if (currentTry > maxRetries) {
-          setError(`Could not resolve ENS name: ${ensName}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
-      } catch (error) {
-        console.error(`Error resolving ${ensName} (attempt ${currentTry}):`, error);
-        
-        if (currentTry > maxRetries) {
-          setError(`Error resolving ENS: ${(error as Error).message}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
-      }
+  // Parse and validate results of ENS resolution
+  const processEnsData = useCallback(async (
+    ensName: string, 
+    resolvedAddress: string
+  ) => {
+    try {
+      const ensData = await fetchEnsData(ensName);
+      
+      setState(prev => ({
+        ...prev,
+        resolvedAddress,
+        resolvedEns: ensName,
+        avatarUrl: ensData.avatar || prev.avatarUrl,
+        ensBio: ensData.bio || prev.ensBio,
+        ensLinks: ensData.ensLinks || prev.ensLinks
+      }));
+      
+      return true;
+    } catch (err) {
+      console.error('Error processing ENS data:', err);
+      return false;
     }
-    
-    setIsLoading(false);
-    setRetryCount(currentTry);
-  }, [maxRetries, fetchEnsData, updateState, setIsLoading, setError, setRetryCount]);
+  }, [fetchEnsData, setState]);
 
-  // Function to lookup address to ENS with retry logic and better error handling
-  const lookupAddress = useCallback(async (address: string) => {
-    setIsLoading(true);
-    setError(null);
-    
-    let currentTry = 0;
-    
-    while (currentTry <= maxRetries) {
-      try {
-        currentTry++;
-        console.log(`Looking up address (attempt ${currentTry}): ${address}`);
-        
-        // Use a timeout to prevent hanging forever
-        const lookupPromise = resolveAddressToEns(address);
-        const timeoutPromise = new Promise<null>((_, reject) => {
-          setTimeout(() => reject(new Error("ENS lookup timeout")), 5000);
-        });
-        
-        const result = await Promise.race([lookupPromise, timeoutPromise]);
-        
-        if (result) {
-          // Fetch ENS data
-          const ensData = await fetchEnsData(result.ensName);
-          
-          console.log(`Address lookup for ${address}:`, {
-            ens: result.ensName,
-            links: ensData.links,
-            avatar: ensData.avatar,
-            bio: ensData.bio
-          });
-          
-          // Update state with resolved data
-          updateState(ensData, { ensName: result.ensName });
-          
-          setIsLoading(false);
-          return;
-        }
-        
-        // If we got null but no error thrown, try again or give up
-        if (currentTry > maxRetries) {
-          // Don't set error here, just log - many addresses don't have ENS
-          console.log(`No ENS found for address: ${address}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
-      } catch (error) {
-        console.error(`Error looking up ENS for address ${address} (attempt ${currentTry}):`, error);
-        
-        if (currentTry > maxRetries) {
-          setError(`Error looking up address: ${(error as Error).message}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
-      }
+  // Parse and validate results of address lookup
+  const processAddressLookup = useCallback(async (
+    address: string, 
+    resolvedEns: string
+  ) => {
+    try {
+      const ensData = await fetchEnsData(resolvedEns);
+      
+      setState(prev => ({
+        ...prev,
+        resolvedEns,
+        resolvedAddress: address,
+        avatarUrl: ensData.avatar || prev.avatarUrl,
+        ensBio: ensData.bio || prev.ensBio,
+        ensLinks: ensData.ensLinks || prev.ensLinks
+      }));
+      
+      return true;
+    } catch (err) {
+      console.error('Error processing address lookup:', err);
+      return false;
     }
-    
-    setIsLoading(false);
-    setRetryCount(currentTry);
-  }, [maxRetries, fetchEnsData, updateState, setIsLoading, setError, setRetryCount]);
+  }, [fetchEnsData, setState]);
 
-  return { resolveEns, lookupAddress };
+  // Resolve ENS name to address
+  const resolveEns = useCallback(async (
+    ensName: string
+  ) => {
+    if (!ensName) return;
+    
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      console.log(`Resolving ENS name to address: ${ensName}`);
+      
+      // Check for valid ENS name
+      if (!ensName.includes('.')) {
+        throw new Error('Invalid ENS name format');
+      }
+      
+      // Create a provider
+      const provider = new ethers.JsonRpcProvider('https://eth-mainnet.g.alchemy.com/v2/demo');
+      
+      // Resolve ENS name to address
+      const address = await provider.resolveName(ensName);
+      
+      if (!address) {
+        throw new Error(`Could not resolve ENS name: ${ensName}`);
+      }
+      
+      console.log(`Resolved ${ensName} to address: ${address}`);
+      
+      // Process the results
+      await processEnsData(ensName, address);
+      
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Error resolving ENS name:', err);
+      setError(`Failed to resolve ENS name: ${ensName}`);
+      setIsLoading(false);
+      
+      // Reset state with just the ENS name
+      setState(prev => ({
+        ...prev,
+        resolvedEns: ensName,
+        resolvedAddress: undefined
+      }));
+      
+      return false;
+    }
+  }, [processEnsData, setError, setIsLoading, setState]);
+
+  // Lookup address to ENS name
+  const lookupAddress = useCallback(async (
+    address: string
+  ) => {
+    if (!address) return;
+    
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      console.log(`Looking up address to ENS: ${address}`);
+      
+      if (!ethers.isAddress(address)) {
+        throw new Error('Invalid Ethereum address');
+      }
+      
+      // Create a provider
+      const provider = new ethers.JsonRpcProvider('https://eth-mainnet.g.alchemy.com/v2/demo');
+      
+      // Lookup address to ENS name
+      const ensName = await provider.lookupAddress(address);
+      
+      console.log(`Lookup result for ${address}: ${ensName || 'No ENS found'}`);
+      
+      if (!ensName) {
+        // No ENS found, set state with just the address
+        setState(prev => ({
+          ...prev,
+          resolvedAddress: address,
+          resolvedEns: undefined
+        }));
+        
+        setIsLoading(false);
+        return true;
+      }
+      
+      // Process the results
+      await processAddressLookup(address, ensName);
+      
+      setIsLoading(false);
+      return true;
+    } catch (err) {
+      console.error('Error looking up address to ENS:', err);
+      setError(`Failed to lookup address: ${address}`);
+      setIsLoading(false);
+      
+      // Reset state with just the address
+      setState(prev => ({
+        ...prev,
+        resolvedAddress: address,
+        resolvedEns: undefined
+      }));
+      
+      return false;
+    }
+  }, [processAddressLookup, setError, setIsLoading, setState]);
+
+  return {
+    resolveEns,
+    lookupAddress
+  };
 }
