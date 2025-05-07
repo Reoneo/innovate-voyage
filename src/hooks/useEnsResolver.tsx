@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { resolveEnsToAddress } from '@/utils/ens';
+import { resolveEnsToAddress, resolveAddressToEns } from '@/utils/ens';
 import { getAllEnsRecords } from '@/api/services/domains';
 import { mainnetProvider } from '@/utils/ethereumProviders';
 import { isValidEthereumAddress } from '@/lib/utils';
@@ -20,6 +19,8 @@ export function useEnsResolver(ensName?: string, address?: string) {
   const [ensBio, setEnsBio] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 2;
 
   useEffect(() => {
     const resolveEnsData = async () => {
@@ -42,90 +43,127 @@ export function useEnsResolver(ensName?: string, address?: string) {
 
         // Case 1: Resolve from ENS name
         if (ensName) {
-          try {
-            console.log(`Resolving ENS name: ${ensName}`);
-            const resolvedAddr = await resolveEnsToAddress(ensName);
-            
-            if (resolvedAddr) {
-              console.log(`ENS ${ensName} resolved to address: ${resolvedAddr}`);
-              setResolvedAddress(resolvedAddr);
-              setResolvedEns(ensName);
+          let currentTry = 0;
+          let resolved = false;
+          
+          while (currentTry <= MAX_RETRIES && !resolved) {
+            try {
+              currentTry++;
+              console.log(`Resolving ENS name (attempt ${currentTry}): ${ensName}`);
+              const resolvedAddr = await resolveEnsToAddress(ensName);
               
-              // Fetch avatar for ENS
-              try {
-                const avatar = await fetchAvatarUrl(ensName);
-                if (avatar) {
-                  setAvatarUrl(avatar);
-                  console.log(`Avatar found for ${ensName}: ${avatar}`);
+              if (resolvedAddr) {
+                console.log(`ENS ${ensName} resolved to address: ${resolvedAddr}`);
+                setResolvedAddress(resolvedAddr);
+                setResolvedEns(ensName);
+                resolved = true;
+                
+                // Fetch avatar for ENS - with retries for better reliability
+                try {
+                  console.log(`Fetching avatar for ${ensName}`);
+                  const avatar = await fetchAvatarUrl(ensName);
+                  if (avatar) {
+                    setAvatarUrl(avatar);
+                    console.log(`Avatar found for ${ensName}: ${avatar}`);
+                  }
+                } catch (avatarError) {
+                  console.warn(`Avatar fetch failed for ${ensName}:`, avatarError);
                 }
-              } catch (avatarError) {
-                console.warn(`Avatar fetch failed for ${ensName}:`, avatarError);
-              }
-              
-              // Get ENS text records
-              try {
-                const records = await getAllEnsRecords(ensName);
-                setEnsLinks(records);
-                // Check if records have a description field
-                if (records && records.description) {
-                  setEnsBio(records.description);
+                
+                // Get ENS text records
+                try {
+                  const records = await getAllEnsRecords(ensName);
+                  setEnsLinks(records);
+                  // Check if records have a description field
+                  if (records && records.description) {
+                    setEnsBio(records.description);
+                  }
+                  console.log(`ENS records for ${ensName}:`, records);
+                } catch (recordError) {
+                  console.warn(`ENS records fetch failed for ${ensName}:`, recordError);
                 }
-                console.log(`ENS records for ${ensName}:`, records);
-              } catch (recordError) {
-                console.warn(`ENS records fetch failed for ${ensName}:`, recordError);
+              } else if (currentTry > MAX_RETRIES) {
+                setError(`Could not resolve ENS name ${ensName}`);
+                console.error(`ENS resolution failed for ${ensName}`);
+              } else {
+                // Wait before retry
+                await new Promise(r => setTimeout(r, 800));
               }
-            } else {
-              setError(`Could not resolve ENS name ${ensName}`);
-              console.error(`ENS resolution failed for ${ensName}`);
+            } catch (ensError) {
+              console.error(`Error resolving ENS ${ensName} (attempt ${currentTry}):`, ensError);
+              if (currentTry > MAX_RETRIES) {
+                setError(`Error resolving ENS: ${ensError instanceof Error ? ensError.message : String(ensError)}`);
+              } else {
+                // Wait before retry
+                await new Promise(r => setTimeout(r, 800));
+              }
             }
-          } catch (ensError) {
-            console.error(`Error resolving ENS ${ensName}:`, ensError);
-            setError(`Error resolving ENS: ${ensError instanceof Error ? ensError.message : String(ensError)}`);
           }
+          
+          setRetryCount(currentTry);
         }
         
         // Case 2: Resolve from address
         if (address && isValidEthereumAddress(address)) {
-          try {
-            setResolvedAddress(address);
-            console.log(`Looking up ENS for address: ${address}`);
-            
-            const ens = await mainnetProvider.lookupAddress(address);
-            if (ens) {
-              console.log(`Address ${address} resolved to ENS: ${ens}`);
-              setResolvedEns(ens);
+          setResolvedAddress(address);
+          
+          let currentTry = 0;
+          let resolved = false;
+          
+          while (currentTry <= MAX_RETRIES && !resolved) {
+            try {
+              currentTry++;
+              console.log(`Looking up ENS for address (attempt ${currentTry}): ${address}`);
               
-              // Get ENS avatar
-              try {
-                const avatar = await fetchAvatarUrl(ens);
-                if (avatar) {
-                  setAvatarUrl(avatar);
-                  console.log(`Avatar found for ${ens}: ${avatar}`);
+              const ens = await mainnetProvider.lookupAddress(address);
+              if (ens) {
+                console.log(`Address ${address} resolved to ENS: ${ens}`);
+                setResolvedEns(ens);
+                resolved = true;
+                
+                // Get ENS avatar with retries
+                try {
+                  console.log(`Fetching avatar for ${ens}`);
+                  const avatar = await fetchAvatarUrl(ens);
+                  if (avatar) {
+                    setAvatarUrl(avatar);
+                    console.log(`Avatar found for ${ens}: ${avatar}`);
+                  }
+                } catch (avatarError) {
+                  console.warn(`Avatar fetch failed for ${ens}:`, avatarError);
                 }
-              } catch (avatarError) {
-                console.warn(`Avatar fetch failed for ${ens}:`, avatarError);
-              }
-              
-              // Get ENS text records
-              try {
-                const records = await getAllEnsRecords(ens);
-                setEnsLinks(records);
-                // Check if records have a description field
-                if (records && records.description) {
-                  setEnsBio(records.description);
+                
+                // Get ENS text records
+                try {
+                  const records = await getAllEnsRecords(ens);
+                  setEnsLinks(records);
+                  // Check if records have a description field
+                  if (records && records.description) {
+                    setEnsBio(records.description);
+                  }
+                  console.log(`ENS records for ${ens}:`, records);
+                } catch (recordError) {
+                  console.warn(`ENS records fetch failed for ${ens}:`, recordError);
                 }
-                console.log(`ENS records for ${ens}:`, records);
-              } catch (recordError) {
-                console.warn(`ENS records fetch failed for ${ens}:`, recordError);
+              } else if (currentTry > MAX_RETRIES) {
+                console.log(`No ENS found for address ${address} after ${MAX_RETRIES} attempts`);
+              } else {
+                // Wait before retry
+                await new Promise(r => setTimeout(r, 800));
               }
-            } else {
-              console.log(`No ENS found for address ${address}`);
+            } catch (addrError) {
+              console.error(`Error looking up ENS for address ${address} (attempt ${currentTry}):`, addrError);
+              if (currentTry > MAX_RETRIES) {
+                // Only set error but keep the address
+                setError(`Error resolving ENS for address: ${addrError instanceof Error ? addrError.message : String(addrError)}`);
+              } else {
+                // Wait before retry
+                await new Promise(r => setTimeout(r, 800));
+              }
             }
-          } catch (addrError) {
-            console.error(`Error looking up ENS for address ${address}:`, addrError);
-            // Set error but keep the address
-            setError(`Error resolving ENS for address: ${addrError instanceof Error ? addrError.message : String(addrError)}`);
           }
+          
+          setRetryCount(currentTry);
         } else if (address && !isValidEthereumAddress(address)) {
           setError(`Invalid Ethereum address format: ${address}`);
           console.error(`Invalid Ethereum address: ${address}`);
@@ -149,6 +187,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
     ensLinks,
     ensBio,
     error,
-    isLoading
+    isLoading,
+    retryCount
   };
 }

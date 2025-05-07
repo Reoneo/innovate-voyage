@@ -58,6 +58,11 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
   
+  // Check if we have talent protocol data
+  const hasTalentProtocolData = passport?.hasTalentProtocolData || 
+    (passport?.skills && passport?.skills.length > 0) ||
+    (passport?.socials?.linkedin && typeof passport?.socials?.linkedin === 'string');
+  
   // Extract GitHub username from social links with improved handling
   const extractGitHubUsername = () => {
     // First check if we already have github username directly in socials
@@ -101,11 +106,16 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   const githubUsername = extractGitHubUsername();
   
   // Only show GitHub section if there's a GitHub username
-  const showGitHubSection = !!githubUsername;
+  const showGitHubSection = !!githubUsername && hasTalentProtocolData;
   
-  // Fetch LinkedIn work experience
+  // Fetch LinkedIn work experience if we have talent protocol data
   const { experience, isLoading: isLoadingExperience, error: experienceError } = 
-    useLinkedInExperience(passport?.socials);
+    useLinkedInExperience(hasTalentProtocolData ? passport?.socials : null);
+
+  // Only show LinkedIn section if we have Talent Protocol data
+  const showLinkedInSection = hasTalentProtocolData && 
+    passport?.socials?.linkedin && 
+    typeof passport?.socials?.linkedin === 'string';
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -131,21 +141,23 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* GitHub contribution graph */}
+              {/* GitHub contribution graph - only if GitHub username exists AND we have talent protocol data */}
               {showGitHubSection && (
                 <div className="mt-4">
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}
               
-              {/* LinkedIn work experience section - placed below GitHub graph */}
-              <div className="mt-4">
-                <LinkedInExperienceSection 
-                  experience={experience} 
-                  isLoading={isLoadingExperience} 
-                  error={experienceError} 
-                />
-              </div>
+              {/* LinkedIn work experience section - only if we have talent protocol data */}
+              {showLinkedInSection && (
+                <div className="mt-4">
+                  <LinkedInExperienceSection 
+                    experience={experience} 
+                    isLoading={isLoadingExperience} 
+                    error={experienceError} 
+                  />
+                </div>
+              )}
             </div>
           </div>
         </HeaderContainer>
