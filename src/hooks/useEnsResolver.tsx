@@ -65,7 +65,10 @@ export function useEnsResolver(ensName?: string, address?: string) {
               try {
                 const records = await getAllEnsRecords(ensName);
                 setEnsLinks(records);
-                setEnsBio(records?.description || null);
+                // Check if records have a description field
+                if (records && records.description) {
+                  setEnsBio(records.description);
+                }
                 console.log(`ENS records for ${ensName}:`, records);
               } catch (recordError) {
                 console.warn(`ENS records fetch failed for ${ensName}:`, recordError);
@@ -106,7 +109,10 @@ export function useEnsResolver(ensName?: string, address?: string) {
               try {
                 const records = await getAllEnsRecords(ens);
                 setEnsLinks(records);
-                setEnsBio(records?.description || null);
+                // Check if records have a description field
+                if (records && records.description) {
+                  setEnsBio(records.description);
+                }
                 console.log(`ENS records for ${ens}:`, records);
               } catch (recordError) {
                 console.warn(`ENS records fetch failed for ${ens}:`, recordError);
