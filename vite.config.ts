@@ -1,5 +1,5 @@
 
-import { defineConfig } from 'vite';
+import { defineConfig, UserConfig, ConfigEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
@@ -8,7 +8,8 @@ import path from 'path';
 import { componentTagger } from 'lovable-tagger';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig((config: ConfigEnv): UserConfig => {
+  const { mode } = config;
   return {
     plugins: [
       react(),

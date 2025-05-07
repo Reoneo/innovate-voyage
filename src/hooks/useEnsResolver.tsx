@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { resolveEns } from '@/utils/ens';
+import { resolveEnsToAddress } from '@/utils/ens';
 import { getAllEnsRecords } from '@/api/services/domains';
 import { mainnetProvider } from '@/utils/ethereumProviders';
 import { isValidEthereumAddress } from '@/lib/utils';
@@ -43,7 +44,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
         if (ensName) {
           try {
             console.log(`Resolving ENS name: ${ensName}`);
-            const resolvedAddr = await resolveEns(ensName);
+            const resolvedAddr = await resolveEnsToAddress(ensName);
             
             if (resolvedAddr) {
               console.log(`ENS ${ensName} resolved to address: ${resolvedAddr}`);
