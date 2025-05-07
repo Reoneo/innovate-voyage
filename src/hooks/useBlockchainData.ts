@@ -12,6 +12,7 @@ import { fetchBlockchainData } from '@/api/services/blockchainDataService';
  */
 export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string) {
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [blockchainExtendedData, setBlockchainExtendedData] = useState({
     mirrorPosts: 0,
     lensActivity: 0,
@@ -26,11 +27,17 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
   const { data: tokenTransfers } = useTokenTransfers(resolvedAddress, 10);
   const { data: web3BioProfile } = useWeb3BioProfile(resolvedAddress || resolvedEns);
   
+  // Update the loading state when blockchain data loading changes
+  useEffect(() => {
+    setIsLoading(loadingBlockchain);
+  }, [loadingBlockchain]);
+  
   // Fetch additional blockchain data
   useEffect(() => {
     const loadBlockchainData = async () => {
       if (resolvedAddress) {
         try {
+          setIsLoading(true);
           const data = await fetchBlockchainData(resolvedAddress);
           // Make sure we maintain the structure expected by our state
           setBlockchainExtendedData({
@@ -43,6 +50,8 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
         } catch (error) {
           console.error('Error fetching blockchain data:', error);
           setError('Failed to fetch additional blockchain data');
+        } finally {
+          setIsLoading(false);
         }
       }
     };
@@ -70,7 +79,7 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     web3BioProfile,
     loadingBlockchain,
     blockchainExtendedData,
-    isLoading: loadingBlockchain,
+    isLoading,
     error
   };
 }

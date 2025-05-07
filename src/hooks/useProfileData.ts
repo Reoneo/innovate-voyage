@@ -27,6 +27,9 @@ export function useProfileData(ensName?: string, address?: string) {
   useEffect(() => {
     if (ensError) {
       setError(`ENS resolution error: ${ensError}`);
+    } else {
+      // Clear error if ENS resolution succeeds
+      setError(null);
     }
   }, [ensError]);
   
@@ -57,7 +60,11 @@ export function useProfileData(ensName?: string, address?: string) {
     : null;
   
   // Generate passport with error handling
-  const { passport, loading: passportLoading, error: passportError } = usePassportGenerator(
+  const { 
+    passport, 
+    loading: passportLoading, 
+    error: passportError 
+  } = usePassportGenerator(
     resolvedAddress, 
     resolvedEns, 
     {
