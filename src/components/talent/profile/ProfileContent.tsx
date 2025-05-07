@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -58,10 +57,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
   
-  // Check if we have talent protocol data
-  const hasTalentProtocolData = passport?.hasTalentProtocolData || 
-    (passport?.skills && passport?.skills.length > 0) ||
-    (passport?.socials?.linkedin && typeof passport?.socials?.linkedin === 'string');
+  // Check if we have talent protocol data - look for score to determine this
+  const hasTalentProtocolData = passport?.score !== undefined && passport?.score !== null;
   
   // Extract GitHub username from social links with improved handling
   const extractGitHubUsername = () => {
@@ -105,7 +102,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Get GitHub username from ENS records
   const githubUsername = extractGitHubUsername();
   
-  // Only show GitHub section if there's a GitHub username
+  // Only show GitHub section if there's a GitHub username AND we have talent protocol data
   const showGitHubSection = !!githubUsername && hasTalentProtocolData;
   
   // Fetch LinkedIn work experience if we have talent protocol data
@@ -141,14 +138,14 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* GitHub contribution graph - only if GitHub username exists AND we have talent protocol data */}
+              {/* GitHub contribution graph - only if talent protocol data exists */}
               {showGitHubSection && (
                 <div className="mt-4">
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}
               
-              {/* LinkedIn work experience section - only if we have talent protocol data */}
+              {/* LinkedIn work experience section - only if talent protocol data exists */}
               {showLinkedInSection && (
                 <div className="mt-4">
                   <LinkedInExperienceSection 

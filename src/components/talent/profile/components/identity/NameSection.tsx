@@ -38,16 +38,16 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
   const { toast } = useToast();
   const [followLoading, setFollowLoading] = useState<{[key: string]: boolean}>({});
 
-  // Load EFP data immediately
+  // Load EFP data immediately and set up faster polling
   useEffect(() => {
     if (ownerAddress) {
-      // Initial fetch
+      // Initial fetch with higher priority
       refreshData();
       
-      // Set up polling for faster updates (every 10 seconds)
+      // Set up polling for faster updates (every 5 seconds - reduced from 10)
       const intervalId = setInterval(() => {
         refreshData();
-      }, 10000);
+      }, 5000);
       
       return () => clearInterval(intervalId);
     }
@@ -85,10 +85,21 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       setFollowLoading(prev => ({ ...prev, [address]: true }));
       await followAddress(address);
       
-      // Update followers data
+      // Update followers data immediately
       refreshData();
+      
+      toast({
+        title: "Success",
+        description: "Follow status updated successfully",
+        variant: "default"
+      });
     } catch (error) {
       console.error('Follow error:', error);
+      toast({
+        title: "Error",
+        description: "There was a problem updating follow status",
+        variant: "destructive"
+      });
     } finally {
       setFollowLoading(prev => ({ ...prev, [address]: false }));
     }

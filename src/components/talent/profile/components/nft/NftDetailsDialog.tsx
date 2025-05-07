@@ -1,12 +1,13 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ExternalLink, ImageIcon, Network, ArrowUp, ArrowDown, Wallet, Heart } from 'lucide-react';
+import { ExternalLink, ImageIcon, User, ArrowUp, ArrowDown, Wallet, Check } from 'lucide-react';
 import { OpenSeaNft } from '@/api/services/openseaService';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface NftDetailsDialogProps {
   nft: OpenSeaNft;
@@ -15,6 +16,40 @@ interface NftDetailsDialogProps {
 }
 
 const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpenProfile }) => {
+  const [collectionImage, setCollectionImage] = useState<string | null>(null);
+  const [isLoadingCollection, setIsLoadingCollection] = useState(true);
+
+  // Fetch collection data when component mounts
+  useEffect(() => {
+    const fetchCollectionImage = async () => {
+      if (!nft.collectionAddress) {
+        setIsLoadingCollection(false);
+        return;
+      }
+      
+      try {
+        // Try to fetch collection image from OpenSea API
+        const apiUrl = `https://api.opensea.io/api/v1/asset_contract/${nft.collectionAddress}`;
+        const response = await fetch(apiUrl);
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.image_url) {
+            setCollectionImage(data.image_url);
+          } else if (data.collection && data.collection.image_url) {
+            setCollectionImage(data.collection.image_url);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching collection image:", error);
+      } finally {
+        setIsLoadingCollection(false);
+      }
+    };
+    
+    fetchCollectionImage();
+  }, [nft.collectionAddress]);
+
   const handleProfileClick = () => {
     if (onOpenProfile && nft.owner) {
       onOpenProfile(nft.owner);
@@ -26,15 +61,17 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
   const getChainLogo = (chain: string | undefined) => {
     switch (chain) {
       case 'ethereum':
-        return 'https://cdn.creazilla.com/icons/3253747/ethereum-icon-lg.png';
+        return 'https://etherscan.io/assets/img/svg/brands/ethereum-original.svg';
       case 'base':
-        return 'https://cryptologos.cc/logos/base-logo.svg';
+        return 'https://assets.coingecko.com/coins/images/33835/small/base.png';
       case 'optimism':
-        return 'https://altcoinsbox.com/wp-content/uploads/2023/03/optimism-logo-600x600.webp';
+        return 'https://assets.coingecko.com/coins/images/25244/small/Optimism.png';
       case 'polygon':
-        return 'https://altcoinsbox.com/wp-content/uploads/2023/03/matic-logo-600x600.webp';
+        return 'https://assets.coingecko.com/coins/images/4713/small/polygon.png';
+      case 'arbitrum':
+        return 'https://assets.coingecko.com/coins/images/16547/small/arbitrum.png';
       default:
-        return 'https://cdn.creazilla.com/icons/3253747/ethereum-icon-lg.png'; // Default to Ethereum
+        return 'https://etherscan.io/assets/img/svg/brands/ethereum-original.svg';
     }
   };
 
@@ -48,12 +85,14 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
         return 'Optimism';
       case 'polygon':
         return 'Polygon';
+      case 'arbitrum':
+        return 'Arbitrum';
       default:
         return 'Ethereum';
     }
   };
 
-  // Format date for display - helper function
+  // Format date for display
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Unknown';
     const date = new Date(dateString);
@@ -78,10 +117,10 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl bg-white text-gray-800 border border-gray-200 shadow-lg p-0 overflow-hidden">
+      <DialogContent className="max-w-4xl bg-white text-gray-800 p-0 overflow-hidden rounded-xl">
         <div className="sticky top-0 bg-white z-10 border-b border-gray-200">
           <DialogHeader className="px-6 py-4">
-            <DialogTitle className="flex items-center gap-2 text-xl">
+            <DialogTitle className="flex items-center gap-2 text-xl font-medium">
               <img 
                 src={getChainLogo(nft.chain)} 
                 alt={chainName(nft.chain)}
@@ -95,7 +134,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
         <div className="overflow-y-auto max-h-[80vh]">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             {/* Left column - NFT image */}
-            <div className="bg-gray-50 flex items-center justify-center p-4 min-h-[300px]">
+            <div className="bg-gray-50 flex items-center justify-center p-4 min-h-[300px] border-r border-gray-100">
               {nft.imageUrl ? (
                 <img 
                   src={nft.imageUrl} 
@@ -114,23 +153,46 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
             <div className="p-6 space-y-6">
               {/* Collection info */}
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                  <img 
-                    src={nft.collectionImage || `https://api.dicebear.com/6.x/shapes/svg?seed=${nft.collectionName}`} 
-                    alt={nft.collectionName}
-                    className="h-full w-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = `https://api.dicebear.com/6.x/shapes/svg?seed=${nft.collectionName}`;
-                    }}
-                  />
-                </div>
-                <div>
-                  <h3 className="font-medium">{nft.collectionName}</h3>
+                {isLoadingCollection ? (
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={collectionImage || nft.collectionImage || `https://api.dicebear.com/6.x/shapes/svg?seed=${nft.collectionName}`} 
+                      alt={nft.collectionName}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://api.dicebear.com/6.x/shapes/svg?seed=${nft.collectionName}`;
+                      }}
+                    />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium truncate">{nft.collectionName}</h3>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Network className="h-3.5 w-3.5" />
+                    <img 
+                      src={getChainLogo(nft.chain)} 
+                      alt={chainName(nft.chain)}
+                      className="h-3.5 w-3.5"
+                    />
                     <span>{chainName(nft.chain)}</span>
                   </div>
                 </div>
+                
+                {nft.verified && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="bg-blue-100 p-1 rounded-full">
+                          <Check className="h-4 w-4 text-blue-600" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Verified collection
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </div>
               
               <Separator />
@@ -151,7 +213,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
                     </div>
                     
                     {/* Price history indicator */}
-                    {nft.priceChange && (
+                    {nft.priceChange !== undefined && (
                       <div className={`flex items-center text-sm ${nft.priceChange > 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {nft.priceChange > 0 ? (
                           <ArrowUp className="h-3.5 w-3.5 mr-1" />
@@ -195,7 +257,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
                     className="w-full justify-start p-3 h-auto"
                     onClick={handleProfileClick}
                   >
-                    <Wallet className="h-4 w-4 mr-2 text-gray-600" />
+                    <User className="h-4 w-4 mr-2 text-gray-600" />
                     <span className="truncate">{nft.owner}</span>
                   </Button>
                 </div>
@@ -237,36 +299,37 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
               
               {/* Action buttons */}
               <div className="flex gap-2 pt-4">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" className="rounded-full">
-                        <Heart className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Add to favorites</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
                 <Button 
                   variant="outline" 
-                  className="flex flex-1 items-center gap-1 border-gray-200 hover:bg-gray-50 text-gray-800"
+                  className="flex flex-1 items-center gap-1 text-gray-800"
                   asChild
                 >
                   <a 
-                    href={`https://opensea.io/assets/${nft.chain}/${nft.id}`} 
+                    href={`https://opensea.io/assets/${nft.chain}/${nft.collectionAddress}/${nft.tokenId}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
                     View on OpenSea <ExternalLink className="h-4 w-4 ml-1" />
                   </a>
                 </Button>
+                
+                <Button 
+                  variant="outline"
+                  className="flex flex-1 items-center gap-1 text-gray-800"
+                  asChild
+                >
+                  <a
+                    href={`https://${nft.chain === 'ethereum' ? '' : nft.chain + '.'}etherscan.io/token/${nft.collectionAddress}?a=${nft.tokenId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View on Etherscan <ExternalLink className="h-4 w-4 ml-1" />
+                  </a>
+                </Button>
               </div>
               
               {/* Details & Activity */}
-              {nft.lastActivity && (
+              {nft.lastActivity && nft.lastActivity.length > 0 && (
                 <div>
                   <h3 className="text-sm text-gray-500 mb-2">Recent Activity</h3>
                   <div className="space-y-2">

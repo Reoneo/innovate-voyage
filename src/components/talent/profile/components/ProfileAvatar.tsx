@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface ProfileAvatarProps {
@@ -9,6 +9,15 @@ interface ProfileAvatarProps {
 }
 
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name, onError }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  
+  useEffect(() => {
+    // Reset states when avatarUrl changes
+    setImageLoaded(false);
+    setLoadError(false);
+  }, [avatarUrl]);
+  
   // Get initials for fallback
   const getInitials = (name: string): string => {
     if (!name) return 'BP';
@@ -43,17 +52,32 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name, onError 
     return colors[hash % colors.length];
   };
 
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
+  const handleImageError = () => {
+    setLoadError(true);
+    if (onError) {
+      onError();
+    }
+  };
+
   return (
     <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto"> 
-      {avatarUrl ? (
+      {avatarUrl && !loadError ? (
         <AvatarImage 
           src={avatarUrl} 
           alt={name} 
           className="object-cover" 
-          onError={onError}
+          onError={handleImageError}
+          onLoad={handleImageLoad}
         />
       ) : null}
-      <AvatarFallback className={`text-2xl font-bold ${getColorClass(name)}`}>
+      <AvatarFallback 
+        className={`text-2xl font-bold ${getColorClass(name)}`}
+        delayMs={avatarUrl ? 1000 : 0} // Only delay if we're trying to load an image
+      >
         {getInitials(name)}
       </AvatarFallback>
     </Avatar>
