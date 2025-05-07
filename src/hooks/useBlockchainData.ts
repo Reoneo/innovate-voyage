@@ -11,6 +11,7 @@ import { fetchBlockchainData } from '@/api/services/blockchainDataService';
  * @returns Object containing blockchain profile, transactions, token transfers, web3 bio and additional blockchain data
  */
 export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string) {
+  const [error, setError] = useState<string | null>(null);
   const [blockchainExtendedData, setBlockchainExtendedData] = useState({
     mirrorPosts: 0,
     lensActivity: 0,
@@ -41,6 +42,7 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
           });
         } catch (error) {
           console.error('Error fetching blockchain data:', error);
+          setError('Failed to fetch additional blockchain data');
         }
       }
     };
@@ -51,6 +53,10 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
   // Merge blockchain profile with extended data
   const enhancedBlockchainProfile = blockchainProfile ? {
     ...blockchainProfile,
+    blockchainExtendedData,
+    web3BioProfile,
+    transactions,
+    tokenTransfers,
     mirrorPosts: blockchainExtendedData.mirrorPosts,
     lensActivity: blockchainExtendedData.lensActivity,
     boxDomains: blockchainExtendedData.boxDomains,
@@ -63,6 +69,8 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     tokenTransfers,
     web3BioProfile,
     loadingBlockchain,
-    blockchainExtendedData
+    blockchainExtendedData,
+    isLoading: loadingBlockchain,
+    error
   };
 }

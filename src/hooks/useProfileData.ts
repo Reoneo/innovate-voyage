@@ -35,7 +35,9 @@ export function useProfileData(ensName?: string, address?: string) {
     blockchainProfile, 
     transactions, 
     isLoading: blockchainLoading, 
-    error: blockchainError 
+    error: blockchainError,
+    web3BioProfile,
+    blockchainExtendedData
   } = useBlockchainData(resolvedAddress, resolvedEns);
   
   // Enhance blockchain profile with ENS links
@@ -50,7 +52,7 @@ export function useProfileData(ensName?: string, address?: string) {
         description: blockchainProfile.description || 
                      ensLinks?.description || 
                      ensBio ||
-                     blockchainProfile.blockchainExtendedData?.description
+                     blockchainExtendedData?.description
       }
     : null;
   
@@ -59,15 +61,20 @@ export function useProfileData(ensName?: string, address?: string) {
     resolvedAddress, 
     resolvedEns, 
     {
-      ...blockchainProfile,
       blockchainProfile: enhancedBlockchainProfile,
-      avatarUrl,
+      transactions: transactions || [],
+      tokenTransfers: blockchainProfile?.tokenTransfers || [],
       web3BioProfile: {
-        ...blockchainProfile.web3BioProfile,
-        description: blockchainProfile.web3BioProfile?.description || ensBio,
-        github: blockchainProfile.web3BioProfile?.github || ensLinks?.socials?.github,
-        linkedin: blockchainProfile.web3BioProfile?.linkedin || ensLinks?.socials?.linkedin
-      }
+        ...web3BioProfile,
+        description: web3BioProfile?.description || ensBio,
+        github: web3BioProfile?.github || ensLinks?.socials?.github,
+        linkedin: web3BioProfile?.linkedin || ensLinks?.socials?.linkedin
+      },
+      blockchainExtendedData: blockchainExtendedData || {
+        boxDomains: [],
+        snsActive: false
+      },
+      avatarUrl
     }
   );
   
@@ -89,9 +96,9 @@ export function useProfileData(ensName?: string, address?: string) {
     error,
     passport,
     blockchainProfile: enhancedBlockchainProfile,
-    transactions: blockchainProfile?.transactions,
+    transactions,
     resolvedEns,
-    blockchainExtendedData: blockchainProfile?.blockchainExtendedData,
+    blockchainExtendedData,
     avatarUrl
   };
 }

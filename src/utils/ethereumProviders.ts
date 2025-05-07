@@ -2,31 +2,32 @@ import { ethers } from 'ethers';
 
 // Multiple provider URLs for redundancy with public endpoints
 const MAINNET_RPC_URLS = [
-  // Public RPC endpoints - use multiple for fallbacks
+  // Custom Infura endpoint with API key
+  "https://mainnet.infura.io/v3/a48e86456d8043f6bce467b4076ab638",
+  // Fallback public RPC endpoints
   "https://eth.llamarpc.com",
   "https://ethereum.publicnode.com",
-  "https://rpc.ankr.com/eth",
-  "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+  "https://rpc.ankr.com/eth"
 ];
 
 // Create a FallbackProvider for better reliability
 function createMainnetProvider() {
   try {
-    // Try to use environment variable first if available
-    if (import.meta.env.VITE_ETHEREUM_RPC_URL) {
-      const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_ETHEREUM_RPC_URL);
-      provider.getBlockNumber().catch(err => {
-        console.warn("Custom RPC provider failed, using fallbacks", err);
-        return createFallbackProvider();
-      });
-      return provider;
-    }
+    // Try to use the primary Infura provider first
+    const provider = new ethers.JsonRpcProvider(MAINNET_RPC_URLS[0]);
+    console.log("Using Infura provider for ENS resolution");
     
-    return createFallbackProvider();
+    // Test the provider
+    provider.getBlockNumber().catch(err => {
+      console.warn("Infura provider failed, trying fallbacks", err);
+      return createFallbackProvider();
+    });
+    
+    return provider;
   } catch (error) {
     console.error("Error creating provider:", error);
     // Last resort - try direct provider
-    return new ethers.JsonRpcProvider(MAINNET_RPC_URLS[0]);
+    return new ethers.JsonRpcProvider(MAINNET_RPC_URLS[1]);
   }
 }
 
@@ -64,4 +65,4 @@ export const optimismProvider = new ethers.JsonRpcProvider(
   import.meta.env.VITE_OPTIMISM_RPC_URL || "https://optimism-mainnet.public.blastapi.io"
 );
 
-console.log("Ethereum providers initialized");
+console.log("Ethereum providers initialized with Infura API key");
