@@ -18,9 +18,8 @@ export function useProfilePage() {
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
-    // Attempt to clear any browser cache
+    // Clear browser cache
     try {
-      // Force page to be freshly loaded 
       if ('caches' in window) {
         const cacheNames = caches.keys();
         cacheNames.then(names => {
@@ -43,31 +42,39 @@ export function useProfilePage() {
       if (isValidEthereumAddress(normalizedIdentifier)) {
         console.log(`Valid Ethereum address detected: ${normalizedIdentifier}`);
         setAddress(normalizedIdentifier);
-        setEns(undefined); // Clear ENS when looking up by address
+        setEns(undefined);
       } else {
         // Not a valid address, treat as ENS or domain
-        const ensValue = normalizedIdentifier.includes('.') ? normalizedIdentifier : `${normalizedIdentifier}.eth`;
-        console.log(`Treating as ENS: ${ensValue}`);
+        // Make sure we handle both .eth and .box domains properly
+        let ensValue = normalizedIdentifier;
+        
+        // If no domain extension is present, default to .eth
+        if (!normalizedIdentifier.includes('.')) {
+          ensValue = `${normalizedIdentifier}.eth`;
+        }
+        
+        console.log(`Treating as ENS/domain: ${ensValue}`);
         setEns(ensValue);
-        setAddress(undefined); // Clear address when looking up by ENS
+        setAddress(undefined);
       }
     }
 
+    // Set up connected wallet info
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
     // Set a timeout for loading
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 5000);
+    }, 8000); // Increased timeout for slower connections
 
-    // Always optimize for desktop on profile page
+    // Optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
       metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
     }
 
-    // Clean URL - remove timestamp query parameter and fix duplicate recruitment.box
+    // Clean URL - remove timestamp parameter and fix duplicates
     if (window.history) {
       let cleanUrl = window.location.pathname;
       
@@ -95,7 +102,19 @@ export function useProfilePage() {
     };
   }, [targetIdentifier]);
 
-  const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
+  // Fetch profile data with error handling
+  const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl, error } = useProfileData(ens, address);
+  
+  useEffect(() => {
+    if (error) {
+      console.error("Error loading profile:", error);
+      toast({
+        title: "Error loading profile",
+        description: `There was a problem loading this profile: ${error}`,
+        variant: "destructive"
+      });
+    }
+  }, [error, toast]);
   
   const { profileRef } = usePdfExport();
 
@@ -122,6 +141,7 @@ export function useProfilePage() {
     passport,
     blockchainProfile,
     avatarUrl,
+    error,
     profileRef,
     connectedWallet,
     handleDisconnect,

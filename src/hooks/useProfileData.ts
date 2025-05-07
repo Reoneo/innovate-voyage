@@ -2,6 +2,7 @@
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { useBlockchainData } from '@/hooks/useBlockchainData';
 import { usePassportGenerator } from '@/hooks/usePassportGenerator';
+import { useState, useEffect } from 'react';
 
 /**
  * Hook to fetch and combine all profile data for a blockchain user
@@ -10,13 +11,27 @@ import { usePassportGenerator } from '@/hooks/usePassportGenerator';
  * @returns Object containing profile data including passport, blockchain data, and loading state
  */
 export function useProfileData(ensName?: string, address?: string) {
-  // Resolve ENS and address
-  const { resolvedAddress, resolvedEns, avatarUrl, ensLinks, ensBio } = useEnsResolver(ensName, address);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Resolve ENS and address with error handling
+  const { 
+    resolvedAddress, 
+    resolvedEns, 
+    avatarUrl, 
+    ensLinks, 
+    ensBio, 
+    error: ensError, 
+    isLoading: ensLoading 
+  } = useEnsResolver(ensName, address);
+  
+  useEffect(() => {
+    if (ensError) {
+      setError(`ENS resolution error: ${ensError}`);
+    }
+  }, [ensError]);
   
   // Fetch blockchain data
   const blockchainData = useBlockchainData(resolvedAddress, resolvedEns);
-  
-  console.log('ENS Links in useProfileData:', ensLinks);
   
   // Enhance blockchain profile with ENS links
   const enhancedBlockchainProfile = blockchainData.blockchainProfile 
@@ -34,22 +49,8 @@ export function useProfileData(ensName?: string, address?: string) {
       }
     : null;
   
-  // Debug GitHub sources
-  console.log('GitHub sources:', {
-    ensGitHub: ensLinks?.socials?.github,
-    blockchainGitHub: blockchainData.blockchainProfile?.socials?.github,
-    web3BioGitHub: blockchainData.web3BioProfile?.github
-  });
-  
-  // Debug LinkedIn sources
-  console.log('LinkedIn sources:', {
-    ensLinkedIn: ensLinks?.socials?.linkedin,
-    blockchainLinkedIn: blockchainData.blockchainProfile?.socials?.linkedin,
-    web3BioLinkedIn: blockchainData.web3BioProfile?.linkedin
-  });
-  
-  // Generate passport
-  const { passport, loading } = usePassportGenerator(
+  // Generate passport with error handling
+  const { passport, loading: passportLoading, error: passportError } = usePassportGenerator(
     resolvedAddress, 
     resolvedEns, 
     {
@@ -59,23 +60,24 @@ export function useProfileData(ensName?: string, address?: string) {
       web3BioProfile: {
         ...blockchainData.web3BioProfile,
         description: blockchainData.web3BioProfile?.description || ensBio,
-        // Make sure GitHub username is passed through
         github: blockchainData.web3BioProfile?.github || ensLinks?.socials?.github,
-        // Make sure LinkedIn handle is passed through
         linkedin: blockchainData.web3BioProfile?.linkedin || ensLinks?.socials?.linkedin
       }
     }
   );
+  
+  useEffect(() => {
+    if (passportError) {
+      setError(`Passport generation error: ${passportError}`);
+    }
+  }, [passportError]);
 
-  console.log('useProfileData - bio sources:', {
-    ensBio,
-    web3BioDescription: blockchainData.web3BioProfile?.description,
-    blockchainProfileDesc: enhancedBlockchainProfile?.description,
-    passportBio: passport?.bio
-  });
+  // Determine overall loading state
+  const loading = ensLoading || blockchainData.isLoading || passportLoading;
 
   return {
     loading,
+    error,
     passport,
     blockchainProfile: enhancedBlockchainProfile,
     transactions: blockchainData.transactions,

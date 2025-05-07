@@ -5,6 +5,7 @@ import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
 import AnimatedBackground from '@/components/talent/profile/components/AnimatedBackground';
 import { Helmet } from 'react-helmet-async';
+import { Loader2 } from 'lucide-react';
 
 const TalentProfile = () => {
   const { 
@@ -15,7 +16,8 @@ const TalentProfile = () => {
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges
+    handleSaveChanges,
+    error
   } = useProfilePage();
 
   useEffect(() => {
@@ -38,6 +40,17 @@ const TalentProfile = () => {
       window.history.replaceState({}, document.title, cleanUrl);
     }
   }, [passport?.avatar_url]);
+
+  // Fallback content when loading but not timed out yet
+  if (loading && !loadingTimeout && !error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <h2 className="text-xl font-medium">Loading profile for {ensNameOrAddress}...</h2>
+        <p className="text-muted-foreground mt-2">This may take a moment</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -74,6 +87,7 @@ const TalentProfile = () => {
             passport={passport}
             profileRef={profileRef}
             ensNameOrAddress={ensNameOrAddress}
+            error={error}
           />
         </div>
       </div>
