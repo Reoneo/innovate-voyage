@@ -42,7 +42,7 @@ export function useWeb3Credentials(address: string | undefined) {
 export function useAllEnsRecords() {
   return useQuery({
     queryKey: ['ensRecords'],
-    queryFn: web3Api.getAllEnsRecords,
+    queryFn: () => web3Api.getAllEnsRecords(),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
@@ -50,7 +50,7 @@ export function useAllEnsRecords() {
 export function useAllSkillNfts() {
   return useQuery({
     queryKey: ['skillNfts'],
-    queryFn: web3Api.getAllSkillNfts,
+    queryFn: () => web3Api.getAllSkillNfts(),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
