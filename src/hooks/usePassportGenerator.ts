@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { BlockchainPassport, calculateHumanScore } from '@/lib/utils';
 import { truncateAddress } from '@/lib/utils';
@@ -28,6 +27,7 @@ export function usePassportGenerator(
 ) {
   const [passport, setPassport] = useState<BlockchainPassport | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -85,8 +85,6 @@ export function usePassportGenerator(
           if (web3BioProfile.linkedin) skills.push({ name: 'LinkedIn User', proof: web3BioProfile.linkedin });
         }
         
-        // Removed the mock TalentProtocol skills
-        
         if (blockchainExtendedData?.boxDomains && blockchainExtendedData.boxDomains.length > 0) {
           skills.push({ name: '.box Domain Owner', proof: 'box.domains' });
         }
@@ -95,8 +93,6 @@ export function usePassportGenerator(
           skills.push({ name: 'SNS.ID User', proof: 'sns.id' });
         }
         
-        // Prepare social links, giving precedence to blockchainProfile.socials if available
-        // This ensures we capture GitHub username from ENS records
         const socials = {
           github: web3BioProfile?.github || blockchainProfile?.socials?.github || undefined,
           twitter: web3BioProfile?.twitter || blockchainProfile?.socials?.twitter || undefined,
@@ -105,26 +101,20 @@ export function usePassportGenerator(
           email: web3BioProfile?.email || blockchainProfile?.socials?.email || undefined
         };
         
-        // Log the GitHub data sources for debugging
         console.log('GitHub username sources:', {
           web3BioGithub: web3BioProfile?.github,
           blockchainProfileGithub: blockchainProfile?.socials?.github
         });
         
-        // Process the bio correctly from all possible sources
         let bio = '';
         
-        // First try to get it directly from web3BioProfile
         if (web3BioProfile?.description) {
           bio = web3BioProfile.description;
         } 
-        // Next try the blockchain profile description
         else if (blockchainProfile?.description) {
           bio = blockchainProfile.description;
         } 
-        // Finally check extended data
         else if (blockchainExtendedData?.description) {
-          // Make sure we're handling both string and object formats
           if (typeof blockchainExtendedData.description === 'string') {
             bio = blockchainExtendedData.description;
           }
@@ -153,6 +143,7 @@ export function usePassportGenerator(
         setPassport(newPassport);
       } catch (error) {
         console.error('Error creating passport:', error);
+        setError('Error creating passport');
       } finally {
         setLoading(false);
       }
@@ -171,6 +162,7 @@ export function usePassportGenerator(
 
   return {
     passport: passportWithScore,
-    loading
+    loading,
+    error
   };
 }
