@@ -68,7 +68,7 @@ export default function GitHubContributionGraph({
       
       {!loading && !error && username && (
         <div className="github-calendar-wrapper px-1 py-1">
-          {/* Modified header - GitHub Activity with contributions count */}
+          {/* Modified header with Github Activity text */}
           <div className="bg-gray-800/50 rounded-md p-1 mb-0 flex items-center justify-center">
             <div className="text-sm font-semibold text-white">
               <span className="text-base font-bold">GitHub Activity: </span>
@@ -78,7 +78,7 @@ export default function GitHubContributionGraph({
             </div>
           </div>
           
-          {/* GitHub Calendar - reset to simple styling */}
+          {/* GitHub Calendar with white text labels as requested */}
           <div className="calendar-container" style={{ 
             minHeight: '70px',
             maxHeight: '90px',
@@ -92,13 +92,13 @@ export default function GitHubContributionGraph({
                   username={username}
                   colorScheme="dark"
                   theme={theme}
-                  hideColorLegend={true} 
+                  hideColorLegend={true}
                   hideMonthLabels={false}
                   showWeekdayLabels={true}
-                  blockSize={7} 
-                  blockMargin={1.5} 
-                  blockRadius={1} 
-                  fontSize={7} 
+                  blockSize={7}
+                  blockMargin={1.5}
+                  blockRadius={1}
+                  fontSize={7}
                   transformData={transformData}
                   labels={{
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],

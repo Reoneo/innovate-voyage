@@ -13,10 +13,8 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   // Create a filtered version of socials without LinkedIn for home page
   const updatedSocials = { ...socials };
   
-  // Remove LinkedIn if we're on the home page
-  if (window.location.pathname === '/' && updatedSocials.linkedin) {
-    delete updatedSocials.linkedin;
-  }
+  // Log socials for debugging
+  console.log("SocialMediaLinks - socials:", socials);
   
   if (isLoading) {
     return (

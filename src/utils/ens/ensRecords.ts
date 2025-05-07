@@ -1,6 +1,8 @@
+
 import { mainnetProvider } from '../ethereumProviders';
 import { fetchWeb3BioProfile } from '../../api/utils/web3Utils';
 import { getRealAvatar } from '../../api/services/avatarService';
+import { ccipReadEnabled } from './ccipReadHandler';
 
 /**
  * Gets avatar for an ENS name
@@ -8,6 +10,17 @@ import { getRealAvatar } from '../../api/services/avatarService';
 export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
   try {
     console.log(`Getting avatar for ${ensName}`);
+    
+    // Special handling for .box domains
+    if (ensName.endsWith('.box')) {
+      console.log(`Using CCIP-Read to get .box avatar for ${ensName}`);
+      const boxData = await ccipReadEnabled.resolveDotBit(ensName);
+      
+      if (boxData && boxData.avatar) {
+        console.log(`Got .box avatar from CCIP-Read: ${boxData.avatar}`);
+        return boxData.avatar;
+      }
+    }
     
     // Handle EIP155 formatted avatar URIs directly or any other format
     // by using the refactored getRealAvatar function which handles all cases
@@ -58,6 +71,23 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
 export async function getEnsBio(ensName: string, network = 'mainnet'): Promise<string | null> {
   try {
     if (!ensName) return null;
+    
+    // Special handling for .box domains
+    if (ensName.endsWith('.box')) {
+      console.log(`Using CCIP-Read to get .box bio for ${ensName}`);
+      const boxData = await ccipReadEnabled.resolveDotBit(ensName);
+      
+      // Check for profile description in the dot bit data
+      if (boxData) {
+        const response = await fetch(`https://indexer-v1.did.id/v1/account/records?account=${ensName}&key=profile.description`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.data && data.data.length > 0) {
+            return data.data[0].value;
+          }
+        }
+      }
+    }
     
     // Use web3.bio API to get description/bio
     const profile = await fetchWeb3BioProfile(ensName);
