@@ -31,21 +31,26 @@ export function useProfileData(ensName?: string, address?: string) {
   }, [ensError]);
   
   // Fetch blockchain data
-  const blockchainData = useBlockchainData(resolvedAddress, resolvedEns);
+  const { 
+    blockchainProfile, 
+    transactions, 
+    isLoading: blockchainLoading, 
+    error: blockchainError 
+  } = useBlockchainData(resolvedAddress, resolvedEns);
   
   // Enhance blockchain profile with ENS links
-  const enhancedBlockchainProfile = blockchainData.blockchainProfile 
+  const enhancedBlockchainProfile = blockchainProfile 
     ? {
-        ...blockchainData.blockchainProfile,
+        ...blockchainProfile,
         socials: {
           ...ensLinks?.socials,
-          ...(blockchainData.blockchainProfile.socials || {})
+          ...(blockchainProfile.socials || {})
         },
         ensLinks: ensLinks?.ensLinks || [],
-        description: blockchainData.blockchainProfile.description || 
+        description: blockchainProfile.description || 
                      ensLinks?.description || 
                      ensBio ||
-                     blockchainData.blockchainExtendedData?.description
+                     blockchainProfile.blockchainExtendedData?.description
       }
     : null;
   
@@ -54,14 +59,14 @@ export function useProfileData(ensName?: string, address?: string) {
     resolvedAddress, 
     resolvedEns, 
     {
-      ...blockchainData,
+      ...blockchainProfile,
       blockchainProfile: enhancedBlockchainProfile,
       avatarUrl,
       web3BioProfile: {
-        ...blockchainData.web3BioProfile,
-        description: blockchainData.web3BioProfile?.description || ensBio,
-        github: blockchainData.web3BioProfile?.github || ensLinks?.socials?.github,
-        linkedin: blockchainData.web3BioProfile?.linkedin || ensLinks?.socials?.linkedin
+        ...blockchainProfile.web3BioProfile,
+        description: blockchainProfile.web3BioProfile?.description || ensBio,
+        github: blockchainProfile.web3BioProfile?.github || ensLinks?.socials?.github,
+        linkedin: blockchainProfile.web3BioProfile?.linkedin || ensLinks?.socials?.linkedin
       }
     }
   );
@@ -70,19 +75,23 @@ export function useProfileData(ensName?: string, address?: string) {
     if (passportError) {
       setError(`Passport generation error: ${passportError}`);
     }
-  }, [passportError]);
+    
+    if (blockchainError) {
+      setError(`Blockchain data error: ${blockchainError}`);
+    }
+  }, [passportError, blockchainError]);
 
   // Determine overall loading state
-  const loading = ensLoading || blockchainData.isLoading || passportLoading;
+  const loading = ensLoading || blockchainLoading || passportLoading;
 
   return {
     loading,
     error,
     passport,
     blockchainProfile: enhancedBlockchainProfile,
-    transactions: blockchainData.transactions,
+    transactions: blockchainProfile?.transactions,
     resolvedEns,
-    blockchainExtendedData: blockchainData.blockchainExtendedData,
+    blockchainExtendedData: blockchainProfile?.blockchainExtendedData,
     avatarUrl
   };
 }

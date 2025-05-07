@@ -39,9 +39,12 @@ export default defineConfig({
   },
   server: {
     host: true,
-    port: 5173,
+    port: 8080,
     strictPort: true,
     // Allow all hosts to access the dev server
-    allowedHosts: 'all',
+    cors: true,
+    hmr: {
+      host: 'localhost',
+    },
   },
 });
