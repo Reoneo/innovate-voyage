@@ -10,19 +10,15 @@ export async function handleEnsAvatar(identity: string): Promise<string | null> 
   try {
     console.log(`Fetching ENS avatar for ${identity}`);
     
-    // Try the recommended ENS API first (gskril/ens-api)
-    const ensApiResult = await tryEnsApi(identity);
-    if (ensApiResult) return ensApiResult;
-    
-    // Try the ENS metadata service (fallback)
+    // Try the ENS metadata service (more reliable for newer ENS domains)
     const metadataAvatar = await tryEnsMetadataService(identity);
     if (metadataAvatar) return metadataAvatar;
     
-    // Try the Ethereum Avatar Service (fallback)
+    // Try the Ethereum Avatar Service
     const ethAvatarServiceResult = await tryEthAvatarService(identity);
     if (ethAvatarServiceResult) return ethAvatarServiceResult;
     
-    // Try the official ENS Avatar API (fallback)
+    // Try the official ENS Avatar API
     const ensAvatarApiResult = await tryEnsAvatarApi(identity);
     if (ensAvatarApiResult) return ensAvatarApiResult;
     
@@ -31,31 +27,6 @@ export async function handleEnsAvatar(identity: string): Promise<string | null> 
     console.error(`Error handling ENS avatar for ${identity}:`, error);
     return null;
   }
-}
-
-/**
- * Try the recommended ENS API (primary method)
- */
-async function tryEnsApi(ensName: string): Promise<string | null> {
-  try {
-    // Using the gskril/ens-api
-    const apiUrl = `https://ens-api.vercel.app/api/${ensName}`;
-    
-    const response = await fetch(apiUrl);
-    if (!response.ok) return null;
-    
-    const data = await response.json();
-    
-    // Check if avatar exists in the response
-    if (data && data.avatar) {
-      console.log(`Found avatar via ENS API for ${ensName}: ${data.avatar}`);
-      avatarCache[ensName] = data.avatar;
-      return data.avatar;
-    }
-  } catch (ensApiError) {
-    console.error(`Error fetching from ENS API for ${ensName}:`, ensApiError);
-  }
-  return null;
 }
 
 /**

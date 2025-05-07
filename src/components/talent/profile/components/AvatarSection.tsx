@@ -28,14 +28,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   displayIdentity
 }) => {
   const [isOwner, setIsOwner] = useState(false);
-  const [cachedAvatarUrl, setCachedAvatarUrl] = useState(avatarUrl);
-  
-  useEffect(() => {
-    // Update cached avatar URL when prop changes
-    if (avatarUrl) {
-      setCachedAvatarUrl(avatarUrl);
-    }
-  }, [avatarUrl]);
   
   useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -56,20 +48,12 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   // Use WhatsApp as telephone if available and no direct telephone
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
   
-  // Handle avatar loading error
-  const handleAvatarError = () => {
-    // Use a generated fallback avatar based on address
-    const fallbackAvatar = `https://effigy.im/a/${ownerAddress}.svg`;
-    setCachedAvatarUrl(fallbackAvatar);
-  };
-  
   return (
     <div className="flex flex-col items-center gap-2 w-full text-center">
       {/* Avatar */}
       <ProfileAvatar 
-        avatarUrl={cachedAvatarUrl} 
-        name={name}
-        onError={handleAvatarError}
+        avatarUrl={avatarUrl} 
+        name={name} 
       />
       
       {/* Name and Address */}

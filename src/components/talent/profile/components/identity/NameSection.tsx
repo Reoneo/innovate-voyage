@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import AddressDisplay from './AddressDisplay';
 import { useEfpStats } from '@/hooks/useEfpStats';
 import { useToast } from '@/hooks/use-toast';
@@ -13,45 +13,15 @@ interface NameSectionProps {
 }
 
 const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayIdentity }) => {
-  // Format display name - either use displayIdentity, or if name looks like a raw address, format as short address
   const displayName = displayIdentity || (name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/)
-    ? name.startsWith('0x') && name.length === 42 
-      ? `${name.substring(0, 6)}...${name.substring(name.length - 4)}`
-      : `${name}.eth`
+    ? `${name}.eth`
     : name);
   
-  // Use React Query for caching and faster loading
-  const { 
-    followers, 
-    following, 
-    followersList, 
-    followingList, 
-    loading, 
-    followAddress, 
-    isFollowing, 
-    isProcessing,
-    refreshData 
-  } = useEfpStats(ownerAddress);
-  
+  const { followers, following, followersList, followingList, loading, followAddress, isFollowing, isProcessing } = useEfpStats(ownerAddress);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<'followers' | 'following'>('followers');
   const { toast } = useToast();
   const [followLoading, setFollowLoading] = useState<{[key: string]: boolean}>({});
-
-  // Load EFP data immediately and set up faster polling
-  useEffect(() => {
-    if (ownerAddress) {
-      // Initial fetch with higher priority
-      refreshData();
-      
-      // Set up polling for faster updates (every 5 seconds - reduced from 10)
-      const intervalId = setInterval(() => {
-        refreshData();
-      }, 5000);
-      
-      return () => clearInterval(intervalId);
-    }
-  }, [ownerAddress, refreshData]);
 
   const openFollowersDialog = () => {
     setDialogType('followers');
@@ -82,26 +52,10 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     }
     
     try {
-      setFollowLoading(prev => ({ ...prev, [address]: true }));
       await followAddress(address);
-      
-      // Update followers data immediately
-      refreshData();
-      
-      toast({
-        title: "Success",
-        description: "Follow status updated successfully",
-        variant: "default"
-      });
     } catch (error) {
       console.error('Follow error:', error);
-      toast({
-        title: "Error",
-        description: "There was a problem updating follow status",
-        variant: "destructive"
-      });
-    } finally {
-      setFollowLoading(prev => ({ ...prev, [address]: false }));
+      // Error is already handled in useEfpFollow
     }
   };
 

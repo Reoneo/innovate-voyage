@@ -8,7 +8,7 @@ interface HeaderContainerProps {
 
 const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
   return (
-    <Card className="bg-white shadow-sm rounded-sm w-full backdrop-blur-sm bg-opacity-95 overflow-auto" style={{
+    <Card className="bg-white shadow-sm rounded-sm w-full backdrop-blur-sm bg-opacity-95" style={{
       height: 'calc(100vh - 80px)', /* Subtract navbar height */
       width: '100%',
       maxWidth: '21cm', /* A4 width */
@@ -16,6 +16,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
       marginTop: '16px', /* Add margin top to prevent covering navbar */
       marginBottom: '16px', /* Add margin bottom for consistency */
       padding: 0,
+      overflow: 'auto',
       border: '1px solid #f0f0f0',
       borderRadius: '8px',
     }}>

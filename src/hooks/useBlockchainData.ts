@@ -11,8 +11,6 @@ import { fetchBlockchainData } from '@/api/services/blockchainDataService';
  * @returns Object containing blockchain profile, transactions, token transfers, web3 bio and additional blockchain data
  */
 export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string) {
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [blockchainExtendedData, setBlockchainExtendedData] = useState({
     mirrorPosts: 0,
     lensActivity: 0,
@@ -27,17 +25,11 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
   const { data: tokenTransfers } = useTokenTransfers(resolvedAddress, 10);
   const { data: web3BioProfile } = useWeb3BioProfile(resolvedAddress || resolvedEns);
   
-  // Update the loading state when blockchain data loading changes
-  useEffect(() => {
-    setIsLoading(loadingBlockchain);
-  }, [loadingBlockchain]);
-  
   // Fetch additional blockchain data
   useEffect(() => {
     const loadBlockchainData = async () => {
       if (resolvedAddress) {
         try {
-          setIsLoading(true);
           const data = await fetchBlockchainData(resolvedAddress);
           // Make sure we maintain the structure expected by our state
           setBlockchainExtendedData({
@@ -49,9 +41,6 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
           });
         } catch (error) {
           console.error('Error fetching blockchain data:', error);
-          setError('Failed to fetch additional blockchain data');
-        } finally {
-          setIsLoading(false);
         }
       }
     };
@@ -62,10 +51,6 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
   // Merge blockchain profile with extended data
   const enhancedBlockchainProfile = blockchainProfile ? {
     ...blockchainProfile,
-    blockchainExtendedData,
-    web3BioProfile,
-    transactions,
-    tokenTransfers,
     mirrorPosts: blockchainExtendedData.mirrorPosts,
     lensActivity: blockchainExtendedData.lensActivity,
     boxDomains: blockchainExtendedData.boxDomains,
@@ -78,8 +63,6 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     tokenTransfers,
     web3BioProfile,
     loadingBlockchain,
-    blockchainExtendedData,
-    isLoading,
-    error
+    blockchainExtendedData
   };
 }
