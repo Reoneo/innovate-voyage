@@ -39,7 +39,11 @@ export default defineConfig((config: ConfigEnv): UserConfig => {
     },
     build: {
       rollupOptions: {
-        plugins: [rollupNodePolyFill()],
+        plugins: [
+          // Cast the plugin to any to bypass TypeScript's type checking
+          // This is necessary because of the incompatible types between what Vite expects and what the plugin provides
+          rollupNodePolyFill() as any
+        ],
       },
       sourcemap: true,
     },
