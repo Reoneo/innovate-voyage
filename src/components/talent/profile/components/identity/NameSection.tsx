@@ -30,7 +30,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     followAddress, 
     isFollowing, 
     isProcessing,
-    refetch 
+    refreshData 
   } = useEfpStats(ownerAddress);
   
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -42,16 +42,16 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
   useEffect(() => {
     if (ownerAddress) {
       // Initial fetch
-      refetch();
+      refreshData();
       
       // Set up polling for faster updates (every 10 seconds)
       const intervalId = setInterval(() => {
-        refetch();
+        refreshData();
       }, 10000);
       
       return () => clearInterval(intervalId);
     }
-  }, [ownerAddress, refetch]);
+  }, [ownerAddress, refreshData]);
 
   const openFollowersDialog = () => {
     setDialogType('followers');
@@ -86,7 +86,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       await followAddress(address);
       
       // Update followers data
-      refetch();
+      refreshData();
     } catch (error) {
       console.error('Follow error:', error);
     } finally {
