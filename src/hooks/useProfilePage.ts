@@ -95,7 +95,7 @@ export function useProfilePage() {
     };
   }, [targetIdentifier]);
 
-  const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl } = useProfileData(ens, address);
+  const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl, hasTalentProtocolData } = useProfileData(ens, address);
   
   const { profileRef } = usePdfExport();
 
@@ -119,12 +119,13 @@ export function useProfilePage() {
     ensNameOrAddress: targetIdentifier,
     loading,
     loadingTimeout,
-    passport,
+    passport: passport ? { ...passport, hasTalentProtocolData } : null,
     blockchainProfile,
     avatarUrl,
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges
+    handleSaveChanges,
+    hasTalentProtocolData
   };
 }

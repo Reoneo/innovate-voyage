@@ -18,6 +18,9 @@ export function useProfileData(ensName?: string, address?: string) {
   
   console.log('ENS Links in useProfileData:', ensLinks);
   
+  // Check if talent protocol data is available
+  const hasTalentProtocolData = !!blockchainData.blockchainProfile?.talentProtocolScore;
+  
   // Enhance blockchain profile with ENS links
   const enhancedBlockchainProfile = blockchainData.blockchainProfile 
     ? {
@@ -30,7 +33,9 @@ export function useProfileData(ensName?: string, address?: string) {
         description: blockchainData.blockchainProfile.description || 
                      ensLinks?.description || 
                      ensBio ||
-                     blockchainData.blockchainExtendedData?.description
+                     blockchainData.blockchainExtendedData?.description,
+        // Make sure to preserve talent protocol data flag
+        hasTalentProtocolData: hasTalentProtocolData
       }
     : null;
   
@@ -38,14 +43,8 @@ export function useProfileData(ensName?: string, address?: string) {
   console.log('GitHub sources:', {
     ensGitHub: ensLinks?.socials?.github,
     blockchainGitHub: blockchainData.blockchainProfile?.socials?.github,
-    web3BioGitHub: blockchainData.web3BioProfile?.github
-  });
-  
-  // Debug LinkedIn sources
-  console.log('LinkedIn sources:', {
-    ensLinkedIn: ensLinks?.socials?.linkedin,
-    blockchainLinkedIn: blockchainData.blockchainProfile?.socials?.linkedin,
-    web3BioLinkedIn: blockchainData.web3BioProfile?.linkedin
+    web3BioGitHub: blockchainData.web3BioProfile?.github,
+    hasTalentProtocolData: hasTalentProtocolData
   });
   
   // Generate passport
@@ -63,24 +62,25 @@ export function useProfileData(ensName?: string, address?: string) {
         github: blockchainData.web3BioProfile?.github || ensLinks?.socials?.github,
         // Make sure LinkedIn handle is passed through
         linkedin: blockchainData.web3BioProfile?.linkedin || ensLinks?.socials?.linkedin
-      }
+      },
+      hasTalentProtocolData: hasTalentProtocolData
     }
   );
 
-  console.log('useProfileData - bio sources:', {
-    ensBio,
-    web3BioDescription: blockchainData.web3BioProfile?.description,
-    blockchainProfileDesc: enhancedBlockchainProfile?.description,
-    passportBio: passport?.bio
-  });
+  // Add the talent protocol data flag to the passport
+  const enhancedPassport = passport ? {
+    ...passport,
+    hasTalentProtocolData: hasTalentProtocolData
+  } : null;
 
   return {
     loading,
-    passport,
+    passport: enhancedPassport,
     blockchainProfile: enhancedBlockchainProfile,
     transactions: blockchainData.transactions,
     resolvedEns,
     blockchainExtendedData: blockchainData.blockchainExtendedData,
-    avatarUrl
+    avatarUrl,
+    hasTalentProtocolData: hasTalentProtocolData
   };
 }

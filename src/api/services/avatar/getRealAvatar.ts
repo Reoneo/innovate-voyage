@@ -8,7 +8,7 @@ import { handleDirectImageUrl } from './utils/directImageHandler';
 import { generateDeterministicAvatar } from './utils/fallbackAvatarHandler';
 
 /**
- * Get real avatar for any domain type using web3.bio
+ * Get real avatar for any domain type using multiple sources
  * @param identity The ENS name, address, or other web3 identity
  * @returns A URL to the avatar image or null
  */
@@ -24,13 +24,28 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
   try {
     console.log(`Fetching avatar for ${identity}`);
     
+    // First try the gskril/ens-api (most reliable source)
+    try {
+      const ensApiResponse = await fetch(`https://ens-api.vercel.app/api/${identity}`);
+      if (ensApiResponse.ok) {
+        const ensApiData = await ensApiResponse.json();
+        if (ensApiData && ensApiData.avatar) {
+          console.log(`Found avatar via gskril/ens-api for ${identity}: ${ensApiData.avatar}`);
+          avatarCache[identity] = ensApiData.avatar;
+          return ensApiData.avatar;
+        }
+      }
+    } catch (ensApiError) {
+      console.error(`Error fetching from gskril/ens-api for ${identity}:`, ensApiError);
+    }
+    
     // Handle EIP155 formatted avatar URIs
     if (identity.startsWith('eip155:1/erc721:')) {
       const eip155Avatar = await handleEip155Avatar(identity);
       if (eip155Avatar) return eip155Avatar;
     }
     
-    // Try Web3Bio API first - works for all domain types
+    // Try Web3Bio API - works for all domain types
     const profile = await fetchWeb3BioProfile(identity);
     if (profile && profile.avatar) {
       console.log(`Found avatar via Web3.bio for ${identity}`);

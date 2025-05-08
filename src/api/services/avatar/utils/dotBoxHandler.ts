@@ -3,6 +3,9 @@ import { avatarCache } from '../../../utils/web3/index';
 import { fetchDotBoxAvatar } from '../../openseaService';
 import { ccipReadEnabled } from '../../../../utils/ens/ccipReadHandler';
 
+// Etherscan API key for .box domains
+const OPTIMISM_ETHERSCAN_API_KEY = "MWRCM8Q9RIGEVBT6WJ1VUNDYPAHN4M91FU";
+
 export async function handleDotBoxAvatar(identity: string): Promise<string | null> {
   try {
     console.log(`Fetching .box avatar for ${identity}`);
@@ -15,7 +18,20 @@ export async function handleDotBoxAvatar(identity: string): Promise<string | nul
       return boxData.avatar;
     }
     
-    // Second, try OpenSea method to get avatar from NFTs
+    // Second, try Optimism Etherscan API to get data
+    const etherscanUrl = `https://api-optimistic.etherscan.io/api?module=account&action=txlist&address=${boxData?.address || identity}&startblock=0&endblock=99999999&sort=desc&apikey=${OPTIMISM_ETHERSCAN_API_KEY}`;
+    try {
+      const etherscanResponse = await fetch(etherscanUrl);
+      if (etherscanResponse.ok) {
+        const etherscanData = await etherscanResponse.json();
+        console.log(`Got Optimism Etherscan data for ${identity}`);
+        // Continue with other methods as we just want the transactions data for metadata
+      }
+    } catch (etherscanError) {
+      console.error("Error fetching from Optimism Etherscan:", etherscanError);
+    }
+    
+    // Third, try OpenSea method to get avatar from NFTs
     const openSeaAvatar = await fetchDotBoxAvatar(identity);
     if (openSeaAvatar) {
       console.log(`Found .box avatar via OpenSea for ${identity}:`, openSeaAvatar);
@@ -23,7 +39,7 @@ export async function handleDotBoxAvatar(identity: string): Promise<string | nul
       return openSeaAvatar;
     }
     
-    // Fallback to web3.bio API
+    // Try the web3.bio API
     const boxProfile = await fetch(`https://api.web3.bio/profile/dotbit/${identity}?nocache=${Date.now()}`, {
       headers: {
         'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20`,
@@ -51,6 +67,21 @@ export async function handleDotBoxAvatar(identity: string): Promise<string | nul
         avatarCache[identity] = avatarUrl;
         return avatarUrl;
       }
+    }
+    
+    // Try the ENS API from GitHub (gskril/ens-api)
+    try {
+      const ensResponse = await fetch(`https://ens-api.vercel.app/api/${identity}`);
+      if (ensResponse.ok) {
+        const ensData = await ensResponse.json();
+        if (ensData && ensData.avatar) {
+          console.log(`Found .box avatar via gskril/ens-api for ${identity}`);
+          avatarCache[identity] = ensData.avatar;
+          return ensData.avatar;
+        }
+      }
+    } catch (ensApiError) {
+      console.error(`Error fetching from ENS API for ${identity}:`, ensApiError);
     }
     
     return null;

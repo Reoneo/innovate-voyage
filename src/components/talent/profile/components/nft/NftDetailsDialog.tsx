@@ -2,7 +2,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, CheckCircle } from 'lucide-react';
 import { OpenSeaNft } from '@/api/services/openseaService';
 
 interface NftDetailsDialogProps {
@@ -133,7 +133,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
                 asChild
               >
                 <a 
-                  href={`https://opensea.io/assets/${nft.id}`} 
+                  href={`https://opensea.io/assets/${nft.chain}/${nft.id}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
                 >

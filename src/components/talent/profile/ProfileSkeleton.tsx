@@ -1,33 +1,34 @@
 
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ProfileSkeleton: React.FC = () => {
   return (
     <HeaderContainer>
-      <div className="flex flex-col md:flex-row gap-8 animate-pulse">
+      <div className="flex flex-col md:flex-row gap-8">
         {/* Avatar and left column skeleton */}
         <div className="md:w-1/3 flex flex-col items-center md:items-start gap-4">
-          <div className="w-32 h-32 bg-muted rounded-full"></div>
-          <div className="w-32 h-6 bg-muted rounded"></div>
-          <div className="w-48 h-4 bg-muted rounded"></div>
-          <div className="w-full h-24 bg-muted rounded mt-4"></div>
+          <Skeleton className="w-32 h-32 rounded-full" />
+          <Skeleton className="w-32 h-6 rounded" />
+          <Skeleton className="w-48 h-4 rounded" />
+          <Skeleton className="w-full h-24 rounded mt-4" />
           <div className="w-full grid grid-cols-4 gap-2 mt-4">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="w-10 h-10 bg-muted rounded-full"></div>
+              <Skeleton key={i} className="w-10 h-10 rounded-full" />
             ))}
           </div>
         </div>
         
         {/* Right column skeleton */}
         <div className="md:w-2/3">
-          <div className="w-full h-8 bg-muted rounded mb-4"></div>
+          <Skeleton className="w-full h-8 rounded mb-4" />
           {[...Array(3)].map((_, i) => (
             <div key={i} className="mb-6">
-              <div className="w-2/3 h-6 bg-muted rounded mb-2"></div>
-              <div className="w-full h-4 bg-muted rounded mb-1"></div>
-              <div className="w-full h-4 bg-muted rounded mb-1"></div>
-              <div className="w-3/4 h-4 bg-muted rounded"></div>
+              <Skeleton className="w-2/3 h-6 rounded mb-2" />
+              <Skeleton className="w-full h-4 rounded mb-1" />
+              <Skeleton className="w-full h-4 rounded mb-1" />
+              <Skeleton className="w-3/4 h-4 rounded" />
             </div>
           ))}
         </div>
