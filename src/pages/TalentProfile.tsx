@@ -53,11 +53,11 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <div className="min-h-screen relative bg-background">
-        {/* Always show the AnimatedBackground, even while loading */}
+      <div className="min-h-screen relative bg-transparent">
+        {/* Always show the AnimatedBackground */}
         <AnimatedBackground 
           avatarUrl={passport?.avatar_url} 
-          isLoading={loading} 
+          isLoading={false} 
         />
         
         {/* Always show Navigation Bar */}

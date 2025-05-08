@@ -12,6 +12,7 @@ import {
   PaginationPrevious
 } from "@/components/ui/pagination";
 import { useDebounce } from '@/hooks/use-debounce';
+import { X } from 'lucide-react';
 
 // Utility function to shorten Ethereum addresses
 function shortenAddress(addr: string) {
@@ -105,7 +106,7 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
       onOpenChange(isOpen);
     }}>
       <DialogContent className="dialog-content sm:max-w-md">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="flex items-center gap-2">
             <img 
               src={efpLogo}
@@ -115,6 +116,15 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({
             {dialogType === 'followers' ? 'Followers' : 'Following'} 
             <span className="text-sm font-normal">({totalItems})</span>
           </DialogTitle>
+          
+          {/* Close button */}
+          <button 
+            onClick={() => onOpenChange(false)}
+            className="rounded-full p-1.5 hover:bg-gray-100 transition-colors"
+            aria-label="Close dialog"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </DialogHeader>
         
         <div className="py-4">

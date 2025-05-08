@@ -47,7 +47,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   };
   
   return (
-    <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto relative">
+    <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar">
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">
           <Skeleton className="h-full w-full rounded-full" />

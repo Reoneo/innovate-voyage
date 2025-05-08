@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from 'react';
-import { avatarCache } from '@/api/utils/web3/avatarCache';
 import ColorThief from 'colorthief';
 
 interface AnimatedBackgroundProps {
@@ -24,7 +23,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ avatarUrl, isLo
 
   useEffect(() => {
     const extractColors = async () => {
-      if (!avatarUrl || isLoading) return;
+      if (!avatarUrl) return;
       
       try {
         const img = new Image();
@@ -74,33 +73,29 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ avatarUrl, isLo
     };
 
     extractColors();
-  }, [avatarUrl, isLoading]);
+  }, [avatarUrl]);
 
   return (
     <div
       className="fixed inset-0 -z-10 overflow-hidden transition-all duration-700"
       style={{
-        background: isLoading ? '#FFFFFF' : gradient,
+        background: gradient,
         backgroundSize: '400% 400%',
-        animation: isLoading ? 'none' : 'gradient-animation 15s ease infinite',
+        animation: 'gradient-animation 15s ease infinite',
       }}
     >
-      {/* Animated overlay patterns - only show when not loading */}
-      {!isLoading && (
-        <>
-          <div className="absolute inset-0 opacity-20 mix-blend-overlay">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0,transparent_70%)]"></div>
-          </div>
-          
-          {/* Noise texture overlay */}
-          <div className="absolute inset-0 opacity-10" 
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'repeat',
-            }}
-          ></div>
-        </>
-      )}
+      {/* Animated overlay patterns - always show */}
+      <div className="absolute inset-0 opacity-20 mix-blend-overlay">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0,transparent_70%)]"></div>
+      </div>
+      
+      {/* Noise texture overlay */}
+      <div className="absolute inset-0 opacity-10" 
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat',
+        }}
+      ></div>
     </div>
   );
 };
