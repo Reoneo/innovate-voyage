@@ -3,10 +3,10 @@ import React from 'react';
 
 export default function GitHubContributionLegend() {
   return (
-    <div className="legend-container mt-1 mb-0 flex items-center justify-between text-xs text-white">
+    <div className="legend-container mt-1 mb-0 flex flex-col sm:flex-row items-center sm:justify-between text-xs text-white gap-2">
       <div className="flex items-center gap-1 justify-center">
         <img 
-          src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1746720000000&signature=A3g_vuXiXcQmRvUHDmQYphIjJSfP6z8-WhRXyXXa2aI&downloadName=logomark_dark.jpg" 
+          src="/lovable-uploads/59ba9d7c-9742-4036-9b8d-1aedefc54748.png" 
           alt="Talent Protocol" 
           className="w-4 h-4 rounded-full" 
         />
@@ -14,7 +14,7 @@ export default function GitHubContributionLegend() {
       </div>
       
       <div className="flex items-center gap-1">
-        <span>Less</span>
+        <span className="text-white">Less</span>
         <div className="flex items-center gap-0">
           <span className="inline-block w-2 h-2 bg-gray-800 border border-gray-700 rounded-sm"></span>
           <span className="inline-block w-2 h-2 bg-[#0e4429] border border-gray-700 rounded-sm"></span>
@@ -22,7 +22,7 @@ export default function GitHubContributionLegend() {
           <span className="inline-block w-2 h-2 bg-[#26a641] border border-gray-700 rounded-sm"></span>
           <span className="inline-block w-2 h-2 bg-[#39d353] border border-gray-700 rounded-sm"></span>
         </div>
-        <span>More</span>
+        <span className="text-white">More</span>
       </div>
     </div>
   );

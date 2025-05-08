@@ -34,7 +34,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-600/20 shadow-sm bg-gray-800/30">
+    <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-gray-800/30 border-b border-gray-600/20 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between h-14">
         {/* Home icon positioned on the left */}
         <div className="flex-none w-14 flex justify-center">

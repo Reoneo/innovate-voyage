@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -236,7 +237,7 @@ body.generating-pdf {
 /* Weekday labels and month labels */
 .github-calendar-dark .wday,
 .github-calendar-dark .month {
-  color: #8b949e !important;
+  color: #ffffff !important;
   font-size: 10px !important;
 }
 
@@ -257,7 +258,7 @@ body.generating-pdf {
 
 /* Ensure text is visible in dark theme */
 .github-calendar-dark .text-gray {
-  color: #8b949e !important;
+  color: #ffffff !important;
 }
 
 .github-calendar-dark .float-left {
