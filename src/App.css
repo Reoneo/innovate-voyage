@@ -59,16 +59,24 @@
 }
 
 /* Month labels - white for better visibility */
-.github-calendar-dark .calendar-graph text.month {
+.react-github-calendar text.month-label,
+.react-github-calendar .month-label,
+.calendar-graph text.month,
+.react-github-calendar .wday-text,
+.js-calendar-graph-svg text {
   font-size: 8px !important;
   fill: #ffffff !important;
+  color: #ffffff !important;
   font-weight: 600;
 }
 
 /* Weekday labels - white for better visibility */
-.github-calendar-dark .calendar-graph text.wday {
+.react-github-calendar text.wday-label,
+.react-github-calendar .wday-label,
+.calendar-graph text.wday {
   font-size: 8px !important;
   fill: #ffffff !important;
+  color: #ffffff !important;
   font-weight: 600;
 }
 
@@ -132,6 +140,7 @@
 .react-github-calendar .month-label {
   font-size: 8px !important;
   fill: #ffffff !important;
+  color: #ffffff !important;
   visibility: visible !important;
   opacity: 1 !important;
   font-weight: 600;
