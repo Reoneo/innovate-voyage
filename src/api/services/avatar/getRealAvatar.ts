@@ -39,18 +39,24 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
       console.error(`Error fetching from gskril/ens-api for ${identity}:`, ensApiError);
     }
     
+    // Try metadata.ens.domains (official ENS service)
+    try {
+      const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
+      const metadataResponse = await fetch(metadataUrl, { method: 'HEAD' });
+      
+      if (metadataResponse.ok) {
+        console.log(`Found avatar via ENS metadata service for ${identity}`);
+        avatarCache[identity] = metadataUrl;
+        return metadataUrl;
+      }
+    } catch (metadataError) {
+      console.error(`Error fetching from ENS metadata for ${identity}:`, metadataError);
+    }
+    
     // Handle EIP155 formatted avatar URIs
     if (identity.startsWith('eip155:1/erc721:')) {
       const eip155Avatar = await handleEip155Avatar(identity);
       if (eip155Avatar) return eip155Avatar;
-    }
-    
-    // Try Web3Bio API - works for all domain types
-    const profile = await fetchWeb3BioProfile(identity);
-    if (profile && profile.avatar) {
-      console.log(`Found avatar via Web3.bio for ${identity}`);
-      avatarCache[identity] = profile.avatar;
-      return profile.avatar;
     }
     
     // If it's an ENS name, try multiple sources
@@ -63,6 +69,14 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     if (identity.endsWith('.box')) {
       const boxAvatar = await handleDotBoxAvatar(identity);
       if (boxAvatar) return boxAvatar;
+    }
+    
+    // Try Web3Bio API as a fallback - works for all domain types
+    const profile = await fetchWeb3BioProfile(identity);
+    if (profile && profile.avatar) {
+      console.log(`Found avatar via Web3.bio for ${identity}`);
+      avatarCache[identity] = profile.avatar;
+      return profile.avatar;
     }
     
     // Try to resolve IPFS URIs

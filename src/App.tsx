@@ -46,9 +46,10 @@ const App = () => {
       }
     }
     
+    // Use a shorter timeout to reduce blank screen time
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 300);
+    }, 100);
     
     // Listen for URL changes to clean up duplicate recruitment.box in URL
     const cleanupUrl = () => {
@@ -64,12 +65,13 @@ const App = () => {
     return () => clearTimeout(timer);
   }, [address, isConnected]);
 
+  // Show minimal loading spinner instead of blank screen
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center space-y-4">
           <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-muted-foreground">Loading application...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );

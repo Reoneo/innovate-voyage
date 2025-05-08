@@ -18,8 +18,8 @@ export function useProfileData(ensName?: string, address?: string) {
   
   console.log('ENS Links in useProfileData:', ensLinks);
   
-  // Check if talent protocol data is available
-  const hasTalentProtocolData = !!blockchainData.blockchainProfile?.talentProtocolScore;
+  // Check if talent protocol data is available - using a more reliable property check
+  const hasTalentProtocolData = !!(blockchainData.blockchainExtendedData?.snsActive);
   
   // Enhance blockchain profile with ENS links
   const enhancedBlockchainProfile = blockchainData.blockchainProfile 
@@ -33,9 +33,7 @@ export function useProfileData(ensName?: string, address?: string) {
         description: blockchainData.blockchainProfile.description || 
                      ensLinks?.description || 
                      ensBio ||
-                     blockchainData.blockchainExtendedData?.description,
-        // Make sure to preserve talent protocol data flag
-        hasTalentProtocolData: hasTalentProtocolData
+                     blockchainData.blockchainExtendedData?.description
       }
     : null;
   
@@ -44,7 +42,7 @@ export function useProfileData(ensName?: string, address?: string) {
     ensGitHub: ensLinks?.socials?.github,
     blockchainGitHub: blockchainData.blockchainProfile?.socials?.github,
     web3BioGitHub: blockchainData.web3BioProfile?.github,
-    hasTalentProtocolData: hasTalentProtocolData
+    hasTalentProtocolData
   });
   
   // Generate passport
@@ -62,15 +60,14 @@ export function useProfileData(ensName?: string, address?: string) {
         github: blockchainData.web3BioProfile?.github || ensLinks?.socials?.github,
         // Make sure LinkedIn handle is passed through
         linkedin: blockchainData.web3BioProfile?.linkedin || ensLinks?.socials?.linkedin
-      },
-      hasTalentProtocolData: hasTalentProtocolData
+      }
     }
   );
 
   // Add the talent protocol data flag to the passport
   const enhancedPassport = passport ? {
     ...passport,
-    hasTalentProtocolData: hasTalentProtocolData
+    hasTalentProtocolData
   } : null;
 
   return {
@@ -81,6 +78,6 @@ export function useProfileData(ensName?: string, address?: string) {
     resolvedEns,
     blockchainExtendedData: blockchainData.blockchainExtendedData,
     avatarUrl,
-    hasTalentProtocolData: hasTalentProtocolData
+    hasTalentProtocolData
   };
 }

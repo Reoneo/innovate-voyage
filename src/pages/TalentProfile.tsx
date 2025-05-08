@@ -53,7 +53,7 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <div className="min-h-screen relative">
+      <div className="min-h-screen relative bg-background">
         {/* Always show the AnimatedBackground, even while loading */}
         <AnimatedBackground 
           avatarUrl={passport?.avatar_url} 
@@ -68,13 +68,13 @@ const TalentProfile = () => {
         />
         
         <div className="container px-1 sm:px-4 relative z-10">
-          {/* Show skeleton while loading */}
           {loading ? (
+            /* Show skeleton while loading */
             <ProfileSkeleton />
           ) : (
             /* Show actual content when loaded */
             <ProfileContent 
-              loading={false}  // Never pass loading=true here, we use the skeleton instead
+              loading={false}
               loadingTimeout={loadingTimeout}
               passport={passport}
               profileRef={profileRef}

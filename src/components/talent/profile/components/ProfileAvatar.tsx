@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProfileAvatarProps {
   avatarUrl: string | undefined;
@@ -9,7 +10,13 @@ interface ProfileAvatarProps {
 
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   const [imageError, setImageError] = useState(false);
-  const placeholderUrl = '/placeholder.svg';
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Reset states when avatarUrl changes
+  useEffect(() => {
+    setImageError(false);
+    setIsLoading(true);
+  }, [avatarUrl]);
   
   // Generate initials for the fallback
   const getInitials = (name: string): string => {
@@ -20,29 +27,51 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
     return (parts[0][0] + parts[1][0]).toUpperCase();
   };
   
+  // Handle image load success
+  const handleImageLoad = () => {
+    console.log('Avatar image loaded successfully:', avatarUrl);
+    setIsLoading(false);
+  };
+  
   // Handle image load error
   const handleImageError = () => {
     console.log('Avatar image failed to load:', avatarUrl);
     setImageError(true);
+    setIsLoading(false);
+  };
+  
+  // Handle placeholder load error
+  const handlePlaceholderError = () => {
+    console.log("Even placeholder failed to load");
+    setIsLoading(false);
   };
   
   return (
-    <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto"> {/* Increased size and centered */}
+    <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto relative">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Skeleton className="h-full w-full rounded-full" />
+        </div>
+      )}
+      
       {!imageError && avatarUrl ? (
         <AvatarImage 
           src={avatarUrl} 
           alt={name} 
           className="object-cover"
           onError={handleImageError}
+          onLoad={handleImageLoad}
         />
       ) : (
         <AvatarImage 
-          src={placeholderUrl} 
+          src="/placeholder.svg" 
           alt={name} 
           className="object-cover"
-          onError={() => console.log("Even placeholder failed to load")}
+          onError={handlePlaceholderError}
+          onLoad={() => setIsLoading(false)}
         />
       )}
+      
       <AvatarFallback className="bg-primary/10 text-primary font-medium">
         {getInitials(name)}
       </AvatarFallback>
