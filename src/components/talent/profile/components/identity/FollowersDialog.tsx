@@ -1,117 +1,191 @@
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import AddressDisplay from './AddressDisplay';
-import { Loader, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { EfpPerson } from '@/hooks/useEfpStats';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from "@/components/ui/pagination";
+import { useDebounce } from '@/hooks/use-debounce';
+import { X } from 'lucide-react';
+
+// Utility function to shorten Ethereum addresses
+function shortenAddress(addr: string) {
+  return addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "";
+}
 
 interface FollowersDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   dialogType: 'followers' | 'following';
-  followersList: Array<{ address: string; ensName?: string; avatar?: string }>;
-  followingList: Array<{ address: string; ensName?: string; avatar?: string }>;
-  handleFollow: (address: string) => void;
+  followersList: EfpPerson[] | undefined;
+  followingList: EfpPerson[] | undefined;
+  handleFollow: (address: string) => Promise<void>;
   isFollowing: (address: string) => boolean;
   followLoading: { [key: string]: boolean };
-  isProcessing: boolean;
+  isProcessing?: boolean;
 }
 
-const FollowersDialog: React.FC<FollowersDialogProps> = ({
-  open,
-  onOpenChange,
-  dialogType,
-  followersList,
+const FollowersDialog: React.FC<FollowersDialogProps> = ({ 
+  open, 
+  onOpenChange, 
+  dialogType, 
+  followersList, 
   followingList,
-  handleFollow,
-  isFollowing,
-  followLoading,
-  isProcessing
+  isProcessing = false
 }) => {
-  const listToShow = dialogType === 'followers' ? followersList : followingList;
-
-  // Generate initials for the fallback
-  const getInitials = (name: string): string => {
-    if (!name) return 'BP';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 0) return '';
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  };
+  const efpLogo = 'https://storage.googleapis.com/zapper-fi-assets/apps%2Fethereum-follow-protocol.png';
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+  
+  const list = dialogType === 'followers' ? followersList : followingList;
+  const totalItems = list?.length || 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
+  // Memoize the current items to avoid recalculation on each render
+  const currentItems = React.useMemo(() => {
+    return list?.slice(
+      (currentPage - 1) * itemsPerPage, 
+      currentPage * itemsPerPage
+    ) || [];
+  }, [list, currentPage, itemsPerPage]);
+  
+  // Debounced page change to prevent rapid pagination clicks
+  const debouncedSetPage = useDebounce((page: number) => {
+    setCurrentPage(page);
+    
+    // Scroll to top of dialog content when changing pages
+    const dialogContent = document.querySelector('.dialog-content');
+    if (dialogContent) {
+      dialogContent.scrollTop = 0;
+    }
+  }, 100);
+  
+  const handlePageChange = useCallback((page: number) => {
+    debouncedSetPage(page);
+  }, [debouncedSetPage]);
+  
+  // Generate pagination items with memoization
+  const paginationItems = React.useMemo(() => {
+    const items = [];
+    const maxPageButtons = 5; // Show maximum 5 page buttons
+    
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+    
+    if (endPage - startPage < maxPageButtons - 1) {
+      startPage = Math.max(1, endPage - maxPageButtons + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink 
+            isActive={currentPage === i} 
+            onClick={() => handlePageChange(i)}
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    return items;
+  }, [currentPage, totalPages, handlePageChange]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="flex items-center justify-between">
-          <DialogTitle className="text-center flex-1">
-            {dialogType === 'followers' ? 'Followers' : 'Following'}
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) {
+        setCurrentPage(1); // Reset to page 1 when closing
+      }
+      onOpenChange(isOpen);
+    }}>
+      <DialogContent className="dialog-content sm:max-w-md">
+        <DialogHeader className="flex flex-row items-center justify-between">
+          <DialogTitle className="flex items-center gap-2">
+            <img 
+              src={efpLogo}
+              className="h-6 w-6 rounded-full"
+              alt="EFP"
+            />
+            {dialogType === 'followers' ? 'Followers' : 'Following'} 
+            <span className="text-sm font-normal">({totalItems})</span>
           </DialogTitle>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => onOpenChange(false)} 
-            className="absolute right-4 top-4"
-            aria-label="Close"
+          
+          {/* Close button */}
+          <button 
+            onClick={() => onOpenChange(false)}
+            className="rounded-full p-1.5 hover:bg-gray-100 transition-colors"
+            aria-label="Close dialog"
           >
             <X className="h-4 w-4" />
-          </Button>
+          </button>
         </DialogHeader>
         
-        <div className="max-h-[60vh] overflow-y-auto py-2">
-          {isProcessing ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2 text-sm">Loading...</span>
-            </div>
-          ) : listToShow.length > 0 ? (
-            <ul className="space-y-2">
-              {listToShow.map((item, index) => (
-                <React.Fragment key={item.address}>
-                  <li className="flex items-center justify-between">
-                    <Link 
-                      to={`/${item.ensName || item.address}`} 
-                      className="flex items-center gap-2 flex-1"
-                      onClick={() => onOpenChange(false)}
+        <div className="py-4">
+          {(currentItems && currentItems.length > 0) ? (
+            <>
+              <div className="space-y-3 max-h-72 overflow-y-auto">
+                {currentItems.map((person, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
+                    <a 
+                      href={`/${person.ensName || person.address}/`}
+                      className="flex items-center gap-3 flex-grow hover:text-primary"
                     >
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={item.avatar} alt={item.ensName || item.address} />
-                        <AvatarFallback>{getInitials(item.ensName || '')}</AvatarFallback>
+                      <Avatar>
+                        <AvatarImage src={person.avatar} />
+                        <AvatarFallback>
+                          {person.ensName
+                            ? person.ensName.substring(0, 2).toUpperCase()
+                            : shortenAddress(person.address).substring(0, 2)}
+                        </AvatarFallback>
                       </Avatar>
-                      <div className="flex flex-col">
-                        {item.ensName && <span className="text-sm font-medium">{item.ensName}</span>}
-                        <AddressDisplay address={item.address} className="text-xs" />
-                      </div>
-                    </Link>
-                    
-                    {dialogType === 'followers' && (
-                      <Button 
-                        variant={isFollowing(item.address) ? "outline" : "default"} 
-                        size="sm" 
-                        onClick={() => handleFollow(item.address)}
-                        disabled={followLoading[item.address]}
-                        className="ml-2"
-                      >
-                        {followLoading[item.address] ? (
-                          <Loader className="h-3 w-3 animate-spin" />
-                        ) : isFollowing(item.address) ? (
-                          'Following'
-                        ) : (
-                          'Follow'
+                      <div>
+                        <p className="font-medium">{person.ensName || shortenAddress(person.address)}</p>
+                        {person.ensName && (
+                          <p className="text-xs text-muted-foreground">{shortenAddress(person.address)}</p>
                         )}
-                      </Button>
-                    )}
-                  </li>
-                  {index < listToShow.length - 1 && <Separator className="my-2" />}
-                </React.Fragment>
-              ))}
-            </ul>
+                      </div>
+                    </a>
+                  </div>
+                ))}
+              </div>
+              
+              {totalPages > 1 && (
+                <div className="mt-4">
+                  <Pagination>
+                    <PaginationContent>
+                      {currentPage > 1 && (
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => handlePageChange(currentPage - 1)} 
+                          />
+                        </PaginationItem>
+                      )}
+                      
+                      {paginationItems}
+                      
+                      {currentPage < totalPages && (
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => handlePageChange(currentPage + 1)} 
+                          />
+                        </PaginationItem>
+                      )}
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              {dialogType === 'followers' ? 'No followers yet' : 'Not following anyone'}
-            </div>
+            <p className="text-center text-muted-foreground">
+              {isProcessing ? 'Loading...' : `No ${dialogType} found`}
+            </p>
           )}
         </div>
       </DialogContent>

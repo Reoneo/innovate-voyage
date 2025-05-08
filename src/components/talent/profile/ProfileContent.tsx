@@ -144,7 +144,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
 export default ProfileContent;
 
 const ProfileTimeoutError: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameOrAddress }) => (
-  <div className="min-h-screen py-4 md:py-8">
+  <div className="min-h-screen bg-gray-50 py-4 md:py-8">
     <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
       <HeaderContainer>
         <div className="flex flex-col items-center justify-center h-full text-center">
