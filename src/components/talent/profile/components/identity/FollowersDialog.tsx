@@ -8,6 +8,7 @@ import { useEfpStats } from '@/hooks/useEfpStats';
 import { Skeleton } from '@/components/ui/skeleton';
 import AddressDisplay from './AddressDisplay';
 import { X } from 'lucide-react';
+import { EfpPerson } from '@/hooks/useEfpStats';
 
 interface FollowProps {
   name?: string;
@@ -17,22 +18,56 @@ interface FollowProps {
 }
 
 interface FollowersDialogProps {
-  walletAddress: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  walletAddress?: string;
+  dialogType?: 'followers' | 'following';
+  followersList?: FollowProps[];
+  followingList?: FollowProps[];
+  handleFollow?: (address: string) => Promise<void>;
+  isFollowing?: (address: string) => boolean;
+  followLoading?: {[key: string]: boolean};
+  isProcessing?: boolean;
 }
 
-const FollowersDialog: React.FC<FollowersDialogProps> = ({ walletAddress, open, onOpenChange }) => {
-  const [activeTab, setActiveTab] = useState('followers');
-  const { followers, following, isLoading, refetch } = useEfpStats(walletAddress);
+const FollowersDialog: React.FC<FollowersDialogProps> = ({ 
+  walletAddress, 
+  open, 
+  onOpenChange,
+  dialogType = 'followers',
+  followersList: externalFollowersList,
+  followingList: externalFollowingList,
+  handleFollow,
+  isFollowing,
+  followLoading,
+  isProcessing
+}) => {
+  const [activeTab, setActiveTab] = useState(dialogType);
+  const { 
+    followers: statsFollowers, 
+    following: statsFollowing, 
+    followersList, 
+    followingList,
+    loading, 
+    refreshData 
+  } = useEfpStats(walletAddress);
+
+  // Use external data if provided, otherwise use data from useEfpStats
+  const actualFollowersList = externalFollowersList || followersList;
+  const actualFollowingList = externalFollowingList || followingList;
 
   useEffect(() => {
-    if (open) {
-      refetch();
+    if (open && walletAddress) {
+      refreshData();
     }
-  }, [open, refetch]);
+    
+    // Update active tab when dialogType prop changes
+    if (dialogType) {
+      setActiveTab(dialogType);
+    }
+  }, [open, walletAddress, refreshData, dialogType]);
 
-  const FollowList = ({ items, isLoading }: { items: FollowProps[] | null, isLoading: boolean }) => {
+  const FollowList = ({ items, isLoading }: { items: FollowProps[] | undefined, isLoading: boolean }) => {
     if (isLoading) {
       return (
         <div className="space-y-4 pt-4">
@@ -69,6 +104,17 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({ walletAddress, open, 
               {item.name && <div className="font-medium">{item.name}</div>}
               <AddressDisplay address={item.address} />
             </div>
+            {handleFollow && isFollowing && item.address !== walletAddress && (
+              <Button 
+                variant={isFollowing(item.address) ? "secondary" : "default"}
+                size="sm"
+                className="ml-auto"
+                onClick={() => handleFollow(item.address)}
+                disabled={followLoading?.[item.address] || isProcessing}
+              >
+                {isFollowing(item.address) ? 'Unfollow' : 'Follow'}
+              </Button>
+            )}
           </div>
         ))}
       </div>
@@ -100,10 +146,10 @@ const FollowersDialog: React.FC<FollowersDialogProps> = ({ walletAddress, open, 
             <TabsTrigger value="following">Following</TabsTrigger>
           </TabsList>
           <TabsContent value="followers">
-            <FollowList items={followers} isLoading={isLoading} />
+            <FollowList items={actualFollowersList} isLoading={loading} />
           </TabsContent>
           <TabsContent value="following">
-            <FollowList items={following} isLoading={isLoading} />
+            <FollowList items={actualFollowingList} isLoading={loading} />
           </TabsContent>
         </Tabs>
       </DialogContent>

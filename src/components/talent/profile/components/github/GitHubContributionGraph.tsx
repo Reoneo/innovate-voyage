@@ -24,7 +24,8 @@ export default function GitHubContributionGraph({
       
       <GitHubContributions 
         username={username}
-        onLoadingChange={setIsLoading}
+        onLoadingChange={(loading) => setIsLoading(loading)}
+        isVerified={true}
       />
       
       {!isLoading && <GitHubContributionLegend hasTalentProtocolData={hasTalentProtocolData} />}
