@@ -21,12 +21,15 @@ export function useGitHubContributions(username: string) {
     try {
       // Directly fetch the GitHub profile page
       console.log(`Fetching GitHub profile for ${username}`);
-      const response = await fetch(`https://github.com/${username}`);
+      // Use cors-anywhere or similar service to bypass CORS restrictions
+      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://github.com/${username}`)}`);
+      
       if (!response.ok) {
         throw new Error(`Failed to fetch GitHub profile for ${username}`);
       }
       
-      const html = await response.text();
+      const data = await response.json();
+      const html = data.contents;
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
       
@@ -48,16 +51,12 @@ export function useGitHubContributions(username: string) {
       
       // If that fails, try alternative selectors
       if (total === 0) {
-        // Try to find contribution count in the overview tab
-        const contributionsElements = doc.querySelectorAll('.js-yearly-contributions h2');
-        for (const el of contributionsElements) {
-          const text = el.textContent || '';
-          const match = text.match(/(\d+,?\d*) contributions/);
-          if (match && match[1]) {
-            total = parseInt(match[1].replace(/,/g, ''), 10);
-            console.log(`Found ${total} contributions via alternative selector`);
-            break;
-          }
+        // Look for any text containing "contributions in the last year"
+        const allText = doc.body.textContent || '';
+        const yearlyMatch = allText.match(/(\d+,?\d*) contributions in the last year/);
+        if (yearlyMatch && yearlyMatch[1]) {
+          total = parseInt(yearlyMatch[1].replace(/,/g, ''), 10);
+          console.log(`Found ${total} contributions via text search`);
         }
       }
       
@@ -67,6 +66,16 @@ export function useGitHubContributions(username: string) {
         setStats(prev => ({ ...prev, total }));
         return { total };
       } else {
+        // Try one more generic approach - look for any number followed by "contributions"
+        const allText = doc.body.textContent || '';
+        const genericMatch = allText.match(/(\d+,?\d*) contributions/);
+        if (genericMatch && genericMatch[1]) {
+          const foundTotal = parseInt(genericMatch[1].replace(/,/g, ''), 10);
+          setTotalContributions(foundTotal);
+          setStats(prev => ({ ...prev, total: foundTotal }));
+          return { total: foundTotal };
+        }
+        
         console.warn(`Could not find contribution count for ${username}`);
         return null;
       }
@@ -91,6 +100,7 @@ export function useGitHubContributions(username: string) {
         if (contributionData && typeof contributionData.total === 'number') {
           console.log(`Found ${contributionData.total} contributions for ${username} via direct fetch`);
           setTotalContributions(contributionData.total);
+          setStats(prev => ({ ...prev, total: contributionData.total }));
         }
         setLoading(false);
       })

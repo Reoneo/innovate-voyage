@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -81,11 +80,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   console.log('GitHub data from passport:', {
     username: githubUsername,
     originalValue: passport?.socials?.github,
-    passport: passport ? 'exists' : 'null',
-    hasTalentProtocolData: passport?.hasTalentProtocolData
+    passport: passport ? 'exists' : 'null'
   });
   
-  // Show GitHub section if there's a GitHub username (regardless of TalentProtocol data)
+  // Always show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
 
   return (
