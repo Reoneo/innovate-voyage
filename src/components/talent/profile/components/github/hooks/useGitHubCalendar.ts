@@ -9,7 +9,6 @@ export function useGitHubCalendar(username: string) {
     error,
     tokenInvalid,
     stats: baseStats,
-    totalContributions: scrapedContributions,
     fetchGitHubContributions
   } = useGitHubContributions(username);
   const [totalContributions, setTotalContributions] = useState<number | null>(null);
@@ -36,14 +35,6 @@ export function useGitHubCalendar(username: string) {
       }
     }
   }, [username]);
-
-  // Use the scraped contributions from useGitHubContributions if available
-  useEffect(() => {
-    if (scrapedContributions && !totalContributions) {
-      console.log(`Using scraped GitHub contributions for ${username}: ${scrapedContributions}`);
-      setTotalContributions(scrapedContributions);
-    }
-  }, [scrapedContributions, totalContributions, username]);
 
   // Fetch GitHub contribution count directly from API
   useEffect(() => {
@@ -119,7 +110,7 @@ export function useGitHubCalendar(username: string) {
 
   // Use the hook for calculating statistics
   const stats = useContributionStats(username, {
-    total: totalContributions ?? baseStats.total ?? 0,
+    total: totalContributions ?? baseStats.total,
     data: contributionData
   });
 
@@ -128,6 +119,6 @@ export function useGitHubCalendar(username: string) {
     error,
     tokenInvalid,
     stats,
-    totalContributions: totalContributions ?? scrapedContributions
+    totalContributions
   };
 }

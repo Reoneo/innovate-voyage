@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { GitHubContributionProps } from './types';
 import GitHubLoadingState from './GitHubLoadingState';
 import GitHubContributionLegend from './components/GitHubContributionLegend';
@@ -18,8 +18,8 @@ export default function GitHubContributionGraph({
     totalContributions
   } = useGitHubCalendar(username);
   
-  // Store the displayed contribution count - ensure we use a valid number
-  const displayTotal = totalContributions || stats.total || 0;
+  // Store the displayed contribution count to avoid re-renders
+  const [displayedTotal, setDisplayedTotal] = useState<number>(0);
 
   // If no username provided, don't show anything
   if (!username) {
@@ -27,7 +27,7 @@ export default function GitHubContributionGraph({
     return null;
   }
 
-  // Custom theme matching the existing dark theme
+  // Custom theme matching the existing dark theme with more compact colors
   const theme = {
     dark: [
       '#161b22', // level0: Empty cells
@@ -38,7 +38,27 @@ export default function GitHubContributionGraph({
     ]
   };
 
-  console.log(`Rendering GitHub graph for ${username} with ${displayTotal} contributions`);
+  // Memoized transform function to prevent infinite re-renders
+  const transformData = useCallback((contributions) => {
+    if (Array.isArray(contributions)) {
+      const total = contributions.reduce((sum, day) => sum + day.count, 0);
+      
+      // Update the displayed total without causing re-renders
+      if (total > 0 && total !== displayedTotal) {
+        setDisplayedTotal(total);
+      }
+    }
+    return contributions;
+  }, [displayedTotal]);
+
+  // Effect to update the banner when totalContributions changes
+  useEffect(() => {
+    if (totalContributions && totalContributions > 0) {
+      setDisplayedTotal(totalContributions);
+    } else if (stats.total > 0) {
+      setDisplayedTotal(stats.total);
+    }
+  }, [totalContributions, stats.total]);
 
   return (
     <div className="w-full overflow-hidden">
@@ -53,46 +73,44 @@ export default function GitHubContributionGraph({
             <div className="text-sm font-semibold text-white">
               <span className="text-base font-bold">GitHub Activity: </span>
               <span className="text-base font-bold text-green-400" id="contribution-count-banner">
-                {displayTotal}
+                {displayedTotal || (stats.total || 0)}
               </span> Contributions in The Last Year
             </div>
           </div>
           
-          {/* GitHub Calendar with white text labels */}
+          {/* GitHub Calendar with white text labels as requested */}
           <div className="calendar-container" style={{ 
-            minHeight: '90px',
-            maxHeight: '110px',
+            minHeight: '70px',
+            maxHeight: '90px',
             overflow: 'auto',
             padding: '0',
             margin: '0'
           }}>
-            <div className="w-full min-w-[650px]">
-              <GitHubCalendar 
-                username={username}
-                colorScheme="dark"
-                theme={theme}
-                hideColorLegend={true}
-                hideMonthLabels={false}
-                showWeekdayLabels={true}
-                blockSize={8}
-                blockMargin={2}
-                blockRadius={1}
-                fontSize={8}
-                labels={{
-                  months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                  weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
-                  totalCount: '{{count}} contributions'
-                }}
-                transformData={(contributions) => {
-                  // Return the contributions data directly
-                  console.log(`Calendar received contributions data for ${username}`);
-                  return contributions;
-                }}
-              />
-            </div>
+            {username && (
+              <div className="w-full min-w-[650px]">
+                <GitHubCalendar 
+                  username={username}
+                  colorScheme="dark"
+                  theme={theme}
+                  hideColorLegend={true}
+                  hideMonthLabels={false}
+                  showWeekdayLabels={true}
+                  blockSize={7}
+                  blockMargin={1.5}
+                  blockRadius={1}
+                  fontSize={7}
+                  transformData={transformData}
+                  labels={{
+                    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
+                    totalCount: '{{count}} contributions'
+                  }}
+                />
+              </div>
+            )}
           </div>
           
-          {/* Legend */}
+          {/* More compact legend */}
           <GitHubContributionLegend />
         </div>
       )}
