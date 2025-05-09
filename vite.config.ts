@@ -3,11 +3,13 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { componentTagger } from 'lovable-tagger';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
+    mode === 'development' && componentTagger(),
     nodePolyfills({
       include: ['buffer', 'process', 'util', 'stream'],
       globals: {
@@ -16,15 +18,15 @@ export default defineConfig({
         process: true,
       },
     }),
-  ],
+  ].filter(Boolean),
   build: {
-    outDir: 'build',
+    outDir: 'dist',
   },
   server: {
-    port: 8080, // Set the port to 8080 as required
-    host: true,
+    port: 8080,
+    host: '::',
     cors: true,
-    allowedHosts: ['all'], // Fix the type by using an array with 'all'
+    allowedHosts: ['all'],
     proxy: {
       '/api': {
         target: 'http://localhost:4000',
@@ -36,8 +38,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      // Fix the ethers import path issue
-      'ethers': 'ethers', // Use the default package resolution
       'stream': 'stream-browserify',
       'zlib': 'browserify-zlib',
       'https': 'agent-base',
@@ -63,4 +63,4 @@ export default defineConfig({
     },
   },
   base: '/',
-});
+}));
