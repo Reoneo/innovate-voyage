@@ -49,16 +49,21 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
     setIsLoading(false);
   };
 
+  // Special class for .box avatars to ensure square shape vs circular default
+  const avatarClass = isBoxDomain 
+    ? "h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar rounded-md" 
+    : "h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar";
+    
   // Special class for .box avatars to ensure 1:1 ratio
   const avatarImageClass = isBoxDomain 
-    ? "object-cover aspect-square" 
+    ? "object-cover aspect-square rounded-md" 
     : "object-cover";
   
   return (
-    <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar">
+    <Avatar className={avatarClass}>
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <Skeleton className="h-full w-full rounded-full" />
+          <Skeleton className={`h-full w-full ${isBoxDomain ? 'rounded-md' : 'rounded-full'}`} />
         </div>
       )}
       
@@ -74,13 +79,13 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
         <AvatarImage 
           src="/placeholder.svg" 
           alt={name} 
-          className="object-cover"
+          className={isBoxDomain ? "object-cover rounded-md" : "object-cover"}
           onError={handlePlaceholderError}
           onLoad={() => setIsLoading(false)}
         />
       )}
       
-      <AvatarFallback className="bg-primary/10 text-primary font-medium">
+      <AvatarFallback className={`bg-primary/10 text-primary font-medium ${isBoxDomain ? 'rounded-md' : ''}`}>
         {getInitials(name)}
       </AvatarFallback>
     </Avatar>

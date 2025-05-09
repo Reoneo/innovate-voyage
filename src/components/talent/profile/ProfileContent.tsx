@@ -31,8 +31,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   
   // Extract GitHub username from social links with improved handling
   const extractGitHubUsername = () => {
+    if (!passport?.socials) return null;
+    
     // First check if we already have github username directly in socials
-    if (passport?.socials?.github) {
+    if (passport.socials.github) {
       const directGithub = passport.socials.github;
       console.log('GitHub from passport.socials.github:', directGithub);
       
@@ -43,52 +45,36 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         }
         return directGithub;
       }
-    }
-    
-    // If nothing found or we need to extract from URL
-    if (!passport?.socials?.github) {
-      console.log('No GitHub social link found in passport');
-      return null;
-    }
-    
-    const githubUrl = passport.socials.github;
-    console.log('Extracting GitHub username from:', githubUrl);
-    
-    try {
-      // Handle different GitHub URL formats
-      if (typeof githubUrl === 'string') {
-        // Handle github.com URL format
-        if (githubUrl.includes('github.com/')) {
-          const parts = githubUrl.split('github.com/');
-          // Get everything after github.com/ and before any query params or hashes
-          const username = parts[1]?.split(/[/?#]/)[0];
-          console.log('Extracted GitHub username from URL:', username);
-          return username?.trim() || null;
-        }
-        
-        // Handle direct username format with @ prefix
-        if (githubUrl.startsWith('@')) {
-          const username = githubUrl.substring(1).trim(); // Remove @ prefix
-          console.log('Extracted GitHub username from @-prefix:', username);
-          return username || null;
-        }
-        
-        // Handle pure username format (no URL, no @)
-        if (githubUrl.trim() !== '') {
-          const username = githubUrl.trim();
-          console.log('Using GitHub value directly as username:', username);
-          return username;
-        }
+      
+      // Handle github.com URL format
+      if (typeof directGithub === 'string' && directGithub.includes('github.com/')) {
+        const parts = directGithub.split('github.com/');
+        // Get everything after github.com/ and before any query params or hashes
+        const username = parts[1]?.split(/[/?#]/)[0];
+        console.log('Extracted GitHub username from URL:', username);
+        return username?.trim() || null;
       }
-    } catch (error) {
-      console.error('Error extracting GitHub username:', error);
+      
+      // Handle direct username format with @ prefix
+      if (typeof directGithub === 'string' && directGithub.startsWith('@')) {
+        const username = directGithub.substring(1).trim(); // Remove @ prefix
+        console.log('Extracted GitHub username from @-prefix:', username);
+        return username || null;
+      }
+      
+      // Handle pure username format (no URL, no @)
+      if (typeof directGithub === 'string' && directGithub.trim() !== '') {
+        const username = directGithub.trim();
+        console.log('Using GitHub value directly as username:', username);
+        return username;
+      }
     }
     
     console.log('Could not extract GitHub username');
     return null;
   };
 
-  // Get GitHub username from ENS records
+  // Get GitHub username from socials
   const githubUsername = extractGitHubUsername();
   
   // Debug logging
@@ -99,8 +85,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     hasTalentProtocolData: passport?.hasTalentProtocolData
   });
   
-  // Only show GitHub section if there's a GitHub username AND user has TalentProtocol data
-  const showGitHubSection = !!githubUsername && !!passport?.hasTalentProtocolData;
+  // Show GitHub section if there's a GitHub username (regardless of TalentProtocol data)
+  const showGitHubSection = !!githubUsername;
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -126,7 +112,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* GitHub contribution graph - only show if user has talent protocol data */}
+              {/* GitHub contribution graph - show whenever a username exists */}
               {showGitHubSection && (
                 <div className="mt-4">
                   <GitHubContributionGraph username={githubUsername!} />
