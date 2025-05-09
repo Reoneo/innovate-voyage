@@ -33,41 +33,14 @@ export async function handleDotBoxAvatar(identity: string): Promise<string | nul
       return boxData.avatar;
     }
     
-    // Third, try Optimism Etherscan API to get metadata using the API key
-    const address = boxData?.address || identity;
-    const etherscanUrl = `https://api-optimistic.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=desc&apikey=${OPTIMISM_ETHERSCAN_API_KEY}`;
+    // Third, try Optimism Etherscan API to get metadata
+    const etherscanUrl = `https://api-optimistic.etherscan.io/api?module=account&action=txlist&address=${boxData?.address || identity}&startblock=0&endblock=99999999&sort=desc&apikey=${OPTIMISM_ETHERSCAN_API_KEY}`;
     try {
       const etherscanResponse = await fetch(etherscanUrl);
       if (etherscanResponse.ok) {
         const etherscanData = await etherscanResponse.json();
         console.log(`Got Optimism Etherscan data for ${identity}`);
-        
-        // Try to fetch ERC-1155 tokens using the API key
-        try {
-          const tokenUrl = `https://api-optimistic.etherscan.io/api?module=account&action=token1155tx&address=${address}&page=1&offset=100&sort=desc&apikey=${OPTIMISM_ETHERSCAN_API_KEY}`;
-          const tokenResponse = await fetch(tokenUrl);
-          
-          if (tokenResponse.ok) {
-            const tokenData = await tokenResponse.json();
-            
-            if (tokenData.status === "1" && tokenData.result && tokenData.result.length > 0) {
-              // Get the first token contract
-              const tokenContract = tokenData.result[0].contractAddress;
-              const tokenId = tokenData.result[0].tokenID;
-              
-              if (tokenContract && tokenId) {
-                console.log(`Found ERC-1155 token for ${identity}: ${tokenContract}/${tokenId}`);
-                
-                // Try to get token URI/metadata
-                const avatarUrl = `https://metadata.ens.domains/optimism/avatar/${identity}`;
-                avatarCache[identity] = avatarUrl;
-                return avatarUrl;
-              }
-            }
-          }
-        } catch (tokenError) {
-          console.error(`Error fetching token data for ${identity}:`, tokenError);
-        }
+        // Continue with other methods as we just want the transactions data for metadata
       }
     } catch (etherscanError) {
       console.error("Error fetching from Optimism Etherscan:", etherscanError);

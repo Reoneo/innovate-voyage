@@ -45,12 +45,6 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
     console.log("Even placeholder failed to load");
     setIsLoading(false);
   };
-
-  // For .box domains, we should use a specific placeholder
-  const isDotBoxDomain = name?.endsWith('.box') || avatarUrl?.includes('.box');
-  const placeholderSrc = isDotBoxDomain 
-    ? "/talent-protocol-logo.png" 
-    : "/placeholder.svg";
   
   return (
     <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar">
@@ -70,7 +64,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
         />
       ) : (
         <AvatarImage 
-          src={placeholderSrc} 
+          src="/placeholder.svg" 
           alt={name} 
           className="object-cover"
           onError={handlePlaceholderError}

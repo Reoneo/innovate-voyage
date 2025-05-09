@@ -79,7 +79,6 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       <FollowersDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        walletAddress={ownerAddress}
         dialogType={dialogType}
         followersList={followersList}
         followingList={followingList}

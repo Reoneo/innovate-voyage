@@ -3,11 +3,10 @@ import React, { useEffect, useState } from 'react';
 
 interface Props {
   username: string;
-  onLoadingChange?: (loading: boolean) => void;
-  isVerified?: boolean;
+  isVerified: boolean;
 }
 
-const GitHubContributions: React.FC<Props> = ({ username, onLoadingChange, isVerified = true }) => {
+const GitHubContributions: React.FC<Props> = ({ username, isVerified }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   
@@ -31,16 +30,14 @@ const GitHubContributions: React.FC<Props> = ({ username, onLoadingChange, isVer
       .then(response => {
         console.log(`[GitHubContributions] URL check status: ${response.status}`);
         setIsLoading(false);
-        if (onLoadingChange) onLoadingChange(false);
         setHasError(!response.ok);
       })
       .catch(error => {
         console.error('[GitHubContributions] URL check error:', error);
         setIsLoading(false);
-        if (onLoadingChange) onLoadingChange(false);
         setHasError(true);
       });
-  }, [contribUrl, onLoadingChange]);
+  }, [contribUrl]);
 
   return (
     <div className="github-heatmap-wrapper" style={{ 
