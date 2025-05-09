@@ -62,7 +62,24 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     // If it's an ENS name, try multiple sources
     if (identity.endsWith('.eth')) {
       const ensAvatar = await handleEnsAvatar(identity);
-      if (ensAvatar) return ensAvatar;
+      if (ensAvatar) {
+        return ensAvatar;
+      }
+      
+      // If no avatar is found, try the preview service as a fallback for .eth domains
+      try {
+        const previewUrl = `https://metadata.ens.domains/preview/${identity}`;
+        // Only do a HEAD request to check if it exists
+        const previewResponse = await fetch(previewUrl, { method: 'HEAD' });
+        
+        if (previewResponse.ok) {
+          console.log(`Using ENS preview image as fallback for ${identity}`);
+          avatarCache[identity] = previewUrl;
+          return previewUrl;
+        }
+      } catch (previewError) {
+        console.error(`Error fetching from ENS preview service for ${identity}:`, previewError);
+      }
     }
     
     // For .box domains, try specific approach

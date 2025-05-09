@@ -97,7 +97,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     },
     server: {
       host: '::',
-      port: 8080
+      port: 8080,
+      allowedHosts: 'all', // This allows any host to access the server
     },
   };
   

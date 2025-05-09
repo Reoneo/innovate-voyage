@@ -100,6 +100,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
+  
+  // Check if user has Talent Protocol data
+  const hasTalentProtocolData = !!passport?.hasTalentProtocolData;
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -128,7 +131,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               {/* GitHub contribution graph */}
               {showGitHubSection && (
                 <div className="mt-4">
-                  <GitHubContributionGraph username={githubUsername!} />
+                  <GitHubContributionGraph 
+                    username={githubUsername!}
+                    hasTalentProtocolData={hasTalentProtocolData}
+                  />
                 </div>
               )}
             </div>
