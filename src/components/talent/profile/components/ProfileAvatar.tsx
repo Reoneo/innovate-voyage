@@ -26,6 +26,9 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
     if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
     return (parts[0][0] + parts[1][0]).toUpperCase();
   };
+
+  // Check if the avatar is for a .box domain
+  const isBoxDomain = name?.toLowerCase().endsWith('.box');
   
   // Handle image load success
   const handleImageLoad = () => {
@@ -45,6 +48,11 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
     console.log("Even placeholder failed to load");
     setIsLoading(false);
   };
+
+  // Special class for .box avatars to ensure 1:1 ratio
+  const avatarImageClass = isBoxDomain 
+    ? "object-cover aspect-square" 
+    : "object-cover";
   
   return (
     <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar">
@@ -58,7 +66,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
         <AvatarImage 
           src={avatarUrl} 
           alt={name} 
-          className="object-cover"
+          className={avatarImageClass}
           onError={handleImageError}
           onLoad={handleImageLoad}
         />

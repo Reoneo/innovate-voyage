@@ -95,11 +95,12 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   console.log('GitHub data from passport:', {
     username: githubUsername,
     originalValue: passport?.socials?.github,
-    passport: passport ? 'exists' : 'null'
+    passport: passport ? 'exists' : 'null',
+    hasTalentProtocolData: passport?.hasTalentProtocolData
   });
   
-  // Only show GitHub section if there's a GitHub username
-  const showGitHubSection = !!githubUsername;
+  // Only show GitHub section if there's a GitHub username AND user has TalentProtocol data
+  const showGitHubSection = !!githubUsername && !!passport?.hasTalentProtocolData;
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -125,7 +126,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* GitHub contribution graph */}
+              {/* GitHub contribution graph - only show if user has talent protocol data */}
               {showGitHubSection && (
                 <div className="mt-4">
                   <GitHubContributionGraph username={githubUsername!} />
