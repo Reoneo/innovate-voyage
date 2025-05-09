@@ -21,10 +21,10 @@ export default defineConfig({
     outDir: 'build',
   },
   server: {
-    port: 3000,
+    port: 8080, // Set the port to 8080 as required
     host: true,
     cors: true,
-    allowedHosts: 'all',
+    allowedHosts: 'all', // Fix the type error by using 'all' instead of a string array
     proxy: {
       '/api': {
         target: 'http://localhost:4000',
