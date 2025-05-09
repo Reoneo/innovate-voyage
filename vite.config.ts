@@ -24,7 +24,7 @@ export default defineConfig({
     port: 8080, // Set the port to 8080 as required
     host: true,
     cors: true,
-    allowedHosts: 'all', // Fix the type error by using 'all' instead of a string array
+    allowedHosts: ['all'], // Fix the type by using an array with 'all'
     proxy: {
       '/api': {
         target: 'http://localhost:4000',
@@ -36,7 +36,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      'ethers': 'ethers/dist/ethers.min.js',
+      // Fix the ethers import path issue
+      'ethers': 'ethers', // Use the default package resolution
       'stream': 'stream-browserify',
       'zlib': 'browserify-zlib',
       'https': 'agent-base',
