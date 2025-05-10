@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import TalentScoreBadge from './scores/TalentScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
+import SecurityScoreBadge from './scores/SecurityScoreBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
@@ -13,7 +14,7 @@ interface TalentScoreBannerProps {
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions'>('talent');
-  const { score, txCount, loading } = useScoresData(walletAddress);
+  const { score, webacyData, txCount, loading } = useScoresData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
 
   const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions') => {
@@ -32,7 +33,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {showTalentScore && (
           <TalentScoreBadge 
             score={score} 
@@ -40,6 +41,11 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             isLoading={loading} 
           />
         )}
+        <SecurityScoreBadge 
+          webacyData={webacyData} 
+          onClick={() => handleBadgeClick('webacy')}
+          isLoading={loading} 
+        />
         <TransactionsBadge 
           txCount={txCount}
           walletAddress={walletAddress}
@@ -60,7 +66,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
         type={activeDialog}
         data={{
           score,
-          webacyData: null,
+          webacyData,
           txCount,
           walletAddress
         }}

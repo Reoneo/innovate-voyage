@@ -1,29 +1,31 @@
 
-import { ThreatLevel } from '../types';
-
-// Updated Builder Score levels according to Talent Protocol standards
-export const getBuilderTitle = (score: number) => {
-  if (score >= 250) return 'Master';
-  if (score >= 170) return 'Expert';
-  if (score >= 120) return 'Advanced';
-  if (score >= 80) return 'Practitioner';
-  if (score >= 40) return 'Apprentice';
-  if (score >= 0) return 'Novice';
-  return 'Novice';
+// Get builder title based on talent score
+export const getBuilderTitle = (score: number): string => {
+  if (score >= 800) return 'Legendary Builder';
+  if (score >= 600) return 'Expert Builder';
+  if (score >= 400) return 'Advanced Builder';
+  if (score >= 200) return 'Intermediate Builder';
+  return 'Aspiring Builder';
 };
 
-export const getThreatLevel = (riskScore?: number): ThreatLevel => {
-  if (riskScore === undefined) return 'UNKNOWN';
-  if (riskScore < 30) return 'LOW';
-  if (riskScore < 70) return 'MEDIUM';
+// Get threat level based on security score
+export const getThreatLevel = (score: number): 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN' => {
+  if (score === undefined || score === null) return 'UNKNOWN';
+  if (score < 30) return 'LOW';
+  if (score < 70) return 'MEDIUM';
   return 'HIGH';
 };
 
-export const getThreatColor = (level?: ThreatLevel) => {
-  switch (level) {
-    case 'LOW': return 'text-green-500';
-    case 'MEDIUM': return 'text-yellow-500';
-    case 'HIGH': return 'text-red-500';
-    default: return 'text-gray-500';
+// Get color based on threat level
+export const getThreatColor = (threatLevel?: 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN'): string => {
+  switch (threatLevel) {
+    case 'LOW':
+      return 'text-green-600';
+    case 'MEDIUM':
+      return 'text-yellow-600';
+    case 'HIGH':
+      return 'text-red-600';
+    default:
+      return 'text-gray-500';
   }
 };
