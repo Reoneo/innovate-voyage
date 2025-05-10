@@ -1,18 +1,15 @@
 
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { WebacyData } from './types';
 import TalentScoreDialogContent from './dialogs/TalentScoreDialogContent';
-import WebacyDialogContent from './dialogs/WebacyDialogContent';
 import TransactionsDialogContent from './dialogs/TransactionsDialogContent';
 
 interface ScoreDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type: 'talent' | 'webacy' | 'transactions';
+  type: 'talent' | 'transactions';
   data: {
     score: number | null;
-    webacyData: WebacyData | null;
     txCount: number | null;
     walletAddress: string;
   };
@@ -23,8 +20,6 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
     switch (type) {
       case 'talent':
         return 'Builder Score';
-      case 'webacy':
-        return 'Security Score';
       case 'transactions':
         return 'NFT Collection';
       default:
@@ -36,8 +31,6 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
     switch (type) {
       case 'talent':
         return <TalentScoreDialogContent score={data.score} walletAddress={data.walletAddress} />;
-      case 'webacy':
-        return <WebacyDialogContent webacyData={data.webacyData} walletAddress={data.walletAddress} />;
       case 'transactions':
         return <TransactionsDialogContent txCount={data.txCount} walletAddress={data.walletAddress} />;
       default:

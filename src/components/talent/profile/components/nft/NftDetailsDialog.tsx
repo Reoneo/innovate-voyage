@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 
 interface NftDetailsDialogProps {
@@ -16,11 +17,12 @@ interface NftDetailsDialogProps {
     name: string;
     imageUrl: string;
     collectionName: string;
-    collectionAddress: string;
-    description: string;
-    tokenId: string;
-    tokenType: string;
+    collectionAddress?: string;
+    description?: string;
+    tokenId?: string;
+    tokenType?: string;
     count?: number;
+    chain?: string;
   } | null;
 }
 
@@ -31,8 +33,18 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({
 }) => {
   if (!nft) return null;
 
-  const etherscanUrl = `https://etherscan.io/token/${nft.collectionAddress}?a=${nft.tokenId}`;
-  const openseaUrl = `https://opensea.io/assets/ethereum/${nft.collectionAddress}/${nft.tokenId}`;
+  const chainId = nft.chain || 'ethereum';
+  const etherscanUrl = nft.collectionAddress && nft.tokenId ? 
+    `https://etherscan.io/token/${nft.collectionAddress}?a=${nft.tokenId}` : 
+    '#';
+    
+  const openseaUrl = nft.collectionAddress && nft.tokenId ? 
+    `https://opensea.io/assets/${chainId}/${nft.collectionAddress}/${nft.tokenId}` : 
+    '#';
+    
+  const makeOfferUrl = nft.collectionAddress && nft.tokenId ? 
+    `https://opensea.io/assets/${chainId}/${nft.collectionAddress}/${nft.tokenId}?tab=offers` : 
+    '#';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -74,37 +86,51 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({
             </div>
           )}
 
-          <div>
-            <h4 className="font-medium mb-1">Details</h4>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <p className="text-muted-foreground">Token ID</p>
-                <p className="font-medium truncate">{nft.tokenId}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Token Type</p>
-                <p className="font-medium">{nft.tokenType}</p>
+          {nft.tokenId && nft.tokenType && (
+            <div>
+              <h4 className="font-medium mb-1">Details</h4>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Token ID</p>
+                  <p className="font-medium truncate">{nft.tokenId}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Token Type</p>
+                  <p className="font-medium">{nft.tokenType}</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          <div className="flex space-x-2 pt-2">
-            <a
-              href={etherscanUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs flex items-center text-blue-600 hover:underline"
+          <div className="flex flex-col space-y-2 pt-2">
+            {/* Make Offer on OpenSea Button */}
+            <Button 
+              variant="default" 
+              className="w-full bg-blue-600 hover:bg-blue-700"
+              onClick={() => window.open(makeOfferUrl, '_blank')}
+              disabled={!nft.collectionAddress || !nft.tokenId}
             >
-              View on Etherscan <ExternalLink className="h-3 w-3 ml-1" />
-            </a>
-            <a
-              href={openseaUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs flex items-center text-blue-600 hover:underline"
-            >
-              View on OpenSea <ExternalLink className="h-3 w-3 ml-1" />
-            </a>
+              Make Offer on OpenSea
+            </Button>
+            
+            <div className="flex space-x-2 justify-between">
+              <a
+                href={etherscanUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs flex items-center text-blue-600 hover:underline"
+              >
+                View on Etherscan <ExternalLink className="h-3 w-3 ml-1" />
+              </a>
+              <a
+                href={openseaUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs flex items-center text-blue-600 hover:underline"
+              >
+                View on OpenSea <ExternalLink className="h-3 w-3 ml-1" />
+              </a>
+            </div>
           </div>
         </div>
       </DialogContent>

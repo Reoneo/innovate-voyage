@@ -1,9 +1,11 @@
 
 import React from 'react';
 import NftItem from './NftItem';
+import { OpenSeaNft } from '@/api/services/openseaService';
 
 // Group NFTs by collection and token ID to show count
 export type GroupedNft = {
+  id: string;
   name: string;
   imageUrl: string;
   count: number;
@@ -12,12 +14,13 @@ export type GroupedNft = {
   description: string;
   tokenId: string;
   tokenType: string;
+  chain?: string;
   nfts: any[]; // Store all instances of this NFT
 };
 
 export interface NftGridProps {
-  nfts: any[];
-  onItemClick: (nft: any) => void;
+  nfts: OpenSeaNft[];
+  onItemClick: (nft: GroupedNft) => void;
   isLoading?: boolean;
 }
 
@@ -29,7 +32,8 @@ const NftGrid: React.FC<NftGridProps> = ({ nfts = [], onItemClick, isLoading = f
     const nftMap = new Map<string, GroupedNft>();
     
     nfts.forEach(nft => {
-      const key = `${nft.contract_address}-${nft.token_id}`;
+      // Create a unique key for this NFT
+      const key = `${nft.collectionName}-${nft.id}`;
       
       if (nftMap.has(key)) {
         // Increment count for existing NFT
@@ -39,14 +43,16 @@ const NftGrid: React.FC<NftGridProps> = ({ nfts = [], onItemClick, isLoading = f
       } else {
         // Add new NFT to map
         nftMap.set(key, {
-          name: nft.name || `#${nft.token_id}`,
-          imageUrl: nft.image_url || '',
+          id: nft.id,
+          name: nft.name || `#${nft.id}`,
+          imageUrl: nft.imageUrl || '',
           count: 1,
-          collectionName: nft.collection_name || 'Unknown Collection',
-          collectionAddress: nft.contract_address,
+          collectionName: nft.collectionName || 'Unknown Collection',
+          collectionAddress: nft.collectionName,
           description: nft.description || '',
-          tokenId: nft.token_id,
-          tokenType: nft.contract_type || 'ERC721',
+          tokenId: nft.id,
+          tokenType: 'ERC721',
+          chain: nft.chain,
           nfts: [nft],
         });
       }
@@ -87,7 +93,7 @@ const NftGrid: React.FC<NftGridProps> = ({ nfts = [], onItemClick, isLoading = f
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
       {groupedNfts.map((nft, index) => (
         <NftItem 
-          key={`${nft.collectionAddress}-${nft.tokenId}-${index}`}
+          key={`${nft.collectionName}-${nft.id}-${index}`}
           name={nft.name}
           imageUrl={nft.imageUrl}
           count={nft.count}

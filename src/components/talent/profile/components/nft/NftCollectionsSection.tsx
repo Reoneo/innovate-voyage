@@ -23,6 +23,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
   const [selectedNft, setSelectedNft] = useState<GroupedNft | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -45,8 +46,9 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   if (!walletAddress) return null;
 
   // Handle NFT click to show details
-  const handleNftClick = (nft: GroupedNft) => {
+  const handleNftClick = (nft: any) => {
     setSelectedNft(nft);
+    setDetailsDialogOpen(true);
   };
 
   // Handle profile click from NFT details
@@ -95,9 +97,9 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
       {/* NFT Details Dialog */}
       {selectedNft && (
         <NftDetailsDialog 
-          nft={selectedNft} 
-          onClose={() => setSelectedNft(null)} 
-          onOpenProfile={handleOpenProfile}
+          open={detailsDialogOpen}
+          onOpenChange={setDetailsDialogOpen}
+          nft={selectedNft}
         />
       )}
     </>
