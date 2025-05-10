@@ -35,7 +35,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
   const renderContent = () => {
     switch (type) {
       case 'talent':
-        return <TalentScoreDialogContent score={data.score} />;
+        return <TalentScoreDialogContent score={data.score} walletAddress={data.walletAddress} />;
       case 'webacy':
         return <WebacyDialogContent webacyData={data.webacyData} walletAddress={data.walletAddress} />;
       case 'transactions':

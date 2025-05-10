@@ -2,7 +2,7 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getThreatColor } from './utils/scoreUtils';
-import { Shield, Info } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import type { WebacyData, ScoreBadgeProps } from './types';
 
 interface SecurityScoreBadgeProps extends ScoreBadgeProps {
@@ -27,7 +27,7 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({ webacyData, onC
             <h3 className="text-lg font-semibold text-gray-700">Risk Score</h3>
           </div>
           <div className={`text-3xl font-bold ${getThreatColor(webacyData?.threatLevel)}`}>
-            {webacyData?.riskScore !== undefined ? webacyData.riskScore : 'N/A'}
+            {webacyData?.riskScore !== undefined && webacyData?.riskScore !== null ? webacyData.riskScore : 'N/A'}
           </div>
           <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
             <Shield className="h-4 w-4" />
