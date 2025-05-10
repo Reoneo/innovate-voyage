@@ -46,11 +46,11 @@ export function useScoresData(walletAddress: string) {
           }
         };
 
-        // Updated Webacy data fetch with correct endpoint and headers
+        // Updated Webacy data fetch with correct endpoint and chain parameter
         const fetchWebacyData = async (retries = 2) => {
           for (let i = 0; i <= retries; i++) {
             try {
-              // Updated API endpoint without v2 prefix
+              // Updated API endpoint with chain parameter
               const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}?chain=eth`, {
                 method: 'GET',
                 headers: {
@@ -87,9 +87,12 @@ export function useScoresData(walletAddress: string) {
                 }
                 
                 if (data) {
+                  // Make sure we properly extract the score from the data
+                  const threatLevel = getThreatLevel(data.score || 0);
+                  
                   setWebacyData({
                     riskScore: data.score || 0,
-                    threatLevel: getThreatLevel(data.score || 0),
+                    threatLevel: threatLevel,
                     walletAddress,
                     approvals: {
                       count: data.numApprovals || 0,
@@ -98,13 +101,15 @@ export function useScoresData(walletAddress: string) {
                     quickProfile: {
                       transactions: data.numTransactions || 0,
                       contracts: data.numContracts || 0,
-                      riskLevel: getThreatLevel(data.score || 0)
+                      riskLevel: threatLevel
                     },
                     riskItems: riskItems,
                     riskHistory: data.riskHistory || []
                   });
                   return;
                 }
+              } else {
+                console.error(`Webacy API error: ${response.status} - ${response.statusText}`);
               }
               
               if (i < retries) {
