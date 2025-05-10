@@ -27,7 +27,7 @@ export function useWebacyData(walletAddress?: string) {
       setError(null);
       
       try {
-        // API endpoint
+        // Updated API endpoint without any v2 prefix
         const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}?chain=eth`, {
           method: 'GET',
           headers: {

@@ -12,11 +12,11 @@ interface TalentScoreBannerProps {
 
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<'talent' | 'transactions'>('talent');
+  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions'>('talent');
   const { score, txCount, loading } = useScoresData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
 
-  const handleBadgeClick = (type: 'talent' | 'transactions') => {
+  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions') => {
     setActiveDialog(type);
     setDialogOpen(true);
   };
@@ -60,6 +60,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
         type={activeDialog}
         data={{
           score,
+          webacyData: null,
           txCount,
           walletAddress
         }}

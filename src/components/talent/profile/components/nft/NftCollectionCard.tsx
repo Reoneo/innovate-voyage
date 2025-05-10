@@ -7,7 +7,7 @@ import NftGrid from './NftGrid';
 interface NftCollectionCardProps {
   collectionName: string;
   nfts: OpenSeaNft[];
-  onNftClick: (nft: any) => void;
+  onNftClick: (nft: OpenSeaNft) => void;
 }
 
 const NftCollectionCard: React.FC<NftCollectionCardProps> = ({ 
@@ -18,7 +18,7 @@ const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
   return (
     <div key={collectionName} className="space-y-3">
       <CollectionHeader collectionName={collectionName} />
-      <NftGrid nfts={nfts} onItemClick={onNftClick} />
+      <NftGrid nfts={nfts} onNftClick={onNftClick} />
     </div>
   );
 };
