@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import NftDetailsDialog from './NftDetailsDialog';
 import NftCollectionsContent from './NftCollectionsContent';
+import { GroupedNft } from './NftGrid';
 
 interface NftCollectionsSectionProps {
   walletAddress?: string;
@@ -21,7 +22,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
-  const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
+  const [selectedNft, setSelectedNft] = useState<GroupedNft | null>(null);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -44,7 +45,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   if (!walletAddress) return null;
 
   // Handle NFT click to show details
-  const handleNftClick = (nft: OpenSeaNft) => {
+  const handleNftClick = (nft: GroupedNft) => {
     setSelectedNft(nft);
   };
 

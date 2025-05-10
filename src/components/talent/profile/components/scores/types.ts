@@ -2,7 +2,7 @@
 export type ThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
 
 export interface WebacyData {
-  riskScore?: number;
+  riskScore?: number | null;
   threatLevel: ThreatLevel;
   walletAddress?: string;
   approvals?: {

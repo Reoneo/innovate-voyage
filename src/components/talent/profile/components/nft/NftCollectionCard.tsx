@@ -18,7 +18,7 @@ const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
   return (
     <div key={collectionName} className="space-y-3">
       <CollectionHeader collectionName={collectionName} />
-      <NftGrid nfts={nfts} onNftClick={onNftClick} />
+      <NftGrid nfts={nfts} onItemClick={onNftClick} />
     </div>
   );
 };

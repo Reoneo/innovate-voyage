@@ -3,7 +3,7 @@ import React from 'react';
 import NftItem from './NftItem';
 
 // Group NFTs by collection and token ID to show count
-type GroupedNft = {
+export type GroupedNft = {
   name: string;
   imageUrl: string;
   count: number;
@@ -15,7 +15,7 @@ type GroupedNft = {
   nfts: any[]; // Store all instances of this NFT
 };
 
-interface NftGridProps {
+export interface NftGridProps {
   nfts: any[];
   onItemClick: (nft: any) => void;
   isLoading?: boolean;
