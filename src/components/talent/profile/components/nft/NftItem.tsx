@@ -1,45 +1,51 @@
 
 import React from 'react';
 import { OpenSeaNft } from '@/api/services/openseaService';
-import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface NftItemProps {
-  nft: OpenSeaNft & { count?: number };
+  nft: OpenSeaNft;
   onClick: (nft: OpenSeaNft) => void;
-  showTitle?: boolean;
 }
 
-const NftItem: React.FC<NftItemProps> = ({ nft, onClick, showTitle = true }) => {
+const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
+  const handleClick = () => {
+    onClick(nft);
+  };
+
+  // Show count badge if NFT count is more than 1
+  const showCountBadge = nft.count && nft.count > 1;
+
   return (
     <div 
-      className="relative rounded-lg overflow-hidden bg-gray-100 cursor-pointer transition-transform transform hover:scale-105"
-      onClick={() => onClick(nft)}
+      className="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 cursor-pointer transition-all hover:scale-105"
+      onClick={handleClick}
     >
-      <div className="aspect-square w-full relative">
-        <img 
-          src={nft.image_url || 'https://placehold.co/300x300/e2e8f0/64748b?text=No+Image'} 
-          alt={nft.name || 'NFT Image'} 
-          className="w-full h-full object-cover" 
-          loading="lazy"
-        />
-        
-        {/* Count badge */}
-        {nft.count && nft.count > 1 && (
-          <div className="absolute top-2 right-2">
-            <Badge variant="secondary" className="bg-black bg-opacity-70 text-white">
-              x{nft.count}
-            </Badge>
+      {nft.imageUrl ? (
+        <div className="relative h-full w-full">
+          <img 
+            src={nft.imageUrl} 
+            alt={nft.name || "NFT"} 
+            className="h-full w-full object-cover transition-opacity group-hover:opacity-90"
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
+            }}
+          />
+          
+          {/* NFT count badge */}
+          {showCountBadge && (
+            <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 text-xs font-bold rounded-full">
+              {nft.count}x
+            </div>
+          )}
+          
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+            <h3 className="truncate text-sm font-medium text-white">{nft.name || `#${nft.id}`}</h3>
           </div>
-        )}
-      </div>
-      
-      {/* Only show title if showTitle is true */}
-      {showTitle && (
-        <div className="p-2 bg-white">
-          <p className="text-xs font-medium truncate">
-            {nft.name || 'Unnamed NFT'}
-          </p>
         </div>
+      ) : (
+        <Skeleton className="h-full w-full" />
       )}
     </div>
   );

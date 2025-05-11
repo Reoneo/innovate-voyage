@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button } from "@/components/ui/button";
 
 interface NftFilterControlsProps {
   selectedType: 'ethereum' | 'ens' | 'poap' | 'all';
@@ -19,47 +18,56 @@ const NftFilterControls: React.FC<NftFilterControlsProps> = ({
   hasPoapNfts
 }) => {
   return (
-    <div className="flex flex-wrap gap-2">
-      <Button
-        variant={selectedType === 'all' ? 'default' : 'outline'}
+    <div className="flex gap-2 mb-4">
+      <Button 
+        onClick={() => onTypeChange('all')} 
+        variant={selectedType === 'all' ? "default" : "outline"}
         size="sm"
-        onClick={() => onTypeChange('all')}
       >
         All
       </Button>
-      
       {hasEthereumNfts && (
-        <Button
-          variant={selectedType === 'ethereum' ? 'default' : 'outline'}
+        <Button 
+          onClick={() => onTypeChange('ethereum')} 
+          variant={selectedType === 'ethereum' ? "default" : "outline"}
           size="sm"
-          onClick={() => onTypeChange('ethereum')}
           className="flex items-center gap-1"
         >
           <img 
-            src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/256/Ethereum-ETH-icon.png" 
-            alt="Ethereum" 
-            className="h-4 w-4" 
+            src="https://cdn-icons-png.flaticon.com/512/6699/6699362.png" 
+            alt="NFT" 
+            className="h-4 w-4"
           />
-          <span>Ethereum</span>
+          NFTs
         </Button>
       )}
-      
       {hasEnsNfts && (
-        <Button
-          variant={selectedType === 'ens' ? 'default' : 'outline'}
+        <Button 
+          onClick={() => onTypeChange('ens')} 
+          variant={selectedType === 'ens' ? "default" : "outline"}
           size="sm"
-          onClick={() => onTypeChange('ens')}
+          className="flex items-center gap-1"
         >
+          <img 
+            src="https://ens.domains/assets/brand/mark/ens-mark-Blue.svg" 
+            alt="ENS" 
+            className="h-4 w-4"
+          />
           ENS
         </Button>
       )}
-      
       {hasPoapNfts && (
-        <Button
-          variant={selectedType === 'poap' ? 'default' : 'outline'}
+        <Button 
+          onClick={() => onTypeChange('poap')} 
+          variant={selectedType === 'poap' ? "default" : "outline"}
           size="sm"
-          onClick={() => onTypeChange('poap')}
+          className="flex items-center gap-1"
         >
+          <img 
+            src="https://deficon.nyc/wp-content/uploads/2021/12/poap.png" 
+            alt="POAP" 
+            className="h-4 w-4"
+          />
           POAP
         </Button>
       )}

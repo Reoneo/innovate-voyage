@@ -52,11 +52,6 @@ const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }
 
       setLoading(true);
       setError(null);
-      
-      // Configure provider with Infura API key
-      const infuraProvider = new ethers.JsonRpcProvider(
-        "https://mainnet.infura.io/v3/a48e86456d8043f6bce467b4076ab638"
-      );
 
       try {
         const tokenResults: DaoToken[] = [];
@@ -67,7 +62,7 @@ const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }
             const tokenContract = new ethers.Contract(
               daoToken.address,
               ERC20_ABI,
-              infuraProvider
+              mainnetProvider
             );
             
             // Get token balance
@@ -76,7 +71,7 @@ const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }
             const formattedBalance = ethers.formatUnits(balance, decimals);
             
             // Only include tokens with non-zero balance
-            if (balance > 0n) {
+            if (balance > 0) {
               let delegatee = null;
               let votingPower = null;
               
