@@ -17,3 +17,6 @@ export interface WebacyData {
   riskItems?: any[];
   riskHistory?: any[];
 }
+
+// Fixed the DialogType to include 'tally' as a valid option
+export type DialogType = 'talent' | 'transactions' | 'webacy' | 'tally';

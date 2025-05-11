@@ -31,6 +31,7 @@ const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick }) => {
           key={`${nft.id}-${nft.collectionName}`} 
           nft={nft} 
           onClick={onNftClick} 
+          showTitle={false} 
         />
       ))}
     </div>

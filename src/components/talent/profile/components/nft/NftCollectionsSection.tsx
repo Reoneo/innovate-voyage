@@ -30,7 +30,26 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
       setLoading(true);
       try {
         const nftCollections = await fetchUserNfts(walletAddress);
-        setCollections(nftCollections);
+        
+        // Add network information for collections with network identifiers
+        const enhancedCollections = nftCollections.map(collection => {
+          // Apply Base network identifier for specific collections
+          if (collection.name.toLowerCase().includes('base') || 
+              collection.nfts.some(nft => nft.contract && nft.contract.toLowerCase().includes('base'))) {
+            return {
+              ...collection,
+              network: 'base'
+            };
+          }
+          
+          // Default to ethereum network for other collections
+          return {
+            ...collection,
+            network: 'ethereum'
+          };
+        });
+        
+        setCollections(enhancedCollections);
       } catch (error) {
         console.error('Error loading NFTs:', error);
       } finally {
