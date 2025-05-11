@@ -8,13 +8,14 @@ export interface OpenSeaNft {
   currentPrice?: string;
   bestOffer?: string;
   owner?: string;
-  chain?: string; // Add chain property to indicate which network the NFT is on
+  chain?: string;
+  count?: number; // Added count property
 }
 
 interface OpenSeaCollection {
   name: string;
   nfts: OpenSeaNft[];
-  type: 'ethereum' | 'ens' | 'poap';
+  type: 'ethereum' | 'ens' | 'poap' | '3dns';
 }
 
 const OPENSEA_API_KEY = "33e769a3cf954b15a0d7eddf2b60028e";
@@ -37,7 +38,7 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
     return nftCache.get(cacheKey) || [];
   }
   
-  const collections: { [key: string]: { nfts: OpenSeaNft[], type: 'ethereum' | 'ens' | 'poap' } } = {};
+  const collections: { [key: string]: { nfts: OpenSeaNft[], type: 'ethereum' | 'ens' | 'poap' | '3dns' } } = {};
   
   // Fetch NFTs from multiple chains
   try {
@@ -93,11 +94,13 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
       const collectionName = nft.collection || 'Uncategorized';
       
       // Determine the type of NFT
-      let type: 'ethereum' | 'ens' | 'poap' = 'ethereum';
+      let type: 'ethereum' | 'ens' | 'poap' | '3dns' = 'ethereum';
       if (collectionName.toLowerCase().includes('ens')) {
         type = 'ens';
       } else if (collectionName.toLowerCase().includes('poap')) {
         type = 'poap';
+      } else if (collectionName.toLowerCase().includes('3dns')) {
+        type = '3dns';
       }
       
       if (!collections[collectionName]) {
@@ -116,6 +119,22 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
         chain: nft.chain // Pass the chain information
       });
     });
+
+    // Add 3DNS collection if it doesn't exist yet
+    if (!collections['3dns powered domains']) {
+      collections['3dns powered domains'] = {
+        nfts: [
+          {
+            id: '3dns-sample',
+            name: 'Sample 3DNS Domain',
+            imageUrl: 'https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2',
+            collectionName: '3dns powered domains',
+            description: '3DNS domain for decentralized identity'
+          }
+        ],
+        type: '3dns'
+      };
+    }
 
     const result = Object.entries(collections).map(([name, data]) => ({
       name,

@@ -17,3 +17,10 @@ export interface WebacyData {
   riskItems?: any[];
   riskHistory?: any[];
 }
+
+export interface ScoreBadgeProps {
+  onClick?: () => void;
+  isLoading?: boolean;
+}
+
+export type ScoreDialogType = 'talent' | 'transactions' | 'webacy' | 'tally';

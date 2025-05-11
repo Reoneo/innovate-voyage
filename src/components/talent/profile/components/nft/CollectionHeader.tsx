@@ -14,7 +14,9 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) =
   // Get collection icon based on collection name
   const getCollectionIcon = (collectionName: string) => {
     const lowerCaseName = collectionName.toLowerCase();
-    if (lowerCaseName.includes('doodle') || lowerCaseName.includes('doodles')) {
+    if (lowerCaseName.includes('3dns') || lowerCaseName.includes('3dns powered domains')) {
+      return "https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2";
+    } else if (lowerCaseName.includes('doodle') || lowerCaseName.includes('doodles')) {
       return "https://pbs.twimg.com/profile_images/1907827518700220416/ZUn7WAT8_400x400.jpg";
     } else if (lowerCaseName.includes('ens')) {
       return "https://ens.domains/assets/brand/mark/ens-mark-Blue.svg";
@@ -26,6 +28,15 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) =
     return "https://cdn-icons-png.flaticon.com/512/6699/6699362.png";
   };
 
+  // Get display name for the collection
+  const getDisplayName = (collectionName: string) => {
+    const lowerCaseName = collectionName.toLowerCase();
+    if (lowerCaseName.includes('3dns') || lowerCaseName.includes('3dns powered domains')) {
+      return "3DNS Domains";
+    }
+    return formatCollectionName(collectionName);
+  };
+
   return (
     <div className="flex items-center gap-2 pl-1">
       <img 
@@ -33,7 +44,7 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) =
         alt={collectionName} 
         className="h-5 w-5 rounded-full" 
       />
-      <h4 className="text-md font-medium text-gray-800">{formatCollectionName(collectionName)}</h4>
+      <h4 className="text-md font-medium text-gray-800">{getDisplayName(collectionName)}</h4>
     </div>
   );
 };

@@ -5,7 +5,7 @@ import NftItem from './NftItem';
 
 interface NftGridProps {
   nfts: OpenSeaNft[];
-  onNftClick: (nft: OpenSeaNft) => void;
+  onNftClick: (nft: OpenSeaNft & { count?: number }) => void;
 }
 
 const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick }) => {

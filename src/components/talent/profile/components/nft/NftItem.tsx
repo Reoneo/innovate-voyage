@@ -4,8 +4,8 @@ import { OpenSeaNft } from '@/api/services/openseaService';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface NftItemProps {
-  nft: OpenSeaNft;
-  onClick: (nft: OpenSeaNft) => void;
+  nft: OpenSeaNft & { count?: number };
+  onClick: (nft: OpenSeaNft & { count?: number }) => void;
 }
 
 const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
@@ -39,10 +39,6 @@ const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
               {nft.count}x
             </div>
           )}
-          
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-            <h3 className="truncate text-sm font-medium text-white">{nft.name || `#${nft.id}`}</h3>
-          </div>
         </div>
       ) : (
         <Skeleton className="h-full w-full" />

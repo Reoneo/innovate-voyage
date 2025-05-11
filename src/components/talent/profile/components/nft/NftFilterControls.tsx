@@ -1,13 +1,14 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 
 interface NftFilterControlsProps {
-  selectedType: 'ethereum' | 'ens' | 'poap' | 'all';
-  onTypeChange: (type: 'ethereum' | 'ens' | 'poap' | 'all') => void;
+  selectedType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all';
+  onTypeChange: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all') => void;
   hasEthereumNfts: boolean;
   hasEnsNfts: boolean;
   hasPoapNfts: boolean;
+  has3dnsNfts?: boolean;
 }
 
 const NftFilterControls: React.FC<NftFilterControlsProps> = ({
@@ -15,60 +16,61 @@ const NftFilterControls: React.FC<NftFilterControlsProps> = ({
   onTypeChange,
   hasEthereumNfts,
   hasEnsNfts,
-  hasPoapNfts
+  hasPoapNfts,
+  has3dnsNfts = false
 }) => {
   return (
-    <div className="flex gap-2 mb-4">
-      <Button 
-        onClick={() => onTypeChange('all')} 
-        variant={selectedType === 'all' ? "default" : "outline"}
+    <div className="flex flex-wrap gap-2 mb-4">
+      <Button
+        variant={selectedType === 'all' ? 'default' : 'outline'}
         size="sm"
+        onClick={() => onTypeChange('all')}
+        className="rounded-full"
       >
-        All
+        All Collections
       </Button>
+      
       {hasEthereumNfts && (
-        <Button 
-          onClick={() => onTypeChange('ethereum')} 
-          variant={selectedType === 'ethereum' ? "default" : "outline"}
+        <Button
+          variant={selectedType === 'ethereum' ? 'default' : 'outline'}
           size="sm"
-          className="flex items-center gap-1"
+          onClick={() => onTypeChange('ethereum')}
+          className="rounded-full"
         >
-          <img 
-            src="https://cdn-icons-png.flaticon.com/512/6699/6699362.png" 
-            alt="NFT" 
-            className="h-4 w-4"
-          />
           NFTs
         </Button>
       )}
+      
       {hasEnsNfts && (
-        <Button 
-          onClick={() => onTypeChange('ens')} 
-          variant={selectedType === 'ens' ? "default" : "outline"}
+        <Button
+          variant={selectedType === 'ens' ? 'default' : 'outline'}
           size="sm"
-          className="flex items-center gap-1"
+          onClick={() => onTypeChange('ens')}
+          className="rounded-full"
         >
-          <img 
-            src="https://ens.domains/assets/brand/mark/ens-mark-Blue.svg" 
-            alt="ENS" 
-            className="h-4 w-4"
-          />
           ENS
         </Button>
       )}
+      
       {hasPoapNfts && (
-        <Button 
-          onClick={() => onTypeChange('poap')} 
-          variant={selectedType === 'poap' ? "default" : "outline"}
+        <Button
+          variant={selectedType === 'poap' ? 'default' : 'outline'}
           size="sm"
-          className="flex items-center gap-1"
+          onClick={() => onTypeChange('poap')}
+          className="rounded-full"
         >
-          <img 
-            src="https://deficon.nyc/wp-content/uploads/2021/12/poap.png" 
-            alt="POAP" 
-            className="h-4 w-4"
-          />
-          POAP
+          POAPs
+        </Button>
+      )}
+      
+      {has3dnsNfts && (
+        <Button
+          variant={selectedType === '3dns' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => onTypeChange('3dns')}
+          className="rounded-full"
+        >
+          3DNS Domains
         </Button>
       )}
     </div>

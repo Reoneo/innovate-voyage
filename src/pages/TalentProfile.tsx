@@ -69,8 +69,10 @@ const TalentProfile = () => {
         
         <div className="container px-1 sm:px-4 relative z-10">
           {loading ? (
-            /* Show skeleton while loading */
-            <ProfileSkeleton />
+            /* Show skeleton while loading - now with proper padding */
+            <div className="pt-16">
+              <ProfileSkeleton />
+            </div>
           ) : (
             /* Show actual content when loaded */
             <ProfileContent 

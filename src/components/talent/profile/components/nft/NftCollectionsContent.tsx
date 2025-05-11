@@ -8,14 +8,14 @@ import { OpenSeaNft } from '@/api/services/openseaService';
 interface OpenSeaCollection {
   name: string;
   nfts: OpenSeaNft[];
-  type: 'ethereum' | 'ens' | 'poap';
+  type: 'ethereum' | 'ens' | 'poap' | '3dns';
 }
 
 interface NftCollectionsContentProps {
   collections: OpenSeaCollection[];
   loading: boolean;
-  selectedType: 'ethereum' | 'ens' | 'poap' | 'all';
-  setSelectedType: (type: 'ethereum' | 'ens' | 'poap' | 'all') => void;
+  selectedType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all';
+  setSelectedType: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all') => void;
   onNftClick: (nft: OpenSeaNft) => void;
 }
 
@@ -29,6 +29,7 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
   const hasEthereumNfts = collections.some(c => c.type === 'ethereum');
   const hasEnsNfts = collections.some(c => c.type === 'ens');
   const hasPoapNfts = collections.some(c => c.type === 'poap');
+  const has3dnsNfts = collections.some(c => c.type === '3dns');
 
   const filteredCollections = selectedType === 'all' 
     ? collections 
@@ -51,6 +52,7 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
         hasEthereumNfts={hasEthereumNfts}
         hasEnsNfts={hasEnsNfts}
         hasPoapNfts={hasPoapNfts}
+        has3dnsNfts={has3dnsNfts}
       />
       
       {filteredCollections.length > 0 ? (
