@@ -8,13 +8,21 @@ interface CollectionHeaderProps {
 const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) => {
   // Format collection name - replace dashes with spaces
   const formatCollectionName = (name: string) => {
+    // Special case for 3DNS Domains
+    if (name.toLowerCase().includes('3dns') || name.toLowerCase().includes('powered domains')) {
+      return "3DNS Domains";
+    }
     return name.replace(/-/g, ' ');
   };
 
   // Get collection icon based on collection name
   const getCollectionIcon = (collectionName: string) => {
     const lowerCaseName = collectionName.toLowerCase();
-    if (lowerCaseName.includes('doodle') || lowerCaseName.includes('doodles')) {
+    
+    // Special case for 3DNS Domains
+    if (lowerCaseName.includes('3dns') || lowerCaseName.includes('powered domains')) {
+      return "https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2";
+    } else if (lowerCaseName.includes('doodle') || lowerCaseName.includes('doodles')) {
       return "https://pbs.twimg.com/profile_images/1907827518700220416/ZUn7WAT8_400x400.jpg";
     } else if (lowerCaseName.includes('ens')) {
       return "https://ens.domains/assets/brand/mark/ens-mark-Blue.svg";

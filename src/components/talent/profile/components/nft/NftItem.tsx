@@ -40,9 +40,7 @@ const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
             </div>
           )}
           
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-            <h3 className="truncate text-sm font-medium text-white">{nft.name || `#${nft.id}`}</h3>
-          </div>
+          {/* Removed title overlay */}
         </div>
       ) : (
         <Skeleton className="h-full w-full" />

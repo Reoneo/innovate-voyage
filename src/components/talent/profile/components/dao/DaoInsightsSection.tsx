@@ -52,6 +52,7 @@ const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }
 
       setLoading(true);
       setError(null);
+      console.log(`Fetching DAO tokens for address: ${walletAddress}`);
 
       try {
         const tokenResults: DaoToken[] = [];
@@ -59,6 +60,7 @@ const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }
         // Process tokens in parallel for better performance
         const promises = DAO_TOKENS.map(async (daoToken) => {
           try {
+            console.log(`Checking token ${daoToken.name} at address ${daoToken.address}`);
             const tokenContract = new ethers.Contract(
               daoToken.address,
               ERC20_ABI,
@@ -67,37 +69,55 @@ const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }
             
             // Get token balance
             const balance = await tokenContract.balanceOf(walletAddress);
+            console.log(`${daoToken.name} balance: ${balance.toString()}`);
+            
+            // Only continue processing if balance > 0
+            if (balance.toString() === '0') {
+              return null;
+            }
+            
             const decimals = await tokenContract.decimals();
             const formattedBalance = ethers.formatUnits(balance, decimals);
             
-            // Only include tokens with non-zero balance
-            if (balance > 0) {
-              let delegatee = null;
-              let votingPower = null;
+            // Initialize token data
+            const tokenData: DaoToken = {
+              name: daoToken.name,
+              symbol: daoToken.symbol,
+              balance: balance.toString(),
+              formattedBalance: parseFloat(formattedBalance).toFixed(4),
+            };
+            
+            // Try to get delegation info if it's a governance token
+            try {
+              console.log(`Checking delegation for ${daoToken.name}`);
+              // First check if user has delegated their voting power
+              const delegatee = await tokenContract.delegates(walletAddress);
+              console.log(`${daoToken.name} delegatee: ${delegatee}`);
               
-              // Try to get delegation info if it's a governance token
-              try {
-                delegatee = await tokenContract.delegates(walletAddress);
-                // Only fetch voting power if the address has self-delegated or if someone else delegated to them
-                if (delegatee !== ethers.ZeroAddress) {
-                  votingPower = await tokenContract.getCurrentVotes(walletAddress);
-                  votingPower = ethers.formatUnits(votingPower, decimals);
+              if (delegatee !== ethers.ZeroAddress) {
+                tokenData.delegatee = delegatee;
+                
+                // If delegated to self, get voting power
+                if (delegatee.toLowerCase() === walletAddress.toLowerCase()) {
+                  console.log(`Self-delegated, checking voting power`);
+                  const votingPower = await tokenContract.getCurrentVotes(walletAddress);
+                  console.log(`Voting power: ${votingPower.toString()}`);
+                  tokenData.votingPower = ethers.formatUnits(votingPower, decimals);
                 }
-              } catch (err) {
-                // Not all tokens have delegation functions, so this might fail
-                console.log(`No delegation info for ${daoToken.name}`, err);
               }
               
-              return {
-                name: daoToken.name,
-                symbol: daoToken.symbol,
-                balance: balance.toString(),
-                formattedBalance: parseFloat(formattedBalance).toFixed(4),
-                delegatee: delegatee && delegatee !== ethers.ZeroAddress ? delegatee : undefined,
-                votingPower: votingPower ? parseFloat(votingPower).toFixed(4) : undefined
-              };
+              // Check if someone else delegated to this address (even if user hasn't delegated their own tokens)
+              const userVotingPower = await tokenContract.getCurrentVotes(walletAddress);
+              if (userVotingPower.toString() !== '0' && !tokenData.votingPower) {
+                console.log(`Found voting power: ${userVotingPower.toString()}`);
+                tokenData.votingPower = ethers.formatUnits(userVotingPower, decimals);
+              }
+            } catch (err) {
+              console.log(`No delegation info for ${daoToken.name}:`, err);
+              // Not all tokens have delegation functions, so this might fail
             }
-            return null;
+            
+            return tokenData;
           } catch (err) {
             console.error(`Error fetching ${daoToken.name} data:`, err);
             return null;
@@ -112,6 +132,7 @@ const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }
           if (result) tokenResults.push(result);
         });
         
+        console.log(`Found ${tokenResults.length} tokens with balances`);
         setTokens(tokenResults);
       } catch (err) {
         console.error('Error fetching DAO data:', err);
@@ -190,7 +211,7 @@ const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }
                     <Badge variant="outline" className="ml-2">{token.symbol}</Badge>
                   </div>
                   <div className="text-right">
-                    <div className="font-mono">{token.votingPower}</div>
+                    <div className="font-mono">{parseFloat(token.votingPower || '0').toFixed(4)}</div>
                     <div className="text-xs text-gray-500">
                       {token.delegatee && token.delegatee.toLowerCase() === walletAddress.toLowerCase() 
                         ? 'Self-delegated' 
