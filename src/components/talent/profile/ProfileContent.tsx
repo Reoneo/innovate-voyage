@@ -6,6 +6,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
+import DaoInsightsSection from './components/dao/DaoInsightsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -131,6 +132,11 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}
+              
+              {/* DAO Insights Section */}
+              <div className="mt-6">
+                <DaoInsightsSection walletAddress={passport.owner_address} />
+              </div>
             </div>
           </div>
         </HeaderContainer>
