@@ -36,15 +36,15 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
         {showTalentScore && (
           <TalentScoreBadge 
             score={score} 
-            isLoading={loading} 
             onClick={() => handleBadgeClick('talent')}
+            isLoading={loading} 
           />
         )}
         <TransactionsBadge 
           txCount={txCount}
           walletAddress={walletAddress}
-          isLoading={loading} 
           onClick={handleNftButtonClick}
+          isLoading={loading} 
         />
       </div>
 
