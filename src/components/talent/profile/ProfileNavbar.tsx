@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Search, MessageSquare } from 'lucide-react';
+import { Home, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -38,36 +38,43 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between h-14">
         {/* Search form with Home and Chat icons positioned next to it */}
         <form onSubmit={handleSearch} className="flex-1 flex items-center justify-center gap-2">
-          <Link to="/" className="text-white hover:text-gray-300 transition-colors">
-            <Home className="h-6 w-6" />
-          </Link>
-          
-          <div className="relative max-w-md w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" aria-hidden="true" />
-            <Input 
-              type="text" 
-              placeholder="Search ENS username..." 
-              value={search} 
-              onChange={e => setSearch(e.target.value)} 
-              className="pl-10 pr-4 py-2 w-full bg-gray-700/30 border-gray-600/30 text-white rounded-full focus:ring-white focus:border-white" 
-            />
-            <Button 
-              type="submit" 
-              variant="ghost" 
-              size="sm" 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 px-3 py-1"
+          <div className="relative max-w-md w-full flex items-center">
+            <Link to="/" className="text-white hover:text-gray-300 transition-colors mr-2">
+              <Home className="h-6 w-6" />
+            </Link>
+            
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" aria-hidden="true" />
+              <Input 
+                type="text" 
+                placeholder="Search ENS username..." 
+                value={search} 
+                onChange={e => setSearch(e.target.value)} 
+                className="pl-10 pr-4 py-2 w-full bg-gray-700/30 border-gray-600/30 text-white rounded-full focus:ring-white focus:border-white" 
+              />
+              <Button 
+                type="submit" 
+                variant="ghost" 
+                size="sm" 
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 px-3 py-1"
+              >
+                Search
+              </Button>
+            </div>
+            
+            <button 
+              onClick={handleOpenXmtpModal} 
+              className="text-white hover:text-gray-300 transition-colors ml-2" 
+              aria-label="XMTP Messages"
+              title="XMTP Messages"
             >
-              Search
-            </Button>
+              <img 
+                src="https://d392zik6ho62y0.cloudfront.net/images/xmtp-logo.png" 
+                alt="XMTP Messages" 
+                className="h-6 w-6" 
+              />
+            </button>
           </div>
-          
-          <button 
-            onClick={handleOpenXmtpModal} 
-            className="text-white hover:text-gray-300 transition-colors" 
-            aria-label="XMTP Messages"
-          >
-            <MessageSquare className="h-6 w-6" />
-          </button>
         </form>
       </div>
     </div>

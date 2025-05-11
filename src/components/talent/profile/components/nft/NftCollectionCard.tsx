@@ -1,23 +1,33 @@
 
 import React from 'react';
-import { OpenSeaNft } from '@/api/services/openseaService';
 import CollectionHeader from './CollectionHeader';
-import NftGrid from './NftGrid';
+import NftGrid, { OpenSeaNftWithCount } from './NftGrid';
 
 interface NftCollectionCardProps {
   collectionName: string;
-  nfts: OpenSeaNft[];
-  onNftClick: (nft: OpenSeaNft) => void;
+  nfts: any[];
+  onNftClick: (nft: OpenSeaNftWithCount) => void;
+  customImage?: string | null;
+  network?: string;
+  getNetworkIcon?: (network: string) => React.ReactNode;
 }
 
 const NftCollectionCard: React.FC<NftCollectionCardProps> = ({ 
   collectionName, 
   nfts,
-  onNftClick 
+  onNftClick,
+  customImage,
+  network,
+  getNetworkIcon
 }) => {
   return (
     <div key={collectionName} className="space-y-3">
-      <CollectionHeader collectionName={collectionName} />
+      <CollectionHeader 
+        collectionName={collectionName} 
+        customImage={customImage}
+        network={network}
+        getNetworkIcon={getNetworkIcon}
+      />
       <NftGrid nfts={nfts} onNftClick={onNftClick} />
     </div>
   );

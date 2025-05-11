@@ -1,119 +1,69 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { GitHubContributionProps } from './types';
+import React, { useMemo } from 'react';
+import { useGitHubContributions } from './useGitHubContributions';
 import GitHubLoadingState from './GitHubLoadingState';
-import GitHubContributionLegend from './components/GitHubContributionLegend';
-import TokenInvalidAlert from './components/TokenInvalidAlert';
-import { useGitHubCalendar } from './hooks/useGitHubCalendar';
-import GitHubCalendar from 'react-github-calendar';
+import GitHubContributions from './GitHubContributions';
 
-export default function GitHubContributionGraph({
-  username
-}: GitHubContributionProps) {
-  const {
-    loading,
-    error,
-    tokenInvalid,
-    stats,
-    totalContributions
-  } = useGitHubCalendar(username);
+interface GitHubContributionGraphProps {
+  username: string;
+}
+
+const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ username }) => {
+  const { data, isLoading, error } = useGitHubContributions(username);
   
-  // Store the displayed contribution count to avoid re-renders
-  const [displayedTotal, setDisplayedTotal] = useState<number>(0);
+  // Skip rendering if no username provided
+  if (!username) return null;
 
-  // If no username provided, don't show anything
-  if (!username) {
-    console.log('No GitHub username provided to GitHubContributionGraph');
-    return null;
-  }
-
-  // Custom theme matching the existing dark theme with more compact colors
-  const theme = {
-    dark: [
-      '#161b22', // level0: Empty cells
-      '#0e4429', // level1: Light activity
-      '#006d32', // level2: Medium activity
-      '#26a641', // level3: High activity
-      '#39d353'  // level4: Very high activity
-    ]
-  };
-
-  // Memoized transform function to prevent infinite re-renders
-  const transformData = useCallback((contributions) => {
-    if (Array.isArray(contributions)) {
-      const total = contributions.reduce((sum, day) => sum + day.count, 0);
-      
-      // Update the displayed total without causing re-renders
-      if (total > 0 && total !== displayedTotal) {
-        setDisplayedTotal(total);
-      }
-    }
-    return contributions;
-  }, [displayedTotal]);
-
-  // Effect to update the banner when totalContributions changes
-  useEffect(() => {
-    if (totalContributions && totalContributions > 0) {
-      setDisplayedTotal(totalContributions);
-    } else if (stats.total > 0) {
-      setDisplayedTotal(stats.total);
-    }
-  }, [totalContributions, stats.total]);
+  // Memoize the year calculation to prevent unnecessary re-renders
+  const currentYear = useMemo(() => new Date().getFullYear(), []);
 
   return (
-    <div className="w-full overflow-hidden">
-      <GitHubLoadingState loading={loading} error={error} />
-      
-      {tokenInvalid && <TokenInvalidAlert />}
-      
-      {!loading && !error && username && (
-        <div className="github-calendar-wrapper px-1 py-1">
-          {/* Modified header with Github Activity text */}
-          <div className="bg-gray-800/50 rounded-md p-1 mb-2 flex items-center justify-center">
-            <div className="text-sm font-semibold text-white">
-              <span className="text-base font-bold">GitHub Activity: </span>
-              <span className="text-base font-bold text-green-400" id="contribution-count-banner">
-                {displayedTotal || (stats.total || 0)}
-              </span> Contributions in The Last Year
-            </div>
-          </div>
-          
-          {/* GitHub Calendar with white text labels as requested */}
-          <div className="calendar-container" style={{ 
-            minHeight: '70px',
-            maxHeight: '90px',
-            overflow: 'auto',
-            padding: '0',
-            margin: '0'
-          }}>
-            {username && (
-              <div className="w-full min-w-[650px]">
-                <GitHubCalendar 
-                  username={username}
-                  colorScheme="dark"
-                  theme={theme}
-                  hideColorLegend={true}
-                  hideMonthLabels={false}
-                  showWeekdayLabels={true}
-                  blockSize={7}
-                  blockMargin={1.5}
-                  blockRadius={1}
-                  fontSize={7}
-                  transformData={transformData}
-                  labels={{
-                    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
-                    totalCount: '{{count}} contributions'
-                  }}
-                />
-              </div>
-            )}
-          </div>
-          
-          {/* More compact legend */}
-          <GitHubContributionLegend />
+    <div className="p-4 bg-black rounded-lg shadow-sm">
+      <div className="flex justify-between items-center mb-3">
+        <div>
+          <h3 className="font-medium text-white text-lg">GitHub Contributions</h3>
+          <p className="text-xs text-gray-400">
+            {currentYear} Calendar
+          </p>
         </div>
-      )}
+        
+        {/* GitHub username link */}
+        <a 
+          href={`https://github.com/${username}`}
+          target="_blank"
+          rel="noopener noreferrer" 
+          className="text-sm text-blue-400 hover:text-blue-300 transition-colors flex items-center"
+        >
+          @{username}
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 20 20" 
+            fill="currentColor" 
+            className="w-3 h-3 ml-1"
+          >
+            <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
+          </svg>
+        </a>
+      </div>
+
+      <div className="github-calendar-wrapper">
+        {isLoading ? (
+          <GitHubLoadingState />
+        ) : error ? (
+          <div className="text-center p-4">
+            <p className="text-sm text-red-300">
+              Unable to load GitHub contributions.
+            </p>
+          </div>
+        ) : (
+          <GitHubContributions 
+            data={data} 
+            username={username}
+          />
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default GitHubContributionGraph;

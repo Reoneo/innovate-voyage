@@ -3,37 +3,35 @@ import React from 'react';
 
 interface CollectionHeaderProps {
   collectionName: string;
+  customImage?: string | null;
+  network?: string;
+  getNetworkIcon?: (network: string) => React.ReactNode;
 }
 
-const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) => {
-  // Format collection name - replace dashes with spaces
-  const formatCollectionName = (name: string) => {
-    return name.replace(/-/g, ' ');
-  };
-
-  // Get collection icon based on collection name
-  const getCollectionIcon = (collectionName: string) => {
-    const lowerCaseName = collectionName.toLowerCase();
-    if (lowerCaseName.includes('doodle') || lowerCaseName.includes('doodles')) {
-      return "https://pbs.twimg.com/profile_images/1907827518700220416/ZUn7WAT8_400x400.jpg";
-    } else if (lowerCaseName.includes('ens')) {
-      return "https://ens.domains/assets/brand/mark/ens-mark-Blue.svg";
-    } else if (lowerCaseName.includes('poap')) {
-      return "https://deficon.nyc/wp-content/uploads/2021/12/poap.png";
-    } else if (lowerCaseName.includes('efp') || lowerCaseName.includes('ethereum follow protocol')) {
-      return "https://pbs.twimg.com/profile_images/1746632341378715649/XOOa7TZO_400x400.jpg";
-    }
-    return "https://cdn-icons-png.flaticon.com/512/6699/6699362.png";
-  };
-
+const CollectionHeader: React.FC<CollectionHeaderProps> = ({ 
+  collectionName,
+  customImage,
+  network,
+  getNetworkIcon
+}) => {
   return (
-    <div className="flex items-center gap-2 pl-1">
-      <img 
-        src={getCollectionIcon(collectionName)} 
-        alt={collectionName} 
-        className="h-5 w-5 rounded-full" 
-      />
-      <h4 className="text-md font-medium text-gray-800">{formatCollectionName(collectionName)}</h4>
+    <div className="flex items-center space-x-2">
+      {customImage && (
+        <img 
+          src={customImage} 
+          alt={collectionName} 
+          className="h-6 w-6 rounded-full"
+        />
+      )}
+      <h3 className="text-lg font-semibold flex items-center">
+        <span>{collectionName}</span>
+        {network && getNetworkIcon && (
+          <span className="ml-2 flex items-center text-sm text-gray-600">
+            {getNetworkIcon(network)}
+            <span>{network}</span>
+          </span>
+        )}
+      </h3>
     </div>
   );
 };
