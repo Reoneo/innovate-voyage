@@ -3,18 +3,14 @@ import React from 'react';
 import { OpenSeaNft } from '@/api/services/openseaService';
 import NftItem from './NftItem';
 
-export interface OpenSeaNftWithCount extends OpenSeaNft {
-  count?: number;
-}
-
 interface NftGridProps {
   nfts: OpenSeaNft[];
-  onNftClick: (nft: OpenSeaNftWithCount) => void;
+  onNftClick: (nft: OpenSeaNft) => void;
 }
 
 const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick }) => {
   // Combine NFTs by ID for display with count
-  const groupedNfts = nfts.reduce<Record<string, OpenSeaNftWithCount>>((acc, nft) => {
+  const groupedNfts = nfts.reduce<Record<string, OpenSeaNft & { count?: number }>>((acc, nft) => {
     const key = `${nft.id}-${nft.collectionName}`;
     
     if (acc[key]) {

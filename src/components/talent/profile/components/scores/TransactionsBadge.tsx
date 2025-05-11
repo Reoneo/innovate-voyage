@@ -53,6 +53,9 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
     <>
       <div onClick={handleClick} className="cursor-pointer transition-all hover:opacity-80">
         <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-white shadow-md border border-gray-200 h-full">
+          <div className="flex items-center justify-center w-full">
+            {/* NFT Collection text removed */}
+          </div>
           <div className="text-center relative flex items-center justify-center w-full mt-2">
             <div className="relative">
               <img 

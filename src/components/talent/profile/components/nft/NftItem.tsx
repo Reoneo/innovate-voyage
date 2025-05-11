@@ -1,11 +1,11 @@
 
 import React from 'react';
+import { OpenSeaNft } from '@/api/services/openseaService';
 import { Skeleton } from '@/components/ui/skeleton';
-import { OpenSeaNftWithCount } from './NftGrid';
 
 interface NftItemProps {
-  nft: OpenSeaNftWithCount;
-  onClick: (nft: OpenSeaNftWithCount) => void;
+  nft: OpenSeaNft;
+  onClick: (nft: OpenSeaNft) => void;
 }
 
 const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
@@ -40,7 +40,9 @@ const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
             </div>
           )}
           
-          {/* Removed title overlay as requested */}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+            <h3 className="truncate text-sm font-medium text-white">{nft.name || `#${nft.id}`}</h3>
+          </div>
         </div>
       ) : (
         <Skeleton className="h-full w-full" />

@@ -17,20 +17,3 @@ export interface WebacyData {
   riskItems?: any[];
   riskHistory?: any[];
 }
-
-export interface ScoreBadgeProps {
-  onClick?: () => void;
-  isLoading?: boolean;
-}
-
-export interface ScoreDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  type: 'talent' | 'transactions' | 'webacy';
-  data: {
-    score: number | null;
-    webacyData: WebacyData | null;
-    txCount: number | null;
-    walletAddress: string;
-  };
-}

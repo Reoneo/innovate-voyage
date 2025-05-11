@@ -1,12 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
-import { fetchUserNfts } from '@/api/services/openseaService';
+import { fetchUserNfts, type OpenSeaNft } from '@/api/services/openseaService';
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import NftDetailsDialog from './NftDetailsDialog';
 import NftCollectionsContent from './NftCollectionsContent';
-import { OpenSeaNftWithCount } from './NftGrid';
 
 interface NftCollectionsSectionProps {
   walletAddress?: string;
@@ -22,7 +21,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
-  const [selectedNft, setSelectedNft] = useState<OpenSeaNftWithCount | null>(null);
+  const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -45,7 +44,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   if (!walletAddress) return null;
 
   // Handle NFT click to show details
-  const handleNftClick = (nft: OpenSeaNftWithCount) => {
+  const handleNftClick = (nft: OpenSeaNft) => {
     setSelectedNft(nft);
   };
 
