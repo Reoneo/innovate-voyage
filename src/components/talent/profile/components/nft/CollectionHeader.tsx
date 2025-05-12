@@ -1,9 +1,6 @@
 
 import React from 'react';
-
-interface CollectionHeaderProps {
-  collectionName: string;
-}
+import { CollectionHeaderProps } from './types/NftTypes';
 
 const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) => {
   // Format collection name - replace dashes with spaces

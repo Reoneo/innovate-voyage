@@ -6,12 +6,7 @@ import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import NftDetailsDialog from './NftDetailsDialog';
 import NftCollectionsContent from './NftCollectionsContent';
-
-interface NftCollectionsSectionProps {
-  walletAddress?: string;
-  showCollections?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}
+import { NftCollectionsSectionProps } from './types/NftTypes';
 
 export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ 
   walletAddress, 
@@ -31,37 +26,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
       try {
         const nftCollections = await fetchUserNfts(walletAddress);
         
-        // Check for Base Names collection and add if not present
-        let hasBaseCollection = nftCollections.some(c => 
-          c.name.toLowerCase().includes('base') || 
-          c.name.toLowerCase().includes('basename')
-        );
-        
-        if (!hasBaseCollection) {
-          // Create a Base Names collection with sample NFT
-          const sampleBaseNft: OpenSeaNft = {
-            id: 'base-sample',
-            name: 'Base Name Sample',
-            description: 'Sample Base Name - A next generation L2 blockchain',
-            collectionName: 'Base Names',
-            imageUrl: 'https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png',
-            externalUrl: 'https://www.base.org/names',
-            network: 'base',
-            tokenId: 'sample',
-            contractAddress: '',
-            metadataUrl: '',
-            isCustom: true,
-            isAd: true
-          };
-          
-          nftCollections.push({
-            name: 'Base Names',
-            nfts: [sampleBaseNft],
-            type: 'base'
-          });
-        }
-        
-        // Check for ENS collection and add sample if not present
+        // Add sample ENS NFT if not present
         let hasEnsCollection = nftCollections.some(c => 
           c.name.toLowerCase().includes('ens') || 
           c.name.toLowerCase().includes('ethereum name service')
@@ -81,7 +46,8 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
             contractAddress: '',
             metadataUrl: '',
             isCustom: true,
-            isAd: true
+            isAd: true,
+            chain: 'ethereum'
           };
           
           nftCollections.push({
@@ -89,31 +55,6 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
             nfts: [sampleEnsNft],
             type: 'ens'
           });
-        } else {
-          // Find the ENS collection and add the sample ENS at the end
-          const ensCollectionIndex = nftCollections.findIndex(c => 
-            c.name.toLowerCase().includes('ens') || 
-            c.name.toLowerCase().includes('ethereum name service')
-          );
-          
-          if (ensCollectionIndex >= 0) {
-            const sampleEnsNft: OpenSeaNft = {
-              id: 'ens-sample',
-              name: 'ENS Sample Domain',
-              description: 'Ethereum Name Service - Decentralized naming for wallets, websites, & more',
-              collectionName: 'Ethereum Name Service',
-              imageUrl: 'https://ens.domains/assets/brand/token-icon.svg',
-              externalUrl: 'https://ens.domains/',
-              network: 'ethereum',
-              tokenId: 'sample',
-              contractAddress: '',
-              metadataUrl: '',
-              isCustom: true,
-              isAd: true
-            };
-            
-            nftCollections[ensCollectionIndex].nfts.push(sampleEnsNft);
-          }
         }
         
         setCollections(nftCollections);
@@ -194,3 +135,5 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     </>
   );
 };
+
+export default NftCollectionsSection;

@@ -3,21 +3,7 @@ import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import NftCollectionCard from './NftCollectionCard';
 import NftFilterControls from './NftFilterControls';
-import { OpenSeaNft } from '@/api/services/openseaService';
-
-interface OpenSeaCollection {
-  name: string;
-  nfts: OpenSeaNft[];
-  type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base';
-}
-
-interface NftCollectionsContentProps {
-  collections: OpenSeaCollection[];
-  loading: boolean;
-  selectedType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all';
-  setSelectedType: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all') => void;
-  onNftClick: (nft: OpenSeaNft) => void;
-}
+import { NftCollectionsContentProps } from './types/NftTypes';
 
 const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
   collections,
@@ -49,7 +35,7 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
     <>
       <NftFilterControls 
         selectedType={selectedType}
-        onTypeChange={setSelectedType}
+        setSelectedType={setSelectedType}
         hasEthereumNfts={hasEthereumNfts}
         hasEnsNfts={hasEnsNfts}
         hasPoapNfts={hasPoapNfts}

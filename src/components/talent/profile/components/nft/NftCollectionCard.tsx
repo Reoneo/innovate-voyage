@@ -1,14 +1,8 @@
 
 import React from 'react';
-import { OpenSeaNft } from '@/api/services/openseaService';
+import { NftCollectionCardProps } from './types/NftTypes';
 import CollectionHeader from './CollectionHeader';
 import NftGrid from './NftGrid';
-
-interface NftCollectionCardProps {
-  collectionName: string;
-  nfts: OpenSeaNft[];
-  onNftClick: (nft: OpenSeaNft) => void;
-}
 
 const NftCollectionCard: React.FC<NftCollectionCardProps> = ({ 
   collectionName, 

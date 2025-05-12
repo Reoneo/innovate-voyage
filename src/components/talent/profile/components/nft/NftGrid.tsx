@@ -2,11 +2,7 @@
 import React from 'react';
 import { OpenSeaNft } from '@/api/services/openseaService';
 import NftItem from './NftItem';
-
-interface NftGridProps {
-  nfts: OpenSeaNft[];
-  onNftClick: (nft: OpenSeaNft & { count?: number }) => void;
-}
+import { NftGridProps } from './types/NftTypes';
 
 const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick }) => {
   // Combine NFTs by ID for display with count

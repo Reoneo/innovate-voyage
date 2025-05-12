@@ -1,12 +1,6 @@
 
 import React from 'react';
-import { OpenSeaNft } from '@/api/services/openseaService';
-import { Skeleton } from '@/components/ui/skeleton';
-
-interface NftItemProps {
-  nft: OpenSeaNft & { count?: number };
-  onClick: (nft: OpenSeaNft & { count?: number }) => void;
-}
+import { NftItemProps } from './types/NftTypes';
 
 const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
   const handleClick = () => {

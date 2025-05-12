@@ -14,7 +14,19 @@ export interface OpenSeaNft {
   externalUrl?: string;
   isCustom?: boolean;
   isAd?: boolean;
+  owner?: string;
+  chain?: string;
+  bestOffer?: string;
+  currentPrice?: string;
 }
+
+// Add this function to fix the dotBoxHandler import error
+export const fetchDotBoxAvatar = async (identity: string): Promise<string | null> => {
+  // Simple implementation for the function that's imported but not defined
+  console.log(`Trying to fetch .box avatar for ${identity}`);
+  // In a real implementation, this would fetch from OpenSea
+  return null;
+};
 
 // Mock OpenSea API service for demo purposes
 export const fetchUserNfts = async (address: string) => {
@@ -35,7 +47,9 @@ export const fetchUserNfts = async (address: string) => {
           collectionName: 'Ethereum Name Service',
           network: 'ethereum',
           tokenId: '42',
-          contractAddress: '0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85'
+          contractAddress: '0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85',
+          metadataUrl: '',
+          chain: 'ethereum'
         }
       ]
     },
@@ -51,7 +65,9 @@ export const fetchUserNfts = async (address: string) => {
           collectionName: 'Doodles',
           network: 'ethereum',
           tokenId: '1234',
-          contractAddress: '0x8a90cab2b38dba80c64b7734e58ee1db38b8992e'
+          contractAddress: '0x8a90cab2b38dba80c64b7734e58ee1db38b8992e',
+          metadataUrl: '',
+          chain: 'ethereum'
         }
       ]
     },
@@ -67,7 +83,9 @@ export const fetchUserNfts = async (address: string) => {
           collectionName: 'POAPs',
           network: 'ethereum',
           tokenId: '6331448',
-          contractAddress: '0x22c1f6050e56d2876009903609a2cc3fef83b415'
+          contractAddress: '0x22c1f6050e56d2876009903609a2cc3fef83b415',
+          metadataUrl: '',
+          chain: 'ethereum'
         },
         {
           id: 'poap-2',
@@ -77,25 +95,9 @@ export const fetchUserNfts = async (address: string) => {
           collectionName: 'POAPs',
           network: 'ethereum',
           tokenId: '6129841',
-          contractAddress: '0x22c1f6050e56d2876009903609a2cc3fef83b415'
-        }
-      ]
-    },
-    {
-      name: '3DNS Powered Domains',
-      type: '3dns',
-      nfts: [
-        {
-          id: '3dns-1',
-          name: 'metaverse.meta',
-          description: '3DNS Domain - your gateway to the 3D web',
-          imageUrl: 'https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2',
-          collectionName: '3DNS Powered Domains',
-          network: 'ethereum',
-          tokenId: '12345',
-          contractAddress: '0x3bbb61a8db913830c8734ea0c07bc11cd193d07a',
-          externalUrl: 'https://my.box/?ref=aqdql6',
-          isCustom: true
+          contractAddress: '0x22c1f6050e56d2876009903609a2cc3fef83b415',
+          metadataUrl: '',
+          chain: 'ethereum'
         }
       ]
     },
@@ -112,7 +114,9 @@ export const fetchUserNfts = async (address: string) => {
           network: 'ethereum',
           tokenId: 'follow-1',
           contractAddress: '0x8ec3a55128f8034887e6c42d0fefbc94a0cf6d56',
-          externalUrl: 'https://www.ethfollow.xyz/'
+          externalUrl: 'https://www.ethfollow.xyz/',
+          metadataUrl: '',
+          chain: 'ethereum'
         },
         {
           id: 'efp-2',
@@ -123,12 +127,34 @@ export const fetchUserNfts = async (address: string) => {
           network: 'ethereum',
           tokenId: 'follow-2',
           contractAddress: '0x8ec3a55128f8034887e6c42d0fefbc94a0cf6d56',
-          externalUrl: 'https://www.ethfollow.xyz/'
+          externalUrl: 'https://www.ethfollow.xyz/',
+          metadataUrl: '',
+          chain: 'ethereum'
+        }
+      ]
+    },
+    {
+      name: 'Base Names',
+      type: 'base',
+      nfts: [
+        {
+          id: 'base-sample',
+          name: 'Base Name Sample',
+          description: 'Sample Base Name - A next generation L2 blockchain',
+          collectionName: 'Base Names',
+          imageUrl: 'https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png',
+          externalUrl: 'https://www.base.org/names',
+          network: 'base',
+          tokenId: 'sample',
+          contractAddress: '',
+          metadataUrl: '',
+          isCustom: true,
+          isAd: true,
+          chain: 'base'
         }
       ]
     }
   ];
 
-  // Return the mock data
   return mockNfts;
 };

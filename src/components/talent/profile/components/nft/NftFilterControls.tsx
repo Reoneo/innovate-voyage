@@ -5,19 +5,21 @@ import { Button } from '@/components/ui/button';
 interface NftFilterControlsProps {
   selectedType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all';
   setSelectedType: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all') => void;
-  hasEnsCollection: boolean;
-  hasPoapCollection: boolean;
-  has3dnsCollection: boolean;
-  hasBaseCollection: boolean;
+  hasEthereumNfts: boolean;
+  hasEnsNfts: boolean;
+  hasPoapNfts: boolean;
+  has3dnsNfts: boolean;
+  hasBaseNfts: boolean;
 }
 
 const NftFilterControls: React.FC<NftFilterControlsProps> = ({
   selectedType,
   setSelectedType,
-  hasEnsCollection,
-  hasPoapCollection,
-  has3dnsCollection,
-  hasBaseCollection
+  hasEthereumNfts,
+  hasEnsNfts,
+  hasPoapNfts,
+  has3dnsNfts,
+  hasBaseNfts
 }) => {
   return (
     <div className="flex flex-wrap gap-2 mb-4">
@@ -39,7 +41,7 @@ const NftFilterControls: React.FC<NftFilterControlsProps> = ({
         Ethereum NFTs
       </Button>
       
-      {hasEnsCollection && (
+      {hasEnsNfts && (
         <Button
           variant={selectedType === 'ens' ? 'default' : 'outline'}
           size="sm"
@@ -50,7 +52,7 @@ const NftFilterControls: React.FC<NftFilterControlsProps> = ({
         </Button>
       )}
       
-      {hasPoapCollection && (
+      {hasPoapNfts && (
         <Button
           variant={selectedType === 'poap' ? 'default' : 'outline'}
           size="sm"
@@ -61,7 +63,7 @@ const NftFilterControls: React.FC<NftFilterControlsProps> = ({
         </Button>
       )}
       
-      {has3dnsCollection && (
+      {has3dnsNfts && (
         <Button
           variant={selectedType === '3dns' ? 'default' : 'outline'}
           size="sm"
@@ -72,7 +74,7 @@ const NftFilterControls: React.FC<NftFilterControlsProps> = ({
         </Button>
       )}
       
-      {hasBaseCollection && (
+      {hasBaseNfts && (
         <Button
           variant={selectedType === 'base' ? 'default' : 'outline'}
           size="sm"
