@@ -56,10 +56,10 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading - reduce from 5s to 3.5s to improve perceived performance
+    // Set a timeout for loading
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 3500);
+    }, 5000);
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
@@ -95,7 +95,6 @@ export function useProfilePage() {
     };
   }, [targetIdentifier]);
 
-  // Use a more optimized data loading approach for performance
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl, hasTalentProtocolData } = useProfileData(ens, address);
   
   const { profileRef } = usePdfExport();

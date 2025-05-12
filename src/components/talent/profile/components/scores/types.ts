@@ -1,16 +1,21 @@
 
-export interface ScoreDialogData {
-  score?: number | null;
-  webacyData?: any | null;
-  txCount?: number | null;
-  walletAddress?: string | null;
-}
+export type ThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
 
-export interface ScoreDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  type: 'talent' | 'security' | 'transactions' | 'webacy' | 'tally';
-  data: ScoreDialogData;
+export interface WebacyData {
+  riskScore?: number;
+  threatLevel: ThreatLevel;
+  walletAddress?: string;
+  approvals?: {
+    count: number;
+    riskyCount: number;
+  };
+  quickProfile?: {
+    transactions: number;
+    contracts: number;
+    riskLevel: ThreatLevel;
+  };
+  riskItems?: any[];
+  riskHistory?: any[];
 }
 
 export interface ScoreBadgeProps {
@@ -18,18 +23,4 @@ export interface ScoreBadgeProps {
   isLoading?: boolean;
 }
 
-// Add missing WebacyData type
-export interface WebacyData {
-  riskScore?: number;
-  threatLevel?: ThreatLevel;
-  approvalCount?: number;
-  approvalPercentage?: number;
-  lastEvaluationTimestamp?: number;
-  transactionCount?: number;
-  walletAddress?: string;
-  threats?: any[];
-  [key: string]: any; // Allow for additional properties
-}
-
-// Add missing ThreatLevel type
-export type ThreatLevel = 'Low' | 'Medium' | 'High' | 'Critical' | 'None' | 'Unknown';
+export type ScoreDialogType = 'talent' | 'transactions' | 'webacy' | 'tally';

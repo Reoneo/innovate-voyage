@@ -3,52 +3,52 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 
 interface NftFilterControlsProps {
-  selectedType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all';
-  setSelectedType: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all') => void;
+  selectedType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all';
+  onTypeChange: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all') => void;
   hasEthereumNfts: boolean;
   hasEnsNfts: boolean;
   hasPoapNfts: boolean;
-  has3dnsNfts: boolean;
-  hasBaseNfts: boolean;
+  has3dnsNfts?: boolean;
 }
 
 const NftFilterControls: React.FC<NftFilterControlsProps> = ({
   selectedType,
-  setSelectedType,
+  onTypeChange,
   hasEthereumNfts,
   hasEnsNfts,
   hasPoapNfts,
-  has3dnsNfts,
-  hasBaseNfts
+  has3dnsNfts = false
 }) => {
   return (
     <div className="flex flex-wrap gap-2 mb-4">
       <Button
         variant={selectedType === 'all' ? 'default' : 'outline'}
         size="sm"
-        onClick={() => setSelectedType('all')}
+        onClick={() => onTypeChange('all')}
         className="rounded-full"
       >
-        All
+        All Collections
       </Button>
       
-      <Button
-        variant={selectedType === 'ethereum' ? 'default' : 'outline'}
-        size="sm"
-        onClick={() => setSelectedType('ethereum')}
-        className="rounded-full"
-      >
-        Ethereum NFTs
-      </Button>
+      {hasEthereumNfts && (
+        <Button
+          variant={selectedType === 'ethereum' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => onTypeChange('ethereum')}
+          className="rounded-full"
+        >
+          NFTs
+        </Button>
+      )}
       
       {hasEnsNfts && (
         <Button
           variant={selectedType === 'ens' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setSelectedType('ens')}
+          onClick={() => onTypeChange('ens')}
           className="rounded-full"
         >
-          ENS Domains
+          ENS
         </Button>
       )}
       
@@ -56,7 +56,7 @@ const NftFilterControls: React.FC<NftFilterControlsProps> = ({
         <Button
           variant={selectedType === 'poap' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setSelectedType('poap')}
+          onClick={() => onTypeChange('poap')}
           className="rounded-full"
         >
           POAPs
@@ -67,21 +67,10 @@ const NftFilterControls: React.FC<NftFilterControlsProps> = ({
         <Button
           variant={selectedType === '3dns' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setSelectedType('3dns')}
+          onClick={() => onTypeChange('3dns')}
           className="rounded-full"
         >
           3DNS Domains
-        </Button>
-      )}
-      
-      {hasBaseNfts && (
-        <Button
-          variant={selectedType === 'base' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setSelectedType('base')}
-          className="rounded-full"
-        >
-          Base Names
         </Button>
       )}
     </div>

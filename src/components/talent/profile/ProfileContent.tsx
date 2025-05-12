@@ -6,6 +6,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
+import DaoInsightsSection from './components/dao/DaoInsightsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -102,7 +103,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   const showGitHubSection = !!githubUsername;
 
   return (
-    <div ref={profileRef} id="resume-pdf" className="w-full">
+    <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
       {loading && !loadingTimeout ? (
         <ProfileSkeleton />
       ) : passport ? (
@@ -131,6 +132,11 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}
+              
+              {/* DAO Insights Section */}
+              <div className="mt-6">
+                <DaoInsightsSection walletAddress={passport.owner_address} />
+              </div>
             </div>
           </div>
         </HeaderContainer>
@@ -144,7 +150,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
 export default ProfileContent;
 
 const ProfileTimeoutError: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameOrAddress }) => (
-  <div className="min-h-screen bg-white py-4 md:py-8">
+  <div className="min-h-screen bg-gray-50 py-4 md:py-8">
     <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
       <HeaderContainer>
         <div className="flex flex-col items-center justify-center h-full text-center">

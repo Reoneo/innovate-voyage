@@ -1,63 +1,60 @@
 
 import React from 'react';
+import HeaderContainer from './components/HeaderContainer';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const ProfileSkeleton: React.FC = () => {
   return (
-    <div className="container mx-auto px-4 pt-16 bg-white">
-      <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
-        {/* Left column */}
-        <div className="w-full md:w-1/3 space-y-6">
-          {/* Avatar and name */}
-          <div className="flex flex-col items-center space-y-4">
-            <Skeleton className="h-32 w-32 rounded-full" />
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-5 w-36" />
-            <Skeleton className="h-4 w-64" />
+    <HeaderContainer>
+      <div className="flex flex-col md:flex-row gap-8 w-full pt-16">
+        {/* Avatar and left column skeleton */}
+        <div className="md:w-1/3 flex flex-col items-center md:items-start gap-4">
+          {/* Avatar skeleton */}
+          <div className="mx-auto">
+            <Skeleton className="w-48 h-48 rounded-full" />
           </div>
           
-          {/* Social links */}
-          <div className="flex flex-wrap justify-center gap-2">
+          {/* Name skeleton */}
+          <div className="flex flex-col items-center w-full gap-2">
+            <Skeleton className="w-48 h-7 rounded" />
+            <Skeleton className="w-32 h-5 rounded" />
+          </div>
+          
+          {/* Contact info skeleton */}
+          <div className="flex gap-2 mt-2">
+            <Skeleton className="w-32 h-9 rounded-md" />
+            <Skeleton className="w-32 h-9 rounded-md" />
+          </div>
+          
+          {/* Bio skeleton */}
+          <Skeleton className="w-full h-20 rounded mt-4" />
+          
+          {/* Social icons skeleton */}
+          <div className="w-full grid grid-cols-5 gap-2 mt-4 justify-center">
             {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-8 w-8 rounded-full" />
+              <Skeleton key={i} className="w-10 h-10 rounded-full" />
             ))}
-          </div>
-          
-          {/* Bio */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
           </div>
         </div>
         
-        {/* Right column */}
-        <div className="w-full md:w-2/3 space-y-8">
-          {/* Talent score */}
-          <div className="space-y-4">
-            <Skeleton className="h-6 w-40" />
-            <div className="flex gap-4">
-              <Skeleton className="h-16 w-1/3" />
-              <Skeleton className="h-16 w-1/3" />
-              <Skeleton className="h-16 w-1/3" />
+        {/* Right column skeleton */}
+        <div className="md:w-2/3">
+          {/* Talent score section */}
+          <Skeleton className="w-full h-20 rounded mb-6" />
+          
+          {/* Content sections */}
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="mb-6">
+              <Skeleton className="w-3/4 h-7 rounded mb-3" />
+              <div className="space-y-2">
+                <Skeleton className="w-full h-16 rounded" />
+                <Skeleton className="w-full h-16 rounded" />
+              </div>
             </div>
-          </div>
-          
-          {/* GitHub contributions */}
-          <div className="space-y-4">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-40 w-full" />
-          </div>
-          
-          {/* Onchain Activity */}
-          <div className="space-y-4">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
-          </div>
+          ))}
         </div>
       </div>
-    </div>
+    </HeaderContainer>
   );
 };
 

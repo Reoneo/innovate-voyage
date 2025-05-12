@@ -6,7 +6,12 @@ import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import NftDetailsDialog from './NftDetailsDialog';
 import NftCollectionsContent from './NftCollectionsContent';
-import { NftCollectionsSectionProps } from './types/NftTypes';
+
+interface NftCollectionsSectionProps {
+  walletAddress?: string;
+  showCollections?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
 
 export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ 
   walletAddress, 
@@ -15,7 +20,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
 }) => {
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all'>('all');
+  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
   const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
 
   useEffect(() => {
@@ -25,38 +30,6 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
       setLoading(true);
       try {
         const nftCollections = await fetchUserNfts(walletAddress);
-        
-        // Add sample ENS NFT if not present
-        let hasEnsCollection = nftCollections.some(c => 
-          c.name.toLowerCase().includes('ens') || 
-          c.name.toLowerCase().includes('ethereum name service')
-        );
-        
-        if (!hasEnsCollection) {
-          // Create an ENS collection with sample NFT
-          const sampleEnsNft: OpenSeaNft = {
-            id: 'ens-sample',
-            name: 'ENS Sample Domain',
-            description: 'Ethereum Name Service - Decentralized naming for wallets, websites, & more',
-            collectionName: 'Ethereum Name Service',
-            imageUrl: 'https://ens.domains/assets/brand/token-icon.svg',
-            externalUrl: 'https://ens.domains/',
-            network: 'ethereum',
-            tokenId: 'sample',
-            contractAddress: '',
-            metadataUrl: '',
-            isCustom: true,
-            isAd: true,
-            chain: 'ethereum'
-          };
-          
-          nftCollections.push({
-            name: 'Ethereum Name Service',
-            nfts: [sampleEnsNft],
-            type: 'ens'
-          });
-        }
-        
         setCollections(nftCollections);
       } catch (error) {
         console.error('Error loading NFTs:', error);
@@ -70,13 +43,9 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
 
   if (!walletAddress) return null;
 
-  // Handle NFT click to show details or navigate to external URL if it's a custom NFT
+  // Handle NFT click to show details
   const handleNftClick = (nft: OpenSeaNft) => {
-    if (nft.isCustom && nft.externalUrl) {
-      window.open(nft.externalUrl, '_blank', 'noopener,noreferrer');
-    } else {
-      setSelectedNft(nft);
-    }
+    setSelectedNft(nft);
   };
 
   // Handle profile click from NFT details
@@ -97,9 +66,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
               <h2 className="text-lg font-semibold text-gray-900">
                 {selectedType === 'all' ? 'All Collections' : 
                  selectedType === 'ethereum' ? 'NFT Collections' :
-                 selectedType === 'ens' ? 'ENS Collection' : 
-                 selectedType === 'poap' ? 'POAP Collection' :
-                 selectedType === '3dns' ? '3DNS Domains' : 'Base Names'}
+                 selectedType === 'ens' ? 'ENS Collection' : 'POAP Collection'}
               </h2>
             </DialogHeader>
             <Button
@@ -125,7 +92,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
       </Dialog>
 
       {/* NFT Details Dialog */}
-      {selectedNft && !selectedNft.isCustom && (
+      {selectedNft && (
         <NftDetailsDialog 
           nft={selectedNft} 
           onClose={() => setSelectedNft(null)} 
@@ -135,5 +102,3 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     </>
   );
 };
-
-export default NftCollectionsSection;
