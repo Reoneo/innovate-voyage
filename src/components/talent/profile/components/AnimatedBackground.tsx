@@ -101,7 +101,8 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ avatarUrl, isLo
       />
       
       {/* Add some custom animation styles */}
-      <style jsx>{`
+      <style>
+        {`
         @keyframes pulse {
           0%, 100% {
             opacity: 0.9;
@@ -124,7 +125,8 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ avatarUrl, isLo
             transform: translate(-5%, -5%);
           }
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 };

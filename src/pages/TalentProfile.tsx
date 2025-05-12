@@ -40,12 +40,12 @@ const TalentProfile = () => {
     }
     
     // Set body background to white while loading for better experience
-    document.body.style.backgroundColor = loading ? '#ffffff' : '';
+    document.body.style.backgroundColor = '#ffffff';
     
     return () => {
       document.body.style.backgroundColor = '';
     };
-  }, [passport?.avatar_url, loading]);
+  }, [passport?.avatar_url]);
 
   return (
     <>
@@ -61,7 +61,7 @@ const TalentProfile = () => {
         )}
       </Helmet>
       <div className="min-h-screen relative bg-white">
-        {/* Always show the AnimatedBackground, but only after we have passport data */}
+        {/* Only show the AnimatedBackground when we have passport data */}
         {!loading && passport && (
           <AnimatedBackground 
             avatarUrl={passport?.avatar_url} 
@@ -76,12 +76,10 @@ const TalentProfile = () => {
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container px-1 sm:px-4 relative z-10">
+        <div className="container px-1 sm:px-4 relative z-10 pt-16">
           {loading ? (
-            /* Show skeleton while loading - now with proper padding */
-            <div className="pt-16">
-              <ProfileSkeleton />
-            </div>
+            /* Show skeleton while loading - with proper padding and position */
+            <ProfileSkeleton />
           ) : (
             /* Show actual content when loaded */
             <ProfileContent 

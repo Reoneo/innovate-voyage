@@ -103,7 +103,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   const showGitHubSection = !!githubUsername;
 
   return (
-    <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
+    <div ref={profileRef} id="resume-pdf" className="w-full">
       {loading && !loadingTimeout ? (
         <ProfileSkeleton />
       ) : passport ? (
@@ -133,7 +133,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 </div>
               )}
               
-              {/* Onchain Activity Section (previously DAO Insights) */}
+              {/* Onchain Activity Section */}
               <div className="mt-6">
                 <OnchainActivitySection walletAddress={passport.owner_address} />
               </div>

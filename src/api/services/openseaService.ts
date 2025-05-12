@@ -1,4 +1,3 @@
-
 export interface OpenSeaNft {
   id: string;
   name: string;
@@ -9,13 +8,19 @@ export interface OpenSeaNft {
   bestOffer?: string;
   owner?: string;
   chain?: string;
-  count?: number; // Added count property
+  count?: number;
+  externalUrl?: string;
+  metadataUrl?: string;
+  contractAddress?: string;
+  tokenId?: string;
+  network?: string;
+  isCustom?: boolean;
 }
 
 interface OpenSeaCollection {
   name: string;
   nfts: OpenSeaNft[];
-  type: 'ethereum' | 'ens' | 'poap' | '3dns';
+  type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base';
 }
 
 const OPENSEA_API_KEY = "33e769a3cf954b15a0d7eddf2b60028e";
@@ -38,7 +43,7 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
     return nftCache.get(cacheKey) || [];
   }
   
-  const collections: { [key: string]: { nfts: OpenSeaNft[], type: 'ethereum' | 'ens' | 'poap' | '3dns' } } = {};
+  const collections: { [key: string]: { nfts: OpenSeaNft[], type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' } } = {};
   
   // Fetch NFTs from multiple chains
   try {
@@ -94,13 +99,15 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
       const collectionName = nft.collection || 'Uncategorized';
       
       // Determine the type of NFT
-      let type: 'ethereum' | 'ens' | 'poap' | '3dns' = 'ethereum';
+      let type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' = 'ethereum';
       if (collectionName.toLowerCase().includes('ens')) {
         type = 'ens';
       } else if (collectionName.toLowerCase().includes('poap')) {
         type = 'poap';
       } else if (collectionName.toLowerCase().includes('3dns')) {
         type = '3dns';
+      } else if (collectionName.toLowerCase().includes('base')) {
+        type = 'base';
       }
       
       if (!collections[collectionName]) {

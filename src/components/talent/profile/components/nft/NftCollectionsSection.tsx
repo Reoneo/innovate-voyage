@@ -58,6 +58,30 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
             nfts: [sample3dnsNft],
             type: '3dns'
           });
+        } else {
+          // Find the 3DNS collection and add the sample NFT at the end
+          const threeDnsCollectionIndex = nftCollections.findIndex(c => 
+            c.name.toLowerCase().includes('3dns') || 
+            c.name.toLowerCase().includes('3dns powered domains')
+          );
+          
+          if (threeDnsCollectionIndex >= 0) {
+            const sample3dnsNft: OpenSeaNft = {
+              id: '3dns-sample',
+              name: '3DNS Sample Domain',
+              description: 'Sample 3DNS Domain - Click to visit my.box',
+              collectionName: '3DNS Powered Domains',
+              imageUrl: 'https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2',
+              externalUrl: 'https://my.box/?ref=aqdql6',
+              network: 'ethereum',
+              tokenId: 'sample',
+              contractAddress: '',
+              metadataUrl: '',
+              isCustom: true
+            };
+            
+            nftCollections[threeDnsCollectionIndex].nfts.push(sample3dnsNft);
+          }
         }
         
         // Check for a Base Names collection and add if not present
@@ -74,7 +98,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
             description: 'Sample Base Name - A next generation L2 blockchain',
             collectionName: 'Base Names',
             imageUrl: 'https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png',
-            externalUrl: 'https://base.org',
+            externalUrl: 'https://www.base.org/names',
             network: 'base',
             tokenId: 'sample',
             contractAddress: '',
@@ -87,6 +111,30 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
             nfts: [sampleBaseNft],
             type: 'base'
           });
+        } else {
+          // Find the Base Names collection and add the sample NFT at the end
+          const baseCollectionIndex = nftCollections.findIndex(c => 
+            c.name.toLowerCase().includes('base') || 
+            c.name.toLowerCase().includes('basename')
+          );
+          
+          if (baseCollectionIndex >= 0) {
+            const sampleBaseNft: OpenSeaNft = {
+              id: 'base-sample',
+              name: 'Base Name Sample',
+              description: 'Sample Base Name - A next generation L2 blockchain',
+              collectionName: 'Base Names',
+              imageUrl: 'https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png',
+              externalUrl: 'https://www.base.org/names',
+              network: 'base',
+              tokenId: 'sample',
+              contractAddress: '',
+              metadataUrl: '',
+              isCustom: true
+            };
+            
+            nftCollections[baseCollectionIndex].nfts.push(sampleBaseNft);
+          }
         }
         
         setCollections(nftCollections);
