@@ -1,81 +1,83 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 
 interface NftFilterControlsProps {
   selectedType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all';
-  onTypeChange: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all') => void;
-  hasEthereumNfts: boolean;
-  hasEnsNfts: boolean;
-  hasPoapNfts: boolean;
-  has3dnsNfts: boolean;
-  hasBaseNfts?: boolean;
+  setSelectedType: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all') => void;
+  hasEnsCollection: boolean;
+  hasPoapCollection: boolean;
+  has3dnsCollection: boolean;
+  hasBaseCollection: boolean;
 }
 
 const NftFilterControls: React.FC<NftFilterControlsProps> = ({
   selectedType,
-  onTypeChange,
-  hasEthereumNfts,
-  hasEnsNfts,
-  hasPoapNfts,
-  has3dnsNfts,
-  hasBaseNfts = false
+  setSelectedType,
+  hasEnsCollection,
+  hasPoapCollection,
+  has3dnsCollection,
+  hasBaseCollection
 }) => {
   return (
     <div className="flex flex-wrap gap-2 mb-4">
-      <Button 
+      <Button
         variant={selectedType === 'all' ? 'default' : 'outline'}
         size="sm"
-        onClick={() => onTypeChange('all')}
+        onClick={() => setSelectedType('all')}
+        className="rounded-full"
       >
         All
       </Button>
-
-      {hasEthereumNfts && (
-        <Button 
-          variant={selectedType === 'ethereum' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => onTypeChange('ethereum')}
-        >
-          NFTs
-        </Button>
-      )}
-
-      {hasEnsNfts && (
-        <Button 
+      
+      <Button
+        variant={selectedType === 'ethereum' ? 'default' : 'outline'}
+        size="sm"
+        onClick={() => setSelectedType('ethereum')}
+        className="rounded-full"
+      >
+        Ethereum NFTs
+      </Button>
+      
+      {hasEnsCollection && (
+        <Button
           variant={selectedType === 'ens' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => onTypeChange('ens')}
+          onClick={() => setSelectedType('ens')}
+          className="rounded-full"
         >
-          ENS
+          ENS Domains
         </Button>
       )}
-
-      {hasPoapNfts && (
-        <Button 
+      
+      {hasPoapCollection && (
+        <Button
           variant={selectedType === 'poap' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => onTypeChange('poap')}
+          onClick={() => setSelectedType('poap')}
+          className="rounded-full"
         >
-          POAP
+          POAPs
         </Button>
       )}
-
-      {has3dnsNfts && (
-        <Button 
+      
+      {has3dnsCollection && (
+        <Button
           variant={selectedType === '3dns' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => onTypeChange('3dns')}
+          onClick={() => setSelectedType('3dns')}
+          className="rounded-full"
         >
           3DNS Domains
         </Button>
       )}
-
-      {hasBaseNfts && (
-        <Button 
+      
+      {hasBaseCollection && (
+        <Button
           variant={selectedType === 'base' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => onTypeChange('base')}
+          onClick={() => setSelectedType('base')}
+          className="rounded-full"
         >
           Base Names
         </Button>
