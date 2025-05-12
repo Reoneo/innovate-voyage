@@ -29,33 +29,16 @@ const OnchainActivitySection: React.FC<DaoInsightsSectionProps> = ({ walletAddre
     const fetchOnchainData = async () => {
       setLoading(true);
       try {
-        // For demonstration, we're using more realistic data based on address patterns
-        // In a real implementation, you would fetch this data from Etherscan API
-        
-        // Generate realistic metrics based on the address to have varied data
-        const addressSum = walletAddress
-          .toLowerCase()
-          .replace(/[^0-9a-f]/g, '')
-          .split('')
-          .reduce((sum, char) => sum + parseInt(char, 16), 0);
-          
+        // For demonstration, we're setting mock data
+        // In a real implementation, you would fetch this data from Etherscan API or similar
         const mockData: OnchainMetrics = {
-          // Balance between 0.1 and 25 ETH
-          ethBalance: (0.1 + (addressSum % 250) / 10).toFixed(4),
-          
-          // First TX Hash - realistic looking hash based on wallet address
-          firstTxHash: `0x${walletAddress.substring(2, 8)}${Date.now().toString(16)}${walletAddress.substring(2, 8)}`,
-          
-          // First TX Date - sometime in last 4 years
-          firstTxDate: new Date(Date.now() - (addressSum % 126144000000)).toISOString().split('T')[0],
-          
-          // TX Count - depends on address pattern
-          outgoingTxCount: 50 + (addressSum % 950),
-          
-          // Contract metrics - vary by address pattern
-          activeContracts: 1 + (addressSum % 30),
-          mainnetDeployments: addressSum % 8,
-          testnetDeployments: 2 + (addressSum % 12)
+          ethBalance: '4.2186',
+          firstTxHash: '0x83f7d2271a6f43b8525ab61c41c1b2c00e7fd887ad9ce7bc5ef69f35fa684bb9',
+          firstTxDate: '2019-03-21',
+          outgoingTxCount: 381,
+          activeContracts: 18,
+          mainnetDeployments: 3,
+          testnetDeployments: 7
         };
         
         // Simulate network request

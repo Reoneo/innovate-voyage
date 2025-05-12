@@ -31,21 +31,21 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
       try {
         const nftCollections = await fetchUserNfts(walletAddress);
         
-        // Add ENS collection with sample NFT if not present
-        let hasEnsCollection = nftCollections.some(c => 
-          c.name.toLowerCase().includes('ens') ||
-          c.name.toLowerCase().includes('ethereum name service')
+        // Add sample 3DNS domain to collections if not present
+        let has3dnsCollection = nftCollections.some(c => 
+          c.name.toLowerCase().includes('3dns') || 
+          c.name.toLowerCase().includes('3dns powered domains')
         );
         
-        if (!hasEnsCollection) {
-          // Create an ENS collection with sample NFT
-          const sampleEnsNft: OpenSeaNft = {
-            id: 'ens-sample',
-            name: 'ENS Sample',
-            description: 'Ethereum Name Service - Decentralized naming for wallets, websites, & more',
-            collectionName: 'Ethereum Name Service',
-            imageUrl: 'https://ens.domains/assets/brand/token-icon.svg',
-            externalUrl: 'https://ens.domains/',
+        if (!has3dnsCollection) {
+          // Create a 3DNS collection with sample NFT
+          const sample3dnsNft: OpenSeaNft = {
+            id: '3dns-sample',
+            name: '3DNS Sample Domain',
+            description: 'Sample 3DNS Domain - Click to visit my.box',
+            collectionName: '3DNS Powered Domains',
+            imageUrl: 'https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2',
+            externalUrl: 'https://my.box/?ref=aqdql6',
             network: 'ethereum',
             tokenId: 'sample',
             contractAddress: '',
@@ -54,10 +54,34 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
           };
           
           nftCollections.push({
-            name: 'Ethereum Name Service',
-            nfts: [sampleEnsNft],
-            type: 'ens'
+            name: '3DNS Powered Domains',
+            nfts: [sample3dnsNft],
+            type: '3dns'
           });
+        } else {
+          // Find the 3DNS collection and add the sample NFT at the end
+          const threeDnsCollectionIndex = nftCollections.findIndex(c => 
+            c.name.toLowerCase().includes('3dns') || 
+            c.name.toLowerCase().includes('3dns powered domains')
+          );
+          
+          if (threeDnsCollectionIndex >= 0) {
+            const sample3dnsNft: OpenSeaNft = {
+              id: '3dns-sample',
+              name: '3DNS Sample Domain',
+              description: 'Sample 3DNS Domain - Click to visit my.box',
+              collectionName: '3DNS Powered Domains',
+              imageUrl: 'https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2',
+              externalUrl: 'https://my.box/?ref=aqdql6',
+              network: 'ethereum',
+              tokenId: 'sample',
+              contractAddress: '',
+              metadataUrl: '',
+              isCustom: true
+            };
+            
+            nftCollections[threeDnsCollectionIndex].nfts.push(sample3dnsNft);
+          }
         }
         
         // Check for a Base Names collection and add if not present
@@ -87,56 +111,33 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
             nfts: [sampleBaseNft],
             type: 'base'
           });
-        }
-        
-        // Check for Ethereum Follow Protocol collection
-        let hasEfpCollection = nftCollections.some(c => 
-          c.name.toLowerCase().includes('ethereum follow') || 
-          c.name.toLowerCase().includes('efp')
-        );
-        
-        if (!hasEfpCollection) {
-          // Create an EFP collection
-          const sampleEfpNft: OpenSeaNft = {
-            id: 'efp-sample',
-            name: 'Ethereum Follow Protocol',
-            description: 'EFP - Decentralized social graph protocol',
-            collectionName: 'Ethereum Follow Protocol',
-            imageUrl: 'https://public.rootdata.com/images/b6/1704560912107.png',
-            externalUrl: 'https://efp.xyz/',
-            network: 'ethereum',
-            tokenId: 'sample',
-            contractAddress: '',
-            metadataUrl: '',
-            isCustom: true
-          };
-          
-          nftCollections.push({
-            name: 'Ethereum Follow Protocol',
-            nfts: [sampleEfpNft],
-            type: 'ethereum'
-          });
         } else {
-          // Find the EFP collection and update the image URLs
-          const efpCollectionIndex = nftCollections.findIndex(c => 
-            c.name.toLowerCase().includes('ethereum follow') || 
-            c.name.toLowerCase().includes('efp')
+          // Find the Base Names collection and add the sample NFT at the end
+          const baseCollectionIndex = nftCollections.findIndex(c => 
+            c.name.toLowerCase().includes('base') || 
+            c.name.toLowerCase().includes('basename')
           );
           
-          if (efpCollectionIndex >= 0) {
-            nftCollections[efpCollectionIndex].nfts = nftCollections[efpCollectionIndex].nfts.map(nft => ({
-              ...nft,
-              imageUrl: 'https://public.rootdata.com/images/b6/1704560912107.png',
-              isCustom: true,
-              externalUrl: 'https://efp.xyz/'
-            }));
+          if (baseCollectionIndex >= 0) {
+            const sampleBaseNft: OpenSeaNft = {
+              id: 'base-sample',
+              name: 'Base Name Sample',
+              description: 'Sample Base Name - A next generation L2 blockchain',
+              collectionName: 'Base Names',
+              imageUrl: 'https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png',
+              externalUrl: 'https://www.base.org/names',
+              network: 'base',
+              tokenId: 'sample',
+              contractAddress: '',
+              metadataUrl: '',
+              isCustom: true
+            };
+            
+            nftCollections[baseCollectionIndex].nfts.push(sampleBaseNft);
           }
         }
         
-        // Remove 3DNS Sample Collection (as requested)
-        const filtered = nftCollections.filter(c => !c.name.toLowerCase().includes('3dns'));
-        
-        setCollections(filtered);
+        setCollections(nftCollections);
       } catch (error) {
         console.error('Error loading NFTs:', error);
       } finally {
