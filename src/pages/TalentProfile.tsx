@@ -38,7 +38,14 @@ const TalentProfile = () => {
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     }
-  }, [passport?.avatar_url]);
+    
+    // Set body background to white while loading for better experience
+    document.body.style.backgroundColor = loading ? '#ffffff' : '';
+    
+    return () => {
+      document.body.style.backgroundColor = '';
+    };
+  }, [passport?.avatar_url, loading]);
 
   return (
     <>
@@ -53,12 +60,14 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <div className="min-h-screen relative bg-transparent">
-        {/* Always show the AnimatedBackground */}
-        <AnimatedBackground 
-          avatarUrl={passport?.avatar_url} 
-          isLoading={false} 
-        />
+      <div className="min-h-screen relative bg-white">
+        {/* Always show the AnimatedBackground, but only after we have passport data */}
+        {!loading && passport && (
+          <AnimatedBackground 
+            avatarUrl={passport?.avatar_url} 
+            isLoading={false} 
+          />
+        )}
         
         {/* Always show Navigation Bar */}
         <ProfileNavbar 

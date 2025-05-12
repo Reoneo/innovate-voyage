@@ -1,101 +1,130 @@
 
-import React, { useEffect, useState } from 'react';
-import ColorThief from 'colorthief';
+import React from 'react';
+import { useEffect, useState } from 'react';
 
 interface AnimatedBackgroundProps {
   avatarUrl?: string;
   isLoading?: boolean;
 }
 
-// Function to generate a fallback gradient
-const getFallbackGradient = () => {
-  const gradients = [
-    'linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%)',
-    'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-    'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
-    'linear-gradient(135deg, #0EA5E9 0%, #6366F1 100%)',
-  ];
-  return gradients[Math.floor(Math.random() * gradients.length)];
-};
-
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ avatarUrl, isLoading = false }) => {
-  const [gradient, setGradient] = useState<string>(getFallbackGradient());
+  const [loaded, setLoaded] = useState(false);
+  const [dominantColor, setDominantColor] = useState<string | null>(null);
 
   useEffect(() => {
-    const extractColors = async () => {
-      if (!avatarUrl) return;
+    if (avatarUrl && !isLoading) {
+      // Create an in-memory canvas to analyze the image
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.src = avatarUrl;
       
-      try {
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-        
-        img.onload = () => {
-          try {
-            const colorThief = new ColorThief();
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
+      img.onload = () => {
+        try {
+          // Simple dominant color extraction
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, img.width, img.height);
             
-            if (!context) return;
+            // Get pixel data from the center of the image
+            const centerX = Math.floor(img.width / 2);
+            const centerY = Math.floor(img.height / 2);
+            const pixelData = ctx.getImageData(centerX, centerY, 1, 1).data;
             
-            canvas.width = img.width;
-            canvas.height = img.height;
-            context.drawImage(img, 0, 0);
-            
-            // Get the dominant color and a palette
-            const dominantColor = colorThief.getColor(img);
-            const palette = colorThief.getPalette(img, 5); // Get more colors for variety
-            
-            if (dominantColor && palette) {
-              // Create a more dynamic gradient from the extracted colors
-              const color1 = `rgb(${palette[0][0]}, ${palette[0][1]}, ${palette[0][2]})`;
-              const color2 = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
-              const color3 = palette[1] ? `rgb(${palette[1][0]}, ${palette[1][1]}, ${palette[1][2]})` : color1;
-              const color4 = palette[2] ? `rgb(${palette[2][0]}, ${palette[2][1]}, ${palette[2][2]})` : color2;
-              
-              setGradient(`linear-gradient(135deg, ${color1} 0%, ${color2} 33%, ${color3} 66%, ${color4} 100%)`);
-            }
-          } catch (error) {
-            console.error('Error extracting colors:', error);
-            setGradient(getFallbackGradient());
+            // Use the pixel color with reduced opacity
+            const color = `rgba(${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]}, 0.08)`;
+            setDominantColor(color);
           }
-        };
-        
-        img.onerror = () => {
-          console.error('Error loading image for color extraction');
-          setGradient(getFallbackGradient());
-        };
-        
-        img.src = avatarUrl;
-      } catch (error) {
-        console.error('Error in color extraction process:', error);
-        setGradient(getFallbackGradient());
-      }
-    };
+        } catch (error) {
+          console.error('Error extracting color from avatar:', error);
+          // Fallback to default color
+          setDominantColor('rgba(79, 70, 229, 0.1)');
+        }
+        setLoaded(true);
+      };
+      
+      img.onerror = () => {
+        console.error('Error loading avatar for color extraction');
+        setDominantColor('rgba(79, 70, 229, 0.1)');
+        setLoaded(true);
+      };
+    } else {
+      // Default color for loading or no avatar
+      setDominantColor('rgba(79, 70, 229, 0.1)');
+      setLoaded(true);
+    }
+  }, [avatarUrl, isLoading]);
 
-    extractColors();
-  }, [avatarUrl]);
+  if (!loaded) {
+    return <div className="fixed inset-0 bg-white" />;
+  }
+
+  const baseColor = dominantColor || 'rgba(79, 70, 229, 0.1)';
 
   return (
-    <div
-      className="fixed inset-0 -z-10 overflow-hidden transition-all duration-700"
-      style={{
-        background: gradient,
-        backgroundSize: '400% 400%',
-        animation: 'gradient-animation 15s ease infinite',
-      }}
-    >
-      {/* Animated overlay patterns - always show */}
-      <div className="absolute inset-0 opacity-20 mix-blend-overlay">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0,transparent_70%)]"></div>
-      </div>
-      
-      {/* Noise texture overlay */}
-      <div className="absolute inset-0 opacity-10" 
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-white">
+      {/* Main gradient background with animation */}
+      <div 
+        className="absolute inset-0"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundRepeat: 'repeat',
+          background: `radial-gradient(circle at 50% 50%, ${baseColor} 0%, rgba(255, 255, 255, 0) 70%)`,
+          animation: 'pulse 15s infinite alternate'
         }}
-      ></div>
+      />
+      
+      {/* Animated floating blobs in the background */}
+      <div 
+        className="absolute -top-[30%] -left-[10%] w-[70%] h-[70%] rounded-full opacity-20"
+        style={{
+          background: `radial-gradient(circle at center, ${baseColor} 0%, rgba(255, 255, 255, 0) 70%)`,
+          animation: 'float 20s infinite alternate ease-in-out'
+        }}
+      />
+      
+      <div 
+        className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] rounded-full opacity-15"
+        style={{
+          background: `radial-gradient(circle at center, ${baseColor} 0%, rgba(255, 255, 255, 0) 70%)`,
+          animation: 'float 25s infinite alternate-reverse ease-in-out'
+        }}
+      />
+      
+      {/* Dynamic mesh grid pattern for texture */}
+      <div 
+        className="absolute inset-0 opacity-5"
+        style={{
+          backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(0, 0, 0, 0.3) 25%, rgba(0, 0, 0, 0.3) 26%, transparent 27%, transparent 74%, rgba(0, 0, 0, 0.3) 75%, rgba(0, 0, 0, 0.3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(0, 0, 0, 0.3) 25%, rgba(0, 0, 0, 0.3) 26%, transparent 27%, transparent 74%, rgba(0, 0, 0, 0.3) 75%, rgba(0, 0, 0, 0.3) 76%, transparent 77%, transparent)',
+          backgroundSize: '50px 50px'
+        }}
+      />
+      
+      {/* Add some custom animation styles */}
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 0.9;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.5;
+            transform: scale(1.05);
+          }
+        }
+        
+        @keyframes float {
+          0% {
+            transform: translate(0, 0);
+          }
+          50% {
+            transform: translate(5%, 5%);
+          }
+          100% {
+            transform: translate(-5%, -5%);
+          }
+        }
+      `}</style>
     </div>
   );
 };

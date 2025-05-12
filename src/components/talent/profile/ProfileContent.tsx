@@ -6,7 +6,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
-import DaoInsightsSection from './components/dao/DaoInsightsSection';
+import OnchainActivitySection from './components/dao/DaoInsightsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -133,9 +133,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 </div>
               )}
               
-              {/* DAO Insights Section */}
+              {/* Onchain Activity Section (previously DAO Insights) */}
               <div className="mt-6">
-                <DaoInsightsSection walletAddress={passport.owner_address} />
+                <OnchainActivitySection walletAddress={passport.owner_address} />
               </div>
             </div>
           </div>
@@ -150,7 +150,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
 export default ProfileContent;
 
 const ProfileTimeoutError: React.FC<{ ensNameOrAddress?: string }> = ({ ensNameOrAddress }) => (
-  <div className="min-h-screen bg-gray-50 py-4 md:py-8">
+  <div className="min-h-screen bg-white py-4 md:py-8">
     <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
       <HeaderContainer>
         <div className="flex flex-col items-center justify-center h-full text-center">

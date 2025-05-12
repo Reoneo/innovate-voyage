@@ -66,7 +66,11 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             className="text-white hover:text-gray-300 transition-colors" 
             aria-label="XMTP Messages"
           >
-            <MessageSquare className="h-6 w-6" />
+            <img 
+              src="https://github.com/xmtp/brand/blob/main/assets/x-mark-red.png?raw=true" 
+              alt="XMTP" 
+              className="h-6 w-6" 
+            />
           </button>
         </form>
       </div>
