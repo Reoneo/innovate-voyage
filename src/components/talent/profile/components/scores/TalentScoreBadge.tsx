@@ -1,44 +1,42 @@
 
 import React from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { getBuilderTitle } from './utils/scoreUtils';
-import { ScoreBadgeProps } from './types';
+import { Card, CardContent } from "@/components/ui/card";
+import { Dices, BadgeCheck } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TalentScoreBadgeProps } from './types';
 
-interface TalentScoreBadgeProps extends ScoreBadgeProps {
-  score: number | null;
-  talentId?: string;
-}
-
-const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, isLoading, talentId }) => {
-  if (isLoading) {
-    return <Skeleton className="h-28 w-full" />;
-  }
-
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    }
-    
-    // Open Talent Protocol in new tab if talentId is provided
-    if (talentId) {
-      window.open(`https://app.talentprotocol.com/${talentId}`, '_blank');
-    }
-  };
-
+const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ 
+  score,
+  isLoading
+}) => {
   return (
-    <div onClick={handleClick} className="cursor-pointer transition-all hover:opacity-80">
-      <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black h-full">
-        <div className="flex items-center justify-center w-full">
-          <div className="text-white text-lg font-semibold">Builder Score</div>
+    <Card className="cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm bg-white">
+      <CardContent className="p-4 flex justify-between items-center">
+        <div className="flex flex-col gap-1">
+          <div className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+            <BadgeCheck className="h-4 w-4 text-primary" />
+            <span>Talent Score</span>
+          </div>
+          
+          {isLoading ? (
+            <Skeleton className="h-8 w-20" />
+          ) : (
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-bold">
+                {score !== null && score !== undefined ? score : 'N/A'}
+              </span>
+              <span className="text-xs text-muted-foreground">/ 100</span>
+            </div>
+          )}
+          
+          <p className="text-xs text-muted-foreground">Based on skills & contributions</p>
         </div>
-        <div className="text-center w-full mt-2">
-          <div className="text-3xl font-bold text-white">{score || 'N/A'}</div>
-          <p className="text-sm text-white/80">
-            {score ? getBuilderTitle(score) : 'Unknown Level'}
-          </p>
+        
+        <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
+          <Dices className="h-6 w-6 text-primary" />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

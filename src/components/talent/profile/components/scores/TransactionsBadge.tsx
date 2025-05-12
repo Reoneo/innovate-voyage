@@ -1,88 +1,46 @@
 
-import React, { useEffect, useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ScoreBadgeProps } from './types';
-import { fetchUserNfts } from '@/api/services/openseaService';
-import { Badge } from '@/components/ui/badge';
-import { ProfileDialog } from '@/components/profile/Profile';
+import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { WalletCards, ExternalLink } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TransactionsBadgeProps } from './types';
 
-interface TransactionsBadgeProps extends ScoreBadgeProps {
-  txCount: number | null;
-  walletAddress: string;
-}
-
-const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, onClick, isLoading }) => {
-  const [nftCount, setNftCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [showProfile, setShowProfile] = useState(false);
-  
-  // This is a mock UUID - in a real app you would map walletAddress to actual user UUIDs
-  const mockUserId = '11111111-1111-1111-1111-111111111111';
-
-  useEffect(() => {
-    if (!walletAddress) return;
-
-    const getNftCount = async () => {
-      try {
-        const collections = await fetchUserNfts(walletAddress);
-        const totalNfts = collections.reduce((total, collection) => total + collection.nfts.length, 0);
-        setNftCount(totalNfts);
-      } catch (error) {
-        console.error("Error fetching NFT count:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getNftCount();
-  }, [walletAddress]);
-
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    } else {
-      setShowProfile(true);
-    }
-  };
-
-  if (isLoading || loading) {
-    return <Skeleton className="h-28 w-full" />;
-  }
-
+const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ 
+  txCount, 
+  walletAddress,
+  isLoading
+}) => {
   return (
-    <>
-      <div onClick={handleClick} className="cursor-pointer transition-all hover:opacity-80">
-        <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-white shadow-md border border-gray-200 h-full">
-          <div className="flex items-center justify-center w-full">
-            {/* NFT Collection text removed */}
+    <Card className="cursor-pointer hover:shadow-md transition-shadow border-0 shadow-sm bg-white">
+      <CardContent className="p-4 flex justify-between items-center">
+        <div className="flex flex-col gap-1">
+          <div className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+            <WalletCards className="h-4 w-4 text-primary" />
+            <span>NFTs</span>
           </div>
-          <div className="text-center relative flex items-center justify-center w-full mt-2">
-            <div className="relative">
-              <img 
-                src="https://cdn-icons-png.flaticon.com/512/6699/6699362.png" 
-                alt="NFT Collection" 
-                className="h-24 w-24" 
-              />
-              {nftCount !== null && nftCount > 0 && (
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-2"
-                >
-                  {nftCount > 99 ? '99+' : nftCount}
-                </Badge>
-              )}
+          
+          {isLoading ? (
+            <Skeleton className="h-8 w-20" />
+          ) : (
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-bold">
+                {txCount || 'View'}
+              </span>
+              <span className="text-xs text-muted-foreground">Collections</span>
             </div>
-          </div>
+          )}
+          
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <span>Click to see collection</span>
+            <ExternalLink className="h-3 w-3" />
+          </p>
         </div>
-      </div>
-      
-      {/* Profile Dialog */}
-      <ProfileDialog 
-        userId={mockUserId} 
-        open={showProfile} 
-        onOpenChange={setShowProfile} 
-      />
-    </>
+        
+        <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
+          <WalletCards className="h-6 w-6 text-primary" />
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

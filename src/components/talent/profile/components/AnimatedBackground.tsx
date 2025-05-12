@@ -28,13 +28,23 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ avatarUrl, isLo
           if (ctx) {
             ctx.drawImage(img, 0, 0, img.width, img.height);
             
-            // Get pixel data from the center of the image
+            // Get pixel data from several locations for better color averaging
             const centerX = Math.floor(img.width / 2);
             const centerY = Math.floor(img.height / 2);
-            const pixelData = ctx.getImageData(centerX, centerY, 1, 1).data;
+            const sideRadius = Math.floor(img.width / 4);
             
-            // Use the pixel color with reduced opacity
-            const color = `rgba(${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]}, 0.08)`;
+            // Sample from multiple areas to get better color representation
+            const pixelData1 = ctx.getImageData(centerX, centerY, 1, 1).data;
+            const pixelData2 = ctx.getImageData(centerX - sideRadius, centerY, 1, 1).data;
+            const pixelData3 = ctx.getImageData(centerX + sideRadius, centerY, 1, 1).data;
+            
+            // Average the colors for a more representative color
+            const avgR = Math.floor((pixelData1[0] + pixelData2[0] + pixelData3[0]) / 3);
+            const avgG = Math.floor((pixelData1[1] + pixelData2[1] + pixelData3[1]) / 3);
+            const avgB = Math.floor((pixelData1[2] + pixelData2[2] + pixelData3[2]) / 3);
+            
+            // Use the pixel color with reduced opacity for better visual
+            const color = `rgba(${avgR}, ${avgG}, ${avgB}, 0.08)`;
             setDominantColor(color);
           }
         } catch (error) {
@@ -100,9 +110,8 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ avatarUrl, isLo
         }}
       />
       
-      {/* Add some custom animation styles */}
-      <style>
-        {`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes pulse {
           0%, 100% {
             opacity: 0.9;
@@ -125,8 +134,8 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ avatarUrl, isLo
             transform: translate(-5%, -5%);
           }
         }
-      `}
-      </style>
+      `
+      }} />
     </div>
   );
 };

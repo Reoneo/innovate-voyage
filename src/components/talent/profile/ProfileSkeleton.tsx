@@ -4,8 +4,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const ProfileSkeleton: React.FC = () => {
   return (
-    <div className="container mx-auto px-4 pt-16 bg-white">
-      <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
+    <div className="w-full max-w-6xl mx-auto bg-white">
+      <div className="flex flex-col md:flex-row gap-8">
         {/* Left column */}
         <div className="w-full md:w-1/3 space-y-6">
           {/* Avatar and name */}
