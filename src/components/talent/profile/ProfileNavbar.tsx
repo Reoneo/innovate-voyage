@@ -34,7 +34,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-600/20 shadow-md bg-gray-800/30">
+    <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-600/20 shadow-sm bg-gray-800/30">
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between h-14">
         {/* Search form with Home and Chat icons positioned next to it */}
         <form onSubmit={handleSearch} className="flex-1 flex items-center justify-center gap-2">
@@ -49,17 +49,13 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               placeholder="Search ENS username..." 
               value={search} 
               onChange={e => setSearch(e.target.value)} 
-              className="pl-10 pr-4 py-2 w-full bg-white/85 border-[#4C6EF5] text-gray-900 rounded-full focus:ring-[#4C6EF5] focus:border-[#4C6EF5] shadow-[0_2px_6px_rgba(76,110,245,0.25)] transition-all duration-200 text-sm font-medium placeholder:text-gray-600" 
-              style={{
-                backdropFilter: 'blur(5px)',
-                WebkitBackdropFilter: 'blur(5px)',
-              }}
+              className="pl-10 pr-4 py-2 w-full bg-gray-700/30 border-gray-600/30 text-white rounded-full focus:ring-white focus:border-white" 
             />
             <Button 
               type="submit" 
               variant="ghost" 
               size="sm" 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#4C6EF5] hover:text-[#3355dd] px-3 py-1 font-medium"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 px-3 py-1"
             >
               Search
             </Button>
