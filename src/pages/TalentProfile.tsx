@@ -67,10 +67,10 @@ const TalentProfile = () => {
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container px-1 sm:px-4 relative z-10">
+        <div className="container px-4 relative z-10 py-4">
           {loading ? (
-            /* Show skeleton while loading - now with proper padding */
-            <div className="pt-16">
+            /* Show skeleton while loading with equal spacing */
+            <div className="pt-4">
               <ProfileSkeleton />
             </div>
           ) : (

@@ -13,14 +13,14 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({ children }) => {
       width: '100%',
       maxWidth: '21cm', /* A4 width */
       margin: '0 auto',
-      marginTop: '16px', /* Add margin top to prevent covering navbar */
-      marginBottom: '16px', /* Add margin bottom for consistency */
+      marginTop: '1rem', /* Equal spacing on all sides - 16px */
+      marginBottom: '1rem', /* Equal spacing on all sides - 16px */
       padding: 0,
       overflow: 'auto',
       border: '1px solid #f0f0f0',
       borderRadius: '8px',
     }}>
-      <CardContent className="p-6 md:p-8 print:p-4 h-full">
+      <CardContent className="p-4 md:p-6 print:p-4 h-full">
         {children}
       </CardContent>
     </Card>

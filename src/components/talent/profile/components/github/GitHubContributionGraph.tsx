@@ -27,7 +27,7 @@ export default function GitHubContributionGraph({
     return null;
   }
 
-  // Custom theme matching the existing dark theme with more compact colors
+  // Custom theme matching the existing dark theme with more contrast
   const theme = {
     dark: [
       '#161b22', // level0: Empty cells
@@ -98,7 +98,7 @@ export default function GitHubContributionGraph({
                   blockSize={7}
                   blockMargin={1.5}
                   blockRadius={1}
-                  fontSize={7}
+                  fontSize={8}
                   transformData={transformData}
                   labels={{
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
