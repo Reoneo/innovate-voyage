@@ -60,6 +60,18 @@ export default function GitHubContributionGraph({
     }
   }, [totalContributions, stats.total]);
 
+  // Custom styles for month and weekday labels to ensure they're white
+  const customStyles = `
+    .react-github-calendar__weekday {
+      color: white !important;
+      fill: white !important;
+    }
+    .react-github-calendar__month {
+      color: white !important;
+      fill: white !important;
+    }
+  `;
+
   return (
     <div className="w-full overflow-hidden">
       <GitHubLoadingState loading={loading} error={error} />
@@ -68,6 +80,9 @@ export default function GitHubContributionGraph({
       
       {!loading && !error && username && (
         <div className="github-calendar-wrapper px-1 py-1">
+          {/* Apply custom styles for white text */}
+          <style>{customStyles}</style>
+          
           {/* Modified header with Github Activity text */}
           <div className="bg-gray-800/50 rounded-md p-1 mb-2 flex items-center justify-center">
             <div className="text-sm font-semibold text-white">
@@ -78,7 +93,7 @@ export default function GitHubContributionGraph({
             </div>
           </div>
           
-          {/* GitHub Calendar with white text labels as requested */}
+          {/* GitHub Calendar with white text labels */}
           <div className="calendar-container" style={{ 
             minHeight: '70px',
             maxHeight: '90px',
@@ -105,6 +120,10 @@ export default function GitHubContributionGraph({
                     weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
                     totalCount: '{{count}} contributions'
                   }}
+                  style={{
+                    color: 'white', // Add text color to ensure visibility
+                  }}
+                  className="github-contribution-calendar"
                 />
               </div>
             )}

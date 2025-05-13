@@ -14,7 +14,7 @@ interface TalentScoreBannerProps {
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'talent' | 'security' | 'transactions'>('talent');
-  const { talentScore, securityScore, transactionsScore, loading } = useScoresData(walletAddress);
+  const { score: talentScore, txCount: transactionsScore, securityScore, loading } = useScoresData(walletAddress);
 
   if (loading) {
     return (
@@ -49,11 +49,11 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
               onClick={() => handleOpenDialog('talent')} 
             />
             <SecurityScoreBadge 
-              score={securityScore} 
+              securityScore={securityScore} 
               onClick={() => handleOpenDialog('security')} 
             />
             <TransactionsBadge 
-              score={transactionsScore} 
+              txCount={transactionsScore} 
               onClick={() => handleOpenDialog('transactions')} 
             />
           </div>
