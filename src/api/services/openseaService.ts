@@ -1,15 +1,19 @@
-
 export interface OpenSeaNft {
-  id: string;
-  name: string;
-  imageUrl: string;
-  collectionName: string;
+  tokenId: string;
+  name?: string;
   description?: string;
-  currentPrice?: string;
-  bestOffer?: string;
-  owner?: string;
-  chain?: string;
-  count?: number; // Added count property
+  imageUrl?: string;
+  animationUrl?: string;
+  collectionName: string;
+  collectionUrl?: string;
+  contractAddress?: string;
+  rarityRank?: number | null;
+  tokenType?: string;
+  permalink?: string;
+  traits?: Array<{ trait_type: string; value: string }>;
+  isAd?: boolean; // Flag to mark advertisement NFTs
+  adUrl?: string; // URL for advertisement NFTs
+  count?: number; // For grouped NFTs
 }
 
 interface OpenSeaCollection {
@@ -108,7 +112,7 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
       }
       
       collections[collectionName].nfts.push({
-        id: nft.identifier,
+        tokenId: nft.identifier,
         name: nft.name || `#${nft.identifier}`,
         imageUrl: nft.image_url,
         collectionName,
@@ -125,7 +129,7 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
       collections['3dns powered domains'] = {
         nfts: [
           {
-            id: '3dns-sample',
+            tokenId: '3dns-sample',
             name: 'Sample 3DNS Domain',
             imageUrl: 'https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2',
             collectionName: '3dns powered domains',
