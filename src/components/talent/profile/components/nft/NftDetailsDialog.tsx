@@ -14,12 +14,7 @@ interface NftDetailsDialogProps {
 const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpenProfile }) => {
   const handleProfileClick = () => {
     if (onOpenProfile && nft.owner) {
-      // Convert the owner object to a string representation for the profile
-      const ownerName = typeof nft.owner === 'object' ? 
-        nft.owner.display_name || nft.owner.username || nft.owner.address || 'Unknown Owner' : 
-        String(nft.owner);
-      
-      onOpenProfile(ownerName);
+      onOpenProfile(nft.owner);
       onClose();
     }
   };
@@ -55,11 +50,6 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
     }
   };
 
-  // Use image_url with fallback to imageUrl for compatibility
-  const imageSource = nft.image_url || nft.imageUrl;
-  // Use collection_name with fallback to collectionName for compatibility
-  const collectionName = nft.collection_name || nft.collectionName;
-
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl bg-white text-gray-800 border border-gray-200 shadow-lg">
@@ -78,7 +68,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
           <div className="flex justify-center">
             <div className="rounded-md overflow-hidden w-full aspect-square bg-gray-50">
               <img 
-                src={imageSource} 
+                src={nft.imageUrl} 
                 alt={nft.name}
                 className="w-full h-full object-contain"
               />
@@ -88,7 +78,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="text-sm font-medium text-gray-700">Collection</h3>
-              <p className="text-gray-900">{collectionName}</p>
+              <p className="text-gray-900">{nft.collectionName}</p>
             </div>
             
             <div className="bg-gray-50 p-4 rounded-lg flex items-center gap-2">
@@ -111,14 +101,14 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
               {nft.bestOffer && (
                 <div className="flex-1 bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-sm font-medium text-gray-700">Best Offer</h3>
-                  <p>{typeof nft.bestOffer === 'object' ? `${nft.bestOffer.amount} ${nft.bestOffer.currency}` : nft.bestOffer}</p>
+                  <p>{nft.bestOffer} ETH</p>
                 </div>
               )}
               
               {nft.currentPrice && (
                 <div className="flex-1 bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-sm font-medium text-gray-700">Current Price</h3>
-                  <p>{typeof nft.currentPrice === 'object' ? `${nft.currentPrice.amount} ${nft.currentPrice.currency}` : nft.currentPrice}</p>
+                  <p>{nft.currentPrice} ETH</p>
                 </div>
               )}
             </div>
@@ -131,9 +121,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
                   className="text-primary p-0 h-auto font-normal hover:text-primary/80"
                   onClick={handleProfileClick}
                 >
-                  {typeof nft.owner === 'object' ? 
-                    (nft.owner.display_name || nft.owner.username || nft.owner.address) : 
-                    String(nft.owner)}
+                  {nft.owner}
                 </Button>
               </div>
             )}

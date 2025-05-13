@@ -15,19 +15,16 @@ const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
 
   // Show count badge if NFT count is more than 1
   const showCountBadge = nft.count && nft.count > 1;
-  
-  // Use image_url with fallback to imageUrl for compatibility
-  const imageSource = nft.image_url || nft.imageUrl;
 
   return (
     <div 
       className="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 cursor-pointer transition-all hover:scale-105"
       onClick={handleClick}
     >
-      {imageSource ? (
+      {nft.imageUrl ? (
         <div className="relative h-full w-full">
           <img 
-            src={imageSource} 
+            src={nft.imageUrl} 
             alt={nft.name || "NFT"} 
             className="h-full w-full object-cover transition-opacity group-hover:opacity-90"
             loading="lazy"

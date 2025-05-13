@@ -11,7 +11,7 @@ interface NftGridProps {
 const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick }) => {
   // Combine NFTs by ID for display with count
   const groupedNfts = nfts.reduce<Record<string, OpenSeaNft & { count?: number }>>((acc, nft) => {
-    const key = `${nft.id}-${nft.collection_name || nft.collectionName}`;
+    const key = `${nft.id}-${nft.collectionName}`;
     
     if (acc[key]) {
       acc[key].count = (acc[key].count || 1) + 1;
@@ -28,7 +28,7 @@ const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick }) => {
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {uniqueNfts.map((nft) => (
         <NftItem 
-          key={`${nft.id}-${nft.collection_name || nft.collectionName}`} 
+          key={`${nft.id}-${nft.collectionName}`} 
           nft={nft} 
           onClick={onNftClick} 
         />

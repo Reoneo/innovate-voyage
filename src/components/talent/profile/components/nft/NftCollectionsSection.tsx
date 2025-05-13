@@ -20,7 +20,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
 }) => {
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | '3dns' | 'all'>('all');
+  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
   const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
 
   useEffect(() => {
@@ -57,11 +57,6 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     window.location.href = `/${name.toLowerCase()}/`;
   };
 
-  // Type-safe setter function for selectedType
-  const handleTypeChange = (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all') => {
-    setSelectedType(type);
-  };
-
   return (
     <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
@@ -71,8 +66,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
               <h2 className="text-lg font-semibold text-gray-900">
                 {selectedType === 'all' ? 'All Collections' : 
                  selectedType === 'ethereum' ? 'NFT Collections' :
-                 selectedType === 'ens' ? 'ENS Collection' : 
-                 selectedType === '3dns' ? '3DNS Collection' : 'POAP Collection'}
+                 selectedType === 'ens' ? 'ENS Collection' : 'POAP Collection'}
               </h2>
             </DialogHeader>
             <Button
@@ -90,7 +84,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
               collections={collections}
               loading={loading}
               selectedType={selectedType}
-              setSelectedType={handleTypeChange}
+              setSelectedType={setSelectedType}
               onNftClick={handleNftClick}
             />
           </div>

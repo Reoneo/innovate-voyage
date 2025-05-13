@@ -206,12 +206,9 @@
 /* All text in GitHub calendar components should be white */
 .github-calendar-wrapper text,
 .github-calendar-wrapper .text-sm,
-.github-calendar-wrapper .text-xs,
-.react-activity-calendar text,
-.react-github-calendar text {
+.github-calendar-wrapper .text-xs {
   color: #ffffff !important;
   fill: #ffffff !important;
-  font-weight: 500;
 }
 
 /* Animation for the gradient background */
@@ -239,35 +236,4 @@
 .profile-container {
   position: relative;
   z-index: 10;
-}
-
-/* Animated gradient background */
-.animated-gradient-background {
-  background: linear-gradient(-45deg, #eee8d5, #93a1a1, #4C6EF5, #fd8f8f, #a9a9a9);
-  background-size: 400% 400%;
-  animation: gradient-animation 20s ease infinite;
-}
-
-/* Enhanced search bar styling */
-.enhanced-search-bar {
-  background-color: rgba(255, 255, 255, 0.85);
-  border: 2px solid #4C6EF5;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.enhanced-search-bar:focus {
-  box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.3);
-  background-color: rgba(255, 255, 255, 0.95);
-}
-
-.enhanced-search-bar::placeholder {
-  color: #333;
-  font-size: 1.05rem;
-}
-
-/* Equal padding for consistent layout */
-.equal-padding-container {
-  padding: 1rem;
 }
