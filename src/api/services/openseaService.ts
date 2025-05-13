@@ -1,5 +1,7 @@
+
 export interface OpenSeaNft {
   tokenId: string;
+  id?: string; // Adding missing property
   name?: string;
   description?: string;
   imageUrl?: string;
@@ -14,6 +16,10 @@ export interface OpenSeaNft {
   isAd?: boolean; // Flag to mark advertisement NFTs
   adUrl?: string; // URL for advertisement NFTs
   count?: number; // For grouped NFTs
+  owner?: string; // Adding missing property
+  bestOffer?: string | number; // Adding missing property
+  currentPrice?: string | number; // Adding missing property
+  chain?: string; // Adding missing property
 }
 
 interface OpenSeaCollection {
@@ -113,6 +119,7 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
       
       collections[collectionName].nfts.push({
         tokenId: nft.identifier,
+        id: nft.identifier, // Adding id as a copy of tokenId for compatibility
         name: nft.name || `#${nft.identifier}`,
         imageUrl: nft.image_url,
         collectionName,
@@ -130,10 +137,12 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
         nfts: [
           {
             tokenId: '3dns-sample',
+            id: '3dns-sample', // Add id property for compatibility
             name: 'Sample 3DNS Domain',
             imageUrl: 'https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2',
             collectionName: '3dns powered domains',
-            description: '3DNS domain for decentralized identity'
+            description: '3DNS domain for decentralized identity',
+            chain: '3dns' // Add chain property for compatibility
           }
         ],
         type: '3dns'
