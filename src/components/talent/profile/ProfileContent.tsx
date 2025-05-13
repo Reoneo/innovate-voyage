@@ -103,7 +103,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   const showGitHubSection = !!githubUsername;
 
   return (
-    <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
+    <div ref={profileRef} id="resume-pdf" className="w-full pt-10">
       {loading && !loadingTimeout ? (
         <ProfileSkeleton />
       ) : passport ? (

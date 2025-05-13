@@ -69,7 +69,7 @@ export default function GitHubContributionGraph({
       {!loading && !error && username && (
         <div className="github-calendar-wrapper px-1 py-1">
           {/* Modified header with Github Activity text */}
-          <div className="bg-gray-800/50 rounded-md p-1 mb-2 flex items-center justify-center">
+          <div className="bg-gray-800/80 rounded-md p-1 mb-2 flex items-center justify-center">
             <div className="text-sm font-semibold text-white">
               <span className="text-base font-bold">GitHub Activity: </span>
               <span className="text-base font-bold text-green-400" id="contribution-count-banner">
@@ -84,7 +84,8 @@ export default function GitHubContributionGraph({
             maxHeight: '90px',
             overflow: 'auto',
             padding: '0',
-            margin: '0'
+            margin: '0',
+            backgroundColor: '#0d1117'
           }}>
             {username && (
               <div className="w-full min-w-[650px]">
@@ -109,11 +110,8 @@ export default function GitHubContributionGraph({
               </div>
             )}
           </div>
-          
-          {/* More compact legend */}
-          <GitHubContributionLegend />
         </div>
       )}
     </div>
   );
-}
+};
