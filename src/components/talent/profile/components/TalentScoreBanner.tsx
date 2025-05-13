@@ -1,71 +1,69 @@
 
 import React, { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import TalentScoreBadge from './scores/TalentScoreBadge';
+import SecurityScoreBadge from './scores/SecurityScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
-import { NftCollectionsSection } from './nft/NftCollectionsSection';
 
 interface TalentScoreBannerProps {
   walletAddress: string;
 }
 
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
+  const { talentScore, securityScore, transactionData, loading } = useScoresData(walletAddress);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<'talent' | 'transactions'>('talent');
-  const { score, txCount, loading } = useScoresData(walletAddress);
-  const [showNftCollections, setShowNftCollections] = useState(false);
+  const [dialogType, setDialogType] = useState<'talent' | 'security' | 'transactions'>('talent');
+  const [dialogTitle, setDialogTitle] = useState('');
 
-  const handleBadgeClick = (type: 'talent' | 'transactions') => {
-    setActiveDialog(type);
+  const openDialog = (type: 'talent' | 'security' | 'transactions', title: string) => {
+    setDialogType(type);
+    setDialogTitle(title);
     setDialogOpen(true);
   };
 
-  const handleNftButtonClick = () => {
-    setShowNftCollections(true);
-  };
-
-  if (!walletAddress) return null;
-
-  // Only show scores if data is available
-  const showTalentScore = score !== null && score !== undefined;
-
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {showTalentScore && (
+    <Card className="flex flex-col md:flex-row items-center justify-between p-4 bg-white/90 backdrop-blur-sm shadow-md rounded-lg">
+      <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 w-full">
+        {/* Talent Score */}
+        <div className="w-full md:w-1/3 h-28 p-2">
           <TalentScoreBadge 
-            score={score} 
-            onClick={() => handleBadgeClick('talent')}
-            isLoading={loading} 
+            score={talentScore.score} 
+            loading={loading}
+            onClick={() => openDialog('talent', 'Talent Score')}
           />
-        )}
-        <TransactionsBadge 
-          txCount={txCount}
-          walletAddress={walletAddress}
-          onClick={handleNftButtonClick}
-          isLoading={loading} 
-        />
+        </div>
+        
+        {/* Security Score */}
+        <div className="w-full md:w-1/3 h-28 p-2">
+          <SecurityScoreBadge 
+            score={securityScore.score} 
+            loading={loading}
+            onClick={() => openDialog('security', 'Security Score')}
+          />
+        </div>
+        
+        {/* Transaction History */}
+        <div className="w-full md:w-1/3 h-28 p-2">
+          <TransactionsBadge 
+            txCount={transactionData.txCount} 
+            walletAddress={walletAddress}
+            loading={loading}
+            onClick={() => openDialog('transactions', 'Transaction History')}
+          />
+        </div>
       </div>
 
-      <NftCollectionsSection 
-        walletAddress={walletAddress} 
-        showCollections={showNftCollections} 
-        onOpenChange={setShowNftCollections}
+      <ScoreDialog
+        title={dialogTitle}
+        open={dialogOpen}
+        setOpen={setDialogOpen}
+        type={dialogType}
+        scoreProps={{ walletAddress }}
       />
-
-      <ScoreDialog 
-        open={dialogOpen} 
-        onOpenChange={setDialogOpen}
-        type={activeDialog}
-        data={{
-          score,
-          webacyData: null,
-          txCount,
-          walletAddress
-        }}
-      />
-    </>
+    </Card>
   );
 };
 
