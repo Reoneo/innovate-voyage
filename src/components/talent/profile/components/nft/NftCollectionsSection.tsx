@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { fetchUserNfts, type OpenSeaNft } from '@/api/services/openseaService';
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
@@ -12,9 +13,6 @@ interface NftCollectionsSectionProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-// Define collection type
-type CollectionType = 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all';
-
 export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ 
   walletAddress, 
   showCollections = false,
@@ -22,7 +20,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
 }) => {
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<CollectionType>('all');
+  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
   const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
 
   useEffect(() => {
@@ -32,49 +30,6 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
       setLoading(true);
       try {
         const nftCollections = await fetchUserNfts(walletAddress);
-        
-        // Add an advertisement NFT at the end
-        const hasXBoxAdNft = nftCollections.some(collection => 
-          collection.name === '3DNS Domains' && 
-          collection.nfts.some(nft => nft.name === 'x.box')
-        );
-        
-        if (!hasXBoxAdNft) {
-          // Find or create 3DNS collection
-          let dnsCollection = nftCollections.find(c => c.name === '3DNS Domains');
-          if (!dnsCollection) {
-            dnsCollection = {
-              name: '3DNS Domains',
-              type: '3dns',
-              nfts: []
-            };
-            nftCollections.push(dnsCollection);
-          }
-          
-          // Add x.box advertisement NFT
-          dnsCollection.nfts.push({
-            tokenId: 'ad-xbox',
-            name: 'x.box',
-            description: 'Reserved 3DNS domain - Advertised',
-            imageUrl: 'https://cdn-icons-png.flaticon.com/512/6699/6699362.png',
-            collectionName: '3DNS Domains',
-            contractAddress: '0x',
-            rarityRank: null,
-            traits: [],
-            isAd: true,
-            adUrl: 'https://my.box/?ref=aqdql6'
-          });
-        }
-        
-        // Ensure ENS collection links to https://ens.domains/
-        const ensCollection = nftCollections.find(c => c.name === 'ENS Domains');
-        if (ensCollection) {
-          ensCollection.nfts = ensCollection.nfts.map(nft => ({
-            ...nft,
-            collectionUrl: 'https://ens.domains/'
-          }));
-        }
-        
         setCollections(nftCollections);
       } catch (error) {
         console.error('Error loading NFTs:', error);
@@ -90,13 +45,6 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
 
   // Handle NFT click to show details
   const handleNftClick = (nft: OpenSeaNft) => {
-    // If it's an ad NFT, open the ad URL in a new tab
-    if (nft.isAd && nft.adUrl) {
-      window.open(nft.adUrl, '_blank');
-      return;
-    }
-    
-    // Otherwise show the details dialog
     setSelectedNft(nft);
   };
 
@@ -118,9 +66,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
               <h2 className="text-lg font-semibold text-gray-900">
                 {selectedType === 'all' ? 'All Collections' : 
                  selectedType === 'ethereum' ? 'NFT Collections' :
-                 selectedType === 'base' ? 'Base Names' :
-                 selectedType === 'ens' ? 'ENS Collection' : 
-                 selectedType === 'poap' ? 'POAP Collection' : '3DNS Collection'}
+                 selectedType === 'ens' ? 'ENS Collection' : 'POAP Collection'}
               </h2>
             </DialogHeader>
             <Button

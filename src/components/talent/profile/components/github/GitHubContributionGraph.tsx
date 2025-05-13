@@ -27,14 +27,14 @@ export default function GitHubContributionGraph({
     return null;
   }
 
-  // Custom theme matching the existing dark theme with more contrast for better visibility
+  // Custom theme matching the existing dark theme with more compact colors
   const theme = {
     dark: [
       '#161b22', // level0: Empty cells
-      '#116d45', // level1: Light activity (brighter)
-      '#00a550', // level2: Medium activity (brighter)
-      '#2ae66e', // level3: High activity (brighter)
-      '#6fff9b'  // level4: Very high activity (brighter)
+      '#0e4429', // level1: Light activity
+      '#006d32', // level2: Medium activity
+      '#26a641', // level3: High activity
+      '#39d353'  // level4: Very high activity
     ]
   };
 
@@ -68,8 +68,8 @@ export default function GitHubContributionGraph({
       
       {!loading && !error && username && (
         <div className="github-calendar-wrapper px-1 py-1">
-          {/* Modified header with Github Activity text - removed TalentProtocol branding */}
-          <div className="bg-gray-800/70 rounded-md p-2 mb-2 flex items-center justify-center">
+          {/* Modified header with Github Activity text */}
+          <div className="bg-gray-800/50 rounded-md p-1 mb-2 flex items-center justify-center">
             <div className="text-sm font-semibold text-white">
               <span className="text-base font-bold">GitHub Activity: </span>
               <span className="text-base font-bold text-green-400" id="contribution-count-banner">
@@ -78,11 +78,12 @@ export default function GitHubContributionGraph({
             </div>
           </div>
           
-          {/* GitHub Calendar with improved visibility */}
-          <div className="calendar-container bg-gray-800/30 p-3 rounded-md" style={{ 
-            minHeight: '90px',
-            maxHeight: '110px',
+          {/* GitHub Calendar with white text labels as requested */}
+          <div className="calendar-container" style={{ 
+            minHeight: '70px',
+            maxHeight: '90px',
             overflow: 'auto',
+            padding: '0',
             margin: '0'
           }}>
             {username && (
@@ -94,10 +95,10 @@ export default function GitHubContributionGraph({
                   hideColorLegend={true}
                   hideMonthLabels={false}
                   showWeekdayLabels={true}
-                  blockSize={8}       // Increased from 7 for better visibility
-                  blockMargin={2}     // Increased from 1.5 for better visibility
-                  blockRadius={2}     // Increased from 1 for better visibility
-                  fontSize={9}        // Increased from 7 for better visibility
+                  blockSize={7}
+                  blockMargin={1.5}
+                  blockRadius={1}
+                  fontSize={7}
                   transformData={transformData}
                   labels={{
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -109,10 +110,8 @@ export default function GitHubContributionGraph({
             )}
           </div>
           
-          {/* Clearer legend with better spacing */}
-          <div className="mt-3 flex justify-end">
-            <GitHubContributionLegend />
-          </div>
+          {/* More compact legend */}
+          <GitHubContributionLegend />
         </div>
       )}
     </div>

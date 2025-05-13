@@ -15,9 +15,6 @@ const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
 
   // Show count badge if NFT count is more than 1
   const showCountBadge = nft.count && nft.count > 1;
-  
-  // Show AD badge if it's an advertisement
-  const showAdBadge = nft.isAd;
 
   return (
     <div 
@@ -40,13 +37,6 @@ const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
           {showCountBadge && (
             <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 text-xs font-bold rounded-full">
               {nft.count}x
-            </div>
-          )}
-          
-          {/* AD badge */}
-          {showAdBadge && (
-            <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs font-bold rounded-sm">
-              AD
             </div>
           )}
         </div>

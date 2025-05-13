@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import TalentScoreBadge from './scores/TalentScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
-import { ScoreDialog } from './scores/ScoreDialog';
+import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
 
