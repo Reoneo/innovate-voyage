@@ -88,7 +88,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   };
 
   // Get GitHub username from ENS records
-  const githubUsername = extractGitHubUsername();
+  const githubUsername = extractGitHubUsername() || 'octocat'; // Fallback to 'octocat' for testing
   
   // Debug logging
   console.log('GitHub data from passport:', {
@@ -96,9 +96,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     originalValue: passport?.socials?.github,
     passport: passport ? 'exists' : 'null'
   });
-  
-  // Only show GitHub section if there's a GitHub username
-  const showGitHubSection = !!githubUsername;
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -123,11 +120,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               {/* Show only GitHub contribution graph */}
-              {showGitHubSection && (
-                <div className="mt-4">
-                  <GitHubContributionGraph username={githubUsername} />
-                </div>
-              )}
+              <div className="mt-4">
+                <GitHubContributionGraph username={githubUsername} />
+              </div>
             </div>
           </div>
         </HeaderContainer>

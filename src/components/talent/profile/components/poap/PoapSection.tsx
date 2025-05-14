@@ -76,9 +76,9 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   return (
     <section>
       <div className="relative flex items-center justify-center">
-        <div className="relative w-full h-[300px] mx-auto">
+        <div className="relative w-full h-[240px] mx-auto">
           {isLoading ? (
-            <Skeleton className="h-[280px] w-[280px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            <Skeleton className="h-[200px] w-[200px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           ) : poaps.length > 0 ? (
             <div className="relative flex items-center justify-center h-full">
               <div 
@@ -94,7 +94,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                 src={currentPoap.event.image_url} 
                 alt={currentPoap.event.name} 
                 onClick={() => handleOpenDetail(currentPoap)}
-                className="w-36 h-36 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[60%] z-10 cursor-pointer" 
+                className="w-36 h-36 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[75%] z-10 cursor-pointer" 
                 style={{
                   objectFit: 'contain',
                 }}

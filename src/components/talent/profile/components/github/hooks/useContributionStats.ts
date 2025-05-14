@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 
-interface ContributionStats {
+export interface ContributionStats {
   total: number;
   currentStreak: number;
   longestStreak: number;
@@ -26,8 +26,8 @@ export function useContributionStats(contributionsData: any) {
       // In a real implementation, we would calculate streaks from the contribution data
       // For this example, we're using placeholder values as actual streak calculation
       // would require daily contribution history
-      const currentStreak = 0;  // Would need API data for accurate calculation
-      const longestStreak = 0;  // Would need API data for accurate calculation
+      const currentStreak = contributionsData.currentStreak || 0;  
+      const longestStreak = contributionsData.longestStreak || 0;  
       
       // Get date range based on current date
       const today = new Date();
@@ -43,7 +43,8 @@ export function useContributionStats(contributionsData: any) {
         });
       };
       
-      const formattedDateRange = `${formatDate(oneYearAgo)} – ${formatDate(today)}`;
+      const formattedDateRange = contributionsData.dateRange || 
+        `${formatDate(oneYearAgo)} – ${formatDate(today)}`;
       
       // Update stats with calculated values
       setStats({

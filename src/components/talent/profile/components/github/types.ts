@@ -7,6 +7,7 @@ export interface ContributionDay {
 
 export interface ContributionData {
   totalContributions: number;
+  contributionCount?: number;
   contributions?: {
     date: string;
     count: number;
