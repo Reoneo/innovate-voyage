@@ -17,21 +17,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   
   try {
-    // For demonstration purposes, just return mock data
-    // In a real implementation, you would fetch actual data from GitHub
-    
-    // Generate random contributions between 100-500
-    const totalContributions = Math.floor(Math.random() * 400) + 100;
-    
-    // Generate random streaks
-    const currentStreak = Math.floor(Math.random() * 10) + 1;
-    const longestStreak = Math.floor(Math.random() * 20) + currentStreak;
-    
+    // Fixed values to match the mockup
     const mockData = {
-      totalContributions,
-      contributionCount: totalContributions,
-      currentStreak,
-      longestStreak,
+      totalContributions: 189,
+      contributionCount: 189,
+      currentStreak: 10,
+      longestStreak: 11,
+      dateRange: 'May 5, 2024 – May 4, 2025',
       user: {
         name: username,
         login: username,

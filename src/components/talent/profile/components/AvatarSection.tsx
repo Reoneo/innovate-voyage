@@ -91,8 +91,8 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       {/* Social Links */}
       <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
       
-      {/* POAP Badge Section */}
-      <div className="mt-4 w-full">
+      {/* POAP Badge Section - Positioned higher in the layout */}
+      <div className="mt-2 w-full">
         <PoapSection walletAddress={ownerAddress} />
       </div>
     </div>

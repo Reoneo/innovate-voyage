@@ -83,12 +83,12 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
       console.error('Error extracting GitHub username:', error);
     }
     
-    console.log('Could not extract GitHub username');
-    return null;
+    console.log('Could not extract GitHub username, using default');
+    return 'octocat'; // Default username when none can be extracted
   };
 
   // Get GitHub username from ENS records
-  const githubUsername = extractGitHubUsername() || 'octocat'; // Fallback to 'octocat' for testing
+  const githubUsername = extractGitHubUsername();
   
   // Debug logging
   console.log('GitHub data from passport:', {
@@ -120,9 +120,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               {/* Show only GitHub contribution graph */}
-              <div className="mt-4">
-                <GitHubContributionGraph username={githubUsername} />
-              </div>
+              <GitHubContributionGraph username={githubUsername || 'octocat'} />
             </div>
           </div>
         </HeaderContainer>
