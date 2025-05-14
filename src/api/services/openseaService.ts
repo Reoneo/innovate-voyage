@@ -10,13 +10,12 @@ export interface OpenSeaNft {
   owner?: string;
   chain?: string;
   count?: number; // Added count property
-  permalink?: string;
 }
 
-export interface OpenSeaCollection {
+interface OpenSeaCollection {
   name: string;
   nfts: OpenSeaNft[];
-  type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base';
+  type: 'ethereum' | 'ens' | 'poap' | '3dns';
 }
 
 const OPENSEA_API_KEY = "33e769a3cf954b15a0d7eddf2b60028e";
@@ -39,7 +38,7 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
     return nftCache.get(cacheKey) || [];
   }
   
-  const collections: { [key: string]: { nfts: OpenSeaNft[], type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' } } = {};
+  const collections: { [key: string]: { nfts: OpenSeaNft[], type: 'ethereum' | 'ens' | 'poap' | '3dns' } } = {};
   
   // Fetch NFTs from multiple chains
   try {
@@ -69,9 +68,7 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
         const data = await response.json();
         return (data.nfts || []).map((nft: any) => ({
           ...nft,
-          chain: chain.id, // Add chain information to each NFT
-          imageUrl: nft.image_url || '', // Normalize imageUrl
-          collectionName: nft.collection?.name || 'Unknown Collection' // Normalize collectionName
+          chain: chain.id // Add chain information to each NFT
         }));
       } catch (err) {
         if (err.name === 'AbortError') {
@@ -94,18 +91,16 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
     
     // Group NFTs by collection
     allNfts.forEach((nft: any) => {
-      const collectionName = nft.collection?.name || 'Uncategorized';
+      const collectionName = nft.collection || 'Uncategorized';
       
       // Determine the type of NFT
-      let type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' = 'ethereum';
+      let type: 'ethereum' | 'ens' | 'poap' | '3dns' = 'ethereum';
       if (collectionName.toLowerCase().includes('ens')) {
         type = 'ens';
       } else if (collectionName.toLowerCase().includes('poap')) {
         type = 'poap';
       } else if (collectionName.toLowerCase().includes('3dns')) {
         type = '3dns';
-      } else if (chain === 'base') {
-        type = 'base';
       }
       
       if (!collections[collectionName]) {
@@ -115,14 +110,13 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
       collections[collectionName].nfts.push({
         id: nft.identifier,
         name: nft.name || `#${nft.identifier}`,
-        imageUrl: nft.image_url || '',
+        imageUrl: nft.image_url,
         collectionName,
         description: nft.description,
         currentPrice: nft.last_sale?.price,
         bestOffer: nft.offers?.[0]?.price,
         owner: nft.owner,
-        chain: nft.chain, // Pass the chain information
-        permalink: nft.permalink
+        chain: nft.chain // Pass the chain information
       });
     });
 
@@ -141,21 +135,6 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
         type: '3dns'
       };
     }
-
-    // Add Base NFTs collection
-    collections['Base NFTs'] = {
-      nfts: [
-        {
-          id: 'base-1',
-          name: 'Base NFT #1',
-          description: 'Base Network NFT',
-          imageUrl: 'https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png',
-          permalink: 'https://opensea.io',
-          collectionName: 'Base NFTs'
-        }
-      ],
-      type: 'base'
-    };
 
     const result = Object.entries(collections).map(([name, data]) => ({
       name,

@@ -4,7 +4,9 @@ import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
+import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
+import TallyInsightsSection from './components/tally/TallyInsightsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -83,8 +85,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
       console.error('Error extracting GitHub username:', error);
     }
     
-    console.log('Could not extract GitHub username, using default');
-    return 'octocat'; // Default username when none can be extracted
+    console.log('Could not extract GitHub username');
+    return null;
   };
 
   // Get GitHub username from ENS records
@@ -96,6 +98,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     originalValue: passport?.socials?.github,
     passport: passport ? 'exists' : 'null'
   });
+  
+  // Only show GitHub section if there's a GitHub username
+  const showGitHubSection = !!githubUsername;
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -119,8 +124,19 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               />
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
-              {/* Show only GitHub contribution graph */}
-              <GitHubContributionGraph username={githubUsername || 'octocat'} />
+              <TalentScoreBanner walletAddress={passport.owner_address} />
+              
+              {/* GitHub contribution graph */}
+              {showGitHubSection && (
+                <div className="mt-4">
+                  <GitHubContributionGraph username={githubUsername!} />
+                </div>
+              )}
+              
+              {/* Tally Insights Section - replacing the DAO section */}
+              <div className="mt-6">
+                <TallyInsightsSection walletAddress={passport.owner_address} />
+              </div>
             </div>
           </div>
         </HeaderContainer>

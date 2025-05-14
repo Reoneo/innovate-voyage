@@ -1,46 +1,80 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { ContributionStats } from './hooks/useContributionStats';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 export function useGitHubContributions(username: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tokenInvalid, setTokenInvalid] = useState(false);
-  const [totalContributions, setTotalContributions] = useState<number | null>(189); // Default value for demo
-  const [stats, setStats] = useState<ContributionStats>({ 
-    total: 189, 
-    currentStreak: 10, 
-    longestStreak: 11,
+  const [totalContributions, setTotalContributions] = useState<number | null>(null);
+  const [stats, setStats] = useState({ 
+    total: 0, 
+    currentStreak: 0, 
+    longestStreak: 0,
     dateRange: 'May 5, 2024 – May 4, 2025'
   });
   
-  // Function to fetch GitHub contribution data
-  const fetchGitHubContributions = useCallback(async (username: string) => {
+  // Function to fetch GitHub contribution data directly from GitHub profile page
+  const fetchGitHubContributions = async (username: string) => {
     if (!username) return null;
     
     try {
-      console.log(`Fetching GitHub contributions for ${username}`);
+      // Directly fetch the GitHub profile page
+      console.log(`Fetching GitHub profile for ${username}`);
+      const response = await fetch(`https://github.com/${username}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch GitHub profile for ${username}`);
+      }
       
-      // For demonstration, use hardcoded data that matches the mockup
-      console.log('Using demonstration GitHub contribution data');
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
       
-      // Use values from the mockup
-      const total = 189;
-      const currentStreak = 10;
-      const longestStreak = 11;
-      const dateRange = 'May 5, 2024 – May 4, 2025';
+      // Find the contribution count element - updated selector for more reliability
+      let total = 0;
       
-      return { 
-        total,
-        currentStreak,
-        longestStreak,
-        dateRange
-      };
+      // Try multiple selectors to find the contribution count
+      // First try the most specific selector
+      const contribHeader = doc.querySelector('h2.f4.text-normal.mb-2');
+      if (contribHeader) {
+        const text = contribHeader.textContent || '';
+        const match = text.match(/(\d+,?\d*) contributions/);
+        if (match && match[1]) {
+          // Remove commas and convert to number
+          total = parseInt(match[1].replace(/,/g, ''), 10);
+          console.log(`Found ${total} contributions via h2 selector`);
+        }
+      }
+      
+      // If that fails, try alternative selectors
+      if (total === 0) {
+        // Try to find contribution count in the overview tab
+        const contributionsElements = doc.querySelectorAll('.js-yearly-contributions h2');
+        for (const el of contributionsElements) {
+          const text = el.textContent || '';
+          const match = text.match(/(\d+,?\d*) contributions/);
+          if (match && match[1]) {
+            total = parseInt(match[1].replace(/,/g, ''), 10);
+            console.log(`Found ${total} contributions via alternative selector`);
+            break;
+          }
+        }
+      }
+      
+      // Update the local state
+      if (total > 0) {
+        setTotalContributions(total);
+        setStats(prev => ({ ...prev, total }));
+        return { total };
+      } else {
+        console.warn(`Could not find contribution count for ${username}`);
+        return null;
+      }
     } catch (err) {
       console.error('Error fetching GitHub contribution data:', err);
       return null;
     }
-  }, []);
+  };
   
   useEffect(() => {
     if (!username) {
@@ -51,59 +85,29 @@ export function useGitHubContributions(username: string) {
 
     setLoading(true);
     
-    // Short timeout to simulate loading state
-    setTimeout(() => {
-      // Fetch contribution data with hardcoded values that match the mockup
-      fetchGitHubContributions(username)
-        .then(contributionData => {
-          console.log(`GitHub data for ${username}:`, contributionData);
-          
-          if (contributionData) {
-            // Use the mockup data
-            setTotalContributions(contributionData.total);
-            setStats({
-              total: contributionData.total,
-              currentStreak: contributionData.currentStreak,
-              longestStreak: contributionData.longestStreak,
-              dateRange: contributionData.dateRange
-            });
-          } else {
-            // Fallback to default mockup data
-            setTotalContributions(189);
-            setStats({ 
-              total: 189,
-              currentStreak: 10,
-              longestStreak: 11,
-              dateRange: 'May 5, 2024 – May 4, 2025'
-            });
-          }
-          
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error('Error in GitHub contributions fetch:', err);
-          setError('Failed to fetch GitHub contributions');
-          
-          // Use mockup fallback data on error
-          setTotalContributions(189);
-          setStats({ 
-            total: 189,
-            currentStreak: 10,
-            longestStreak: 11,
-            dateRange: 'May 5, 2024 – May 4, 2025'
-          });
-          
-          setLoading(false);
-        });
-    }, 500); // Small delay for loading state demonstration
+    // Fetch contribution data directly
+    fetchGitHubContributions(username)
+      .then(contributionData => {
+        if (contributionData && typeof contributionData.total === 'number') {
+          console.log(`Found ${contributionData.total} contributions for ${username} via direct fetch`);
+          setTotalContributions(contributionData.total);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error in direct fetch of GitHub contributions:', err);
+        setError('Failed to fetch GitHub contributions');
+        setLoading(false);
+      });
 
-  }, [username, fetchGitHubContributions]);
+  }, [username]);
 
   return { 
     loading, 
     error, 
     tokenInvalid, 
     totalContributions, 
-    stats
+    stats, 
+    fetchGitHubContributions 
   };
 }

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { WebacyData } from '../../scores/types';
+import type { WebacyData } from '../../scores/types';
 
 interface ThreatLevelCardProps {
   securityData: WebacyData | null;

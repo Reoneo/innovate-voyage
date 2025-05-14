@@ -7,7 +7,6 @@ import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
 import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
 import FollowButton from './identity/FollowButton';
-import PoapSection from './poap/PoapSection';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -90,11 +89,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       
       {/* Social Links */}
       <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
-      
-      {/* POAP Badge Section - Positioned higher in the layout */}
-      <div className="mt-2 w-full">
-        <PoapSection walletAddress={ownerAddress} />
-      </div>
     </div>
   );
 };

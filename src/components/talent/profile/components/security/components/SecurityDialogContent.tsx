@@ -6,7 +6,7 @@ import RiskScoreCard from './RiskScoreCard';
 import ContractApprovalsCard from './ContractApprovalsCard';
 import WalletActivityCard from './WalletActivityCard';
 import RiskHistoryCard from './RiskHistoryCard';
-import { WebacyData } from '../../scores/types';
+import type { WebacyData } from '../../scores/types';
 
 interface SecurityDialogContentProps {
   securityData: WebacyData | null;

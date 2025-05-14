@@ -15,17 +15,10 @@ const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
   nfts,
   onNftClick 
 }) => {
-  // Ensure all NFTs have the required properties
-  const processedNfts = nfts.map(nft => ({
-    ...nft,
-    imageUrl: nft.imageUrl || '',
-    collectionName: nft.collectionName || collectionName || 'Unknown Collection'
-  }));
-  
   return (
     <div key={collectionName} className="space-y-3">
       <CollectionHeader collectionName={collectionName} />
-      <NftGrid nfts={processedNfts} onNftClick={onNftClick} />
+      <NftGrid nfts={nfts} onNftClick={onNftClick} />
     </div>
   );
 };

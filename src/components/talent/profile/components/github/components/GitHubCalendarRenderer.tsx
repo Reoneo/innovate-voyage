@@ -23,6 +23,13 @@ export default function GitHubCalendarRenderer({
       '#006d32', // level2: Medium activity
       '#26a641', // level3: High activity
       '#39d353'  // level4: Very high activity
+    ],
+    light: [
+      '#ebedf0', // level0: Empty cells
+      '#9be9a8', // level1: Light activity
+      '#40c463', // level2: Medium activity
+      '#30a14e', // level3: High activity
+      '#216e39'  // level4: Very high activity
     ]
   };
 
@@ -44,9 +51,9 @@ export default function GitHubCalendarRenderer({
   return (
     <div className="calendar-container min-h-[180px] rounded-lg overflow-hidden" ref={calendarRef}>
       <GitHubCalendar 
-        username={username || 'octocat'}
+        username={username}
         colorScheme="dark"
-        theme={theme}
+        theme={theme as any}
         hideColorLegend={true}
         hideMonthLabels={false}
         showWeekdayLabels={true} 
@@ -55,30 +62,16 @@ export default function GitHubCalendarRenderer({
         blockRadius={2}
         fontSize={10}
         transformData={(contributions) => {
-          // If we have actual contribution data from our API, use that instead
-          if (totalContributions !== null && totalContributions > 0) {
-            // Create a forced demo data for visualization
-            // This would be replaced with actual GitHub API data in production
-            const today = new Date();
-            const oneYearAgo = new Date();
-            oneYearAgo.setFullYear(today.getFullYear() - 1);
+          // Calculate total from the contribution data
+          if (Array.isArray(contributions)) {
+            const total = contributions.reduce((sum, day) => sum + day.count, 0);
+            console.log(`Calendar data shows ${total} total contributions`);
             
-            // Generate some demo data points
-            let lastMonth = new Date();
-            lastMonth.setMonth(lastMonth.getMonth() - 1);
-            let twoWeeksAgo = new Date();
-            twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-            
-            // Enhance specific days for visual effect
-            const enhancedContributions = [...contributions];
-            
-            // Update our display with the total we know
+            // Update our display if needed
             const totalDisplay = document.getElementById(`${username}-total-contrib`);
-            if (totalDisplay) {
-              totalDisplay.textContent = String(totalContributions);
+            if (totalDisplay && total > 0) {
+              totalDisplay.textContent = String(total);
             }
-            
-            return enhancedContributions;
           }
           return contributions;
         }}

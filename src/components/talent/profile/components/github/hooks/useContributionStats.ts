@@ -1,14 +1,14 @@
 
 import { useState, useEffect } from 'react';
 
-export interface ContributionStats {
+interface ContributionStats {
   total: number;
   currentStreak: number;
   longestStreak: number;
   dateRange: string;
 }
 
-export function useContributionStats(contributionsData: any) {
+export function useContributionStats(username: string, contributionsData: any) {
   const [stats, setStats] = useState<ContributionStats>({ 
     total: 0, 
     currentStreak: 0, 
@@ -17,7 +17,7 @@ export function useContributionStats(contributionsData: any) {
   });
 
   useEffect(() => {
-    if (!contributionsData) return;
+    if (!username || !contributionsData) return;
     
     try {
       // Extract total contributions
@@ -26,8 +26,8 @@ export function useContributionStats(contributionsData: any) {
       // In a real implementation, we would calculate streaks from the contribution data
       // For this example, we're using placeholder values as actual streak calculation
       // would require daily contribution history
-      const currentStreak = contributionsData.currentStreak || 0;  
-      const longestStreak = contributionsData.longestStreak || 0;  
+      const currentStreak = 0;  // Would need API data for accurate calculation
+      const longestStreak = 0;  // Would need API data for accurate calculation
       
       // Get date range based on current date
       const today = new Date();
@@ -43,8 +43,7 @@ export function useContributionStats(contributionsData: any) {
         });
       };
       
-      const formattedDateRange = contributionsData.dateRange || 
-        `${formatDate(oneYearAgo)} – ${formatDate(today)}`;
+      const formattedDateRange = `${formatDate(oneYearAgo)} – ${formatDate(today)}`;
       
       // Update stats with calculated values
       setStats({
@@ -63,7 +62,7 @@ export function useContributionStats(contributionsData: any) {
     } catch (err) {
       console.error('Error calculating contribution stats:', err);
     }
-  }, [contributionsData]);
+  }, [username, contributionsData]);
 
   return stats;
 }

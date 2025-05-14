@@ -1,20 +1,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ScoreBadgeProps } from './types';
+import { fetchUserNfts } from '@/api/services/openseaService';
 import { Badge } from '@/components/ui/badge';
 import { ProfileDialog } from '@/components/profile/Profile';
-import { fetchUserNfts } from '@/api/services/openseaService';
 
-interface TransactionsBadgeProps {
+interface TransactionsBadgeProps extends ScoreBadgeProps {
   txCount: number | null;
   walletAddress: string;
-  onClick?: () => void;
-  loading?: boolean;
 }
 
-const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, onClick, loading }) => {
+const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, onClick, isLoading }) => {
   const [nftCount, setNftCount] = useState<number | null>(null);
-  const [localLoading, setLocalLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
   
   // This is a mock UUID - in a real app you would map walletAddress to actual user UUIDs
@@ -31,7 +30,7 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
       } catch (error) {
         console.error("Error fetching NFT count:", error);
       } finally {
-        setLocalLoading(false);
+        setLoading(false);
       }
     };
 
@@ -46,7 +45,7 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
     }
   };
 
-  if (loading || localLoading) {
+  if (isLoading || loading) {
     return <Skeleton className="h-28 w-full" />;
   }
 

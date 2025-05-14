@@ -7,17 +7,14 @@ export interface ContributionDay {
 
 export interface ContributionData {
   totalContributions: number;
-  contributionCount?: number;
-  contributions?: {
-    date: string;
-    count: number;
-    level: 0 | 1 | 2 | 3 | 4;
+  weeks: {
+    contributionDays: ContributionDay[];
   }[];
-  user?: {
+  user: {
     name: string | null;
     login: string;
     avatarUrl: string;
-    repositoriesContributedTo?: { totalCount: number };
+    repositoriesContributedTo: { totalCount: number };
   };
 }
 

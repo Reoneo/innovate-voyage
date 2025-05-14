@@ -2,17 +2,15 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getThreatColor } from './utils/scoreUtils';
-import { Shield } from 'lucide-react';
-import { WebacyData } from './types';
+import { Shield, Info } from 'lucide-react';
+import type { WebacyData, ScoreBadgeProps } from './types';
 
-interface SecurityScoreBadgeProps {
+interface SecurityScoreBadgeProps extends ScoreBadgeProps {
   webacyData: WebacyData | null;
-  onClick?: () => void;
-  loading?: boolean;
 }
 
-const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({ webacyData, onClick, loading }) => {
-  if (loading) {
+const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({ webacyData, onClick, isLoading }) => {
+  if (isLoading) {
     return <Skeleton className="h-28 w-full" />;
   }
 

@@ -1,28 +1,9 @@
 
-// Score dialog types
-export interface ScoreDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  type: 'security' | 'talent' | 'transactions' | 'webacy' | 'tally';
-  walletAddress: string;
-  data?: any;
-}
+export type ThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
 
-// Score badge types
-export interface ScoreBadgeProps {
-  score: number;
-  label: string;
-  onClick?: () => void;
-  loading?: boolean;
-  className?: string;
-  size?: 'sm' | 'md' | 'lg';
-  variant?: 'security' | 'talent' | 'transactions';
-}
-
-// Webacy data types
 export interface WebacyData {
   riskScore?: number;
-  threatLevel?: ThreatLevel;
+  threatLevel: ThreatLevel;
   walletAddress?: string;
   approvals?: {
     count: number;
@@ -37,12 +18,9 @@ export interface WebacyData {
   riskHistory?: any[];
 }
 
-// Define threat level types
-export type ThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
-
-// TallyBadge props
-export interface TallyBadgeProps {
-  walletAddress: string;
+export interface ScoreBadgeProps {
   onClick?: () => void;
-  loading?: boolean;
+  isLoading?: boolean;
 }
+
+export type ScoreDialogType = 'talent' | 'transactions' | 'webacy' | 'tally';

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ExternalLink } from 'lucide-react';
-import { WebacyData } from '../../scores/types';
+import type { WebacyData } from '../../scores/types';
 
 interface WalletActivityCardProps {
   webacyData: WebacyData | null;

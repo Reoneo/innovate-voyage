@@ -74,11 +74,3 @@ export function useWeb3BioProfile(identity: string | undefined) {
     retry: 1,
   });
 }
-
-export function useWeb3() {
-  const ethereum = window.ethereum;
-  return {
-    web3: ethereum,
-    isSupported: !!ethereum
-  };
-}

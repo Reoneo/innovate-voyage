@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { getThreatColor } from '../../scores/utils/scoreUtils';
-import { WebacyData } from '../../scores/types';
+import type { WebacyData } from '../../scores/types';
 
 interface RiskScoreCardProps {
   webacyData: WebacyData | null;

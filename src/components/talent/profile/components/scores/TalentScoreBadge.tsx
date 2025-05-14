@@ -4,15 +4,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getBuilderTitle } from './utils/scoreUtils';
 import { ScoreBadgeProps } from './types';
 
-interface TalentScoreBadgeProps {
+interface TalentScoreBadgeProps extends ScoreBadgeProps {
   score: number | null;
   talentId?: string;
-  onClick?: () => void;
-  loading?: boolean;
 }
 
-const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, loading, talentId }) => {
-  if (loading) {
+const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, isLoading, talentId }) => {
+  if (isLoading) {
     return <Skeleton className="h-28 w-full" />;
   }
 
