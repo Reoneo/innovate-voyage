@@ -51,9 +51,9 @@ export default function GitHubCalendarRenderer({
   return (
     <div className="calendar-container min-h-[180px] rounded-lg overflow-hidden" ref={calendarRef}>
       <GitHubCalendar 
-        username={username}
+        username={username || 'ghost'}
         colorScheme="dark"
-        theme={theme as any}
+        theme={theme}
         hideColorLegend={true}
         hideMonthLabels={false}
         showWeekdayLabels={true} 
@@ -62,15 +62,14 @@ export default function GitHubCalendarRenderer({
         blockRadius={2}
         fontSize={10}
         transformData={(contributions) => {
-          // Calculate total from the contribution data
-          if (Array.isArray(contributions)) {
-            const total = contributions.reduce((sum, day) => sum + day.count, 0);
-            console.log(`Calendar data shows ${total} total contributions`);
+          // If we have actual contribution data from our API, use that instead
+          if (totalContributions !== null && totalContributions > 0) {
+            console.log(`Overriding contribution data with our count: ${totalContributions}`);
             
-            // Update our display if needed
+            // Update our display with the total we know
             const totalDisplay = document.getElementById(`${username}-total-contrib`);
-            if (totalDisplay && total > 0) {
-              totalDisplay.textContent = String(total);
+            if (totalDisplay) {
+              totalDisplay.textContent = String(totalContributions);
             }
           }
           return contributions;

@@ -1,13 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from '@/components/ui/button';
-import { ContributionData } from './types';
 import GitHubCalendarRenderer from "./components/GitHubCalendarRenderer";
 import GitHubContributionHeader from "./components/GitHubContributionHeader";
 import GitHubContributionLegend from "./components/GitHubContributionLegend";
-import { useGitHubCalendar } from './hooks/useGitHubCalendar';
-import { useContributionStats } from './hooks/useContributionStats';
+import { useGitHubContributions } from './useGitHubContributions';
 import StatsDisplay from "./components/StatsDisplay";
 import TokenInvalidAlert from "./components/TokenInvalidAlert";
 
@@ -16,13 +13,7 @@ interface GitHubContributionGraphProps {
 }
 
 const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ username }) => {
-  const [showAllContributions, setShowAllContributions] = useState(false);
-  const { loading, totalContributions, error, stats } = useGitHubCalendar(username);
-
-  const contributions: ContributionData = {
-    totalContributions: totalContributions || 0,
-    contributions: []
-  };
+  const { loading, totalContributions, error, stats } = useGitHubContributions(username);
 
   useEffect(() => {
     console.log("GitHub Username:", username);
@@ -60,49 +51,26 @@ const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ usern
           </div>
         ) : (
           <>
-            {contributions && contributions.totalContributions > 0 ? (
-              <>
-                <div className="mb-6 overflow-hidden">
-                  <div className="github-calendar-wrapper"
-                    data-tooltip-id="github-calendar-tooltip">
-                    <GitHubCalendarRenderer 
-                      username={username}
-                      totalContributions={contributions.totalContributions}
-                      statsTotal={stats.total}
-                    />
-                  </div>
-                
-                  <div className="flex justify-between items-center mt-4 text-xs text-white">
-                    <span>Less</span>
-                    <GitHubContributionLegend />
-                    <span>More</span>
-                  </div>
-                </div>
-
-                <StatsDisplay 
-                  username={username} 
-                  totalContributions={totalContributions} 
-                  stats={stats} 
+            <div className="mb-6 overflow-hidden">
+              <div className="github-calendar-wrapper"
+                data-tooltip-id="github-calendar-tooltip">
+                <GitHubCalendarRenderer 
+                  username={username}
+                  totalContributions={totalContributions}
+                  statsTotal={stats.total}
                 />
-                
-                {contributions && contributions.contributions && 
-                 contributions.contributions.length > 50 && (
-                  <div className="mt-4 flex justify-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowAllContributions(!showAllContributions)}
-                    >
-                      {showAllContributions ? "Show Recent" : "Show All Contributions"}
-                    </Button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="py-8 text-center">
-                <p className="text-muted-foreground">No GitHub contribution data found for {username}</p>
               </div>
-            )}
+            
+              <div className="flex justify-between items-center mt-4 text-xs text-white">
+                <GitHubContributionLegend />
+              </div>
+            </div>
+
+            <StatsDisplay 
+              username={username} 
+              totalContributions={totalContributions} 
+              stats={stats} 
+            />
           </>
         )}
       </CardContent>

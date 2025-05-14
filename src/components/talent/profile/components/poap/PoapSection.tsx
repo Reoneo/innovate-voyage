@@ -94,7 +94,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                 src={currentPoap.event.image_url} 
                 alt={currentPoap.event.name} 
                 onClick={() => handleOpenDetail(currentPoap)}
-                className="w-40 h-40 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer rounded-full" 
+                className="w-36 h-36 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[60%] z-10 cursor-pointer" 
                 style={{
                   objectFit: 'contain',
                 }}
