@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import type { WebacyData, ThreatLevel } from '@/components/talent/profile/components/scores/types';
+import { WebacyData, ThreatLevel } from '@/components/talent/profile/components/scores/types';
 
 // Create a cache to store API responses by wallet address
 const responseCache = new Map<string, WebacyData>();
@@ -78,7 +78,7 @@ export function useWebacyData(walletAddress?: string) {
           }
         }
         
-        const webacyData = {
+        const webacyData: WebacyData = {
           riskScore: data.score || 0,
           threatLevel,
           walletAddress,

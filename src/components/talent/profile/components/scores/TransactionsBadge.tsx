@@ -1,14 +1,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ScoreBadgeProps } from './types';
-import { fetchUserNfts } from '@/api/services/openseaService';
 import { Badge } from '@/components/ui/badge';
 import { ProfileDialog } from '@/components/profile/Profile';
+import { fetchUserNfts } from '@/api/services/openseaService';
 
-interface TransactionsBadgeProps extends ScoreBadgeProps {
+interface TransactionsBadgeProps {
   txCount: number | null;
   walletAddress: string;
+  onClick?: () => void;
   loading?: boolean;
 }
 

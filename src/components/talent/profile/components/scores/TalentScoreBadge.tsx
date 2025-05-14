@@ -4,9 +4,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getBuilderTitle } from './utils/scoreUtils';
 import { ScoreBadgeProps } from './types';
 
-interface TalentScoreBadgeProps extends ScoreBadgeProps {
+interface TalentScoreBadgeProps {
   score: number | null;
   talentId?: string;
+  onClick?: () => void;
   loading?: boolean;
 }
 

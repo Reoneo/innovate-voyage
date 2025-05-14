@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import type { WebacyData } from '../../scores/types';
+import { WebacyData } from '../../scores/types';
 
 interface ContractApprovalsCardProps {
   webacyData: WebacyData | null;

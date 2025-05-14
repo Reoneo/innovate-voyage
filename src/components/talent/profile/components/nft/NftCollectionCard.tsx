@@ -18,8 +18,8 @@ const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
   // Ensure all NFTs have the required properties
   const processedNfts = nfts.map(nft => ({
     ...nft,
-    imageUrl: nft.imageUrl || nft.image_url || '',
-    collectionName: nft.collectionName || collectionName || nft.collection?.name || 'Unknown Collection'
+    imageUrl: nft.imageUrl || '',
+    collectionName: nft.collectionName || collectionName || 'Unknown Collection'
   }));
   
   return (

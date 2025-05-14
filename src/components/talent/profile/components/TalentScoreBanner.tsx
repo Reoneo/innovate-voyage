@@ -48,11 +48,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
         />
       </div>
 
-      <NftCollectionsSection 
-        walletAddress={walletAddress} 
-        showCollections={showNftCollections} 
-        onOpenChange={setShowNftCollections}
-      />
+      <NftCollectionsSection walletAddress={walletAddress} />
 
       <ScoreDialog 
         open={dialogOpen} 

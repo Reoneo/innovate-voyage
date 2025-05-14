@@ -2,12 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NftCollectionsContent from './NftCollectionsContent';
-import { useWeb3 } from '@/hooks/useWeb3';
-import { fetchNfts, type OpenSeaNft, type OpenSeaCollection } from '@/api/services/openseaService';
+import { fetchUserNfts, OpenSeaNft, OpenSeaCollection } from '@/api/services/openseaService';
 import { fetchPoapsByAddress } from '@/api/services/poapService';
-import { getAllSkillNfts } from '@/api/services/nftService';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSkillNftsByAddress } from '@/api/services/nftService';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface NftCollectionsSectionProps {
@@ -18,7 +16,7 @@ const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ walletAdd
   const [activeTab, setActiveTab] = useState('ethereum');
   const [collections, setCollections] = useState<OpenSeaCollection[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { web3 } = useWeb3();
+  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | '3dns' | 'all'>('all');
   
   useEffect(() => {
     const fetchNftCollections = async () => {
@@ -27,7 +25,7 @@ const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ walletAdd
       setIsLoading(true);
       try {
         // Fetch Ethereum NFTs
-        const ethereumNfts = await fetchNfts(walletAddress, 'ethereum');
+        const ethereumNfts = await fetchUserNfts(walletAddress);
         
         // Group NFTs by collection (for Ethereum)
         const ethereumCollections = groupNftsByCollection(ethereumNfts, 'ethereum');
@@ -58,13 +56,8 @@ const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ walletAdd
             id: 'base-1',
             name: 'Base NFT #1',
             description: 'Base Network NFT',
-            image_url: 'https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png',
-            permalink: 'https://opensea.io',
-            collection: {
-              name: 'Base NFTs',
-              slug: 'base-nfts'
-            },
             imageUrl: 'https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png',
+            permalink: 'https://opensea.io',
             collectionName: 'Base NFTs'
           }
         ];
@@ -96,7 +89,7 @@ const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ walletAdd
     };
     
     fetchNftCollections();
-  }, [walletAddress, web3, activeTab]);
+  }, [walletAddress, activeTab]);
   
   // Group NFTs by their collection
   const groupNftsByCollection = (nfts: OpenSeaNft[], type: string): OpenSeaCollection[] => {
@@ -115,6 +108,12 @@ const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ walletAdd
       type,
       nfts
     }));
+  };
+
+  const handleNftClick = (nft: OpenSeaNft) => {
+    if (nft.permalink) {
+      window.open(nft.permalink, '_blank');
+    }
   };
   
   return (
@@ -151,7 +150,13 @@ const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ walletAdd
                 <Skeleton className="h-48 w-full" />
               </div>
             ) : (
-              <NftCollectionsContent collections={collections} />
+              <NftCollectionsContent 
+                collections={collections}
+                loading={isLoading}
+                selectedType={selectedType}
+                setSelectedType={setSelectedType}
+                onNftClick={handleNftClick}
+              />
             )}
           </TabsContent>
           
@@ -161,7 +166,13 @@ const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ walletAdd
                 <Skeleton className="h-48 w-full" />
               </div>
             ) : (
-              <NftCollectionsContent collections={collections} />
+              <NftCollectionsContent 
+                collections={collections}
+                loading={isLoading}
+                selectedType={selectedType}
+                setSelectedType={setSelectedType}
+                onNftClick={handleNftClick}
+              />
             )}
           </TabsContent>
           
@@ -171,7 +182,13 @@ const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ walletAdd
                 <Skeleton className="h-48 w-full" />
               </div>
             ) : (
-              <NftCollectionsContent collections={collections} />
+              <NftCollectionsContent 
+                collections={collections}
+                loading={isLoading}
+                selectedType={selectedType}
+                setSelectedType={setSelectedType}
+                onNftClick={handleNftClick}
+              />
             )}
           </TabsContent>
           
