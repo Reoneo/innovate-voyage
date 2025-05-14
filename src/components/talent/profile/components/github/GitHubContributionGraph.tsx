@@ -78,7 +78,7 @@ export default function GitHubContributionGraph({
             </div>
           </div>
           
-          {/* GitHub Calendar with white text labels */}
+          {/* GitHub Calendar with white text labels as requested */}
           <div className="calendar-container" style={{ 
             minHeight: '70px',
             maxHeight: '90px',
@@ -104,13 +104,6 @@ export default function GitHubContributionGraph({
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
                     totalCount: '{{count}} contributions'
-                  }}
-                  style={{
-                    color: '#ffffff', // Set text color to white for better visibility
-                    '--color-calendar-graph-day-L1-bg': '#0e4429',
-                    '--color-calendar-graph-day-L2-bg': '#006d32',
-                    '--color-calendar-graph-day-L3-bg': '#26a641',
-                    '--color-calendar-graph-day-L4-bg': '#39d353',
                   }}
                 />
               </div>
