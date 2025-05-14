@@ -129,7 +129,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               {/* GitHub contribution graph */}
               {showGitHubSection && (
                 <div className="mt-4">
-                  <GitHubContributionGraph username={githubUsername!} />
+                  <GitHubContributionGraph username={githubUsername} />
                 </div>
               )}
               

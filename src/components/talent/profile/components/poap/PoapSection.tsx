@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -80,16 +81,22 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
             <Skeleton className="h-[280px] w-[280px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           ) : poaps.length > 0 ? (
             <div className="relative flex items-center justify-center h-full">
+              <div 
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0 w-64 h-64"
+                style={{
+                  backgroundImage: `url('/lovable-uploads/8a64ae69-78b1-47fe-b749-e94a0ee1c6ee.png')`,
+                  backgroundPosition: 'center',
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat'
+                }}
+              />
               <img 
                 src={currentPoap.event.image_url} 
                 alt={currentPoap.event.name} 
                 onClick={() => handleOpenDetail(currentPoap)}
-                className="w-56 h-56 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer rounded-full p-4" 
+                className="w-40 h-40 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer rounded-full" 
                 style={{
                   objectFit: 'contain',
-                  background: 'linear-gradient(45deg, rgba(139,92,246,0.1), rgba(30,174,219,0.1))',
-                  boxShadow: '0 0 30px rgba(139,92,246,0.2)',
-                  border: '2px solid rgba(139,92,246,0.2)'
                 }}
               />
               <button
