@@ -2,8 +2,8 @@
 import React from 'react';
 
 interface GitHubContributionHeaderProps {
-  totalContributions: number | null;
   username: string;
+  totalContributions: number | null;
 }
 
 export default function GitHubContributionHeader({ 

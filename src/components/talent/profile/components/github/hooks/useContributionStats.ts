@@ -8,7 +8,7 @@ interface ContributionStats {
   dateRange: string;
 }
 
-export function useContributionStats(username: string, contributionsData: any) {
+export function useContributionStats(contributionsData: any) {
   const [stats, setStats] = useState<ContributionStats>({ 
     total: 0, 
     currentStreak: 0, 
@@ -17,7 +17,7 @@ export function useContributionStats(username: string, contributionsData: any) {
   });
 
   useEffect(() => {
-    if (!username || !contributionsData) return;
+    if (!contributionsData) return;
     
     try {
       // Extract total contributions
@@ -62,7 +62,7 @@ export function useContributionStats(username: string, contributionsData: any) {
     } catch (err) {
       console.error('Error calculating contribution stats:', err);
     }
-  }, [username, contributionsData]);
+  }, [contributionsData]);
 
   return stats;
 }

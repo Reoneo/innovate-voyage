@@ -1,7 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useGitHubContributions } from '../useGitHubContributions';
-import { useContributionStats } from './useContributionStats';
 
 export function useGitHubCalendar(username: string) {
   const {
@@ -9,9 +8,9 @@ export function useGitHubCalendar(username: string) {
     error,
     tokenInvalid,
     stats: baseStats,
+    totalContributions,
     fetchGitHubContributions
   } = useGitHubContributions(username);
-  const [totalContributions, setTotalContributions] = useState<number | null>(null);
   const [contributionData, setContributionData] = useState<any>(null);
   const fetchAttempted = useRef<boolean>(false);
 
@@ -30,7 +29,6 @@ export function useGitHubCalendar(username: string) {
       // Use cached data if it's less than 6 hours old
       if (Date.now() - timestamp < 6 * 60 * 60 * 1000) {
         console.log('Using cached GitHub data for', username);
-        setTotalContributions(parsedData.totalContributions);
         setContributionData(parsedData);
       }
     }
@@ -60,16 +58,13 @@ export function useGitHubCalendar(username: string) {
             let data;
             try {
               data = JSON.parse(text);
-              if (data && typeof data.totalContributions === 'number') {
-                setTotalContributions(data.totalContributions);
-                setContributionData(data);
-                
-                // Cache the results
-                localStorage.setItem(`github_contributions_${username}`, JSON.stringify(data));
-                localStorage.setItem(`github_contributions_${username}_timestamp`, Date.now().toString());
-                
-                return;
-              }
+              setContributionData(data);
+              
+              // Cache the results
+              localStorage.setItem(`github_contributions_${username}`, JSON.stringify(data));
+              localStorage.setItem(`github_contributions_${username}_timestamp`, Date.now().toString());
+              
+              return;
             } catch (jsonError) {
               console.error('Error parsing JSON response:', jsonError);
               // Continue to fallback
@@ -89,15 +84,11 @@ export function useGitHubCalendar(username: string) {
         // Fallback to direct GitHub scraping with timeout
         console.log('API fetch failed, trying direct GitHub scraping');
         const data = await fetchGitHubContributions(username);
-        if (data && typeof data.total === 'number') {
-          setTotalContributions(data.total);
+        if (data) {
           setContributionData(data);
           
           // Cache the fallback results
-          localStorage.setItem(`github_contributions_${username}`, JSON.stringify({
-            totalContributions: data.total,
-            ...data
-          }));
+          localStorage.setItem(`github_contributions_${username}`, JSON.stringify(data));
           localStorage.setItem(`github_contributions_${username}_timestamp`, Date.now().toString());
         }
       } catch (err) {
@@ -108,11 +99,13 @@ export function useGitHubCalendar(username: string) {
     fetchContributions();
   }, [username, fetchGitHubContributions]);
 
-  // Use the hook for calculating statistics
-  const stats = useContributionStats(username, {
-    total: totalContributions ?? baseStats.total,
-    data: contributionData
-  });
+  // Get the final stats combining all data
+  const stats = {
+    total: totalContributions || baseStats.total || 0,
+    currentStreak: baseStats.currentStreak || 0,
+    longestStreak: baseStats.longestStreak || 0,
+    dateRange: baseStats.dateRange || 'Last 12 months'
+  };
 
   return {
     loading: loading && !totalContributions, // Show loading only if we don't have cached data

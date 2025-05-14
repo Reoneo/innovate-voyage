@@ -7,10 +7,11 @@ import { ScoreBadgeProps } from './types';
 interface TalentScoreBadgeProps extends ScoreBadgeProps {
   score: number | null;
   talentId?: string;
+  loading?: boolean;
 }
 
-const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, isLoading, talentId }) => {
-  if (isLoading) {
+const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, loading, talentId }) => {
+  if (loading) {
     return <Skeleton className="h-28 w-full" />;
   }
 

@@ -4,7 +4,7 @@ import TalentScoreBadge from './scores/TalentScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
-import { NftCollectionsSection } from './nft/NftCollectionsSection';
+import NftCollectionsSection from './nft/NftCollectionsSection';
 
 interface TalentScoreBannerProps {
   walletAddress: string;
@@ -37,14 +37,14 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
           <TalentScoreBadge 
             score={score} 
             onClick={() => handleBadgeClick('talent')}
-            isLoading={loading} 
+            loading={loading} 
           />
         )}
         <TransactionsBadge 
           txCount={txCount}
           walletAddress={walletAddress}
           onClick={handleNftButtonClick}
-          isLoading={loading} 
+          loading={loading} 
         />
       </div>
 
@@ -58,6 +58,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
         open={dialogOpen} 
         onOpenChange={setDialogOpen}
         type={activeDialog}
+        walletAddress={walletAddress}
         data={{
           score,
           webacyData: null,

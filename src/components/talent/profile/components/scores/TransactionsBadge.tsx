@@ -9,11 +9,12 @@ import { ProfileDialog } from '@/components/profile/Profile';
 interface TransactionsBadgeProps extends ScoreBadgeProps {
   txCount: number | null;
   walletAddress: string;
+  loading?: boolean;
 }
 
-const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, onClick, isLoading }) => {
+const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, onClick, loading }) => {
   const [nftCount, setNftCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [localLoading, setLocalLoading] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
   
   // This is a mock UUID - in a real app you would map walletAddress to actual user UUIDs
@@ -30,7 +31,7 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
       } catch (error) {
         console.error("Error fetching NFT count:", error);
       } finally {
-        setLoading(false);
+        setLocalLoading(false);
       }
     };
 
@@ -45,7 +46,7 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({ walletAddress, on
     }
   };
 
-  if (isLoading || loading) {
+  if (loading || localLoading) {
     return <Skeleton className="h-28 w-full" />;
   }
 

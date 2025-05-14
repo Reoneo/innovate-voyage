@@ -68,10 +68,10 @@ const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }
             // Get token balance
             const balance = await tokenContract.balanceOf(walletAddress);
             const decimals = await tokenContract.decimals();
-            const formattedBalance = ethers.utils.formatUnits(balance, decimals);
+            const formattedBalance = ethers.formatUnits(balance, decimals);
             
             // Only include tokens with non-zero balance
-            if (balance.gt(0)) {
+            if (balance > 0) {
               let delegatee = null;
               let votingPower = null;
               
@@ -79,9 +79,9 @@ const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }
               try {
                 delegatee = await tokenContract.delegates(walletAddress);
                 // Only fetch voting power if the address has self-delegated or if someone else delegated to them
-                if (delegatee !== ethers.constants.AddressZero) {
+                if (delegatee !== ethers.ZeroAddress) {
                   votingPower = await tokenContract.getCurrentVotes(walletAddress);
-                  votingPower = ethers.utils.formatUnits(votingPower, decimals);
+                  votingPower = ethers.formatUnits(votingPower, decimals);
                 }
               } catch (err) {
                 // Not all tokens have delegation functions, so this might fail
@@ -93,7 +93,7 @@ const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }
                 symbol: daoToken.symbol,
                 balance: balance.toString(),
                 formattedBalance: parseFloat(formattedBalance).toFixed(4),
-                delegatee: delegatee && delegatee !== ethers.constants.AddressZero ? delegatee : undefined,
+                delegatee: delegatee && delegatee !== ethers.ZeroAddress ? delegatee : undefined,
                 votingPower: votingPower ? parseFloat(votingPower).toFixed(4) : undefined
               };
             }

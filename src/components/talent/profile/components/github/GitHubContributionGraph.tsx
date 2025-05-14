@@ -8,7 +8,6 @@ import GitHubContributionHeader from "./components/GitHubContributionHeader";
 import GitHubContributionLegend from "./components/GitHubContributionLegend";
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
 import { useContributionStats } from './hooks/useContributionStats';
-import { ThemeInput } from 'react-github-calendar';
 import StatsDisplay from "./components/StatsDisplay";
 import TokenInvalidAlert from "./components/TokenInvalidAlert";
 
@@ -18,19 +17,18 @@ interface GitHubContributionGraphProps {
 
 const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ username }) => {
   const [showAllContributions, setShowAllContributions] = useState(false);
-  const { loading, contributionData, error } = useGitHubCalendar(username);
-  const stats = useContributionStats(contributionData);
+  const { loading, totalContributions, error, stats } = useGitHubCalendar(username);
 
-  const contributions: ContributionData = contributionData || {
-    total: 0,
+  const contributions: ContributionData = {
+    totalContributions: totalContributions || 0,
     contributions: []
   };
 
   useEffect(() => {
     console.log("GitHub Username:", username);
-    console.log("GitHub Data:", contributionData);
+    console.log("GitHub Data:", totalContributions);
     console.log("GitHub Error:", error);
-  }, [username, contributionData, error]);
+  }, [username, totalContributions, error]);
 
   if (!username) return null;
 
@@ -43,7 +41,7 @@ const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ usern
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <TokenInvalidAlert username={username} />
+          <TokenInvalidAlert />
         </CardContent>
       </Card>
     );
@@ -52,7 +50,7 @@ const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ usern
   return (
     <Card className="shadow-md overflow-hidden">
       <CardHeader className="pb-2">
-        <GitHubContributionHeader username={username} loading={loading} />
+        <GitHubContributionHeader username={username} totalContributions={totalContributions} />
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -62,22 +60,15 @@ const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ usern
           </div>
         ) : (
           <>
-            {contributions && contributions.total > 0 ? (
+            {contributions && contributions.totalContributions > 0 ? (
               <>
                 <div className="mb-6 overflow-hidden">
                   <div className="github-calendar-wrapper"
                     data-tooltip-id="github-calendar-tooltip">
                     <GitHubCalendarRenderer 
-                      data={contributions}
-                      showAllContributions={showAllContributions}
-                      theme={{
-                        level0: '#ebedf0',
-                        level1: '#c6e48b',
-                        level2: '#7bc96f',
-                        level3: '#239a3b',
-                        level4: '#196127',
-                        text: '#ffffff' // White text color for better visibility
-                      }}
+                      username={username}
+                      totalContributions={contributions.totalContributions}
+                      statsTotal={stats.total}
                     />
                   </div>
                 
@@ -88,7 +79,11 @@ const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({ usern
                   </div>
                 </div>
 
-                <StatsDisplay stats={stats} />
+                <StatsDisplay 
+                  username={username} 
+                  totalContributions={totalContributions} 
+                  stats={stats} 
+                />
                 
                 {contributions && contributions.contributions && 
                  contributions.contributions.length > 50 && (
