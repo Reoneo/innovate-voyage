@@ -20,7 +20,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
 }) => {
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
+  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'base' | '3dns' | 'all'>('all');
   const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
 
   useEffect(() => {
@@ -30,6 +30,34 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
       setLoading(true);
       try {
         const nftCollections = await fetchUserNfts(walletAddress);
+        
+        // Check if we already have a Base collection
+        const hasBaseCollection = nftCollections.some(c => c.type === 'base');
+        
+        // If we don't have a Base collection, add a sample one
+        if (!hasBaseCollection) {
+          // Sample Base NFT collection
+          const baseCollection = {
+            name: 'Base NFTs',
+            type: 'base',
+            nfts: [
+              {
+                id: 'base-1',
+                name: 'Base Genesis',
+                description: 'First NFT on Base network',
+                image_url: 'https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png',
+                permalink: 'https://opensea.io/assets/base/sample',
+                collection: {
+                  name: 'Base NFTs',
+                  slug: 'base-nfts'
+                }
+              }
+            ]
+          };
+          
+          nftCollections.push(baseCollection);
+        }
+        
         setCollections(nftCollections);
       } catch (error) {
         console.error('Error loading NFTs:', error);
@@ -66,7 +94,9 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
               <h2 className="text-lg font-semibold text-gray-900">
                 {selectedType === 'all' ? 'All Collections' : 
                  selectedType === 'ethereum' ? 'NFT Collections' :
-                 selectedType === 'ens' ? 'ENS Collection' : 'POAP Collection'}
+                 selectedType === 'ens' ? 'ENS Collection' : 
+                 selectedType === 'base' ? 'Base Collection' :
+                 selectedType === '3dns' ? '3DNS Collection' : 'POAP Collection'}
               </h2>
             </DialogHeader>
             <Button

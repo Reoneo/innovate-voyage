@@ -24,6 +24,8 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) =
       return "https://deficon.nyc/wp-content/uploads/2021/12/poap.png";
     } else if (lowerCaseName.includes('efp') || lowerCaseName.includes('ethereum follow protocol')) {
       return "https://pbs.twimg.com/profile_images/1746632341378715649/XOOa7TZO_400x400.jpg";
+    } else if (lowerCaseName.includes('base')) {
+      return "https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png";
     }
     return "https://cdn-icons-png.flaticon.com/512/6699/6699362.png";
   };
@@ -33,6 +35,8 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) =
     const lowerCaseName = collectionName.toLowerCase();
     if (lowerCaseName.includes('3dns') || lowerCaseName.includes('3dns powered domains')) {
       return "3DNS Domains";
+    } else if (lowerCaseName.includes('base')) {
+      return "Base NFTs";
     }
     return formatCollectionName(collectionName);
   };
