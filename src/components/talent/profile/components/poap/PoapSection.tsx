@@ -105,8 +105,8 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
               />
             </svg>
             
-            {/* POAP Content */}
-            <div className="relative z-10 w-[70%] h-[70%] flex items-center justify-center">
+            {/* POAP Content - positioned to fit inside the purple border */}
+            <div className="relative z-10 w-[85%] h-[85%] rounded-full overflow-hidden flex items-center justify-center">
               {isLoading ? (
                 <Skeleton className="h-full w-full rounded-full" />
               ) : poaps.length > 0 ? (

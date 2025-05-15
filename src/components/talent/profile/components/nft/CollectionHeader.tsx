@@ -1,70 +1,90 @@
 
 import React from 'react';
+import { formatNumber } from '@/lib/utils';
 
 interface CollectionHeaderProps {
-  collectionName: string;
-  type?: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base';
+  name: string;
+  imageUrl?: string;
+  floorPrice?: number;
+  totalSupply?: number;
+  description?: string;
+  selected?: boolean;
+  onClick?: () => void;
+  chainId?: number;
+  baseLogoUrl?: string;
 }
 
-const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName, type }) => {
-  // Format collection name - replace dashes with spaces
-  const formatCollectionName = (name: string) => {
-    return name.replace(/-/g, ' ');
-  };
-
-  // Get collection icon based on collection name or type
-  const getCollectionIcon = () => {
-    if (type) {
-      switch (type) {
-        case '3dns':
-          return "https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2";
-        case 'ens':
-          return "https://ens.domains/assets/brand/mark/ens-mark-Blue.svg";
-        case 'poap':
-          return "https://deficon.nyc/wp-content/uploads/2021/12/poap.png";
-        case 'base':
-          return "https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png";
-        default:
-          break;
-      }
-    }
-
-    const lowerCaseName = collectionName.toLowerCase();
-    if (lowerCaseName.includes('3dns') || lowerCaseName.includes('3dns powered domains')) {
-      return "https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2";
-    } else if (lowerCaseName.includes('doodle') || lowerCaseName.includes('doodles')) {
-      return "https://pbs.twimg.com/profile_images/1907827518700220416/ZUn7WAT8_400x400.jpg";
-    } else if (lowerCaseName.includes('ens')) {
-      return "https://ens.domains/assets/brand/mark/ens-mark-Blue.svg";
-    } else if (lowerCaseName.includes('poap')) {
-      return "https://deficon.nyc/wp-content/uploads/2021/12/poap.png";
-    } else if (lowerCaseName.includes('efp') || lowerCaseName.includes('ethereum follow protocol')) {
-      return "https://pbs.twimg.com/profile_images/1746632341378715649/XOOa7TZO_400x400.jpg";
-    } else if (lowerCaseName.includes('base')) {
-      return "https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png";
-    }
-    return "https://cdn-icons-png.flaticon.com/512/6699/6699362.png";
-  };
-
-  // Get display name for the collection
-  const getDisplayName = () => {
-    if (type === 'base') return "Base NFTs";
-    
-    const lowerCaseName = collectionName.toLowerCase();
-    if (lowerCaseName.includes('3dns') || lowerCaseName.includes('3dns powered domains')) {
-      return "3DNS Domains";
-    }
-    return formatCollectionName(collectionName);
-  };
+const CollectionHeader: React.FC<CollectionHeaderProps> = ({
+  name,
+  imageUrl,
+  floorPrice,
+  totalSupply,
+  description,
+  selected,
+  onClick,
+  chainId,
+  baseLogoUrl
+}) => {
+  // Check if this collection is on Base chain (chainId 8453)
+  const isBaseChain = chainId === 8453;
+  
+  // Truncate description for display
+  const truncatedDescription = description && description.length > 100
+    ? `${description.substring(0, 100)}...`
+    : description;
 
   return (
-    <div className="flex items-center gap-2 pl-1">
-      <img 
-        src={getCollectionIcon()} 
-        alt={collectionName} 
-        className="h-5 w-5 rounded-full" 
-      />
-      <h4 className="text-md font-medium text-gray-800">{getDisplayName()}</h4>
+    <div
+      className={`border rounded-lg overflow-hidden transition-all cursor-pointer hover:shadow-md ${
+        selected ? 'ring-2 ring-primary shadow-lg' : ''
+      }`}
+      onClick={onClick}
+    >
+      <div className="relative h-40 bg-muted">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://placehold.co/400x300/e5e7eb/a1a1aa?text=No+Image';
+            }}
+          />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">
+            No Image Available
+          </div>
+        )}
+        {isBaseChain && baseLogoUrl && (
+          <div className="absolute top-2 right-2 h-6 w-6 bg-white rounded-full p-0.5 shadow">
+            <img src={baseLogoUrl} alt="Base Network" className="w-full h-full" />
+          </div>
+        )}
+      </div>
+      <div className="p-4">
+        <h3 className="font-semibold text-base truncate">{name}</h3>
+        
+        <div className="mt-2 flex justify-between text-sm">
+          <div>
+            <p className="text-xs text-muted-foreground">Floor</p>
+            <p className="font-medium">
+              {floorPrice ? `${floorPrice} ETH` : 'N/A'}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Supply</p>
+            <p className="font-medium">
+              {totalSupply ? formatNumber(totalSupply) : 'N/A'}
+            </p>
+          </div>
+        </div>
+        
+        {truncatedDescription && (
+          <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+            {truncatedDescription}
+          </p>
+        )}
+      </div>
     </div>
   );
 };

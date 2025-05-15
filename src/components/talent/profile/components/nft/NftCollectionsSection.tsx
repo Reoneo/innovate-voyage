@@ -1,160 +1,124 @@
 
-import React, { useEffect, useState } from 'react';
-import { fetchUserNfts, type OpenSeaNft } from '@/api/services/openseaService';
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
-import { X } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import NftDetailsDialog from './NftDetailsDialog';
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import NftCollectionsContent from './NftCollectionsContent';
-
-interface OpenSeaCollection {
-  name: string;
-  nfts: OpenSeaNft[];
-  type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base';
-}
+import { useToast } from '@/hooks/use-toast';
+import { fetchCollections } from '@/api/services/openseaService';
 
 interface NftCollectionsSectionProps {
-  walletAddress?: string;
-  showCollections?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  walletAddress: string;
+  showCollections: boolean;
+  onOpenChange: (show: boolean) => void;
 }
 
-export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({ 
-  walletAddress, 
-  showCollections = false,
+// Define types for NFT collections
+interface OpenSeaNft {
+  id: string;
+  name?: string;
+  imageUrl?: string;
+  collectionName?: string;
+  description?: string;
+  permalink?: string;
+  traits?: Array<{ trait_type: string; value: string }>;
+}
+
+interface OpenSeaCollection {
+  slug: string;
+  name: string;
+  image_url: string;
+  description: string;
+  external_url: string;
+  banner_image_url: string;
+  featured_image_url: string;
+  twitter_username?: string;
+  discord_url?: string;
+  stats: {
+    total_supply: number;
+    num_owners: number;
+    floor_price: number;
+  };
+  primary_asset_contracts?: Array<{
+    address: string;
+    name: string;
+    symbol: string;
+  }>;
+  nfts?: OpenSeaNft[];
+  chainId?: number;
+  floorPrice?: number;
+}
+
+export type { OpenSeaNft, OpenSeaCollection };
+
+const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
+  walletAddress,
+  showCollections,
   onOpenChange
 }) => {
   const [collections, setCollections] = useState<OpenSeaCollection[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all'>('all');
-  const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (!walletAddress) return;
-
-    const loadNfts = async () => {
+    const loadCollections = async () => {
+      if (!walletAddress || !showCollections) return;
+      
       setLoading(true);
       try {
-        const nftData = await fetchUserNfts(walletAddress);
+        const fetchedCollections = await fetchCollections(walletAddress);
         
-        // Process the raw NFT data into collection groups
-        const processedCollections: OpenSeaCollection[] = [];
+        // Process collections to ensure they have the fields we need
+        const processedCollections = fetchedCollections.map((collection: any) => ({
+          ...collection,
+          name: collection.name || 'Unnamed Collection',
+          collectionName: collection.name || 'Unnamed Collection', // Add the missing field
+          floorPrice: collection.stats?.floor_price || 0
+        }));
         
-        // Group by collection and type
-        if (nftData && Array.isArray(nftData)) {
-          const nftsByCollection: Record<string, { nfts: OpenSeaNft[], type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' }> = {};
-          
-          nftData.forEach(nft => {
-            // Determine the type based on collection name or other properties
-            let type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' = 'ethereum';
-            const collectionName = nft.collectionName || 'Unknown Collection';
-            
-            if (collectionName.toLowerCase().includes('ens')) {
-              type = 'ens';
-            } else if (collectionName.toLowerCase().includes('poap')) {
-              type = 'poap';
-            } else if (collectionName.toLowerCase().includes('3dns')) {
-              type = '3dns';
-            } else if (collectionName.toLowerCase().includes('base')) {
-              type = 'base';
-            }
-            
-            // Create collection if it doesn't exist
-            if (!nftsByCollection[collectionName]) {
-              nftsByCollection[collectionName] = {
-                nfts: [],
-                type
-              };
-            }
-            
-            // Add NFT to collection
-            nftsByCollection[collectionName].nfts.push(nft);
-          });
-          
-          // Convert the grouped collections to array
-          Object.entries(nftsByCollection).forEach(([name, data]) => {
-            processedCollections.push({
-              name,
-              nfts: data.nfts,
-              type: data.type
-            });
-          });
-        }
-        
-        console.log('Processed NFT collections:', processedCollections);
         setCollections(processedCollections);
       } catch (error) {
-        console.error('Error loading NFTs:', error);
+        console.error('Error loading NFT collections:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Error loading NFTs',
+          description: 'Failed to load NFT collections. Please try again later.'
+        });
         setCollections([]);
       } finally {
         setLoading(false);
       }
     };
 
-    loadNfts();
-  }, [walletAddress]);
+    loadCollections();
+  }, [walletAddress, showCollections, toast]);
 
-  if (!walletAddress) return null;
-
-  // Handle NFT click to show details
-  const handleNftClick = (nft: OpenSeaNft) => {
-    setSelectedNft(nft);
-  };
-
-  // Handle profile click from NFT details
-  const handleOpenProfile = (name: string) => {
-    if (onOpenChange) {
-      onOpenChange(false);
-    }
-    // Navigate to the profile - this will be handled by the parent component
-    window.location.href = `/${name.toLowerCase()}/`;
+  // Add Base logo to the collections with Base chainId
+  const baseLogoUrl = "https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue.png";
+  
+  // Helper function to process an NFT for display
+  const processNftForDisplay = (nft: any): OpenSeaNft => {
+    return {
+      id: nft.id || nft.token_id || `nft-${Math.random().toString(36).substr(2, 9)}`,
+      name: nft.name || 'Unnamed NFT',
+      imageUrl: nft.image_url || nft.image || '',
+      collectionName: nft.collection?.name || 'Unknown Collection',
+      description: nft.description || '',
+      permalink: nft.permalink || '',
+      traits: nft.traits || []
+    };
   };
 
   return (
-    <>
-      <Dialog open={showCollections} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto bg-white text-gray-800 border border-gray-200 p-6 shadow-lg">
-          <div className="sticky top-0 z-10 flex justify-between items-center pb-4 border-b border-gray-200 bg-white">
-            <DialogHeader>
-              <h2 className="text-lg font-semibold text-gray-900">
-                {selectedType === 'all' ? 'All Collections' : 
-                 selectedType === 'ethereum' ? 'NFT Collections' :
-                 selectedType === 'ens' ? 'ENS Collection' :
-                 selectedType === 'poap' ? 'POAP Collection' :
-                 selectedType === '3dns' ? '3DNS Collection' : 
-                 'Base Collection'}
-              </h2>
-            </DialogHeader>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange?.(false)}
-              className="rounded-full h-8 w-8 text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-            >
-              <X size={18} />
-            </Button>
-          </div>
-
-          <div className="pt-4">
-            <NftCollectionsContent 
-              collections={collections}
-              loading={loading}
-              selectedType={selectedType}
-              setSelectedType={setSelectedType}
-              onNftClick={handleNftClick}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* NFT Details Dialog */}
-      {selectedNft && (
-        <NftDetailsDialog 
-          nft={selectedNft} 
-          onClose={() => setSelectedNft(null)} 
-          onOpenProfile={handleOpenProfile}
+    <Dialog open={showCollections} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <NftCollectionsContent 
+          collections={collections} 
+          loading={loading}
+          baseLogoUrl={baseLogoUrl}
+          processNftForDisplay={processNftForDisplay}
         />
-      )}
-    </>
+      </DialogContent>
+    </Dialog>
   );
 };
+
+export { NftCollectionsSection };
