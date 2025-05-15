@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button";
 import NftDetailsDialog from './NftDetailsDialog';
 import NftCollectionsContent from './NftCollectionsContent';
 
+interface OpenSeaCollection {
+  name: string;
+  nfts: OpenSeaNft[];
+  type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base';
+}
+
 interface NftCollectionsSectionProps {
   walletAddress?: string;
   showCollections?: boolean;
@@ -18,9 +24,9 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   showCollections = false,
   onOpenChange
 }) => {
-  const [collections, setCollections] = useState<any[]>([]);
+  const [collections, setCollections] = useState<OpenSeaCollection[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
+  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all'>('all');
   const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
 
   useEffect(() => {
@@ -29,8 +35,57 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     const loadNfts = async () => {
       setLoading(true);
       try {
-        const nftCollections = await fetchUserNfts(walletAddress);
-        setCollections(nftCollections);
+        const nftData = await fetchUserNfts(walletAddress);
+        
+        // Process and organize collections
+        const processedCollections: OpenSeaCollection[] = [];
+        
+        // Add Base NFTs as a new collection type
+        const baseNfts = nftData
+          .filter(nft => nft.collectionName?.toLowerCase().includes('base'))
+          .map(nft => ({...nft}));
+          
+        if (baseNfts.length > 0) {
+          processedCollections.push({
+            name: 'Base NFTs',
+            nfts: baseNfts,
+            type: 'base'
+          });
+        }
+        
+        // Process remaining collections as before
+        nftData.forEach(nft => {
+          let collectionType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' = 'ethereum';
+          let collectionName = nft.collectionName || 'Unknown Collection';
+          
+          if (nft.collectionName?.toLowerCase().includes('ens')) {
+            collectionType = 'ens';
+          } else if (nft.collectionName?.toLowerCase().includes('poap')) {
+            collectionType = 'poap';
+          } else if (nft.collectionName?.toLowerCase().includes('3dns')) {
+            collectionType = '3dns';
+          } else if (nft.collectionName?.toLowerCase().includes('base')) {
+            // Skip Base NFTs as we already processed them
+            return;
+          }
+          
+          // Find existing collection or create new one
+          let existingCollection = processedCollections.find(c => 
+            c.type === collectionType && c.name === collectionName
+          );
+          
+          if (existingCollection) {
+            existingCollection.nfts.push(nft);
+          } else {
+            processedCollections.push({
+              name: collectionName,
+              nfts: [nft],
+              type: collectionType
+            });
+          }
+        });
+        
+        setCollections(processedCollections);
       } catch (error) {
         console.error('Error loading NFTs:', error);
       } finally {
@@ -53,7 +108,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     if (onOpenChange) {
       onOpenChange(false);
     }
-    // Navigate to the profile - this will be handled by the parent component
+    // Navigate to the profile
     window.location.href = `/${name.toLowerCase()}/`;
   };
 
@@ -66,7 +121,9 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
               <h2 className="text-lg font-semibold text-gray-900">
                 {selectedType === 'all' ? 'All Collections' : 
                  selectedType === 'ethereum' ? 'NFT Collections' :
-                 selectedType === 'ens' ? 'ENS Collection' : 'POAP Collection'}
+                 selectedType === 'base' ? 'Base NFTs' :
+                 selectedType === 'ens' ? 'ENS Collection' :
+                 selectedType === 'poap' ? 'POAP Collection' : '3DNS Collection'}
               </h2>
             </DialogHeader>
             <Button
