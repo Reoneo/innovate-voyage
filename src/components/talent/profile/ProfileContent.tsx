@@ -6,8 +6,8 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
+import TallyInsightsSection from './components/tally/TallyInsightsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
-import PoapSection from './components/poap/PoapSection';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -92,6 +92,13 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Get GitHub username from ENS records
   const githubUsername = extractGitHubUsername();
   
+  // Debug logging
+  console.log('GitHub data from passport:', {
+    username: githubUsername,
+    originalValue: passport?.socials?.github,
+    passport: passport ? 'exists' : 'null'
+  });
+  
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
 
@@ -115,9 +122,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 displayIdentity={ensNameOrAddress}
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
-              
-              {/* Add POAP Section right after AvatarSection */}
-              <PoapSection walletAddress={passport.owner_address} />
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
@@ -129,7 +133,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 </div>
               )}
               
-              {/* TallyInsightsSection has been removed */}
+              {/* Tally Insights Section - replacing the DAO section */}
+              <div className="mt-6">
+                <TallyInsightsSection walletAddress={passport.owner_address} />
+              </div>
             </div>
           </div>
         </HeaderContainer>
