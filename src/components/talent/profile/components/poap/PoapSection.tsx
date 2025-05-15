@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { fetchPoapsByAddress, type Poap } from '@/api/services/poapService';
+import { fetchPoapsByAddress, fetchPoapEventOwners, type Poap } from '@/api/services/poapService';
 import { Link } from 'react-router-dom';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -74,31 +73,25 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   if (poaps.length === 0 && !isLoading) return null;
 
   return (
-    <section className="mt-4">
+    <section>
       <div className="relative flex items-center justify-center">
         <div className="relative w-full h-[300px] mx-auto">
           {isLoading ? (
             <Skeleton className="h-[280px] w-[280px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           ) : poaps.length > 0 ? (
             <div className="relative flex items-center justify-center h-full">
-              {/* Purple Border Badge Image */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0 w-64 h-64">
-                <img 
-                  src="/lovable-uploads/1ccaae55-5d11-47b0-870d-6b7c2645da5c.png" 
-                  alt="POAP Badge" 
-                  className="w-full h-full"
-                />
-              </div>
-              
-              {/* POAP Image */}
               <img 
                 src={currentPoap.event.image_url} 
                 alt={currentPoap.event.name} 
                 onClick={() => handleOpenDetail(currentPoap)}
-                className="w-48 h-48 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer rounded-full" 
-                style={{objectFit: 'contain'}}
+                className="w-56 h-56 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer rounded-full p-4" 
+                style={{
+                  objectFit: 'contain',
+                  background: 'linear-gradient(45deg, rgba(139,92,246,0.1), rgba(30,174,219,0.1))',
+                  boxShadow: '0 0 30px rgba(139,92,246,0.2)',
+                  border: '2px solid rgba(139,92,246,0.2)'
+                }}
               />
-              
               <button
                 onClick={() => currentPoapIndex > 0 && setCurrentPoapIndex(prev => prev - 1)}
                 className="absolute left-0 z-30 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm -translate-x-1/2"
@@ -120,8 +113,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
 
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="max-w-md">
-          {selectedPoap && (
-            <>
+          {selectedPoap && <>
               <DialogHeader>
                 <DialogTitle>{selectedPoap.event.name}</DialogTitle>
               </DialogHeader>
@@ -143,29 +135,18 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                   <div className="mt-4">
                     <h3 className="text-sm font-semibold mb-2">POAP Owners</h3>
                     
-                    {loadingOwners ? (
-                      <div className="flex flex-col space-y-2">
-                        {[1, 2, 3].map((_, i) => (
-                          <div key={i} className="flex items-center gap-2">
+                    {loadingOwners ? <div className="flex flex-col space-y-2">
+                        {[1, 2, 3].map((_, i) => <div key={i} className="flex items-center gap-2">
                             <Skeleton className="h-8 w-8 rounded-full" />
                             <Skeleton className="h-4 w-32" />
-                          </div>
-                        ))}
-                      </div>
-                    ) : poapOwners && poapOwners.length > 0 ? (
-                      <div className="max-h-48 overflow-y-auto space-y-2">
-                        {poapOwners.map((owner, index) => (
-                          <PoapOwnerItem key={`${owner.owner}-${index}`} owner={owner} />
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">No owners found</p>
-                    )}
+                          </div>)}
+                      </div> : poapOwners && poapOwners.length > 0 ? <div className="max-h-48 overflow-y-auto space-y-2">
+                        {poapOwners.map((owner, index) => <PoapOwnerItem key={`${owner.owner}-${index}`} owner={owner} />)}
+                      </div> : <p className="text-sm text-muted-foreground">Loading owners...</p>}
                   </div>
                 </div>
               </div>
-            </>
-          )}
+            </>}
         </DialogContent>
       </Dialog>
     </section>
@@ -184,15 +165,13 @@ const PoapOwnerItem = ({
   const shortAddress = `${owner.owner.substring(0, 6)}...${owner.owner.substring(owner.owner.length - 4)}`;
   const displayName = resolvedEns || shortAddress;
 
-  return (
-    <Link to={`/${resolvedEns || owner.owner}/`} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors">
+  return <Link to={`/${resolvedEns || owner.owner}/`} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors">
       <Avatar className="h-8 w-8">
         <AvatarImage src={avatarUrl || ''} />
         <AvatarFallback>{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
       </Avatar>
       <span className="text-sm font-medium">{displayName}</span>
-    </Link>
-  );
+    </Link>;
 };
 
 export default PoapSection;
