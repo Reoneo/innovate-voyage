@@ -1,174 +1,77 @@
 
-import React, { useState, useMemo } from 'react';
-import CollectionHeader from './CollectionHeader';
-import NftGrid from './NftGrid';
-import NftFilterControls from './NftFilterControls';
+import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { OpenSeaCollection, OpenSeaNft } from './NftCollectionsSection';
+import NftCollectionCard from './NftCollectionCard';
+import NftFilterControls from './NftFilterControls';
+import { OpenSeaNft } from '@/api/services/openseaService';
+
+interface OpenSeaCollection {
+  name: string;
+  nfts: OpenSeaNft[];
+  type: 'ethereum' | 'ens' | 'poap' | '3dns';
+}
 
 interface NftCollectionsContentProps {
   collections: OpenSeaCollection[];
   loading: boolean;
-  baseLogoUrl: string;
-  processNftForDisplay: (nft: any) => OpenSeaNft;
+  selectedType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all';
+  setSelectedType: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all') => void;
+  onNftClick: (nft: OpenSeaNft) => void;
 }
 
 const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
   collections,
   loading,
-  baseLogoUrl,
-  processNftForDisplay
+  selectedType,
+  setSelectedType,
+  onNftClick
 }) => {
-  const [filterValue, setFilterValue] = useState<string>('');
-  const [sortOption, setSortOption] = useState<string>('collection');
-  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
+  const hasEthereumNfts = collections.some(c => c.type === 'ethereum');
+  const hasEnsNfts = collections.some(c => c.type === 'ens');
+  const hasPoapNfts = collections.some(c => c.type === 'poap');
+  const has3dnsNfts = collections.some(c => c.type === '3dns');
 
-  // Process collections for display
-  const processedCollections = useMemo(() => {
-    if (!collections) return [];
-    
-    return collections.map(collection => {
-      // Process NFTs if they exist
-      const processedNfts = collection.nfts 
-        ? collection.nfts.map(processNftForDisplay) 
-        : [];
-        
-      return {
-        ...collection,
-        nfts: processedNfts
-      };
-    });
-  }, [collections, processNftForDisplay]);
-  
-  // Filter collections based on user input
-  const filteredCollections = useMemo(() => {
-    if (!filterValue) return processedCollections;
-    
-    const lowercaseFilter = filterValue.toLowerCase();
-    return processedCollections.filter(collection => 
-      collection.name.toLowerCase().includes(lowercaseFilter)
-    );
-  }, [processedCollections, filterValue]);
-  
-  // Get the currently selected collection
-  const activeCollection = useMemo(() => {
-    if (!selectedCollection) return null;
-    return processedCollections.find(c => c.slug === selectedCollection) || null;
-  }, [selectedCollection, processedCollections]);
-  
-  // All NFTs across all collections
-  const allNfts = useMemo(() => {
-    return processedCollections
-      .flatMap(collection => 
-        (collection.nfts || []).map(nft => ({
-          ...nft,
-          collectionSlug: collection.slug,
-          chainId: collection.chainId
-        }))
-      );
-  }, [processedCollections]);
-  
-  // Handle collection selection
-  const handleCollectionSelect = (slug: string) => {
-    setSelectedCollection(prev => prev === slug ? null : slug);
-  };
+  const filteredCollections = selectedType === 'all' 
+    ? collections 
+    : collections.filter(collection => collection.type === selectedType);
 
   if (loading) {
     return (
-      <div className="space-y-4 p-4">
-        <h2 className="text-xl font-bold mb-6">NFT Collections</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array(6).fill(0).map((_, i) => (
-            <div key={i} className="space-y-2">
-              <Skeleton className="h-40 w-full rounded-lg" />
-              <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!collections || collections.length === 0) {
-    return (
-      <div className="p-6 text-center">
-        <h2 className="text-xl font-bold mb-6">NFT Collections</h2>
-        <div className="py-12 border border-dashed rounded-lg">
-          <p className="text-muted-foreground">No NFT collections found for this wallet</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Skeleton className="h-40 w-full bg-gray-100" />
+        <Skeleton className="h-40 w-full bg-gray-100" />
       </div>
     );
   }
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold">NFT Collections</h2>
-      <p className="text-muted-foreground mb-6">Explore NFT collections owned by this wallet</p>
-
+    <>
       <NftFilterControls 
-        filterValue={filterValue}
-        onFilterChange={setFilterValue}
-        sortOption={sortOption}
-        onSortChange={setSortOption}
+        selectedType={selectedType}
+        onTypeChange={setSelectedType}
+        hasEthereumNfts={hasEthereumNfts}
+        hasEnsNfts={hasEnsNfts}
+        hasPoapNfts={hasPoapNfts}
+        has3dnsNfts={has3dnsNfts}
       />
       
-      <Tabs defaultValue="collections" className="mt-6">
-        <TabsList>
-          <TabsTrigger value="collections">Collections ({filteredCollections.length})</TabsTrigger>
-          <TabsTrigger value="all">All NFTs ({allNfts.length})</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="collections" className="mt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredCollections.map((collection) => (
-              <CollectionHeader
-                key={collection.slug}
-                name={collection.name}
-                imageUrl={collection.image_url}
-                floorPrice={collection.floorPrice || collection.stats?.floor_price}
-                totalSupply={collection.stats?.total_supply}
-                description={collection.description}
-                selected={selectedCollection === collection.slug}
-                onClick={() => handleCollectionSelect(collection.slug)}
-                chainId={collection.chainId}
-                baseLogoUrl={baseLogoUrl}
-              />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="all" className="mt-4">
-          <NftGrid 
-            nfts={allNfts} 
-            baseLogoUrl={baseLogoUrl}
-          />
-        </TabsContent>
-      </Tabs>
-      
-      {activeCollection && (
-        <div className="mt-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">{activeCollection.name} NFTs</h3>
-            <button 
-              className="text-sm text-muted-foreground hover:text-primary"
-              onClick={() => setSelectedCollection(null)}
-            >
-              Close
-            </button>
-          </div>
-          <NftGrid 
-            nfts={(activeCollection.nfts || []).map(nft => ({
-              ...nft,
-              collectionSlug: activeCollection.slug,
-              chainId: activeCollection.chainId
-            }))}
-            baseLogoUrl={baseLogoUrl}
-          />
+      {filteredCollections.length > 0 ? (
+        <div className="space-y-10 pt-4">
+          {filteredCollections.map((collection) => (
+            <NftCollectionCard
+              key={collection.name}
+              collectionName={collection.name}
+              nfts={collection.nfts}
+              onNftClick={onNftClick}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center p-8">
+          <p className="text-muted-foreground">No NFTs found for this category</p>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

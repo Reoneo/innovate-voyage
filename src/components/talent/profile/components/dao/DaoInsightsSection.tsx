@@ -1,126 +1,216 @@
 
 import React, { useState, useEffect } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { mainnetProvider } from '@/utils/ethereumProviders';
 import { ethers } from 'ethers';
-import { formatFixed } from '@ethersproject/bignumber';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Simplified ABI for ERC20 tokens
+const ERC20_ABI = [
+  "function balanceOf(address owner) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+  "function symbol() view returns (string)",
+  "function name() view returns (string)",
+  "function delegates(address) view returns (address)",
+  "function getCurrentVotes(address) view returns (uint256)"
+];
+
+// Common DAO tokens to check
+const DAO_TOKENS = [
+  { name: 'Compound', address: '0xc00e94cb662c3520282e6f5717214004a7f26888', symbol: 'COMP' },
+  { name: 'Uniswap', address: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984', symbol: 'UNI' },
+  { name: 'Aave', address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9', symbol: 'AAVE' },
+  { name: 'ApeCoin', address: '0x4d224452801ACEd8B2F0aebE155379bb5D594381', symbol: 'APE' },
+  { name: 'Gitcoin', address: '0xDe30da39c46104798bB5aA3fe8B9e0e1F348163F', symbol: 'GTC' },
+  { name: 'ENS', address: '0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72', symbol: 'ENS' },
+  { name: 'Maker', address: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2', symbol: 'MKR' }
+];
+
+interface DaoToken {
+  name: string;
+  symbol: string;
+  balance: string;
+  formattedBalance: string;
+  delegatee?: string;
+  votingPower?: string;
+}
 
 interface DaoInsightsSectionProps {
   walletAddress: string;
 }
 
 const DaoInsightsSection: React.FC<DaoInsightsSectionProps> = ({ walletAddress }) => {
-  const [daoData, setDaoData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [tokens, setTokens] = useState<DaoToken[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchDaoData = async () => {
+    const fetchDaoTokens = async () => {
       if (!walletAddress) return;
-      
+
       setLoading(true);
+      setError(null);
+
       try {
-        // This is a placeholder for actual DAO data fetching logic
-        // In a real implementation, you would query relevant contracts or APIs
+        const tokenResults: DaoToken[] = [];
         
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // For now, just provide some mock data
-        const mockDaoData = [
-          {
-            name: 'Uniswap',
-            tokenSymbol: 'UNI',
-            votingPower: '128.45',
-            proposalsVoted: 7,
-            delegatedTo: null
-          },
-          {
-            name: 'Aave',
-            tokenSymbol: 'AAVE',
-            votingPower: '5.2',
-            proposalsVoted: 3,
-            delegatedTo: '0x1234...5678'
+        // Process tokens in parallel for better performance
+        const promises = DAO_TOKENS.map(async (daoToken) => {
+          try {
+            const tokenContract = new ethers.Contract(
+              daoToken.address,
+              ERC20_ABI,
+              mainnetProvider
+            );
+            
+            // Get token balance
+            const balance = await tokenContract.balanceOf(walletAddress);
+            const decimals = await tokenContract.decimals();
+            const formattedBalance = ethers.utils.formatUnits(balance, decimals);
+            
+            // Only include tokens with non-zero balance
+            if (balance.gt(0)) {
+              let delegatee = null;
+              let votingPower = null;
+              
+              // Try to get delegation info if it's a governance token
+              try {
+                delegatee = await tokenContract.delegates(walletAddress);
+                // Only fetch voting power if the address has self-delegated or if someone else delegated to them
+                if (delegatee !== ethers.constants.AddressZero) {
+                  votingPower = await tokenContract.getCurrentVotes(walletAddress);
+                  votingPower = ethers.utils.formatUnits(votingPower, decimals);
+                }
+              } catch (err) {
+                // Not all tokens have delegation functions, so this might fail
+                console.log(`No delegation info for ${daoToken.name}`, err);
+              }
+              
+              return {
+                name: daoToken.name,
+                symbol: daoToken.symbol,
+                balance: balance.toString(),
+                formattedBalance: parseFloat(formattedBalance).toFixed(4),
+                delegatee: delegatee && delegatee !== ethers.constants.AddressZero ? delegatee : undefined,
+                votingPower: votingPower ? parseFloat(votingPower).toFixed(4) : undefined
+              };
+            }
+            return null;
+          } catch (err) {
+            console.error(`Error fetching ${daoToken.name} data:`, err);
+            return null;
           }
-        ];
+        });
         
-        setDaoData(mockDaoData);
-      } catch (error) {
-        console.error('Error fetching DAO data:', error);
+        // Wait for all promises to resolve
+        const results = await Promise.all(promises);
+        
+        // Filter out null results and add to tokens array
+        results.forEach(result => {
+          if (result) tokenResults.push(result);
+        });
+        
+        setTokens(tokenResults);
+      } catch (err) {
+        console.error('Error fetching DAO data:', err);
+        setError('Failed to load DAO data');
       } finally {
         setLoading(false);
       }
     };
-    
-    fetchDaoData();
+
+    fetchDaoTokens();
   }, [walletAddress]);
 
-  // Format address for display
-  const formatAddress = (address: string): string => {
-    if (!address) return '';
-    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
-  };
-
-  // Format big numbers using ethers utils
-  const formatTokenAmount = (amount: string, decimals = 18): string => {
-    try {
-      // Use ethersproject formatFixed instead of ethers.utils
-      return formatFixed(amount, decimals);
-    } catch (error) {
-      return amount;
-    }
-  };
-
-  // Check if an address is a zero address
-  const isZeroAddress = (address: string): boolean => {
-    if (!address) return false;
-    // Use direct comparison instead of ethers.constants
-    return address === "0x0000000000000000000000000000000000000000";
-  };
-
-  if (!walletAddress) return null;
+  if (error) {
+    return (
+      <Card className="bg-white shadow-md rounded-lg p-4 mb-6">
+        <div className="text-center p-6">
+          <p className="text-red-500">{error}</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
-    <section className="mt-4">
-      <h3 className="text-lg font-semibold mb-3">DAO Governance</h3>
+    <Card className="bg-white/90 shadow-md rounded-lg p-4 mb-6 backdrop-blur-sm">
+      <div className="mb-4">
+        <h2 className="text-xl font-bold text-gray-800">DAO Dashboard</h2>
+        <p className="text-sm text-gray-500">On-chain governance participation</p>
+      </div>
       
-      {loading ? (
-        <div className="space-y-4">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-        </div>
-      ) : daoData.length > 0 ? (
-        <div className="space-y-3">
-          {daoData.map((dao, index) => (
-            <div key={index} className="border rounded-lg p-3 bg-card">
-              <div className="flex justify-between items-center mb-2">
-                <h4 className="font-medium">{dao.name}</h4>
-                <span className="bg-primary/10 text-primary text-xs py-1 px-2 rounded-full">
-                  {dao.tokenSymbol}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-y-2 text-sm">
-                <div className="text-muted-foreground">Voting Power</div>
-                <div className="font-medium">{dao.votingPower} {dao.tokenSymbol}</div>
-                
-                <div className="text-muted-foreground">Proposals Voted</div>
-                <div className="font-medium">{dao.proposalsVoted}</div>
-                
-                {dao.delegatedTo && (
-                  <>
-                    <div className="text-muted-foreground">Delegated To</div>
-                    <div className="font-medium">{formatAddress(dao.delegatedTo)}</div>
-                  </>
-                )}
-              </div>
+      <Tabs defaultValue="memberships">
+        <TabsList className="mb-4">
+          <TabsTrigger value="memberships">Memberships</TabsTrigger>
+          <TabsTrigger value="voting">Voting Power</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="memberships">
+          {loading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-6 px-4 border border-dashed rounded-lg">
-          <p className="text-muted-foreground">No DAO participation found</p>
-        </div>
-      )}
-    </section>
+          ) : tokens.length > 0 ? (
+            <div className="space-y-3">
+              {tokens.map(token => (
+                <div key={token.symbol} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <span className="font-semibold">{token.name}</span>
+                    <Badge variant="outline" className="ml-2">{token.symbol}</Badge>
+                  </div>
+                  <div>
+                    <span className="font-mono">{token.formattedBalance}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-gray-500">
+              <p>No DAO memberships found for this address</p>
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="voting">
+          {loading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : tokens.filter(t => t.votingPower).length > 0 ? (
+            <div className="space-y-3">
+              {tokens.filter(t => t.votingPower).map(token => (
+                <div key={`voting-${token.symbol}`} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <span className="font-semibold">{token.name}</span>
+                    <Badge variant="outline" className="ml-2">{token.symbol}</Badge>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-mono">{token.votingPower}</div>
+                    <div className="text-xs text-gray-500">
+                      {token.delegatee && token.delegatee.toLowerCase() === walletAddress.toLowerCase() 
+                        ? 'Self-delegated' 
+                        : 'Delegated'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-gray-500">
+              <p>No voting power found for this address</p>
+              <p className="text-sm mt-2">
+                This could mean tokens aren't delegated yet or the address hasn't received any delegations
+              </p>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+    </Card>
   );
 };
 

@@ -1,81 +1,49 @@
 
-import React, { useState } from 'react';
-import NftDetailsDialog from './NftDetailsDialog';
+import React from 'react';
+import { OpenSeaNft } from '@/api/services/openseaService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface NftItemProps {
-  id: string;
-  name?: string;
-  imageUrl?: string;
-  collectionName?: string;
-  description?: string;
-  permalink?: string;
-  traits?: Array<{ trait_type: string; value: string }>;
-  collectionSlug?: string;
-  chainId?: number;
-  baseLogoUrl?: string;
+  nft: OpenSeaNft & { count?: number };
+  onClick: (nft: OpenSeaNft & { count?: number }) => void;
 }
 
-const NftItem: React.FC<NftItemProps> = ({
-  id,
-  name = 'Unnamed NFT',
-  imageUrl,
-  collectionName = 'Unknown Collection',
-  description,
-  permalink,
-  traits = [],
-  chainId,
-  baseLogoUrl
-}) => {
-  const [detailOpen, setDetailOpen] = useState(false);
-  const isBaseChain = chainId === 8453;
+const NftItem: React.FC<NftItemProps> = ({ nft, onClick }) => {
+  const handleClick = () => {
+    onClick(nft);
+  };
+
+  // Show count badge if NFT count is more than 1
+  const showCountBadge = nft.count && nft.count > 1;
 
   return (
-    <>
-      <div 
-        className="border rounded-lg overflow-hidden cursor-pointer hover:shadow-md transition-all"
-        onClick={() => setDetailOpen(true)}
-      >
-        <div className="relative h-40 bg-muted">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://placehold.co/400x300/e5e7eb/a1a1aa?text=No+Image';
-              }}
-            />
-          ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">
-              No Image
-            </div>
-          )}
-          {isBaseChain && baseLogoUrl && (
-            <div className="absolute top-2 right-2 h-6 w-6 bg-white rounded-full p-0.5 shadow">
-              <img src={baseLogoUrl} alt="Base Network" className="w-full h-full" />
+    <div 
+      className="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 cursor-pointer transition-all hover:scale-105"
+      onClick={handleClick}
+    >
+      {nft.imageUrl ? (
+        <div className="relative h-full w-full">
+          <img 
+            src={nft.imageUrl} 
+            alt={nft.name || "NFT"} 
+            className="h-full w-full object-cover transition-opacity group-hover:opacity-90"
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
+            }}
+          />
+          
+          {/* NFT count badge */}
+          {showCountBadge && (
+            <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 text-xs font-bold rounded-full">
+              {nft.count}x
             </div>
           )}
         </div>
-        <div className="p-3">
-          <h3 className="font-medium text-sm truncate">{name}</h3>
-          <p className="text-xs text-muted-foreground truncate">{collectionName}</p>
-        </div>
-      </div>
-      
-      <NftDetailsDialog
-        open={detailOpen}
-        onOpenChange={setDetailOpen}
-        nft={{
-          id,
-          name,
-          imageUrl,
-          collectionName,
-          description: description || '',
-          permalink: permalink || '',
-          traits: traits || []
-        }}
-      />
-    </>
+      ) : (
+        <Skeleton className="h-full w-full" />
+      )}
+    </div>
   );
 };
 

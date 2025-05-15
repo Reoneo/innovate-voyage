@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -69,92 +68,48 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   };
 
   if (!walletAddress) return null;
-  
-  // Don't render anything if no POAPs and not loading
-  if (poaps.length === 0 && !isLoading) return null;
-  
   const currentPoap = poaps[currentPoapIndex];
 
+  if (poaps.length === 0 && !isLoading) return null;
+
   return (
-    <section className="mt-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold">POAPs</h3>
-        {poaps.length > 0 && (
-          <div className="text-sm text-muted-foreground">{currentPoapIndex + 1} of {poaps.length}</div>
-        )}
-      </div>
-      
+    <section>
       <div className="relative flex items-center justify-center">
-        {/* Purple bordered POAP badge container */}
-        <div className="relative w-full max-w-[280px] mx-auto">
-          <div className="aspect-square w-full flex items-center justify-center">
-            {/* Purple border SVG */}
-            <svg viewBox="0 0 200 200" className="absolute inset-0 w-full h-full">
-              <path
-                d="M100,10 C120,10 140,20 160,40 C180,60 190,80 190,100 C190,120 180,140 160,160 C140,180 120,190 100,190 C80,190 60,180 40,160 C20,140 10,120 10,100 C10,80 20,60 40,40 C60,20 80,10 100,10 Z"
-                fill="none"
-                stroke="#8B5CF6"
-                strokeWidth="4"
+        <div className="relative w-full h-[300px] mx-auto">
+          {isLoading ? (
+            <Skeleton className="h-[280px] w-[280px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+          ) : poaps.length > 0 ? (
+            <div className="relative flex items-center justify-center h-full">
+              <img 
+                src={currentPoap.event.image_url} 
+                alt={currentPoap.event.name} 
+                onClick={() => handleOpenDetail(currentPoap)}
+                className="w-56 h-56 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer rounded-full p-4" 
+                style={{
+                  objectFit: 'contain',
+                  background: 'linear-gradient(45deg, rgba(139,92,246,0.1), rgba(30,174,219,0.1))',
+                  boxShadow: '0 0 30px rgba(139,92,246,0.2)',
+                  border: '2px solid rgba(139,92,246,0.2)'
+                }}
               />
-              {/* Pink ribbons */}
-              <path
-                d="M100,190 L70,230 L100,210 L130,230 L100,190"
-                fill="#FFD6E8"
-                stroke="#000"
-                strokeWidth="1"
-              />
-            </svg>
-            
-            {/* POAP Content - positioned to fit inside the purple border */}
-            <div className="relative z-10 w-[85%] h-[85%] rounded-full overflow-hidden flex items-center justify-center">
-              {isLoading ? (
-                <Skeleton className="h-full w-full rounded-full" />
-              ) : poaps.length > 0 ? (
-                <img 
-                  src={currentPoap.event.image_url} 
-                  alt={currentPoap.event.name} 
-                  onClick={() => handleOpenDetail(currentPoap)}
-                  className="w-full h-full object-contain rounded-full cursor-pointer" 
-                />
-              ) : (
-                <div className="text-center p-4">
-                  <p className="text-sm text-muted-foreground">No POAPs found</p>
-                </div>
-              )}
+              <button
+                onClick={() => currentPoapIndex > 0 && setCurrentPoapIndex(prev => prev - 1)}
+                className="absolute left-0 z-30 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm -translate-x-1/2"
+                disabled={currentPoapIndex === 0}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => currentPoapIndex < poaps.length - 1 && setCurrentPoapIndex(prev => prev + 1)}
+                className="absolute right-0 z-30 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm translate-x-1/2"
+                disabled={currentPoapIndex === poaps.length - 1}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
-            
-            {/* Navigation buttons */}
-            {poaps.length > 1 && (
-              <>
-                <button
-                  onClick={() => currentPoapIndex > 0 && setCurrentPoapIndex(prev => prev - 1)}
-                  className="absolute left-0 z-30 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm -translate-x-1/2"
-                  disabled={currentPoapIndex === 0}
-                  style={{ top: '50%', transform: 'translateY(-50%)' }}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => currentPoapIndex < poaps.length - 1 && setCurrentPoapIndex(prev => prev + 1)}
-                  className="absolute right-0 z-30 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm translate-x-1/2"
-                  disabled={currentPoapIndex === poaps.length - 1}
-                  style={{ top: '50%', transform: 'translateY(-50%)' }}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </>
-            )}
-          </div>
+          ) : null}
         </div>
       </div>
-      
-      {/* Show POAP name if available */}
-      {poaps.length > 0 && !isLoading && (
-        <div className="text-center mt-3">
-          <p className="text-sm font-medium truncate">{currentPoap.event.name}</p>
-          <p className="text-xs text-muted-foreground">{currentPoap.event.year}</p>
-        </div>
-      )}
 
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="max-w-md">
