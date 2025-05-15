@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button";
 import NftDetailsDialog from './NftDetailsDialog';
 import NftCollectionsContent from './NftCollectionsContent';
 
+interface OpenSeaCollection {
+  name: string;
+  nfts: OpenSeaNft[];
+  type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base';
+}
+
 interface NftCollectionsSectionProps {
   walletAddress?: string;
   showCollections?: boolean;
@@ -18,9 +24,9 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   showCollections = false,
   onOpenChange
 }) => {
-  const [collections, setCollections] = useState<any[]>([]);
+  const [collections, setCollections] = useState<OpenSeaCollection[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
+  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | '3dns' | 'base' | 'all'>('all');
   const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
 
   useEffect(() => {
@@ -29,10 +35,57 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     const loadNfts = async () => {
       setLoading(true);
       try {
-        const nftCollections = await fetchUserNfts(walletAddress);
-        setCollections(nftCollections);
+        const nftData = await fetchUserNfts(walletAddress);
+        
+        // Process the raw NFT data into collection groups
+        const processedCollections: OpenSeaCollection[] = [];
+        
+        // Group by collection and type
+        if (nftData && Array.isArray(nftData)) {
+          const nftsByCollection: Record<string, { nfts: OpenSeaNft[], type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' }> = {};
+          
+          nftData.forEach(nft => {
+            // Determine the type based on collection name or other properties
+            let type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'base' = 'ethereum';
+            const collectionName = nft.collectionName || 'Unknown Collection';
+            
+            if (collectionName.toLowerCase().includes('ens')) {
+              type = 'ens';
+            } else if (collectionName.toLowerCase().includes('poap')) {
+              type = 'poap';
+            } else if (collectionName.toLowerCase().includes('3dns')) {
+              type = '3dns';
+            } else if (collectionName.toLowerCase().includes('base')) {
+              type = 'base';
+            }
+            
+            // Create collection if it doesn't exist
+            if (!nftsByCollection[collectionName]) {
+              nftsByCollection[collectionName] = {
+                nfts: [],
+                type
+              };
+            }
+            
+            // Add NFT to collection
+            nftsByCollection[collectionName].nfts.push(nft);
+          });
+          
+          // Convert the grouped collections to array
+          Object.entries(nftsByCollection).forEach(([name, data]) => {
+            processedCollections.push({
+              name,
+              nfts: data.nfts,
+              type: data.type
+            });
+          });
+        }
+        
+        console.log('Processed NFT collections:', processedCollections);
+        setCollections(processedCollections);
       } catch (error) {
         console.error('Error loading NFTs:', error);
+        setCollections([]);
       } finally {
         setLoading(false);
       }
@@ -66,7 +119,10 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
               <h2 className="text-lg font-semibold text-gray-900">
                 {selectedType === 'all' ? 'All Collections' : 
                  selectedType === 'ethereum' ? 'NFT Collections' :
-                 selectedType === 'ens' ? 'ENS Collection' : 'POAP Collection'}
+                 selectedType === 'ens' ? 'ENS Collection' :
+                 selectedType === 'poap' ? 'POAP Collection' :
+                 selectedType === '3dns' ? '3DNS Collection' : 
+                 'Base Collection'}
               </h2>
             </DialogHeader>
             <Button
