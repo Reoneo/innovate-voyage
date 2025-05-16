@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -73,42 +74,58 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   if (poaps.length === 0 && !isLoading) return null;
 
   return (
-    <section>
-      <div className="relative flex items-center justify-center">
-        <div className="relative w-full h-[300px] mx-auto">
-          {isLoading ? (
-            <Skeleton className="h-[280px] w-[280px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-          ) : poaps.length > 0 ? (
-            <div className="relative flex items-center justify-center h-full">
+    <section className="w-full flex flex-col items-center">
+      <div className="relative w-full aspect-square flex items-center justify-center">
+        {isLoading ? (
+          <Skeleton className="w-52 h-52 rounded-full" />
+        ) : poaps.length > 0 ? (
+          <div className="relative flex items-center justify-center w-full">
+            {/* Purple Border Shape */}
+            <div 
+              className="absolute w-[95%] h-[95%] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+              style={{
+                background: 'transparent',
+                border: '5px solid #8B5CF6',
+                borderRadius: '48%',
+                clipPath: 'polygon(50% 0%, 80% 10%, 100% 35%, 100% 70%, 80% 90%, 50% 100%, 20% 90%, 0% 70%, 0% 35%, 20% 10%)'
+              }}
+            />
+
+            {/* POAP Badge */}
+            <div className="relative">
               <img 
                 src={currentPoap.event.image_url} 
                 alt={currentPoap.event.name} 
                 onClick={() => handleOpenDetail(currentPoap)}
-                className="w-56 h-56 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer rounded-full p-4" 
+                className="w-44 h-44 rounded-full cursor-pointer z-10 object-contain p-2"
                 style={{
-                  objectFit: 'contain',
-                  background: 'linear-gradient(45deg, rgba(139,92,246,0.1), rgba(30,174,219,0.1))',
-                  boxShadow: '0 0 30px rgba(139,92,246,0.2)',
-                  border: '2px solid rgba(139,92,246,0.2)'
+                  background: 'rgba(0,0,0,0.7)',
+                  boxShadow: '0 0 20px rgba(139,92,246,0.3)'
                 }}
               />
-              <button
-                onClick={() => currentPoapIndex > 0 && setCurrentPoapIndex(prev => prev - 1)}
-                className="absolute left-0 z-30 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm -translate-x-1/2"
-                disabled={currentPoapIndex === 0}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => currentPoapIndex < poaps.length - 1 && setCurrentPoapIndex(prev => prev + 1)}
-                className="absolute right-0 z-30 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm translate-x-1/2"
-                disabled={currentPoapIndex === poaps.length - 1}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
+
+              {/* Navigation Controls */}
+              {poaps.length > 1 && (
+                <>
+                  <button
+                    onClick={() => currentPoapIndex > 0 && setCurrentPoapIndex(prev => prev - 1)}
+                    className="absolute left-0 top-1/2 z-20 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white -translate-x-1/2 -translate-y-1/2"
+                    disabled={currentPoapIndex === 0}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => currentPoapIndex < poaps.length - 1 && setCurrentPoapIndex(prev => prev + 1)}
+                    className="absolute right-0 top-1/2 z-20 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white translate-x-1/2 -translate-y-1/2"
+                    disabled={currentPoapIndex === poaps.length - 1}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </>
+              )}
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </div>
 
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
@@ -142,7 +159,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
                           </div>)}
                       </div> : poapOwners && poapOwners.length > 0 ? <div className="max-h-48 overflow-y-auto space-y-2">
                         {poapOwners.map((owner, index) => <PoapOwnerItem key={`${owner.owner}-${index}`} owner={owner} />)}
-                      </div> : <p className="text-sm text-muted-foreground">Loading owners...</p>}
+                      </div> : <p className="text-sm text-muted-foreground">No other owners found</p>}
                   </div>
                 </div>
               </div>
