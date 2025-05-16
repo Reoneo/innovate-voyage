@@ -1,13 +1,24 @@
 
 import React from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { ScoreDialogProps } from './types';
 import TalentScoreDialogContent from './dialogs/TalentScoreDialogContent';
 import WebacyDialogContent from './dialogs/WebacyDialogContent';
 import TransactionsDialogContent from './dialogs/TransactionsDialogContent';
 import TallyDialogContent from '../tally/TallyDialogContent';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+interface ScoreDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  type: 'talent' | 'webacy' | 'transactions' | 'tally';
+  data: {
+    score?: number;
+    webacyData?: any;
+    txCount?: number;
+    walletAddress?: string;
+  };
+}
 
 const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, data }) => {
   const { score, webacyData, txCount, walletAddress } = data;

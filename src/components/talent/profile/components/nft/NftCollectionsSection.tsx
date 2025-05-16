@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { fetchUserNfts, type OpenSeaNft } from '@/api/services/openseaService';
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
@@ -5,11 +6,13 @@ import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import NftDetailsDialog from './NftDetailsDialog';
 import NftCollectionsContent from './NftCollectionsContent';
+
 interface NftCollectionsSectionProps {
   walletAddress?: string;
   showCollections?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
+
 export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   walletAddress,
   showCollections = false,
@@ -17,8 +20,9 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
 }) => {
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | 'all'>('all');
+  const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | '3dns' | 'all'>('all');
   const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
+
   useEffect(() => {
     if (!walletAddress) return;
     const loadNfts = async () => {
@@ -34,6 +38,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     };
     loadNfts();
   }, [walletAddress]);
+
   if (!walletAddress) return null;
 
   // Handle NFT click to show details
@@ -49,6 +54,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     // Navigate to the profile - this will be handled by the parent component
     window.location.href = `/${name.toLowerCase()}/`;
   };
+
   return <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto bg-white text-gray-800 border border-gray-200 p-6 shadow-lg">
@@ -62,7 +68,13 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
           </div>
 
           <div className="pt-4">
-            <NftCollectionsContent collections={collections} loading={loading} selectedType={selectedType} setSelectedType={setSelectedType} onNftClick={handleNftClick} />
+            <NftCollectionsContent 
+              collections={collections} 
+              loading={loading} 
+              selectedType={selectedType} 
+              setSelectedType={(type) => setSelectedType(type)} 
+              onNftClick={handleNftClick} 
+            />
           </div>
         </DialogContent>
       </Dialog>
