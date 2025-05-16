@@ -83,7 +83,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
               <img src={currentPoap.event.image_url} alt={currentPoap.event.name} onClick={() => handleOpenDetail(currentPoap)} style={{
             background: 'rgba(0,0,0,0.7)',
             boxShadow: '0 0 20px rgba(139,92,246,0.3)'
-          }} className="w-44 h-44 rounded-full cursor-pointer z-10 p-2 object-contain" />
+          }} className="w-44 h-44 rounded-full cursor-pointer z-10 p-2 object-cover" />
 
               {/* Navigation Controls */}
               {poaps.length > 1 && <>
