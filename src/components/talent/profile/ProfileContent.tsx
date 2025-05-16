@@ -6,7 +6,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
-import TallyInsightsSection from './components/tally/TallyInsightsSection';
+import DaoInsightsSection from './components/dao/DaoInsightsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -133,9 +133,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 </div>
               )}
               
-              {/* Tally Insights Section - replacing the DAO section */}
+              {/* DAO Insights Section */}
               <div className="mt-6">
-                <TallyInsightsSection walletAddress={passport.owner_address} />
+                <DaoInsightsSection walletAddress={passport.owner_address} />
               </div>
             </div>
           </div>

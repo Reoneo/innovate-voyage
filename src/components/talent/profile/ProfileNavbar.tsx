@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Search } from 'lucide-react';
+import { Home, Search, MessageSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -66,12 +66,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             className="text-white hover:text-gray-300 transition-colors" 
             aria-label="XMTP Messages"
           >
-            {/* New XMTP icon from GitHub repo */}
-            <img 
-              src="https://raw.githubusercontent.com/xmtp/brand/main/assets/x-mark-red.png" 
-              alt="XMTP Messages" 
-              className="h-6 w-6"
-            />
+            <MessageSquare className="h-6 w-6" />
           </button>
         </form>
       </div>
