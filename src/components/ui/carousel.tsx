@@ -5,14 +5,14 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
-  type CarouselApi,
-} from "./carousel"
+} from "./carousel/index"
 
 export {
-  type CarouselApi,
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
 }
+
+export type { CarouselApi } from "./carousel/carousel-types"

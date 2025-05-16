@@ -80,14 +80,17 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
           <Skeleton className="w-52 h-52 rounded-full" />
         ) : poaps.length > 0 ? (
           <div className="relative flex items-center justify-center w-full">
-            {/* Purple Border Shape */}
+            {/* Custom border using the uploaded image */}
             <div 
               className="absolute w-[95%] h-[95%] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
               style={{
-                background: 'transparent',
-                border: '5px solid #8B5CF6',
-                borderRadius: '48%',
-                clipPath: 'polygon(50% 0%, 80% 10%, 100% 35%, 100% 70%, 80% 90%, 50% 100%, 20% 90%, 0% 70%, 0% 35%, 20% 10%)'
+                backgroundImage: 'url(/lovable-uploads/ac1aa36b-574e-46b2-b6b6-ef8a4060894f.png)',
+                backgroundSize: 'contain',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                width: '100%',
+                height: '100%',
+                zIndex: 10
               }}
             />
 
