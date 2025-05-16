@@ -6,9 +6,11 @@ import { fetchPoapsByAddress, fetchPoapEventOwners, type Poap } from '@/api/serv
 import { Link } from 'react-router-dom';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 interface PoapSectionProps {
   walletAddress?: string;
 }
+
 const PoapSection: React.FC<PoapSectionProps> = ({
   walletAddress
 }) => {
@@ -84,6 +86,16 @@ const PoapSection: React.FC<PoapSectionProps> = ({
             background: 'rgba(0,0,0,0.7)',
             boxShadow: '0 0 20px rgba(139,92,246,0.3)'
           }} className="w-44 h-44 rounded-full cursor-pointer z-10 p-2 object-contain" />
+              
+              {/* Ribbon image at the bottom */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-[25%] z-20 w-24 h-12 pointer-events-none">
+                <img 
+                  src="/lovable-uploads/622c8c1a-7824-4044-8569-54d2cea4444d.png" 
+                  alt="Ribbon decoration" 
+                  className="w-full object-contain"
+                  style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25))' }}
+                />
+              </div>
 
               {/* Navigation Controls */}
               {poaps.length > 1 && <>
@@ -138,6 +150,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
       </Dialog>
     </section>;
 };
+
 const PoapOwnerItem = ({
   owner
 }: {
@@ -157,4 +170,5 @@ const PoapOwnerItem = ({
       <span className="text-sm font-medium">{displayName}</span>
     </Link>;
 };
+
 export default PoapSection;
