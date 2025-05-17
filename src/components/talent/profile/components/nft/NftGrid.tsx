@@ -9,8 +9,13 @@ interface NftGridProps {
 }
 
 const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick }) => {
+  // Filter out POAP v2 collections
+  const filteredNfts = nfts.filter(nft => 
+    !nft.collectionName?.toLowerCase().includes('poap v2')
+  );
+  
   // Combine NFTs by ID for display with count
-  const groupedNfts = nfts.reduce<Record<string, OpenSeaNft & { count?: number }>>((acc, nft) => {
+  const groupedNfts = filteredNfts.reduce<Record<string, OpenSeaNft & { count?: number }>>((acc, nft) => {
     const key = `${nft.id}-${nft.collectionName}`;
     
     if (acc[key]) {

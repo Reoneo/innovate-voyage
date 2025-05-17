@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -104,8 +103,8 @@ const PoapSection: React.FC<PoapSectionProps> = ({
               }}
               className="w-full max-w-xs"
               onSelect={(api) => {
-                const currentIndex = api?.selectedScrollSnap();
-                if (currentIndex !== undefined) {
+                if (api) {
+                  const currentIndex = api.selectedScrollSnap();
                   setCurrentPoapIndex(currentIndex);
                 }
               }}

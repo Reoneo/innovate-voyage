@@ -26,14 +26,19 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
   setSelectedType,
   onNftClick
 }) => {
-  const hasEthereumNfts = collections.some(c => c.type === 'ethereum');
-  const hasEnsNfts = collections.some(c => c.type === 'ens');
-  const hasPoapNfts = collections.some(c => c.type === 'poap');
-  const has3dnsNfts = collections.some(c => c.type === '3dns');
+  // Filter out POAP v2 collections
+  const filteredAllCollections = collections.filter(collection => 
+    !collection.name.toLowerCase().includes('poap v2')
+  );
+  
+  const hasEthereumNfts = filteredAllCollections.some(c => c.type === 'ethereum');
+  const hasEnsNfts = filteredAllCollections.some(c => c.type === 'ens');
+  const hasPoapNfts = filteredAllCollections.some(c => c.type === 'poap');
+  const has3dnsNfts = filteredAllCollections.some(c => c.type === '3dns');
 
   const filteredCollections = selectedType === 'all' 
-    ? collections 
-    : collections.filter(collection => collection.type === selectedType);
+    ? filteredAllCollections 
+    : filteredAllCollections.filter(collection => collection.type === selectedType);
 
   if (loading) {
     return (
