@@ -238,7 +238,7 @@ body.generating-pdf {
 /* Weekday labels and month labels */
 .github-calendar-dark .wday,
 .github-calendar-dark .month {
-  color: #8b949e !important;
+  color: #ffffff !important;
   font-size: 10px !important;
 }
 
