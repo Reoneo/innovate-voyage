@@ -1,33 +1,32 @@
-
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getBuilderTitle } from './utils/scoreUtils';
 import { ScoreBadgeProps } from './types';
-
 interface TalentScoreBadgeProps extends ScoreBadgeProps {
   score: number | null;
   talentId?: string;
 }
-
-const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, isLoading, talentId }) => {
+const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
+  score,
+  onClick,
+  isLoading,
+  talentId
+}) => {
   if (isLoading) {
     return <Skeleton className="h-28 w-full" />;
   }
-
   const handleClick = () => {
     if (onClick) {
       onClick();
     }
-    
+
     // Open Talent Protocol in new tab if talentId is provided
     if (talentId) {
       window.open(`https://app.talentprotocol.com/${talentId}`, '_blank');
     }
   };
-
-  return (
-    <div onClick={handleClick} className="cursor-pointer transition-all hover:opacity-80">
-      <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black h-full">
+  return <div onClick={handleClick} className="cursor-pointer transition-all hover:opacity-80">
+      <div className="flex flex-col items-center gap-2 p-4 bg-black h-full px-0 rounded-full py-[21px]">
         <div className="flex items-center justify-center w-full">
           <div className="text-white text-lg font-semibold">Builder Score</div>
         </div>
@@ -38,8 +37,6 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({ score, onClick, isL
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default TalentScoreBadge;
