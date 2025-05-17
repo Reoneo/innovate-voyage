@@ -4,7 +4,6 @@ import useEmblaCarousel from "embla-carousel-react"
 import { cn } from "@/lib/utils"
 import { CarouselContext } from "./carousel-context"
 import { type CarouselApi, type CarouselProps } from "./carousel-types"
-import { useCarousel } from "./carousel-context"
 
 const Carousel = React.forwardRef<
   HTMLDivElement,
@@ -118,7 +117,7 @@ const CarouselContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  const { carouselRef, orientation } = useCarousel()
+  const { carouselRef, orientation } = React.useContext(CarouselContext)!
 
   return (
     <div ref={carouselRef} className="overflow-hidden">
@@ -140,7 +139,7 @@ const CarouselItem = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  const { orientation } = useCarousel()
+  const { orientation } = React.useContext(CarouselContext)!
 
   return (
     <div
