@@ -80,14 +80,18 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
           <Skeleton className="w-52 h-52 rounded-full" />
         ) : poaps.length > 0 ? (
           <div className="relative flex items-center justify-center w-full">
-            {/* Purple Border Shape */}
+            {/* Animated Rainbow Border */}
             <div 
-              className="absolute w-[95%] h-[95%] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+              className="absolute w-[95%] h-[95%] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
               style={{
                 background: 'transparent',
-                border: '5px solid #8B5CF6',
-                borderRadius: '48%',
-                clipPath: 'polygon(50% 0%, 80% 10%, 100% 35%, 100% 70%, 80% 90%, 50% 100%, 20% 90%, 0% 70%, 0% 35%, 20% 10%)'
+                border: '5px solid transparent',
+                borderRadius: '50%',
+                backgroundImage: 'linear-gradient(white, white), linear-gradient(to right, #9b87f5, #D946EF, #F97316, #33C3F0, #9b87f5)',
+                backgroundOrigin: 'border-box',
+                backgroundClip: 'content-box, border-box',
+                animation: 'gradient-animation 3s ease infinite',
+                boxShadow: '0 0 15px rgba(0,0,0,0.2)'
               }}
             />
 
