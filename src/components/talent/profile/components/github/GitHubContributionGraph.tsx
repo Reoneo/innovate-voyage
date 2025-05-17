@@ -67,7 +67,7 @@ export default function GitHubContributionGraph({
       
       {!loading && !error && username && <div className="github-calendar-wrapper py-[3px] my-[2px] rounded-sm mx-px px-[8px] bg-gray-200">
           {/* Modified header with Github Activity text */}
-          <div className="bg-gray-800/50 rounded-md p-1 mb-2 flex items-center justify-center">
+          <div className="rounded-md p-1 mb-2 flex items-center justify-center bg-zinc-950 px-0 py-0">
             <div className="text-sm font-semibold text-white">
               <span className="text-base font-bold">GitHub Activity: </span>
               <span className="text-base font-bold text-green-400" id="contribution-count-banner">
