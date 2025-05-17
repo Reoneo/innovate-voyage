@@ -1,0 +1,20 @@
+
+/* PDF Generation Styles */
+body.generating-pdf {
+  overflow: hidden;
+}
+
+@media print {
+  #resume-pdf {
+    padding: 20mm;
+    max-width: 100%;
+    box-shadow: none !important;
+    background-color: white !important;
+  }
+  
+  #resume-pdf * {
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

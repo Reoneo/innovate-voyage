@@ -1,0 +1,123 @@
+
+/* GitHub Calendar Styles */
+.calendar-container {
+  min-height: 180px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+/* Dark theme for GitHub calendar */
+.github-calendar-wrapper {
+  background-color: #0d1117;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.github-calendar-dark {
+  color: #c9d1d9 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.github-calendar-dark .calendar {
+  border: none !important;
+  width: 100% !important;
+}
+
+.github-calendar-dark .contrib-number {
+  color: #f0f6fc !important;
+  font-weight: 600 !important;
+  font-size: 1.5rem !important;
+}
+
+.github-calendar-dark .contrib-column {
+  padding: 15px 0 15px 5px !important;
+  text-align: center !important;
+}
+
+.github-calendar-dark .contrib-column-first {
+  padding-left: 0 !important;
+}
+
+.github-calendar-dark .table-column {
+  padding: 5px 0 5px 5px !important;
+  text-align: center !important;
+  font-size: 12px !important;
+}
+
+.github-calendar-dark .contrib-day {
+  width: 13px !important;
+  height: 13px !important;
+  margin: 2px;
+}
+
+.github-calendar-dark .contrib-footer {
+  padding: 0 10px 12px !important;
+  margin: 0 auto !important;
+  border: none !important;
+  font-size: 12px !important;
+  color: #8b949e !important;
+}
+
+/* Calendar colors to match GitHub's dark theme */
+.github-calendar-dark .day {
+  shape-rendering: geometricPrecision;
+  outline: 1px solid rgba(27, 31, 35, 0.1);
+  background-color: #161b22 !important;
+  border-radius: 2px;
+}
+
+.github-calendar-dark .day[data-level='0'] {
+  background-color: #161b22 !important;
+}
+
+.github-calendar-dark .day[data-level='1'] {
+  background-color: #0e4429 !important;
+}
+
+.github-calendar-dark .day[data-level='2'] {
+  background-color: #006d32 !important;
+}
+
+.github-calendar-dark .day[data-level='3'] {
+  background-color: #26a641 !important;
+}
+
+.github-calendar-dark .day[data-level='4'] {
+  background-color: #39d353 !important;
+}
+
+/* Weekday labels and month labels */
+.github-calendar-dark .wday,
+.github-calendar-dark .month {
+  color: #8b949e !important;
+  font-size: 10px !important;
+}
+
+.github-calendar-dark a {
+  color: #58a6ff !important;
+  text-decoration: none !important;
+}
+
+.github-calendar-dark a:hover {
+  text-decoration: underline !important;
+}
+
+/* Improved container in dark theme */
+.github-calendar-dark .position-relative {
+  position: relative !important;
+  padding-top: 0.5rem !important;
+}
+
+/* Ensure text is visible in dark theme */
+.github-calendar-dark .text-gray {
+  color: #8b949e !important;
+}
+
+.github-calendar-dark .float-left {
+  float: left !important;
+}
+
+.github-calendar-dark .float-right {
+  float: right !important;
+}
