@@ -1,10 +1,18 @@
 
-// Re-export the carousel components from their source files
-export {
-  type CarouselApi,
+import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
 } from "./carousel/index"
+
+export {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+}
+
+export type { CarouselApi } from "./carousel/carousel-types"
