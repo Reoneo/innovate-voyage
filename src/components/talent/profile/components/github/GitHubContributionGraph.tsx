@@ -88,6 +88,7 @@ export default function GitHubContributionGraph({
                 <GitHubCalendar username={username} colorScheme="dark" theme={theme} hideColorLegend={true} hideMonthLabels={false} showWeekdayLabels={true} blockSize={7} blockMargin={1.5} blockRadius={1} fontSize={7} transformData={transformData} labels={{
             months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
+            totalCount: '{{count}} contributions'
           }} />
               </div>}
           </div>
