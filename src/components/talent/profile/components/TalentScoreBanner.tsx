@@ -2,9 +2,11 @@
 import React, { useState } from 'react';
 import TalentScoreBadge from './scores/TalentScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
+import SecurityScoreBadge from './scores/SecurityScoreBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
+import { useWebacyData } from '@/hooks/useWebacyData';
 
 interface TalentScoreBannerProps {
   walletAddress: string;
@@ -12,11 +14,12 @@ interface TalentScoreBannerProps {
 
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<'talent' | 'transactions'>('talent');
+  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions'>('talent');
   const { score, txCount, loading } = useScoresData(walletAddress);
+  const { securityData, isLoading: webacyLoading } = useWebacyData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
 
-  const handleBadgeClick = (type: 'talent' | 'transactions') => {
+  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions') => {
     setActiveDialog(type);
     setDialogOpen(true);
   };
@@ -38,6 +41,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             score={score} 
             onClick={() => handleBadgeClick('talent')}
             isLoading={loading} 
+            talentId={walletAddress} 
           />
         )}
         <TransactionsBadge 
@@ -45,6 +49,15 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
           walletAddress={walletAddress}
           onClick={handleNftButtonClick}
           isLoading={loading} 
+        />
+      </div>
+      
+      {/* Security Score Section */}
+      <div className="mt-4">
+        <SecurityScoreBadge 
+          webacyData={securityData} 
+          onClick={() => handleBadgeClick('webacy')}
+          isLoading={webacyLoading} 
         />
       </div>
 
@@ -60,7 +73,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
         type={activeDialog}
         data={{
           score,
-          webacyData: null,
+          webacyData: securityData,
           txCount,
           walletAddress
         }}
