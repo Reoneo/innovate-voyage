@@ -43,12 +43,12 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
                   background: 'rgba(0,0,0,0.7)'
                 }} 
               />
-              <div className="absolute inset-0 rounded-full border-2 border-transparent animate-rainbow-border"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
             </div>
           </CarouselItem>
         ))}
       </CarouselContent>
-      {/* No navigation buttons as requested */}
+      {/* Removed CarouselPrevious and CarouselNext buttons */}
     </Carousel>
   );
 };

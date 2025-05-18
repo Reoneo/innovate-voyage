@@ -108,8 +108,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
       ) : passport ? (
         <HeaderContainer>
           <div className="w-full grid grid-cols-1 md:grid-cols-10 gap-6 h-full">
-            {/* For mobile, we use a fixed 35% width instead of col-span-3 */}
-            <div className={`${isMobile ? 'w-[35%]' : 'md:col-span-3'} flex flex-col space-y-4`}>
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
               <AvatarSection
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
@@ -123,8 +122,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
             </div>
-            {/* For mobile, we use a fixed 65% width instead of col-span-7 */}
-            <div className={`${isMobile ? 'w-[65%]' : 'md:col-span-7'} space-y-6`}>
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
               {/* GitHub contribution graph */}
@@ -133,6 +131,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}
+              
+              {/* Tally Insights Section removed as requested */}
             </div>
           </div>
         </HeaderContainer>

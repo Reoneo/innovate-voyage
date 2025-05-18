@@ -1,9 +1,9 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Share2, Download, Save, LogOut } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Home, Search } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
@@ -12,53 +12,70 @@ interface ProfileNavbarProps {
 }
 
 const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
-  connectedWallet,
-  onDisconnect,
-  onSaveChanges
+  connectedWallet
 }) => {
-  const isMobile = useIsMobile();
-  
+  const [search, setSearch] = useState('');
+  const navigate = useNavigate();
+
+  const handleOpenXmtpModal = () => {
+    if (window.xmtpMessageModal) {
+      window.xmtpMessageModal.showModal();
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (search.trim()) {
+      // Convert search to lowercase for case-insensitive matching
+      const searchTerm = search.trim().toLowerCase();
+      navigate(`/recruitment.box/${searchTerm}/`);
+      window.location.reload();
+    }
+  };
+
   return (
-    <header className={`fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200 transition-all ${isMobile ? 'py-4' : 'py-2'}`}>
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Link to="/" className="flex items-center">
-            <img 
-              src="/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" 
-              alt="Logo" 
-              className={`${isMobile ? 'h-8 w-8' : 'h-6 w-6'} mr-2`} 
-            />
-            <span className={`font-semibold text-gray-800 ${isMobile ? 'text-xl' : 'text-base'}`}>
-              recruitment.box
-            </span>
+    <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-600/20 shadow-sm bg-gray-800/30">
+      <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between h-14">
+        {/* Search form with Home and Chat icons positioned next to it */}
+        <form onSubmit={handleSearch} className="flex-1 flex items-center justify-center gap-2">
+          <Link to="/" className="text-white hover:text-gray-300 transition-colors">
+            <Home className="h-6 w-6" />
           </Link>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          {connectedWallet && (
-            <>
-              <Button 
-                size={isMobile ? "default" : "sm"} 
-                variant="ghost" 
-                onClick={onSaveChanges}
-              >
-                <Save className="mr-1 h-4 w-4" />
-                <span className="hidden sm:inline">Save</span>
-              </Button>
-              
-              <Button 
-                size={isMobile ? "default" : "sm"} 
-                variant="ghost" 
-                onClick={onDisconnect}
-              >
-                <LogOut className="mr-1 h-4 w-4" />
-                <span className="hidden sm:inline">Disconnect</span>
-              </Button>
-            </>
-          )}
-        </div>
+          
+          <div className="relative max-w-md w-full">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" aria-hidden="true" />
+            <Input 
+              type="text" 
+              placeholder="Search ENS username..." 
+              value={search} 
+              onChange={e => setSearch(e.target.value)} 
+              className="pl-10 pr-4 py-2 w-full bg-gray-700/30 border-gray-600/30 text-white rounded-full focus:ring-white focus:border-white" 
+            />
+            <Button 
+              type="submit" 
+              variant="ghost" 
+              size="sm" 
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 px-3 py-1"
+            >
+              Search
+            </Button>
+          </div>
+          
+          <button 
+            onClick={handleOpenXmtpModal} 
+            className="text-white hover:text-gray-300 transition-colors" 
+            aria-label="XMTP Messages"
+          >
+            {/* New XMTP icon from GitHub repo */}
+            <img 
+              src="https://raw.githubusercontent.com/xmtp/brand/main/assets/x-mark-red.png" 
+              alt="XMTP Messages" 
+              className="h-6 w-6"
+            />
+          </button>
+        </form>
       </div>
-    </header>
+    </div>
   );
 };
 

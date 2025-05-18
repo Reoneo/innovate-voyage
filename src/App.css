@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -235,32 +236,4 @@
 .profile-container {
   position: relative;
   z-index: 10;
-}
-
-/* Force desktop mode on mobile devices */
-@media screen and (max-width: 768px) {
-  /* Rainbow border animation for POAPs - thinner version */
-  .animate-rainbow-border {
-    animation: rainbow-border 3s linear infinite;
-    border-width: 2px !important;
-  }
-
-  /* Override body styles for mobile to prevent zooming */
-  body {
-    min-width: 1024px; /* Force minimum width for desktop-like view */
-    overflow-x: auto; /* Allow horizontal scrolling if needed */
-  }
-  
-  /* Ensure the layout is optimized for mobile but appears desktop-like */
-  .container {
-    max-width: 100%;
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-  
-  /* Enhance text readability on mobile */
-  body {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-  }
 }
