@@ -2,7 +2,7 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getThreatColor } from './utils/scoreUtils';
-import { Shield, Info } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import type { WebacyData, ScoreBadgeProps } from './types';
 
 interface SecurityScoreBadgeProps extends ScoreBadgeProps {

@@ -27,13 +27,12 @@ export function useWebacyData(walletAddress?: string) {
       setError(null);
       
       try {
-        // Updated API endpoint without any v2 prefix
-        const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}?chain=eth`, {
+        // Make API request to Webacy with correct headers
+        const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}`, {
           method: 'GET',
           headers: {
             'accept': 'application/json',
-            'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-            'Key-ID': 'eujjkt9ao5'
+            'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb'
           },
           cache: 'no-store' // Ensure no caching
         });
@@ -46,52 +45,43 @@ export function useWebacyData(walletAddress?: string) {
         const data = await response.json();
         console.log('Webacy Quick Profile Response:', data);
         
-        // Fetch risk items if available
-        const riskItemsResponse = await fetch(
-          `https://api.webacy.com/addresses/${walletAddress}/risk-items?chain=eth`,
-          {
-            method: 'GET',
-            headers: {
-              'accept': 'application/json',
-              'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-              'Key-ID': 'eujjkt9ao5'
-            },
-            cache: 'no-store'
-          }
-        );
-        
-        let riskItems = [];
-        if (riskItemsResponse.ok) {
-          const riskData = await riskItemsResponse.json();
-          console.log('Webacy Risk Items:', riskData);
-          riskItems = riskData.data || [];
-        }
-
+        // Map the response to our expected format
         let threatLevel: ThreatLevel = 'UNKNOWN';
-        if (data.score !== undefined) {
-          if (data.score < 30) {
+        let riskScore = 0;
+        
+        // Calculate risk score and threat level based on Webacy response
+        if (data.overallRisk !== undefined) {
+          riskScore = data.overallRisk;
+          if (riskScore < 30) {
             threatLevel = 'LOW';
-          } else if (data.score < 70) {
+          } else if (riskScore < 70) {
             threatLevel = 'MEDIUM';
           } else {
             threatLevel = 'HIGH';
           }
         }
+
+        // If high or medium count is present, adjust the threat level
+        if (data.high && data.high > 0) {
+          threatLevel = 'HIGH';
+        } else if (data.medium && data.medium > 0) {
+          threatLevel = 'MEDIUM';
+        }
         
         const webacyData = {
-          riskScore: data.score || 0,
+          riskScore: riskScore,
           threatLevel,
           walletAddress,
           approvals: {
-            count: data.numApprovals || 0,
-            riskyCount: data.numRiskyApprovals || 0
+            count: data.count || 0,
+            riskyCount: (data.high || 0) + (data.medium || 0)
           },
           quickProfile: {
-            transactions: data.numTransactions || 0,
-            contracts: data.numContracts || 0,
+            transactions: data.count || 0,
+            contracts: data.count || 0,
             riskLevel: threatLevel
           },
-          riskItems: riskItems,
+          riskItems: data.issues || [],
           riskHistory: data.riskHistory || []
         };
 
