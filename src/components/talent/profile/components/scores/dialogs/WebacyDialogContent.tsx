@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { ExternalLink, ArrowUpRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShieldAlert, ExternalLink, ArrowUpRight } from 'lucide-react';
 import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,14 +13,6 @@ interface WebacyDialogContentProps {
 }
 
 const WebacyDialogContent: React.FC<WebacyDialogContentProps> = ({ webacyData }) => {
-  if (!webacyData) {
-    return (
-      <div className="py-6 px-4 text-center">
-        <p>No security data available for this wallet.</p>
-      </div>
-    );
-  }
-  
   return (
     <div className="py-4 px-6">
       <div className="flex items-center gap-2 mb-4">
@@ -31,7 +23,7 @@ const WebacyDialogContent: React.FC<WebacyDialogContentProps> = ({ webacyData })
         />
         <div>
           <h2 className="text-xl font-bold flex items-center">
-            Risk Score: {webacyData?.riskScore !== undefined ? webacyData.riskScore : '0.00'}
+            Risk Score {webacyData?.riskScore !== undefined ? webacyData.riskScore : '0.00'}
           </h2>
           <p className="text-sm text-gray-400">
             Wallet security analysis by Webacy
@@ -117,10 +109,10 @@ const RiskItemsSection: React.FC<CardProps> = ({ webacyData }) => {
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-lg">{item.label || 'Risk Item'}</h4>
+                  <h4 className="font-semibold text-lg">{item.label}</h4>
                   <p className="text-sm text-gray-500 mb-2">From: {item.address ? item.address.substring(0, 8) + '...' + item.address.substring(item.address.length - 4) : 'Unknown'}</p>
                   <p className="text-sm text-gray-500">
-                    {item.description || 'No description available'}
+                    {item.description || 'POAP Proxy'}
                   </p>
                 </div>
               </div>

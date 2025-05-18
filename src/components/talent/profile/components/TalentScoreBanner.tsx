@@ -35,7 +35,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {showTalentScore && (
           <TalentScoreBadge 
             score={score} 
@@ -44,16 +44,20 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             talentId={walletAddress} 
           />
         )}
-        <SecurityScoreBadge 
-          webacyData={securityData} 
-          onClick={() => handleBadgeClick('webacy')}
-          isLoading={webacyLoading} 
-        />
         <TransactionsBadge 
           txCount={txCount}
           walletAddress={walletAddress}
           onClick={handleNftButtonClick}
           isLoading={loading} 
+        />
+      </div>
+      
+      {/* Security Score Section */}
+      <div className="mt-4">
+        <SecurityScoreBadge 
+          webacyData={securityData} 
+          onClick={() => handleBadgeClick('webacy')}
+          isLoading={webacyLoading} 
         />
       </div>
 
