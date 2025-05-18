@@ -14,6 +14,10 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({ webacyData, onC
     return <Skeleton className="h-28 w-full" />;
   }
 
+  // Format the risk score to remove decimals
+  const formattedScore = webacyData?.riskScore !== undefined ? 
+    Math.round(webacyData.riskScore) : 'N/A';
+
   return (
     <div onClick={onClick} className="cursor-pointer transition-all hover:opacity-80">
       <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gradient-to-r from-green-300/20 to-green-100/10 h-full">
@@ -27,7 +31,7 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({ webacyData, onC
             <h3 className="text-lg font-semibold text-gray-700">Risk Score</h3>
           </div>
           <div className={`text-3xl font-bold ${getThreatColor(webacyData?.threatLevel)}`}>
-            {webacyData?.riskScore !== undefined ? webacyData.riskScore : 'N/A'}
+            {formattedScore}
           </div>
           <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
             <Shield className="h-4 w-4" />

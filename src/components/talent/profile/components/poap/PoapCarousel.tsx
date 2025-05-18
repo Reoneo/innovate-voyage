@@ -40,8 +40,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
                 alt={poap.event.name} 
                 className="w-44 h-44 rounded-full cursor-pointer z-10 p-2 object-contain" 
                 style={{
-                  background: 'rgba(0,0,0,0.7)',
-                  boxShadow: '0 0 20px rgba(139,92,246,0.3)'
+                  background: 'rgba(0,0,0,0.7)'
                 }} 
               />
               <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
@@ -49,12 +48,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
           </CarouselItem>
         ))}
       </CarouselContent>
-      {poaps.length > 1 && (
-        <>
-          <CarouselPrevious />
-          <CarouselNext />
-        </>
-      )}
+      {/* Removed CarouselPrevious and CarouselNext buttons */}
     </Carousel>
   );
 };
