@@ -35,7 +35,6 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({ webacyData, onC
           </div>
           <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
             <Shield className="h-4 w-4" />
-            <span>View Security Details</span>
           </div>
         </div>
       </div>
