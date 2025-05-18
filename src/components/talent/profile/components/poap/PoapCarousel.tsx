@@ -1,40 +1,55 @@
-import React from 'react';
-import { Poap } from '@/api/services/poapService';
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import PoapCard from './PoapCard';
+import { Poap } from './usePoapData';
+
 interface PoapCarouselProps {
   poaps: Poap[];
   onPoapClick: (poap: Poap) => void;
-  onCarouselChange: (index: number) => void;
 }
-const PoapCarousel: React.FC<PoapCarouselProps> = ({
-  poaps,
-  onPoapClick,
-  onCarouselChange
-}) => {
-  return <Carousel opts={{
-    align: 'center',
-    loop: poaps.length > 3
-  }} className="w-full max-w-xs" onSelect={api => {
-    if (api) {
-      const currentIndex = api.selectedScrollSnap();
-      onCarouselChange(currentIndex);
-    }
-  }}>
-      <CarouselContent>
-        {poaps.map((poap, index) => <CarouselItem key={poap.tokenId} className="flex items-center justify-center">
-            <div className="relative cursor-pointer group" onClick={() => onPoapClick(poap)}>
-              <img src={poap.event.image_url} alt={poap.event.name} className="w-44 h-44 rounded-full cursor-pointer z-10 p-2 object-contain" style={{
-            background: 'rgba(0,0,0,0.7)',
-            boxShadow: '0 0 20px rgba(139,92,246,0.3)'
-          }} />
-              <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
-            </div>
-          </CarouselItem>)}
-      </CarouselContent>
-      {poaps.length > 1 && <>
-          
-          
-        </>}
-    </Carousel>;
+
+const PoapCarousel: React.FC<PoapCarouselProps> = ({ poaps, onPoapClick }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleCarouselChange = (index: number) => {
+    setCurrentIndex(index);
+  };
+
+  return (
+    <div className="w-full">
+      <Carousel 
+        className="w-full" 
+        onValueChange={(value) => handleCarouselChange(parseInt(value))}
+      >
+        <CarouselContent>
+          {poaps.map((poap, index) => (
+            <CarouselItem key={poap.tokenId} className="basis-1/2 md:basis-1/3 lg:basis-1/4">
+              <div className="p-1">
+                <PoapCard 
+                  poap={poap} 
+                  onClick={() => onPoapClick(poap)} 
+                />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <div className="flex justify-center gap-2 mt-4">
+          <CarouselPrevious />
+          <CarouselNext />
+        </div>
+      </Carousel>
+    </div>
+  );
 };
+
 export default PoapCarousel;

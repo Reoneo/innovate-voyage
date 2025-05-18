@@ -14,9 +14,12 @@ export function useWebacyData(walletAddress?: string) {
   useEffect(() => {
     if (!walletAddress) return;
     
+    console.log('Fetching Webacy data for wallet:', walletAddress);
+    
     // Return cached data if available
     if (responseCache.has(walletAddress)) {
       const cachedData = responseCache.get(walletAddress);
+      console.log('Using cached Webacy data:', cachedData);
       setSecurityData(cachedData || null);
       setRiskHistory(cachedData?.riskHistory || []);
       return;
@@ -27,6 +30,8 @@ export function useWebacyData(walletAddress?: string) {
       setError(null);
       
       try {
+        console.log(`Making Webacy API call for wallet: ${walletAddress}`);
+        
         // Updated API endpoint without any v2 prefix
         const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}?chain=eth`, {
           method: 'GET',
@@ -35,38 +40,17 @@ export function useWebacyData(walletAddress?: string) {
             'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
             'Key-ID': 'eujjkt9ao5'
           },
-          cache: 'no-store' // Ensure no caching
         });
         
         if (!response.ok) {
           console.error('Webacy API error:', response.status, response.statusText);
-          throw new Error('Failed to fetch security data');
+          throw new Error(`Failed to fetch security data: ${response.status}`);
         }
         
         const data = await response.json();
         console.log('Webacy Quick Profile Response:', data);
         
-        // Fetch risk items if available
-        const riskItemsResponse = await fetch(
-          `https://api.webacy.com/addresses/${walletAddress}/risk-items?chain=eth`,
-          {
-            method: 'GET',
-            headers: {
-              'accept': 'application/json',
-              'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb',
-              'Key-ID': 'eujjkt9ao5'
-            },
-            cache: 'no-store'
-          }
-        );
-        
-        let riskItems = [];
-        if (riskItemsResponse.ok) {
-          const riskData = await riskItemsResponse.json();
-          console.log('Webacy Risk Items:', riskData);
-          riskItems = riskData.data || [];
-        }
-
+        // Determine threat level based on score
         let threatLevel: ThreatLevel = 'UNKNOWN';
         if (data.score !== undefined) {
           if (data.score < 30) {
@@ -91,10 +75,12 @@ export function useWebacyData(walletAddress?: string) {
             contracts: data.numContracts || 0,
             riskLevel: threatLevel
           },
-          riskItems: riskItems,
+          riskItems: data.riskItems || [],
           riskHistory: data.riskHistory || []
         };
 
+        console.log('Processed Webacy data:', webacyData);
+        
         // Store the result in the cache
         responseCache.set(walletAddress, webacyData);
         
