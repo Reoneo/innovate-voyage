@@ -16,7 +16,8 @@ export interface WebacyData {
   };
   riskItems?: any[];
   riskHistory?: any[];
-  cacheTime?: number; // Added for cache validation
+  cacheTime?: number; // Timestamp when this data was cached
+  cacheExpiryTime?: number; // Time when cache should expire (in ms)
 }
 
 export interface ScoreBadgeProps {

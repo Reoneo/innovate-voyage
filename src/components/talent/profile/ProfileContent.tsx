@@ -7,6 +7,7 @@ import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import FarcasterCasts from './components/farcaster/FarcasterCasts';
+import FuturisticGitHubFooter from './components/github/FuturisticGitHubFooter';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -121,49 +122,49 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   const showFarcasterSection = !!farcasterHandle;
 
   return (
-    <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
-      {loading && !loadingTimeout ? (
-        <ProfileSkeleton />
-      ) : passport ? (
-        <HeaderContainer>
-          <div className="w-full grid grid-cols-1 md:grid-cols-10 gap-6 h-full">
-            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
-              <AvatarSection
-                avatarUrl={passport.avatar_url}
-                name={passport.name}
-                ownerAddress={passport.owner_address}
-                socials={{
-                  ...passport.socials,
-                  linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
-                }}
-                bio={passport.bio}
-                displayIdentity={ensNameOrAddress}
-                additionalEnsDomains={passport.additionalEnsDomains}
-              />
+    <>
+      <div ref={profileRef} id="resume-pdf" className="w-full pt-16 pb-24">
+        {loading && !loadingTimeout ? (
+          <ProfileSkeleton />
+        ) : passport ? (
+          <HeaderContainer>
+            <div className="w-full grid grid-cols-1 md:grid-cols-10 gap-6 h-full">
+              <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
+                <AvatarSection
+                  avatarUrl={passport.avatar_url}
+                  name={passport.name}
+                  ownerAddress={passport.owner_address}
+                  socials={{
+                    ...passport.socials,
+                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
+                  }}
+                  bio={passport.bio}
+                  displayIdentity={ensNameOrAddress}
+                  additionalEnsDomains={passport.additionalEnsDomains}
+                />
+              </div>
+              <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
+                <TalentScoreBanner walletAddress={passport.owner_address} />
+                
+                {/* Farcaster section */}
+                {showFarcasterSection && (
+                  <div className="mt-4">
+                    <FarcasterCasts handle={farcasterHandle} />
+                  </div>
+                )}
+              </div>
             </div>
-            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
-              <TalentScoreBanner walletAddress={passport.owner_address} />
-              
-              {/* GitHub contribution graph */}
-              {showGitHubSection && (
-                <div className="mt-4">
-                  <GitHubContributionGraph username={githubUsername!} />
-                </div>
-              )}
-              
-              {/* Farcaster section */}
-              {showFarcasterSection && (
-                <div className="mt-4">
-                  <FarcasterCasts handle={farcasterHandle} />
-                </div>
-              )}
-            </div>
-          </div>
-        </HeaderContainer>
-      ) : (
-        <ProfileNotFound />
+          </HeaderContainer>
+        ) : (
+          <ProfileNotFound />
+        )}
+      </div>
+      
+      {/* GitHub footer - only show if there's a GitHub username */}
+      {passport && showGitHubSection && (
+        <FuturisticGitHubFooter username={githubUsername} />
       )}
-    </div>
+    </>
   );
 };
 
