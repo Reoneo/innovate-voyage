@@ -2,7 +2,7 @@
 import React from 'react';
 import { Poap } from '@/api/services/poapService';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import { EmblaCarouselType } from 'embla-carousel';
+import { type EmblaCarouselType } from 'embla-carousel-react';
 
 interface PoapCarouselProps {
   poaps: Poap[];

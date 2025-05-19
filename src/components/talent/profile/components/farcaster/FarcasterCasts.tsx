@@ -3,15 +3,39 @@ import React, { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
+interface CastAuthor {
+  fid: number;
+  username: string;
+  displayName?: string;
+  pfp?: {
+    url: string;
+  };
+}
+
+interface FarcasterReaction {
+  count: number;
+}
+
+interface FarcasterReplies {
+  count: number;
+}
+
+interface FarcasterRecasts {
+  count: number;
+}
+
 interface Cast {
-  id: string;
+  hash: string;
+  threadHash?: string;
+  parentHash?: string;
+  author: CastAuthor;
   text: string;
   timestamp: string;
-  author?: {
-    username?: string;
-    displayName?: string;
-    pfp?: string;
-  };
+  reactions: FarcasterReaction;
+  replies: FarcasterReplies;
+  recasts: FarcasterRecasts;
+  embeds?: any[];
+  mentions?: any[];
 }
 
 interface FarcasterCastsProps {
@@ -32,10 +56,16 @@ const FarcasterCasts: React.FC<FarcasterCastsProps> = ({ handle }) => {
     const fetchCasts = async () => {
       setLoading(true);
       setError(null);
+      
       try {
-        console.log(`Fetching casts for: ${handle}`);
+        console.log(`Fetching casts for Farcaster user: ${handle}`);
+        
         // Use CORS proxy to avoid cross-origin issues
-        const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://api.farcaster.xyz/v2/casts?username=${encodeURIComponent(handle)}`)}`);
+        // The Warpcast API endpoint for user casts
+        const apiUrl = `https://api.warpcast.com/v2/user-casts?username=${encodeURIComponent(handle)}`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+        
+        const response = await fetch(proxyUrl);
         
         if (!response.ok) {
           throw new Error(`Failed to fetch casts: ${response.status}`);
@@ -48,7 +78,20 @@ const FarcasterCasts: React.FC<FarcasterCastsProps> = ({ handle }) => {
           try {
             const parsedData = JSON.parse(data.contents);
             console.log('Farcaster API response:', parsedData);
-            setCasts(parsedData.casts || []);
+            
+            if (parsedData.result && parsedData.result.casts) {
+              setCasts(parsedData.result.casts);
+            } else if (parsedData.errors) {
+              // Handle API errors
+              const errorMessage = parsedData.errors[0]?.message || 'Unknown API error';
+              console.error('Farcaster API error:', errorMessage);
+              setError(errorMessage);
+              toast.error('Farcaster API Error', {
+                description: errorMessage
+              });
+            } else {
+              setError('No casts found');
+            }
           } catch (parseError) {
             console.error('Error parsing Farcaster data:', parseError);
             setError('Unable to parse casts data');
@@ -56,6 +99,7 @@ const FarcasterCasts: React.FC<FarcasterCastsProps> = ({ handle }) => {
         } else {
           setError('No data received from Farcaster API');
         }
+        
         setLoading(false);
       } catch (err) {
         console.error('Error fetching Farcaster casts:', err);
@@ -69,6 +113,16 @@ const FarcasterCasts: React.FC<FarcasterCastsProps> = ({ handle }) => {
 
     fetchCasts();
   }, [handle]);
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
 
   if (!handle) return null;
 
@@ -100,15 +154,46 @@ const FarcasterCasts: React.FC<FarcasterCastsProps> = ({ handle }) => {
 
         {!loading && !error && casts.length > 0 && (
           <div className="space-y-3">
-            {casts.slice(0, 5).map((cast) => (
-              <div key={cast.id} className="cast bg-slate-300 rounded-md p-3">
-                <p className="text-sm mb-2">{cast.text}</p>
-                <div className="flex justify-between items-center text-xs text-gray-600">
-                  <span>{new Date(cast.timestamp).toLocaleString()}</span>
-                  {cast.author?.username && (
-                    <span>@{cast.author.username}</span>
+            {casts.map((cast) => (
+              <div key={cast.hash} className="cast bg-slate-300 rounded-md p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  {cast.author.pfp?.url && (
+                    <img 
+                      src={cast.author.pfp.url} 
+                      alt={cast.author.displayName || cast.author.username} 
+                      className="w-6 h-6 rounded-full"
+                    />
                   )}
+                  <span className="font-medium">
+                    {cast.author.displayName || cast.author.username}
+                  </span>
+                  <span className="text-xs text-gray-600">
+                    @{cast.author.username}
+                  </span>
                 </div>
+                
+                <p className="text-sm mb-2">{cast.text}</p>
+                
+                <div className="flex justify-between items-center text-xs text-gray-600">
+                  <span>{formatTimestamp(cast.timestamp)}</span>
+                  <div className="flex gap-3">
+                    {cast.reactions && (
+                      <span title="Likes">❤️ {cast.reactions.count}</span>
+                    )}
+                    {cast.replies && (
+                      <span title="Replies">💬 {cast.replies.count}</span>
+                    )}
+                    {cast.recasts && (
+                      <span title="Recasts">🔄 {cast.recasts.count}</span>
+                    )}
+                  </div>
+                </div>
+                
+                {cast.parentHash && (
+                  <div className="text-xs text-blue-600 mt-1">
+                    ↩️ Reply to a cast
+                  </div>
+                )}
               </div>
             ))}
           </div>
