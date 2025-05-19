@@ -6,6 +6,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
+import FarcasterCasts from './components/farcaster/FarcasterCasts';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -88,8 +89,24 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     return null;
   };
 
+  // Extract ENS domain for Farcaster handle
+  const getFarcasterHandle = () => {
+    // If we have an ENS name, use it as the handle
+    if (passport?.resolved_ens && passport.resolved_ens.includes('.eth')) {
+      return passport.resolved_ens.split('.eth')[0]; // Remove .eth suffix for Farcaster handle
+    }
+    
+    // If ensNameOrAddress is an ENS name, use it
+    if (ensNameOrAddress && ensNameOrAddress.includes('.eth')) {
+      return ensNameOrAddress.split('.eth')[0];
+    }
+    
+    return null;
+  };
+
   // Get GitHub username from ENS records
   const githubUsername = extractGitHubUsername();
+  const farcasterHandle = getFarcasterHandle();
   
   // Debug logging
   console.log('GitHub data from passport:', {
@@ -97,9 +114,11 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     originalValue: passport?.socials?.github,
     passport: passport ? 'exists' : 'null'
   });
+  console.log('Farcaster handle:', farcasterHandle);
   
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
+  const showFarcasterSection = !!farcasterHandle;
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -132,7 +151,12 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 </div>
               )}
               
-              {/* Tally Insights Section removed as requested */}
+              {/* Farcaster section */}
+              {showFarcasterSection && (
+                <div className="mt-4">
+                  <FarcasterCasts handle={farcasterHandle} />
+                </div>
+              )}
             </div>
           </div>
         </HeaderContainer>
