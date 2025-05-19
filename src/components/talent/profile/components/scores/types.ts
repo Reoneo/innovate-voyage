@@ -1,13 +1,9 @@
-export interface ScoreBadgeProps {
-  onClick?: () => void;
-  isLoading?: boolean;
-}
 
-export type ThreatLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
+export type ThreatLevel = 'UNKNOWN' | 'LOW' | 'MEDIUM' | 'HIGH';
 
 export interface WebacyData {
-  riskScore?: number;
   threatLevel: ThreatLevel;
+  riskScore?: number;
   walletAddress?: string;
   approvals?: {
     count: number;
@@ -20,4 +16,10 @@ export interface WebacyData {
   };
   riskItems?: any[];
   riskHistory?: any[];
+  cacheTime?: number; // Added for cache validation
+}
+
+export interface ScoreBadgeProps {
+  onClick?: () => void;
+  isLoading?: boolean;
 }

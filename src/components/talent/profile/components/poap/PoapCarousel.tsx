@@ -2,7 +2,7 @@
 import React from 'react';
 import { Poap } from '@/api/services/poapService';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import { type EmblaCarouselType } from 'embla-carousel-react';
+import { type UseEmblaCarouselType } from 'embla-carousel-react';
 
 interface PoapCarouselProps {
   poaps: Poap[];
@@ -22,7 +22,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
         loop: poaps.length > 3
       }} 
       className="w-full max-w-xs" 
-      onSelect={(api: EmblaCarouselType) => {
+      onSelect={(api: UseEmblaCarouselType[1]) => {
         if (api && onCarouselChange) {
           const currentIndex = api.selectedScrollSnap();
           onCarouselChange(currentIndex);
