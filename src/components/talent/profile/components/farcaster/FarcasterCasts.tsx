@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 
 interface Cast {
   id: string;
@@ -32,18 +33,36 @@ const FarcasterCasts: React.FC<FarcasterCastsProps> = ({ handle }) => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`https://api.farcaster.xyz/v2/casts?username=${encodeURIComponent(handle)}`);
+        console.log(`Fetching casts for: ${handle}`);
+        // Use CORS proxy to avoid cross-origin issues
+        const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://api.farcaster.xyz/v2/casts?username=${encodeURIComponent(handle)}`)}`);
         
         if (!response.ok) {
           throw new Error(`Failed to fetch casts: ${response.status}`);
         }
         
         const data = await response.json();
-        setCasts(data.casts || []);
+        
+        // Parse the contents from the proxy response
+        if (data && data.contents) {
+          try {
+            const parsedData = JSON.parse(data.contents);
+            console.log('Farcaster API response:', parsedData);
+            setCasts(parsedData.casts || []);
+          } catch (parseError) {
+            console.error('Error parsing Farcaster data:', parseError);
+            setError('Unable to parse casts data');
+          }
+        } else {
+          setError('No data received from Farcaster API');
+        }
         setLoading(false);
       } catch (err) {
         console.error('Error fetching Farcaster casts:', err);
         setError('Unable to load casts');
+        toast.error('Failed to load Farcaster casts', {
+          description: 'There was an issue connecting to the Farcaster API'
+        });
         setLoading(false);
       }
     };
