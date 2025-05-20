@@ -17,11 +17,11 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
     return <Skeleton className="h-28 w-full" />;
   }
   
+  // No onClick handler = no cursor pointer
+  const interactiveClass = onClick ? "cursor-pointer transition-all hover:opacity-80" : "";
+  
   return (
-    <div 
-      className={onClick ? "cursor-pointer transition-all hover:opacity-80" : ""}
-      onClick={onClick}
-    >
+    <div className={interactiveClass}>
       <div className="flex flex-col items-center gap-2 p-4 bg-black h-full px-0 rounded-full py-[21px]">
         <div className="flex items-center justify-center w-full">
           <div className="text-white text-lg font-semibold">Builder Score</div>

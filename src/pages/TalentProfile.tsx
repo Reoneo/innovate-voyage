@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
@@ -20,6 +20,7 @@ const TalentProfile = () => {
   } = useProfilePage();
   
   const [initialRender, setInitialRender] = useState(true);
+  const [timeElapsed, setTimeElapsed] = useState<number>(0);
   
   // Optimize initial loading by removing timeout after first successful load
   useEffect(() => {
@@ -27,6 +28,24 @@ const TalentProfile = () => {
       setInitialRender(false);
     }
   }, [loading, initialRender]);
+
+  // Track how long the page has been loading
+  useEffect(() => {
+    let timer: number;
+    if (loading) {
+      timer = window.setInterval(() => {
+        setTimeElapsed(prev => prev + 1);
+      }, 1000);
+    } else {
+      setTimeElapsed(0);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [loading]);
+
+  // Show partial content after 5 seconds even if still loading
+  const showPartialContent = timeElapsed > 5;
 
   useEffect(() => {
     // Set favicon to user's avatar if available
@@ -92,20 +111,27 @@ const TalentProfile = () => {
         />
         
         <div className="container px-1 sm:px-4 relative z-10">
-          {loading ? (
+          {(loading && !showPartialContent) ? (
             /* Show skeleton while loading - now with proper padding */
             <div className="pt-16">
               <ProfileSkeleton />
+              {loadingTimeout && (
+                <div className="text-center mt-4 p-2 bg-amber-50 border border-amber-200 rounded-md">
+                  <p className="text-amber-700">Taking longer than usual to load...</p>
+                </div>
+              )}
             </div>
           ) : (
-            /* Show actual content when loaded */
-            <ProfileContent 
-              loading={false}
-              loadingTimeout={loadingTimeout}
-              passport={passport}
-              profileRef={profileRef}
-              ensNameOrAddress={ensNameOrAddress}
-            />
+            /* Show actual content when loaded or after timeout */
+            <Suspense fallback={<div className="pt-16"><ProfileSkeleton /></div>}>
+              <ProfileContent 
+                loading={loading && showPartialContent}
+                loadingTimeout={loadingTimeout}
+                passport={passport}
+                profileRef={profileRef}
+                ensNameOrAddress={ensNameOrAddress}
+              />
+            </Suspense>
           )}
         </div>
       </div>

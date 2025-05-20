@@ -12,10 +12,10 @@ const FuturisticGitHubFooter: React.FC<FuturisticGitHubFooterProps> = ({ usernam
   const [isLoaded, setIsLoaded] = useState(false);
   
   useEffect(() => {
-    // Add a small delay to ensure content is loaded before animation
+    // Reduced delay to 300ms for faster loading
     const timer = setTimeout(() => {
       setIsLoaded(true);
-    }, 600);
+    }, 300);
     
     return () => clearTimeout(timer);
   }, []);
@@ -49,6 +49,7 @@ const FuturisticGitHubFooter: React.FC<FuturisticGitHubFooterProps> = ({ usernam
             }}
             title="GitHub contributions"
             className="shadow-lg shadow-green-500/20"
+            loading="eager" // Changed from default to eager for faster loading
           />
         </div>
       </div>

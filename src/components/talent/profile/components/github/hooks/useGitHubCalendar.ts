@@ -5,7 +5,7 @@ import { useContributionStats } from './useContributionStats';
 
 export function useGitHubCalendar(username: string) {
   const {
-    loading,
+    loading: baseLoading,
     error,
     tokenInvalid,
     stats: baseStats,
@@ -14,10 +14,14 @@ export function useGitHubCalendar(username: string) {
   const [totalContributions, setTotalContributions] = useState<number | null>(null);
   const [contributionData, setContributionData] = useState<any>(null);
   const fetchAttempted = useRef<boolean>(false);
+  const [loading, setLoading] = useState(true);
 
   // Use cached data if available for immediate display
   useEffect(() => {
     if (!username) return;
+    
+    // Set initial loading state
+    setLoading(true);
     
     // Try to get cached data first for immediate display
     const cachedData = localStorage.getItem(`github_contributions_${username}`);
@@ -32,6 +36,7 @@ export function useGitHubCalendar(username: string) {
         console.log('Using cached GitHub data for', username);
         setTotalContributions(parsedData.totalContributions);
         setContributionData(parsedData);
+        setLoading(false);
       }
     }
   }, [username]);
@@ -44,9 +49,9 @@ export function useGitHubCalendar(username: string) {
     
     const fetchContributions = async () => {
       try {
-        // First try the API endpoint with timeout
+        // First try the API endpoint with a shorter timeout (3s instead of 5s)
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 3000); 
         
         const apiUrl = `/api/github-contributions?username=${encodeURIComponent(username)}`;
         
@@ -57,12 +62,12 @@ export function useGitHubCalendar(username: string) {
           if (response.ok) {
             // Handle potential JSON parsing errors
             const text = await response.text();
-            let data;
             try {
-              data = JSON.parse(text);
+              const data = JSON.parse(text);
               if (data && typeof data.totalContributions === 'number') {
                 setTotalContributions(data.totalContributions);
                 setContributionData(data);
+                setLoading(false);
                 
                 // Cache the results
                 localStorage.setItem(`github_contributions_${username}`, JSON.stringify(data));
@@ -77,21 +82,21 @@ export function useGitHubCalendar(username: string) {
           }
         } catch (fetchError) {
           clearTimeout(timeoutId);
-          console.error('Error fetching from API:', fetchError);
           // Continue to fallback if it's not an abort error
           if (fetchError.name !== 'AbortError') {
-            // Continue to fallback
+            console.error('Error fetching from API:', fetchError);
           } else {
             console.log('API fetch timed out, using fallback');
           }
         }
         
-        // Fallback to direct GitHub scraping with timeout
+        // Fallback to direct GitHub scraping with a shorter timeout
         console.log('API fetch failed, trying direct GitHub scraping');
         const data = await fetchGitHubContributions(username);
         if (data && typeof data.total === 'number') {
           setTotalContributions(data.total);
           setContributionData(data);
+          setLoading(false);
           
           // Cache the fallback results
           localStorage.setItem(`github_contributions_${username}`, JSON.stringify({
@@ -99,9 +104,13 @@ export function useGitHubCalendar(username: string) {
             ...data
           }));
           localStorage.setItem(`github_contributions_${username}_timestamp`, Date.now().toString());
+        } else {
+          // Even if we don't get data, stop loading after 3 seconds
+          setTimeout(() => setLoading(false), 3000);
         }
       } catch (err) {
         console.error('Error fetching GitHub contribution count:', err);
+        setLoading(false);
       }
     };
     
@@ -115,7 +124,7 @@ export function useGitHubCalendar(username: string) {
   });
 
   return {
-    loading: loading && !totalContributions, // Show loading only if we don't have cached data
+    loading: loading && baseLoading, // Only show loading if both are loading
     error,
     tokenInvalid,
     stats,
