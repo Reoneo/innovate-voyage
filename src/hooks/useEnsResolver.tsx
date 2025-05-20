@@ -1,11 +1,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useEnsResolution } from './ens/useEnsResolution';
-import { useWeb3BioData } from './ens/useWeb3BioData';
 import { ethers } from 'ethers';
 
 // Debug flags
-const DEBUG_ENS = true;
+const DEBUG_ENS = false;
 
 /**
  * A hook for resolving ENS names <-> addresses with additional ENS data
@@ -32,23 +31,6 @@ export function useEnsResolver(ensName?: string, address?: string) {
 
   // Check if the input address looks valid
   const isValidAddress = !!address && ethers.isAddress(address);
-
-  // Update handler for Web3Bio data
-  const updateStateFromWeb3Bio = useCallback((data: any) => {
-    if (DEBUG_ENS) console.log('useEnsResolver: Updating state from Web3Bio', data);
-    setState(prev => ({
-      ...prev,
-      ...data
-    }));
-  }, [setState]);
-
-  // Try Web3Bio as an alternative resolution source
-  const { isLoading: isLoadingWeb3Bio } = useWeb3BioData(
-    isEnsName ? ensName : undefined,
-    isValidAddress ? address : undefined,
-    isEnsName,
-    updateStateFromWeb3Bio
-  );
 
   // Start resolution process when inputs change
   useEffect(() => {
@@ -96,11 +78,11 @@ export function useEnsResolver(ensName?: string, address?: string) {
         avatarUrl: state.avatarUrl,
         ensLinks: state.ensLinks,
         error,
-        isLoading: isLoading || isLoadingWeb3Bio,
+        isLoading,
         retryCount
       });
     }
-  }, [state, error, isLoading, isLoadingWeb3Bio, retryCount]);
+  }, [state, error, isLoading, retryCount]);
 
   return {
     resolvedAddress: state.resolvedAddress,
@@ -108,7 +90,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
     avatarUrl: state.avatarUrl,
     ensLinks: state.ensLinks,
     ensBio: state.ensBio,
-    isLoading: isLoading || isLoadingWeb3Bio,
+    isLoading,
     error
   };
 }

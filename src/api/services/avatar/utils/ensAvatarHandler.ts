@@ -18,42 +18,18 @@ export async function handleEnsAvatar(identity: string): Promise<string | null> 
     const ensAvatarApiResult = await tryEnsAvatarApi(identity);
     if (ensAvatarApiResult) return ensAvatarApiResult;
     
-    // Try the gskril/ens-api as fallback
-    const gskrilApiResult = await tryGskrilEnsApi(identity);
-    if (gskrilApiResult) return gskrilApiResult;
-    
     // Try the Ethereum Avatar Service if all else fails
     const ethAvatarServiceResult = await tryEthAvatarService(identity);
     if (ethAvatarServiceResult) return ethAvatarServiceResult;
     
-    return null;
+    // Try generic robohash as last resort
+    const fallbackUrl = `https://robohash.org/${identity}?set=set4`;
+    avatarCache[identity] = fallbackUrl;
+    return fallbackUrl;
   } catch (error) {
     console.error(`Error handling ENS avatar for ${identity}:`, error);
     return null;
   }
-}
-
-/**
- * Try the gskril/ens-api (very reliable)
- */
-async function tryGskrilEnsApi(ensName: string): Promise<string | null> {
-  try {
-    const response = await fetch(`https://ens-api.vercel.app/api/${ensName}`, {
-      cache: 'no-store'
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      if (data && data.avatar) {
-        console.log(`Found avatar via gskril/ens-api for ${ensName}: ${data.avatar}`);
-        avatarCache[ensName] = data.avatar;
-        return data.avatar;
-      }
-    }
-  } catch (error) {
-    console.error(`Error fetching from gskril/ens-api for ${ensName}:`, error);
-  }
-  return null;
 }
 
 /**
@@ -65,6 +41,7 @@ async function tryEnsMetadataService(ensName: string): Promise<string | null> {
     const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${ensName}`;
     const metadataResponse = await fetch(metadataUrl, { 
       method: 'HEAD',
+      signal: AbortSignal.timeout(2000),
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache'
@@ -77,7 +54,7 @@ async function tryEnsMetadataService(ensName: string): Promise<string | null> {
       return metadataUrl;
     }
   } catch (ensError) {
-    console.error(`Error fetching ENS avatar from metadata service for ${ensName}:`, ensError);
+    console.warn(`Error fetching ENS avatar from metadata service for ${ensName}:`, ensError);
   }
   return null;
 }
@@ -88,14 +65,17 @@ async function tryEnsMetadataService(ensName: string): Promise<string | null> {
 async function tryEthAvatarService(ensName: string): Promise<string | null> {
   try {
     const ethAvatarUrl = `https://eth-avatar-api.herokuapp.com/${ensName}`;
-    const ethAvatarResponse = await fetch(ethAvatarUrl, { method: 'HEAD' });
+    const ethAvatarResponse = await fetch(ethAvatarUrl, { 
+      method: 'HEAD',
+      signal: AbortSignal.timeout(2000) 
+    });
     if (ethAvatarResponse.ok) {
       console.log(`Found avatar via Ethereum Avatar Service for ${ensName}`);
       avatarCache[ensName] = ethAvatarUrl;
       return ethAvatarUrl;
     }
   } catch (ethAvatarError) {
-    console.error(`Error fetching from Ethereum Avatar Service for ${ensName}:`, ethAvatarError);
+    console.warn(`Error fetching from Ethereum Avatar Service for ${ensName}:`, ethAvatarError);
   }
   return null;
 }
@@ -106,14 +86,17 @@ async function tryEthAvatarService(ensName: string): Promise<string | null> {
 async function tryEnsAvatarApi(ensName: string): Promise<string | null> {
   try {
     const ensAvatarUrl = `https://avatar.ens.domains/${ensName}`;
-    const ensAvatarResponse = await fetch(ensAvatarUrl, { method: 'HEAD' });
+    const ensAvatarResponse = await fetch(ensAvatarUrl, { 
+      method: 'HEAD',
+      signal: AbortSignal.timeout(2000) 
+    });
     if (ensAvatarResponse.ok) {
       console.log(`Found avatar via ENS Avatar API for ${ensName}`);
       avatarCache[ensName] = ensAvatarUrl;
       return ensAvatarUrl;
     }
   } catch (ensAvatarError) {
-    console.error(`Error fetching from ENS Avatar API for ${ensName}:`, ensAvatarError);
+    console.warn(`Error fetching from ENS Avatar API for ${ensName}:`, ensAvatarError);
   }
   return null;
 }

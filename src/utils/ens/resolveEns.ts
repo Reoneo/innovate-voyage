@@ -1,13 +1,22 @@
 
 import { mainnetProvider } from '../ethereumProviders';
-import { ccipReadEnabled, ResolveDotBitResult } from './ccipReadHandler';
+import { ccipReadEnabled } from './ccipReadHandler';
+
+// Cache for resolved addresses and ENS names
+const addressByEnsCache: Record<string, string | null> = {};
+const ensByAddressCache: Record<string, { ensName: string; network: string } | null> = {};
 
 /**
  * Resolves an ENS name to an address
  * @param ensName ENS name to resolve
  * @returns Resolved address or null if not found
  */
-export async function resolveEnsToAddress(ensName: string) {
+export async function resolveEnsToAddress(ensName: string): Promise<string | null> {
+  // Check cache first
+  if (ensName in addressByEnsCache) {
+    return addressByEnsCache[ensName];
+  }
+
   // Check if the input is actually an ENS name
   if (!ensName || (!ensName.includes('.eth') && !ensName.includes('.box'))) {
     console.log(`Invalid ENS name format: ${ensName}`);
@@ -21,6 +30,7 @@ export async function resolveEnsToAddress(ensName: string) {
       const result = await ccipReadEnabled.resolveDotBit(ensName);
       if (result && result.address) {
         console.log(`CCIP-Read resolution result for ${ensName}:`, result);
+        addressByEnsCache[ensName] = result.address;
         return result.address;
       }
     } catch (error) {
@@ -39,7 +49,7 @@ export async function resolveEnsToAddress(ensName: string) {
     
     // Create a timeout promise
     const timeoutPromise = new Promise<null>((_, reject) => 
-      setTimeout(() => reject(new Error('ENS resolution timeout')), 5000)
+      setTimeout(() => reject(new Error('ENS resolution timeout')), 3000)
     );
     
     // Race between the resolution and the timeout
@@ -49,6 +59,10 @@ export async function resolveEnsToAddress(ensName: string) {
     ]) as string | null;
     
     console.log(`Resolution result for ${ensName}:`, resolvedAddress);
+    
+    // Cache the result
+    addressByEnsCache[ensName] = resolvedAddress;
+    
     return resolvedAddress;
   } catch (error) {
     console.error(`Error resolving ${ensName}:`, error);
@@ -62,6 +76,12 @@ export async function resolveEnsToAddress(ensName: string) {
  * @returns Object containing ENS name and network or null if not found
  */
 export async function resolveAddressToEns(address: string) {
+  // Check cache first
+  const cacheKey = address.toLowerCase();
+  if (cacheKey in ensByAddressCache) {
+    return ensByAddressCache[cacheKey];
+  }
+
   if (!address || !address.startsWith('0x') || address.length !== 42) {
     console.log(`Invalid Ethereum address format: ${address}`);
     return null;
@@ -73,7 +93,9 @@ export async function resolveAddressToEns(address: string) {
     const boxDomains = await ccipReadEnabled.getDotBitByAddress(address);
     if (boxDomains && boxDomains.length > 0) {
       console.log(`Found .box domains for ${address}:`, boxDomains);
-      return { ensName: boxDomains[0], network: 'mainnet' as const };
+      const result = { ensName: boxDomains[0], network: 'mainnet' as const };
+      ensByAddressCache[cacheKey] = result;
+      return result;
     }
   } catch (error) {
     console.error(`Error in CCIP-Read lookup for ${address}:`, error);
@@ -88,7 +110,7 @@ export async function resolveAddressToEns(address: string) {
     
     // Create a timeout promise
     const timeoutPromise = new Promise<null>((_, reject) => 
-      setTimeout(() => reject(new Error('ENS lookup timeout')), 5000)
+      setTimeout(() => reject(new Error('ENS lookup timeout')), 3000)
     );
     
     // Race between the lookup and the timeout
@@ -99,9 +121,12 @@ export async function resolveAddressToEns(address: string) {
     
     if (ensName) {
       console.log(`Found ENS name for ${address}: ${ensName}`);
-      return { ensName, network: 'mainnet' as const };
+      const result = { ensName, network: 'mainnet' as const };
+      ensByAddressCache[cacheKey] = result;
+      return result;
     }
     
+    ensByAddressCache[cacheKey] = null;
     return null;
   } catch (error) {
     console.error(`Error looking up ENS for address ${address}:`, error);

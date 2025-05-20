@@ -2,6 +2,10 @@
 import { useState, useCallback } from 'react';
 import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ensResolution';
 
+// Cache for ENS resolution results to improve performance
+const ensCache: Record<string, any> = {};
+const addressCache: Record<string, any> = {};
+
 interface EnsResolutionState {
   resolvedAddress: string | undefined;
   resolvedEns: string | undefined;
@@ -29,156 +33,165 @@ export function useEnsResolution(ensName?: string, address?: string) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
 
-  // Maximum number of retry attempts
-  const MAX_RETRIES = 2;
-
-  // Function to resolve ENS name to address with retry logic
+  // Function to resolve ENS name to address with caching
   const resolveEns = useCallback(async (ensName: string) => {
+    // Check cache first
+    if (ensCache[ensName]) {
+      console.log(`Using cached ENS data for ${ensName}`);
+      setState(prev => ({...prev, ...ensCache[ensName]}));
+      return;
+    }
+    
     setIsLoading(true);
     setError(null);
     
-    let currentTry = 0;
-    
-    while (currentTry <= MAX_RETRIES) {
-      try {
-        currentTry++;
-        console.log(`Resolving ENS (attempt ${currentTry}): ${ensName}`);
-        
-        const resolvedAddress = await resolveEnsToAddress(ensName);
-        
-        if (resolvedAddress) {
-          // Fetch links, avatar and bio in parallel
+    try {
+      console.log(`Resolving ENS: ${ensName}`);
+      
+      // Use Promise.race to set a timeout
+      const resolvePromise = resolveEnsToAddress(ensName);
+      const timeoutPromise = new Promise<null>((_, reject) => 
+        setTimeout(() => reject(new Error('ENS resolution timeout')), 3000)
+      );
+      
+      const resolvedAddress = await Promise.race([resolvePromise, timeoutPromise]);
+      
+      if (resolvedAddress) {
+        // Fetch links, avatar and bio in parallel with timeout
+        try {
           const [links, avatar, bio] = await Promise.all([
-            getEnsLinks(ensName, 'mainnet').catch(() => ({ 
-              socials: {}, ensLinks: [], keywords: [] 
-            })),
-            getEnsAvatar(ensName, 'mainnet').catch(() => null),
-            getEnsBio(ensName, 'mainnet').catch(() => null)
+            Promise.race([
+              getEnsLinks(ensName, 'mainnet'),
+              new Promise<any>((_, reject) => setTimeout(() => reject('Timeout'), 2000))
+            ]).catch(() => ({ socials: {}, ensLinks: [], keywords: [] })),
+            
+            Promise.race([
+              getEnsAvatar(ensName, 'mainnet'),
+              new Promise<any>((_, reject) => setTimeout(() => reject('Timeout'), 2000))
+            ]).catch(() => null),
+            
+            Promise.race([
+              getEnsBio(ensName, 'mainnet'),
+              new Promise<any>((_, reject) => setTimeout(() => reject('Timeout'), 2000))
+            ]).catch(() => null)
           ]);
           
-          console.log(`ENS resolution for ${ensName}:`, { 
-            address: resolvedAddress,
-            links,
-            avatar,
-            bio
-          });
+          console.log(`ENS resolution for ${ensName}: success`);
           
-          setState(prev => ({
-            ...prev,
+          const result = {
             resolvedAddress,
-            ensLinks: links || prev.ensLinks,
-            avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
-          }));
+            ensLinks: links || { socials: {}, ensLinks: [], keywords: [] },
+            avatarUrl: avatar || undefined,
+            ensBio: bio || (links && 'description' in links ? links.description : undefined)
+          };
           
-          setIsLoading(false);
-          return;
+          // Cache the result
+          ensCache[ensName] = result;
+          
+          setState(prev => ({...prev, ...result}));
+        } catch (error) {
+          console.error(`Error fetching ENS data: ${error}`);
+          
+          // Still update the address even if other data failed
+          setState(prev => ({
+            ...prev,
+            resolvedAddress
+          }));
         }
-        
-        // If we got null but no error thrown, try again or give up
-        if (currentTry > MAX_RETRIES) {
-          setError(`Could not resolve ENS name: ${ensName}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
-      } catch (error) {
-        console.error(`Error resolving ${ensName} (attempt ${currentTry}):`, error);
-        
-        if (currentTry > MAX_RETRIES) {
-          setError(`Error resolving ENS: ${(error as Error).message}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
+      } else {
+        setError(`Could not resolve ENS name: ${ensName}`);
       }
+    } catch (error) {
+      console.error(`Error resolving ${ensName}:`, error);
+      setError(`Error resolving ENS: ${(error as Error).message}`);
     }
     
     setIsLoading(false);
-    setRetryCount(currentTry);
-  }, [MAX_RETRIES]);
+  }, []);
 
-  // Function to lookup address to ENS with retry logic
+  // Function to lookup address to ENS with caching
   const lookupAddress = useCallback(async (address: string) => {
+    // Check cache first
+    if (addressCache[address.toLowerCase()]) {
+      console.log(`Using cached address data for ${address}`);
+      setState(prev => ({...prev, ...addressCache[address.toLowerCase()]}));
+      return;
+    }
+    
     setIsLoading(true);
     setError(null);
     
-    let currentTry = 0;
-    
-    while (currentTry <= MAX_RETRIES) {
-      try {
-        currentTry++;
-        console.log(`Looking up address (attempt ${currentTry}): ${address}`);
-        
-        const result = await resolveAddressToEns(address);
-        
-        if (result) {
-          // Fetch links, avatar and bio in parallel
+    try {
+      console.log(`Looking up address: ${address}`);
+      
+      // Use Promise.race to set a timeout
+      const lookupPromise = resolveAddressToEns(address);
+      const timeoutPromise = new Promise<null>((_, reject) => 
+        setTimeout(() => reject(new Error('ENS lookup timeout')), 3000)
+      );
+      
+      const result = await Promise.race([lookupPromise, timeoutPromise]);
+      
+      if (result) {
+        // Fetch links, avatar and bio in parallel with timeout
+        try {
           const [links, avatar, bio] = await Promise.all([
-            getEnsLinks(result.ensName, 'mainnet').catch(() => ({ 
-              socials: {}, ensLinks: [], keywords: [] 
-            })),
-            getEnsAvatar(result.ensName, 'mainnet').catch(() => null),
-            getEnsBio(result.ensName, 'mainnet').catch(() => null)
+            Promise.race([
+              getEnsLinks(result.ensName, 'mainnet'),
+              new Promise<any>((_, reject) => setTimeout(() => reject('Timeout'), 2000))
+            ]).catch(() => ({ socials: {}, ensLinks: [], keywords: [] })),
+            
+            Promise.race([
+              getEnsAvatar(result.ensName, 'mainnet'),
+              new Promise<any>((_, reject) => setTimeout(() => reject('Timeout'), 2000))
+            ]).catch(() => null),
+            
+            Promise.race([
+              getEnsBio(result.ensName, 'mainnet'),
+              new Promise<any>((_, reject) => setTimeout(() => reject('Timeout'), 2000))
+            ]).catch(() => null)
           ]);
           
-          console.log(`Address lookup for ${address}:`, {
-            ens: result.ensName,
-            links,
-            avatar,
-            bio
-          });
+          console.log(`Address lookup for ${address}: found ${result.ensName}`);
           
+          const cacheResult = {
+            resolvedEns: result.ensName,
+            ensLinks: links || { socials: {}, ensLinks: [], keywords: [] },
+            avatarUrl: avatar || undefined,
+            ensBio: bio || (links && 'description' in links ? links.description : undefined)
+          };
+          
+          // Cache the result
+          addressCache[address.toLowerCase()] = cacheResult;
+          
+          setState(prev => ({...prev, ...cacheResult}));
+        } catch (error) {
+          console.error(`Error fetching ENS data for address: ${error}`);
+          
+          // Still update the ENS name even if other data failed
           setState(prev => ({
             ...prev,
-            resolvedEns: result.ensName,
-            ensLinks: links || prev.ensLinks,
-            avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
+            resolvedEns: result.ensName
           }));
-          
-          setIsLoading(false);
-          return;
         }
-        
-        // If we got null but no error thrown, try again or give up
-        if (currentTry > MAX_RETRIES) {
-          // Don't set error here, just log - many addresses don't have ENS
-          console.log(`No ENS found for address: ${address}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
-      } catch (error) {
-        console.error(`Error looking up ENS for address ${address} (attempt ${currentTry}):`, error);
-        
-        if (currentTry > MAX_RETRIES) {
-          setError(`Error looking up address: ${(error as Error).message}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
+      } else {
+        // Don't set error here, many addresses don't have ENS
+        console.log(`No ENS found for address: ${address}`);
       }
+    } catch (error) {
+      console.error(`Error looking up ENS for address ${address}:`, error);
+      // Don't set error, just log it - no ENS is normal
     }
     
     setIsLoading(false);
-    setRetryCount(currentTry);
-  }, [MAX_RETRIES]);
+  }, []);
 
   return {
     state,
     setState,
     isLoading,
-    setIsLoading,
     error,
-    setError,
-    retryCount,
     resolveEns,
     lookupAddress
   };

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
@@ -18,6 +18,21 @@ const TalentProfile = () => {
     handleDisconnect,
     handleSaveChanges
   } = useProfilePage();
+  
+  const [showSkeleton, setShowSkeleton] = useState(true);
+
+  // After a short delay, show content even if still loading
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setShowSkeleton(false);
+      }, 2000); // Show partial content after 2 seconds even if still loading
+      
+      return () => clearTimeout(timer);
+    } else {
+      setShowSkeleton(false);
+    }
+  }, [loading]);
 
   useEffect(() => {
     // Set favicon to user's avatar if available
@@ -68,15 +83,15 @@ const TalentProfile = () => {
         />
         
         <div className="container px-1 sm:px-4 relative z-10">
-          {loading ? (
+          {showSkeleton ? (
             /* Show skeleton while loading - now with proper padding */
             <div className="pt-16">
               <ProfileSkeleton />
             </div>
           ) : (
-            /* Show actual content when loaded */
+            /* Show actual content when loaded or after timeout */
             <ProfileContent 
-              loading={false}
+              loading={loading}
               loadingTimeout={loadingTimeout}
               passport={passport}
               profileRef={profileRef}
