@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
@@ -18,6 +18,15 @@ const TalentProfile = () => {
     handleDisconnect,
     handleSaveChanges
   } = useProfilePage();
+  
+  const [initialRender, setInitialRender] = useState(true);
+  
+  // Optimize initial loading by removing timeout after first successful load
+  useEffect(() => {
+    if (!loading && initialRender) {
+      setInitialRender(false);
+    }
+  }, [loading, initialRender]);
 
   useEffect(() => {
     // Set favicon to user's avatar if available
@@ -37,6 +46,21 @@ const TalentProfile = () => {
     if (window.history && window.location.href.includes('?t=')) {
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
+    }
+    
+    // Display loading message in console
+    if (loading) {
+      console.log(`Loading profile data for ${ensNameOrAddress}...`);
+    } else {
+      console.log(`Profile data loaded for ${ensNameOrAddress}`);
+    }
+  }, [passport?.avatar_url, loading, ensNameOrAddress]);
+
+  // Prefetch avatar for better loading experience
+  useEffect(() => {
+    if (passport?.avatar_url) {
+      const img = new Image();
+      img.src = passport.avatar_url;
     }
   }, [passport?.avatar_url]);
 

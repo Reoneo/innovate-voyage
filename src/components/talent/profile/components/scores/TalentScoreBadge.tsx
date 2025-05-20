@@ -19,8 +19,8 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
   
   return (
     <div 
-      onClick={onClick} 
       className={onClick ? "cursor-pointer transition-all hover:opacity-80" : ""}
+      onClick={onClick}
     >
       <div className="flex flex-col items-center gap-2 p-4 bg-black h-full px-0 rounded-full py-[21px]">
         <div className="flex items-center justify-center w-full">

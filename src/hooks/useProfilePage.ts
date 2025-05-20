@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
@@ -17,24 +17,27 @@ export function useProfilePage() {
   // Determine which parameter to use (either regular path or recruitment.box path)
   const targetIdentifier = userId || ensNameOrAddress;
   
+  // Cache control to handle browser cache management
   useEffect(() => {
-    // Attempt to clear any browser cache
-    try {
-      // Force page to be freshly loaded 
-      if ('caches' in window) {
-        const cacheNames = caches.keys();
-        cacheNames.then(names => {
-          for (const name of names) {
-            if (name.includes('fetch-cache')) {
-              caches.delete(name);
-            }
-          }
-        });
+    // Try to get the cached address from sessionStorage first for quick loading
+    const sessionKey = `profile_${targetIdentifier}`;
+    const cachedData = sessionStorage.getItem(sessionKey);
+    
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (parsed.address) {
+          setAddress(parsed.address);
+        } else if (parsed.ens) {
+          setEns(parsed.ens);
+        }
+      } catch (e) {
+        console.error('Error parsing cached profile data:', e);
+        // Continue with normal resolution
       }
-    } catch (err) {
-      console.error('Error clearing caches:', err);
     }
     
+    // Normal address/ENS resolution
     if (targetIdentifier) {
       // Convert the identifier to lowercase for case-insensitive search
       const normalizedIdentifier = targetIdentifier.toLowerCase();
@@ -44,22 +47,28 @@ export function useProfilePage() {
         console.log(`Valid Ethereum address detected: ${normalizedIdentifier}`);
         setAddress(normalizedIdentifier);
         setEns(undefined); // Clear ENS when looking up by address
+        
+        // Cache for quick loading next time
+        sessionStorage.setItem(sessionKey, JSON.stringify({ address: normalizedIdentifier }));
       } else {
         // Not a valid address, treat as ENS or domain
         const ensValue = normalizedIdentifier.includes('.') ? normalizedIdentifier : `${normalizedIdentifier}.eth`;
         console.log(`Treating as ENS: ${ensValue}`);
         setEns(ensValue);
         setAddress(undefined); // Clear address when looking up by ENS
+        
+        // Cache for quick loading next time
+        sessionStorage.setItem(sessionKey, JSON.stringify({ ens: ensValue }));
       }
     }
 
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading
+    // Set a timeout for loading - show timeout message if taking too long
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 5000);
+    }, 4000); // Reduced from 5000ms to 4000ms for faster feedback
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
@@ -99,21 +108,21 @@ export function useProfilePage() {
   
   const { profileRef } = usePdfExport();
 
-  const handleDisconnect = () => {
+  const handleDisconnect = useCallback(() => {
     localStorage.removeItem('connectedWalletAddress');
     setConnectedWallet(null);
     toast({
       title: "Wallet disconnected",
       description: "You've been successfully disconnected from your wallet."
     });
-  };
+  }, [toast]);
   
-  const handleSaveChanges = () => {
+  const handleSaveChanges = useCallback(() => {
     toast({
       title: "Changes saved",
       description: "Your profile changes have been saved successfully."
     });
-  };
+  }, [toast]);
 
   return {
     ensNameOrAddress: targetIdentifier,
