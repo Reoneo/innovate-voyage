@@ -5,7 +5,7 @@ import { useWeb3BioData } from './ens/useWeb3BioData';
 import { ethers } from 'ethers';
 
 // Debug flags
-const DEBUG_ENS = false; // Reduced debugging to improve performance
+const DEBUG_ENS = true;
 
 /**
  * A hook for resolving ENS names <-> addresses with additional ENS data
@@ -50,78 +50,28 @@ export function useEnsResolver(ensName?: string, address?: string) {
     updateStateFromWeb3Bio
   );
 
-  // Start resolution process when inputs change - with shorter timeout
+  // Start resolution process when inputs change
   useEffect(() => {
     if (DEBUG_ENS) console.log(`useEnsResolver: Inputs changed: ENS=${ensName}, address=${address}`);
     
     const startResolution = async () => {
       if (isEnsName) {
-        // Try to use cached data immediately if available
-        const cacheKey = `ens_resolution_${ensName}`;
-        const cachedData = sessionStorage.getItem(cacheKey);
-        
-        if (cachedData) {
-          try {
-            const parsed = JSON.parse(cachedData);
-            if (parsed && parsed.resolvedAddress) {
-              console.log('Using cached ENS resolution data for', ensName);
-              setState(prev => ({
-                ...prev,
-                ...parsed
-              }));
-              return;
-            }
-          } catch (e) {
-            console.error('Error parsing cached ENS data:', e);
-          }
-        }
-        
         // Resolve ENS name to address
         if (DEBUG_ENS) console.log(`useEnsResolver: Resolving ENS name: ${ensName}`);
-        const result = await resolveEns(ensName);
-        
-        // Cache successful results
-        if (result && result.resolvedAddress) {
-          sessionStorage.setItem(cacheKey, JSON.stringify(result));
-        }
+        await resolveEns(ensName);
       } else if (isValidAddress) {
-        // Try to use cached data immediately if available
-        const cacheKey = `address_resolution_${address}`;
-        const cachedData = sessionStorage.getItem(cacheKey);
-        
-        if (cachedData) {
-          try {
-            const parsed = JSON.parse(cachedData);
-            if (parsed && parsed.resolvedEns) {
-              console.log('Using cached address resolution data for', address);
-              setState(prev => ({
-                ...prev,
-                ...parsed
-              }));
-              return;
-            }
-          } catch (e) {
-            console.error('Error parsing cached address data:', e);
-          }
-        }
-        
         // Resolve address to ENS name
         if (DEBUG_ENS) console.log(`useEnsResolver: Looking up address: ${address}`);
-        const result = await lookupAddress(address);
-        
-        // Cache successful results
-        if (result && result.resolvedEns) {
-          sessionStorage.setItem(cacheKey, JSON.stringify(result));
-        }
+        await lookupAddress(address);
       }
     };
 
     startResolution();
-  }, [ensName, address, resolveEns, lookupAddress, isEnsName, isValidAddress, setState]);
+  }, [ensName, address, resolveEns, lookupAddress, isEnsName, isValidAddress]);
 
-  // Retry resolution if needed - but with a shorter timeout
+  // Retry resolution if needed
   useEffect(() => {
-    if (error && retryCount < 1) { // Reduced retry count to 1 instead of 2
+    if (error && retryCount < 2) {
       const timer = setTimeout(() => {
         if (DEBUG_ENS) console.log(`useEnsResolver: Retrying resolution (${retryCount + 1})`);
         setRetryCount(prev => prev + 1);
@@ -131,11 +81,26 @@ export function useEnsResolver(ensName?: string, address?: string) {
         } else if (isValidAddress) {
           lookupAddress(address!);
         }
-      }, 1000); // Reduced retry timeout from 1500ms to 1000ms
+      }, 1500);
       
       return () => clearTimeout(timer);
     }
   }, [error, retryCount, isEnsName, ensName, resolveEns, isValidAddress, address, lookupAddress]);
+
+  // Log the state after all processing
+  useEffect(() => {
+    if (DEBUG_ENS) {
+      console.log('useEnsResolver: Resolution state:', {
+        resolvedAddress: state.resolvedAddress,
+        resolvedEns: state.resolvedEns,
+        avatarUrl: state.avatarUrl,
+        ensLinks: state.ensLinks,
+        error,
+        isLoading: isLoading || isLoadingWeb3Bio,
+        retryCount
+      });
+    }
+  }, [state, error, isLoading, isLoadingWeb3Bio, retryCount]);
 
   return {
     resolvedAddress: state.resolvedAddress,

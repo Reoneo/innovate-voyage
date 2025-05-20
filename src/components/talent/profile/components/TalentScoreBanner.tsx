@@ -41,6 +41,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             score={score} 
             onClick={() => handleBadgeClick('talent')}
             isLoading={loading} 
+            talentId={walletAddress} 
           />
         )}
         <TransactionsBadge 

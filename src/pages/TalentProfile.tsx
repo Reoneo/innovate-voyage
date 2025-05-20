@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
@@ -18,34 +18,6 @@ const TalentProfile = () => {
     handleDisconnect,
     handleSaveChanges
   } = useProfilePage();
-  
-  const [initialRender, setInitialRender] = useState(true);
-  const [timeElapsed, setTimeElapsed] = useState<number>(0);
-  
-  // Optimize initial loading by removing timeout after first successful load
-  useEffect(() => {
-    if (!loading && initialRender) {
-      setInitialRender(false);
-    }
-  }, [loading, initialRender]);
-
-  // Track how long the page has been loading
-  useEffect(() => {
-    let timer: number;
-    if (loading) {
-      timer = window.setInterval(() => {
-        setTimeElapsed(prev => prev + 1);
-      }, 1000);
-    } else {
-      setTimeElapsed(0);
-    }
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [loading]);
-
-  // Show partial content after 5 seconds even if still loading
-  const showPartialContent = timeElapsed > 5;
 
   useEffect(() => {
     // Set favicon to user's avatar if available
@@ -65,21 +37,6 @@ const TalentProfile = () => {
     if (window.history && window.location.href.includes('?t=')) {
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
-    }
-    
-    // Display loading message in console
-    if (loading) {
-      console.log(`Loading profile data for ${ensNameOrAddress}...`);
-    } else {
-      console.log(`Profile data loaded for ${ensNameOrAddress}`);
-    }
-  }, [passport?.avatar_url, loading, ensNameOrAddress]);
-
-  // Prefetch avatar for better loading experience
-  useEffect(() => {
-    if (passport?.avatar_url) {
-      const img = new Image();
-      img.src = passport.avatar_url;
     }
   }, [passport?.avatar_url]);
 
@@ -111,27 +68,20 @@ const TalentProfile = () => {
         />
         
         <div className="container px-1 sm:px-4 relative z-10">
-          {(loading && !showPartialContent) ? (
+          {loading ? (
             /* Show skeleton while loading - now with proper padding */
             <div className="pt-16">
               <ProfileSkeleton />
-              {loadingTimeout && (
-                <div className="text-center mt-4 p-2 bg-amber-50 border border-amber-200 rounded-md">
-                  <p className="text-amber-700">Taking longer than usual to load...</p>
-                </div>
-              )}
             </div>
           ) : (
-            /* Show actual content when loaded or after timeout */
-            <Suspense fallback={<div className="pt-16"><ProfileSkeleton /></div>}>
-              <ProfileContent 
-                loading={loading && showPartialContent}
-                loadingTimeout={loadingTimeout}
-                passport={passport}
-                profileRef={profileRef}
-                ensNameOrAddress={ensNameOrAddress}
-              />
-            </Suspense>
+            /* Show actual content when loaded */
+            <ProfileContent 
+              loading={false}
+              loadingTimeout={loadingTimeout}
+              passport={passport}
+              profileRef={profileRef}
+              ensNameOrAddress={ensNameOrAddress}
+            />
           )}
         </div>
       </div>

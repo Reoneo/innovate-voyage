@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import type { WebacyData, ThreatLevel } from '@/components/talent/profile/components/scores/types';
 
@@ -13,23 +14,12 @@ export function useWebacyData(walletAddress?: string) {
   useEffect(() => {
     if (!walletAddress) return;
     
-    // Return cached data if available (but only if it's recent - within 15 minutes)
+    // Return cached data if available
     if (responseCache.has(walletAddress)) {
       const cachedData = responseCache.get(walletAddress);
-      const cacheTime = cachedData?.cacheTime || 0;
-      const fifteenMinutesAgo = Date.now() - 15 * 60 * 1000;
-      
-      // Use cache if it's less than 15 minutes old
-      if (cacheTime > fifteenMinutesAgo) {
-        console.log('Using cached Webacy data');
-        setSecurityData(cachedData || null);
-        setRiskHistory(cachedData?.riskHistory || []);
-        return;
-      }
-      
-      // Otherwise, remove the stale cache
-      console.log('Cached Webacy data is stale, refetching');
-      responseCache.delete(walletAddress);
+      setSecurityData(cachedData || null);
+      setRiskHistory(cachedData?.riskHistory || []);
+      return;
     }
 
     const fetchWebacyData = async () => {
@@ -44,12 +34,12 @@ export function useWebacyData(walletAddress?: string) {
             'accept': 'application/json',
             'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb'
           },
-          cache: 'no-store' // Ensure no browser caching
+          cache: 'no-store' // Ensure no caching
         });
         
         if (!response.ok) {
           console.error('Webacy API error:', response.status, response.statusText);
-          throw new Error(`Failed to fetch security data: ${response.status}`);
+          throw new Error('Failed to fetch security data');
         }
         
         const data = await response.json();
@@ -78,7 +68,7 @@ export function useWebacyData(walletAddress?: string) {
           threatLevel = 'MEDIUM';
         }
         
-        const webacyData: WebacyData = {
+        const webacyData = {
           riskScore: riskScore,
           threatLevel,
           walletAddress,
@@ -92,8 +82,7 @@ export function useWebacyData(walletAddress?: string) {
             riskLevel: threatLevel
           },
           riskItems: data.issues || [],
-          riskHistory: data.riskHistory || [],
-          cacheTime: Date.now() // Add timestamp to track cache freshness
+          riskHistory: data.riskHistory || []
         };
 
         // Store the result in the cache
