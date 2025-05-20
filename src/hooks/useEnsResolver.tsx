@@ -2,17 +2,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useEnsResolution } from './ens/useEnsResolution';
 import { ethers } from 'ethers';
+import { getFromEnsCache } from '@/utils/ethereumProviders';
 
 // Debug flags
 const DEBUG_ENS = false;
 
 /**
  * A hook for resolving ENS names <-> addresses with additional ENS data
+ * Uses improved caching and parallel data fetching
  * @param ensName - The ENS name to resolve
  * @param address - The address to resolve
  */
 export function useEnsResolver(ensName?: string, address?: string) {
   const [retryCount, setRetryCount] = useState(0);
+  const [lastInputs, setLastInputs] = useState({ ensName, address });
   
   const {
     state,
@@ -23,6 +26,40 @@ export function useEnsResolver(ensName?: string, address?: string) {
     lookupAddress
   } = useEnsResolution(ensName, address);
   
+  // Check cache first to avoid unnecessary loading state
+  useEffect(() => {
+    // Only check cache if inputs have changed
+    if (ensName !== lastInputs.ensName || address !== lastInputs.address) {
+      setLastInputs({ ensName, address });
+      
+      if (ensName) {
+        const cachedData = getFromEnsCache(ensName);
+        if (cachedData) {
+          if (DEBUG_ENS) console.log(`Using cached data for ${ensName}`);
+          setState(prev => ({
+            ...prev,
+            resolvedAddress: cachedData.address,
+            avatarUrl: cachedData.avatar,
+            ensBio: cachedData.bio,
+            ensLinks: cachedData.links || { socials: {}, ensLinks: [], keywords: [] }
+          }));
+        }
+      } else if (address) {
+        const cachedData = getFromEnsCache(address.toLowerCase());
+        if (cachedData && cachedData.ensName) {
+          if (DEBUG_ENS) console.log(`Using cached data for ${address}`);
+          setState(prev => ({
+            ...prev,
+            resolvedEns: cachedData.ensName,
+            avatarUrl: cachedData.avatar,
+            ensBio: cachedData.bio,
+            ensLinks: cachedData.links || { socials: {}, ensLinks: [], keywords: [] }
+          }));
+        }
+      }
+    }
+  }, [ensName, address, setState, lastInputs]);
+  
   // Determine if we have an ENS name to resolve
   const isEnsName = !!ensName && 
     (ensName.includes('.eth') || 
@@ -32,9 +69,12 @@ export function useEnsResolver(ensName?: string, address?: string) {
   // Check if the input address looks valid
   const isValidAddress = !!address && ethers.isAddress(address);
 
-  // Start resolution process when inputs change
+  // Start resolution process when inputs change and not in cache
   useEffect(() => {
     if (DEBUG_ENS) console.log(`useEnsResolver: Inputs changed: ENS=${ensName}, address=${address}`);
+    
+    // Reset retry count when inputs change
+    setRetryCount(0);
     
     const startResolution = async () => {
       if (isEnsName) {
@@ -48,12 +88,15 @@ export function useEnsResolver(ensName?: string, address?: string) {
       }
     };
 
-    startResolution();
-  }, [ensName, address, resolveEns, lookupAddress, isEnsName, isValidAddress]);
+    // Only start resolution if we're not already loading from cache check
+    if ((isEnsName || isValidAddress) && !isLoading) {
+      startResolution();
+    }
+  }, [ensName, address, resolveEns, lookupAddress, isEnsName, isValidAddress, isLoading]);
 
-  // Retry resolution if needed
+  // Retry resolution if needed, but with a more aggressive backoff
   useEffect(() => {
-    if (error && retryCount < 2) {
+    if (error && retryCount < 1) { // Reduced retries from 2 to 1
       const timer = setTimeout(() => {
         if (DEBUG_ENS) console.log(`useEnsResolver: Retrying resolution (${retryCount + 1})`);
         setRetryCount(prev => prev + 1);
@@ -63,7 +106,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
         } else if (isValidAddress) {
           lookupAddress(address!);
         }
-      }, 1500);
+      }, 2000); // Slightly longer timeout for retry
       
       return () => clearTimeout(timer);
     }

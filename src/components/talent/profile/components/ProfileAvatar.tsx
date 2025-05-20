@@ -11,11 +11,30 @@ interface ProfileAvatarProps {
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showFallback, setShowFallback] = useState(false);
   
   // Reset states when avatarUrl changes
   useEffect(() => {
     setImageError(false);
     setIsLoading(true);
+    setShowFallback(false);
+    
+    // If no avatar URL, show fallback immediately
+    if (!avatarUrl) {
+      setShowFallback(true);
+      setIsLoading(false);
+    }
+    
+    // Start a timeout to show fallback anyway if loading takes too long
+    const timer = setTimeout(() => {
+      if (isLoading) {
+        console.log('Avatar load timeout - showing fallback');
+        setShowFallback(true);
+        setIsLoading(false);
+      }
+    }, 2000);
+    
+    return () => clearTimeout(timer);
   }, [avatarUrl]);
   
   // Generate initials for the fallback
@@ -38,12 +57,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
     console.log('Avatar image failed to load:', avatarUrl);
     setImageError(true);
     setIsLoading(false);
-  };
-  
-  // Handle placeholder load error
-  const handlePlaceholderError = () => {
-    console.log("Even placeholder failed to load");
-    setIsLoading(false);
+    setShowFallback(true);
   };
   
   return (
@@ -54,7 +68,8 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
         </div>
       )}
       
-      {!imageError && avatarUrl ? (
+      {/* Only try to load avatar if URL exists and has not errored */}
+      {!imageError && avatarUrl && (
         <AvatarImage 
           src={avatarUrl} 
           alt={name} 
@@ -62,19 +77,14 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
           onError={handleImageError}
           onLoad={handleImageLoad}
         />
-      ) : (
-        <AvatarImage 
-          src="/placeholder.svg" 
-          alt={name} 
-          className="object-cover"
-          onError={handlePlaceholderError}
-          onLoad={() => setIsLoading(false)}
-        />
       )}
       
-      <AvatarFallback className="bg-primary/10 text-primary font-medium">
-        {getInitials(name)}
-      </AvatarFallback>
+      {/* Show fallback immediately if no URL or error */}
+      {showFallback && (
+        <AvatarFallback className="bg-primary/10 text-primary font-medium">
+          {getInitials(name)}
+        </AvatarFallback>
+      )}
     </Avatar>
   );
 };

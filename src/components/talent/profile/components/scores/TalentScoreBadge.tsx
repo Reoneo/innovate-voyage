@@ -15,18 +15,18 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
   isLoading,
   talentId
 }) => {
+  // Use a simple div instead of skeleton for faster rendering
   if (isLoading) {
-    return <Skeleton className="h-28 w-full" />;
+    return (
+      <div className="h-28 w-full bg-gray-100 rounded-md animate-pulse flex items-center justify-center">
+        <p className="text-gray-400">Loading...</p>
+      </div>
+    );
   }
   
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    }
-  };
-  
+  // Return a simple div when clicked rather than making it a button
   return (
-    <div onClick={handleClick} className="cursor-pointer transition-all hover:opacity-80">
+    <div onClick={onClick} className="cursor-pointer transition-all hover:opacity-80">
       <div className="flex flex-col items-center gap-2 p-4 bg-black h-full px-0 rounded-full py-[21px]">
         <div className="flex items-center justify-center w-full">
           <div className="text-white text-lg font-semibold">Builder Score</div>

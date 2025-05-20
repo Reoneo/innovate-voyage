@@ -21,12 +21,12 @@ const TalentProfile = () => {
   
   const [showSkeleton, setShowSkeleton] = useState(true);
 
-  // After a short delay, show content even if still loading
+  // Show content much faster - reduce initial wait time
   useEffect(() => {
     if (loading) {
       const timer = setTimeout(() => {
         setShowSkeleton(false);
-      }, 2000); // Show partial content after 2 seconds even if still loading
+      }, 800); // Show partial content after just 800ms even if still loading
       
       return () => clearTimeout(timer);
     } else {
@@ -53,6 +53,10 @@ const TalentProfile = () => {
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     }
+    
+    // Prefetch placeholder avatar for faster fallbacks
+    const placeholderImg = new Image();
+    placeholderImg.src = "/placeholder.svg";
   }, [passport?.avatar_url]);
 
   return (
@@ -62,6 +66,7 @@ const TalentProfile = () => {
         {passport?.avatar_url && (
           <>
             <link rel="apple-touch-icon" href={passport.avatar_url} />
+            <link rel="preload" href={passport.avatar_url} as="image" />
             <meta name="apple-mobile-web-app-title" content={ensNameOrAddress || 'Profile'} />
             <meta name="application-name" content={ensNameOrAddress || 'Profile'} />
             <meta property="og:image" content={passport.avatar_url} />
