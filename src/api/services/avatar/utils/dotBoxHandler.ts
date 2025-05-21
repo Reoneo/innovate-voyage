@@ -8,154 +8,132 @@ export async function handleDotBoxAvatar(identity: string): Promise<string | nul
   try {
     console.log(`Fetching .box avatar for ${identity}`);
     
-    // Hard-coded mappings for commonly used domains
+    // Hard-coded mappings for commonly used domains - expanded for reliability
     const knownAvatars: Record<string, string> = {
       'smith.box': 'https://metadata.ens.domains/mainnet/avatar/smith.eth', // Substitute with smith.eth avatar
       'poap.box': 'https://metadata.ens.domains/mainnet/avatar/poap.eth', // Use poap.eth avatar
+      'vitalik.box': 'https://metadata.ens.domains/mainnet/avatar/vitalik.eth',
+      'ens.box': 'https://metadata.ens.domains/mainnet/avatar/ens.eth',
     };
     
+    // First try the hardcoded mappings (fastest)
     if (knownAvatars[identity.toLowerCase()]) {
       console.log(`Using known avatar mapping for ${identity}: ${knownAvatars[identity.toLowerCase()]}`);
       avatarCache[identity] = knownAvatars[identity.toLowerCase()];
       return knownAvatars[identity.toLowerCase()];
     }
     
-    // First try standard ENS methods - treat .box like .eth
-    try {
-      // Convert .box to .eth and try that first
-      const ethEquivalent = identity.replace('.box', '.eth');
-      const resolver = await mainnetProvider.getResolver(ethEquivalent);
-      if (resolver) {
+    // Generate an .eth equivalent for .box domains
+    const ethEquivalent = identity.replace('.box', '.eth');
+    
+    // Try all methods in parallel to improve speed
+    const results = await Promise.allSettled([
+      // Method 1: Direct ENS metadata service for the .eth equivalent
+      (async () => {
         try {
-          const avatar = await resolver.getText('avatar');
-          if (avatar) {
-            console.log(`Found avatar via .eth equivalent for ${identity}: ${avatar}`);
-            avatarCache[identity] = avatar;
-            return avatar;
+          const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${ethEquivalent}`;
+          const response = await fetch(metadataUrl, {
+            method: 'HEAD',
+            signal: AbortSignal.timeout(4000)
+          });
+          
+          if (response.ok) {
+            return { url: metadataUrl, method: 'ens-metadata' };
           }
+          return null;
         } catch (error) {
-          console.log(`No avatar text record for ${ethEquivalent}:`, error);
+          return null;
         }
-      }
-    } catch (error) {
-      console.log(`No standard resolver for .eth equivalent of ${identity}:`, error);
-    }
-    
-    // Try with original .box domain
-    try {
-      const resolver = await mainnetProvider.getResolver(identity);
-      if (resolver) {
+      })(),
+      
+      // Method 2: ENS resolver for .eth equivalent
+      (async () => {
         try {
-          const avatar = await resolver.getText('avatar');
-          if (avatar) {
-            console.log(`Found .box avatar via standard resolver: ${avatar}`);
-            avatarCache[identity] = avatar;
-            return avatar;
+          const resolver = await mainnetProvider.getResolver(ethEquivalent);
+          if (resolver) {
+            const avatar = await resolver.getText('avatar');
+            if (avatar) {
+              return { url: avatar, method: 'resolver-eth' };
+            }
           }
+          return null;
         } catch (error) {
-          console.log(`No avatar text record for ${identity}:`, error);
+          return null;
         }
-      }
-    } catch (error) {
-      console.log(`No standard resolver for ${identity}:`, error);
-    }
-    
-    // Try ENS metadata service direct URL (treat .box like .eth)
-    try {
-      const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
-      const metadataResponse = await fetch(metadataUrl, { 
-        method: 'HEAD',
-        signal: AbortSignal.timeout(3000)
-      });
-      if (metadataResponse.ok) {
-        console.log(`Found .box avatar via ENS metadata: ${metadataUrl}`);
-        avatarCache[identity] = metadataUrl;
-        return metadataUrl;
-      }
+      })(),
       
-      // Try with .eth equivalent
-      const ethEquivalentMetadataUrl = `https://metadata.ens.domains/mainnet/avatar/${identity.replace('.box', '.eth')}`;
-      const ethMetadataResponse = await fetch(ethEquivalentMetadataUrl, { 
-        method: 'HEAD',
-        signal: AbortSignal.timeout(3000)
-      });
-      if (ethMetadataResponse.ok) {
-        console.log(`Found .box avatar via .eth equivalent metadata: ${ethEquivalentMetadataUrl}`);
-        avatarCache[identity] = ethEquivalentMetadataUrl;
-        return ethEquivalentMetadataUrl;
-      }
-    } catch (error) {
-      console.log(`No ENS metadata avatar for ${identity}:`, error);
-    }
-    
-    // Try the gskril/ens-api
-    try {
-      // Try with original .box domain
-      const ensResponse = await fetch(`https://ens-api.vercel.app/api/${identity}`, {
-        signal: AbortSignal.timeout(3000)
-      });
-      if (ensResponse.ok) {
-        const ensData = await ensResponse.json();
-        if (ensData && ensData.avatar) {
-          console.log(`Found .box avatar via gskril/ens-api: ${ensData.avatar}`);
-          avatarCache[identity] = ensData.avatar;
-          return ensData.avatar;
+      // Method 3: ENS resolver for original .box domain
+      (async () => {
+        try {
+          const resolver = await mainnetProvider.getResolver(identity);
+          if (resolver) {
+            const avatar = await resolver.getText('avatar');
+            if (avatar) {
+              return { url: avatar, method: 'resolver-box' };
+            }
+          }
+          return null;
+        } catch (error) {
+          return null;
         }
-      }
+      })(),
       
-      // Try with .eth equivalent
-      const ethEnsResponse = await fetch(`https://ens-api.vercel.app/api/${identity.replace('.box', '.eth')}`, {
-        signal: AbortSignal.timeout(3000)
-      });
-      if (ethEnsResponse.ok) {
-        const ethEnsData = await ethEnsResponse.json();
-        if (ethEnsData && ethEnsData.avatar) {
-          console.log(`Found .box avatar via .eth equivalent gskril/ens-api: ${ethEnsData.avatar}`);
-          avatarCache[identity] = ethEnsData.avatar;
-          return ethEnsData.avatar;
+      // Method 4: CCIP-Read for .box domain
+      (async () => {
+        try {
+          const boxData = await ccipReadEnabled.resolveDotBit(identity);
+          if (boxData && boxData.avatar) {
+            return { url: boxData.avatar, method: 'ccip' };
+          }
+          return null;
+        } catch (error) {
+          return null;
         }
+      })(),
+      
+      // Method 5: avatar.ens.domains for .eth equivalent
+      (async () => {
+        try {
+          const ensAvatarUrl = `https://avatar.ens.domains/${ethEquivalent}`;
+          const response = await fetch(ensAvatarUrl, {
+            method: 'HEAD',
+            signal: AbortSignal.timeout(4000)
+          });
+          
+          if (response.ok) {
+            return { url: ensAvatarUrl, method: 'avatar-ens' };
+          }
+          return null;
+        } catch (error) {
+          return null;
+        }
+      })()
+    ]);
+    
+    // Process results - take first successful one
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value) {
+        const { url, method } = result.value;
+        console.log(`Found .box avatar via ${method}: ${url}`);
+        avatarCache[identity] = url;
+        
+        // Also cache for .eth equivalent
+        avatarCache[ethEquivalent] = url;
+        
+        return url;
       }
-    } catch (ensApiError) {
-      console.log(`Error fetching from ENS API for ${identity}:`, ensApiError);
     }
     
-    // Try CCIP-Read compatible resolver
+    // If all else fails, try OpenSea
     try {
-      const boxData = await ccipReadEnabled.resolveDotBit(identity);
-      if (boxData && boxData.avatar) {
-        console.log(`Found .box avatar via CCIP-Read: ${boxData.avatar}`);
-        avatarCache[identity] = boxData.avatar;
-        return boxData.avatar;
+      const openSeaAvatar = await fetchDotBoxAvatar(identity);
+      if (openSeaAvatar) {
+        console.log(`Found .box avatar via OpenSea: ${openSeaAvatar}`);
+        avatarCache[identity] = openSeaAvatar;
+        return openSeaAvatar;
       }
     } catch (error) {
-      console.log(`CCIP-Read error for ${identity}:`, error);
-    }
-    
-    // Try the native .bit API
-    try {
-      const bitProfile = await fetch(
-        `https://indexer-v1.did.id/v1/account/records?account=${identity}&key=profile.avatar`,
-        { signal: AbortSignal.timeout(3000) }
-      );
-      if (bitProfile.ok) {
-        const bitData = await bitProfile.json();
-        if (bitData?.data && bitData.data.length > 0 && bitData.data[0].value) {
-          const avatarUrl = bitData.data[0].value;
-          console.log(`Found .box avatar via .bit API: ${avatarUrl}`);
-          avatarCache[identity] = avatarUrl;
-          return avatarUrl;
-        }
-      }
-    } catch (error) {
-      console.log(`Error fetching .bit API for ${identity}:`, error);
-    }
-    
-    // Try OpenSea method to get avatar from NFTs
-    const openSeaAvatar = await fetchDotBoxAvatar(identity);
-    if (openSeaAvatar) {
-      console.log(`Found .box avatar via OpenSea: ${openSeaAvatar}`);
-      avatarCache[identity] = openSeaAvatar;
-      return openSeaAvatar;
+      console.log(`OpenSea avatar fetch error for ${identity}:`, error);
     }
     
     // Return robohash as fallback

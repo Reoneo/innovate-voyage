@@ -8,7 +8,8 @@ import {
   CarouselContent,
   CarouselItem,
   CarouselNext,
-  CarouselPrevious 
+  CarouselPrevious,
+  type CarouselApi
 } from '@/components/ui/carousel';
 import PoapCard from './PoapCard';
 
@@ -19,6 +20,7 @@ interface PoapCarouselProps {
 
 const PoapCarousel: React.FC<PoapCarouselProps> = ({ poaps, onSelect }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [api, setApi] = useState<CarouselApi>();
 
   // Function to get appropriate classes for dot indicators
   const getDotClasses = (index: number) => {
@@ -28,6 +30,22 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({ poaps, onSelect }) => {
     );
   };
 
+  // Update current index when API changes
+  React.useEffect(() => {
+    if (!api) return;
+    
+    const handleSelect = () => {
+      if (!api) return;
+      const currentSlide = api.selectedScrollSnap();
+      setCurrentIndex(currentSlide);
+    };
+
+    api.on("select", handleSelect);
+    return () => {
+      api.off("select", handleSelect);
+    };
+  }, [api]);
+
   return (
     <div className="w-full relative">
       <Carousel
@@ -36,10 +54,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({ poaps, onSelect }) => {
           loop: true,
         }}
         className="w-full"
-        onSelect={(api) => {
-          const currentSlide = api.selectedScrollSnap();
-          setCurrentIndex(currentSlide);
-        }}
+        setApi={setApi}
       >
         <CarouselContent>
           {poaps.map((poap, index) => (

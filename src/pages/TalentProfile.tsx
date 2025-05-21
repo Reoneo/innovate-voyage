@@ -6,6 +6,7 @@ import ProfileContent from '@/components/talent/profile/ProfileContent';
 import AnimatedBackground from '@/components/talent/profile/components/AnimatedBackground';
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import { Helmet } from 'react-helmet-async';
+import { toast } from 'sonner';
 
 const TalentProfile = () => {
   const { 
@@ -20,6 +21,7 @@ const TalentProfile = () => {
   } = useProfilePage();
   
   const [showSkeleton, setShowSkeleton] = useState(true);
+  const [errorShown, setErrorShown] = useState(false);
 
   // Show content extremely fast - ultra aggressive - show after just 300ms
   useEffect(() => {
@@ -33,6 +35,18 @@ const TalentProfile = () => {
       setShowSkeleton(false);
     }
   }, [loading]);
+  
+  // Show error toast only once
+  useEffect(() => {
+    if (loadingTimeout && loading && !errorShown) {
+      // Show toast notification
+      toast.error("Profile data is taking longer than expected to load", {
+        description: "We're still trying to fetch some data. You can view the partial profile below.",
+        duration: 5000,
+      });
+      setErrorShown(true);
+    }
+  }, [loadingTimeout, loading, errorShown]);
 
   useEffect(() => {
     // Set favicon to user's avatar if available
@@ -64,9 +78,17 @@ const TalentProfile = () => {
     robohashImg.src = `https://robohash.org/${ensNameForRobohash}?set=set4`;
     
     // Prefetch ENS avatar if it's a known domain
-    if (ensNameOrAddress && (ensNameOrAddress.endsWith('.eth') || ensNameOrAddress.endsWith('.box'))) {
-      const ensAvatarImg = new Image();
-      ensAvatarImg.src = `https://metadata.ens.domains/mainnet/avatar/${ensNameOrAddress}`;
+    if (ensNameOrAddress) {
+      // Handle both .eth and .box domains
+      const ensAvatar = new Image();
+      
+      // For .box domains, try the .eth equivalent
+      if (ensNameOrAddress.endsWith('.box')) {
+        const ethEquivalent = ensNameOrAddress.replace('.box', '.eth');
+        ensAvatar.src = `https://metadata.ens.domains/mainnet/avatar/${ethEquivalent}`;
+      } else {
+        ensAvatar.src = `https://metadata.ens.domains/mainnet/avatar/${ensNameOrAddress}`;
+      }
     }
     
   }, [passport?.avatar_url, ensNameOrAddress]);

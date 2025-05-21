@@ -51,7 +51,11 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
       
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-          {selectedPoap && <PoapDetailContent poap={selectedPoap} onClose={handleCloseDialog} />}
+          {selectedPoap && (
+            <PoapDetailContent 
+              poap={selectedPoap} 
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
