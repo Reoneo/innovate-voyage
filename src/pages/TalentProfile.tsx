@@ -21,12 +21,12 @@ const TalentProfile = () => {
   
   const [showSkeleton, setShowSkeleton] = useState(true);
 
-  // Show content much faster - reduce initial wait time
+  // Show content much faster - very aggressive - show after just 500ms
   useEffect(() => {
     if (loading) {
       const timer = setTimeout(() => {
         setShowSkeleton(false);
-      }, 800); // Show partial content after just 800ms even if still loading
+      }, 500); // Show partial content after just 500ms even if still loading
       
       return () => clearTimeout(timer);
     } else {
@@ -57,7 +57,12 @@ const TalentProfile = () => {
     // Prefetch placeholder avatar for faster fallbacks
     const placeholderImg = new Image();
     placeholderImg.src = "/placeholder.svg";
-  }, [passport?.avatar_url]);
+    
+    // Prefetch robohash fallback
+    const robohashImg = new Image();
+    const ensNameForRobohash = ensNameOrAddress || 'default';
+    robohashImg.src = `https://robohash.org/${ensNameForRobohash}?set=set4`;
+  }, [passport?.avatar_url, ensNameOrAddress]);
 
   return (
     <>

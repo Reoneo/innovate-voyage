@@ -11,9 +11,13 @@ import {
   CarouselPrevious 
 } from '@/components/ui/carousel';
 import PoapCard from './PoapCard';
-import { ScrollSnapType } from '@/components/ui/carousel/carousel-types';
 
-const PoapCarousel = ({ poaps, onSelect }) => {
+interface PoapCarouselProps {
+  poaps: any[];
+  onSelect: (poap: any) => void;
+}
+
+const PoapCarousel: React.FC<PoapCarouselProps> = ({ poaps, onSelect }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Handle when carousel changes
@@ -45,7 +49,9 @@ const PoapCarousel = ({ poaps, onSelect }) => {
         <CarouselContent>
           {poaps.map((poap, index) => (
             <CarouselItem key={poap.tokenId} className="basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 p-1">
-              <PoapCard poap={poap} onClick={() => onSelect(poap)} />
+              <div onClick={() => onSelect(poap)}>
+                <PoapCard poap={poap} />
+              </div>
             </CarouselItem>
           ))}
         </CarouselContent>

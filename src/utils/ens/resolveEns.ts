@@ -13,38 +13,13 @@ export async function resolveEnsToAddress(ensName: string, timeoutMs = 5000): Pr
     return cachedResult.address;
   }
 
-  // Check if the input is actually an ENS name
-  if (!ensName || (!ensName.includes('.eth') && !ensName.includes('.box'))) {
+  // Validate the input is actually an ENS name
+  if (!ensName || (!ensName.includes('.eth') && !ensName.includes('.box') && !ensName.includes('.id'))) {
     console.log(`Invalid ENS name format: ${ensName}`);
     return null;
   }
   
-  // Special handling for .box domains - uses CCIP-Read compatible resolver
-  if (ensName.endsWith('.box')) {
-    console.log(`Resolving .box domain: ${ensName} using CCIP-Read handler`);
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
-      
-      try {
-        const result = await ccipReadEnabled.resolveDotBit(ensName);
-        if (result && result.address) {
-          console.log(`CCIP-Read resolution result for ${ensName}:`, result);
-          
-          // Cache the result
-          addToEnsCache(ensName, { address: result.address });
-          
-          return result.address;
-        }
-      } finally {
-        clearTimeout(timer);
-      }
-    } catch (error) {
-      console.error(`CCIP-Read error resolving ${ensName}:`, error);
-    }
-  }
-  
-  // Default flow for .eth domains or as fallback for .box domains
+  // Handle both .eth and .box domains through standard resolver
   console.log(`Resolving domain: ${ensName} using provider`);
   
   try {
@@ -52,9 +27,37 @@ export async function resolveEnsToAddress(ensName: string, timeoutMs = 5000): Pr
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     
     try {
-      // Using resolveName with AbortController
-      const resolvedAddress = await mainnetProvider.resolveName(ensName);
+      // For .box domains, try CCIP-Read handler first
+      if (ensName.endsWith('.box')) {
+        console.log(`Trying CCIP-Read for .box domain: ${ensName}`);
+        const boxResult = await ccipReadEnabled.resolveDotBit(ensName);
+        if (boxResult && boxResult.address) {
+          console.log(`CCIP-Read resolved ${ensName} to ${boxResult.address}`);
+          addToEnsCache(ensName, { address: boxResult.address });
+          return boxResult.address;
+        }
+      }
       
+      // Standard ENS resolution using FallbackProvider
+      console.log(`Using standard ENS resolution for ${ensName}`);
+      
+      // First try direct resolver (faster)
+      try {
+        const resolver = await mainnetProvider.getResolver(ensName);
+        if (resolver) {
+          const address = await resolver.getAddress();
+          console.log(`Direct resolver found ${address} for ${ensName}`);
+          if (address) {
+            addToEnsCache(ensName, { address });
+            return address;
+          }
+        }
+      } catch (resolverError) {
+        console.warn(`Error with direct resolver for ${ensName}:`, resolverError);
+      }
+      
+      // Fallback to resolveName
+      const resolvedAddress = await mainnetProvider.resolveName(ensName);
       console.log(`Resolution result for ${ensName}:`, resolvedAddress);
       
       // Cache the result
@@ -91,14 +94,15 @@ export async function resolveAddressToEns(address: string, timeoutMs = 5000) {
     return { ensName: cachedResult.ensName, network: 'mainnet' as const };
   }
 
+  // Validate address format
   if (!address || !address.startsWith('0x') || address.length !== 42) {
     console.log(`Invalid Ethereum address format: ${address}`);
     return null;
   }
   
-  // Try using CCIP-Read for reverse resolution
+  // Try using CCIP-Read for reverse resolution of .box domains
   try {
-    console.log(`Looking up domains for address: ${address} using CCIP-Read handler`);
+    console.log(`Looking up .box domains for address: ${address}`);
     
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -115,19 +119,15 @@ export async function resolveAddressToEns(address: string, timeoutMs = 5000) {
         return result;
       }
     } catch (error: any) {
-      if (error.name === 'AbortError') {
-        console.warn(`CCIP-Read lookup for ${address} aborted after ${timeoutMs}ms`);
-      } else {
-        console.error(`Error in CCIP-Read lookup for ${address}:`, error);
-      }
+      console.warn(`CCIP-Read lookup error for ${address}:`, error);
     } finally {
       clearTimeout(timer);
     }
   } catch (error) {
-    console.error(`Error in CCIP-Read lookup for ${address}:`, error);
+    console.warn(`CCIP-Read error for ${address}:`, error);
   }
   
-  // Try mainnet lookup as fallback
+  // Try standard ENS lookup
   try {
     console.log(`Looking up ENS for address: ${address} on Mainnet`);
     
@@ -135,7 +135,7 @@ export async function resolveAddressToEns(address: string, timeoutMs = 5000) {
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     
     try {
-      // Using lookupAddress with AbortController
+      // Using lookupAddress
       const ensName = await mainnetProvider.lookupAddress(address);
       
       if (ensName) {
@@ -153,14 +153,14 @@ export async function resolveAddressToEns(address: string, timeoutMs = 5000) {
       if (error.name === 'AbortError') {
         console.warn(`ENS lookup for ${address} aborted after ${timeoutMs}ms`);
       } else {
-        console.error(`Error looking up ENS for ${address}:`, error);
+        console.warn(`Error looking up ENS for ${address}:`, error);
       }
       return null;
     } finally {
       clearTimeout(timer);
     }
   } catch (error) {
-    console.error(`Error looking up ENS for address ${address}:`, error);
+    console.warn(`Error in ENS lookup for ${address}:`, error);
     return null;
   }
 }

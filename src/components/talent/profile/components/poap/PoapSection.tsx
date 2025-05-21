@@ -1,89 +1,75 @@
 
-import React, { useState } from 'react';
-import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { type Poap } from '@/api/services/poapService';
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import PoapCarousel from './PoapCarousel';
 import PoapDetailContent from './PoapDetailContent';
 import { usePoapData } from './usePoapData';
 
-interface PoapSectionProps {
-  walletAddress?: string;
+interface Poap {
+  tokenId: string;
+  event: {
+    name: string;
+    description: string;
+    image_url: string;
+    start_date: string;
+    end_date: string;
+    country: string;
+    city: string;
+  };
+  owner: {
+    address: string;
+  };
 }
 
-const PoapSection: React.FC<PoapSectionProps> = ({
-  walletAddress
-}) => {
-  const [detailOpen, setDetailOpen] = useState(false);
-  
-  const {
-    poaps,
-    isLoading,
-    currentPoapIndex,
-    setCurrentPoapIndex,
-    selectedPoap,
-    setSelectedPoap,
-    poapOwners,
-    loadingOwners,
-    loadPoapOwners
-  } = usePoapData(walletAddress);
+interface PoapSectionProps {
+  walletAddress: string;
+}
 
-  // Handler for opening POAP details
-  const handleOpenDetail = (poap: Poap) => {
+const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
+  const { data: poapsData, isLoading, error } = usePoapData(walletAddress);
+  const [selectedPoap, setSelectedPoap] = useState<Poap | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
+
+  // Handle POAP selection
+  const handlePoapSelect = (poap: Poap) => {
     setSelectedPoap(poap);
-    setDetailOpen(true);
-    loadPoapOwners(poap.event.id);
+    setShowDialog(true);
   };
-
-  // Handler for carousel changes
-  const handleCarouselChange = (index: number) => {
-    setCurrentPoapIndex(index);
+  
+  // Close dialog
+  const handleCloseDialog = () => {
+    setShowDialog(false);
   };
-
-  if (!walletAddress) return null;
-  if (poaps.length === 0 && !isLoading) return null;
-
-  return (
-    <section className="w-full flex flex-col items-center">
-      {/* POAP count display */}
-      {poaps.length > 0 && !isLoading && (
-        <div className="text-sm text-center mb-2 text-muted-foreground">
-          <span className="font-medium text-primary">{poaps.length}</span> POAPs collected
+  
+  if (isLoading) {
+    return (
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">POAPs</h2>
+        <div className="h-28 w-full bg-gray-100 rounded-md animate-pulse flex items-center justify-center">
+          <p className="text-gray-400">Loading POAPs...</p>
         </div>
-      )}
-
-      <div className="relative w-full aspect-square flex items-center justify-center">
-        {isLoading ? (
-          <Skeleton className="w-52 h-52 rounded-full" />
-        ) : poaps.length > 0 ? (
-          <div className="relative flex items-center justify-center w-full">
-            {/* POAP Badge with Carousel */}
-            <PoapCarousel 
-              poaps={poaps} 
-              onPoapClick={handleOpenDetail}
-              onCarouselChange={handleCarouselChange} 
-            />
-          </div>
-        ) : null}
       </div>
-
-      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="max-w-md">
-          {selectedPoap && (
-            <>
-              <DialogHeader>
-                <DialogTitle>{selectedPoap.event.name}</DialogTitle>
-              </DialogHeader>
-              <PoapDetailContent 
-                poap={selectedPoap} 
-                poapOwners={poapOwners}
-                loadingOwners={loadingOwners} 
-              />
-            </>
-          )}
+    );
+  }
+  
+  if (error || !poapsData || poapsData.length === 0) {
+    return null;
+  }
+  
+  return (
+    <div className="mb-6">
+      <h2 className="text-xl font-semibold mb-4">POAPs</h2>
+      <PoapCarousel 
+        poaps={poapsData} 
+        onSelect={handlePoapSelect}
+      />
+      
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          {selectedPoap && <PoapDetailContent poap={selectedPoap} onClose={handleCloseDialog} />}
         </DialogContent>
       </Dialog>
-    </section>
+    </div>
   );
 };
 

@@ -1,67 +1,81 @@
+
 import { ethers } from 'ethers';
 
-// Multiple provider URLs for redundancy with public endpoints
+// Define RPC URLs for different networks
 const MAINNET_RPC_URLS = [
-  // Public RPC endpoints - use multiple for fallbacks
   "https://eth.llamarpc.com",
   "https://ethereum.publicnode.com",
   "https://rpc.ankr.com/eth",
   "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
 ];
 
-// Create a FallbackProvider for better reliability
-function createMainnetProvider() {
-  try {
-    // Try to use environment variable first if available
-    if (import.meta.env.VITE_ETHEREUM_RPC_URL) {
-      const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_ETHEREUM_RPC_URL);
-      provider.getBlockNumber().catch(err => {
-        console.warn("Custom RPC provider failed, using fallbacks", err);
-        return createFallbackProvider();
-      });
-      return provider;
-    }
-    
-    return createFallbackProvider();
-  } catch (error) {
-    console.error("Error creating provider:", error);
-    // Last resort - try direct provider
-    return new ethers.JsonRpcProvider(MAINNET_RPC_URLS[0]);
-  }
-}
+const OPTIMISM_RPC_URLS = [
+  "https://mainnet.optimism.io",
+  "https://optimism-mainnet.public.blastapi.io"
+];
 
-// Create a provider with multiple fallbacks
-function createFallbackProvider() {
-  try {
-    // Create providers from all RPC URLs
-    const providers = MAINNET_RPC_URLS.map(url => {
-      return new ethers.JsonRpcProvider(url);
-    });
-    
-    // Return the first one for now, but we could implement more sophisticated
-    // fallback mechanisms if needed
-    const provider = providers[0];
-    
-    // Test the provider
-    provider.getBlockNumber().catch(err => {
-      console.warn("Primary provider failed, trying next one", err);
-      return providers[1];
-    });
-    
-    return provider;
-  } catch (error) {
-    console.error("Error creating fallback provider:", error);
-    // Last resort 
-    return new ethers.JsonRpcProvider(MAINNET_RPC_URLS[0]);
-  }
-}
+// Default cache time-to-live in milliseconds (4 hours)
+export const DEFAULT_ENS_TTL = 4 * 60 * 60 * 1000;
 
-// Initialize Ethereum provider with fallback mechanism
-export const mainnetProvider = createMainnetProvider();
-
-// For Optimism (keeping simple for now)
-export const optimismProvider = new ethers.JsonRpcProvider(
-  import.meta.env.VITE_OPTIMISM_RPC_URL || "https://optimism-mainnet.public.blastapi.io"
+// Create providers using FallbackProvider for better reliability
+const mainnetProviders = MAINNET_RPC_URLS.map(
+  url => new ethers.JsonRpcProvider(url)
 );
 
-console.log("Ethereum providers initialized");
+export const mainnetProvider = new ethers.FallbackProvider(
+  mainnetProviders.map((provider, i) => ({
+    provider,
+    priority: i + 1,
+    weight: i === 0 ? 2 : 1, // Give higher weight to primary provider
+  }))
+);
+
+export const optimismProvider = new ethers.FallbackProvider(
+  OPTIMISM_RPC_URLS.map((url, i) => ({
+    provider: new ethers.JsonRpcProvider(url),
+    priority: i + 1,
+    weight: 1,
+  }))
+);
+
+// In-memory ENS cache
+interface EnsCacheEntry {
+  address?: string;
+  ensName?: string;
+  avatar?: string;
+  bio?: string;
+  links?: any;
+  expiresAt: number;
+}
+
+const ensCache: Map<string, EnsCacheEntry> = new Map();
+
+// Get data from cache
+export function getFromEnsCache(key: string): EnsCacheEntry | null {
+  const now = Date.now();
+  const entry = ensCache.get(key.toLowerCase());
+  
+  if (entry && entry.expiresAt > now) {
+    console.log(`Using cached ENS entry for ${key}`);
+    return entry;
+  }
+  
+  return null;
+}
+
+// Add data to cache with TTL
+export function addToEnsCache(
+  key: string, 
+  data: Partial<EnsCacheEntry>, 
+  ttl: number = DEFAULT_ENS_TTL
+): void {
+  const existingEntry = ensCache.get(key.toLowerCase()) || { expiresAt: 0 };
+  
+  ensCache.set(key.toLowerCase(), {
+    ...existingEntry,
+    ...data,
+    expiresAt: Date.now() + ttl
+  });
+  
+  console.log(`Cached ENS entry for ${key}, expires in ${ttl/1000}s`);
+}

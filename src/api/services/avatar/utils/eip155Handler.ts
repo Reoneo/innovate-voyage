@@ -16,8 +16,58 @@ export async function handleEip155Avatar(identity: string): Promise<string | nul
     console.log(`Parsed EIP155: Contract=${contractAddress}, TokenId=${tokenId}`);
     
     if (contractAddress && tokenId) {
-      // Try multiple resolution methods in sequence
-      return await resolveNftAvatar(identity, contractAddress, tokenId);
+      // Try the ENS metadata service first (most reliable)
+      const ensMetadataUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
+      try {
+        const response = await fetch(ensMetadataUrl, { 
+          method: 'HEAD',
+          signal: AbortSignal.timeout(3000)
+        });
+        if (response.ok) {
+          console.log(`Found EIP155 avatar via ENS metadata for ${identity}`);
+          avatarCache[identity] = ensMetadataUrl;
+          return ensMetadataUrl;
+        }
+      } catch (error) {
+        console.warn(`Could not fetch from ENS metadata for ${identity}:`, error);
+      }
+      
+      // Try other resolution methods
+      const openSeaUrl = `https://api.opensea.io/api/v1/asset/${contractAddress}/${tokenId}/?format=json`;
+      try {
+        const response = await fetch(openSeaUrl, {
+          signal: AbortSignal.timeout(3000)
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.image_url) {
+            console.log(`Found EIP155 avatar via OpenSea for ${identity}`);
+            avatarCache[identity] = data.image_url;
+            return data.image_url;
+          }
+        }
+      } catch (error) {
+        console.warn(`Could not fetch from OpenSea for ${identity}:`, error);
+      }
+      
+      // Try IPFS URL format
+      if (tokenId.startsWith('ipfs/')) {
+        const ipfsHash = tokenId.replace('ipfs/', '');
+        const ipfsUrl = `https://ipfs.io/ipfs/${ipfsHash}`;
+        try {
+          const response = await fetch(ipfsUrl, { 
+            method: 'HEAD',
+            signal: AbortSignal.timeout(3000)
+          });
+          if (response.ok) {
+            console.log(`Found EIP155 avatar via IPFS for ${identity}`);
+            avatarCache[identity] = ipfsUrl;
+            return ipfsUrl;
+          }
+        } catch (error) {
+          console.warn(`Could not fetch from IPFS for ${identity}:`, error);
+        }
+      }
     }
     
     return null;
@@ -52,108 +102,4 @@ function parseEip155Format(identity: string): { contractAddress: string, tokenId
   }
   
   return { contractAddress, tokenId };
-}
-
-/**
- * Attempts to resolve an NFT avatar using multiple methods
- * @param identity Original EIP155 identity
- * @param contractAddress NFT contract address
- * @param tokenId NFT token ID
- * @returns Resolved avatar URL or null
- */
-async function resolveNftAvatar(identity: string, contractAddress: string, tokenId: string): Promise<string | null> {
-  // Try the ENS avatar service with the EIP155 format directly
-  const avatar = await tryEnsMetadataService(identity);
-  if (avatar) return avatar;
-  
-  // Try OpenSea API format
-  const openseaAvatar = await tryOpenSeaApi(contractAddress, tokenId);
-  if (openseaAvatar) return openseaAvatar;
-  
-  // Try NFT.Storage gateway format
-  const nftStorageAvatar = await tryNftStorageGateway(tokenId);
-  if (nftStorageAvatar) return nftStorageAvatar;
-  
-  // Try direct IPFS gateway using the token ID if it looks like an IPFS hash
-  if (tokenId && tokenId.length > 30) {
-    const ipfsAvatar = await tryIpfsGateway(tokenId);
-    if (ipfsAvatar) return ipfsAvatar;
-  }
-  
-  return null;
-}
-
-/**
- * Try to fetch avatar from ENS metadata service
- */
-async function tryEnsMetadataService(identity: string): Promise<string | null> {
-  const ensAvatarUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
-  try {
-    const response = await fetch(ensAvatarUrl, { method: 'HEAD' });
-    if (response.ok) {
-      console.log(`Found avatar via ENS metadata for EIP155 ${identity}`);
-      avatarCache[identity] = ensAvatarUrl;
-      return ensAvatarUrl;
-    }
-  } catch (error) {
-    console.error(`Error fetching from ENS metadata for ${identity}:`, error);
-  }
-  return null;
-}
-
-/**
- * Try to fetch avatar from OpenSea API
- */
-async function tryOpenSeaApi(contractAddress: string, tokenId: string): Promise<string | null> {
-  const openseaUrl = `https://api.opensea.io/api/v1/asset/${contractAddress}/${tokenId}/?format=json`;
-  try {
-    const response = await fetch(openseaUrl);
-    if (response.ok) {
-      const data = await response.json();
-      if (data.image_url) {
-        console.log(`Found avatar via OpenSea for contract=${contractAddress}, tokenId=${tokenId}`);
-        avatarCache[`eip155:1/erc721:${contractAddress}/${tokenId}`] = data.image_url;
-        return data.image_url;
-      }
-    }
-  } catch (error) {
-    console.error(`Error fetching from OpenSea for contract=${contractAddress}, tokenId=${tokenId}:`, error);
-  }
-  return null;
-}
-
-/**
- * Try to fetch avatar from NFT.Storage gateway
- */
-async function tryNftStorageGateway(tokenId: string): Promise<string | null> {
-  const nftStorageUrl = `https://nftstorage.link/ipfs/${tokenId}`;
-  try {
-    const response = await fetch(nftStorageUrl, { method: 'HEAD' });
-    if (response.ok) {
-      console.log(`Found avatar via NFT.Storage for tokenId=${tokenId}`);
-      avatarCache[`ipfs://${tokenId}`] = nftStorageUrl;
-      return nftStorageUrl;
-    }
-  } catch (error) {
-    console.error(`Error fetching from NFT.Storage for tokenId=${tokenId}:`, error);
-  }
-  return null;
-}
-
-/**
- * Try to fetch avatar from IPFS gateway
- */
-async function tryIpfsGateway(tokenId: string): Promise<string | null> {
-  const ipfsUrl = `https://ipfs.io/ipfs/${tokenId}`;
-  try {
-    const response = await fetch(ipfsUrl, { method: 'HEAD' });
-    if (response.ok) {
-      console.log(`Found avatar via IPFS for tokenId=${tokenId}`);
-      avatarCache[`ipfs://${tokenId}`] = ipfsUrl;
-      return ipfsUrl;
-    }
-  } catch (error) {
-    console.error(`Error fetching from IPFS for tokenId=${tokenId}:`, error);
-  }
-  return null;
 }

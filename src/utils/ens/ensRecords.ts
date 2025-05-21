@@ -1,8 +1,8 @@
-
 import { mainnetProvider, getFromEnsCache, addToEnsCache } from '../ethereumProviders';
 import { getRealAvatar } from '../../api/services/avatarService';
 import { ccipReadEnabled } from './ccipReadHandler';
 import { handleDirectImageUrl } from '../../api/services/avatar/utils/directImageHandler';
+import { resolveEnsToAddress } from './resolveEns';
 
 /**
  * Gets avatar for an ENS name with caching
@@ -80,7 +80,7 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
     }
     
     // Fallback: Try to use resolver directly for ENS domains
-    if (ensName.endsWith('.eth')) {
+    if (ensName.endsWith('.eth') || ensName.endsWith('.box')) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       
@@ -219,8 +219,8 @@ export async function getEnsBio(ensName: string, network = 'mainnet', timeoutMs 
       }
     }
     
-    // Try to use resolver directly - only for ENS domains on mainnet
-    if (ensName.endsWith('.eth')) {
+    // Try to use resolver directly - for both .eth and .box domains on mainnet
+    if (ensName.endsWith('.eth') || ensName.endsWith('.box')) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       
