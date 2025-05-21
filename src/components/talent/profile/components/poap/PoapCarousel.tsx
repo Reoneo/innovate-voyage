@@ -21,11 +21,8 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({ poaps, onSelect }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Handle when carousel changes
-  const handleCarouselChange = (api: any) => {
-    if (api) {
-      const currentSlide = api.selectedScrollSnap();
-      setCurrentIndex(currentSlide);
-    }
+  const handleCarouselChange = (currentSlide: number) => {
+    setCurrentIndex(currentSlide);
   };
 
   // Function to get appropriate classes for dot indicators

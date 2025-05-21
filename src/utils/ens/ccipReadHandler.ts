@@ -31,7 +31,9 @@ class CCIPReadHandler {
     
     try {
       // First try the official DotBit resolver API
-      const response = await fetch(`${this.dotBitApiEndpoint}/v1/account/info?account=${ensName}`);
+      const response = await fetch(`${this.dotBitApiEndpoint}/v1/account/info?account=${ensName}`, {
+        signal: AbortSignal.timeout(3000)
+      });
       
       if (response.ok) {
         const data = await response.json();
@@ -73,7 +75,9 @@ class CCIPReadHandler {
       }
       
       // If primary method fails, try the offchain resolver
-      const ccipResponse = await fetch(`${this.offchainResolverEndpoint}/resolve?name=${ensName}&type=addr`);
+      const ccipResponse = await fetch(`${this.offchainResolverEndpoint}/resolve?name=${ensName}&type=addr`, {
+        signal: AbortSignal.timeout(3000)
+      });
       
       if (ccipResponse.ok) {
         const ccipData = await ccipResponse.json();
@@ -84,7 +88,9 @@ class CCIPReadHandler {
           
           // Try to get additional data from web3.bio
           try {
-            const bioResponse = await fetch(`${this.web3BioEndpoint}/profile/dotbit/${ensName}`);
+            const bioResponse = await fetch(`${this.web3BioEndpoint}/profile/dotbit/${ensName}`, {
+              signal: AbortSignal.timeout(3000)
+            });
             if (bioResponse.ok) {
               const bioData = await bioResponse.json();
               if (bioData && bioData.avatar) {
@@ -101,6 +107,33 @@ class CCIPReadHandler {
         }
       }
       
+      // If all direct methods fail, try to treat it like a normal ENS name
+      try {
+        const resolver = await mainnetProvider.getResolver(ensName);
+        if (resolver) {
+          const address = await resolver.getAddress();
+          if (address) {
+            const result: ResolveDotBitResult = { address };
+            
+            // Try to get avatar
+            try {
+              const avatar = await resolver.getText('avatar');
+              if (avatar) {
+                result.avatar = avatar;
+              }
+            } catch (err) {
+              console.log(`No avatar for ${ensName}`);
+            }
+            
+            // Cache and return
+            this.cache.set(ensName, result);
+            return result;
+          }
+        }
+      } catch (err) {
+        console.log(`Standard resolver failed for ${ensName}:`, err);
+      }
+      
       return null;
     } catch (error) {
       console.error(`Error resolving .box domain ${ensName}:`, error);
@@ -113,7 +146,10 @@ class CCIPReadHandler {
    */
   async getDotBitByAddress(address: string): Promise<string[]> {
     try {
-      const response = await fetch(`${this.dotBitApiEndpoint}/v1/reverse/record?key=address.eth&value=${address}`);
+      const response = await fetch(
+        `${this.dotBitApiEndpoint}/v1/reverse/record?key=address.eth&value=${address}`, 
+        { signal: AbortSignal.timeout(3000) }
+      );
       
       if (response.ok) {
         const data = await response.json();

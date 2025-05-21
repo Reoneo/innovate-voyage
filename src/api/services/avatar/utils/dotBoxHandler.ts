@@ -4,9 +4,6 @@ import { fetchDotBoxAvatar } from '../../openseaService';
 import { ccipReadEnabled } from '../../../../utils/ens/ccipReadHandler';
 import { mainnetProvider } from '../../../../utils/ethereumProviders';
 
-// Etherscan API key for .box domains
-const OPTIMISM_ETHERSCAN_API_KEY = "MWRCM8Q9RIGEVBT6WJ1VUNDYPAHN4M91FU";
-
 export async function handleDotBoxAvatar(identity: string): Promise<string | null> {
   try {
     console.log(`Fetching .box avatar for ${identity}`);

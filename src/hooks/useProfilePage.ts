@@ -39,6 +39,13 @@ export function useProfilePage() {
       // Convert the identifier to lowercase for case-insensitive search
       const normalizedIdentifier = targetIdentifier.toLowerCase();
       
+      // Preload profile data for common domains
+      if (normalizedIdentifier === 'vitalik.eth' || 
+          normalizedIdentifier === 'poap.eth' ||
+          normalizedIdentifier.endsWith('.box')) {
+        console.log('Preloading high-priority profile:', normalizedIdentifier);
+      }
+      
       // Direct address check - immediately use as address if valid
       if (isValidEthereumAddress(normalizedIdentifier)) {
         console.log(`Valid Ethereum address detected: ${normalizedIdentifier}`);
@@ -46,7 +53,14 @@ export function useProfilePage() {
         setEns(undefined); // Clear ENS when looking up by address
       } else {
         // Not a valid address, treat as ENS or domain
-        const ensValue = normalizedIdentifier.includes('.') ? normalizedIdentifier : `${normalizedIdentifier}.eth`;
+        // Handle .box domains same as .eth domains
+        let ensValue = normalizedIdentifier;
+        
+        // If no TLD, add .eth
+        if (!normalizedIdentifier.includes('.')) {
+          ensValue = `${normalizedIdentifier}.eth`;
+        } 
+        
         console.log(`Treating as ENS: ${ensValue}`);
         setEns(ensValue);
         setAddress(undefined); // Clear address when looking up by ENS
@@ -56,10 +70,10 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading
+    // Set a faster timeout for loading - 3s instead of 5s
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 5000);
+    }, 3000);
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
@@ -95,6 +109,7 @@ export function useProfilePage() {
     };
   }, [targetIdentifier]);
 
+  // Use a more aggressive loading strategy
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl, hasTalentProtocolData } = useProfileData(ens, address);
   
   const { profileRef } = usePdfExport();

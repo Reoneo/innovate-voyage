@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import PoapCarousel from './PoapCarousel';
 import PoapDetailContent from './PoapDetailContent';
@@ -7,6 +7,8 @@ import { usePoapData } from './usePoapData';
 
 interface Poap {
   tokenId: string;
+  chain?: string;
+  created?: string;
   event: {
     name: string;
     description: string;
@@ -26,7 +28,7 @@ interface PoapSectionProps {
 }
 
 const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
-  const { data: poapsData, isLoading, error } = usePoapData(walletAddress);
+  const { poaps, isLoading } = usePoapData(walletAddress);
   const [selectedPoap, setSelectedPoap] = useState<Poap | null>(null);
   const [showDialog, setShowDialog] = useState(false);
 
@@ -52,7 +54,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     );
   }
   
-  if (error || !poapsData || poapsData.length === 0) {
+  if (!poaps || poaps.length === 0) {
     return null;
   }
   
@@ -60,7 +62,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     <div className="mb-6">
       <h2 className="text-xl font-semibold mb-4">POAPs</h2>
       <PoapCarousel 
-        poaps={poapsData} 
+        poaps={poaps} 
         onSelect={handlePoapSelect}
       />
       
