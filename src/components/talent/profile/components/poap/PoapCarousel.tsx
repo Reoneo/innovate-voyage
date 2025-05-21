@@ -20,11 +20,6 @@ interface PoapCarouselProps {
 const PoapCarousel: React.FC<PoapCarouselProps> = ({ poaps, onSelect }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Handle when carousel changes
-  const handleCarouselChange = (currentSlide: number) => {
-    setCurrentIndex(currentSlide);
-  };
-
   // Function to get appropriate classes for dot indicators
   const getDotClasses = (index: number) => {
     return cn(
@@ -40,8 +35,11 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({ poaps, onSelect }) => {
           align: 'start',
           loop: true,
         }}
-        onScrollSnapChange={handleCarouselChange}
         className="w-full"
+        onSelect={(api) => {
+          const currentSlide = api.selectedScrollSnap();
+          setCurrentIndex(currentSlide);
+        }}
       >
         <CarouselContent>
           {poaps.map((poap, index) => (

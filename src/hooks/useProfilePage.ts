@@ -18,40 +18,30 @@ export function useProfilePage() {
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
-    // Attempt to clear any browser cache
-    try {
-      // Force page to be freshly loaded 
-      if ('caches' in window) {
-        const cacheNames = caches.keys();
-        cacheNames.then(names => {
-          for (const name of names) {
-            if (name.includes('fetch-cache')) {
-              caches.delete(name);
-            }
-          }
-        });
-      }
-    } catch (err) {
-      console.error('Error clearing caches:', err);
-    }
+    // Hard-coded address fallbacks for common domains to speed up loading
+    const knownAddressMap: Record<string, string> = {
+      'vitalik.eth': '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+      'poap.eth': '0x6023e55814DC00f094386d4eb7e17Ce49ab1A190',
+      'smith.box': '0xC05501d710B3Cdb2D2C279d0A6b9A2975b3DD096'
+    };
     
     if (targetIdentifier) {
       // Convert the identifier to lowercase for case-insensitive search
       const normalizedIdentifier = targetIdentifier.toLowerCase();
       
-      // Preload profile data for common domains
-      if (normalizedIdentifier === 'vitalik.eth' || 
-          normalizedIdentifier === 'poap.eth' ||
-          normalizedIdentifier.endsWith('.box')) {
-        console.log('Preloading high-priority profile:', normalizedIdentifier);
+      // Check if we have a known address for this identifier
+      if (knownAddressMap[normalizedIdentifier]) {
+        console.log(`Using known address mapping for ${normalizedIdentifier}: ${knownAddressMap[normalizedIdentifier]}`);
+        setAddress(knownAddressMap[normalizedIdentifier]);
+        setEns(normalizedIdentifier);
       }
-      
       // Direct address check - immediately use as address if valid
-      if (isValidEthereumAddress(normalizedIdentifier)) {
+      else if (isValidEthereumAddress(normalizedIdentifier)) {
         console.log(`Valid Ethereum address detected: ${normalizedIdentifier}`);
         setAddress(normalizedIdentifier);
         setEns(undefined); // Clear ENS when looking up by address
-      } else {
+      } 
+      else {
         // Not a valid address, treat as ENS or domain
         // Handle .box domains same as .eth domains
         let ensValue = normalizedIdentifier;
@@ -70,10 +60,10 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a faster timeout for loading - 3s instead of 5s
+    // Set an even faster timeout for loading - 1.5s instead of 3s
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 3000);
+    }, 1500);
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
@@ -99,6 +89,25 @@ export function useProfilePage() {
         window.history.replaceState({}, document.title, cleanUrl);
       }
     }
+    
+    // Prefetch placeholder and robohash avatars to reduce content jumps
+    const prefetchCommonAvatars = () => {
+      // Prefetch placeholder avatar
+      const placeholderImg = new Image();
+      placeholderImg.src = "/placeholder.svg";
+      
+      // Prefetch common domains' avatars
+      for (const domain of Object.keys(knownAddressMap)) {
+        const avatarImg = new Image();
+        avatarImg.src = `https://metadata.ens.domains/mainnet/avatar/${domain}`;
+      }
+      
+      // Prefetch robohash fallback
+      const robohashImg = new Image();
+      robohashImg.src = `https://robohash.org/${targetIdentifier || 'default'}?set=set4`;
+    };
+    
+    prefetchCommonAvatars();
 
     return () => {
       clearTimeout(timeoutId);
@@ -109,7 +118,7 @@ export function useProfilePage() {
     };
   }, [targetIdentifier]);
 
-  // Use a more aggressive loading strategy
+  // Use a more aggressive loading strategy - load both the ENS and address in parallel
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl, hasTalentProtocolData } = useProfileData(ens, address);
   
   const { profileRef } = usePdfExport();

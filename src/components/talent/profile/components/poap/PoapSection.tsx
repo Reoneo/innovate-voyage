@@ -4,24 +4,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import PoapCarousel from './PoapCarousel';
 import PoapDetailContent from './PoapDetailContent';
 import { usePoapData } from './usePoapData';
-
-interface Poap {
-  tokenId: string;
-  chain?: string;
-  created?: string;
-  event: {
-    name: string;
-    description: string;
-    image_url: string;
-    start_date: string;
-    end_date: string;
-    country: string;
-    city: string;
-  };
-  owner: {
-    address: string;
-  };
-}
+import { Poap as PoapType } from '@/api/services/poapService';
 
 interface PoapSectionProps {
   walletAddress: string;
@@ -29,11 +12,11 @@ interface PoapSectionProps {
 
 const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   const { poaps, isLoading } = usePoapData(walletAddress);
-  const [selectedPoap, setSelectedPoap] = useState<Poap | null>(null);
+  const [selectedPoap, setSelectedPoap] = useState<PoapType | null>(null);
   const [showDialog, setShowDialog] = useState(false);
 
   // Handle POAP selection
-  const handlePoapSelect = (poap: Poap) => {
+  const handlePoapSelect = (poap: PoapType) => {
     setSelectedPoap(poap);
     setShowDialog(true);
   };

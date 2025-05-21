@@ -21,12 +21,12 @@ const TalentProfile = () => {
   
   const [showSkeleton, setShowSkeleton] = useState(true);
 
-  // Show content much faster - very aggressive - show after just 500ms
+  // Show content extremely fast - ultra aggressive - show after just 300ms
   useEffect(() => {
     if (loading) {
       const timer = setTimeout(() => {
         setShowSkeleton(false);
-      }, 500); // Show partial content after just 500ms even if still loading
+      }, 300); // Show partial content after just 300ms even if still loading
       
       return () => clearTimeout(timer);
     } else {
@@ -62,6 +62,13 @@ const TalentProfile = () => {
     const robohashImg = new Image();
     const ensNameForRobohash = ensNameOrAddress || 'default';
     robohashImg.src = `https://robohash.org/${ensNameForRobohash}?set=set4`;
+    
+    // Prefetch ENS avatar if it's a known domain
+    if (ensNameOrAddress && (ensNameOrAddress.endsWith('.eth') || ensNameOrAddress.endsWith('.box'))) {
+      const ensAvatarImg = new Image();
+      ensAvatarImg.src = `https://metadata.ens.domains/mainnet/avatar/${ensNameOrAddress}`;
+    }
+    
   }, [passport?.avatar_url, ensNameOrAddress]);
 
   return (
