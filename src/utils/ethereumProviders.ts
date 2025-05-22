@@ -72,6 +72,7 @@ interface EnsCacheEntry {
   avatar?: string;
   bio?: string;
   links?: any;
+  textRecords?: Record<string, string | null>;
   expiresAt: number;
   attempts?: number; // Track failed resolution attempts
 }

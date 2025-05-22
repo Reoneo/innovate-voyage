@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useEnsResolution } from './ens/useEnsResolution';
 import { ethers } from 'ethers';
 import { getFromEnsCache } from '@/utils/ethereumProviders';
+import { extractSocialsFromTextRecords } from '@/utils/ens/textRecords/textRecordUtils';
 
 // Debug flags
 const DEBUG_ENS = false;
@@ -39,7 +40,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
           setState(prev => ({
             ...prev,
             resolvedAddress: cachedData.address,
-            avatarUrl: cachedData.avatar || cachedData.avatarUrl,
+            avatarUrl: cachedData.avatar, // Fixed property name
             ensBio: cachedData.bio || cachedData.textRecords?.description,
             ensLinks: cachedData.links || { 
               socials: extractSocialsFromTextRecords(cachedData.textRecords), 
@@ -56,7 +57,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
           setState(prev => ({
             ...prev,
             resolvedEns: cachedData.ensName,
-            avatarUrl: cachedData.avatar || cachedData.avatarUrl,
+            avatarUrl: cachedData.avatar, // Fixed property name
             ensBio: cachedData.bio || cachedData.textRecords?.description,
             ensLinks: cachedData.links || { 
               socials: extractSocialsFromTextRecords(cachedData.textRecords), 
@@ -69,24 +70,6 @@ export function useEnsResolver(ensName?: string, address?: string) {
       }
     }
   }, [ensName, address, setState, lastInputs]);
-  
-  // Helper function to extract social links from text records
-  const extractSocialsFromTextRecords = (textRecords?: Record<string, string | null>) => {
-    if (!textRecords) return {};
-    
-    const socials: Record<string, string> = {};
-    
-    // Map common ENS text records to social platform keys
-    if (textRecords['com.twitter']) socials.twitter = textRecords['com.twitter'];
-    if (textRecords['com.github']) socials.github = textRecords['com.github'];
-    if (textRecords['com.discord']) socials.discord = textRecords['com.discord'];
-    if (textRecords['org.telegram']) socials.telegram = textRecords['org.telegram'];
-    if (textRecords['com.reddit']) socials.reddit = textRecords['com.reddit'];
-    if (textRecords['email']) socials.email = textRecords['email'];
-    if (textRecords['url']) socials.website = textRecords['url'];
-    
-    return socials;
-  };
   
   // Determine if we have an ENS name to resolve
   const isEnsName = !!ensName && 

@@ -1,10 +1,10 @@
-
 // Reverse resolution: address -> ENS name
 import { checkCache, updateCache, handleFailedResolution, checkCacheForTextRecords } from './cache';
 import { validateAddress, standardEnsLookup, dotBoxLookup, fetchTextRecords, firstSuccessful } from './utils';
 import { EnsResolutionResult, ResolvedENS } from './types';
 import { STANDARD_TIMEOUT } from './constants';
 import { mainnetProvider } from '../../ethereumProviders';
+import { ccipReadEnabled } from '../ccipReadHandler';
 
 /**
  * Resolve address to ENS name with improved caching and error handling

@@ -26,12 +26,11 @@ export function useProfileData(ensName?: string, address?: string) {
     ? {
         ...blockchainData.blockchainProfile,
         socials: {
-          ...ensLinks?.socials,
+          ...(ensLinks?.socials || {}),
           ...(blockchainData.blockchainProfile.socials || {})
         },
         ensLinks: ensLinks?.ensLinks || [],
         description: blockchainData.blockchainProfile.description || 
-                     ensLinks?.description || 
                      ensBio ||
                      blockchainData.blockchainExtendedData?.description
       }
