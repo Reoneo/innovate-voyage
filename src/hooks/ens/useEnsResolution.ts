@@ -1,24 +1,15 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { resolveEnsToAddress, resolveAddressToEns } from '@/utils/ens/resolveEns';
-import { getEnsAvatar, getEnsBio, getAllEnsData } from '@/utils/ens/ensRecords';
-import { getEnsLinks } from '@/utils/ens/ensLinks';
-import { getFromEnsCache, addToEnsCache } from '@/utils/ethereumProviders';
+import { getEnsAvatar, getEnsBio } from '@/utils/ens/ensRecords';
+import { EnsResolutionState, EnsResolutionResult } from './types';
+import { fetchEnsData, fetchAdditionalEnsData, checkEnsCache, updateEnsCache } from './ensResolutionUtils';
 
-interface EnsResolutionState {
-  resolvedAddress: string | undefined;
-  resolvedEns: string | undefined;
-  avatarUrl: string | undefined;
-  ensBio: string | undefined;
-  ensLinks: {
-    socials: Record<string, string>;
-    ensLinks: string[];
-    description?: string;
-    keywords?: string[];
-  };
-}
-
-export function useEnsResolution(ensName?: string, address?: string) {
+/**
+ * A hook for ENS name <-> address resolution with metadata
+ * Provides efficient parallel data fetching and caching
+ */
+export function useEnsResolution(ensName?: string, address?: string): EnsResolutionResult {
   const [state, setState] = useState<EnsResolutionState>({
     resolvedAddress: address,
     resolvedEns: ensName,
@@ -46,16 +37,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
   // Function to resolve ENS name to address with improved caching and parallel fetching
   const resolveEns = useCallback(async (ensName: string) => {
     // Check full cache first
-    const cachedResult = getFromEnsCache(ensName);
-    if (cachedResult) {
-      console.log(`Using cached ENS resolution data for ${ensName}`);
-      setState(prev => ({
-        ...prev, 
-        resolvedAddress: cachedResult.address,
-        avatarUrl: cachedResult.avatar,
-        ensBio: cachedResult.bio,
-        ensLinks: cachedResult.links || { socials: {}, ensLinks: [], keywords: [] }
-      }));
+    if (checkEnsCache(ensName, setState)) {
       return;
     }
     
@@ -74,14 +56,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
     try {
       console.log(`Resolving ENS: ${ensName}`);
       
-      // Fetch all data in parallel for better performance
-      const [ensData, links] = await Promise.all([
-        // Primary data - address, avatar, bio
-        getAllEnsData(ensName, 5000),
-        
-        // Links (can be fetched in parallel)
-        getEnsLinks(ensName, 'mainnet').catch(() => ({ socials: {}, ensLinks: [], keywords: [] }))
-      ]);
+      const ensData = await fetchEnsData(ensName, controller);
       
       // Only update if not aborted
       if (!controller.signal.aborted) {
@@ -90,19 +65,14 @@ export function useEnsResolution(ensName?: string, address?: string) {
         // Update state with all the resolved data
         setState(prev => ({
           ...prev,
-          resolvedAddress: ensData.address || undefined,
-          avatarUrl: ensData.avatar || undefined,
-          ensBio: ensData.bio || undefined,
-          ensLinks: links || { socials: {}, ensLinks: [], keywords: [] }
+          resolvedAddress: ensData.address,
+          avatarUrl: ensData.avatar,
+          ensBio: ensData.bio,
+          ensLinks: ensData.links
         }));
         
         // Cache all the data together
-        addToEnsCache(ensName, {
-          address: ensData.address || undefined,
-          avatar: ensData.avatar || undefined,
-          bio: ensData.bio || undefined,
-          links
-        });
+        updateEnsCache(ensName, ensData);
       }
     } catch (error) {
       if (!controller.signal.aborted) {
@@ -121,16 +91,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
   const lookupAddress = useCallback(async (address: string) => {
     // Check cache first
     const cacheKey = address.toLowerCase();
-    const cachedResult = getFromEnsCache(cacheKey);
-    if (cachedResult && cachedResult.ensName) {
-      console.log(`Using cached address lookup data for ${address}`);
-      setState(prev => ({
-        ...prev,
-        resolvedEns: cachedResult.ensName,
-        avatarUrl: cachedResult.avatar,
-        ensBio: cachedResult.bio,
-        ensLinks: cachedResult.links || { socials: {}, ensLinks: [], keywords: [] }
-      }));
+    if (checkEnsCache(cacheKey, setState)) {
       return;
     }
     
@@ -157,12 +118,8 @@ export function useEnsResolution(ensName?: string, address?: string) {
         const ensName = result.ensName;
         console.log(`Found ENS name for ${address}: ${ensName}`);
         
-        // Fetch all additional data in parallel
-        const [avatar, bio, links] = await Promise.all([
-          getEnsAvatar(ensName, 'mainnet', 5000).catch(() => null),
-          getEnsBio(ensName, 'mainnet', 5000).catch(() => null),
-          getEnsLinks(ensName, 'mainnet').catch(() => ({ socials: {}, ensLinks: [], keywords: [] }))
-        ]);
+        // Fetch additional data
+        const additionalData = await fetchAdditionalEnsData(ensName, controller);
         
         // Only update if not aborted
         if (!controller.signal.aborted) {
@@ -172,25 +129,21 @@ export function useEnsResolution(ensName?: string, address?: string) {
           setState(prev => ({
             ...prev,
             resolvedEns: ensName,
-            avatarUrl: avatar || undefined,
-            ensBio: bio || undefined,
-            ensLinks: links || { socials: {}, ensLinks: [], keywords: [] }
+            avatarUrl: additionalData.avatar,
+            ensBio: additionalData.bio,
+            ensLinks: additionalData.links
           }));
           
           // Cache the results
-          addToEnsCache(cacheKey, {
+          updateEnsCache(cacheKey, {
             ensName,
-            avatar: avatar || undefined,
-            bio: bio || undefined,
-            links
+            ...additionalData
           });
           
           // Also cache in the opposite direction
-          addToEnsCache(ensName, {
+          updateEnsCache(ensName, {
             address,
-            avatar: avatar || undefined,
-            bio: bio || undefined,
-            links
+            ...additionalData
           });
         }
       } else if (!controller.signal.aborted) {
