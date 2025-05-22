@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import PoapCarousel from './PoapCarousel';
 import PoapDetailContent from './PoapDetailContent';
@@ -11,7 +11,13 @@ interface PoapSectionProps {
 }
 
 const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
-  const { poaps, isLoading } = usePoapData(walletAddress);
+  const { 
+    poaps, 
+    isLoading,
+    loadPoapOwners,
+    poapOwners,
+    loadingOwners
+  } = usePoapData(walletAddress);
   const [selectedPoap, setSelectedPoap] = useState<PoapType | null>(null);
   const [showDialog, setShowDialog] = useState(false);
 
@@ -19,6 +25,11 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   const handlePoapSelect = (poap: PoapType) => {
     setSelectedPoap(poap);
     setShowDialog(true);
+    
+    // Load POAP owners when a POAP is selected
+    if (poap?.event?.id) {
+      loadPoapOwners(poap.event.id);
+    }
   };
   
   // Close dialog
@@ -53,7 +64,9 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           {selectedPoap && (
             <PoapDetailContent 
-              poap={selectedPoap} 
+              poap={selectedPoap}
+              poapOwners={poapOwners}
+              loadingOwners={loadingOwners}
             />
           )}
         </DialogContent>

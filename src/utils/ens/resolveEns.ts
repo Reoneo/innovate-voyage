@@ -102,11 +102,27 @@ export async function resolveEnsToAddress(ensName: string, timeoutMs = STANDARD_
         }
       })();
       
-      // Try both methods in parallel with a race condition
-      const resolvedAddress = await Promise.any([
-        resolverPromise,
-        resolveNamePromise
-      ]);
+      // Use Promise.race with a filter for non-null results instead of Promise.any
+      const promises = [resolverPromise, resolveNamePromise];
+      
+      // Custom implementation of first successful result (alternative to Promise.any)
+      let resolvedAddress: string | null = null;
+      
+      // Set up racing promises that resolve when any promise succeeds
+      const racePromise = Promise.race(
+        promises.map(p => 
+          p.then(result => {
+            if (result) {
+              resolvedAddress = result;
+              return true;
+            }
+            return false;
+          }).catch(() => false)
+        )
+      );
+      
+      // Wait for the first successful result or all to fail
+      await racePromise;
       
       // Cache the result
       if (resolvedAddress) {
