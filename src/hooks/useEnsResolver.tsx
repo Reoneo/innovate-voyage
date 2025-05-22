@@ -39,9 +39,14 @@ export function useEnsResolver(ensName?: string, address?: string) {
           setState(prev => ({
             ...prev,
             resolvedAddress: cachedData.address,
-            avatarUrl: cachedData.avatar,
-            ensBio: cachedData.bio,
-            ensLinks: cachedData.links || { socials: {}, ensLinks: [], keywords: [] }
+            avatarUrl: cachedData.avatar || cachedData.avatarUrl,
+            ensBio: cachedData.bio || cachedData.textRecords?.description,
+            ensLinks: cachedData.links || { 
+              socials: extractSocialsFromTextRecords(cachedData.textRecords), 
+              ensLinks: [], 
+              keywords: [] 
+            },
+            textRecords: cachedData.textRecords || {}
           }));
         }
       } else if (address) {
@@ -51,14 +56,37 @@ export function useEnsResolver(ensName?: string, address?: string) {
           setState(prev => ({
             ...prev,
             resolvedEns: cachedData.ensName,
-            avatarUrl: cachedData.avatar,
-            ensBio: cachedData.bio,
-            ensLinks: cachedData.links || { socials: {}, ensLinks: [], keywords: [] }
+            avatarUrl: cachedData.avatar || cachedData.avatarUrl,
+            ensBio: cachedData.bio || cachedData.textRecords?.description,
+            ensLinks: cachedData.links || { 
+              socials: extractSocialsFromTextRecords(cachedData.textRecords), 
+              ensLinks: [], 
+              keywords: [] 
+            },
+            textRecords: cachedData.textRecords || {}
           }));
         }
       }
     }
   }, [ensName, address, setState, lastInputs]);
+  
+  // Helper function to extract social links from text records
+  const extractSocialsFromTextRecords = (textRecords?: Record<string, string | null>) => {
+    if (!textRecords) return {};
+    
+    const socials: Record<string, string> = {};
+    
+    // Map common ENS text records to social platform keys
+    if (textRecords['com.twitter']) socials.twitter = textRecords['com.twitter'];
+    if (textRecords['com.github']) socials.github = textRecords['com.github'];
+    if (textRecords['com.discord']) socials.discord = textRecords['com.discord'];
+    if (textRecords['org.telegram']) socials.telegram = textRecords['org.telegram'];
+    if (textRecords['com.reddit']) socials.reddit = textRecords['com.reddit'];
+    if (textRecords['email']) socials.email = textRecords['email'];
+    if (textRecords['url']) socials.website = textRecords['url'];
+    
+    return socials;
+  };
   
   // Determine if we have an ENS name to resolve
   const isEnsName = !!ensName && 
@@ -120,6 +148,8 @@ export function useEnsResolver(ensName?: string, address?: string) {
         resolvedEns: state.resolvedEns,
         avatarUrl: state.avatarUrl,
         ensLinks: state.ensLinks,
+        ensBio: state.ensBio,
+        textRecords: state.textRecords,
         error,
         isLoading,
         retryCount
@@ -133,6 +163,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
     avatarUrl: state.avatarUrl,
     ensLinks: state.ensLinks,
     ensBio: state.ensBio,
+    textRecords: state.textRecords,
     isLoading,
     error
   };

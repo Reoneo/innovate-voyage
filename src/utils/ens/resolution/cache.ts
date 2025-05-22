@@ -57,3 +57,18 @@ export function handleFailedResolution(key: string) {
   markFailedResolution(key);
   return null;
 }
+
+/**
+ * Check if text records are in the cache
+ */
+export function checkCacheForTextRecords(key: string): Record<string, string | null> | null {
+  if (!key) return null;
+  
+  const cachedResult = getFromEnsCache(key);
+  if (cachedResult && cachedResult.textRecords) {
+    console.log(`Using cached text records for ${key}`);
+    return cachedResult.textRecords;
+  }
+  
+  return null;
+}

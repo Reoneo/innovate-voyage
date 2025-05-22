@@ -1,9 +1,10 @@
 
 // Reverse resolution: address -> ENS name
-import { checkCache, updateCache, handleFailedResolution } from './cache';
-import { validateAddress, standardEnsLookup, dotBoxLookup } from './utils';
-import { EnsResolutionResult } from './types';
+import { checkCache, updateCache, handleFailedResolution, checkCacheForTextRecords } from './cache';
+import { validateAddress, standardEnsLookup, dotBoxLookup, fetchTextRecords, firstSuccessful } from './utils';
+import { EnsResolutionResult, ResolvedENS } from './types';
 import { STANDARD_TIMEOUT } from './constants';
+import { mainnetProvider } from '../../ethereumProviders';
 
 /**
  * Resolve address to ENS name with improved caching and error handling
@@ -18,7 +19,12 @@ export async function resolveAddressToEns(
   const cacheKey = address.toLowerCase();
   const cachedEnsName = checkCache<string | null>(cacheKey, 'ensName');
   if (cachedEnsName !== null) {
-    return { ensName: cachedEnsName, network: 'mainnet' };
+    const textRecords = checkCacheForTextRecords(cacheKey);
+    return { 
+      ensName: cachedEnsName, 
+      network: 'mainnet',
+      textRecords 
+    };
   }
   
   // Validate address format
@@ -27,31 +33,109 @@ export async function resolveAddressToEns(
     return null;
   }
   
-  // Try to resolve through multiple methods in parallel
-  const results = await Promise.allSettled([
-    // Method 1: Standard ENS reverse lookup
-    standardEnsLookup(address, timeoutMs),
+  try {
+    // Use comprehensive lookup function
+    const result = await lookupAddressAndMetadata(address, timeoutMs);
     
-    // Method 2: Try using CCIP-Read for .box domains
-    dotBoxLookup(address, timeoutMs)
-  ]);
-  
-  // Process results - take the first successful one
-  for (const result of results) {
-    if (result.status === 'fulfilled' && result.value) {
-      const ensName = result.value;
-      const method = result.value.includes('.box') ? 'ccip' : 'standard';
+    if (result && result.name) {
+      // Update cache with all metadata
+      updateCache(cacheKey, { 
+        ensName: result.name,
+        avatarUrl: result.avatarUrl,
+        textRecords: result.textRecords
+      });
       
-      console.log(`Resolved address ${address} to ${ensName} using ${method} method`);
-      
-      // Cache the result
-      updateCache(cacheKey, { ensName });
-      updateCache(ensName.toLowerCase(), { address });
-      
-      return { ensName, network: 'mainnet' };
+      return { 
+        ensName: result.name, 
+        network: 'mainnet',
+        textRecords: result.textRecords
+      };
     }
+    
+    // No resolution found
+    return handleFailedResolution(address);
+    
+  } catch (error) {
+    console.error(`Error resolving address ${address}:`, error);
+    return handleFailedResolution(address);
   }
+}
+
+/**
+ * Comprehensive lookup function that gets ENS name and metadata
+ */
+export async function lookupAddressAndMetadata(address: string, timeoutMs = STANDARD_TIMEOUT): Promise<ResolvedENS | null> {
+  if (!address) return null;
   
-  // No resolution found
-  return handleFailedResolution(address);
+  try {
+    // Try to resolve through multiple methods in parallel
+    const name = await firstSuccessful([
+      async () => await standardEnsLookup(address, timeoutMs),
+      async () => await dotBoxLookup(address, timeoutMs)
+    ]);
+    
+    if (!name) {
+      return null;
+    }
+    
+    console.log(`Resolved address ${address} to ${name}`);
+    
+    // Now that we have the name, fetch the text records
+    let textRecords: Record<string, string | null> = {};
+    let avatarUrl: string | undefined = undefined;
+    
+    // Get resolver for the ENS name
+    const resolver = await mainnetProvider.getResolver(name);
+    
+    if (resolver) {
+      // Fetch text records
+      textRecords = await fetchTextRecords(name, resolver);
+      
+      // Get avatar from text records or metadata API
+      avatarUrl = textRecords['avatar'] || textRecords['avatar.ens'];
+      
+      if (!avatarUrl) {
+        try {
+          const metadataResponse = await fetch(`https://metadata.ens.domains/mainnet/avatar/${name}`, {
+            method: 'HEAD'
+          });
+          
+          if (metadataResponse.ok) {
+            avatarUrl = `https://metadata.ens.domains/mainnet/avatar/${name}`;
+          }
+        } catch (e) {
+          console.warn(`Error fetching avatar metadata for ${name}:`, e);
+        }
+      }
+    }
+    
+    // Special handling for .box domains
+    if (name.endsWith('.box')) {
+      try {
+        const boxResult = await ccipReadEnabled.resolveDotBit(name);
+        if (boxResult) {
+          if (boxResult.avatar) {
+            avatarUrl = boxResult.avatar;
+            textRecords['avatar'] = boxResult.avatar;
+          }
+          
+          if (boxResult.textRecords) {
+            textRecords = { ...textRecords, ...boxResult.textRecords };
+          }
+        }
+      } catch (e) {
+        console.warn(`Error fetching .box data for ${name}:`, e);
+      }
+    }
+    
+    return {
+      address,
+      name,
+      avatarUrl,
+      textRecords
+    };
+  } catch (error) {
+    console.error(`Error in lookupAddressAndMetadata for ${address}:`, error);
+    return null;
+  }
 }

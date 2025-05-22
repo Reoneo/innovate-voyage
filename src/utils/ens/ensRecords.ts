@@ -1,8 +1,9 @@
+
 import { mainnetProvider, getFromEnsCache, addToEnsCache } from '../ethereumProviders';
 import { getRealAvatar } from '../../api/services/avatarService';
 import { ccipReadEnabled } from './ccipReadHandler';
 import { handleDirectImageUrl } from '../../api/services/avatar/utils/directImageHandler';
-import { resolveEnsToAddress } from './resolveEns';
+import { resolveEnsToAddress, resolveNameAndMetadata } from './resolution';
 
 /**
  * Gets avatar for an ENS name with caching
@@ -18,7 +19,20 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
       return cachedResult.avatar;
     }
     
-    console.log(`Getting avatar for ${ensName}`);
+    // Use the new comprehensive resolveNameAndMetadata function
+    const ensData = await resolveNameAndMetadata(ensName);
+    
+    if (ensData && ensData.avatarUrl) {
+      console.log(`Got avatar for ${ensName} from resolveNameAndMetadata: ${ensData.avatarUrl}`);
+      
+      // Cache the result
+      addToEnsCache(ensName, { avatar: ensData.avatarUrl });
+      
+      return ensData.avatarUrl;
+    }
+    
+    // If no avatar from comprehensive resolution, try legacy fallbacks
+    console.log(`Getting avatar for ${ensName} using legacy methods`);
     
     // Special handling for .box domains
     if (ensName.endsWith('.box')) {
@@ -183,6 +197,18 @@ export async function getEnsBio(ensName: string, network = 'mainnet', timeoutMs 
       return cachedResult.bio || null;
     }
     
+    // Use the new comprehensive resolveNameAndMetadata function
+    const ensData = await resolveNameAndMetadata(ensName);
+    
+    if (ensData && ensData.textRecords?.description) {
+      console.log(`Got bio for ${ensName} from resolveNameAndMetadata: ${ensData.textRecords.description}`);
+      
+      // Cache the result
+      addToEnsCache(ensName, { bio: ensData.textRecords.description });
+      
+      return ensData.textRecords.description;
+    }
+    
     // Special handling for .box domains
     if (ensName.endsWith('.box')) {
       console.log(`Using CCIP-Read to get .box bio for ${ensName}`);
@@ -272,6 +298,20 @@ export async function getAllEnsData(ensName: string, timeoutMs = 5000): Promise<
   bio: string | null;
   links: any;
 }> {
+  // Use the new comprehensive resolveNameAndMetadata function
+  const ensData = await resolveNameAndMetadata(ensName);
+  
+  if (ensData) {
+    return {
+      address: ensData.address || null,
+      avatar: ensData.avatarUrl || null,
+      bio: ensData.textRecords?.description || null,
+      links: { socials: extractSocialsFromTextRecords(ensData.textRecords), ensLinks: [] }
+    };
+  }
+  
+  // If comprehensive resolution fails, fall back to previous method
+  
   // Check cache first for all data
   const cachedResult = getFromEnsCache(ensName);
   if (cachedResult && cachedResult.address && cachedResult.avatar !== undefined && cachedResult.bio !== undefined) {
@@ -301,8 +341,8 @@ export async function getAllEnsData(ensName: string, timeoutMs = 5000): Promise<
           return {
             address: boxData.address || null,
             avatar: boxData.avatar || null,
-            bio: null, // Will be fetched separately by getEnsBio
-            links: { socials: {}, ensLinks: [] } // Links need separate handling for .box
+            bio: boxData.textRecords?.description || null,
+            links: { socials: extractSocialsFromTextRecords(boxData.textRecords), ensLinks: [] }
           };
         }
       } else {
@@ -364,4 +404,24 @@ export async function getAllEnsData(ensName: string, timeoutMs = 5000): Promise<
       links: { socials: {}, ensLinks: [] }
     };
   }
+}
+
+/**
+ * Extract social media links from text records
+ */
+function extractSocialsFromTextRecords(textRecords?: Record<string, string | null>): Record<string, string> {
+  if (!textRecords) return {};
+  
+  const socials: Record<string, string> = {};
+  
+  // Map common ENS text records to social platform keys
+  if (textRecords['com.twitter']) socials.twitter = textRecords['com.twitter'];
+  if (textRecords['com.github']) socials.github = textRecords['com.github'];
+  if (textRecords['com.discord']) socials.discord = textRecords['com.discord'];
+  if (textRecords['org.telegram']) socials.telegram = textRecords['org.telegram'];
+  if (textRecords['com.reddit']) socials.reddit = textRecords['com.reddit'];
+  if (textRecords['email']) socials.email = textRecords['email'];
+  if (textRecords['url']) socials.website = textRecords['url'];
+  
+  return socials;
 }

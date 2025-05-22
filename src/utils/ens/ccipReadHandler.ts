@@ -6,6 +6,7 @@ export interface ResolveDotBitResult {
   owner?: string;
   avatar?: string;
   socials?: Record<string, string>;
+  textRecords?: Record<string, string | null>;
 }
 
 /**
@@ -61,11 +62,32 @@ class CCIPReadHandler {
             socials[platform] = r.value;
           });
           
+          // Extract all records into a textRecords object for ENS compatibility
+          const textRecords: Record<string, string | null> = {};
+          records.forEach((r: any) => {
+            // Convert DotBit record format to ENS-compatible format
+            if (r.key === 'profile.avatar') {
+              textRecords['avatar'] = r.value;
+              textRecords['avatar.ens'] = r.value;
+            } else if (r.key === 'profile.description') {
+              textRecords['description'] = r.value;
+            } else if (r.key === 'profile.url') {
+              textRecords['url'] = r.value;
+            } else if (r.key.startsWith('profile.social.')) {
+              const platform = r.key.replace('profile.social.', 'com.');
+              textRecords[platform] = r.value;
+            } else {
+              // Store the original key format as well
+              textRecords[r.key] = r.value;
+            }
+          });
+          
           const result: ResolveDotBitResult = { 
             address, 
             owner,
             avatar,
-            socials
+            socials,
+            textRecords
           };
           
           // Cache the result
@@ -83,7 +105,8 @@ class CCIPReadHandler {
         const ccipData = await ccipResponse.json();
         if (ccipData && ccipData.result) {
           const result: ResolveDotBitResult = { 
-            address: ccipData.result
+            address: ccipData.result,
+            textRecords: {}
           };
           
           // Try to get additional data from web3.bio
@@ -95,6 +118,28 @@ class CCIPReadHandler {
               const bioData = await bioResponse.json();
               if (bioData && bioData.avatar) {
                 result.avatar = bioData.avatar;
+                if (!result.textRecords) result.textRecords = {};
+                result.textRecords['avatar'] = bioData.avatar;
+                result.textRecords['avatar.ens'] = bioData.avatar;
+              }
+              
+              // Add any other profile data as text records
+              if (bioData.description) {
+                if (!result.textRecords) result.textRecords = {};
+                result.textRecords['description'] = bioData.description;
+              }
+              
+              // Add social links as text records
+              if (bioData.accounts) {
+                if (!result.socials) result.socials = {};
+                if (!result.textRecords) result.textRecords = {};
+                
+                bioData.accounts.forEach((account: any) => {
+                  if (account.platform && account.identity) {
+                    result.socials![account.platform] = account.identity;
+                    result.textRecords![`com.${account.platform}`] = account.identity;
+                  }
+                });
               }
             }
           } catch (err) {
@@ -113,13 +158,41 @@ class CCIPReadHandler {
         if (resolver) {
           const address = await resolver.getAddress();
           if (address) {
-            const result: ResolveDotBitResult = { address };
+            const result: ResolveDotBitResult = { 
+              address,
+              textRecords: {}
+            };
+            
+            // Collect text records from resolver
+            const commonKeys = [
+              'avatar', 'avatar.ens', 'description', 'url', 
+              'com.twitter', 'com.github', 'email'
+            ];
+            
+            // Fetch all text records in parallel
+            const textRecords: Record<string, string | null> = {};
+            
+            await Promise.all(
+              commonKeys.map(async key => {
+                try {
+                  const value = await resolver.getText(key);
+                  if (value) {
+                    textRecords[key] = value;
+                  }
+                } catch (e) {
+                  // Ignore errors for missing text records
+                }
+              })
+            );
+            
+            result.textRecords = textRecords;
             
             // Try to get avatar
             try {
               const avatar = await resolver.getText('avatar');
               if (avatar) {
                 result.avatar = avatar;
+                result.textRecords['avatar'] = avatar;
               }
             } catch (err) {
               console.log(`No avatar for ${ensName}`);
