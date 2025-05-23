@@ -10,3 +10,4 @@ export {
   standardEnsLookup,
   dotBoxLookup
 } from './resolutionMethods';
+export { resolveBoxDomainOnOptimism, lookupAddressOnOptimism } from './optimismResolver';

@@ -23,11 +23,9 @@ const OPTIMISM_RPC_URLS = [
   "https://optimism-rpc.publicnode.com"
 ];
 
-// Longer cache time-to-live in milliseconds (8 hours)
-export const DEFAULT_ENS_TTL = 8 * 60 * 60 * 1000;
-
-// Fast loading cache for popular domains (1 week)
-export const PRIORITY_ENS_TTL = 7 * 24 * 60 * 60 * 1000;
+// Cache disabled - no caching for accurate resolution
+export const DEFAULT_ENS_TTL = 0;
+export const PRIORITY_ENS_TTL = 0;
 
 // Create providers with more aggressive timeout and retry settings
 const createProviders = (urls: string[]) => {
@@ -65,7 +63,7 @@ export const optimismProvider = new ethers.FallbackProvider(
   1 // Only need 1 provider to respond
 );
 
-// In-memory ENS cache
+// Cache completely disabled for accurate resolution
 interface EnsCacheEntry {
   address?: string;
   ensName?: string;
@@ -74,158 +72,35 @@ interface EnsCacheEntry {
   links?: any;
   textRecords?: Record<string, string | null>;
   expiresAt: number;
-  attempts?: number; // Track failed resolution attempts
+  attempts?: number;
 }
 
 const ensCache: Map<string, EnsCacheEntry> = new Map();
 
-// Initialize with commonly used domains - with improved data
+// No initialization - cache disabled
 const initializeCache = () => {
-  // Popular domains that should be pre-cached
-  const popularDomains = [
-    { 
-      key: 'vitalik.eth', 
-      address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-      avatar: 'https://metadata.ens.domains/mainnet/avatar/vitalik.eth',
-      ttl: PRIORITY_ENS_TTL 
-    },
-    { 
-      key: 'smith.box', 
-      address: '0xC05501d710B3Cdb2D2C279d0A6b9A2975b3DD096',
-      avatar: 'https://metadata.ens.domains/mainnet/avatar/smith.eth', // Use .eth equivalent
-      ttl: PRIORITY_ENS_TTL 
-    },
-    { 
-      key: 'smith.eth', 
-      address: '0xC05501d710B3Cdb2D2C279d0A6b9A2975b3DD096',
-      avatar: 'https://metadata.ens.domains/mainnet/avatar/smith.eth',
-      ttl: PRIORITY_ENS_TTL 
-    },
-    { 
-      key: 'poap.eth', 
-      address: '0x6023e55814DC00f094386d4eb7e17Ce49ab1A190',
-      avatar: 'https://metadata.ens.domains/mainnet/avatar/poap.eth',
-      ttl: PRIORITY_ENS_TTL 
-    },
-    { 
-      key: 'poap.box', 
-      address: '0x6023e55814DC00f094386d4eb7e17Ce49ab1A190',
-      avatar: 'https://metadata.ens.domains/mainnet/avatar/poap.eth', // Use .eth equivalent
-      ttl: PRIORITY_ENS_TTL 
-    }
-  ];
-  
-  for (const domain of popularDomains) {
-    ensCache.set(domain.key.toLowerCase(), {
-      address: domain.address,
-      avatar: domain.avatar,
-      expiresAt: Date.now() + domain.ttl
-    });
-    
-    // Also cache by address
-    ensCache.set(domain.address.toLowerCase(), {
-      ensName: domain.key,
-      avatar: domain.avatar,
-      expiresAt: Date.now() + domain.ttl
-    });
-  }
+  console.log('ENS cache disabled for accurate resolution');
 };
 
 // Run initialization
 initializeCache();
 
-// Get data from cache
+// Always return null - cache disabled
 export function getFromEnsCache(key: string): EnsCacheEntry | null {
-  if (!key) return null;
-  
-  const now = Date.now();
-  const entry = ensCache.get(key.toLowerCase());
-  
-  if (entry && entry.expiresAt > now) {
-    console.log(`Using cached ENS entry for ${key}`);
-    return entry;
-  }
-  
+  console.log(`Cache disabled - not using cached data for ${key}`);
   return null;
 }
 
-// Add data to cache with TTL
+// No-op - cache disabled
 export function addToEnsCache(
   key: string, 
   data: Partial<EnsCacheEntry>, 
   ttl: number = DEFAULT_ENS_TTL
 ): void {
-  if (!key) return;
-  
-  const existingEntry = ensCache.get(key.toLowerCase()) || { expiresAt: 0 };
-  
-  ensCache.set(key.toLowerCase(), {
-    ...existingEntry,
-    ...data,
-    expiresAt: Date.now() + ttl,
-    // Reset attempts counter when we get valid data
-    attempts: data.address || data.ensName || data.avatar ? 0 : existingEntry.attempts
-  });
-  
-  console.log(`Cached ENS entry for ${key}, expires in ${ttl/1000}s`);
-
-  // If we have both an address and ENS name, cache in both directions
-  if (data.address && data.ensName) {
-    const addressKey = data.address.toLowerCase();
-    const ensKey = data.ensName.toLowerCase();
-    
-    // Cache address -> ENS
-    if (key !== addressKey) {
-      ensCache.set(addressKey, {
-        ...existingEntry,
-        ...data,
-        expiresAt: Date.now() + ttl
-      });
-      console.log(`Cross-cached ENS entry for address ${addressKey}`);
-    }
-    
-    // Cache ENS -> address
-    if (key !== ensKey) {
-      ensCache.set(ensKey, {
-        ...existingEntry,
-        ...data,
-        expiresAt: Date.now() + ttl
-      });
-      console.log(`Cross-cached ENS entry for name ${ensKey}`);
-    }
-  }
+  console.log(`Cache disabled - not caching data for ${key}`);
 }
 
-// Mark a failed resolution attempt
+// No-op - cache disabled
 export function markFailedResolution(key: string): void {
-  if (!key) return;
-  
-  const existingEntry = ensCache.get(key.toLowerCase()) || { 
-    expiresAt: Date.now() + 5 * 60 * 1000, // Cache failures for 5 minutes
-    attempts: 0 
-  };
-  
-  ensCache.set(key.toLowerCase(), {
-    ...existingEntry,
-    attempts: (existingEntry.attempts || 0) + 1
-  });
-  
-  console.log(`Marked failed resolution attempt for ${key}, attempts: ${(existingEntry.attempts || 0) + 1}`);
+  console.log(`Cache disabled - not marking failed resolution for ${key}`);
 }
-
-// Clear expired cache entries periodically
-setInterval(() => {
-  const now = Date.now();
-  let cleared = 0;
-  
-  for (const [key, entry] of ensCache.entries()) {
-    if (entry.expiresAt < now) {
-      ensCache.delete(key);
-      cleared++;
-    }
-  }
-  
-  if (cleared > 0) {
-    console.log(`Cleared ${cleared} expired ENS cache entries`);
-  }
-}, 15 * 60 * 1000); // Run every 15 minutes

@@ -4,6 +4,7 @@
  */
 import { mainnetProvider } from '../../ethereumProviders';
 import { ccipReadEnabled } from '../ccipReadHandler';
+import { resolveBoxDomainOnOptimism, lookupAddressOnOptimism } from './optimismResolver';
 import { STANDARD_TIMEOUT } from './constants';
 import { setupTimeoutController } from './timeoutUtils';
 
@@ -13,7 +14,20 @@ import { setupTimeoutController } from './timeoutUtils';
 export async function resolveDotBoxDomain(ensName: string): Promise<string | null> {
   if (!ensName.endsWith('.box')) return null;
   
-  console.log(`Trying CCIP-Read for .box domain: ${ensName}`);
+  console.log(`Resolving .box domain: ${ensName}`);
+  
+  // First try Optimism network resolution
+  try {
+    const optimismResult = await resolveBoxDomainOnOptimism(ensName);
+    if (optimismResult) {
+      console.log(`Optimism resolved ${ensName} to ${optimismResult}`);
+      return optimismResult;
+    }
+  } catch (error) {
+    console.warn(`Optimism resolution failed for ${ensName}:`, error);
+  }
+  
+  // Then try CCIP-Read
   try {
     const boxResult = await ccipReadEnabled.resolveDotBit(ensName);
     if (boxResult && boxResult.address) {
@@ -23,6 +37,7 @@ export async function resolveDotBoxDomain(ensName: string): Promise<string | nul
   } catch (ccipError) {
     console.warn(`CCIP-Read error for ${ensName}:`, ccipError);
   }
+  
   return null;
 }
 
@@ -90,7 +105,7 @@ export async function standardEnsLookup(address: string, timeoutMs = STANDARD_TI
 }
 
 /**
- * Lookup address to .box domains using CCIP-Read
+ * Lookup address to .box domains using multiple methods
  */
 export async function dotBoxLookup(address: string, timeoutMs = STANDARD_TIMEOUT): Promise<string | null> {
   try {
@@ -98,17 +113,30 @@ export async function dotBoxLookup(address: string, timeoutMs = STANDARD_TIMEOUT
     const { controller, clear } = setupTimeoutController(timeoutMs);
     
     try {
+      // First try Optimism network
+      const optimismResult = await lookupAddressOnOptimism(address);
+      if (optimismResult) {
+        // Convert .eth result to .box
+        const boxDomain = optimismResult.endsWith('.eth') 
+          ? optimismResult.replace('.eth', '.box')
+          : optimismResult;
+        console.log(`Found .box domain on Optimism for ${address}: ${boxDomain}`);
+        return boxDomain;
+      }
+      
+      // Then try CCIP-Read
       const boxDomains = await ccipReadEnabled.getDotBitByAddress(address);
       if (boxDomains && boxDomains.length > 0) {
-        console.log(`Found .box domains for ${address}:`, boxDomains);
+        console.log(`Found .box domains via CCIP for ${address}:`, boxDomains);
         return boxDomains[0];
       }
+      
       return null;
     } finally {
       clear();
     }
   } catch (error) {
-    console.warn(`Error in CCIP-Read lookup for ${address}:`, error);
+    console.warn(`Error in .box lookup for ${address}:`, error);
     return null;
   }
 }
