@@ -1,21 +1,11 @@
 
 // Forward resolution: ENS name -> address
 import { checkCache, updateCache, handleFailedResolution, checkCacheForTextRecords } from './cache';
-import { validateEnsName, setupTimeoutController, fetchTextRecords, firstSuccessful } from './utils';
+import { validateEnsName, setupTimeoutController, fetchTextRecords, firstSuccessful, getEffectiveEnsName } from './utils';
 import { ResolvedENS } from './types';
 import { STANDARD_TIMEOUT } from './constants';
 import { mainnetProvider } from '../../ethereumProviders';
 import { ccipReadEnabled } from '../ccipReadHandler';
-
-/**
- * Get effective ENS name (handle .box domains as .eth)
- */
-function getEffectiveEnsName(ensName: string): string {
-  // Always treat .box domains as .eth equivalents for resolution
-  return ensName.endsWith('.box') 
-    ? ensName.replace('.box', '.eth')
-    : ensName;
-}
 
 /**
  * Resolve ENS name to address with improved caching and error handling
@@ -23,11 +13,7 @@ function getEffectiveEnsName(ensName: string): string {
 export async function resolveEnsToAddress(ensName: string, timeoutMs = STANDARD_TIMEOUT): Promise<string | null> {
   if (!ensName) return null;
   
-  // Check cache first
-  const cachedResult = checkCache<string | null>(ensName, 'address');
-  if (cachedResult !== null) {
-    return cachedResult;
-  }
+  // Cache disabled - always resolve fresh
   
   // Validate the input is actually an ENS name
   if (!validateEnsName(ensName)) {
@@ -40,13 +26,7 @@ export async function resolveEnsToAddress(ensName: string, timeoutMs = STANDARD_
     const result = await resolveNameAndMetadata(ensName, timeoutMs);
     
     if (result && result.address) {
-      // Update cache with all metadata
-      updateCache(ensName, {
-        address: result.address,
-        avatarUrl: result.avatarUrl,
-        textRecords: result.textRecords
-      });
-      
+      // Cache disabled - just return the address
       return result.address;
     }
     

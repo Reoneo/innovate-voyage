@@ -1,21 +1,11 @@
 
 // Reverse resolution: address -> ENS name
 import { checkCache, updateCache, handleFailedResolution, checkCacheForTextRecords } from './cache';
-import { validateAddress, standardEnsLookup, dotBoxLookup, fetchTextRecords, firstSuccessful } from './utils';
+import { validateAddress, standardEnsLookup, dotBoxLookup, fetchTextRecords, firstSuccessful, getEffectiveEnsName } from './utils';
 import { EnsResolutionResult, ResolvedENS } from './types';
 import { STANDARD_TIMEOUT } from './constants';
 import { mainnetProvider } from '../../ethereumProviders';
 import { ccipReadEnabled } from '../ccipReadHandler';
-
-/**
- * Get effective ENS name (handle .box domains as .eth)
- */
-function getEffectiveEnsName(ensName: string): string {
-  // Always treat .box domains as .eth equivalents for resolution
-  return ensName.endsWith('.box') 
-    ? ensName.replace('.box', '.eth')
-    : ensName;
-}
 
 /**
  * Resolve address to ENS name with improved caching and error handling
@@ -26,17 +16,7 @@ export async function resolveAddressToEns(
 ): Promise<EnsResolutionResult | null> {
   if (!address) return null;
   
-  // Check cache first
-  const cacheKey = address.toLowerCase();
-  const cachedEnsName = checkCache<string | null>(cacheKey, 'ensName');
-  if (cachedEnsName !== null) {
-    const textRecords = checkCacheForTextRecords(cacheKey);
-    return { 
-      ensName: cachedEnsName, 
-      network: 'mainnet',
-      textRecords 
-    };
-  }
+  // Cache disabled - always resolve fresh
   
   // Validate address format
   if (!validateAddress(address)) {
@@ -49,13 +29,7 @@ export async function resolveAddressToEns(
     const result = await lookupAddressAndMetadata(address, timeoutMs);
     
     if (result && result.name) {
-      // Update cache with all metadata
-      updateCache(cacheKey, { 
-        ensName: result.name,
-        avatarUrl: result.avatarUrl,
-        textRecords: result.textRecords
-      });
-      
+      // Cache disabled - just return the result
       return { 
         ensName: result.name, 
         network: 'mainnet',

@@ -1,74 +1,37 @@
 
-// ENS resolution caching utilities
-import { getFromEnsCache, addToEnsCache, markFailedResolution } from '../../ethereumProviders';
+// ENS resolution caching utilities - DISABLED for accurate resolution
 
 /**
- * Check if an ENS name or address is in the cache
+ * Check if an ENS name or address is in the cache - DISABLED
  */
 export function checkCache<T extends string | null>(
   key: string, 
   resultType: 'address' | 'ensName'
 ): T {
-  if (!key) return null as T;
-  
-  const cachedResult = getFromEnsCache(key);
-  if (cachedResult && cachedResult[resultType]) {
-    console.log(`Using cached ENS ${resultType} for ${key}`);
-    return cachedResult[resultType] as T;
-  }
-
-  // Handle too many failed attempts
-  if (cachedResult && cachedResult.attempts && cachedResult.attempts > 3) {
-    console.log(`Skipping resolution for ${key} after ${cachedResult.attempts} failed attempts`);
-    return null as T;
-  }
-  
+  // Always return null to force fresh resolution
   return null as T;
 }
 
 /**
- * Update the ENS cache with resolution results
+ * Update the ENS cache with resolution results - DISABLED
  */
 export function updateCache(key: string, data: any) {
-  addToEnsCache(key, data);
-  
-  // Cache in reverse direction if we have both ENS and address
-  if (data.address && data.ensName) {
-    const addressKey = data.address.toLowerCase();
-    const ensKey = data.ensName.toLowerCase();
-    
-    // Cache address -> ENS
-    if (key !== addressKey) {
-      addToEnsCache(addressKey, data);
-    }
-    
-    // Cache ENS -> address
-    if (key !== ensKey) {
-      addToEnsCache(ensKey, data);
-    }
-  }
+  // Cache disabled - no operation
+  console.log(`Cache disabled - not caching data for ${key}`);
 }
 
 /**
- * Mark a failed resolution attempt
+ * Mark a failed resolution attempt - DISABLED
  */
 export function handleFailedResolution(key: string) {
   console.warn(`Could not resolve for ${key}`);
-  markFailedResolution(key);
   return null;
 }
 
 /**
- * Check if text records are in the cache
+ * Check if text records are in the cache - DISABLED
  */
 export function checkCacheForTextRecords(key: string): Record<string, string | null> | null {
-  if (!key) return null;
-  
-  const cachedResult = getFromEnsCache(key);
-  if (cachedResult && cachedResult.textRecords) {
-    console.log(`Using cached text records for ${key}`);
-    return cachedResult.textRecords;
-  }
-  
+  // Always return null to force fresh resolution
   return null;
 }
