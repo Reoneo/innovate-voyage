@@ -1,4 +1,3 @@
-
 // Utility functions for ENS resolution
 import { mainnetProvider } from '../../ethereumProviders';
 import { ccipReadEnabled } from '../ccipReadHandler';
@@ -22,10 +21,10 @@ export function validateAddress(address: string): boolean {
 }
 
 /**
- * Get effective ENS name (handle .box domains)
+ * Get effective ENS name (handle .box domains as .eth)
  */
 export function getEffectiveEnsName(ensName: string): string {
-  // Handle .box domains as .eth equivalents for increased compatibility
+  // Always treat .box domains as .eth equivalents for resolution
   return ensName.endsWith('.box') 
     ? ensName.replace('.box', '.eth')
     : ensName;

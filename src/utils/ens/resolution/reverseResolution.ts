@@ -1,3 +1,4 @@
+
 // Reverse resolution: address -> ENS name
 import { checkCache, updateCache, handleFailedResolution, checkCacheForTextRecords } from './cache';
 import { validateAddress, standardEnsLookup, dotBoxLookup, fetchTextRecords, firstSuccessful } from './utils';
@@ -5,6 +6,16 @@ import { EnsResolutionResult, ResolvedENS } from './types';
 import { STANDARD_TIMEOUT } from './constants';
 import { mainnetProvider } from '../../ethereumProviders';
 import { ccipReadEnabled } from '../ccipReadHandler';
+
+/**
+ * Get effective ENS name (handle .box domains as .eth)
+ */
+function getEffectiveEnsName(ensName: string): string {
+  // Always treat .box domains as .eth equivalents for resolution
+  return ensName.endsWith('.box') 
+    ? ensName.replace('.box', '.eth')
+    : ensName;
+}
 
 /**
  * Resolve address to ENS name with improved caching and error handling
@@ -80,41 +91,44 @@ export async function lookupAddressAndMetadata(address: string, timeoutMs = STAN
     
     console.log(`Resolved address ${address} to ${name}`);
     
+    // For .box domains, treat as .eth equivalent for text record resolution
+    const effectiveEnsName = getEffectiveEnsName(name);
+    
     // Now that we have the name, fetch the text records
     let textRecords: Record<string, string | null> = {};
     let avatarUrl: string | undefined = undefined;
     
-    // Get resolver for the ENS name
-    const resolver = await mainnetProvider.getResolver(name);
+    // Get resolver for the effective ENS name (.eth equivalent)
+    const resolver = await mainnetProvider.getResolver(effectiveEnsName);
     
     if (resolver) {
-      // Fetch text records
-      textRecords = await fetchTextRecords(name, resolver);
+      // Fetch text records from .eth equivalent
+      textRecords = await fetchTextRecords(effectiveEnsName, resolver);
       
       // Get avatar from text records or metadata API
       avatarUrl = textRecords['avatar'] || textRecords['avatar.ens'];
       
       if (!avatarUrl) {
         try {
-          const metadataResponse = await fetch(`https://metadata.ens.domains/mainnet/avatar/${name}`, {
+          const metadataResponse = await fetch(`https://metadata.ens.domains/mainnet/avatar/${effectiveEnsName}`, {
             method: 'HEAD'
           });
           
           if (metadataResponse.ok) {
-            avatarUrl = `https://metadata.ens.domains/mainnet/avatar/${name}`;
+            avatarUrl = `https://metadata.ens.domains/mainnet/avatar/${effectiveEnsName}`;
           }
         } catch (e) {
-          console.warn(`Error fetching avatar metadata for ${name}:`, e);
+          console.warn(`Error fetching avatar metadata for ${effectiveEnsName}:`, e);
         }
       }
     }
     
-    // Special handling for .box domains
+    // Special handling for .box domains - also try to get additional data
     if (name.endsWith('.box')) {
       try {
         const boxResult = await ccipReadEnabled.resolveDotBit(name);
         if (boxResult) {
-          if (boxResult.avatar) {
+          if (boxResult.avatar && !avatarUrl) {
             avatarUrl = boxResult.avatar;
             textRecords['avatar'] = boxResult.avatar;
           }
