@@ -1,98 +1,72 @@
 
-import { optimismProvider } from '../../ethereumProviders';
+import { mainnetProvider } from '../../ethereumProviders';
 
 /**
- * Resolve .box domains using Optimism network and Etherscan API
+ * Resolve .box domains using mainnet ENS (treating .box as .eth)
  */
 export async function resolveBoxDomainOnOptimism(boxDomain: string): Promise<string | null> {
   if (!boxDomain.endsWith('.box')) return null;
   
   try {
-    console.log(`Resolving ${boxDomain} on Optimism network`);
+    console.log(`Resolving ${boxDomain} via mainnet ENS`);
     
-    // Convert .box to .eth for Optimism resolution
+    // Convert .box to .eth for ENS resolution
     const ethEquivalent = boxDomain.replace('.box', '.eth');
     
-    // Try Optimism Etherscan API first for more accurate results
+    // Use mainnet ENS resolution for .box domains
     try {
-      const response = await fetch(
-        `https://api-optimistic.etherscan.io/api?module=ens&action=resolve&name=${ethEquivalent}&apikey=YourApiKeyToken`,
-        { signal: AbortSignal.timeout(5000) }
-      );
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.status === '1' && data.result && data.result !== '0x0000000000000000000000000000000000000000') {
-          console.log(`Optimism Etherscan resolved ${boxDomain} to ${data.result}`);
-          return data.result;
-        }
-      }
-    } catch (error) {
-      console.log(`Optimism Etherscan API failed for ${boxDomain}:`, error);
-    }
-    
-    // Try direct resolution on Optimism as fallback
-    try {
-      const resolver = await optimismProvider.getResolver(ethEquivalent);
+      const resolver = await mainnetProvider.getResolver(ethEquivalent);
       if (resolver) {
         const address = await resolver.getAddress();
         if (address && address !== '0x0000000000000000000000000000000000000000') {
-          console.log(`Optimism resolver found ${address} for ${boxDomain}`);
+          console.log(`Mainnet ENS resolved ${boxDomain} to ${address}`);
           return address;
         }
       }
     } catch (error) {
-      console.log(`Optimism direct resolution failed for ${boxDomain}:`, error);
+      console.log(`Mainnet ENS resolution failed for ${boxDomain}:`, error);
+    }
+    
+    // Fallback to direct resolveName
+    try {
+      const address = await mainnetProvider.resolveName(ethEquivalent);
+      if (address && address !== '0x0000000000000000000000000000000000000000') {
+        console.log(`Mainnet resolveName found ${address} for ${boxDomain}`);
+        return address;
+      }
+    } catch (error) {
+      console.log(`Mainnet resolveName failed for ${boxDomain}:`, error);
     }
     
     return null;
   } catch (error) {
-    console.error(`Error resolving ${boxDomain} on Optimism:`, error);
+    console.error(`Error resolving ${boxDomain} via mainnet ENS:`, error);
     return null;
   }
 }
 
 /**
- * Lookup address to .box domain using Optimism
+ * Lookup address to .box domain using mainnet ENS
  */
 export async function lookupAddressOnOptimism(address: string): Promise<string | null> {
   try {
-    console.log(`Looking up address ${address} on Optimism for .box domains`);
+    console.log(`Looking up address ${address} on mainnet for .box domains`);
     
-    // Try Optimism Etherscan API for reverse resolution first
+    // Use mainnet ENS for reverse lookup
     try {
-      const response = await fetch(
-        `https://api-optimistic.etherscan.io/api?module=ens&action=getensaddress&address=${address}&apikey=YourApiKeyToken`,
-        { signal: AbortSignal.timeout(5000) }
-      );
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.status === '1' && data.result && data.result !== '0x0000000000000000000000000000000000000000') {
-          console.log(`Optimism Etherscan found ENS for ${address}: ${data.result}`);
-          // Convert .eth result back to .box if it exists
-          return data.result.endsWith('.eth') ? data.result.replace('.eth', '.box') : data.result;
-        }
-      }
-    } catch (error) {
-      console.log(`Optimism Etherscan reverse lookup failed for ${address}:`, error);
-    }
-    
-    // Try direct lookup on Optimism as fallback
-    try {
-      const ensName = await optimismProvider.lookupAddress(address);
+      const ensName = await mainnetProvider.lookupAddress(address);
       if (ensName) {
-        console.log(`Found ENS name on Optimism: ${ensName} for ${address}`);
+        console.log(`Found ENS name on mainnet: ${ensName} for ${address}`);
         // Convert .eth to .box if applicable
         return ensName.endsWith('.eth') ? ensName.replace('.eth', '.box') : ensName;
       }
     } catch (error) {
-      console.log(`Optimism direct lookup failed for ${address}:`, error);
+      console.log(`Mainnet lookup failed for ${address}:`, error);
     }
     
     return null;
   } catch (error) {
-    console.error(`Error looking up address ${address} on Optimism:`, error);
+    console.error(`Error looking up address ${address} on mainnet:`, error);
     return null;
   }
 }

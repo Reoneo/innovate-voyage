@@ -4,9 +4,7 @@ import { checkCache, updateCache, handleFailedResolution, checkCacheForTextRecor
 import { validateEnsName, setupTimeoutController, fetchTextRecords, firstSuccessful, getEffectiveEnsName } from './utils';
 import { ResolvedENS } from './types';
 import { STANDARD_TIMEOUT } from './constants';
-import { mainnetProvider, optimismProvider } from '../../ethereumProviders';
-import { ccipReadEnabled } from '../ccipReadHandler';
-import { resolveBoxDomainOnOptimism } from './optimismResolver';
+import { mainnetProvider } from '../../ethereumProviders';
 
 /**
  * Resolve ENS name to address with improved caching and error handling
@@ -56,57 +54,22 @@ export async function resolveNameAndMetadata(name: string, timeoutMs = STANDARD_
       let address: string | null = null;
       let textRecords: Record<string, string | null> = {};
       
-      // For .box domains, prioritize Optimism resolution
-      if (name.endsWith('.box')) {
-        console.log(`Resolving .box domain on Optimism: ${name}`);
-        
-        // Try Optimism first for .box domains
-        address = await resolveBoxDomainOnOptimism(name);
-        
-        if (address) {
-          console.log(`Optimism resolved ${name} to ${address}`);
-          
-          // Try to get text records from Optimism
-          try {
-            const resolver = await optimismProvider.getResolver(name.replace('.box', '.eth'));
-            if (resolver) {
-              textRecords = await fetchTextRecords(name.replace('.box', '.eth'), resolver);
-            }
-          } catch (e) {
-            console.warn(`Could not get text records from Optimism for ${name}:`, e);
-          }
-          
-          // If no text records from Optimism, try CCIP
-          if (Object.keys(textRecords).length === 0) {
-            try {
-              const boxResult = await ccipReadEnabled.resolveDotBit(name);
-              if (boxResult && boxResult.textRecords) {
-                textRecords = boxResult.textRecords;
-              }
-            } catch (e) {
-              console.warn(`CCIP error for ${name}:`, e);
-            }
-          }
-        }
-      }
+      // For .box domains, treat them as .eth domains for ENS resolution
+      const effectiveEnsName = name.endsWith('.box') ? name.replace('.box', '.eth') : name;
       
-      // If not resolved yet or not a .box domain, try mainnet resolution
-      if (!address) {
-        const effectiveEnsName = getEffectiveEnsName(name);
-        console.log(`Trying mainnet resolution for: ${effectiveEnsName}`);
-        
-        const resolver = await mainnetProvider.getResolver(effectiveEnsName);
-        
-        // Try multiple resolution methods in parallel
-        address = await firstSuccessful([
-          async () => resolver ? await resolver.getAddress() : null,
-          async () => await mainnetProvider.resolveName(effectiveEnsName)
-        ]);
-        
-        // If we have a resolver, fetch text records
-        if (resolver) {
-          textRecords = await fetchTextRecords(effectiveEnsName, resolver);
-        }
+      console.log(`Using effective ENS name for resolution: ${effectiveEnsName}`);
+      
+      const resolver = await mainnetProvider.getResolver(effectiveEnsName);
+      
+      // Try multiple resolution methods in parallel
+      address = await firstSuccessful([
+        async () => resolver ? await resolver.getAddress() : null,
+        async () => await mainnetProvider.resolveName(effectiveEnsName)
+      ]);
+      
+      // If we have a resolver, fetch text records
+      if (resolver) {
+        textRecords = await fetchTextRecords(effectiveEnsName, resolver);
       }
       
       // If we have an address, return the result
@@ -117,7 +80,6 @@ export async function resolveNameAndMetadata(name: string, timeoutMs = STANDARD_
         // If we don't have an avatar from text records, try metadata API
         if (!avatarUrl) {
           try {
-            const effectiveEnsName = name.endsWith('.box') ? name.replace('.box', '.eth') : name;
             const metadataResponse = await fetch(`https://metadata.ens.domains/mainnet/avatar/${effectiveEnsName}`, {
               method: 'HEAD',
               signal: controller.signal
