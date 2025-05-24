@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
@@ -18,16 +17,20 @@ export function useProfilePage() {
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
+    console.log(`useProfilePage: Processing identifier: ${targetIdentifier}`);
+    
     // Hard-coded address fallbacks for common domains to speed up loading
     const knownAddressMap: Record<string, string> = {
       'vitalik.eth': '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
       'poap.eth': '0x6023e55814DC00f094386d4eb7e17Ce49ab1A190',
-      'smith.box': '0xC05501d710B3Cdb2D2C279d0A6b9A2975b3DD096'
+      'smith.box': '0xC05501d710B3Cdb2D2C279d0A6b9A2975b3DD096',
+      'smith.eth': '0xC05501d710B3Cdb2D2C279d0A6b9A2975b3DD096' // Add explicit .eth mapping too
     };
     
     if (targetIdentifier) {
       // Convert the identifier to lowercase for case-insensitive search
       const normalizedIdentifier = targetIdentifier.toLowerCase();
+      console.log(`useProfilePage: Normalized identifier: ${normalizedIdentifier}`);
       
       // Check if we have a known address for this identifier
       if (knownAddressMap[normalizedIdentifier]) {
@@ -43,7 +46,6 @@ export function useProfilePage() {
       } 
       else {
         // Not a valid address, treat as ENS or domain
-        // Handle .box domains same as .eth domains
         let ensValue = normalizedIdentifier;
         
         // If no TLD, add .eth
@@ -119,6 +121,7 @@ export function useProfilePage() {
   }, [targetIdentifier]);
 
   // Use a more aggressive loading strategy - load both the ENS and address in parallel
+  console.log(`useProfilePage: Using ENS: ${ens}, Address: ${address}`);
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl, hasTalentProtocolData } = useProfileData(ens, address);
   
   const { profileRef } = usePdfExport();

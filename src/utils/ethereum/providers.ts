@@ -1,20 +1,26 @@
 
 import { ethers } from 'ethers';
 import { MAINNET_RPC_URLS, OPTIMISM_RPC_URLS } from './rpcUrls';
-import { createProviders, createFallbackProvider } from './providerFactory';
 
-// Create providers using FallbackProvider for better reliability
-const mainnetProviders = createProviders(MAINNET_RPC_URLS);
-
-export const mainnetProvider = createFallbackProvider(mainnetProviders);
+// Create a more reliable mainnet provider with better error handling
+export const mainnetProvider = new ethers.FallbackProvider(
+  MAINNET_RPC_URLS.slice(0, 5).map((url, i) => ({
+    provider: new ethers.JsonRpcProvider(url, 1), // Explicitly set chainId to 1 for mainnet
+    priority: i + 1,
+    weight: i === 0 ? 4 : i === 1 ? 3 : i === 2 ? 2 : 1,
+    stallTimeout: 5000, // Increased timeout
+    maxRetries: 2
+  })),
+  2 // Require 2 providers to agree (quorum)
+);
 
 export const optimismProvider = new ethers.FallbackProvider(
-  OPTIMISM_RPC_URLS.map((url, i) => ({
-    provider: new ethers.JsonRpcProvider(url),
+  OPTIMISM_RPC_URLS.slice(0, 3).map((url, i) => ({
+    provider: new ethers.JsonRpcProvider(url, 10), // Explicitly set chainId to 10 for Optimism
     priority: i + 1,
     weight: i === 0 ? 3 : i === 1 ? 2 : 1,
-    stallTimeout: 3000, // Increased from 1s to 3s
-    maxRetries: 3 // Increased from 2
+    stallTimeout: 5000,
+    maxRetries: 2
   })),
-  1 // Only need 1 provider to respond
+  1 // Only need 1 provider to respond for Optimism
 );

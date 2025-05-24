@@ -1,30 +1,74 @@
 
 /**
- * Validation utilities for ENS resolution
+ * Validation utilities for ENS names and addresses
  */
+import { ethers } from 'ethers';
 
 /**
- * Validate ENS name format
+ * Validate if a string is a valid ENS name format
  */
 export function validateEnsName(ensName: string): boolean {
-  if (!ensName) return false;
-  return ensName.includes('.eth') || ensName.includes('.box') || ensName.includes('.id');
+  if (!ensName || typeof ensName !== 'string') {
+    return false;
+  }
+  
+  const trimmed = ensName.trim().toLowerCase();
+  
+  // Must contain a dot
+  if (!trimmed.includes('.')) {
+    return false;
+  }
+  
+  // Check for valid ENS TLDs - including .box
+  const validTlds = ['.eth', '.box', '.id', '.crypto', '.nft', '.x', '.wallet', '.bitcoin', '.dao', '.888', '.zil'];
+  const hasValidTld = validTlds.some(tld => trimmed.endsWith(tld));
+  
+  if (!hasValidTld) {
+    return false;
+  }
+  
+  // Basic format validation
+  const parts = trimmed.split('.');
+  if (parts.length < 2) {
+    return false;
+  }
+  
+  // Each part should be non-empty and contain valid characters
+  for (const part of parts) {
+    if (!part || !/^[a-z0-9-]+$/.test(part)) {
+      return false;
+    }
+  }
+  
+  return true;
 }
 
 /**
- * Validate Ethereum address format
+ * Validate if a string is a valid Ethereum address
  */
 export function validateAddress(address: string): boolean {
-  if (!address) return false;
-  return address.startsWith('0x') && address.length === 42;
+  if (!address || typeof address !== 'string') {
+    return false;
+  }
+  
+  try {
+    return ethers.isAddress(address);
+  } catch {
+    return false;
+  }
 }
 
 /**
- * Get effective ENS name (handle .box domains as .eth)
+ * Get the effective ENS name for resolution
+ * Converts .box to .eth for ENS lookups
  */
 export function getEffectiveEnsName(ensName: string): string {
-  // Always treat .box domains as .eth equivalents for resolution
-  return ensName.endsWith('.box') 
-    ? ensName.replace('.box', '.eth')
-    : ensName;
+  if (!ensName) return ensName;
+  
+  // Convert .box domains to .eth for ENS resolution
+  if (ensName.endsWith('.box')) {
+    return ensName.replace('.box', '.eth');
+  }
+  
+  return ensName;
 }
