@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Poap } from '@/api/services/poapService';
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, CarouselApi } from "@/components/ui/carousel";
 
 interface PoapCarouselProps {
   poaps: Poap[];
@@ -21,7 +21,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
         loop: poaps.length > 3
       }} 
       className="w-full max-w-xs" 
-      onSelect={(api) => {
+      onSelect={(api: CarouselApi) => {
         if (api && onCarouselChange) {
           const currentIndex = api.selectedScrollSnap();
           onCarouselChange(currentIndex);

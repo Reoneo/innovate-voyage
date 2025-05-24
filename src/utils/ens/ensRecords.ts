@@ -5,7 +5,7 @@ import { getRealAvatar } from '../../api/services/avatarService';
 import { ccipReadEnabled } from './ccipReadHandler';
 
 /**
- * Gets avatar for an ENS name
+ * Gets avatar for an ENS name - optimized for speed
  */
 export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
   try {
@@ -22,15 +22,35 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
       }
     }
     
-    // Handle EIP155 formatted avatar URIs directly or any other format
-    // by using the refactored getRealAvatar function which handles all cases
+    // For .eth domains, try the fast ENS metadata service first
+    if (ensName.endsWith('.eth')) {
+      try {
+        const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${ensName}`;
+        const metadataResponse = await fetch(metadataUrl, { 
+          method: 'HEAD',
+          cache: 'force-cache',
+          headers: {
+            'Cache-Control': 'max-age=300'
+          }
+        });
+        
+        if (metadataResponse.ok) {
+          console.log(`Got avatar for ${ensName} from ENS metadata service`);
+          return metadataUrl;
+        }
+      } catch (metadataError) {
+        console.error(`Error using ENS metadata service for ${ensName}:`, metadataError);
+      }
+    }
+    
+    // Fallback: Use the refactored getRealAvatar function which handles all cases
     const avatar = await getRealAvatar(ensName);
     if (avatar) {
       console.log(`Got avatar for ${ensName} -> ${avatar}`);
       return avatar;
     }
     
-    // Fallback: Try to use resolver directly - only for ENS domains on mainnet
+    // Final fallback: Try to use resolver directly - only for ENS domains on mainnet
     if (ensName.endsWith('.eth')) {
       try {
         const provider = mainnetProvider;
