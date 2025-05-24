@@ -13,21 +13,7 @@ export async function resolveBoxDomainOnOptimism(boxDomain: string): Promise<str
     // Convert .box to .eth for Optimism resolution
     const ethEquivalent = boxDomain.replace('.box', '.eth');
     
-    // Try direct resolution on Optimism first
-    try {
-      const resolver = await optimismProvider.getResolver(ethEquivalent);
-      if (resolver) {
-        const address = await resolver.getAddress();
-        if (address) {
-          console.log(`Optimism resolver found ${address} for ${boxDomain}`);
-          return address;
-        }
-      }
-    } catch (error) {
-      console.log(`Optimism direct resolution failed for ${boxDomain}:`, error);
-    }
-    
-    // Try Optimism Etherscan API for .box domains
+    // Try Optimism Etherscan API first for more accurate results
     try {
       const response = await fetch(
         `https://api-optimistic.etherscan.io/api?module=ens&action=resolve&name=${ethEquivalent}&apikey=YourApiKeyToken`,
@@ -36,13 +22,27 @@ export async function resolveBoxDomainOnOptimism(boxDomain: string): Promise<str
       
       if (response.ok) {
         const data = await response.json();
-        if (data.status === '1' && data.result) {
+        if (data.status === '1' && data.result && data.result !== '0x0000000000000000000000000000000000000000') {
           console.log(`Optimism Etherscan resolved ${boxDomain} to ${data.result}`);
           return data.result;
         }
       }
     } catch (error) {
       console.log(`Optimism Etherscan API failed for ${boxDomain}:`, error);
+    }
+    
+    // Try direct resolution on Optimism as fallback
+    try {
+      const resolver = await optimismProvider.getResolver(ethEquivalent);
+      if (resolver) {
+        const address = await resolver.getAddress();
+        if (address && address !== '0x0000000000000000000000000000000000000000') {
+          console.log(`Optimism resolver found ${address} for ${boxDomain}`);
+          return address;
+        }
+      }
+    } catch (error) {
+      console.log(`Optimism direct resolution failed for ${boxDomain}:`, error);
     }
     
     return null;
@@ -59,14 +59,7 @@ export async function lookupAddressOnOptimism(address: string): Promise<string |
   try {
     console.log(`Looking up address ${address} on Optimism for .box domains`);
     
-    // Try direct lookup on Optimism
-    const ensName = await optimismProvider.lookupAddress(address);
-    if (ensName) {
-      console.log(`Found ENS name on Optimism: ${ensName} for ${address}`);
-      return ensName;
-    }
-    
-    // Try Optimism Etherscan API for reverse resolution
+    // Try Optimism Etherscan API for reverse resolution first
     try {
       const response = await fetch(
         `https://api-optimistic.etherscan.io/api?module=ens&action=getensaddress&address=${address}&apikey=YourApiKeyToken`,
@@ -75,13 +68,26 @@ export async function lookupAddressOnOptimism(address: string): Promise<string |
       
       if (response.ok) {
         const data = await response.json();
-        if (data.status === '1' && data.result !== '0x0000000000000000000000000000000000000000') {
+        if (data.status === '1' && data.result && data.result !== '0x0000000000000000000000000000000000000000') {
           console.log(`Optimism Etherscan found ENS for ${address}: ${data.result}`);
-          return data.result;
+          // Convert .eth result back to .box if it exists
+          return data.result.endsWith('.eth') ? data.result.replace('.eth', '.box') : data.result;
         }
       }
     } catch (error) {
       console.log(`Optimism Etherscan reverse lookup failed for ${address}:`, error);
+    }
+    
+    // Try direct lookup on Optimism as fallback
+    try {
+      const ensName = await optimismProvider.lookupAddress(address);
+      if (ensName) {
+        console.log(`Found ENS name on Optimism: ${ensName} for ${address}`);
+        // Convert .eth to .box if applicable
+        return ensName.endsWith('.eth') ? ensName.replace('.eth', '.box') : ensName;
+      }
+    } catch (error) {
+      console.log(`Optimism direct lookup failed for ${address}:`, error);
     }
     
     return null;

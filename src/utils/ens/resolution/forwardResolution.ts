@@ -4,8 +4,9 @@ import { checkCache, updateCache, handleFailedResolution, checkCacheForTextRecor
 import { validateEnsName, setupTimeoutController, fetchTextRecords, firstSuccessful, getEffectiveEnsName } from './utils';
 import { ResolvedENS } from './types';
 import { STANDARD_TIMEOUT } from './constants';
-import { mainnetProvider } from '../../ethereumProviders';
+import { mainnetProvider, optimismProvider } from '../../ethereumProviders';
 import { ccipReadEnabled } from '../ccipReadHandler';
+import { resolveBoxDomainOnOptimism } from './optimismResolver';
 
 /**
  * Resolve ENS name to address with improved caching and error handling
@@ -45,9 +46,7 @@ export async function resolveEnsToAddress(ensName: string, timeoutMs = STANDARD_
 export async function resolveNameAndMetadata(name: string, timeoutMs = STANDARD_TIMEOUT): Promise<ResolvedENS | null> {
   if (!name) return null;
   
-  // For .box domains, always use .eth equivalent for resolution
-  const effectiveEnsName = getEffectiveEnsName(name);
-  console.log(`Resolving domain: ${name} (treating as: ${effectiveEnsName})`);
+  console.log(`Resolving domain: ${name}`);
   
   try {
     // Setup abort controller with timeout
@@ -57,44 +56,56 @@ export async function resolveNameAndMetadata(name: string, timeoutMs = STANDARD_
       let address: string | null = null;
       let textRecords: Record<string, string | null> = {};
       
-      // Always try to resolve using the .eth equivalent
-      const resolver = await mainnetProvider.getResolver(effectiveEnsName);
-      
-      // Try multiple resolution methods in parallel
-      address = await firstSuccessful([
-        async () => resolver ? await resolver.getAddress() : null,
-        async () => await mainnetProvider.resolveName(effectiveEnsName),
-        // For .box domains, also try original name with CCIP
-        async () => name.endsWith('.box') ? await resolveDotBoxDomain(name) : null
-      ]);
-      
-      // If we have a resolver, fetch text records from the .eth equivalent
-      if (resolver) {
-        textRecords = await fetchTextRecords(effectiveEnsName, resolver);
-      }
-      
-      // For .box domains, also try to get additional data from CCIP
+      // For .box domains, prioritize Optimism resolution
       if (name.endsWith('.box')) {
-        try {
-          const boxResult = await ccipReadEnabled.resolveDotBit(name);
-          if (boxResult) {
-            // Use .box address if we don't have one from .eth
-            if (!address && boxResult.address) {
-              address = boxResult.address;
+        console.log(`Resolving .box domain on Optimism: ${name}`);
+        
+        // Try Optimism first for .box domains
+        address = await resolveBoxDomainOnOptimism(name);
+        
+        if (address) {
+          console.log(`Optimism resolved ${name} to ${address}`);
+          
+          // Try to get text records from Optimism
+          try {
+            const resolver = await optimismProvider.getResolver(name.replace('.box', '.eth'));
+            if (resolver) {
+              textRecords = await fetchTextRecords(name.replace('.box', '.eth'), resolver);
             }
-            
-            // Merge text records from .box domain
-            if (boxResult.textRecords) {
-              textRecords = { ...textRecords, ...boxResult.textRecords };
-            }
-            
-            // Add avatar if available from CCIP handler
-            if (boxResult.avatar && !textRecords['avatar']) {
-              textRecords['avatar'] = boxResult.avatar;
+          } catch (e) {
+            console.warn(`Could not get text records from Optimism for ${name}:`, e);
+          }
+          
+          // If no text records from Optimism, try CCIP
+          if (Object.keys(textRecords).length === 0) {
+            try {
+              const boxResult = await ccipReadEnabled.resolveDotBit(name);
+              if (boxResult && boxResult.textRecords) {
+                textRecords = boxResult.textRecords;
+              }
+            } catch (e) {
+              console.warn(`CCIP error for ${name}:`, e);
             }
           }
-        } catch (e) {
-          console.warn(`CCIP error for ${name}:`, e);
+        }
+      }
+      
+      // If not resolved yet or not a .box domain, try mainnet resolution
+      if (!address) {
+        const effectiveEnsName = getEffectiveEnsName(name);
+        console.log(`Trying mainnet resolution for: ${effectiveEnsName}`);
+        
+        const resolver = await mainnetProvider.getResolver(effectiveEnsName);
+        
+        // Try multiple resolution methods in parallel
+        address = await firstSuccessful([
+          async () => resolver ? await resolver.getAddress() : null,
+          async () => await mainnetProvider.resolveName(effectiveEnsName)
+        ]);
+        
+        // If we have a resolver, fetch text records
+        if (resolver) {
+          textRecords = await fetchTextRecords(effectiveEnsName, resolver);
         }
       }
       
@@ -103,9 +114,10 @@ export async function resolveNameAndMetadata(name: string, timeoutMs = STANDARD_
         // Determine avatar URL - prefer text records over metadata API
         let avatarUrl = textRecords['avatar'] || textRecords['avatar.ens'] || null;
         
-        // If we don't have an avatar from text records, try metadata API with .eth name
+        // If we don't have an avatar from text records, try metadata API
         if (!avatarUrl) {
           try {
+            const effectiveEnsName = name.endsWith('.box') ? name.replace('.box', '.eth') : name;
             const metadataResponse = await fetch(`https://metadata.ens.domains/mainnet/avatar/${effectiveEnsName}`, {
               method: 'HEAD',
               signal: controller.signal
@@ -115,10 +127,11 @@ export async function resolveNameAndMetadata(name: string, timeoutMs = STANDARD_
               avatarUrl = `https://metadata.ens.domains/mainnet/avatar/${effectiveEnsName}`;
             }
           } catch (e) {
-            console.warn(`Error fetching avatar metadata for ${effectiveEnsName}:`, e);
+            console.warn(`Error fetching avatar metadata for ${name}:`, e);
           }
         }
         
+        console.log(`Successfully resolved ${name} to ${address}`);
         return {
           address,
           name,
@@ -128,6 +141,7 @@ export async function resolveNameAndMetadata(name: string, timeoutMs = STANDARD_
       }
       
       // No successful resolution
+      console.log(`No resolution found for ${name}`);
       return null;
     } catch (error: any) {
       if (error.name === 'AbortError') {
@@ -144,23 +158,4 @@ export async function resolveNameAndMetadata(name: string, timeoutMs = STANDARD_
     console.error(`Error resolving ${name}:`, error);
     return null;
   }
-}
-
-/**
- * Resolve .box domain using CCIP-Read
- */
-async function resolveDotBoxDomain(ensName: string): Promise<string | null> {
-  if (!ensName.endsWith('.box')) return null;
-  
-  console.log(`Trying CCIP-Read for .box domain: ${ensName}`);
-  try {
-    const boxResult = await ccipReadEnabled.resolveDotBit(ensName);
-    if (boxResult && boxResult.address) {
-      console.log(`CCIP-Read resolved ${ensName} to ${boxResult.address}`);
-      return boxResult.address;
-    }
-  } catch (ccipError) {
-    console.warn(`CCIP-Read error for ${ensName}:`, ccipError);
-  }
-  return null;
 }

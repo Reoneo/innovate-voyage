@@ -58,8 +58,8 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({ poaps, onSelect }) => {
       >
         <CarouselContent>
           {poaps.map((poap, index) => (
-            <CarouselItem key={poap.tokenId} className="basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 p-1">
-              <div onClick={() => onSelect(poap)}>
+            <CarouselItem key={poap.tokenId} className="basis-auto p-2 flex justify-center">
+              <div onClick={() => onSelect(poap)} className="flex justify-center">
                 <PoapCard poap={poap} />
               </div>
             </CarouselItem>
