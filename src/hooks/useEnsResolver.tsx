@@ -1,22 +1,19 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useEnsResolution } from './ens/useEnsResolution';
+import { useWeb3BioData } from './ens/useWeb3BioData';
 import { ethers } from 'ethers';
-import { getFromEnsCache } from '@/utils/ethereumProviders';
-import { extractSocialsFromTextRecords } from '@/utils/ens/textRecords/textRecordUtils';
 
 // Debug flags
-const DEBUG_ENS = false;
+const DEBUG_ENS = true;
 
 /**
  * A hook for resolving ENS names <-> addresses with additional ENS data
- * Uses improved caching and parallel data fetching
  * @param ensName - The ENS name to resolve
  * @param address - The address to resolve
  */
 export function useEnsResolver(ensName?: string, address?: string) {
   const [retryCount, setRetryCount] = useState(0);
-  const [lastInputs, setLastInputs] = useState({ ensName, address });
   
   const {
     state,
@@ -27,50 +24,6 @@ export function useEnsResolver(ensName?: string, address?: string) {
     lookupAddress
   } = useEnsResolution(ensName, address);
   
-  // Check cache first to avoid unnecessary loading state
-  useEffect(() => {
-    // Only check cache if inputs have changed
-    if (ensName !== lastInputs.ensName || address !== lastInputs.address) {
-      setLastInputs({ ensName, address });
-      
-      if (ensName) {
-        const cachedData = getFromEnsCache(ensName);
-        if (cachedData) {
-          if (DEBUG_ENS) console.log(`Using cached data for ${ensName}`);
-          setState(prev => ({
-            ...prev,
-            resolvedAddress: cachedData.address,
-            avatarUrl: cachedData.avatar, // Fixed property name
-            ensBio: cachedData.bio || cachedData.textRecords?.description,
-            ensLinks: cachedData.links || { 
-              socials: extractSocialsFromTextRecords(cachedData.textRecords), 
-              ensLinks: [], 
-              keywords: [] 
-            },
-            textRecords: cachedData.textRecords || {}
-          }));
-        }
-      } else if (address) {
-        const cachedData = getFromEnsCache(address.toLowerCase());
-        if (cachedData && cachedData.ensName) {
-          if (DEBUG_ENS) console.log(`Using cached data for ${address}`);
-          setState(prev => ({
-            ...prev,
-            resolvedEns: cachedData.ensName,
-            avatarUrl: cachedData.avatar, // Fixed property name
-            ensBio: cachedData.bio || cachedData.textRecords?.description,
-            ensLinks: cachedData.links || { 
-              socials: extractSocialsFromTextRecords(cachedData.textRecords), 
-              ensLinks: [], 
-              keywords: [] 
-            },
-            textRecords: cachedData.textRecords || {}
-          }));
-        }
-      }
-    }
-  }, [ensName, address, setState, lastInputs]);
-  
   // Determine if we have an ENS name to resolve
   const isEnsName = !!ensName && 
     (ensName.includes('.eth') || 
@@ -80,12 +33,26 @@ export function useEnsResolver(ensName?: string, address?: string) {
   // Check if the input address looks valid
   const isValidAddress = !!address && ethers.isAddress(address);
 
-  // Start resolution process when inputs change and not in cache
+  // Update handler for Web3Bio data
+  const updateStateFromWeb3Bio = useCallback((data: any) => {
+    if (DEBUG_ENS) console.log('useEnsResolver: Updating state from Web3Bio', data);
+    setState(prev => ({
+      ...prev,
+      ...data
+    }));
+  }, [setState]);
+
+  // Try Web3Bio as an alternative resolution source
+  const { isLoading: isLoadingWeb3Bio } = useWeb3BioData(
+    isEnsName ? ensName : undefined,
+    isValidAddress ? address : undefined,
+    isEnsName,
+    updateStateFromWeb3Bio
+  );
+
+  // Start resolution process when inputs change
   useEffect(() => {
     if (DEBUG_ENS) console.log(`useEnsResolver: Inputs changed: ENS=${ensName}, address=${address}`);
-    
-    // Reset retry count when inputs change
-    setRetryCount(0);
     
     const startResolution = async () => {
       if (isEnsName) {
@@ -99,15 +66,12 @@ export function useEnsResolver(ensName?: string, address?: string) {
       }
     };
 
-    // Only start resolution if we're not already loading from cache check
-    if ((isEnsName || isValidAddress) && !isLoading) {
-      startResolution();
-    }
-  }, [ensName, address, resolveEns, lookupAddress, isEnsName, isValidAddress, isLoading]);
+    startResolution();
+  }, [ensName, address, resolveEns, lookupAddress, isEnsName, isValidAddress]);
 
-  // Retry resolution if needed, but with a more aggressive backoff
+  // Retry resolution if needed
   useEffect(() => {
-    if (error && retryCount < 1) { // Reduced retries from 2 to 1
+    if (error && retryCount < 2) {
       const timer = setTimeout(() => {
         if (DEBUG_ENS) console.log(`useEnsResolver: Retrying resolution (${retryCount + 1})`);
         setRetryCount(prev => prev + 1);
@@ -117,7 +81,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
         } else if (isValidAddress) {
           lookupAddress(address!);
         }
-      }, 2000); // Slightly longer timeout for retry
+      }, 1500);
       
       return () => clearTimeout(timer);
     }
@@ -131,14 +95,12 @@ export function useEnsResolver(ensName?: string, address?: string) {
         resolvedEns: state.resolvedEns,
         avatarUrl: state.avatarUrl,
         ensLinks: state.ensLinks,
-        ensBio: state.ensBio,
-        textRecords: state.textRecords,
         error,
-        isLoading,
+        isLoading: isLoading || isLoadingWeb3Bio,
         retryCount
       });
     }
-  }, [state, error, isLoading, retryCount]);
+  }, [state, error, isLoading, isLoadingWeb3Bio, retryCount]);
 
   return {
     resolvedAddress: state.resolvedAddress,
@@ -146,8 +108,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
     avatarUrl: state.avatarUrl,
     ensLinks: state.ensLinks,
     ensBio: state.ensBio,
-    textRecords: state.textRecords,
-    isLoading,
+    isLoading: isLoading || isLoadingWeb3Bio,
     error
   };
 }

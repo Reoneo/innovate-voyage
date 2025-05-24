@@ -1,84 +1,55 @@
 
-import React, { useState } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { 
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi
-} from '@/components/ui/carousel';
-import PoapCard from './PoapCard';
+import React from 'react';
+import { Poap } from '@/api/services/poapService';
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 
 interface PoapCarouselProps {
-  poaps: any[];
-  onSelect: (poap: any) => void;
+  poaps: Poap[];
+  onPoapClick: (poap: Poap) => void;
+  onCarouselChange?: (index: number) => void;
 }
 
-const PoapCarousel: React.FC<PoapCarouselProps> = ({ poaps, onSelect }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [api, setApi] = useState<CarouselApi>();
-
-  // Function to get appropriate classes for dot indicators
-  const getDotClasses = (index: number) => {
-    return cn(
-      'h-2 w-2 rounded-full transition-all duration-300',
-      index === currentIndex ? 'bg-primary w-4' : 'bg-gray-300'
-    );
-  };
-
-  // Update current index when API changes
-  React.useEffect(() => {
-    if (!api) return;
-    
-    const handleSelect = () => {
-      if (!api) return;
-      const currentSlide = api.selectedScrollSnap();
-      setCurrentIndex(currentSlide);
-    };
-
-    api.on("select", handleSelect);
-    return () => {
-      api.off("select", handleSelect);
-    };
-  }, [api]);
-
+const PoapCarousel: React.FC<PoapCarouselProps> = ({
+  poaps,
+  onPoapClick,
+  onCarouselChange
+}) => {
   return (
-    <div className="w-full relative">
-      <Carousel
-        opts={{
-          align: 'start',
-          loop: true,
-        }}
-        className="w-full"
-        setApi={setApi}
-      >
-        <CarouselContent>
-          {poaps.map((poap, index) => (
-            <CarouselItem key={poap.tokenId} className="basis-auto p-2 flex justify-center">
-              <div onClick={() => onSelect(poap)} className="flex justify-center">
-                <PoapCard poap={poap} />
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        
-        <CarouselPrevious className="absolute left-0 transform -translate-y-1/2 bg-white/80 border-0 shadow-lg" />
-        <CarouselNext className="absolute right-0 transform -translate-y-1/2 bg-white/80 border-0 shadow-lg" />
-      </Carousel>
-
-      {/* Dot indicators */}
-      {poaps.length > 1 && (
-        <div className="flex justify-center gap-1.5 mt-4">
-          {Array.from({ length: Math.min(poaps.length, 8) }).map((_, index) => (
-            <div key={`dot-${index}`} className={getDotClasses(index)} />
-          ))}
-        </div>
-      )}
-    </div>
+    <Carousel 
+      opts={{
+        align: 'center',
+        loop: poaps.length > 3
+      }} 
+      className="w-full max-w-xs" 
+      onSelect={(api) => {
+        if (api && onCarouselChange) {
+          const currentIndex = api.selectedScrollSnap();
+          onCarouselChange(currentIndex);
+        }
+      }}
+    >
+      <CarouselContent>
+        {poaps.map((poap) => (
+          <CarouselItem key={poap.tokenId} className="flex items-center justify-center">
+            <div 
+              className="relative cursor-pointer group" 
+              onClick={() => onPoapClick(poap)}
+            >
+              <img 
+                src={poap.event.image_url} 
+                alt={poap.event.name} 
+                className="w-44 h-44 rounded-full cursor-pointer z-10 p-2 object-contain" 
+                style={{
+                  background: 'rgba(0,0,0,0.7)'
+                }} 
+              />
+              <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
+            </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      {/* Removed CarouselPrevious and CarouselNext buttons */}
+    </Carousel>
   );
 };
 

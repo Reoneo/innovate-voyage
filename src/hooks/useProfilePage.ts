@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
@@ -17,42 +18,35 @@ export function useProfilePage() {
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
-    console.log(`useProfilePage: Processing identifier: ${targetIdentifier}`);
-    
-    // Hard-coded address fallbacks for common domains to speed up loading
-    const knownAddressMap: Record<string, string> = {
-      'vitalik.eth': '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-      'poap.eth': '0x6023e55814DC00f094386d4eb7e17Ce49ab1A190',
-      'smith.box': '0xC05501d710B3Cdb2D2C279d0A6b9A2975b3DD096',
-      'smith.eth': '0xC05501d710B3Cdb2D2C279d0A6b9A2975b3DD096' // Add explicit .eth mapping too
-    };
+    // Attempt to clear any browser cache
+    try {
+      // Force page to be freshly loaded 
+      if ('caches' in window) {
+        const cacheNames = caches.keys();
+        cacheNames.then(names => {
+          for (const name of names) {
+            if (name.includes('fetch-cache')) {
+              caches.delete(name);
+            }
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Error clearing caches:', err);
+    }
     
     if (targetIdentifier) {
       // Convert the identifier to lowercase for case-insensitive search
       const normalizedIdentifier = targetIdentifier.toLowerCase();
-      console.log(`useProfilePage: Normalized identifier: ${normalizedIdentifier}`);
       
-      // Check if we have a known address for this identifier
-      if (knownAddressMap[normalizedIdentifier]) {
-        console.log(`Using known address mapping for ${normalizedIdentifier}: ${knownAddressMap[normalizedIdentifier]}`);
-        setAddress(knownAddressMap[normalizedIdentifier]);
-        setEns(normalizedIdentifier);
-      }
       // Direct address check - immediately use as address if valid
-      else if (isValidEthereumAddress(normalizedIdentifier)) {
+      if (isValidEthereumAddress(normalizedIdentifier)) {
         console.log(`Valid Ethereum address detected: ${normalizedIdentifier}`);
         setAddress(normalizedIdentifier);
         setEns(undefined); // Clear ENS when looking up by address
-      } 
-      else {
+      } else {
         // Not a valid address, treat as ENS or domain
-        let ensValue = normalizedIdentifier;
-        
-        // If no TLD, add .eth
-        if (!normalizedIdentifier.includes('.')) {
-          ensValue = `${normalizedIdentifier}.eth`;
-        } 
-        
+        const ensValue = normalizedIdentifier.includes('.') ? normalizedIdentifier : `${normalizedIdentifier}.eth`;
         console.log(`Treating as ENS: ${ensValue}`);
         setEns(ensValue);
         setAddress(undefined); // Clear address when looking up by ENS
@@ -62,10 +56,10 @@ export function useProfilePage() {
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set an even faster timeout for loading - 1.5s instead of 3s
+    // Set a timeout for loading
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 1500);
+    }, 5000);
 
     // Always optimize for desktop on profile page
     const metaViewport = document.querySelector('meta[name="viewport"]');
@@ -91,25 +85,6 @@ export function useProfilePage() {
         window.history.replaceState({}, document.title, cleanUrl);
       }
     }
-    
-    // Prefetch placeholder and robohash avatars to reduce content jumps
-    const prefetchCommonAvatars = () => {
-      // Prefetch placeholder avatar
-      const placeholderImg = new Image();
-      placeholderImg.src = "/placeholder.svg";
-      
-      // Prefetch common domains' avatars
-      for (const domain of Object.keys(knownAddressMap)) {
-        const avatarImg = new Image();
-        avatarImg.src = `https://metadata.ens.domains/mainnet/avatar/${domain}`;
-      }
-      
-      // Prefetch robohash fallback
-      const robohashImg = new Image();
-      robohashImg.src = `https://robohash.org/${targetIdentifier || 'default'}?set=set4`;
-    };
-    
-    prefetchCommonAvatars();
 
     return () => {
       clearTimeout(timeoutId);
@@ -120,8 +95,6 @@ export function useProfilePage() {
     };
   }, [targetIdentifier]);
 
-  // Use a more aggressive loading strategy - load both the ENS and address in parallel
-  console.log(`useProfilePage: Using ENS: ${ens}, Address: ${address}`);
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl, hasTalentProtocolData } = useProfileData(ens, address);
   
   const { profileRef } = usePdfExport();

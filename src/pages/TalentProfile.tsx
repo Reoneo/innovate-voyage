@@ -1,12 +1,11 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
 import AnimatedBackground from '@/components/talent/profile/components/AnimatedBackground';
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import { Helmet } from 'react-helmet-async';
-import { toast } from 'sonner';
 
 const TalentProfile = () => {
   const { 
@@ -19,34 +18,6 @@ const TalentProfile = () => {
     handleDisconnect,
     handleSaveChanges
   } = useProfilePage();
-  
-  const [showSkeleton, setShowSkeleton] = useState(true);
-  const [errorShown, setErrorShown] = useState(false);
-
-  // Show content extremely fast - ultra aggressive - show after just 300ms
-  useEffect(() => {
-    if (loading) {
-      const timer = setTimeout(() => {
-        setShowSkeleton(false);
-      }, 300); // Show partial content after just 300ms even if still loading
-      
-      return () => clearTimeout(timer);
-    } else {
-      setShowSkeleton(false);
-    }
-  }, [loading]);
-  
-  // Show error toast only once
-  useEffect(() => {
-    if (loadingTimeout && loading && !errorShown) {
-      // Show toast notification
-      toast.error("Profile data is taking longer than expected to load", {
-        description: "We're still trying to fetch some data. You can view the partial profile below.",
-        duration: 5000,
-      });
-      setErrorShown(true);
-    }
-  }, [loadingTimeout, loading, errorShown]);
 
   useEffect(() => {
     // Set favicon to user's avatar if available
@@ -67,31 +38,7 @@ const TalentProfile = () => {
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     }
-    
-    // Prefetch placeholder avatar for faster fallbacks
-    const placeholderImg = new Image();
-    placeholderImg.src = "/placeholder.svg";
-    
-    // Prefetch robohash fallback
-    const robohashImg = new Image();
-    const ensNameForRobohash = ensNameOrAddress || 'default';
-    robohashImg.src = `https://robohash.org/${ensNameForRobohash}?set=set4`;
-    
-    // Prefetch ENS avatar if it's a known domain
-    if (ensNameOrAddress) {
-      // Handle both .eth and .box domains
-      const ensAvatar = new Image();
-      
-      // For .box domains, try the .eth equivalent
-      if (ensNameOrAddress.endsWith('.box')) {
-        const ethEquivalent = ensNameOrAddress.replace('.box', '.eth');
-        ensAvatar.src = `https://metadata.ens.domains/mainnet/avatar/${ethEquivalent}`;
-      } else {
-        ensAvatar.src = `https://metadata.ens.domains/mainnet/avatar/${ensNameOrAddress}`;
-      }
-    }
-    
-  }, [passport?.avatar_url, ensNameOrAddress]);
+  }, [passport?.avatar_url]);
 
   return (
     <>
@@ -100,7 +47,6 @@ const TalentProfile = () => {
         {passport?.avatar_url && (
           <>
             <link rel="apple-touch-icon" href={passport.avatar_url} />
-            <link rel="preload" href={passport.avatar_url} as="image" />
             <meta name="apple-mobile-web-app-title" content={ensNameOrAddress || 'Profile'} />
             <meta name="application-name" content={ensNameOrAddress || 'Profile'} />
             <meta property="og:image" content={passport.avatar_url} />
@@ -122,15 +68,15 @@ const TalentProfile = () => {
         />
         
         <div className="container px-1 sm:px-4 relative z-10">
-          {showSkeleton ? (
+          {loading ? (
             /* Show skeleton while loading - now with proper padding */
             <div className="pt-16">
               <ProfileSkeleton />
             </div>
           ) : (
-            /* Show actual content when loaded or after timeout */
+            /* Show actual content when loaded */
             <ProfileContent 
-              loading={loading}
+              loading={false}
               loadingTimeout={loadingTimeout}
               passport={passport}
               profileRef={profileRef}
