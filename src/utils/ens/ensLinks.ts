@@ -1,6 +1,6 @@
 
-import { ethers } from 'ethers';
-import { mainnetProvider } from '../ethereumProviders';
+// ENS API base URL - you can change this to your self-hosted instance
+const ENS_API_BASE = 'https://ens-api.vercel.app';
 
 export async function getEnsLinks(ensName: string, networkName: string = 'mainnet') {
   // Default result structure
@@ -17,36 +17,33 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
       return result;
     }
     
-    const resolver = await mainnetProvider.getResolver(ensName);
+    console.log(`Getting ENS links for ${ensName} using ENS API`);
     
-    // Exit if no resolver found
-    if (!resolver) {
-      console.log('No resolver found for', ensName);
-      return result;
-    }
-    
-    // Parallel fetch for all social records
-    const recordsToFetch = [
+    // Fetch all text records we're interested in
+    const textKeys = [
       'com.github', 'com.twitter', 'com.discord', 'com.linkedin', 'org.telegram',
       'com.reddit', 'email', 'url', 'description', 'avatar',
       'com.instagram', 'io.keybase', 'xyz.lens', 'location', 'com.youtube',
       'app.bsky', 'com.whatsapp', 'phone', 'name', 'notice', 'keywords'
-    ];
+    ].join(',');
     
-    const records = await Promise.all(
-      recordsToFetch.map(async (key) => {
-        try {
-          const value = await resolver.getText(key);
-          return { key, value };
-        } catch (error) {
-          console.log(`Error fetching ${key} record:`, error);
-          return { key, value: null };
-        }
-      })
-    );
+    const response = await fetch(`${ENS_API_BASE}/name/${ensName}?texts=${textKeys}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
+    
+    if (!response.ok) {
+      console.log(`ENS API returned status ${response.status} for ${ensName}`);
+      return result;
+    }
+    
+    const data = await response.json();
+    const texts = data.texts || {};
     
     // Map the records to our result structure
-    records.forEach(({ key, value }) => {
+    Object.entries(texts).forEach(([key, value]: [string, any]) => {
       if (!value) return;
       
       switch (key) {
@@ -98,13 +95,14 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
           break;
         case 'keywords':
           // Handle keywords - could be comma-separated or space-separated
-          result.keywords = value.split(/[,\s]+/).filter(k => k.trim().length > 0);
+          result.keywords = value.split(/[,\s]+/).filter((k: string) => k.trim().length > 0);
           break;
         default:
           break;
       }
     });
     
+    console.log(`ENS API links result for ${ensName}:`, result);
     return result;
     
   } catch (error) {

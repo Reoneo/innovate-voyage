@@ -1,67 +1,96 @@
 
 import { ENSRecord } from '../types/web3Types';
 import { delay } from '../jobsApi';
-import { fetchWeb3BioProfile } from '../utils/web3/index';
 import { getRealAvatar } from './avatarService';
 import { generateFallbackAvatar } from '../utils/web3/index';
 
-// Lookup ENS record by address
+// ENS API base URL - you can change this to your self-hosted instance
+const ENS_API_BASE = 'https://ens-api.vercel.app';
+
+// Lookup ENS record by address using ENS API
 export async function getEnsByAddress(address: string): Promise<ENSRecord | null> {
   try {
-    // Try to fetch from web3.bio API first - supports all domain types
-    const profiles = await fetchMultiPlatformProfiles(address);
+    console.log(`Fetching ENS data for address: ${address}`);
     
-    // Find the primary profile - prefer ENS, then other domains
-    const primaryProfile = findPrimaryProfile(profiles);
+    const response = await fetch(`${ENS_API_BASE}/address/${address}?texts=description,email,url,com.github,com.twitter,com.discord,com.linkedin,org.telegram,com.reddit,location,com.instagram,com.youtube,app.bsky,com.whatsapp,keywords`, {
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
     
-    if (primaryProfile) {
-      // Create ENS record from profile data
-      const record: ENSRecord = {
-        address: primaryProfile.address || address,
-        ensName: primaryProfile.identity || address,
-        avatar: primaryProfile.avatar || await getRealAvatar(primaryProfile.identity) || generateFallbackAvatar(),
-        skills: [], // Will be populated later in the app
-        socialProfiles: extractSocialProfiles(primaryProfile),
-        description: primaryProfile.description || ''
-      };
-      
-      return record;
+    if (!response.ok) {
+      console.log(`ENS API returned status ${response.status} for address ${address}`);
+      return null;
     }
     
-    // No real data found
-    await delay(300); // Simulate network delay
-    return null;
+    const data = await response.json();
+    
+    if (!data || !data.name) {
+      console.log(`No ENS name found for address ${address}`);
+      return null;
+    }
+    
+    // Get avatar using the ENS API avatar endpoint
+    const avatarUrl = await getEnsApiAvatar(data.name);
+    
+    // Create ENS record from API data
+    const record: ENSRecord = {
+      address: data.address || address,
+      ensName: data.name,
+      avatar: avatarUrl || generateFallbackAvatar(),
+      skills: [], // Will be populated later in the app
+      socialProfiles: extractSocialProfilesFromEnsApi(data.texts || {}),
+      description: data.texts?.description || ''
+    };
+    
+    console.log(`ENS API result for ${address}:`, record);
+    return record;
   } catch (error) {
     console.error(`Error fetching ENS for address ${address}:`, error);
     return null;
   }
 }
 
-// Reverse lookup address by ENS name
+// Reverse lookup address by ENS name using ENS API
 export async function getAddressByEns(ensName: string): Promise<ENSRecord | null> {
   try {
-    // Normalize the input
-    const normalizedName = ensName;
+    console.log(`Fetching address for ENS name: ${ensName}`);
     
-    // Handle all domain types through web3.bio API
-    const profile = await fetchWeb3BioProfile(normalizedName);
+    const response = await fetch(`${ENS_API_BASE}/name/${ensName}?texts=description,email,url,com.github,com.twitter,com.discord,com.linkedin,org.telegram,com.reddit,location,com.instagram,com.youtube,app.bsky,com.whatsapp,keywords`, {
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
     
-    if (profile && profile.address) {
-      // Create ENS record from profile data
-      const record: ENSRecord = {
-        address: profile.address,
-        ensName: profile.identity || normalizedName,
-        avatar: profile.avatar || await getRealAvatar(normalizedName) || generateFallbackAvatar(),
-        skills: [], // Will be populated later in the app
-        socialProfiles: extractSocialProfiles(profile),
-        description: profile.description || ''
-      };
-      
-      return record;
+    if (!response.ok) {
+      console.log(`ENS API returned status ${response.status} for ENS name ${ensName}`);
+      return null;
     }
     
-    // No data found
-    return null;
+    const data = await response.json();
+    
+    if (!data || !data.address) {
+      console.log(`No address found for ENS name ${ensName}`);
+      return null;
+    }
+    
+    // Get avatar using the ENS API avatar endpoint
+    const avatarUrl = await getEnsApiAvatar(ensName);
+    
+    // Create ENS record from API data
+    const record: ENSRecord = {
+      address: data.address,
+      ensName: data.name || ensName,
+      avatar: avatarUrl || generateFallbackAvatar(),
+      skills: [], // Will be populated later in the app
+      socialProfiles: extractSocialProfilesFromEnsApi(data.texts || {}),
+      description: data.texts?.description || ''
+    };
+    
+    console.log(`ENS API result for ${ensName}:`, record);
+    return record;
   } catch (error) {
     console.error(`Error fetching address for ENS ${ensName}:`, error);
     return null;
@@ -69,82 +98,53 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
 }
 
 /**
- * Fetch profiles from all platforms for a given address
+ * Get avatar from ENS API
  */
-async function fetchMultiPlatformProfiles(address: string) {
+async function getEnsApiAvatar(ensName: string): Promise<string | null> {
   try {
-    // Use the universal endpoint to get all profiles
-    const profile = await fetchWeb3BioProfile(address);
+    const avatarUrl = `${ENS_API_BASE}/avatar/${ensName}`;
+    const response = await fetch(avatarUrl, { method: 'HEAD' });
     
-    if (!profile) {
-      return [];
+    if (response.ok) {
+      console.log(`Found avatar via ENS API for ${ensName}`);
+      return avatarUrl;
     }
     
-    // If we got a single profile object, put it in an array
-    if (!Array.isArray(profile)) {
-      return [profile];
-    }
-    
-    return profile;
+    return null;
   } catch (error) {
-    console.error(`Error fetching multiple platform profiles: ${error}`);
-    return [];
+    console.error(`Error fetching avatar from ENS API for ${ensName}:`, error);
+    return null;
   }
 }
 
 /**
- * Find the primary profile from a list of profiles
- * Priority: ENS > Basenames > Linea > Lens > Others
+ * Extract social profiles from ENS API text records
  */
-function findPrimaryProfile(profiles: any[]) {
-  if (profiles.length === 0) return null;
-  
-  // If there's only one profile, return it
-  if (profiles.length === 1) return profiles[0];
-  
-  // Priority order
-  const platformPriority = ['ens', 'basenames', 'linea', 'lens', 'farcaster', 'dotbit', 'unstoppabledomains', 'solana'];
-  
-  // Try to find profiles in priority order
-  for (const platform of platformPriority) {
-    const profile = profiles.find(p => p.platform === platform);
-    if (profile) return profile;
-  }
-  
-  // If no priority match, return the first one
-  return profiles[0];
-}
-
-/**
- * Extract social profiles from a web3.bio profile
- */
-function extractSocialProfiles(profile: any) {
+function extractSocialProfilesFromEnsApi(texts: Record<string, string>) {
   const socialProfiles: Record<string, string> = {};
   
-  // Direct properties
-  if (profile.twitter) socialProfiles.twitter = profile.twitter;
-  if (profile.github) socialProfiles.github = profile.github;
-  if (profile.linkedin) socialProfiles.linkedin = profile.linkedin;
-  if (profile.website) socialProfiles.website = profile.website;
-  if (profile.email) socialProfiles.email = profile.email;
-  if (profile.facebook) socialProfiles.facebook = profile.facebook;
-  if (profile.whatsapp) socialProfiles.whatsapp = profile.whatsapp;
-  if (profile.bluesky) socialProfiles.bluesky = profile.bluesky;
-  if (profile.instagram) socialProfiles.instagram = profile.instagram;
-  if (profile.youtube) socialProfiles.youtube = profile.youtube;
-  if (profile.telegram) socialProfiles.telegram = profile.telegram;
-  if (profile.reddit) socialProfiles.reddit = profile.reddit;
-  if (profile.discord) socialProfiles.discord = profile.discord;
-  if (profile.location) socialProfiles.location = profile.location;
+  // Map ENS text record keys to our social profile keys
+  const keyMapping: Record<string, string> = {
+    'com.twitter': 'twitter',
+    'com.github': 'github',
+    'com.linkedin': 'linkedin',
+    'url': 'website',
+    'email': 'email',
+    'com.discord': 'discord',
+    'org.telegram': 'telegram',
+    'com.reddit': 'reddit',
+    'location': 'location',
+    'com.instagram': 'instagram',
+    'com.youtube': 'youtube',
+    'app.bsky': 'bluesky',
+    'com.whatsapp': 'whatsapp'
+  };
   
-  // Links object
-  if (profile.links) {
-    Object.entries(profile.links).forEach(([key, value]: [string, any]) => {
-      if (value && value.link) {
-        socialProfiles[key] = value.link;
-      }
-    });
-  }
+  Object.entries(texts).forEach(([key, value]) => {
+    if (value && keyMapping[key]) {
+      socialProfiles[keyMapping[key]] = value;
+    }
+  });
   
   return socialProfiles;
 }

@@ -1,63 +1,43 @@
 
 import { mainnetProvider } from '../ethereumProviders';
-import { fetchWeb3BioProfile } from '../../api/utils/web3Utils';
-import { getRealAvatar } from '../../api/services/avatarService';
-import { ccipReadEnabled } from './ccipReadHandler';
+
+// ENS API base URL - you can change this to your self-hosted instance
+const ENS_API_BASE = 'https://ens-api.vercel.app';
 
 /**
- * Gets avatar for an ENS name
+ * Gets avatar for an ENS name using ENS API
  */
 export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimism' = 'mainnet') {
   try {
-    console.log(`Getting avatar for ${ensName}`);
+    console.log(`Getting avatar for ${ensName} using ENS API`);
     
-    // Special handling for .box domains
-    if (ensName.endsWith('.box')) {
-      console.log(`Using CCIP-Read to get .box avatar for ${ensName}`);
-      const boxData = await ccipReadEnabled.resolveDotBit(ensName);
-      
-      if (boxData && boxData.avatar) {
-        console.log(`Got .box avatar from CCIP-Read: ${boxData.avatar}`);
-        return boxData.avatar;
-      }
+    // Use ENS API avatar endpoint
+    const avatarUrl = `${ENS_API_BASE}/avatar/${ensName}`;
+    const response = await fetch(avatarUrl, { method: 'HEAD' });
+    
+    if (response.ok) {
+      console.log(`Found avatar via ENS API for ${ensName}`);
+      return avatarUrl;
     }
     
-    // Handle EIP155 formatted avatar URIs directly or any other format
-    // by using the refactored getRealAvatar function which handles all cases
-    const avatar = await getRealAvatar(ensName);
-    if (avatar) {
-      console.log(`Got avatar for ${ensName} -> ${avatar}`);
-      return avatar;
-    }
-    
-    // Fallback: Try to use resolver directly - only for ENS domains on mainnet
+    // Fallback to provider resolver for .eth domains
     if (ensName.endsWith('.eth')) {
       try {
         const provider = mainnetProvider;
         const resolver = await provider.getResolver(ensName);
         
         if (resolver) {
-          console.log(`Got resolver for ${ensName}`);
           const avatar = await resolver.getText('avatar');
-          
           if (avatar) {
-            console.log(`Got avatar for ${ensName}:`, avatar);
-            
-            // If the avatar is in EIP155 format or any other format,
-            // use getRealAvatar to resolve it
-            return await getRealAvatar(avatar);
-          } else {
-            console.log(`No avatar found for ${ensName} in resolver`);
+            console.log(`Found avatar via provider for ${ensName}:`, avatar);
+            return avatar;
           }
-        } else {
-          console.log(`No resolver found for ${ensName}`);
         }
       } catch (resolverError) {
         console.error(`Error using resolver for ${ensName}:`, resolverError);
       }
     }
     
-    // If still nothing, return null
     return null;
   } catch (avatarError) {
     console.error(`Error fetching avatar for ${ensName}:`, avatarError);
@@ -66,33 +46,28 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
 }
 
 /**
- * Gets ENS bio data
+ * Gets ENS bio data using ENS API
  */
 export async function getEnsBio(ensName: string, network = 'mainnet'): Promise<string | null> {
   try {
     if (!ensName) return null;
     
-    // Special handling for .box domains
-    if (ensName.endsWith('.box')) {
-      console.log(`Using CCIP-Read to get .box bio for ${ensName}`);
-      const boxData = await ccipReadEnabled.resolveDotBit(ensName);
-      
-      // Check for profile description in the dot bit data
-      if (boxData) {
-        const response = await fetch(`https://indexer-v1.did.id/v1/account/records?account=${ensName}&key=profile.description`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.data && data.data.length > 0) {
-            return data.data[0].value;
-          }
-        }
-      }
-    }
+    console.log(`Getting bio for ${ensName} using ENS API`);
     
-    // Use web3.bio API to get description/bio
-    const profile = await fetchWeb3BioProfile(ensName);
-    if (profile && profile.description) {
-      return profile.description;
+    // Use ENS API to get text records
+    const response = await fetch(`${ENS_API_BASE}/name/${ensName}?texts=description`, {
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.texts && data.texts.description) {
+        console.log(`Found bio via ENS API for ${ensName}`);
+        return data.texts.description;
+      }
     }
     
     return null;

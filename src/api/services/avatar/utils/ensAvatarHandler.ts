@@ -1,36 +1,54 @@
 
 import { avatarCache } from '../../../utils/web3/index';
 
+// ENS API base URL - you can change this to your self-hosted instance
+const ENS_API_BASE = 'https://ens-api.vercel.app';
+
 /**
- * Handle ENS domain avatars through multiple sources
+ * Handle ENS domain avatars using ENS API
  * @param identity ENS domain name
  * @returns Avatar URL or null if not found
  */
 export async function handleEnsAvatar(identity: string): Promise<string | null> {
   try {
-    console.log(`Fetching ENS avatar for ${identity}`);
+    console.log(`Fetching ENS avatar for ${identity} using ENS API`);
     
-    // Try the ENS metadata service first (most reliable source)
+    // Try the ENS API avatar endpoint first
+    const ensApiAvatar = await tryEnsApiAvatar(identity);
+    if (ensApiAvatar) return ensApiAvatar;
+    
+    // Try the ENS metadata service as fallback
     const metadataAvatar = await tryEnsMetadataService(identity);
     if (metadataAvatar) return metadataAvatar;
     
-    // Try the official ENS Avatar API
-    const ensAvatarApiResult = await tryEnsAvatarApi(identity);
-    if (ensAvatarApiResult) return ensAvatarApiResult;
-    
-    // Try the gskril/ens-api as fallback
+    // Try the gskril/ens-api as additional fallback
     const gskrilApiResult = await tryGskrilEnsApi(identity);
     if (gskrilApiResult) return gskrilApiResult;
-    
-    // Try the Ethereum Avatar Service if all else fails
-    const ethAvatarServiceResult = await tryEthAvatarService(identity);
-    if (ethAvatarServiceResult) return ethAvatarServiceResult;
     
     return null;
   } catch (error) {
     console.error(`Error handling ENS avatar for ${identity}:`, error);
     return null;
   }
+}
+
+/**
+ * Try the ENS API avatar endpoint
+ */
+async function tryEnsApiAvatar(ensName: string): Promise<string | null> {
+  try {
+    const avatarUrl = `${ENS_API_BASE}/avatar/${ensName}`;
+    const response = await fetch(avatarUrl, { method: 'HEAD' });
+    
+    if (response.ok) {
+      console.log(`Found avatar via ENS API for ${ensName}`);
+      avatarCache[ensName] = avatarUrl;
+      return avatarUrl;
+    }
+  } catch (error) {
+    console.error(`Error fetching from ENS API for ${ensName}:`, error);
+  }
+  return null;
 }
 
 /**
@@ -78,42 +96,6 @@ async function tryEnsMetadataService(ensName: string): Promise<string | null> {
     }
   } catch (ensError) {
     console.error(`Error fetching ENS avatar from metadata service for ${ensName}:`, ensError);
-  }
-  return null;
-}
-
-/**
- * Try the Ethereum Avatar Service
- */
-async function tryEthAvatarService(ensName: string): Promise<string | null> {
-  try {
-    const ethAvatarUrl = `https://eth-avatar-api.herokuapp.com/${ensName}`;
-    const ethAvatarResponse = await fetch(ethAvatarUrl, { method: 'HEAD' });
-    if (ethAvatarResponse.ok) {
-      console.log(`Found avatar via Ethereum Avatar Service for ${ensName}`);
-      avatarCache[ensName] = ethAvatarUrl;
-      return ethAvatarUrl;
-    }
-  } catch (ethAvatarError) {
-    console.error(`Error fetching from Ethereum Avatar Service for ${ensName}:`, ethAvatarError);
-  }
-  return null;
-}
-
-/**
- * Try the official ENS Avatar API
- */
-async function tryEnsAvatarApi(ensName: string): Promise<string | null> {
-  try {
-    const ensAvatarUrl = `https://avatar.ens.domains/${ensName}`;
-    const ensAvatarResponse = await fetch(ensAvatarUrl, { method: 'HEAD' });
-    if (ensAvatarResponse.ok) {
-      console.log(`Found avatar via ENS Avatar API for ${ensName}`);
-      avatarCache[ensName] = ensAvatarUrl;
-      return ensAvatarUrl;
-    }
-  } catch (ensAvatarError) {
-    console.error(`Error fetching from ENS Avatar API for ${ensName}:`, ensAvatarError);
   }
   return null;
 }
