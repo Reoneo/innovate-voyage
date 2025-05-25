@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -123,11 +124,14 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 displayIdentity={ensNameOrAddress}
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
+              
+              {/* POAP Section - only in first column */}
+              <PoapSection walletAddress={passport.owner_address} />
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* Skills with Builder Score */}
+              {/* KYC with Builder Score */}
               <SkillsCard 
                 walletAddress={passport.owner_address}
                 skills={passport.skills || []}
@@ -136,9 +140,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               
               {/* Blockchain Experience section */}
               <BlockchainExperience walletAddress={passport.owner_address} />
-              
-              {/* POAP Section */}
-              <PoapSection walletAddress={passport.owner_address} />
               
               {/* GitHub contribution graph */}
               {showGitHubSection && (

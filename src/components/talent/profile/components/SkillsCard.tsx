@@ -42,19 +42,38 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, passport
   // Combine all skills
   const allSkills = [...filteredSkills, ...talentProtocolSkills, ...credentialProtocolSkills];
 
+  // Mock KYC data - in real implementation this would come from API
+  const kycVerifications = [
+    {
+      provider: 'Talent Protocol',
+      status: 'Verified',
+      icon: 'https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1748210400000&signature=NS2Qh4ukZwhE19Jb9ufCbfIDtsXaB26f5pDNt9mzVho&downloadName=logomark_dark.jpg'
+    },
+    {
+      provider: 'Binance',
+      status: 'Verified',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/5/57/Binance_Logo.png'
+    },
+    {
+      provider: 'Coinbase',
+      status: 'Verified', 
+      icon: 'https://companieslogo.com/img/orig/COIN-a63dbab3.png?t=1720244491'
+    }
+  ];
+
   const sectionClass = "rounded-lg bg-white shadow-sm border border-gray-200 mt-4";
 
   return (
-    <section id="skills-card-section" className={sectionClass}>
+    <section id="kyc-section" className={sectionClass}>
       <CardHeader className="pb-4 bg-transparent border-b border-gray-100">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-3 text-gray-800 text-lg font-semibold">
             <img 
               src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1748210400000&signature=NS2Qh4ukZwhE19Jb9ufCbfIDtsXaB26f5pDNt9mzVho&downloadName=logomark_dark.jpg" 
               className="h-6 w-6" 
-              alt="Builder Score" 
+              alt="KYC" 
             />
-            Skills & Builder Score
+            KYC
           </CardTitle>
           {scoreLoading ? (
             <Skeleton className="h-8 w-16" />
@@ -66,9 +85,31 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, passport
           )}
         </div>
       </CardHeader>
-      <CardContent>
-        <SkillsList skills={allSkills} isLoading={isLoading} />
-        {allSkills && allSkills.length > 0 && <SkillsLegend />}
+      <CardContent className="space-y-4">
+        {/* KYC Verifications */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Verified KYC</h4>
+          {kycVerifications.map((kyc, index) => (
+            <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+              <div className="flex items-center gap-3">
+                <img 
+                  src={kyc.icon} 
+                  alt={kyc.provider} 
+                  className="w-4 h-4"
+                />
+                <span className="text-sm font-medium text-gray-700">{kyc.provider}</span>
+              </div>
+              <span className="text-sm font-bold text-green-600">{kyc.status}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Skills */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Skills</h4>
+          <SkillsList skills={allSkills} isLoading={isLoading} />
+          {allSkills && allSkills.length > 0 && <SkillsLegend />}
+        </div>
       </CardContent>
     </section>
   );
