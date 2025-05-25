@@ -1,7 +1,9 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTalentProtocolBlockchainData } from '@/hooks/useTalentProtocolBlockchainData';
+import { useWebacyData } from '@/hooks/useWebacyData';
+import { fetchUserNfts } from '@/api/services/openseaService';
 
 interface BlockchainExperienceProps {
   walletAddress: string;
@@ -9,8 +11,29 @@ interface BlockchainExperienceProps {
 
 const BlockchainExperience: React.FC<BlockchainExperienceProps> = ({ walletAddress }) => {
   const { data, isLoading, error } = useTalentProtocolBlockchainData(walletAddress);
+  const { securityData, isLoading: webacyLoading } = useWebacyData(walletAddress);
+  const [nftCount, setNftCount] = useState<number | null>(null);
+  const [nftLoading, setNftLoading] = useState(true);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!walletAddress) return;
+    
+    const getNftCount = async () => {
+      try {
+        const collections = await fetchUserNfts(walletAddress);
+        const totalNfts = collections.reduce((total, collection) => total + collection.nfts.length, 0);
+        setNftCount(totalNfts);
+      } catch (error) {
+        console.error("Error fetching NFT count:", error);
+      } finally {
+        setNftLoading(false);
+      }
+    };
+    
+    getNftCount();
+  }, [walletAddress]);
+
+  if (isLoading || webacyLoading || nftLoading) {
     return (
       <div className="w-full rounded-lg bg-gradient-to-br from-[#1A1F2C]/80 via-[#7E69AB]/30 to-[#0FA0CE]/20 shadow-lg p-6">
         <div className="animate-pulse space-y-4">
@@ -33,38 +56,42 @@ const BlockchainExperience: React.FC<BlockchainExperienceProps> = ({ walletAddre
     {
       label: 'First Transaction',
       value: data.firstTransaction || 'N/A',
-      score: data.firstTransactionScore || '0/8',
-      hasScore: true
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
     },
     {
       label: 'Outgoing Transactions',
       value: data.outgoingTransactions || '0',
-      score: data.outgoingTransactionsScore || '0/8',
-      hasScore: true
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
     },
     {
       label: 'ETH Balance',
       value: data.ethBalance || '0.0000',
-      score: data.ethBalanceScore || '0/8',
-      hasScore: true
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
     },
     {
       label: 'Contracts Deployed (Testnet)',
       value: data.contractsDeployedTestnet || '0',
-      score: data.contractsDeployedTestnetScore || '0/4',
-      hasScore: true
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
     },
     {
       label: 'Active Smart Contracts',
       value: data.activeSmartContracts || '0',
-      score: data.activeSmartContractsScore || '0/12',
-      hasScore: true
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
     },
     {
       label: 'Contracts Deployed (Mainnet)',
       value: data.contractsDeployedMainnet || '0',
-      score: data.contractsDeployedMainnetScore || '0/8',
-      hasScore: true
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
+    },
+    {
+      label: 'NFT Collections',
+      value: nftCount !== null ? nftCount.toString() : '0',
+      icon: 'https://cdn-icons-png.flaticon.com/512/6699/6699362.png'
+    },
+    {
+      label: 'Risk Score',
+      value: securityData?.riskScore !== undefined ? Math.round(securityData.riskScore).toString() : 'N/A',
+      icon: 'https://img.cryptorank.io/coins/webacy1675847088001.png'
     }
   ];
 
@@ -80,22 +107,20 @@ const BlockchainExperience: React.FC<BlockchainExperienceProps> = ({ walletAddre
           Blockchain Experience
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {metrics.map((metric, index) => (
-            <div key={index} className="flex justify-between items-center p-3 rounded-lg bg-black/20 backdrop-blur-sm">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-300">{metric.label}</span>
-                <span className="text-lg font-bold text-white">{metric.value}</span>
-              </div>
-              {metric.hasScore && (
-                <div className="text-right">
-                  <span className="text-sm font-semibold text-green-400">{metric.score} pts</span>
-                </div>
-              )}
+      <CardContent className="space-y-3">
+        {metrics.map((metric, index) => (
+          <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-black/20 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <img 
+                src={metric.icon} 
+                alt={metric.label} 
+                className="w-5 h-5"
+              />
+              <span className="text-sm font-medium text-gray-300">{metric.label}</span>
             </div>
-          ))}
-        </div>
+            <span className="text-sm font-bold text-white">{metric.value}</span>
+          </div>
+        ))}
       </CardContent>
     </div>
   );
