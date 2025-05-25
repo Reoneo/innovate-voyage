@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import TalentScoreBadge from './scores/TalentScoreBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
@@ -28,22 +27,8 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   if (!walletAddress) return null;
 
-  // Only show scores if data is available
-  const showTalentScore = score !== null && score !== undefined;
-
   return (
     <>
-      <div className="grid grid-cols-1 gap-4">
-        {showTalentScore && (
-          <TalentScoreBadge 
-            score={score} 
-            onClick={() => handleBadgeClick('talent')}
-            isLoading={loading} 
-            talentId={walletAddress} 
-          />
-        )}
-      </div>
-
       <NftCollectionsSection 
         walletAddress={walletAddress} 
         showCollections={showNftCollections} 

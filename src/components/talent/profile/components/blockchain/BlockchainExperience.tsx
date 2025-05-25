@@ -35,7 +35,7 @@ const BlockchainExperience: React.FC<BlockchainExperienceProps> = ({ walletAddre
 
   if (isLoading || webacyLoading || nftLoading) {
     return (
-      <div className="w-full rounded-lg bg-gradient-to-br from-[#1A1F2C]/80 via-[#7E69AB]/30 to-[#0FA0CE]/20 shadow-lg p-6">
+      <div className="w-full rounded-lg bg-white shadow-sm border border-gray-200 p-6">
         <div className="animate-pulse space-y-4">
           <div className="h-6 bg-gray-300 rounded w-3/4"></div>
           <div className="space-y-2">
@@ -52,41 +52,21 @@ const BlockchainExperience: React.FC<BlockchainExperienceProps> = ({ walletAddre
     return null;
   }
 
-  const metrics = [
+  const basicMetrics = [
     {
       label: 'First Transaction',
       value: data.firstTransaction || 'N/A',
-      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040'
     },
     {
       label: 'Outgoing Transactions',
       value: data.outgoingTransactions || '0',
-      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
-    },
-    {
-      label: 'ETH Balance',
-      value: data.ethBalance || '0.0000',
-      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
-    },
-    {
-      label: 'Contracts Deployed (Testnet)',
-      value: data.contractsDeployedTestnet || '0',
-      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
-    },
-    {
-      label: 'Active Smart Contracts',
-      value: data.activeSmartContracts || '0',
-      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
-    },
-    {
-      label: 'Contracts Deployed (Mainnet)',
-      value: data.contractsDeployedMainnet || '0',
-      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040'
     },
     {
       label: 'NFT Collections',
       value: nftCount !== null ? nftCount.toString() : '0',
-      icon: 'https://cdn-icons-png.flaticon.com/512/6699/6699362.png'
+      icon: 'https://cdn.worldvectorlogo.com/logos/opensea.svg'
     },
     {
       label: 'Risk Score',
@@ -95,33 +75,83 @@ const BlockchainExperience: React.FC<BlockchainExperienceProps> = ({ walletAddre
     }
   ];
 
+  const skillsMetrics = [
+    {
+      label: 'Contracts Deployed (Testnet)',
+      value: data.contractsDeployedTestnet || '0',
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040'
+    },
+    {
+      label: 'Active Smart Contracts',
+      value: data.activeSmartContracts || '0',
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040'
+    },
+    {
+      label: 'Contracts Deployed (Mainnet)',
+      value: data.contractsDeployedMainnet || '0',
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040'
+    }
+  ];
+
   return (
-    <div className="w-full rounded-lg bg-gradient-to-br from-[#1A1F2C]/80 via-[#7E69AB]/30 to-[#0FA0CE]/20 shadow-lg">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-3 text-gradient-primary text-lg font-semibold tracking-wide">
-          <img 
-            src="https://cryptologos.cc/logos/ethereum-eth-logo.png" 
-            alt="Ethereum" 
-            className="w-6 h-6"
-          />
-          Blockchain Experience
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {metrics.map((metric, index) => (
-          <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-black/20 backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <img 
-                src={metric.icon} 
-                alt={metric.label} 
-                className="w-5 h-5"
-              />
-              <span className="text-sm font-medium text-gray-300">{metric.label}</span>
+    <div className="space-y-4">
+      {/* Main Blockchain Experience */}
+      <div className="w-full rounded-lg bg-white shadow-sm border border-gray-200">
+        <CardHeader className="pb-4 bg-transparent">
+          <CardTitle className="flex items-center gap-3 text-gray-800 text-lg font-semibold">
+            <img 
+              src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040" 
+              alt="Ethereum" 
+              className="w-6 h-6"
+            />
+            Blockchain Experience
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {basicMetrics.map((metric, index) => (
+            <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+              <div className="flex items-center gap-3">
+                <img 
+                  src={metric.icon} 
+                  alt={metric.label} 
+                  className="w-4 h-4"
+                />
+                <span className="text-sm font-medium text-gray-700">{metric.label}</span>
+              </div>
+              <span className="text-sm font-bold text-gray-900">{metric.value}</span>
             </div>
-            <span className="text-sm font-bold text-white">{metric.value}</span>
-          </div>
-        ))}
-      </CardContent>
+          ))}
+        </CardContent>
+      </div>
+
+      {/* Blockchain Skills Section */}
+      <div className="w-full rounded-lg bg-white shadow-sm border border-gray-200">
+        <CardHeader className="pb-4 bg-transparent">
+          <CardTitle className="flex items-center gap-3 text-gray-800 text-lg font-semibold">
+            <img 
+              src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040" 
+              alt="Ethereum" 
+              className="w-6 h-6"
+            />
+            Blockchain Skills
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {skillsMetrics.map((metric, index) => (
+            <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+              <div className="flex items-center gap-3">
+                <img 
+                  src={metric.icon} 
+                  alt={metric.label} 
+                  className="w-4 h-4"
+                />
+                <span className="text-sm font-medium text-gray-700">{metric.label}</span>
+              </div>
+              <span className="text-sm font-bold text-gray-900">{metric.value}</span>
+            </div>
+          ))}
+        </CardContent>
+      </div>
     </div>
   );
 };

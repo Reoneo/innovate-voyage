@@ -6,6 +6,8 @@ import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import BlockchainExperience from './components/blockchain/BlockchainExperience';
+import SkillsCard from './components/SkillsCard';
+import PoapSection from './components/poap/PoapSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -102,7 +104,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   const showGitHubSection = !!githubUsername;
 
   return (
-    <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
+    <div ref={profileRef} id="resume-pdf" className="w-full pt-16 bg-gray-50 min-h-screen">
       {loading && !loadingTimeout ? (
         <ProfileSkeleton />
       ) : passport ? (
@@ -125,12 +127,22 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
+              {/* Skills with Builder Score */}
+              <SkillsCard 
+                walletAddress={passport.owner_address}
+                skills={passport.skills || []}
+                passportId={passport.owner_address}
+              />
+              
               {/* Blockchain Experience section */}
               <BlockchainExperience walletAddress={passport.owner_address} />
               
+              {/* POAP Section */}
+              <PoapSection walletAddress={passport.owner_address} />
+              
               {/* GitHub contribution graph */}
               {showGitHubSection && (
-                <div className="mt-4">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}

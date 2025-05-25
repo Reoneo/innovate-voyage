@@ -4,6 +4,8 @@ import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import SkillsList from './skills/SkillsList';
 import SkillsLegend from './skills/SkillsLegend';
 import { useTalentProtocolSkills } from './skills/useTalentProtocolSkills';
+import { useScoresData } from '@/hooks/useScoresData';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface SkillsCardProps {
   walletAddress?: string;
@@ -13,6 +15,7 @@ interface SkillsCardProps {
 
 const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, passportId }) => {
   const { talentSkills, credentialSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress, passportId);
+  const { score, loading: scoreLoading } = useScoresData(walletAddress || '');
 
   if (!walletAddress) {
     return null;
@@ -39,19 +42,29 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, passport
   // Combine all skills
   const allSkills = [...filteredSkills, ...talentProtocolSkills, ...credentialProtocolSkills];
 
-  // Remove Card border and use futuristic effect
-  const sectionClass = "rounded-xl bg-gradient-to-br from-[#1A1F2C]/80 via-[#7E69AB]/30 to-[#0FA0CE]/20 shadow-[0_1px_8px_#7E69AB1f,0_0px_0px_#7E69AB00_inset] mt-4";
+  const sectionClass = "rounded-lg bg-white shadow-sm border border-gray-200 mt-4";
 
   return (
     <section id="skills-card-section" className={sectionClass}>
-      <CardHeader className="pb-2 bg-transparent">
-        <div>
-          <CardTitle className="flex items-center gap-2 text-gradient-primary text-lg font-semibold tracking-wide">
-            <img src="https://world-id-assets.com/app_51fb239afc33541eb0a5cf76aaeb67bb/59c4ed38-f2ec-4362-af2c-17a196365fca.png" className="h-6 w-6" alt="Talent Protocol" />
-            Skills
+      <CardHeader className="pb-4 bg-transparent border-b border-gray-100">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-3 text-gray-800 text-lg font-semibold">
+            <img 
+              src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1748210400000&signature=NS2Qh4ukZwhE19Jb9ufCbfIDtsXaB26f5pDNt9mzVho&downloadName=logomark_dark.jpg" 
+              className="h-6 w-6" 
+              alt="Builder Score" 
+            />
+            Skills & Builder Score
           </CardTitle>
+          {scoreLoading ? (
+            <Skeleton className="h-8 w-16" />
+          ) : (
+            <div className="text-right">
+              <div className="text-sm text-gray-600">Builder Score</div>
+              <div className="text-lg font-bold text-gray-900">{score || 'N/A'}</div>
+            </div>
+          )}
         </div>
-        {/* Score moved to banner above; not duplicated here */}
       </CardHeader>
       <CardContent>
         <SkillsList skills={allSkills} isLoading={isLoading} />
