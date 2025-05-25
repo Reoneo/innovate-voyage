@@ -131,7 +131,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* KYC with Builder Score */}
+              {/* KYC section (without skills) */}
               <SkillsCard 
                 walletAddress={passport.owner_address}
                 skills={passport.skills || []}

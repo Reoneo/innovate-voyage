@@ -1,9 +1,6 @@
 
 import React from 'react';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import SkillsList from './skills/SkillsList';
-import SkillsLegend from './skills/SkillsLegend';
-import { useTalentProtocolSkills } from './skills/useTalentProtocolSkills';
 import { useScoresData } from '@/hooks/useScoresData';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -14,33 +11,11 @@ interface SkillsCardProps {
 }
 
 const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, passportId }) => {
-  const { talentSkills, credentialSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress, passportId);
   const { score, loading: scoreLoading } = useScoresData(walletAddress || '');
 
   if (!walletAddress) {
     return null;
   }
-
-  // Filter out credential skills and TalentProtocol mock skills
-  const filteredSkills = skills.filter(skill => 
-    !skill.proof?.includes('talentprotocol.com') &&
-    !skill.proof?.includes('credentials')
-  );
-
-  // Create skill objects from TalentProtocol API
-  const talentProtocolSkills = talentSkills.map(skillName => ({
-    name: skillName,
-    proof: 'https://talentprotocol.com'
-  }));
-  
-  // Create skill objects from credential skills
-  const credentialProtocolSkills = credentialSkills.map(skillName => ({
-    name: skillName,
-    proof: 'credentials.talentprotocol.com'
-  }));
-
-  // Combine all skills
-  const allSkills = [...filteredSkills, ...talentProtocolSkills, ...credentialProtocolSkills];
 
   // Mock KYC data - in real implementation this would come from API
   const kycVerifications = [
@@ -102,13 +77,6 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, passport
               <span className="text-sm font-bold text-green-600">{kyc.status}</span>
             </div>
           ))}
-        </div>
-
-        {/* Skills */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Skills</h4>
-          <SkillsList skills={allSkills} isLoading={isLoading} />
-          {allSkills && allSkills.length > 0 && <SkillsLegend />}
         </div>
       </CardContent>
     </section>
