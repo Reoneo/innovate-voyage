@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -6,6 +5,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
+import BlockchainExperience from './components/blockchain/BlockchainExperience';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -125,14 +125,15 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
+              {/* Blockchain Experience section */}
+              <BlockchainExperience walletAddress={passport.owner_address} />
+              
               {/* GitHub contribution graph */}
               {showGitHubSection && (
                 <div className="mt-4">
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}
-              
-              {/* Tally Insights Section removed as requested */}
             </div>
           </div>
         </HeaderContainer>
