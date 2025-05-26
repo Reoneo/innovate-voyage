@@ -4,10 +4,11 @@ import ProfileAvatar from './ProfileAvatar';
 import ProfileContact from './ProfileContact';
 import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
-import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
 import FollowButton from './identity/FollowButton';
 import PoapSection from './poap/PoapSection';
+import { getEnsLinks } from '@/utils/ens/ensLinks';
+import { Badge } from '@/components/ui/badge';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -29,6 +30,8 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   displayIdentity
 }) => {
   const [isOwner, setIsOwner] = useState(false);
+  const [ensBio, setEnsBio] = useState<string>('');
+  const [ensKeywords, setEnsKeywords] = useState<string[]>([]);
   
   useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -37,6 +40,24 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       setIsOwner(true);
     }
   }, [ownerAddress]);
+
+  useEffect(() => {
+    // Fetch ENS bio and keywords
+    if (displayIdentity && (displayIdentity.includes('.eth') || displayIdentity.includes('.box'))) {
+      getEnsLinks(displayIdentity)
+        .then(links => {
+          if (links?.description && typeof links.description === 'string') {
+            setEnsBio(links.description);
+          }
+          if (links?.keywords) {
+            setEnsKeywords(Array.isArray(links.keywords) ? links.keywords : [links.keywords]);
+          }
+        })
+        .catch(error => {
+          console.error(`Error fetching ENS data for ${displayIdentity}:`, error);
+        });
+    }
+  }, [displayIdentity]);
   
   // Format socials object to ensure all keys are lowercase for consistency
   const normalizedSocials: Record<string, string> = {};
@@ -74,7 +95,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         isOwner={isOwner}
       />
       
-      {/* Follow Button - Moved above Bio section */}
+      {/* Follow Button */}
       {!isOwner && ownerAddress && (
         <div className="mb-3">
           <FollowButton targetAddress={ownerAddress} />
@@ -82,16 +103,26 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       )}
       
       {/* ENS Bio */}
-      {bio && (
+      {ensBio && (
         <div className="mb-3">
-          <p className="text-sm text-muted-foreground">{bio}</p>
+          <p className="text-sm text-muted-foreground">{ensBio}</p>
+          {/* ENS Keywords */}
+          {ensKeywords.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2 justify-center">
+              {ensKeywords.map((keyword, index) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {keyword}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
       )}
       
       {/* Social Links */}
       <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
       
-      {/* POAP Section - Added after social links */}
+      {/* POAP Section */}
       <div className="mt-4 w-full">
         <PoapSection walletAddress={ownerAddress} />
       </div>

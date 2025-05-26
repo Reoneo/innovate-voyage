@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -7,8 +8,8 @@ import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import BlockchainExperience from './components/blockchain/BlockchainExperience';
 import SkillsCard from './components/SkillsCard';
-import PoapSection from './components/poap/PoapSection';
 import { useIsMobile } from '@/hooks/use-mobile';
+
 interface ProfileContentProps {
   loading: boolean;
   loadingTimeout: boolean;
@@ -16,6 +17,7 @@ interface ProfileContentProps {
   profileRef: React.RefObject<HTMLDivElement>;
   ensNameOrAddress?: string;
 }
+
 const ProfileContent: React.FC<ProfileContentProps> = ({
   loading,
   loadingTimeout,
@@ -24,53 +26,48 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   ensNameOrAddress
 }) => {
   const isMobile = useIsMobile();
+
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
   }
 
   // Extract GitHub username from social links with improved handling
   const extractGitHubUsername = () => {
-    // First check if we already have github username directly in socials
     if (passport?.socials?.github) {
       const directGithub = passport.socials.github;
       console.log('GitHub from passport.socials.github:', directGithub);
 
-      // If it's already a clean username (no URL), return it
       if (typeof directGithub === 'string' && !directGithub.includes('/') && !directGithub.includes('.')) {
         if (directGithub.startsWith('@')) {
-          return directGithub.substring(1); // Remove @ prefix
+          return directGithub.substring(1);
         }
         return directGithub;
       }
     }
 
-    // If nothing found or we need to extract from URL
     if (!passport?.socials?.github) {
       console.log('No GitHub social link found in passport');
       return null;
     }
+    
     const githubUrl = passport.socials.github;
     console.log('Extracting GitHub username from:', githubUrl);
+    
     try {
-      // Handle different GitHub URL formats
       if (typeof githubUrl === 'string') {
-        // Handle github.com URL format
         if (githubUrl.includes('github.com/')) {
           const parts = githubUrl.split('github.com/');
-          // Get everything after github.com/ and before any query params or hashes
           const username = parts[1]?.split(/[/?#]/)[0];
           console.log('Extracted GitHub username from URL:', username);
           return username?.trim() || null;
         }
 
-        // Handle direct username format with @ prefix
         if (githubUrl.startsWith('@')) {
-          const username = githubUrl.substring(1).trim(); // Remove @ prefix
+          const username = githubUrl.substring(1).trim();
           console.log('Extracted GitHub username from @-prefix:', username);
           return username || null;
         }
 
-        // Handle pure username format (no URL, no @)
         if (githubUrl.trim() !== '') {
           const username = githubUrl.trim();
           console.log('Using GitHub value directly as username:', username);
@@ -84,55 +81,67 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     return null;
   };
 
-  // Get GitHub username from ENS records
   const githubUsername = extractGitHubUsername();
+  const showGitHubSection = !!githubUsername;
 
-  // Debug logging
   console.log('GitHub data from passport:', {
     username: githubUsername,
     originalValue: passport?.socials?.github,
     passport: passport ? 'exists' : 'null'
   });
 
-  // Only show GitHub section if there's a GitHub username
-  const showGitHubSection = !!githubUsername;
-  return <div ref={profileRef} id="resume-pdf" className="w-full pt-16 min-h-screen bg-transparent">
-      {loading && !loadingTimeout ? <ProfileSkeleton /> : passport ? <HeaderContainer>
+  return (
+    <div ref={profileRef} id="resume-pdf" className="w-full pt-16 min-h-screen bg-transparent">
+      {loading && !loadingTimeout ? (
+        <ProfileSkeleton />
+      ) : passport ? (
+        <HeaderContainer>
           <div className="w-full grid grid-cols-1 md:grid-cols-10 gap-6 h-full">
             <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
-              <AvatarSection avatarUrl={passport.avatar_url} name={passport.name} ownerAddress={passport.owner_address} socials={{
-            ...passport.socials,
-            linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
-          }} bio={passport.bio} displayIdentity={ensNameOrAddress} additionalEnsDomains={passport.additionalEnsDomains} />
-              
-              {/* POAP Section - only in first column */}
-              <PoapSection walletAddress={passport.owner_address} />
+              <AvatarSection 
+                avatarUrl={passport.avatar_url} 
+                name={passport.name} 
+                ownerAddress={passport.owner_address} 
+                socials={{
+                  ...passport.socials,
+                  linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
+                }} 
+                bio={passport.bio} 
+                displayIdentity={ensNameOrAddress} 
+                additionalEnsDomains={passport.additionalEnsDomains} 
+              />
             </div>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* KYC section (without skills) */}
-              <SkillsCard walletAddress={passport.owner_address} skills={passport.skills || []} passportId={passport.owner_address} />
+              <SkillsCard 
+                walletAddress={passport.owner_address} 
+                skills={passport.skills || []} 
+                passportId={passport.owner_address} 
+              />
               
-              {/* Blockchain Experience section */}
               <BlockchainExperience walletAddress={passport.owner_address} />
               
-              {/* GitHub contribution graph */}
-              {showGitHubSection}
+              {showGitHubSection && (
+                <GitHubContributionGraph githubUsername={githubUsername} />
+              )}
             </div>
           </div>
-        </HeaderContainer> : <ProfileNotFound />}
-    </div>;
+        </HeaderContainer>
+      ) : (
+        <ProfileNotFound />
+      )}
+    </div>
+  );
 };
+
 export default ProfileContent;
+
 const ProfileTimeoutError: React.FC<{
   ensNameOrAddress?: string;
-}> = ({
-  ensNameOrAddress
-}) => <div className="min-h-screen bg-gray-50 py-4 md:py-8">
-    <div className="container mx-auto px-4" style={{
-    maxWidth: '21cm'
-  }}>
+}> = ({ ensNameOrAddress }) => (
+  <div className="min-h-screen bg-gray-50 py-4 md:py-8">
+    <div className="container mx-auto px-4" style={{ maxWidth: '21cm' }}>
       <HeaderContainer>
         <div className="flex flex-col items-center justify-center h-full text-center">
           <h2 className="text-2xl font-bold mb-2">Error Loading Profile</h2>
@@ -142,4 +151,5 @@ const ProfileTimeoutError: React.FC<{
         </div>
       </HeaderContainer>
     </div>
-  </div>;
+  </div>
+);
