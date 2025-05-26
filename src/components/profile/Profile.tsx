@@ -1,4 +1,3 @@
-
 import React from 'react';
 import useSWR from 'swr';
 import { Skeleton } from '@/components/ui/skeleton';
