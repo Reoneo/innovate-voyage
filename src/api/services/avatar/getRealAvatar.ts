@@ -15,25 +15,42 @@ import { generateDeterministicAvatar } from './utils/fallbackAvatarHandler';
 export async function getRealAvatar(identity: string): Promise<string | null> {
   if (!identity) return null;
   
-  // Check cache first for instant loading
+  // Check cache first
   if (avatarCache[identity]) {
-    console.log(`Avatar cache hit for ${identity}`);
     return avatarCache[identity];
   }
   
+  // If not in cache, fetch from API
   try {
     console.log(`Fetching avatar for ${identity}`);
     
-    // For ENS names (.eth), prioritize the fast ENS metadata service
-    if (identity.endsWith('.eth')) {
-      const ensAvatar = await handleEnsAvatar(identity);
-      if (ensAvatar) return ensAvatar;
+    // First try the gskril/ens-api (most reliable source)
+    try {
+      const ensApiResponse = await fetch(`https://ens-api.vercel.app/api/${identity}`);
+      if (ensApiResponse.ok) {
+        const ensApiData = await ensApiResponse.json();
+        if (ensApiData && ensApiData.avatar) {
+          console.log(`Found avatar via gskril/ens-api for ${identity}: ${ensApiData.avatar}`);
+          avatarCache[identity] = ensApiData.avatar;
+          return ensApiData.avatar;
+        }
+      }
+    } catch (ensApiError) {
+      console.error(`Error fetching from gskril/ens-api for ${identity}:`, ensApiError);
     }
     
-    // For .box domains, use specific approach
-    if (identity.endsWith('.box')) {
-      const boxAvatar = await handleDotBoxAvatar(identity);
-      if (boxAvatar) return boxAvatar;
+    // Try metadata.ens.domains (official ENS service)
+    try {
+      const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
+      const metadataResponse = await fetch(metadataUrl, { method: 'HEAD' });
+      
+      if (metadataResponse.ok) {
+        console.log(`Found avatar via ENS metadata service for ${identity}`);
+        avatarCache[identity] = metadataUrl;
+        return metadataUrl;
+      }
+    } catch (metadataError) {
+      console.error(`Error fetching from ENS metadata for ${identity}:`, metadataError);
     }
     
     // Handle EIP155 formatted avatar URIs
@@ -42,26 +59,16 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
       if (eip155Avatar) return eip155Avatar;
     }
     
-    // Try the fast ENS metadata service for any identity that might be an ENS name
-    if (identity.includes('.')) {
-      try {
-        const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
-        const metadataResponse = await fetch(metadataUrl, { 
-          method: 'HEAD',
-          cache: 'force-cache',
-          headers: {
-            'Cache-Control': 'max-age=300'
-          }
-        });
-        
-        if (metadataResponse.ok) {
-          console.log(`Found avatar via ENS metadata service for ${identity}`);
-          avatarCache[identity] = metadataUrl;
-          return metadataUrl;
-        }
-      } catch (metadataError) {
-        console.error(`Error fetching from ENS metadata for ${identity}:`, metadataError);
-      }
+    // If it's an ENS name, try multiple sources
+    if (identity.endsWith('.eth')) {
+      const ensAvatar = await handleEnsAvatar(identity);
+      if (ensAvatar) return ensAvatar;
+    }
+    
+    // For .box domains, try specific approach
+    if (identity.endsWith('.box')) {
+      const boxAvatar = await handleDotBoxAvatar(identity);
+      if (boxAvatar) return boxAvatar;
     }
     
     // Try Web3Bio API as a fallback - works for all domain types

@@ -2,10 +2,8 @@
 import React, { useState } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { type Poap } from '@/api/services/poapService';
-import PoapCard from './PoapCard';
+import PoapCarousel from './PoapCarousel';
 import PoapDetailContent from './PoapDetailContent';
 import { usePoapData } from './usePoapData';
 
@@ -17,6 +15,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
   walletAddress
 }) => {
   const [detailOpen, setDetailOpen] = useState(false);
+  
   const {
     poaps,
     isLoading,
@@ -36,85 +35,55 @@ const PoapSection: React.FC<PoapSectionProps> = ({
     loadPoapOwners(poap.event.id);
   };
 
-  // Navigation handlers
-  const handlePrevious = () => {
-    setCurrentPoapIndex(prev => prev > 0 ? prev - 1 : poaps.length - 1);
-  };
-
-  const handleNext = () => {
-    setCurrentPoapIndex(prev => prev < poaps.length - 1 ? prev + 1 : 0);
+  // Handler for carousel changes
+  const handleCarouselChange = (index: number) => {
+    setCurrentPoapIndex(index);
   };
 
   if (!walletAddress) return null;
   if (poaps.length === 0 && !isLoading) return null;
 
   return (
-    <div className="w-full">
-      <div className="text-center mb-4">
-        <h3 className="text-sm font-semibold text-gray-800 mb-1">Proof of Attendance</h3>
-        {poaps.length > 0 && (
-          <p className="text-xs text-muted-foreground">
-            {currentPoapIndex + 1} of {poaps.length}
-          </p>
-        )}
+    <section className="w-full flex flex-col items-center">
+      {/* POAP count display */}
+      {poaps.length > 0 && !isLoading && (
+        <div className="text-sm text-center mb-2 text-muted-foreground">
+          <span className="font-medium text-primary">{poaps.length}</span> POAPs collected
+        </div>
+      )}
+
+      <div className="relative w-full aspect-square flex items-center justify-center">
+        {isLoading ? (
+          <Skeleton className="w-52 h-52 rounded-full" />
+        ) : poaps.length > 0 ? (
+          <div className="relative flex items-center justify-center w-full">
+            {/* POAP Badge with Carousel */}
+            <PoapCarousel 
+              poaps={poaps} 
+              onPoapClick={handleOpenDetail}
+              onCarouselChange={handleCarouselChange} 
+            />
+          </div>
+        ) : null}
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center">
-          <Skeleton className="h-32 w-32 rounded-full" />
-        </div>
-      ) : poaps.length > 0 ? (
-        <div className="flex flex-col items-center space-y-3">
-          {/* Current POAP */}
-          <div className="relative">
-            <div 
-              onClick={() => handleOpenDetail(poaps[currentPoapIndex])}
-              className="cursor-pointer hover:opacity-80 transition-opacity"
-            >
-              <PoapCard poap={poaps[currentPoapIndex]} />
-            </div>
-          </div>
-
-          {/* Navigation */}
-          {poaps.length > 1 && (
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePrevious}
-                className="h-8 w-8 p-0"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNext}
-                className="h-8 w-8 p-0"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-        </div>
-      ) : null}
-
-      {/* POAP Detail Dialog */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>POAP Details</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-md">
           {selectedPoap && (
-            <PoapDetailContent 
-              poap={selectedPoap}
-              owners={poapOwners}
-              loadingOwners={loadingOwners}
-            />
+            <>
+              <DialogHeader>
+                <DialogTitle>{selectedPoap.event.name}</DialogTitle>
+              </DialogHeader>
+              <PoapDetailContent 
+                poap={selectedPoap} 
+                poapOwners={poapOwners}
+                loadingOwners={loadingOwners} 
+              />
+            </>
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </section>
   );
 };
 

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { GitHubContributionProps } from './types';
 import GitHubLoadingState from './GitHubLoadingState';
@@ -5,6 +6,7 @@ import GitHubContributionLegend from './components/GitHubContributionLegend';
 import TokenInvalidAlert from './components/TokenInvalidAlert';
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
 import GitHubCalendar from 'react-github-calendar';
+
 export default function GitHubContributionGraph({
   username
 }: GitHubContributionProps) {
@@ -60,14 +62,15 @@ export default function GitHubContributionGraph({
       setDisplayedTotal(stats.total);
     }
   }, [totalContributions, stats.total]);
+  
   return <div className="w-full overflow-hidden">
       <GitHubLoadingState loading={loading} error={error} />
       
       {tokenInvalid && <TokenInvalidAlert />}
       
-      {!loading && !error && username && <div className="github-calendar-wrapper rounded-md px-[3px] py-[2px] my-[3px] mx-0 bg-black">
+      {!loading && !error && username && <div className="github-calendar-wrapper py-[3px] my-[2px] rounded-sm mx-px px-[8px] bg-slate-400">
           {/* Modified header with Github Activity text */}
-          <div className="rounded-md p-1 mb-2 flex items-center justify-center py-[3px] px-[2px] mx-0 my-[2px] bg-slate-950">
+          <div className="rounded-md p-1 mb-2 flex items-center justify-center py-[3px] px-[2px] mx-0 my-[2px] bg-slate-400">
             <div className="text-sm font-semibold text-white">
               <span className="text-base font-bold">GitHub Activity: </span>
               <span className="text-base font-bold text-green-400" id="contribution-count-banner">

@@ -1,69 +1,55 @@
 
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
-import { type CarouselApi } from '@/components/ui/carousel';
-import PoapCard from './PoapCard';
+import React from 'react';
+import { Poap } from '@/api/services/poapService';
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 
 interface PoapCarouselProps {
-  poaps: any[];
-  onPoapClick: (poap: any) => void;
+  poaps: Poap[];
+  onPoapClick: (poap: Poap) => void;
   onCarouselChange?: (index: number) => void;
 }
 
-const PoapCarousel: React.FC<PoapCarouselProps> = ({ poaps, onPoapClick, onCarouselChange }) => {
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!api) {
-      return;
-    }
-
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
-
-    api.on('select', () => {
-      const newIndex = api.selectedScrollSnap();
-      setCurrent(newIndex + 1);
-      onCarouselChange?.(newIndex);
-    });
-  }, [api, onCarouselChange]);
-
+const PoapCarousel: React.FC<PoapCarouselProps> = ({
+  poaps,
+  onPoapClick,
+  onCarouselChange
+}) => {
   return (
-    <div className="w-full space-y-4">
-      <Carousel setApi={setApi} className="w-full">
-        <CarouselContent>
-          {poaps.map((poap, index) => (
-            <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-              <div className="p-1">
-                <Card className="cursor-pointer hover:shadow-md transition-shadow rounded-full border-2">
-                  <CardContent className="flex aspect-square items-center justify-center p-0 rounded-full overflow-hidden">
-                    <div onClick={() => onPoapClick(poap)}>
-                      <PoapCard poap={poap} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
-      </Carousel>
-      {count > 0 && (
-        <div className="py-2 text-center text-sm text-muted-foreground">
-          POAP {current} of {count}
-        </div>
-      )}
-    </div>
+    <Carousel 
+      opts={{
+        align: 'center',
+        loop: poaps.length > 3
+      }} 
+      className="w-full max-w-xs" 
+      onSelect={(api) => {
+        if (api && onCarouselChange) {
+          const currentIndex = api.selectedScrollSnap();
+          onCarouselChange(currentIndex);
+        }
+      }}
+    >
+      <CarouselContent>
+        {poaps.map((poap) => (
+          <CarouselItem key={poap.tokenId} className="flex items-center justify-center">
+            <div 
+              className="relative cursor-pointer group" 
+              onClick={() => onPoapClick(poap)}
+            >
+              <img 
+                src={poap.event.image_url} 
+                alt={poap.event.name} 
+                className="w-44 h-44 rounded-full cursor-pointer z-10 p-2 object-contain" 
+                style={{
+                  background: 'rgba(0,0,0,0.7)'
+                }} 
+              />
+              <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
+            </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      {/* Removed CarouselPrevious and CarouselNext buttons */}
+    </Carousel>
   );
 };
 
