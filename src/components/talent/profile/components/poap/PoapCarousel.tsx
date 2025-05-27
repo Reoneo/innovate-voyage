@@ -2,6 +2,7 @@
 import React from 'react';
 import { Poap } from '@/api/services/poapService';
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+import type { CarouselApi } from "@/components/ui/carousel";
 
 interface PoapCarouselProps {
   poaps: Poap[];
@@ -14,19 +15,35 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
   onPoapClick,
   onCarouselChange
 }) => {
+  const [api, setApi] = React.useState<CarouselApi>();
+
+  React.useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    const onSelect = () => {
+      if (onCarouselChange) {
+        const currentIndex = api.selectedScrollSnap();
+        onCarouselChange(currentIndex);
+      }
+    };
+
+    api.on("select", onSelect);
+
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api, onCarouselChange]);
+
   return (
     <Carousel 
+      setApi={setApi}
       opts={{
         align: 'center',
         loop: poaps.length > 3
       }} 
-      className="w-full max-w-xs" 
-      onSelect={(api) => {
-        if (api && onCarouselChange) {
-          const currentIndex = api.selectedScrollSnap();
-          onCarouselChange(currentIndex);
-        }
-      }}
+      className="w-full max-w-xs"
     >
       <CarouselContent>
         {poaps.map((poap) => (
