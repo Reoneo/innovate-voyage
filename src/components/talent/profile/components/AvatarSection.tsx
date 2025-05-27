@@ -2,11 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileContact from './ProfileContact';
-import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
 import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
-import FollowButton from './identity/FollowButton';
 import PoapSection from './poap/PoapSection';
 
 interface AvatarSectionProps {
@@ -48,6 +46,11 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
 
   // Use WhatsApp as telephone if available and no direct telephone
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
+
+  // Create display name with proper formatting
+  const displayName = displayIdentity || (name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/)
+    ? `${name}.eth`
+    : name);
   
   return (
     <div className="flex flex-col items-center gap-2 w-full text-center">
@@ -58,11 +61,12 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       />
       
       {/* Name and Address */}
-      <NameSection 
-        name={name} 
-        ownerAddress={ownerAddress}
-        displayIdentity={displayIdentity}
-      />
+      <div className="mt-2 text-center">
+        <h3 className="text-2xl font-semibold">{displayName}</h3>
+        <div className="flex items-center justify-center gap-2 mt-1">
+          <span className="text-sm text-muted-foreground">{ownerAddress}</span>
+        </div>
+      </div>
       
       {/* Additional ENS Domains */}
       <AdditionalEnsDomains domains={additionalEnsDomains} />
@@ -73,13 +77,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         telephone={telephone}
         isOwner={isOwner}
       />
-      
-      {/* Follow Button - Moved above Bio section */}
-      {!isOwner && ownerAddress && (
-        <div className="mb-3">
-          <FollowButton targetAddress={ownerAddress} />
-        </div>
-      )}
       
       {/* ENS Bio */}
       {bio && (
