@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Poap } from '@/api/services/poapService';
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
 
 interface PoapCarouselProps {
   poaps: Poap[];
@@ -14,19 +14,28 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
   onPoapClick,
   onCarouselChange
 }) => {
+  const [api, setApi] = useState<CarouselApi>();
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    onCarouselChange?.(api.selectedScrollSnap());
+
+    api.on("select", () => {
+      onCarouselChange?.(api.selectedScrollSnap());
+    });
+  }, [api, onCarouselChange]);
+
   return (
     <Carousel 
+      setApi={setApi}
       opts={{
         align: 'center',
         loop: poaps.length > 3
       }} 
-      className="w-full max-w-xs" 
-      onSelect={(api) => {
-        if (api && onCarouselChange) {
-          const currentIndex = api.selectedScrollSnap();
-          onCarouselChange(currentIndex);
-        }
-      }}
+      className="w-full max-w-xs"
     >
       <CarouselContent>
         {poaps.map((poap) => (
@@ -48,7 +57,6 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
           </CarouselItem>
         ))}
       </CarouselContent>
-      {/* Removed CarouselPrevious and CarouselNext buttons */}
     </Carousel>
   );
 };

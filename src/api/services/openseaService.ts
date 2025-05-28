@@ -1,4 +1,3 @@
-
 export interface OpenSeaNft {
   id: string;
   name: string;
@@ -119,22 +118,6 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
         chain: nft.chain // Pass the chain information
       });
     });
-
-    // Add 3DNS collection if it doesn't exist yet
-    if (!collections['3dns powered domains']) {
-      collections['3dns powered domains'] = {
-        nfts: [
-          {
-            id: '3dns-sample',
-            name: 'Sample 3DNS Domain',
-            imageUrl: 'https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2',
-            collectionName: '3dns powered domains',
-            description: '3DNS domain for decentralized identity'
-          }
-        ],
-        type: '3dns'
-      };
-    }
 
     const result = Object.entries(collections).map(([name, data]) => ({
       name,
