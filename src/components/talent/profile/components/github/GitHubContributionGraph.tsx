@@ -5,6 +5,7 @@ import GitHubContributionLegend from './components/GitHubContributionLegend';
 import TokenInvalidAlert from './components/TokenInvalidAlert';
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
 import GitHubCalendar from 'react-github-calendar';
+
 export default function GitHubContributionGraph({
   username
 }: GitHubContributionProps) {
@@ -60,12 +61,14 @@ export default function GitHubContributionGraph({
       setDisplayedTotal(stats.total);
     }
   }, [totalContributions, stats.total]);
-  return <div className="w-full overflow-hidden">
+  return (
+    <div className="w-full overflow-hidden">
       <GitHubLoadingState loading={loading} error={error} />
       
       {tokenInvalid && <TokenInvalidAlert />}
       
-      {!loading && !error && username && <div className="github-calendar-wrapper py-[3px] my-[2px] rounded-sm mx-px px-[8px] bg-slate-400">
+      {!loading && !error && username && (
+        <div className="github-calendar-wrapper py-[3px] my-[2px] rounded-sm mx-px px-[8px] bg-slate-400">
           {/* Modified header with Github Activity text */}
           <div className="rounded-md p-1 mb-2 flex items-center justify-center py-[3px] px-[2px] mx-0 my-[2px] bg-slate-400">
             <div className="text-sm font-semibold text-white">
@@ -78,23 +81,40 @@ export default function GitHubContributionGraph({
           
           {/* GitHub Calendar with white text labels as requested */}
           <div className="calendar-container" style={{
-        minHeight: '70px',
-        maxHeight: '90px',
-        overflow: 'auto',
-        padding: '0',
-        margin: '0'
-      }}>
-            {username && <div className="w-full min-w-[650px]">
-                <GitHubCalendar username={username} colorScheme="dark" theme={theme} hideColorLegend={true} hideMonthLabels={false} showWeekdayLabels={true} blockSize={7} blockMargin={1.5} blockRadius={1} fontSize={7} transformData={transformData} labels={{
-            months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
-            totalCount: '{{count}} contributions'
-          }} />
-              </div>}
+            minHeight: '70px',
+            maxHeight: '90px',
+            overflow: 'auto',
+            padding: '0',
+            margin: '0'
+          }}>
+            {username && (
+              <div className="w-full min-w-[650px]">
+                <GitHubCalendar 
+                  username={username} 
+                  colorScheme="dark" 
+                  theme={theme} 
+                  hideColorLegend={true} 
+                  hideMonthLabels={false} 
+                  showWeekdayLabels={true} 
+                  blockSize={7} 
+                  blockMargin={1.5} 
+                  blockRadius={1} 
+                  fontSize={7} 
+                  transformData={transformData} 
+                  labels={{
+                    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
+                    totalCount: '{{count}} contributions'
+                  }} 
+                />
+              </div>
+            )}
           </div>
           
           {/* More compact legend */}
           <GitHubContributionLegend />
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 }
