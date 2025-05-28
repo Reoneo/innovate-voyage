@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -106,9 +107,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className="w-full grid grid-cols-1 md:grid-cols-10 gap-4 h-full">
-            {/* Force two-column layout even on mobile by using grid-cols-2 */}
-            <div className="col-span-1 md:col-span-3 flex flex-col space-y-4" style={{ minWidth: '280px' }}>
+          <div className="w-full grid grid-cols-1 md:grid-cols-10 gap-6 h-full">
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
               <AvatarSection
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
@@ -122,12 +122,12 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
             </div>
-            <div className="col-span-1 md:col-span-7 space-y-4" style={{ minWidth: '400px' }}>
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
-              {/* GitHub contribution graph - made smaller */}
+              {/* GitHub contribution graph */}
               {showGitHubSection && (
-                <div className="mt-2">
+                <div className="mt-4">
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}
