@@ -83,7 +83,7 @@ export default function GitHubContributionGraph({
         overflow: 'auto',
         padding: '0',
         margin: '0'
-      }} className="calendar-container py-[35px] bg-stone-400 rounded-sm px-[35px]">
+      }} className="calendar-container py-[35px] rounded-sm px-[35px] bg-white">
             {username && <div className="w-full min-w-[650px]">
                 <GitHubCalendar username={username} colorScheme="dark" theme={theme} hideColorLegend={true} hideMonthLabels={false} showWeekdayLabels={true} blockSize={8} blockMargin={2} blockRadius={2} fontSize={10} transformData={transformData} labels={{
             months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
