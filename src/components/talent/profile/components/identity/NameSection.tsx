@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import AddressDisplay from './AddressDisplay';
+import { useEfpStats } from '@/hooks/useEfpStats';
 import { useToast } from '@/hooks/use-toast';
 import FollowStats from './FollowStats';
 import FollowersDialog from './FollowersDialog';
@@ -16,14 +17,7 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
     ? `${name}.eth`
     : name);
   
-  // Mock data since EFP is removed
-  const followers = 0;
-  const following = 0;
-  const followersList: any[] = [];
-  const followingList: any[] = [];
-  const loading = false;
-  const isProcessing = false;
-
+  const { followers, following, followersList, followingList, loading, followAddress, isFollowing, isProcessing } = useEfpStats(ownerAddress);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<'followers' | 'following'>('followers');
   const { toast } = useToast();
@@ -57,15 +51,13 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       return;
     }
     
-    // Mock follow implementation
-    toast({
-      title: "Follow feature disabled",
-      description: "Follow functionality has been removed",
-      variant: "default"
-    });
+    try {
+      await followAddress(address);
+    } catch (error) {
+      console.error('Follow error:', error);
+      // Error is already handled in useEfpFollow
+    }
   };
-
-  const isFollowing = (address: string) => false;
 
   return (
     <div className="mt-2 text-center">
