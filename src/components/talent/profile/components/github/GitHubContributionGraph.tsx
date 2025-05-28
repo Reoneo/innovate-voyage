@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { GitHubContributionProps } from './types';
 import GitHubLoadingState from './GitHubLoadingState';
@@ -6,7 +5,6 @@ import GitHubContributionLegend from './components/GitHubContributionLegend';
 import TokenInvalidAlert from './components/TokenInvalidAlert';
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
 import GitHubCalendar from 'react-github-calendar';
-
 export default function GitHubContributionGraph({
   username
 }: GitHubContributionProps) {
@@ -29,17 +27,20 @@ export default function GitHubContributionGraph({
 
   // Custom theme matching the existing dark theme with more compact colors
   const theme = {
-    dark: [
-      '#161b22', // level0: Empty cells
-      '#0e4429', // level1: Light activity
-      '#006d32', // level2: Medium activity
-      '#26a641', // level3: High activity
-      '#39d353'  // level4: Very high activity
+    dark: ['#161b22',
+    // level0: Empty cells
+    '#0e4429',
+    // level1: Light activity
+    '#006d32',
+    // level2: Medium activity
+    '#26a641',
+    // level3: High activity
+    '#39d353' // level4: Very high activity
     ]
   };
 
   // Memoized transform function to prevent infinite re-renders
-  const transformData = useCallback((contributions) => {
+  const transformData = useCallback(contributions => {
     if (Array.isArray(contributions)) {
       const total = contributions.reduce((sum, day) => sum + day.count, 0);
 
@@ -59,15 +60,12 @@ export default function GitHubContributionGraph({
       setDisplayedTotal(stats.total);
     }
   }, [totalContributions, stats.total]);
-
-  return (
-    <div className="w-full overflow-hidden">
+  return <div className="w-full overflow-hidden">
       <GitHubLoadingState loading={loading} error={error} />
       
       {tokenInvalid && <TokenInvalidAlert />}
       
-      {!loading && !error && username && (
-        <div className="github-calendar-wrapper p-4 rounded-lg bg-gray-900/50 border border-gray-800/50">
+      {!loading && !error && username && <div className="github-calendar-wrapper p-4 rounded-lg bg-gray-900/50 border border-gray-800/50">
           {/* Clean header with GitHub Activity text */}
           <div className="mb-4 text-center">
             <div className="text-lg font-semibold text-white">
@@ -80,40 +78,23 @@ export default function GitHubContributionGraph({
           </div>
           
           {/* GitHub Calendar */}
-          <div className="calendar-container" style={{
-            minHeight: '160px',
-            overflow: 'auto',
-            padding: '0',
-            margin: '0'
-          }}>
-            {username && (
-              <div className="w-full min-w-[650px]">
-                <GitHubCalendar 
-                  username={username}
-                  colorScheme="dark"
-                  theme={theme}
-                  hideColorLegend={true}
-                  hideMonthLabels={false}
-                  showWeekdayLabels={true}
-                  blockSize={8}
-                  blockMargin={2}
-                  blockRadius={2}
-                  fontSize={10}
-                  transformData={transformData}
-                  labels={{
-                    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
-                    totalCount: '{{count}} contributions'
-                  }}
-                />
-              </div>
-            )}
+          <div style={{
+        minHeight: '160px',
+        overflow: 'auto',
+        padding: '0',
+        margin: '0'
+      }} className="calendar-container bg-white">
+            {username && <div className="w-full min-w-[650px]">
+                <GitHubCalendar username={username} colorScheme="dark" theme={theme} hideColorLegend={true} hideMonthLabels={false} showWeekdayLabels={true} blockSize={8} blockMargin={2} blockRadius={2} fontSize={10} transformData={transformData} labels={{
+            months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
+            totalCount: '{{count}} contributions'
+          }} />
+              </div>}
           </div>
           
           {/* Legend */}
           <GitHubContributionLegend />
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 }
