@@ -61,10 +61,10 @@ export function useProfilePage() {
       setLoadingTimeout(true);
     }, 5000);
 
-    // Always optimize for desktop on profile page
+    // Force desktop viewport on all devices for profile pages
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
-      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
+      metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0, user-scalable=yes');
     }
 
     // Clean URL - remove timestamp query parameter and fix duplicate recruitment.box
