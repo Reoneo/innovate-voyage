@@ -67,27 +67,27 @@ export default function GitHubContributionGraph({
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="github-calendar-wrapper p-4 rounded-lg bg-gray-900/50 border border-gray-800/50">
-          {/* Clean header with GitHub Activity text */}
-          <div className="mb-4 text-center">
-            <div className="text-lg font-semibold text-white">
+        <div className="github-calendar-wrapper p-2 rounded-lg bg-gray-900/50 border border-gray-800/50">
+          {/* Compact header with GitHub Activity text */}
+          <div className="mb-2 text-center">
+            <div className="text-sm font-semibold text-white">
               <span className="text-gray-300">GitHub Activity: </span>
               <span className="text-green-400" id="contribution-count-banner">
                 {displayedTotal || stats.total || 0}
               </span>
-              <span className="text-gray-300"> contributions in the last year</span>
+              <span className="text-gray-300"> contributions</span>
             </div>
           </div>
           
-          {/* GitHub Calendar */}
+          {/* GitHub Calendar - made more compact */}
           <div className="calendar-container" style={{
-            minHeight: '160px',
+            minHeight: '120px',
             overflow: 'auto',
             padding: '0',
             margin: '0'
           }}>
             {username && (
-              <div className="w-full min-w-[650px]">
+              <div className="w-full min-w-[500px]">
                 <GitHubCalendar 
                   username={username}
                   colorScheme="dark"
@@ -95,10 +95,10 @@ export default function GitHubContributionGraph({
                   hideColorLegend={true}
                   hideMonthLabels={false}
                   showWeekdayLabels={true}
-                  blockSize={8}
-                  blockMargin={2}
-                  blockRadius={2}
-                  fontSize={10}
+                  blockSize={6}
+                  blockMargin={1}
+                  blockRadius={1}
+                  fontSize={8}
                   transformData={transformData}
                   labels={{
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -110,8 +110,10 @@ export default function GitHubContributionGraph({
             )}
           </div>
           
-          {/* Legend */}
-          <GitHubContributionLegend />
+          {/* Legend - made more compact */}
+          <div className="mt-1">
+            <GitHubContributionLegend />
+          </div>
         </div>
       )}
     </div>
