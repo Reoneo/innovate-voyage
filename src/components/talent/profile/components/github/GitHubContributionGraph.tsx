@@ -65,7 +65,7 @@ export default function GitHubContributionGraph({
       
       {tokenInvalid && <TokenInvalidAlert />}
       
-      {!loading && !error && username && <div className="github-calendar-wrapper p-4 rounded-lg border border-gray-800/50 bg-inherit px-[19px]">
+      {!loading && !error && username && <div className="github-calendar-wrapper p-4 rounded-lg border border-gray-800/50 px-[19px] bg-slate-50">
           {/* Clean header with GitHub Activity text */}
           <div className="mb-4 text-center">
             <div className="text-lg font-semibold text-white">
