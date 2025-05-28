@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { GitHubContributionProps } from './types';
 import GitHubLoadingState from './GitHubLoadingState';
@@ -6,7 +5,6 @@ import GitHubContributionLegend from './components/GitHubContributionLegend';
 import TokenInvalidAlert from './components/TokenInvalidAlert';
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
 import GitHubCalendar from 'react-github-calendar';
-
 export default function GitHubContributionGraph({
   username
 }: GitHubContributionProps) {
@@ -62,7 +60,6 @@ export default function GitHubContributionGraph({
       setDisplayedTotal(stats.total);
     }
   }, [totalContributions, stats.total]);
-  
   return <div className="w-full overflow-hidden">
       <GitHubLoadingState loading={loading} error={error} />
       
