@@ -8,7 +8,6 @@ interface NftCollectionsContentProps {
   collections: any[];
   loading: boolean;
   selectedType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all';
-  setSelectedType: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all') => void;
   onNftClick: (nft: OpenSeaNft) => void;
 }
 
@@ -62,7 +61,8 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
         {filteredCollections.map((collection, index) => (
           <NftCollectionCard
             key={`${collection.name}-${index}`}
-            collection={collection}
+            collectionName={collection.name}
+            nfts={collection.nfts}
             onNftClick={onNftClick}
           />
         ))}
