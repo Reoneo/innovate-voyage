@@ -121,6 +121,7 @@ export async function fetchPoapEventOwners(eventId: number): Promise<any[]> {
     await enforceRateLimit(300);
     
     const url = `${POAP_API_BASE_URL}/event/${eventId}/poaps`;
+    console.log(`Fetching POAP owners from: ${url}`);
     
     const response = await fetch(url, {
       method: 'GET',
@@ -130,13 +131,18 @@ export async function fetchPoapEventOwners(eventId: number): Promise<any[]> {
       }
     });
     
+    console.log(`POAP owners API response status: ${response.status}`);
+    
     if (!response.ok) {
-      console.error(`POAP owners API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`POAP owners API error: ${response.status} - ${errorText}`);
       return [];
     }
     
     const data = await response.json();
-    console.log(`Fetched ${data.length} owners for event ID ${eventId}`);
+    console.log(`POAP owners API raw response:`, data);
+    console.log(`Fetched ${Array.isArray(data) ? data.length : 'unknown'} owners for event ID ${eventId}`);
+    
     return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error(`Error fetching POAP event owners for event ${eventId}:`, error);

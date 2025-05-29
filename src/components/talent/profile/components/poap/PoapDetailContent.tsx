@@ -65,7 +65,9 @@ const PoapDetailContent: React.FC<PoapDetailContentProps> = ({
         </div>
 
         <div className="mt-4">
-          <h3 className="text-sm font-semibold mb-2">POAP Owners ({poapOwners.length})</h3>
+          <h3 className="text-sm font-semibold mb-2">
+            Other POAP Owners {poapOwners.length > 0 && `(${poapOwners.length})`}
+          </h3>
           
           {loadingOwners ? (
             <div className="flex flex-col space-y-2">
@@ -83,7 +85,12 @@ const PoapDetailContent: React.FC<PoapDetailContentProps> = ({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No other owners found</p>
+            <div className="text-center py-4">
+              <p className="text-sm text-muted-foreground mb-2">No other owners data available</p>
+              <p className="text-xs text-muted-foreground">
+                This may be due to API limitations or the event being private
+              </p>
+            </div>
           )}
         </div>
       </div>
