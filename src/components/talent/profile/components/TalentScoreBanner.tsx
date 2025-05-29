@@ -30,31 +30,36 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   if (!walletAddress) return null;
 
-  // Only show scores if data is available
   const showTalentScore = score !== null && score !== undefined;
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {showTalentScore && (
-          <TalentScoreBadge 
-            score={score} 
-            onClick={() => handleBadgeClick('talent')}
-            isLoading={loading} 
-            talentId={walletAddress} 
-          />
+          <div className="transform hover:scale-105 transition-all duration-200">
+            <TalentScoreBadge 
+              score={score} 
+              onClick={() => handleBadgeClick('talent')}
+              isLoading={loading} 
+              talentId={walletAddress} 
+            />
+          </div>
         )}
-        <TransactionsBadge 
-          txCount={txCount}
-          walletAddress={walletAddress}
-          onClick={handleNftButtonClick}
-          isLoading={loading} 
-        />
-        <SecurityScoreBadge 
-          webacyData={securityData} 
-          onClick={() => handleBadgeClick('webacy')}
-          isLoading={webacyLoading} 
-        />
+        <div className="transform hover:scale-105 transition-all duration-200">
+          <TransactionsBadge 
+            txCount={txCount}
+            walletAddress={walletAddress}
+            onClick={handleNftButtonClick}
+            isLoading={loading} 
+          />
+        </div>
+        <div className="transform hover:scale-105 transition-all duration-200">
+          <SecurityScoreBadge 
+            webacyData={securityData} 
+            onClick={() => handleBadgeClick('webacy')}
+            isLoading={webacyLoading} 
+          />
+        </div>
       </div>
 
       <NftCollectionsSection 

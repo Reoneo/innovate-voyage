@@ -16,25 +16,24 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
   talentId
 }) => {
   if (isLoading) {
-    return <Skeleton className="h-28 w-full" />;
+    return <Skeleton className="h-32 w-full rounded-2xl" />;
   }
 
   const handleClick = () => {
     if (onClick) {
       onClick();
     }
-    // Removed the external link functionality
   };
 
   return (
-    <div onClick={handleClick} className="cursor-pointer transition-all hover:opacity-80">
-      <div className="flex flex-col items-center gap-2 p-4 bg-black h-full px-0 rounded-full py-[21px]">
+    <div onClick={handleClick} className="cursor-pointer">
+      <div className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-gray-900 to-black h-full rounded-2xl shadow-lg border border-gray-800">
         <div className="flex items-center justify-center w-full">
           <div className="text-white text-lg font-semibold">Builder Score</div>
         </div>
-        <div className="text-center w-full mt-2">
-          <div className="text-3xl font-bold text-white">{score || 'N/A'}</div>
-          <p className="text-sm text-white/80">
+        <div className="text-center w-full">
+          <div className="text-4xl font-bold text-white mb-1">{score || 'N/A'}</div>
+          <p className="text-sm text-gray-300">
             {score ? getBuilderTitle(score) : 'Unknown Level'}
           </p>
         </div>

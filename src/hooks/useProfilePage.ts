@@ -14,81 +14,56 @@ export function useProfilePage() {
   const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState<boolean>(false);
   
-  // Determine which parameter to use (either regular path or recruitment.box path)
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
-    // Attempt to clear any browser cache
-    try {
-      // Force page to be freshly loaded 
-      if ('caches' in window) {
-        const cacheNames = caches.keys();
-        cacheNames.then(names => {
-          for (const name of names) {
-            if (name.includes('fetch-cache')) {
-              caches.delete(name);
-            }
-          }
-        });
-      }
-    } catch (err) {
-      console.error('Error clearing caches:', err);
-    }
+    // Remove cache clearing to improve performance
     
     if (targetIdentifier) {
-      // Convert the identifier to lowercase for case-insensitive search
       const normalizedIdentifier = targetIdentifier.toLowerCase();
       
-      // Direct address check - immediately use as address if valid
       if (isValidEthereumAddress(normalizedIdentifier)) {
         console.log(`Valid Ethereum address detected: ${normalizedIdentifier}`);
         setAddress(normalizedIdentifier);
-        setEns(undefined); // Clear ENS when looking up by address
+        setEns(undefined);
       } else {
-        // Not a valid address, treat as ENS or domain
         const ensValue = normalizedIdentifier.includes('.') ? normalizedIdentifier : `${normalizedIdentifier}.eth`;
         console.log(`Treating as ENS: ${ensValue}`);
         setEns(ensValue);
-        setAddress(undefined); // Clear address when looking up by ENS
+        setAddress(undefined);
       }
     }
 
     const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
-    // Set a timeout for loading
+    // Increased timeout for better performance
     const timeoutId = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 5000);
+    }, 8000);
 
-    // Force desktop viewport on all devices for profile pages
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (metaViewport) {
       metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0, user-scalable=yes');
     }
 
-    // Clean URL - remove timestamp query parameter and fix duplicate recruitment.box
+    // Clean URL without error handling
     if (window.history) {
       let cleanUrl = window.location.pathname;
       
-      // Fix duplicate recruitment.box in URL
       if (cleanUrl.includes('recruitment.box/recruitment.box/')) {
         cleanUrl = cleanUrl.replace('recruitment.box/recruitment.box/', 'recruitment.box/');
       }
       
-      // Remove timestamp parameter
       if (window.location.href.includes('?t=')) {
         window.history.replaceState({}, document.title, cleanUrl);
-      }
-      // Fix duplicate recruitment.box without a timestamp parameter
-      else if (cleanUrl !== window.location.pathname) {
+      } else if (cleanUrl !== window.location.pathname) {
         window.history.replaceState({}, document.title, cleanUrl);
       }
     }
 
     return () => {
       clearTimeout(timeoutId);
-      // Reset viewport when leaving the page
       if (metaViewport) {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }
