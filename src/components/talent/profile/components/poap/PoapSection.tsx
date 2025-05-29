@@ -47,7 +47,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
     <section className="w-full flex flex-col items-center mt-8 mb-8">
       {/* POAP count display */}
       {poaps.length > 0 && !isLoading && (
-        <div className="text-sm text-center mb-6 text-muted-foreground z-10 relative">
+        <div className="text-sm text-center mb-8 text-muted-foreground z-10 relative">
           <span className="font-medium text-primary">{poaps.length}</span> POAPs collected
         </div>
       )}
