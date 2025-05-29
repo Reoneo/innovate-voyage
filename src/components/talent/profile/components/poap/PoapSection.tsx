@@ -52,7 +52,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
         </div>
       )}
 
-      <div className="relative w-full aspect-square flex items-center justify-center">
+      <div className="relative w-full h-48 flex items-center justify-center">
         {isLoading ? (
           <Skeleton className="w-52 h-52 rounded-full" />
         ) : poaps.length > 0 ? (
