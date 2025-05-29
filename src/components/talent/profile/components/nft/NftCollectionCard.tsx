@@ -3,25 +3,41 @@ import React from 'react';
 import { OpenSeaNft } from '@/api/services/openseaService';
 import CollectionHeader from './CollectionHeader';
 import NftGrid from './NftGrid';
+import type { ViewMode } from './NftCollectionsSection';
 
 interface NftCollectionCardProps {
   collectionName: string;
   nfts: OpenSeaNft[];
   onNftClick: (nft: OpenSeaNft) => void;
+  viewMode?: ViewMode;
 }
 
 const NftCollectionCard: React.FC<NftCollectionCardProps> = ({ 
   collectionName, 
   nfts,
-  onNftClick 
+  onNftClick,
+  viewMode = 'grid'
 }) => {
+  const isListView = viewMode === 'list';
+  
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group">
-      <div className="p-4">
-        <CollectionHeader collectionName={collectionName} />
+    <div className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 overflow-hidden group ${
+      isListView ? 'flex items-center p-4 gap-6' : ''
+    }`}>
+      <div className={isListView ? 'flex-shrink-0' : 'p-6'}>
+        <CollectionHeader 
+          collectionName={collectionName} 
+          nftCount={nfts.length}
+          isListView={isListView}
+        />
       </div>
-      <div className="px-4 pb-4">
-        <NftGrid nfts={nfts} onNftClick={onNftClick} />
+      
+      <div className={isListView ? 'flex-1' : 'px-6 pb-6'}>
+        <NftGrid 
+          nfts={nfts} 
+          onNftClick={onNftClick} 
+          viewMode={viewMode}
+        />
       </div>
     </div>
   );

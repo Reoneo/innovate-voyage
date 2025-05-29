@@ -1,12 +1,19 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import { ExternalLink } from 'lucide-react';
 
 interface CollectionHeaderProps {
   collectionName: string;
+  nftCount?: number;
+  isListView?: boolean;
 }
 
-const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) => {
+const CollectionHeader: React.FC<CollectionHeaderProps> = ({ 
+  collectionName, 
+  nftCount,
+  isListView = false 
+}) => {
   // Format collection name - replace dashes with spaces
   const formatCollectionName = (name: string) => {
     return name.replace(/-/g, ' ');
@@ -42,32 +49,69 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) =
   const getTypeBadge = (collectionName: string) => {
     const lowerCaseName = collectionName.toLowerCase();
     if (lowerCaseName.includes('ens')) {
-      return <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs">ENS</Badge>;
+      return <Badge variant="secondary" className="bg-blue-50 text-blue-700 text-xs font-medium border border-blue-200">ENS</Badge>;
     } else if (lowerCaseName.includes('poap')) {
-      return <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">POAP</Badge>;
+      return <Badge variant="secondary" className="bg-purple-50 text-purple-700 text-xs font-medium border border-purple-200">POAP</Badge>;
     } else if (lowerCaseName.includes('3dns')) {
-      return <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">3DNS</Badge>;
+      return <Badge variant="secondary" className="bg-green-50 text-green-700 text-xs font-medium border border-green-200">3DNS</Badge>;
     }
-    return <Badge variant="secondary" className="bg-gray-100 text-gray-700 text-xs">NFT</Badge>;
+    return <Badge variant="secondary" className="bg-gray-50 text-gray-700 text-xs font-medium border border-gray-200">NFT</Badge>;
   };
 
-  return (
-    <div className="flex items-center justify-between mb-3">
-      <div className="flex items-center gap-3">
-        <div className="relative">
+  if (isListView) {
+    return (
+      <div className="flex items-center gap-4">
+        <div className="flex-shrink-0">
           <img 
             src={getCollectionIcon(collectionName)} 
             alt={collectionName} 
-            className="h-8 w-8 rounded-xl object-cover shadow-sm" 
+            className="h-12 w-12 rounded-xl object-cover shadow-sm border border-gray-200" 
           />
         </div>
-        <div>
-          <h4 className="text-lg font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
-            {getDisplayName(collectionName)}
-          </h4>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <h4 className="text-lg font-semibold text-gray-900 truncate">
+              {getDisplayName(collectionName)}
+            </h4>
+            {getTypeBadge(collectionName)}
+          </div>
+          {nftCount && (
+            <p className="text-sm text-gray-500">
+              {nftCount} item{nftCount !== 1 ? 's' : ''}
+            </p>
+          )}
         </div>
       </div>
-      {getTypeBadge(collectionName)}
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-4 min-w-0 flex-1">
+        <div className="flex-shrink-0">
+          <img 
+            src={getCollectionIcon(collectionName)} 
+            alt={collectionName} 
+            className="h-10 w-10 rounded-xl object-cover shadow-sm border border-gray-200" 
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <h4 className="text-lg font-semibold text-gray-900 group-hover:text-gray-700 transition-colors truncate">
+              {getDisplayName(collectionName)}
+            </h4>
+            <ExternalLink size={14} className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+          {nftCount && (
+            <p className="text-sm text-gray-500">
+              {nftCount} item{nftCount !== 1 ? 's' : ''}
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="flex-shrink-0">
+        {getTypeBadge(collectionName)}
+      </div>
     </div>
   );
 };
