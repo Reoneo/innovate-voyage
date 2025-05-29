@@ -29,15 +29,28 @@ const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick }) => {
   
   const uniqueNfts = Object.values(groupedNfts);
   
+  // Show limited number of NFTs per collection with "show more" option
+  const displayNfts = uniqueNfts.slice(0, 6);
+  const hasMore = uniqueNfts.length > 6;
+  
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      {uniqueNfts.map((nft) => (
-        <NftItem 
-          key={`${nft.id}-${nft.collectionName}`} 
-          nft={nft} 
-          onClick={onNftClick} 
-        />
-      ))}
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-3">
+        {displayNfts.map((nft) => (
+          <NftItem 
+            key={`${nft.id}-${nft.collectionName}`} 
+            nft={nft} 
+            onClick={onNftClick} 
+          />
+        ))}
+      </div>
+      {hasMore && (
+        <div className="text-center">
+          <span className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
+            +{uniqueNfts.length - 6} more items
+          </span>
+        </div>
+      )}
     </div>
   );
 };

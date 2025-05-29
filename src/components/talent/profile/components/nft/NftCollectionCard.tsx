@@ -16,9 +16,13 @@ const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
   onNftClick 
 }) => {
   return (
-    <div key={collectionName} className="space-y-3">
-      <CollectionHeader collectionName={collectionName} />
-      <NftGrid nfts={nfts} onNftClick={onNftClick} />
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group">
+      <div className="p-4">
+        <CollectionHeader collectionName={collectionName} />
+      </div>
+      <div className="px-4 pb-4">
+        <NftGrid nfts={nfts} onNftClick={onNftClick} />
+      </div>
     </div>
   );
 };

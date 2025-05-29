@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Badge } from '@/components/ui/badge';
 
 interface CollectionHeaderProps {
   collectionName: string;
@@ -37,14 +38,36 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({ collectionName }) =
     return formatCollectionName(collectionName);
   };
 
+  // Get collection type badge
+  const getTypeBadge = (collectionName: string) => {
+    const lowerCaseName = collectionName.toLowerCase();
+    if (lowerCaseName.includes('ens')) {
+      return <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs">ENS</Badge>;
+    } else if (lowerCaseName.includes('poap')) {
+      return <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">POAP</Badge>;
+    } else if (lowerCaseName.includes('3dns')) {
+      return <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">3DNS</Badge>;
+    }
+    return <Badge variant="secondary" className="bg-gray-100 text-gray-700 text-xs">NFT</Badge>;
+  };
+
   return (
-    <div className="flex items-center gap-2 pl-1">
-      <img 
-        src={getCollectionIcon(collectionName)} 
-        alt={collectionName} 
-        className="h-5 w-5 rounded-full" 
-      />
-      <h4 className="text-md font-medium text-gray-800">{getDisplayName(collectionName)}</h4>
+    <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center gap-3">
+        <div className="relative">
+          <img 
+            src={getCollectionIcon(collectionName)} 
+            alt={collectionName} 
+            className="h-8 w-8 rounded-xl object-cover shadow-sm" 
+          />
+        </div>
+        <div>
+          <h4 className="text-lg font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
+            {getDisplayName(collectionName)}
+          </h4>
+        </div>
+      </div>
+      {getTypeBadge(collectionName)}
     </div>
   );
 };
