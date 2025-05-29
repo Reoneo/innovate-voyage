@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { X } from 'lucide-react';
 import { type Poap } from '@/api/services/poapService';
 import PoapCarousel from './PoapCarousel';
 import PoapDetailContent from './PoapDetailContent';
@@ -47,7 +49,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
     <section className="w-full flex flex-col items-center mt-8 mb-8">
       {/* POAP count display */}
       {poaps.length > 0 && !isLoading && (
-        <div className="text-sm text-center mb-8 text-muted-foreground z-10 relative">
+        <div className="text-sm text-center mb-10 text-muted-foreground z-10 relative">
           <span className="font-medium text-primary">{poaps.length}</span> POAPs collected
         </div>
       )}
@@ -71,8 +73,16 @@ const PoapSection: React.FC<PoapSectionProps> = ({
         <DialogContent className="max-w-md">
           {selectedPoap && (
             <>
-              <DialogHeader>
+              <DialogHeader className="relative">
                 <DialogTitle>{selectedPoap.event.name}</DialogTitle>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-6 w-6"
+                  onClick={() => setDetailOpen(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </DialogHeader>
               <PoapDetailContent 
                 poap={selectedPoap} 

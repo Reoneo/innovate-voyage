@@ -3,6 +3,7 @@ import React from 'react';
 import { Poap } from '@/api/services/poapService';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from "@/components/ui/skeleton";
+import { ExternalLink } from 'lucide-react';
 import PoapOwnerItem from './PoapOwnerItem';
 
 interface PoapDetailContentProps {
@@ -16,6 +17,14 @@ const PoapDetailContent: React.FC<PoapDetailContentProps> = ({
   poapOwners,
   loadingOwners
 }) => {
+  // Extract wallet address from poap.owner
+  const walletAddress = poap.owner;
+  
+  // Generate POAP.xyz collection URL
+  const getPoapCollectionUrl = () => {
+    return `https://app.poap.xyz/scan/${walletAddress}`;
+  };
+
   return (
     <div className="space-y-4">
       <img src={poap.event.image_url} alt={poap.event.name} className="w-32 h-32 mx-auto object-contain" />
@@ -40,6 +49,19 @@ const PoapDetailContent: React.FC<PoapDetailContentProps> = ({
             <p className="text-xs text-muted-foreground">Chain</p>
             <p className="text-sm font-medium">{poap.chain}</p>
           </div>
+        </div>
+
+        {/* Link to view full POAP collection */}
+        <div className="pt-2 border-t">
+          <a 
+            href={getPoapCollectionUrl()} 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline text-sm flex items-center justify-center gap-1"
+          >
+            View full POAP collection on POAP.xyz
+            <ExternalLink className="w-3 h-3" />
+          </a>
         </div>
 
         <div className="mt-4">
