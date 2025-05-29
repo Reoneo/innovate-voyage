@@ -81,9 +81,9 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
 
   return <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
-        <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[95vh] m-2' : 'max-w-7xl max-h-[95vh]'} overflow-hidden bg-white text-gray-900 border-0 shadow-2xl rounded-2xl p-0`}>
+        <DialogContent className={`${isMobile ? 'max-w-[95vw] h-[95vh] m-2' : 'max-w-7xl h-[90vh]'} flex flex-col bg-white text-gray-900 border-0 shadow-2xl rounded-2xl p-0`}>
           {/* Professional Header with OpenSea icon */}
-          <div className="sticky top-0 z-20 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 text-white">
+          <div className="flex-shrink-0 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 text-white">
             <div className={`${isMobile ? 'p-4' : 'p-6'} border-b border-white/10`}>
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-4">
@@ -174,8 +174,8 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
             </div>
           </div>
 
-          {/* Content Area */}
-          <div className="flex-1 overflow-y-auto bg-gray-50">
+          {/* Content Area - Made scrollable */}
+          <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
             <div className={`${isMobile ? 'p-4' : 'p-6'}`}>
               <NftCollectionsContent 
                 collections={collections} 
