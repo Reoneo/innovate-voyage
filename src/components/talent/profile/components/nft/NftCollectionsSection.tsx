@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import NftDetailsDialog from './NftDetailsDialog';
 import NftCollectionsContent from './NftCollectionsContent';
+import NftFilterControls from './NftFilterControls';
 
 interface NftCollectionsSectionProps {
   walletAddress?: string;
@@ -55,13 +56,29 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     window.location.href = `/${name.toLowerCase()}/`;
   };
 
+  // Check what types of NFTs are available
+  const hasEthereumNfts = collections.some(c => c.nfts.some((nft: any) => nft.type === 'ethereum'));
+  const hasEnsNfts = collections.some(c => c.nfts.some((nft: any) => nft.type === 'ens'));
+  const hasPoapNfts = collections.some(c => c.nfts.some((nft: any) => nft.type === 'poap'));
+  const has3dnsNfts = collections.some(c => c.nfts.some((nft: any) => nft.type === '3dns'));
+
   return <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto bg-white text-gray-800 border border-gray-200 p-6 shadow-lg">
           <div className="sticky top-0 z-10 flex justify-between items-center pb-4 border-b border-gray-200 mx-0 rounded-sm bg-transparent my-0 py-[4px] px-0">
-            <DialogHeader>
-              
-            </DialogHeader>
+            <div className="flex items-center gap-4">
+              <DialogHeader>
+                
+              </DialogHeader>
+              <NftFilterControls
+                selectedType={selectedType}
+                onTypeChange={setSelectedType}
+                hasEthereumNfts={hasEthereumNfts}
+                hasEnsNfts={hasEnsNfts}
+                hasPoapNfts={hasPoapNfts}
+                has3dnsNfts={has3dnsNfts}
+              />
+            </div>
             <Button variant="ghost" size="icon" onClick={() => onOpenChange?.(false)} className="rounded-full h-8 w-8 text-gray-500 hover:text-gray-800 hover:bg-gray-100">
               <X size={18} />
             </Button>

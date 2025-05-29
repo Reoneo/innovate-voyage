@@ -2,17 +2,10 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import NftCollectionCard from './NftCollectionCard';
-import NftFilterControls from './NftFilterControls';
-import { OpenSeaNft } from '@/api/services/openseaService';
-
-interface OpenSeaCollection {
-  name: string;
-  nfts: OpenSeaNft[];
-  type: 'ethereum' | 'ens' | 'poap' | '3dns';
-}
+import type { OpenSeaNft } from '@/api/services/openseaService';
 
 interface NftCollectionsContentProps {
-  collections: OpenSeaCollection[];
+  collections: any[];
   loading: boolean;
   selectedType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all';
   setSelectedType: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all') => void;
@@ -23,60 +16,58 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
   collections,
   loading,
   selectedType,
-  setSelectedType,
   onNftClick
 }) => {
-  // Filter out POAP v2 collections
-  const filteredAllCollections = collections.filter(collection => 
-    !collection.name.toLowerCase().includes('poap v2')
-  );
-  
-  const hasEthereumNfts = filteredAllCollections.some(c => c.type === 'ethereum');
-  const hasEnsNfts = filteredAllCollections.some(c => c.type === 'ens');
-  const hasPoapNfts = filteredAllCollections.some(c => c.type === 'poap');
-  const has3dnsNfts = filteredAllCollections.some(c => c.type === '3dns');
-
-  const filteredCollections = selectedType === 'all' 
-    ? filteredAllCollections 
-    : filteredAllCollections.filter(collection => collection.type === selectedType);
-
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Skeleton className="h-40 w-full bg-gray-100" />
-        <Skeleton className="h-40 w-full bg-gray-100" />
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <Skeleton key={i} className="h-40 w-full rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Filter collections based on selected type
+  const filteredCollections = collections.filter(collection => {
+    if (selectedType === 'all') return true;
+    return collection.nfts.some((nft: any) => nft.type === selectedType);
+  }).map(collection => ({
+    ...collection,
+    nfts: selectedType === 'all' 
+      ? collection.nfts 
+      : collection.nfts.filter((nft: any) => nft.type === selectedType)
+  })).filter(collection => collection.nfts.length > 0);
+
+  if (filteredCollections.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="text-gray-400 mb-2">📦</div>
+        <h3 className="text-lg font-medium text-gray-600 mb-1">No Collections Found</h3>
+        <p className="text-sm text-gray-400">
+          {selectedType === 'all' 
+            ? "This wallet doesn't have any NFT collections yet."
+            : `No ${selectedType.toUpperCase()} collections found for this wallet.`
+          }
+        </p>
       </div>
     );
   }
 
   return (
-    <>
-      <NftFilterControls 
-        selectedType={selectedType}
-        onTypeChange={setSelectedType}
-        hasEthereumNfts={hasEthereumNfts}
-        hasEnsNfts={hasEnsNfts}
-        hasPoapNfts={hasPoapNfts}
-        has3dnsNfts={has3dnsNfts}
-      />
-      
-      {filteredCollections.length > 0 ? (
-        <div className="space-y-10 pt-4">
-          {filteredCollections.map((collection) => (
-            <NftCollectionCard
-              key={collection.name}
-              collectionName={collection.name}
-              nfts={collection.nfts}
-              onNftClick={onNftClick}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center p-8">
-          <p className="text-muted-foreground">No NFTs found for this category</p>
-        </div>
-      )}
-    </>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredCollections.map((collection, index) => (
+          <NftCollectionCard
+            key={`${collection.name}-${index}`}
+            collection={collection}
+            onNftClick={onNftClick}
+          />
+        ))}
+      </div>
+    </div>
   );
 };
 
