@@ -17,18 +17,18 @@ export function useProfilePage() {
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
-    // Remove cache clearing to improve performance
+    console.log('🔍 Profile page initializing for:', targetIdentifier);
     
     if (targetIdentifier) {
       const normalizedIdentifier = targetIdentifier.toLowerCase();
       
       if (isValidEthereumAddress(normalizedIdentifier)) {
-        console.log(`Valid Ethereum address detected: ${normalizedIdentifier}`);
+        console.log(`✅ Valid Ethereum address detected: ${normalizedIdentifier}`);
         setAddress(normalizedIdentifier);
         setEns(undefined);
       } else {
         const ensValue = normalizedIdentifier.includes('.') ? normalizedIdentifier : `${normalizedIdentifier}.eth`;
-        console.log(`Treating as ENS: ${ensValue}`);
+        console.log(`🏷️ Treating as ENS: ${ensValue}`);
         setEns(ensValue);
         setAddress(undefined);
       }
@@ -39,6 +39,7 @@ export function useProfilePage() {
 
     // Increased timeout for better performance
     const timeoutId = setTimeout(() => {
+      console.log('⏰ Loading timeout reached - showing timeout warning');
       setLoadingTimeout(true);
     }, 8000);
 
@@ -71,6 +72,18 @@ export function useProfilePage() {
   }, [targetIdentifier]);
 
   const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl, hasTalentProtocolData } = useProfileData(ens, address);
+  
+  // Log data fetching progress
+  useEffect(() => {
+    if (!loading && passport) {
+      console.log('✅ Profile data loaded successfully:', {
+        hasPassport: !!passport,
+        hasAvatar: !!passport.avatar_url,
+        hasBlockchainData: !!blockchainProfile,
+        hasTalentData: hasTalentProtocolData
+      });
+    }
+  }, [loading, passport, blockchainProfile, hasTalentProtocolData]);
   
   const { profileRef } = usePdfExport();
 

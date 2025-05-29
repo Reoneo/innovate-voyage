@@ -19,6 +19,14 @@ const TalentProfile = () => {
   } = useProfilePage();
 
   useEffect(() => {
+    // Log loading progress for debugging
+    console.log('Profile loading state:', { 
+      ensNameOrAddress, 
+      loading, 
+      loadingTimeout, 
+      hasPassport: !!passport 
+    });
+    
     // Set favicon to user's avatar if available
     if (passport?.avatar_url) {
       const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
@@ -43,7 +51,7 @@ const TalentProfile = () => {
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     }
-  }, [passport?.avatar_url]);
+  }, [passport?.avatar_url, ensNameOrAddress, loading, loadingTimeout]);
 
   return (
     <>
@@ -84,9 +92,24 @@ const TalentProfile = () => {
         
         <div className="container px-1 relative z-10" style={{ maxWidth: '98vw' }}>
           {loading ? (
-            /* Show skeleton while loading - now with proper padding */
+            /* Show detailed loading skeleton */
             <div className="pt-16">
               <ProfileSkeleton />
+              
+              {/* Additional loading timeout warning */}
+              {loadingTimeout && (
+                <div className="mt-6 mx-auto max-w-md">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="text-yellow-600">⚠️</div>
+                      <div className="text-yellow-700 font-medium">Loading is taking longer than expected</div>
+                    </div>
+                    <div className="mt-2 text-sm text-yellow-600">
+                      This may be due to network congestion or ENS resolution delays. Please wait...
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             /* Show actual content when loaded */
