@@ -19,10 +19,16 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({
     return name.replace(/-/g, ' ');
   };
 
-  // Get collection icon based on collection name
+  // Get collection icon based on collection name with custom icons
   const getCollectionIcon = (collectionName: string) => {
     const lowerCaseName = collectionName.toLowerCase();
-    if (lowerCaseName.includes('3dns') || lowerCaseName.includes('3dns powered domains')) {
+    
+    // Custom icons as requested
+    if (lowerCaseName.includes('basenames') || lowerCaseName.includes('basename')) {
+      return "https://altcoinsbox.com/wp-content/uploads/2023/02/base-logo-in-blue-600x600.webp";
+    } else if (lowerCaseName.includes('doodles certified viral')) {
+      return "https://images.zapper.xyz/z/?path=zapper-fi-assets/nfts/collections/base/0xfe9117d6d0b973faae61d9a85a741ce41bd4bc80/logo.jpeg&width=250&checksum=0kJaWdbYUSxbz2EX0y6QhbsZ4sB_-v0e4Rz9C82Y8Ao";
+    } else if (lowerCaseName.includes('3dns') || lowerCaseName.includes('3dns powered domains')) {
       return "https://docs.my.box/~gitbook/image?url=https%3A%2F%2F1581571575-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FLNPySatzgHa3v2j4Gmqn%252Fuploads%252F4HNwIbiFFE6Sd7H41SIL%252Fhex_black.png%3Falt%3Dmedia%26token%3D518e3a0f-2c02-484c-ac5b-23b7329f1176&width=376&dpr=2&quality=100&sign=c393b902&sv=2";
     } else if (lowerCaseName.includes('doodle') || lowerCaseName.includes('doodles')) {
       return "https://pbs.twimg.com/profile_images/1907827518700220416/ZUn7WAT8_400x400.jpg";
@@ -41,6 +47,8 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({
     const lowerCaseName = collectionName.toLowerCase();
     if (lowerCaseName.includes('3dns') || lowerCaseName.includes('3dns powered domains')) {
       return "3DNS Domains";
+    } else if (lowerCaseName.includes('basenames') || lowerCaseName.includes('basename')) {
+      return "Basenames";
     }
     return formatCollectionName(collectionName);
   };
@@ -54,6 +62,8 @@ const CollectionHeader: React.FC<CollectionHeaderProps> = ({
       return <Badge variant="secondary" className="bg-purple-50 text-purple-700 text-xs font-medium border border-purple-200">POAP</Badge>;
     } else if (lowerCaseName.includes('3dns')) {
       return <Badge variant="secondary" className="bg-green-50 text-green-700 text-xs font-medium border border-green-200">3DNS</Badge>;
+    } else if (lowerCaseName.includes('basenames') || lowerCaseName.includes('basename')) {
+      return <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 text-xs font-medium border border-indigo-200">BASE</Badge>;
     }
     return <Badge variant="secondary" className="bg-gray-50 text-gray-700 text-xs font-medium border border-gray-200">NFT</Badge>;
   };

@@ -5,6 +5,7 @@ import NftCollectionCard from './NftCollectionCard';
 import type { OpenSeaNft } from '@/api/services/openseaService';
 import { Package, Sparkles, Grid3X3 } from 'lucide-react';
 import type { ViewMode } from './NftCollectionsSection';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface NftCollectionsContentProps {
   collections: any[];
@@ -21,13 +22,16 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
   onNftClick,
   viewMode
 }) => {
+  const isMobile = useIsMobile();
+
   if (loading) {
+    const skeletonCount = isMobile ? 3 : 6;
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
+        <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'}`}>
+          {[...Array(skeletonCount)].map((_, i) => (
             <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-6 space-y-4">
+              <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4`}>
                 <div className="flex items-center gap-3">
                   <Skeleton className="h-10 w-10 rounded-xl" />
                   <div className="space-y-2">
@@ -35,8 +39,8 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
                     <Skeleton className="h-3 w-20" />
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {[...Array(6)].map((_, j) => (
+                <div className={`grid ${isMobile ? 'grid-cols-2 gap-2' : 'grid-cols-3 gap-3'}`}>
+                  {[...Array(isMobile ? 4 : 6)].map((_, j) => (
                     <Skeleton key={j} className="aspect-square rounded-xl" />
                   ))}
                 </div>
@@ -48,16 +52,18 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
     );
   }
 
-  // Filter collections based on selected type
-  const filteredCollections = collections.filter(collection => {
-    if (selectedType === 'all') return true;
-    return collection.nfts.some((nft: any) => nft.type === selectedType);
-  }).map(collection => ({
-    ...collection,
-    nfts: selectedType === 'all' 
-      ? collection.nfts 
-      : collection.nfts.filter((nft: any) => nft.type === selectedType)
-  })).filter(collection => collection.nfts.length > 0);
+  // Filter collections based on selected type and exclude poapv2
+  const filteredCollections = collections
+    .filter(collection => !collection.name.toLowerCase().includes('poap v2'))
+    .filter(collection => {
+      if (selectedType === 'all') return true;
+      return collection.nfts.some((nft: any) => nft.type === selectedType);
+    }).map(collection => ({
+      ...collection,
+      nfts: selectedType === 'all' 
+        ? collection.nfts 
+        : collection.nfts.filter((nft: any) => nft.type === selectedType)
+    })).filter(collection => collection.nfts.length > 0);
 
   if (filteredCollections.length === 0) {
     return (
@@ -70,8 +76,8 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
             <Sparkles className="w-4 h-4 text-white" />
           </div>
         </div>
-        <h3 className="text-2xl font-semibold text-gray-800 mb-3">No Collections Found</h3>
-        <p className="text-gray-500 max-w-md leading-relaxed">
+        <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-semibold text-gray-800 mb-3`}>No Collections Found</h3>
+        <p className={`text-gray-500 max-w-md leading-relaxed ${isMobile ? 'text-sm px-4' : ''}`}>
           {selectedType === 'all' 
             ? "This wallet doesn't have any NFT collections yet. Start collecting to see them here!"
             : `No ${selectedType.toUpperCase()} collections found for this wallet. Try selecting a different category.`
@@ -81,8 +87,12 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
     );
   }
 
-  // Determine grid layout based on view mode
+  // Determine grid layout based on view mode and mobile
   const getGridClass = () => {
+    if (isMobile) {
+      return viewMode === 'list' ? 'space-y-3' : 'grid grid-cols-1 gap-4';
+    }
+    
     switch (viewMode) {
       case 'large-grid':
         return 'grid grid-cols-1 md:grid-cols-2 gap-8';
@@ -97,8 +107,8 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
     <div className="space-y-6">
       {/* Collections Stats */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Grid3X3 size={16} />
+        <div className={`flex items-center gap-2 ${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}>
+          <Grid3X3 size={isMobile ? 14 : 16} />
           <span>{filteredCollections.length} collection{filteredCollections.length !== 1 ? 's' : ''}</span>
         </div>
       </div>
@@ -110,7 +120,7 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
             collectionName={collection.name}
             nfts={collection.nfts}
             onNftClick={onNftClick}
-            viewMode={viewMode}
+            viewMode={isMobile && viewMode === 'large-grid' ? 'grid' : viewMode}
           />
         ))}
       </div>

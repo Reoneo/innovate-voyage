@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import NftDetailsDialog from './NftDetailsDialog';
 import NftCollectionsContent from './NftCollectionsContent';
 import NftFilterControls from './NftFilterControls';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface NftCollectionsSectionProps {
   walletAddress?: string;
@@ -26,6 +27,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | '3dns' | 'all'>('all');
   const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -33,7 +35,11 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
       setLoading(true);
       try {
         const nftCollections = await fetchUserNfts(walletAddress);
-        setCollections(nftCollections);
+        // Filter out poapv2 collections as requested
+        const filteredCollections = nftCollections.filter(collection => 
+          !collection.name.toLowerCase().includes('poap v2')
+        );
+        setCollections(filteredCollections);
       } catch (error) {
         console.error('Error loading NFTs:', error);
       } finally {
@@ -75,20 +81,24 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
 
   return <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden bg-white text-gray-900 border-0 shadow-2xl rounded-2xl p-0">
-          {/* Professional Header */}
+        <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[95vh] m-2' : 'max-w-7xl max-h-[95vh]'} overflow-hidden bg-white text-gray-900 border-0 shadow-2xl rounded-2xl p-0`}>
+          {/* Professional Header with OpenSea icon */}
           <div className="sticky top-0 z-20 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 text-white">
-            <div className="p-6 border-b border-white/10">
+            <div className={`${isMobile ? 'p-4' : 'p-6'} border-b border-white/10`}>
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-4">
                   <DialogHeader>
-                    <DialogTitle className="flex items-center gap-3 text-2xl font-bold text-white">
+                    <DialogTitle className={`flex items-center gap-3 ${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-white`}>
                       <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm">
-                        <Grid3X3 size={24} />
+                        <img 
+                          src="https://storage.googleapis.com/opensea-static/Logomark/Logomark-Blue.png" 
+                          alt="OpenSea" 
+                          className="w-6 h-6"
+                        />
                       </div>
                       NFT Collections
                       {totalNfts > 0 && (
-                        <span className="bg-white/15 px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm border border-white/20">
+                        <span className={`bg-white/15 px-3 py-1 rounded-full ${isMobile ? 'text-xs' : 'text-sm'} font-medium backdrop-blur-sm border border-white/20`}>
                           {totalNfts} items
                         </span>
                       )}
@@ -97,24 +107,26 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  {/* View Mode Controls */}
-                  <div className="flex bg-white/10 rounded-lg p-1 backdrop-blur-sm">
-                    {(['grid', 'large-grid', 'list'] as ViewMode[]).map((mode) => (
-                      <Button
-                        key={mode}
-                        variant={viewMode === mode ? 'secondary' : 'ghost'}
-                        size="sm"
-                        onClick={() => setViewMode(mode)}
-                        className={`px-3 py-1.5 rounded-md transition-all ${
-                          viewMode === mode 
-                            ? 'bg-white text-gray-900 shadow-sm' 
-                            : 'text-white/80 hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        {getViewModeIcon(mode)}
-                      </Button>
-                    ))}
-                  </div>
+                  {/* View Mode Controls - Hide on mobile for space */}
+                  {!isMobile && (
+                    <div className="flex bg-white/10 rounded-lg p-1 backdrop-blur-sm">
+                      {(['grid', 'large-grid', 'list'] as ViewMode[]).map((mode) => (
+                        <Button
+                          key={mode}
+                          variant={viewMode === mode ? 'secondary' : 'ghost'}
+                          size="sm"
+                          onClick={() => setViewMode(mode)}
+                          className={`px-3 py-1.5 rounded-md transition-all ${
+                            viewMode === mode 
+                              ? 'bg-white text-gray-900 shadow-sm' 
+                              : 'text-white/80 hover:text-white hover:bg-white/10'
+                          }`}
+                        >
+                          {getViewModeIcon(mode)}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
                   
                   <Button 
                     variant="ghost" 
@@ -138,18 +150,39 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
                   has3dnsNfts={has3dnsNfts}
                 />
               </div>
+
+              {/* Mobile View Mode Controls */}
+              {isMobile && (
+                <div className="mt-3 flex bg-white/10 rounded-lg p-1 backdrop-blur-sm w-fit">
+                  {(['grid', 'list'] as ViewMode[]).map((mode) => (
+                    <Button
+                      key={mode}
+                      variant={viewMode === mode ? 'secondary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode(mode)}
+                      className={`px-3 py-1.5 rounded-md transition-all ${
+                        viewMode === mode 
+                          ? 'bg-white text-gray-900 shadow-sm' 
+                          : 'text-white/80 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      {getViewModeIcon(mode)}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Content Area */}
           <div className="flex-1 overflow-y-auto bg-gray-50">
-            <div className="p-6">
+            <div className={`${isMobile ? 'p-4' : 'p-6'}`}>
               <NftCollectionsContent 
                 collections={collections} 
                 loading={loading} 
                 selectedType={selectedType} 
                 onNftClick={handleNftClick}
-                viewMode={viewMode}
+                viewMode={isMobile ? 'grid' : viewMode}
               />
             </div>
           </div>

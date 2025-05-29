@@ -1,3 +1,4 @@
+
 export interface OpenSeaNft {
   id: string;
   name: string;
@@ -88,9 +89,14 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
       .map(result => result.value)
       .flat();
     
-    // Group NFTs by collection
+    // Group NFTs by collection and filter out poapv2 as requested
     allNfts.forEach((nft: any) => {
       const collectionName = nft.collection || 'Uncategorized';
+      
+      // Skip poapv2 collections as requested
+      if (collectionName.toLowerCase().includes('poap v2')) {
+        return;
+      }
       
       // Determine the type of NFT
       let type: 'ethereum' | 'ens' | 'poap' | '3dns' = 'ethereum';
