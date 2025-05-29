@@ -74,12 +74,17 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         isOwner={isOwner}
       />
       
-      {/* Follow Button - Moved above Bio section */}
+      {/* Follow Button */}
       {!isOwner && ownerAddress && (
         <div className="mb-3">
           <FollowButton targetAddress={ownerAddress} />
         </div>
       )}
+      
+      {/* POAP Section - Moved here to match gap spacing */}
+      <div className="mb-3 w-full">
+        <PoapSection walletAddress={ownerAddress} />
+      </div>
       
       {/* ENS Bio */}
       {bio && (
@@ -90,11 +95,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       
       {/* Social Links */}
       <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
-      
-      {/* POAP Section - Added after social links */}
-      <div className="mt-4 w-full">
-        <PoapSection walletAddress={ownerAddress} />
-      </div>
     </div>
   );
 };
