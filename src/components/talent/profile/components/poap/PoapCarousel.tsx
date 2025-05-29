@@ -65,6 +65,9 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
     );
   }
 
+  // For large collections, show dots only for first 10 items and use counter
+  const shouldShowDots = poaps.length <= 10;
+
   return (
     <div className="relative w-full max-w-xs">
       <Carousel 
@@ -97,7 +100,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
         </CarouselContent>
       </Carousel>
 
-      {/* Swipe Indicators */}
+      {/* Navigation Controls */}
       <div className="flex items-center justify-center mt-4 space-x-4">
         {/* Left Arrow */}
         <button
@@ -112,20 +115,28 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
           <ChevronLeft className="w-4 h-4" />
         </button>
 
-        {/* Dots Indicator */}
-        <div className="flex space-x-2">
-          {poaps.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => api?.scrollTo(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                index === current 
-                  ? 'bg-primary scale-125' 
-                  : 'bg-gray-300 hover:bg-gray-400'
-              }`}
-            />
-          ))}
-        </div>
+        {/* Indicator: Either dots or counter */}
+        {shouldShowDots ? (
+          <div className="flex space-x-2">
+            {poaps.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => api?.scrollTo(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === current 
+                    ? 'bg-primary scale-125' 
+                    : 'bg-gray-300 hover:bg-gray-400'
+                }`}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <span className="font-medium text-primary">{current + 1}</span>
+            <span>/</span>
+            <span>{poaps.length}</span>
+          </div>
+        )}
 
         {/* Right Arrow */}
         <button
