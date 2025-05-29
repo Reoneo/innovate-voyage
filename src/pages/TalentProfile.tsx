@@ -30,6 +30,12 @@ const TalentProfile = () => {
         newLink.href = passport.avatar_url;
         document.head.appendChild(newLink);
       }
+      
+      // Update apple touch icons
+      const appleTouchIcons = document.querySelectorAll("link[rel*='apple-touch-icon']");
+      appleTouchIcons.forEach((icon) => {
+        (icon as HTMLLinkElement).href = passport.avatar_url;
+      });
     }
 
     // Clean URL - remove timestamp query parameter
@@ -42,13 +48,23 @@ const TalentProfile = () => {
   return (
     <>
       <Helmet>
-        <title>{ensNameOrAddress || 'Profile'}</title>
+        <title>{ensNameOrAddress || 'Profile'} | Recruitment.box</title>
+        <meta name="description" content={`Profile of ${ensNameOrAddress || 'Web3 user'} on Recruitment.box - Decentralized CV & Recruitment Engine`} />
         {passport?.avatar_url && (
           <>
+            <link rel="icon" href={passport.avatar_url} type="image/png" />
             <link rel="apple-touch-icon" href={passport.avatar_url} />
+            <link rel="apple-touch-icon" sizes="152x152" href={passport.avatar_url} />
+            <link rel="apple-touch-icon" sizes="180x180" href={passport.avatar_url} />
+            <link rel="apple-touch-icon" sizes="167x167" href={passport.avatar_url} />
             <meta name="apple-mobile-web-app-title" content={ensNameOrAddress || 'Profile'} />
             <meta name="application-name" content={ensNameOrAddress || 'Profile'} />
             <meta property="og:image" content={passport.avatar_url} />
+            <meta property="og:title" content={`${ensNameOrAddress || 'Profile'} | Recruitment.box`} />
+            <meta property="og:description" content={`Profile of ${ensNameOrAddress || 'Web3 user'} on Recruitment.box`} />
+            <meta name="twitter:image" content={passport.avatar_url} />
+            <meta name="twitter:title" content={`${ensNameOrAddress || 'Profile'} | Recruitment.box`} />
+            <meta name="twitter:description" content={`Profile of ${ensNameOrAddress || 'Web3 user'} on Recruitment.box`} />
           </>
         )}
       </Helmet>
