@@ -54,8 +54,8 @@ export default function GitHubContributionGraph({
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="github-calendar-wrapper p-4 rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg">
-          <div className="mb-3 text-center">
+        <div className="github-calendar-wrapper p-6 rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg">
+          <div className="mb-6 text-center">
             <div className="text-xl font-semibold text-white">
               <span className="text-gray-300">GitHub Activity: </span>
               <span className="text-green-400" id="contribution-count-banner">
@@ -66,11 +66,11 @@ export default function GitHubContributionGraph({
           </div>
           
           <div style={{
-            minHeight: '120px',
+            minHeight: '160px',
             overflow: 'auto',
             padding: '0',
             margin: '0'
-          }} className="calendar-container py-3 px-4 rounded-xl bg-white">
+          }} className="calendar-container py-8 px-8 rounded-xl bg-white">
             {username && (
               <div className="w-full min-w-[650px]">
                 <GitHubCalendar 
@@ -80,7 +80,7 @@ export default function GitHubContributionGraph({
                   hideColorLegend={true} 
                   hideMonthLabels={false} 
                   showWeekdayLabels={true} 
-                  blockSize={7} 
+                  blockSize={8} 
                   blockMargin={2} 
                   blockRadius={2} 
                   fontSize={10} 

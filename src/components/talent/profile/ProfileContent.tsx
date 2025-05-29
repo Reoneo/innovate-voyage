@@ -7,7 +7,6 @@ import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import { useIsMobile } from '@/hooks/use-mobile';
-import PoapSection from './components/poap/PoapSection';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -108,9 +107,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className="w-full flex flex-col gap-6 h-full">
-            {/* Avatar section, always full width on mobile */}
-            <div className="w-full flex flex-col space-y-4">
+          <div className="w-full grid grid-cols-1 md:grid-cols-10 gap-6 h-full">
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
               <AvatarSection
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
@@ -124,9 +122,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
             </div>
-            
-            {/* Desktop layout uses grid, mobile is single column */}
-            <div className="w-full space-y-6">
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
               {/* GitHub contribution graph */}
@@ -136,10 +132,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 </div>
               )}
               
-              {/* POAPs Section */}
-              <div className="mt-4">
-                <PoapSection walletAddress={passport.owner_address} />
-              </div>
+              {/* Tally Insights Section removed as requested */}
             </div>
           </div>
         </HeaderContainer>
