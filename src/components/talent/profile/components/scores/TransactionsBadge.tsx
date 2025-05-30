@@ -51,7 +51,7 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({
             <h3 className="text-lg font-semibold text-gray-800">NFT Collection</h3>
             <div className="relative">
               <img alt="NFT Collection" className="h-16 w-16 mx-auto" src="https://storage.googleapis.com/opensea-static/Logomark/Logomark-Blue.png" />
-              {nftCount !== null && nftCount > 0 && <Badge variant="destructive" className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-2">
+              {nftCount !== null && nftCount > 0 && <Badge variant="destructive" className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold py-0 px-[2px] mx-[29px] my-[9px]">
                   {nftCount > 99 ? '99+' : nftCount}
                 </Badge>}
             </div>
