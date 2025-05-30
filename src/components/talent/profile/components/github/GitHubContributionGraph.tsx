@@ -54,46 +54,34 @@ export default function GitHubContributionGraph({
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="github-calendar-wrapper rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden">
-          {/* Simplified Header */}
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-2 py-2 border-b border-gray-200">
-            <div className="text-center">
-              <div className="text-lg font-semibold text-gray-900">
-                GitHub Contributions
+        <div className="github-calendar-wrapper">
+          <div className="overflow-x-auto">
+            {username && (
+              <div className="min-w-[650px]">
+                <GitHubCalendar 
+                  username={username} 
+                  colorScheme="dark" 
+                  theme={theme} 
+                  hideColorLegend={true} 
+                  hideMonthLabels={false} 
+                  showWeekdayLabels={true} 
+                  blockSize={8} 
+                  blockMargin={2} 
+                  blockRadius={2} 
+                  fontSize={10} 
+                  transformData={transformData} 
+                  labels={{
+                    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
+                    totalCount: '{{count}} contributions'
+                  }} 
+                />
               </div>
-            </div>
+            )}
           </div>
           
-          {/* Calendar Content with minimal padding */}
-          <div className="p-2">
-            <div className="overflow-x-auto">
-              {username && (
-                <div className="min-w-[650px]">
-                  <GitHubCalendar 
-                    username={username} 
-                    colorScheme="dark" 
-                    theme={theme} 
-                    hideColorLegend={true} 
-                    hideMonthLabels={false} 
-                    showWeekdayLabels={true} 
-                    blockSize={8} 
-                    blockMargin={2} 
-                    blockRadius={2} 
-                    fontSize={10} 
-                    transformData={transformData} 
-                    labels={{
-                      months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                      weekdays: ['', 'Mon', '', 'Wed', '', 'Fri', ''],
-                      totalCount: '{{count}} contributions'
-                    }} 
-                  />
-                </div>
-              )}
-            </div>
-            
-            <div className="mt-2 flex justify-center">
-              <GitHubContributionLegend />
-            </div>
+          <div className="mt-2 flex justify-center">
+            <GitHubContributionLegend />
           </div>
         </div>
       )}
