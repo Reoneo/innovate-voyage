@@ -5,19 +5,62 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 const ProfileSkeleton = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 relative overflow-hidden">
-      {/* Animated background elements */}
+    <div className="min-h-screen bg-slate-900 relative overflow-hidden">
+      {/* Animated cube background similar to ThreeJsBackground */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-cyan-500/10 rounded-full animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-purple-500/10 rounded-lg rotate-45 animate-bounce"></div>
-        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-blue-500/10 rounded-full animate-pulse delay-1000"></div>
+        {/* Generate floating animated cubes */}
+        {Array.from({ length: 50 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 2}s`
+            }}
+          >
+            <div 
+              className="w-4 h-4 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 transform rotate-45"
+              style={{
+                animation: `float ${3 + Math.random() * 2}s ease-in-out infinite alternate`,
+                animationDelay: `${Math.random() * 2}s`
+              }}
+            />
+          </div>
+        ))}
+        
+        {/* Larger accent cubes */}
+        {Array.from({ length: 20 }).map((_, i) => (
+          <div
+            key={`large-${i}`}
+            className="absolute animate-bounce"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 4}s`,
+              animationDuration: `${4 + Math.random() * 2}s`
+            }}
+          >
+            <div 
+              className="w-6 h-6 bg-gradient-to-r from-blue-500/30 to-purple-500/30 transform rotate-45 border border-cyan-500/20"
+              style={{
+                animation: `spin ${8 + Math.random() * 4}s linear infinite`,
+                animationDelay: `${Math.random() * 3}s`
+              }}
+            />
+          </div>
+        ))}
       </div>
+      
+      {/* Dark overlay for better content visibility */}
+      <div className="absolute inset-0 bg-black/30 z-10"></div>
       
       <div className="container px-4 pt-20 relative z-10" style={{ maxWidth: '98vw' }}>
         <div className="max-w-7xl mx-auto">
           {/* Loading Header */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-500/30 mb-6">
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-500/30 mb-6 backdrop-blur-sm">
               <div className="w-4 h-4 bg-cyan-400 rounded-full animate-pulse"></div>
               <span className="text-cyan-300 font-medium">Loading Profile Data...</span>
             </div>
@@ -94,7 +137,7 @@ const ProfileSkeleton = () => {
 
           {/* Loading Steps */}
           <div className="mt-12 max-w-md mx-auto">
-            <Card className="bg-black/20 backdrop-blur-sm border-cyan-500/20">
+            <Card className="bg-black/40 backdrop-blur-sm border-cyan-500/20">
               <CardContent className="p-6">
                 <div className="space-y-4">
                   {[
@@ -120,6 +163,18 @@ const ProfileSkeleton = () => {
           </div>
         </div>
       </div>
+      
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(45deg); }
+          50% { transform: translateY(-20px) rotate(45deg); }
+        }
+        
+        @keyframes spin {
+          from { transform: rotate(45deg); }
+          to { transform: rotate(405deg); }
+        }
+      `}</style>
     </div>
   );
 };
