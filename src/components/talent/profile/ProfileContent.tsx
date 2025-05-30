@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -5,8 +6,6 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
-import LinkedInExperienceSection from './components/LinkedInExperienceSection';
-import { useLinkedInExperience } from '@/api/services/linkedinService';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -92,19 +91,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Get GitHub username from ENS records
   const githubUsername = extractGitHubUsername();
   
-  // Fetch LinkedIn experience data
-  const { experience: linkedInExperience, isLoading: linkedInLoading, error: linkedInError } = useLinkedInExperience(passport?.socials);
-  
-  // Debug LinkedIn section visibility
-  console.log('LinkedIn Section Debug:', {
-    linkedInHandle: passport?.socials?.linkedin,
-    hasLinkedInHandle: !!passport?.socials?.linkedin,
-    experienceCount: linkedInExperience?.length || 0,
-    isLoading: linkedInLoading,
-    error: linkedInError,
-    showSection: !!passport?.socials?.linkedin
-  });
-  
   // Debug GitHub data
   console.log('GitHub data from passport:', {
     username: githubUsername,
@@ -114,9 +100,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
-  
-  // Simplified LinkedIn section logic - only show if there's a LinkedIn handle
-  const showLinkedInSection = !!passport?.socials?.linkedin;
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -134,7 +117,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   ownerAddress={passport.owner_address}
                   socials={{
                     ...passport.socials,
-                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
+                    // Remove LinkedIn from socials to hide it completely
+                    linkedin: undefined
                   }}
                   bio={passport.bio}
                   displayIdentity={ensNameOrAddress}
@@ -153,16 +137,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   </div>
                 )}
                 
-                {/* LinkedIn work experience - Show if there's a LinkedIn handle */}
-                {showLinkedInSection && (
-                  <div>
-                    <LinkedInExperienceSection 
-                      experience={linkedInExperience}
-                      isLoading={linkedInLoading}
-                      error={linkedInError}
-                    />
-                  </div>
-                )}
+                {/* LinkedIn section is now completely hidden - removed from this component */}
               </div>
             </div>
           </div>
