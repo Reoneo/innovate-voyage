@@ -9,13 +9,8 @@ if (typeof window !== 'undefined') {
 }
 
 import { createRoot } from 'react-dom/client';
-import {
-  WagmiConfig,
-  createConfig,
-  configureChains,
-} from 'wagmi';
+import { WagmiProvider, createConfig, http } from 'wagmi';
 import { mainnet, goerli } from 'wagmi/chains';
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import {
   EthereumClient,
   w3mConnectors,
@@ -25,7 +20,7 @@ import { Web3Modal } from '@web3modal/react';
 
 import '@rainbow-me/rainbowkit/styles.css';
 import {
-  getDefaultWallets,
+  getDefaultConfig,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 
@@ -54,41 +49,25 @@ if (typeof window !== 'undefined' && typeof global === 'undefined') {
 }
 
 // WalletConnect v2 Project ID
-// For production, this should be in environment variables
 const projectId = import.meta.env.VITE_WC_PROJECT_ID || "YOUR_PROJECT_ID_FROM_cloud.walletconnect.com";
 
-// Configure chains + providers
-const { chains, publicClient } = configureChains(
-  [mainnet, goerli], // Add more chains as needed
-  [
-    w3mProvider({ projectId }),
-    jsonRpcProvider({
-      rpc: (chain) => ({
-        http: chain.rpcUrls.default.http[0],
-      }),
-    })
-  ]
-);
-
-// Get default wallets for RainbowKit - removed chains property
-const { connectors } = getDefaultWallets({
+// Create wagmi config using getDefaultConfig from RainbowKit
+const wagmiConfig = getDefaultConfig({
   appName: 'Recruitment.box',
   projectId,
+  chains: [mainnet, goerli],
+  transports: {
+    [mainnet.id]: http(),
+    [goerli.id]: http(),
+  },
 });
 
-// Create wagmi config with RainbowKit connectors
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors,
-  publicClient,
-});
-
-// Create the Web3Modal "bridge" to wagmi
-const ethereumClient = new EthereumClient(wagmiConfig, chains);
+// Create the Web3Modal "bridge" to wagmi - using the chains from wagmi config
+const ethereumClient = new EthereumClient(wagmiConfig, [mainnet, goerli]);
 
 const root = createRoot(document.getElementById("root")!);
 root.render(
-  <WagmiConfig config={wagmiConfig}>
+  <WagmiProvider config={wagmiConfig}>
     <RainbowKitProvider>
       <App />
     </RainbowKitProvider>
@@ -99,5 +78,5 @@ root.render(
       themeColor="default"
       themeBackground="themeColor"
     />
-  </WagmiConfig>
+  </WagmiProvider>
 );
