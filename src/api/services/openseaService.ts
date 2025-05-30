@@ -67,7 +67,8 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
         const data = await response.json();
         return (data.nfts || []).map((nft: any) => ({
           ...nft,
-          chain: chain.id // Add chain information to each NFT
+          chain: chain.id, // Add chain information to each NFT
+          walletAddress: walletAddress // Store the wallet address with each NFT
         }));
       } catch (err) {
         if (err.name === 'AbortError') {
@@ -119,7 +120,7 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
         description: nft.description,
         currentPrice: nft.last_sale?.price,
         bestOffer: nft.offers?.[0]?.price,
-        owner: nft.owner,
+        owner: nft.walletAddress || walletAddress, // Use the wallet address we stored
         chain: nft.chain // Pass the chain information
       });
     });

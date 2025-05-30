@@ -50,13 +50,11 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
     }
   };
 
-  // Generate OpenSea URL using wallet address format
+  // Generate OpenSea URL using wallet address format: https://opensea.io/{WALLET_ADDRESS}
   const getOpenSeaUrl = () => {
-    // Use the wallet address format: https://opensea.io/{WALLET_ADDRESS}
     if (nft.owner) {
       return `https://opensea.io/${nft.owner}`;
     } else {
-      // Fallback to opensea.io if no owner address is available
       return `https://opensea.io`;
     }
   };
