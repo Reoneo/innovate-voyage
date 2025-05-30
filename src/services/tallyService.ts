@@ -9,46 +9,213 @@ import { TallyData } from '@/types/tally';
  */
 export async function fetchTallyData(apiKey: string, walletAddress: string): Promise<TallyData | null> {
   try {
-    // For now, we're returning mock data since we don't have a fully implemented API integration
-    // In a production environment, this would make actual API calls to Tally
+    console.log(`Fetching real Tally data for address: ${walletAddress}`);
     
-    console.log(`Fetching Tally data for address: ${walletAddress} with API key: ${apiKey}`);
+    // First, get the user's governors/DAOs
+    const governorsResponse = await fetch('https://api.tally.xyz/query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Api-Key': apiKey
+      },
+      body: JSON.stringify({
+        query: `
+          query Governors($input: GovernorsInput!) {
+            governors(input: $input) {
+              nodes {
+                id
+                name
+                slug
+                tokens {
+                  id
+                  name
+                  symbol
+                  supply
+                }
+                delegatesVotesCount
+                proposalsCount
+                quorum
+                timelockId
+              }
+            }
+          }
+        `,
+        variables: {
+          input: {
+            filters: {
+              includeInactive: false
+            },
+            page: {
+              limit: 10,
+              offset: 0
+            },
+            sort: {
+              isDescending: true,
+              sortBy: "DELEGATED_VOTES"
+            }
+          }
+        }
+      })
+    });
+
+    if (!governorsResponse.ok) {
+      console.error('Tally governors API error:', governorsResponse.status);
+      return null;
+    }
+
+    const governorsData = await governorsResponse.json();
+    console.log('Tally governors response:', governorsData);
+
+    // Get the first governor to use for demo (in production, you'd want to check which DAOs the user participates in)
+    const governors = governorsData.data?.governors?.nodes || [];
+    if (governors.length === 0) {
+      console.log('No governors found');
+      return null;
+    }
+
+    const governor = governors[0]; // Use the first available governor
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Now get voting data for this specific user and governor
+    const votingResponse = await fetch('https://api.tally.xyz/query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Api-Key': apiKey
+      },
+      body: JSON.stringify({
+        query: `
+          query Account($input: AccountInput!) {
+            account(input: $input) {
+              address
+              name
+              bio
+              picture
+              governorDelegates(governorIds: ["${governor.id}"]) {
+                governor {
+                  id
+                  name
+                  slug
+                }
+                delegate {
+                  account {
+                    address
+                    name
+                  }
+                  votesCount
+                }
+                token {
+                  id
+                  name
+                  symbol
+                }
+              }
+              votes(
+                governorIds: ["${governor.id}"]
+                pagination: { limit: 5, offset: 0 }
+              ) {
+                nodes {
+                  id
+                  support
+                  weight
+                  reason
+                  proposal {
+                    id
+                    title
+                    description
+                    status
+                    start {
+                      ... on Block {
+                        number
+                        timestamp
+                      }
+                    }
+                    end {
+                      ... on Block {
+                        number
+                        timestamp
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          input: {
+            address: walletAddress,
+            governorId: governor.id
+          }
+        }
+      })
+    });
+
+    if (!votingResponse.ok) {
+      console.error('Tally voting API error:', votingResponse.status);
+      // Return basic governor info even if we can't get voting data
+      return {
+        governorInfo: {
+          id: governor.id,
+          name: governor.name,
+          symbol: governor.tokens?.[0]?.symbol || 'TOKEN',
+          iconUrl: `https://assets.tally.xyz/${governor.slug}/icon.png`,
+          totalSupply: governor.tokens?.[0]?.supply || '0'
+        },
+        votingInfo: {
+          address: walletAddress,
+          delegatesTo: null,
+          votingPower: '0',
+          votingPowerPercent: '0%',
+          receivedDelegations: null,
+          recentVotes: []
+        }
+      };
+    }
+
+    const votingData = await votingResponse.json();
+    console.log('Tally voting response:', votingData);
+
+    const account = votingData.data?.account;
     
+    // Process the voting data
+    const delegates = account?.governorDelegates || [];
+    const votes = account?.votes?.nodes || [];
+    
+    // Get voting power from delegates data
+    const delegateInfo = delegates.find(d => d.governor.id === governor.id);
+    const votingPower = delegateInfo?.delegate?.votesCount || '0';
+    
+    // Process recent votes
+    const recentVotes = votes.map(vote => ({
+      proposalId: vote.proposal.id,
+      proposalTitle: vote.proposal.title,
+      choice: vote.support === 'FOR' ? 'for' as const : 
+             vote.support === 'AGAINST' ? 'against' as const : 'abstain' as const,
+      timestamp: vote.proposal.end?.timestamp ? 
+                 new Date(vote.proposal.end.timestamp).getTime() : 
+                 Date.now()
+    }));
+
     return {
       governorInfo: {
-        id: '0x123456789abcdef',
-        name: 'ENS',
-        symbol: 'ENS',
-        iconUrl: 'https://raw.githubusercontent.com/ensdomains/media/master/icons/ENS.png',
-        totalSupply: '42,069,420'
+        id: governor.id,
+        name: governor.name,
+        symbol: governor.tokens?.[0]?.symbol || 'TOKEN',
+        iconUrl: `https://assets.tally.xyz/${governor.slug}/icon.png`,
+        totalSupply: governor.tokens?.[0]?.supply || '0'
       },
       votingInfo: {
         address: walletAddress,
-        delegatesTo: null,
-        votingPower: '138.75',
-        votingPowerPercent: '0.12%',
-        receivedDelegations: '2 addresses delegating',
-        recentVotes: [
-          {
-            proposalId: '15',
-            proposalTitle: 'EP-3.1: ENS Permanent Registrar Third Price Extension',
-            choice: 'for',
-            timestamp: Date.now() - 1000 * 60 * 60 * 24 * 3 // 3 days ago
-          },
-          {
-            proposalId: '14',
-            proposalTitle: 'EP-2.12: Enhance DAO Operations Tooling',
-            choice: 'against',
-            timestamp: Date.now() - 1000 * 60 * 60 * 24 * 12 // 12 days ago
-          }
-        ]
+        delegatesTo: delegateInfo?.delegate?.account?.address || null,
+        votingPower: votingPower.toString(),
+        votingPowerPercent: '0%', // Would need additional calculation
+        receivedDelegations: delegates.length > 0 ? `${delegates.length} delegation(s)` : null,
+        recentVotes: recentVotes
       }
     };
+
   } catch (error) {
-    console.error('Error fetching Tally data:', error);
+    console.error('Error fetching real Tally data:', error);
     return null;
   }
 }

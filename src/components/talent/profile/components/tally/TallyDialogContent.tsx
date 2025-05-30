@@ -1,12 +1,8 @@
 
 import React from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ExternalLink, Vote, Users, TrendingUp } from 'lucide-react';
 import { useTallyData } from '@/hooks/useTallyData';
-import { TallyData } from '@/types/tally';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, ChevronRight, Users, Vote } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
 
 interface TallyDialogContentProps {
   walletAddress: string;
@@ -17,140 +13,152 @@ const TallyDialogContent: React.FC<TallyDialogContentProps> = ({ walletAddress }
 
   if (isLoading) {
     return (
-      <div className="flex flex-col space-y-4 p-6">
-        <Skeleton className="h-8 w-full" />
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
+      <div className="space-y-4">
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-32 w-full" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 text-center">
-        <p className="text-red-500 font-medium">Error loading Tally data</p>
-        <p className="text-gray-500 text-sm mt-2">{error}</p>
+      <div className="text-center py-8">
+        <div className="text-red-500 mb-2">
+          <Vote className="h-12 w-12 mx-auto mb-4 opacity-50" />
+        </div>
+        <h3 className="text-lg font-semibold text-red-600 mb-2">Error Loading Governance Data</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Unable to fetch governance information from Tally.xyz
+        </p>
+        <p className="text-xs text-muted-foreground">
+          This could be due to API rate limits or the wallet not participating in any DAOs.
+        </p>
       </div>
     );
   }
 
   if (!tallyData) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 text-center">
-        <img 
-          src="https://assets.tally.xyz/tally-logo.svg" 
-          alt="Tally" 
-          className="h-20 w-20 mb-4 opacity-50"
-        />
-        <p className="text-gray-500 font-medium">No governance data found</p>
-        <p className="text-gray-500 text-sm mt-2">
-          This wallet isn't participating in any DAOs tracked by Tally
+      <div className="text-center py-8">
+        <Vote className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+        <h3 className="text-lg font-semibold text-muted-foreground mb-2">No Governance Activity</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          This wallet doesn't appear to have any governance activity on tracked DAOs.
         </p>
+        <a 
+          href="https://www.tally.xyz/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
+        >
+          Explore DAOs on Tally <ExternalLink className="h-4 w-4" />
+        </a>
       </div>
     );
   }
 
-  const { governorInfo, votingInfo } = tallyData;
-
   return (
-    <div className="p-6">
-      <div className="flex items-center space-x-4 mb-6">
-        <img 
-          src={governorInfo.iconUrl || "https://assets.tally.xyz/tally-logo.svg"} 
-          alt={governorInfo.name || "Tally"} 
-          className="h-16 w-16 rounded-md"
-        />
-        <div>
-          <h3 className="text-xl font-bold">{governorInfo.name}</h3>
-          <div className="flex items-center mt-1">
-            <Badge variant="outline" className="mr-2">{governorInfo.symbol}</Badge>
-            <span className="text-sm text-muted-foreground">
-              {votingInfo.votingPowerPercent && `${votingInfo.votingPowerPercent} of supply`}
-            </span>
+    <div className="space-y-6">
+      {/* DAO Information */}
+      <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg">
+        <div className="flex items-center gap-3 mb-3">
+          <img 
+            src={tallyData.governorInfo.iconUrl || "https://assets.tally.xyz/tally-logo.svg"} 
+            alt={tallyData.governorInfo.name}
+            className="h-10 w-10 rounded-lg"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "https://assets.tally.xyz/tally-logo.svg";
+            }}
+          />
+          <div>
+            <h3 className="font-bold text-lg">{tallyData.governorInfo.name}</h3>
+            <p className="text-sm text-muted-foreground">{tallyData.governorInfo.symbol}</p>
           </div>
+        </div>
+        
+        {tallyData.governorInfo.totalSupply && (
+          <div className="text-xs text-muted-foreground">
+            Total Supply: {tallyData.governorInfo.totalSupply}
+          </div>
+        )}
+      </div>
+
+      {/* Voting Statistics */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white border rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="h-4 w-4 text-green-600" />
+            <span className="text-sm font-medium">Voting Power</span>
+          </div>
+          <p className="text-2xl font-bold">{tallyData.votingInfo.votingPower || "0"}</p>
+          {tallyData.votingInfo.votingPowerPercent && (
+            <p className="text-xs text-muted-foreground">{tallyData.votingInfo.votingPowerPercent}</p>
+          )}
+        </div>
+        
+        <div className="bg-white border rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Users className="h-4 w-4 text-blue-600" />
+            <span className="text-sm font-medium">Delegations</span>
+          </div>
+          <p className="text-2xl font-bold">
+            {tallyData.votingInfo.receivedDelegations ? "Yes" : "None"}
+          </p>
+          {tallyData.votingInfo.receivedDelegations && (
+            <p className="text-xs text-muted-foreground">{tallyData.votingInfo.receivedDelegations}</p>
+          )}
         </div>
       </div>
 
-      <Tabs defaultValue="voting">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="voting">Voting Power</TabsTrigger>
-          <TabsTrigger value="proposals">Recent Votes</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="voting" className="mt-4 space-y-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-center mb-2">
-              <Vote className="h-4 w-4 mr-2 text-purple-500" />
-              <h4 className="font-medium text-gray-700">Voting Power</h4>
-            </div>
-            <p className="text-xl font-bold">{votingInfo.votingPower || "0"}</p>
-            <p className="text-sm text-gray-500 mt-1">{votingInfo.votingPowerPercent || "0%"} of total supply</p>
-          </div>
-          
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-center mb-2">
-              <Users className="h-4 w-4 mr-2 text-purple-500" />
-              <h4 className="font-medium text-gray-700">Received Delegations</h4>
-            </div>
-            <p className="text-lg">{votingInfo.receivedDelegations || "None"}</p>
-          </div>
-          
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-center mb-2">
-              <h4 className="font-medium text-gray-700">Delegating To</h4>
-            </div>
-            {votingInfo.delegatesTo ? (
-              <div className="flex items-center justify-between">
-                <p>{votingInfo.delegatesTo}</p>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-              </div>
-            ) : (
-              <p className="text-gray-500">Self-delegated</p>
-            )}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="proposals" className="mt-4">
-          {votingInfo.recentVotes && votingInfo.recentVotes.length > 0 ? (
-            <div className="space-y-4">
-              {votingInfo.recentVotes.map((vote, index) => (
-                <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex justify-between">
-                    <Badge 
-                      variant="outline" 
-                      className={vote.choice === 'for' ? 'bg-green-100 text-green-800' : 
-                        vote.choice === 'against' ? 'bg-red-100 text-red-800' : 
-                        'bg-gray-100 text-gray-800'}
-                    >
-                      {vote.choice.toUpperCase()}
-                    </Badge>
-                    <div className="flex items-center text-xs text-gray-500">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {formatDistanceToNow(vote.timestamp, { addSuffix: true })}
-                    </div>
-                  </div>
-                  <p className="font-medium mt-2">{vote.proposalTitle}</p>
-                  <p className="text-xs text-gray-500 mt-1">Proposal #{vote.proposalId}</p>
+      {/* Delegation Info */}
+      {tallyData.votingInfo.delegatesTo && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <h4 className="font-semibold text-amber-800 mb-2">Delegation</h4>
+          <p className="text-sm text-amber-700">
+            Delegated to: <span className="font-mono">{tallyData.votingInfo.delegatesTo}</span>
+          </p>
+        </div>
+      )}
+
+      {/* Recent Votes */}
+      {tallyData.votingInfo.recentVotes && tallyData.votingInfo.recentVotes.length > 0 && (
+        <div>
+          <h4 className="font-semibold mb-3 flex items-center gap-2">
+            <Vote className="h-4 w-4" />
+            Recent Votes
+          </h4>
+          <div className="space-y-3">
+            {tallyData.votingInfo.recentVotes.map((vote, index) => (
+              <div key={`${vote.proposalId}-${index}`} className="border rounded-lg p-3">
+                <div className="flex items-start justify-between mb-2">
+                  <h5 className="font-medium text-sm line-clamp-2">{vote.proposalTitle}</h5>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    vote.choice === 'for' ? 'bg-green-100 text-green-800' :
+                    vote.choice === 'against' ? 'bg-red-100 text-red-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {vote.choice.toUpperCase()}
+                  </span>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-6 text-gray-500">
-              <p>No recent votes found</p>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-      
-      <div className="flex justify-end mt-6">
+                <p className="text-xs text-muted-foreground">
+                  Proposal #{vote.proposalId} • {new Date(vote.timestamp).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Tally Link */}
+      <div className="pt-4 border-t">
         <a 
-          href={`https://www.tally.xyz/gov/${governorInfo.id}`} 
+          href={`https://www.tally.xyz/profile/${walletAddress}`}
           target="_blank" 
-          rel="noopener noreferrer" 
-          className="text-purple-500 hover:text-purple-700 text-sm flex items-center"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
         >
-          View on Tally.xyz 
-          <ChevronRight className="h-4 w-4 ml-1" />
+          View full profile on Tally <ExternalLink className="h-4 w-4" />
         </a>
       </div>
     </div>
