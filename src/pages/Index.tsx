@@ -16,6 +16,11 @@ const Index = () => {
       {/* Animated Professional Background */}
       <HeroBackground />
       
+      {/* Top Left Wallet Connect */}
+      <div className="absolute top-4 left-4 z-20">
+        <RainbowWalletConnect />
+      </div>
+      
       {/* Content */}
       <div className="relative z-10 h-screen flex flex-col">
         {/* Hero Section */}
@@ -23,7 +28,6 @@ const Index = () => {
           <div className="max-w-7xl mx-auto">
             <HeroTitle />
             <SearchSection />
-            <RainbowWalletConnect />
             <ActionButtonsSection />
             <FeaturedProfileSection />
           </div>
