@@ -24,7 +24,7 @@ const FeaturedProfileSection: React.FC = () => {
         className="cursor-pointer transform hover:scale-102 transition-all duration-200 bg-slate-800/50 backdrop-blur-sm border border-slate-600/50 hover:border-slate-500 group shadow-lg hover:shadow-xl rounded-lg" 
         onClick={handleSmithBoxClick}
       >
-        <CardContent className="p-6 text-center">
+        <CardContent className="p-4 text-center">
           <div className="mb-4">
             <Avatar className="h-16 w-16 mx-auto border-2 border-slate-600 group-hover:border-blue-400 transition-all duration-200">
               <AvatarImage 
