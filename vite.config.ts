@@ -102,6 +102,15 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           ) {
             return;
           }
+          
+          // Suppress warnings about missing polyfills that are externalized
+          if (
+            warning.code === 'UNRESOLVED_IMPORT' &&
+            warning.message.includes('string-decoder')
+          ) {
+            return;
+          }
+          
           warn(warning);
         },
       },
