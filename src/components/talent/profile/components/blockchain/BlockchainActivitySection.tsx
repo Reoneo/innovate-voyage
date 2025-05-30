@@ -14,7 +14,7 @@ const BlockchainActivitySection: React.FC<BlockchainActivitySectionProps> = ({
 }) => {
   const { data, loading, hasData } = useBlockchainActivity(walletAddress);
 
-  console.log('BlockchainActivitySection render:', {
+  console.log('BlockchainActivitySection render state:', {
     walletAddress,
     loading,
     hasData,
@@ -42,12 +42,8 @@ const BlockchainActivitySection: React.FC<BlockchainActivitySectionProps> = ({
     );
   }
 
-  if (!hasData) {
-    console.log('No blockchain data available, hiding section');
-    return null; // Hide section if no data available
-  }
-
-  console.log('Rendering blockchain activity data:', data);
+  // Always show the section - don't hide it based on hasData
+  console.log('Rendering blockchain activity section with data:', data);
 
   return (
     <Card className="w-full">
@@ -58,37 +54,43 @@ const BlockchainActivitySection: React.FC<BlockchainActivitySectionProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-4">
-          {data.firstTransaction && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                <span>First Transaction:</span>
+        {hasData ? (
+          <div className="grid gap-4">
+            {data.firstTransaction && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>First Transaction:</span>
+                </div>
+                <span className="text-sm font-medium">{data.firstTransaction}</span>
               </div>
-              <span className="text-sm font-medium">{data.firstTransaction}</span>
-            </div>
-          )}
-          
-          {data.ethBalance && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Coins className="h-4 w-4" />
-                <span>ETH Balance:</span>
+            )}
+            
+            {data.ethBalance && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Coins className="h-4 w-4" />
+                  <span>ETH Balance:</span>
+                </div>
+                <span className="text-sm font-medium">{data.ethBalance} ETH</span>
               </div>
-              <span className="text-sm font-medium">{data.ethBalance} ETH</span>
-            </div>
-          )}
-          
-          {data.outgoingTransactions !== null && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <ArrowUpRight className="h-4 w-4" />
-                <span>Outgoing Transactions:</span>
+            )}
+            
+            {data.outgoingTransactions !== null && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <ArrowUpRight className="h-4 w-4" />
+                  <span>Outgoing Transactions:</span>
+                </div>
+                <span className="text-sm font-medium">{data.outgoingTransactions}</span>
               </div>
-              <span className="text-sm font-medium">{data.outgoingTransactions}</span>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-sm text-muted-foreground">
+            Loading blockchain activity data...
+          </div>
+        )}
         
         {data.hasBuilderScore && (
           <div className="mt-4 pt-3 border-t">
@@ -98,7 +100,7 @@ const BlockchainActivitySection: React.FC<BlockchainActivitySectionProps> = ({
           </div>
         )}
         
-        {!data.hasBuilderScore && (
+        {!data.hasBuilderScore && hasData && (
           <div className="mt-4 pt-3 border-t">
             <p className="text-xs text-muted-foreground">
               Data sourced from Etherscan

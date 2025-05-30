@@ -126,16 +126,22 @@ export function useBlockchainActivity(walletAddress: string) {
 
         console.log('Final activity data:', activityData);
 
-        // Show section if we have any data
-        const hasAnyData = firstTx || ethBalance || outgoingTxCount > 0;
-        console.log('Has any data:', hasAnyData);
+        // Show section if we have any data (more permissive logic)
+        const hasAnyData = firstTx || ethBalance !== null || outgoingTxCount >= 0;
+        console.log('Has any data check:', {
+          firstTx: !!firstTx,
+          hasEthBalance: ethBalance !== null,
+          hasOutgoingTx: outgoingTxCount >= 0,
+          hasAnyData
+        });
 
         setData(activityData);
         setHasData(hasAnyData);
 
       } catch (error) {
         console.error('Error fetching blockchain activity:', error);
-        setHasData(false);
+        // Still show the section even on error, with empty data
+        setHasData(true);
       } finally {
         setLoading(false);
         console.log('Blockchain activity fetch completed');
@@ -145,7 +151,7 @@ export function useBlockchainActivity(walletAddress: string) {
     fetchBlockchainActivity();
   }, [walletAddress]);
 
-  console.log('useBlockchainActivity hook state:', { data, loading, hasData, walletAddress });
+  console.log('useBlockchainActivity hook final state:', { data, loading, hasData, walletAddress });
 
   return { data, loading, hasData };
 }
