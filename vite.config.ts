@@ -37,7 +37,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
         punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
         url: 'rollup-plugin-node-polyfills/polyfills/url',
-        string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
+        'string_decoder': 'rollup-plugin-node-polyfills/polyfills/string-decoder',
         http: 'rollup-plugin-node-polyfills/polyfills/http',
         https: 'rollup-plugin-node-polyfills/polyfills/http',
         os: 'rollup-plugin-node-polyfills/polyfills/os',
@@ -99,14 +99,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             (warning.message.includes('@safe-global/safe-apps-sdk') || 
              warning.message.includes('@safe-window/safe-apps-sdk') ||
              warning.message.includes('@safe-window/safe-apps-provider'))
-          ) {
-            return;
-          }
-          
-          // Suppress warnings about missing polyfills that are externalized
-          if (
-            warning.code === 'UNRESOLVED_IMPORT' &&
-            warning.message.includes('string-decoder')
           ) {
             return;
           }

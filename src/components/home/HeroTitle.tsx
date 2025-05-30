@@ -11,10 +11,10 @@ const HeroTitle: React.FC = () => {
       </div>
       
       <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-white mb-6">
-        Find 
+        Blockchain 
         <br />
         <span className="bg-gradient-to-r from-blue-400 to-slate-300 bg-clip-text text-transparent">
-          Blockchain Talent
+          Talent
         </span>
       </h1>
       
