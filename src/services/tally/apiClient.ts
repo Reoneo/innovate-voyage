@@ -11,7 +11,7 @@ const TALLY_API_ENDPOINT = 'https://api.tally.xyz/query';
 export async function tallyFetcher({ query, variables = {} }: { query: string; variables?: any }) {
   console.log('🔄 Making Tally API request');
   console.log('📍 Endpoint:', TALLY_API_ENDPOINT);
-  console.log('📝 Query:', query.substring(0, 100) + '...');
+  console.log('📝 Query:', query);
   console.log('🔧 Variables:', JSON.stringify(variables, null, 2));
   
   try {
@@ -41,17 +41,30 @@ export async function tallyFetcher({ query, variables = {} }: { query: string; v
     }
 
     const data = await response.json();
-    console.log('✅ Tally API response data:', JSON.stringify(data, null, 2));
+    console.log('✅ Tally API Full Response:', JSON.stringify(data, null, 2));
     
     if (data.errors) {
       console.error('❌ Tally GraphQL errors:', data.errors);
+      data.errors.forEach((error: any, index: number) => {
+        console.error(`Error ${index + 1}:`, {
+          message: error.message,
+          locations: error.locations,
+          path: error.path,
+          extensions: error.extensions
+        });
+      });
       throw new Error(`GraphQL query failed: ${JSON.stringify(data.errors)}`);
     }
 
-    console.log('🎉 Tally API request successful');
+    console.log('🎉 Tally API request successful, returning:', data.data);
     return data.data;
   } catch (error) {
     console.error('💥 Tally API request failed:', error);
+    console.error('💥 Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
     throw error;
   }
 }

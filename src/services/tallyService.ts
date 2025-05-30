@@ -13,21 +13,30 @@ export async function fetchTallyData(apiKey: string, walletAddress: string): Pro
   try {
     // Step 1: Try to get user account data
     console.log('👤 Step 1: Fetching user account data...');
-    const userData = await tallyFetcher({
-      query: USER_GOVERNANCE_QUERY,
-      variables: { addresses: [walletAddress] }
-    });
-
-    console.log('👤 User account data received:', userData);
-    const processedUserData = processUserGovernanceData(userData, walletAddress);
     
-    if (processedUserData) {
-      console.log('✅ Successfully processed user account data:', processedUserData);
-      return processedUserData;
+    try {
+      const userData = await tallyFetcher({
+        query: USER_GOVERNANCE_QUERY,
+        variables: { addresses: [walletAddress] }
+      });
+
+      console.log('👤 User account data received:', userData);
+      
+      if (userData && userData.accounts && userData.accounts.length > 0) {
+        const processedUserData = processUserGovernanceData(userData, walletAddress);
+        
+        if (processedUserData) {
+          console.log('✅ Successfully processed user account data:', processedUserData);
+          return processedUserData;
+        }
+      }
+    } catch (userDataError) {
+      console.warn('⚠️ Step 1 failed - accounts query error:', userDataError);
     }
 
     // Step 2: Try to get delegatee data (who this user delegates to)
     console.log('🔄 Step 2: No account data found, trying delegatee data...');
+    
     try {
       const delegateeData = await tallyFetcher({
         query: USER_DELEGATE_QUERY,
@@ -44,40 +53,51 @@ export async function fetchTallyData(apiKey: string, walletAddress: string): Pro
       });
 
       console.log('🔄 Delegatee data received:', delegateeData);
-      const processedDelegateeData = processDelegateData(delegateeData, walletAddress);
       
-      if (processedDelegateeData) {
-        console.log('✅ Successfully processed delegatee data:', processedDelegateeData);
-        return processedDelegateeData;
+      if (delegateeData && delegateeData.delegatees && delegateeData.delegatees.nodes && delegateeData.delegatees.nodes.length > 0) {
+        const processedDelegateeData = processDelegateData(delegateeData, walletAddress);
+        
+        if (processedDelegateeData) {
+          console.log('✅ Successfully processed delegatee data:', processedDelegateeData);
+          return processedDelegateeData;
+        }
       }
     } catch (delegateeError) {
-      console.warn('⚠️ Could not fetch delegatee data:', delegateeError);
+      console.warn('⚠️ Step 2 failed - delegatees query error:', delegateeError);
     }
 
     // Step 3: Get general delegates for fallback display
     console.log('📊 Step 3: No specific user data found, fetching general delegates...');
-    const generalDelegatesData = await tallyFetcher({
-      query: DELEGATES_QUERY,
-      variables: {
-        input: {
-          filters: {},
-          page: {
-            limit: 1
-          },
-          sort: {
-            field: "VOTES_COUNT",
-            order: "DESC"
+    
+    try {
+      const generalDelegatesData = await tallyFetcher({
+        query: DELEGATES_QUERY,
+        variables: {
+          input: {
+            filters: {},
+            page: {
+              limit: 1
+            },
+            sort: {
+              field: "VOTES_COUNT",
+              order: "DESC"
+            }
           }
         }
-      }
-    });
+      });
 
-    console.log('📊 General delegates data received:', generalDelegatesData);
-    const processedGeneralData = processGeneralDelegatesData(generalDelegatesData, walletAddress);
-    
-    if (processedGeneralData) {
-      console.log('✅ Successfully processed general delegates data:', processedGeneralData);
-      return processedGeneralData;
+      console.log('📊 General delegates data received:', generalDelegatesData);
+      
+      if (generalDelegatesData && generalDelegatesData.delegates && generalDelegatesData.delegates.nodes && generalDelegatesData.delegates.nodes.length > 0) {
+        const processedGeneralData = processGeneralDelegatesData(generalDelegatesData, walletAddress);
+        
+        if (processedGeneralData) {
+          console.log('✅ Successfully processed general delegates data:', processedGeneralData);
+          return processedGeneralData;
+        }
+      }
+    } catch (generalError) {
+      console.warn('⚠️ Step 3 failed - delegates query error:', generalError);
     }
 
     console.log('❌ No data could be processed from any API calls');

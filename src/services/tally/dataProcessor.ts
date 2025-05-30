@@ -5,17 +5,18 @@ import { TallyData } from '@/types/tally';
  * Process user governance data from Tally API response using accounts query
  */
 export function processUserGovernanceData(userData: any, walletAddress: string): TallyData | null {
-  console.log('Processing user governance data:', userData);
+  console.log('🔍 Processing user governance data:', JSON.stringify(userData, null, 2));
   
   const accounts = userData?.accounts || [];
+  console.log('📊 Found accounts:', accounts.length);
   
   if (accounts.length === 0) {
-    console.log('No account data found');
+    console.log('❌ No account data found');
     return null;
   }
 
   const account = accounts[0];
-  console.log('Account found:', account);
+  console.log('✅ Account found:', JSON.stringify(account, null, 2));
   
   // Create basic governance data from account info
   return {
@@ -41,17 +42,18 @@ export function processUserGovernanceData(userData: any, walletAddress: string):
  * Process delegate data from Tally API response
  */
 export function processDelegateData(delegateData: any, walletAddress: string): TallyData | null {
-  console.log('Processing delegate data:', delegateData);
+  console.log('🔍 Processing delegate data:', JSON.stringify(delegateData, null, 2));
   
   const delegations = delegateData?.delegatees?.nodes || [];
+  console.log('📊 Found delegations:', delegations.length);
   
   if (delegations.length === 0) {
-    console.log('No delegate data found');
+    console.log('❌ No delegate data found');
     return null;
   }
 
   const delegation = delegations[0];
-  console.log('Delegation found:', delegation);
+  console.log('✅ Delegation found:', JSON.stringify(delegation, null, 2));
   
   return {
     governorInfo: {
@@ -76,17 +78,18 @@ export function processDelegateData(delegateData: any, walletAddress: string): T
  * Process general delegates data when no user-specific data is available
  */
 export function processGeneralDelegatesData(delegatesData: any, walletAddress: string): TallyData | null {
-  console.log('Processing general delegates data:', delegatesData);
+  console.log('🔍 Processing general delegates data:', JSON.stringify(delegatesData, null, 2));
   
   const delegates = delegatesData?.delegates?.nodes || [];
+  console.log('📊 Found delegates:', delegates.length);
   
   if (delegates.length === 0) {
-    console.log('No delegates found');
+    console.log('❌ No delegates found');
     return null;
   }
 
   const delegate = delegates[0];
-  console.log('Using delegate:', delegate);
+  console.log('✅ Using delegate:', JSON.stringify(delegate, null, 2));
   
   return {
     governorInfo: {
