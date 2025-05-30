@@ -53,7 +53,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
             <img 
               src={poap.event.image_url} 
               alt={poap.event.name} 
-              className="w-44 h-44 rounded-full cursor-pointer z-10 p-2 object-contain" 
+              className="w-36 h-36 rounded-full cursor-pointer z-10 p-2 object-contain" 
               style={{
                 background: 'rgba(0,0,0,0.7)'
               }} 
@@ -88,7 +88,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
                 <img 
                   src={poap.event.image_url} 
                   alt={poap.event.name} 
-                  className="w-44 h-44 rounded-full cursor-pointer z-10 p-2 object-contain" 
+                  className="w-36 h-36 rounded-full cursor-pointer z-10 p-2 object-contain" 
                   style={{
                     background: 'rgba(0,0,0,0.7)'
                   }} 
@@ -101,7 +101,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
       </Carousel>
 
       {/* Navigation Controls */}
-      <div className="flex items-center justify-center mt-4 space-x-4">
+      <div className="flex items-center justify-center mt-2 space-x-4">
         {/* Left Arrow */}
         <button
           onClick={() => api?.scrollPrev()}
@@ -154,7 +154,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
 
       {/* Swipe Hint Text */}
       {poaps.length > 1 && (
-        <div className="text-xs text-center mt-2 text-muted-foreground">
+        <div className="text-xs text-center mt-1 text-muted-foreground">
           Swipe or click arrows to browse POAPs
         </div>
       )}
