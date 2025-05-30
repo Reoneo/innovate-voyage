@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Poap } from '@/api/services/poapService';
 import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PoapCarouselProps {
   poaps: Poap[];
@@ -19,6 +20,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
   const [current, setCurrent] = useState(0);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!api) {
@@ -41,6 +43,8 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
     };
   }, [api, onCarouselChange]);
 
+  const poapSize = isMobile ? 'w-28 h-28' : 'w-44 h-44';
+
   if (poaps.length <= 1) {
     return (
       <div className="flex items-center justify-center">
@@ -53,7 +57,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
             <img 
               src={poap.event.image_url} 
               alt={poap.event.name} 
-              className="w-44 h-44 rounded-full cursor-pointer z-10 p-2 object-contain" 
+              className={`${poapSize} rounded-full cursor-pointer z-10 p-2 object-contain`}
               style={{
                 background: 'rgba(0,0,0,0.7)'
               }} 
@@ -69,7 +73,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
   const shouldShowDots = poaps.length <= 10;
 
   return (
-    <div className="relative w-full max-w-xs">
+    <div className={`relative w-full ${isMobile ? 'max-w-xs' : 'max-w-xs'}`}>
       <Carousel 
         setApi={setApi}
         opts={{
@@ -88,7 +92,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
                 <img 
                   src={poap.event.image_url} 
                   alt={poap.event.name} 
-                  className="w-44 h-44 rounded-full cursor-pointer z-10 p-2 object-contain" 
+                  className={`${poapSize} rounded-full cursor-pointer z-10 p-2 object-contain`}
                   style={{
                     background: 'rgba(0,0,0,0.7)'
                   }} 
@@ -101,28 +105,28 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
       </Carousel>
 
       {/* Navigation Controls */}
-      <div className="flex items-center justify-center mt-4 space-x-4">
+      <div className={`flex items-center justify-center ${isMobile ? 'mt-2 space-x-2' : 'mt-4 space-x-4'}`}>
         {/* Left Arrow */}
         <button
           onClick={() => api?.scrollPrev()}
           disabled={!canScrollPrev}
-          className={`p-2 rounded-full transition-all ${
+          className={`${isMobile ? 'p-1' : 'p-2'} rounded-full transition-all ${
             canScrollPrev 
               ? 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-lg' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
         </button>
 
         {/* Indicator: Either dots or counter */}
         {shouldShowDots ? (
-          <div className="flex space-x-2">
+          <div className={`flex ${isMobile ? 'space-x-1' : 'space-x-2'}`}>
             {poaps.map((_, index) => (
               <button
                 key={index}
                 onClick={() => api?.scrollTo(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
+                className={`${isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'} rounded-full transition-all ${
                   index === current 
                     ? 'bg-black scale-125' 
                     : 'bg-gray-300 hover:bg-gray-400'
@@ -131,7 +135,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
             ))}
           </div>
         ) : (
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+          <div className={`flex items-center ${isMobile ? 'space-x-1 text-xs' : 'space-x-2 text-sm'} text-muted-foreground`}>
             <span className="font-medium text-black">{current + 1}</span>
             <span>/</span>
             <span>{poaps.length}</span>
@@ -142,19 +146,19 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
         <button
           onClick={() => api?.scrollNext()}
           disabled={!canScrollNext}
-          className={`p-2 rounded-full transition-all ${
+          className={`${isMobile ? 'p-1' : 'p-2'} rounded-full transition-all ${
             canScrollNext 
               ? 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-lg' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
         </button>
       </div>
 
       {/* Swipe Hint Text */}
       {poaps.length > 1 && (
-        <div className="text-xs text-center mt-2 text-muted-foreground">
+        <div className={`${isMobile ? 'text-xs mt-1' : 'text-xs mt-2'} text-center text-muted-foreground`}>
           Swipe or click arrows to browse POAPs
         </div>
       )}

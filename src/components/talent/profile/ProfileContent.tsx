@@ -108,8 +108,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className={`w-full ${isMobile ? 'flex flex-col space-y-4' : 'grid grid-cols-1 md:grid-cols-10 gap-6'} h-full`}>
-            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
+          <div className={`w-full ${isMobile ? 'flex flex-col space-y-3' : 'grid grid-cols-1 md:grid-cols-10 gap-6'} h-full`}>
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col ${isMobile ? 'space-y-2' : 'space-y-4'}`}>
               <AvatarSection
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
@@ -123,18 +123,18 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
             </div>
-            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-4 md:space-y-6`}>
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} ${isMobile ? 'space-y-3' : 'space-y-6'}`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
-              
-              {/* POAP Section */}
-              <PoapSection walletAddress={passport.owner_address} />
               
               {/* GitHub contribution graph */}
               {showGitHubSection && (
-                <div className="mt-4">
+                <div className={isMobile ? 'mt-2' : 'mt-4'}>
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}
+
+              {/* POAP Section */}
+              <PoapSection walletAddress={passport.owner_address} />
             </div>
           </div>
         </HeaderContainer>
