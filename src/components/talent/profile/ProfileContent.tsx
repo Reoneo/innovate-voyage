@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -155,17 +154,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 {showGitHubSection && (
                   <div>
                     <GitHubContributionGraph username={githubUsername!} />
-                  </div>
-                )}
-                
-                {/* LinkedIn work experience - Hidden until API key is available */}
-                {showLinkedInSection && (
-                  <div>
-                    <LinkedInExperienceSection 
-                      experience={linkedInExperience}
-                      isLoading={linkedInLoading}
-                      error={linkedInError}
-                    />
                   </div>
                 )}
               </div>
