@@ -47,25 +47,25 @@ const PoapSection: React.FC<PoapSectionProps> = ({
 
   return (
     <>
-      {/* POAP count display */}
-      {poaps.length > 0 && !isLoading && (
-        <div className="text-sm text-center mb-6 text-muted-foreground">
-          <span className="font-medium text-black">{poaps.length}</span> POAPs collected
-        </div>
-      )}
-
-      <div className="relative w-full min-h-[200px] flex items-center justify-center">
+      <div className="relative w-full min-h-[200px] flex flex-col items-center justify-center">
         {isLoading ? (
           <Skeleton className="w-52 h-52 rounded-full" />
         ) : poaps.length > 0 ? (
-          <div className="relative flex items-center justify-center w-full">
+          <>
+            {/* POAP count display */}
+            <div className="text-sm text-center mb-6 text-muted-foreground">
+              <span className="font-medium text-black">{poaps.length}</span> POAPs collected
+            </div>
+            
             {/* POAP Badge with Carousel */}
-            <PoapCarousel 
-              poaps={poaps} 
-              onPoapClick={handleOpenDetail}
-              onCarouselChange={handleCarouselChange} 
-            />
-          </div>
+            <div className="relative flex items-center justify-center w-full">
+              <PoapCarousel 
+                poaps={poaps} 
+                onPoapClick={handleOpenDetail}
+                onCarouselChange={handleCarouselChange} 
+              />
+            </div>
+          </>
         ) : null}
       </div>
 
