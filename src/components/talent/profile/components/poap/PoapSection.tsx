@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -53,7 +54,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
         </div>
       )}
 
-      <div className="relative w-full h-48 flex items-center justify-center mb-6">
+      <div className="relative w-full min-h-[200px] flex items-center justify-center mb-6">
         {isLoading ? (
           <Skeleton className="w-52 h-52 rounded-full" />
         ) : poaps.length > 0 ? (
