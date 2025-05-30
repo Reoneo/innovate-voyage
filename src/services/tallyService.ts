@@ -2,51 +2,156 @@
 import { TallyData } from '@/types/tally';
 
 /**
- * Fetch data from Tally API for a specific wallet address
- * @param apiKey Tally API key
- * @param walletAddress Ethereum wallet address to query
- * @returns Promise with the formatted Tally data
+ * GraphQL query to get user's governance data
  */
-export async function fetchTallyData(apiKey: string, walletAddress: string): Promise<TallyData | null> {
-  try {
-    console.log(`Fetching real Tally data for address: ${walletAddress}`);
-    
-    // First, get the user's governors/DAOs
-    const governorsResponse = await fetch('https://api.tally.xyz/query', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Api-Key': apiKey
-      },
-      body: JSON.stringify({
-        query: `
-          query Governors($input: GovernorsInput!) {
-            governors(input: $input) {
-              nodes {
-                id
-                name
-                slug
-                tokens {
-                  id
-                  name
-                  symbol
-                  supply
-                }
-                delegatesVotesCount
-                proposalsCount
-                quorum
-                timelockId
+const USER_GOVERNANCE_QUERY = `
+  query UserGovernance($address: Address!) {
+    user(address: $address) {
+      address
+      name
+      bio
+      picture
+      governorDelegates {
+        governor {
+          id
+          name
+          slug
+          timelockId
+          tokens {
+            id
+            name
+            symbol
+            supply
+          }
+        }
+        delegate {
+          account {
+            address
+            name
+          }
+          votesCount
+        }
+        token {
+          id
+          name
+          symbol
+        }
+      }
+      votes(pagination: { limit: 5, offset: 0 }) {
+        nodes {
+          id
+          support
+          weight
+          reason
+          proposal {
+            id
+            title
+            description
+            status
+            start {
+              ... on Block {
+                number
+                timestamp
+              }
+            }
+            end {
+              ... on Block {
+                number
+                timestamp
               }
             }
           }
-        `,
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * GraphQL query to get popular governors/DAOs
+ */
+const GOVERNORS_QUERY = `
+  query Governors($input: GovernorsInput!) {
+    governors(input: $input) {
+      nodes {
+        id
+        name
+        slug
+        tokens {
+          id
+          name
+          symbol
+          supply
+        }
+        delegatesVotesCount
+        proposalsCount
+        quorum
+        timelockId
+      }
+    }
+  }
+`;
+
+/**
+ * Fetch data from Tally API using GraphQL
+ */
+async function tallyFetcher({ query, variables = {} }: { query: string; variables?: any }) {
+  const response = await fetch('https://api.withtally.com/query', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'api-key': '823049aef82691e85ae43e20d37e0d2f4b896dafdef53ea5dce0912d78bc1988'
+    },
+    body: JSON.stringify({
+      query,
+      variables
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Tally API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  
+  if (data.errors) {
+    console.error('Tally GraphQL errors:', data.errors);
+    throw new Error('GraphQL query failed');
+  }
+
+  return data.data;
+}
+
+/**
+ * Fetch data from Tally API for a specific wallet address
+ */
+export async function fetchTallyData(apiKey: string, walletAddress: string): Promise<TallyData | null> {
+  try {
+    console.log(`Fetching Tally data for address: ${walletAddress}`);
+    
+    // First, try to get user-specific governance data
+    const userData = await tallyFetcher({
+      query: USER_GOVERNANCE_QUERY,
+      variables: { address: walletAddress }
+    });
+
+    console.log('Tally user data:', userData);
+
+    const user = userData?.user;
+    
+    if (!user) {
+      console.log('No user data found, trying to get general governors data');
+      
+      // If no user data, get popular governors for display
+      const governorsData = await tallyFetcher({
+        query: GOVERNORS_QUERY,
         variables: {
           input: {
             filters: {
               includeInactive: false
             },
             page: {
-              limit: 10,
+              limit: 1,
               offset: 0
             },
             sort: {
@@ -55,104 +160,15 @@ export async function fetchTallyData(apiKey: string, walletAddress: string): Pro
             }
           }
         }
-      })
-    });
+      });
 
-    if (!governorsResponse.ok) {
-      console.error('Tally governors API error:', governorsResponse.status);
-      return null;
-    }
+      const governors = governorsData?.governors?.nodes || [];
+      if (governors.length === 0) {
+        return null;
+      }
 
-    const governorsData = await governorsResponse.json();
-    console.log('Tally governors response:', governorsData);
-
-    // Get the first governor to use for demo (in production, you'd want to check which DAOs the user participates in)
-    const governors = governorsData.data?.governors?.nodes || [];
-    if (governors.length === 0) {
-      console.log('No governors found');
-      return null;
-    }
-
-    const governor = governors[0]; // Use the first available governor
-    
-    // Now get voting data for this specific user and governor
-    const votingResponse = await fetch('https://api.tally.xyz/query', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Api-Key': apiKey
-      },
-      body: JSON.stringify({
-        query: `
-          query Account($input: AccountInput!) {
-            account(input: $input) {
-              address
-              name
-              bio
-              picture
-              governorDelegates(governorIds: ["${governor.id}"]) {
-                governor {
-                  id
-                  name
-                  slug
-                }
-                delegate {
-                  account {
-                    address
-                    name
-                  }
-                  votesCount
-                }
-                token {
-                  id
-                  name
-                  symbol
-                }
-              }
-              votes(
-                governorIds: ["${governor.id}"]
-                pagination: { limit: 5, offset: 0 }
-              ) {
-                nodes {
-                  id
-                  support
-                  weight
-                  reason
-                  proposal {
-                    id
-                    title
-                    description
-                    status
-                    start {
-                      ... on Block {
-                        number
-                        timestamp
-                      }
-                    }
-                    end {
-                      ... on Block {
-                        number
-                        timestamp
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `,
-        variables: {
-          input: {
-            address: walletAddress,
-            governorId: governor.id
-          }
-        }
-      })
-    });
-
-    if (!votingResponse.ok) {
-      console.error('Tally voting API error:', votingResponse.status);
-      // Return basic governor info even if we can't get voting data
+      const governor = governors[0];
+      
       return {
         governorInfo: {
           id: governor.id,
@@ -172,18 +188,19 @@ export async function fetchTallyData(apiKey: string, walletAddress: string): Pro
       };
     }
 
-    const votingData = await votingResponse.json();
-    console.log('Tally voting response:', votingData);
+    // Process user governance data
+    const delegates = user.governorDelegates || [];
+    const votes = user.votes?.nodes || [];
+    
+    // Get the primary governance participation
+    const primaryDelegate = delegates[0];
+    
+    if (!primaryDelegate) {
+      return null;
+    }
 
-    const account = votingData.data?.account;
-    
-    // Process the voting data
-    const delegates = account?.governorDelegates || [];
-    const votes = account?.votes?.nodes || [];
-    
-    // Get voting power from delegates data
-    const delegateInfo = delegates.find(d => d.governor.id === governor.id);
-    const votingPower = delegateInfo?.delegate?.votesCount || '0';
+    const governor = primaryDelegate.governor;
+    const delegateInfo = primaryDelegate.delegate;
     
     // Process recent votes
     const recentVotes = votes.map(vote => ({
@@ -206,8 +223,8 @@ export async function fetchTallyData(apiKey: string, walletAddress: string): Pro
       },
       votingInfo: {
         address: walletAddress,
-        delegatesTo: delegateInfo?.delegate?.account?.address || null,
-        votingPower: votingPower.toString(),
+        delegatesTo: delegateInfo?.account?.address || null,
+        votingPower: delegateInfo?.votesCount?.toString() || '0',
         votingPowerPercent: '0%', // Would need additional calculation
         receivedDelegations: delegates.length > 0 ? `${delegates.length} delegation(s)` : null,
         recentVotes: recentVotes
@@ -215,7 +232,7 @@ export async function fetchTallyData(apiKey: string, walletAddress: string): Pro
     };
 
   } catch (error) {
-    console.error('Error fetching real Tally data:', error);
+    console.error('Error fetching Tally data:', error);
     return null;
   }
 }

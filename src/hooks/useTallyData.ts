@@ -9,21 +9,31 @@ export function useTallyData(walletAddress?: string) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!walletAddress) return;
+    if (!walletAddress) {
+      setTallyData(null);
+      setError(null);
+      return;
+    }
 
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
       
       try {
-        // Use the API key provided by the user
-        const tallyKey = '823049aef82691e85ae43e20d37e0d2f4b896dafdef53ea5dce0912d78bc1988';
+        console.log('Starting Tally data fetch for:', walletAddress);
         
+        const tallyKey = '823049aef82691e85ae43e20d37e0d2f4b896dafdef53ea5dce0912d78bc1988';
         const data = await fetchTallyData(tallyKey, walletAddress);
+        
+        console.log('Tally data received:', data);
         setTallyData(data);
+        
+        if (!data) {
+          setError("No governance data found for this address");
+        }
       } catch (err) {
         console.error("Error fetching Tally data:", err);
-        setError("Failed to fetch DAO data");
+        setError("Failed to fetch governance data from Tally");
         setTallyData(null);
       } finally {
         setIsLoading(false);
