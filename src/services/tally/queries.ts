@@ -7,13 +7,13 @@
  * GraphQL query to get user's governance data
  */
 export const USER_GOVERNANCE_QUERY = `
-  query UserGovernance($address: Address!) {
-    user(address: $address) {
+  query Account($address: Address!) {
+    account(address: $address) {
       address
       name
       bio
       picture
-      governorDelegates {
+      delegatesVotes {
         governor {
           id
           name
@@ -39,26 +39,22 @@ export const USER_GOVERNANCE_QUERY = `
           symbol
         }
       }
-      votes(pagination: { limit: 5, offset: 0 }) {
-        nodes {
-          id
-          support
-          weight
-          reason
-          proposal {
+      votes(first: 5) {
+        edges {
+          node {
             id
-            title
-            description
-            status
-            start {
-              ... on Block {
-                number
+            support
+            weight
+            reason
+            proposal {
+              id
+              title
+              description
+              status
+              start {
                 timestamp
               }
-            }
-            end {
-              ... on Block {
-                number
+              end {
                 timestamp
               }
             }
@@ -73,22 +69,24 @@ export const USER_GOVERNANCE_QUERY = `
  * GraphQL query to get popular governors/DAOs
  */
 export const GOVERNORS_QUERY = `
-  query Governors($input: GovernorsInput!) {
-    governors(input: $input) {
-      nodes {
-        id
-        name
-        slug
-        tokens {
+  query Governors($first: Int!, $orderBy: GovernorOrderBy) {
+    governors(first: $first, orderBy: $orderBy) {
+      edges {
+        node {
           id
           name
-          symbol
-          supply
+          slug
+          tokens {
+            id
+            name
+            symbol
+            supply
+          }
+          delegatesVotesCount
+          proposalsCount
+          quorum
+          timelockId
         }
-        delegatesVotesCount
-        proposalsCount
-        quorum
-        timelockId
       }
     }
   }

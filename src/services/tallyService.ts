@@ -31,19 +31,8 @@ export async function fetchTallyData(apiKey: string, walletAddress: string): Pro
     const governorsData = await tallyFetcher({
       query: GOVERNORS_QUERY,
       variables: {
-        input: {
-          filters: {
-            includeInactive: false
-          },
-          page: {
-            limit: 1,
-            offset: 0
-          },
-          sort: {
-            isDescending: true,
-            sortBy: "DELEGATED_VOTES"
-          }
-        }
+        first: 1,
+        orderBy: "DELEGATED_VOTES_DESC"
       }
     });
 
