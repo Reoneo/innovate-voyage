@@ -107,7 +107,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className="w-full grid grid-cols-1 md:grid-cols-10 gap-6 h-full">
+          <div className={`w-full ${isMobile ? 'flex flex-col space-y-6' : 'grid grid-cols-1 md:grid-cols-10 gap-6'} h-full`}>
             <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
               <AvatarSection
                 avatarUrl={passport.avatar_url}
