@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -6,6 +5,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
+import FarcasterCastsSection from './components/farcaster/FarcasterCastsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -147,6 +147,13 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                     <GitHubContributionGraph username={githubUsername!} />
                   </div>
                 )}
+                
+                <div>
+                  <FarcasterCastsSection 
+                    ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+                    address={passport.owner_address}
+                  />
+                </div>
               </div>
             </div>
           </div>
