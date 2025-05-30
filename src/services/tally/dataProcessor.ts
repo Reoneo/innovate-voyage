@@ -5,28 +5,37 @@ import { TallyData } from '@/types/tally';
  * Process user governance data from Tally API response
  */
 export function processUserGovernanceData(userData: any, walletAddress: string): TallyData | null {
+  console.log('Processing user governance data:', userData);
+  
   const account = userData?.account;
   
   if (!account) {
+    console.log('No account data found');
     return null;
   }
 
   const delegates = account.delegatesVotes || [];
-  const votes = account.votes?.edges || [];
+  const votes = account.votes?.nodes || [];
+  
+  console.log('Delegates found:', delegates.length);
+  console.log('Votes found:', votes.length);
   
   // Get the primary governance participation
   const primaryDelegate = delegates[0];
   
   if (!primaryDelegate) {
+    console.log('No primary delegate found');
     return null;
   }
 
   const governor = primaryDelegate.governor;
   const delegateInfo = primaryDelegate.delegate;
   
+  console.log('Governor info:', governor);
+  console.log('Delegate info:', delegateInfo);
+  
   // Process recent votes
-  const recentVotes = votes.map((edge: any) => {
-    const vote = edge.node;
+  const recentVotes = votes.map((vote: any) => {
     return {
       proposalId: vote.proposal.id,
       proposalTitle: vote.proposal.title,
@@ -38,12 +47,14 @@ export function processUserGovernanceData(userData: any, walletAddress: string):
     };
   });
 
+  console.log('Processed votes:', recentVotes);
+
   return {
     governorInfo: {
       id: governor.id,
       name: governor.name,
       symbol: governor.tokens?.[0]?.symbol || 'TOKEN',
-      iconUrl: `https://assets.tally.xyz/${governor.slug}/icon.png`,
+      iconUrl: `https://assets.tally.xyz/governors/${governor.slug}/icon.svg`,
       totalSupply: governor.tokens?.[0]?.supply || '0'
     },
     votingInfo: {
@@ -61,20 +72,24 @@ export function processUserGovernanceData(userData: any, walletAddress: string):
  * Process governors data when no user data is available
  */
 export function processGovernorsData(governorsData: any, walletAddress: string): TallyData | null {
-  const governors = governorsData?.governors?.edges || [];
+  console.log('Processing governors data:', governorsData);
+  
+  const governors = governorsData?.governors?.nodes || [];
   
   if (governors.length === 0) {
+    console.log('No governors found');
     return null;
   }
 
-  const governorNode = governors[0].node;
+  const governorNode = governors[0];
+  console.log('Using governor:', governorNode);
   
   return {
     governorInfo: {
       id: governorNode.id,
       name: governorNode.name,
       symbol: governorNode.tokens?.[0]?.symbol || 'TOKEN',
-      iconUrl: `https://assets.tally.xyz/${governorNode.slug}/icon.png`,
+      iconUrl: `https://assets.tally.xyz/governors/${governorNode.slug}/icon.svg`,
       totalSupply: governorNode.tokens?.[0]?.supply || '0'
     },
     votingInfo: {

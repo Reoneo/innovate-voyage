@@ -17,11 +17,12 @@ export async function fetchTallyData(apiKey: string, walletAddress: string): Pro
       variables: { address: walletAddress }
     });
 
-    console.log('Tally user data:', userData);
+    console.log('Tally user data response:', userData);
 
     // Process user data if available
     const processedUserData = processUserGovernanceData(userData, walletAddress);
     if (processedUserData) {
+      console.log('Successfully processed user data:', processedUserData);
       return processedUserData;
     }
 
@@ -36,7 +37,11 @@ export async function fetchTallyData(apiKey: string, walletAddress: string): Pro
       }
     });
 
-    return processGovernorsData(governorsData, walletAddress);
+    console.log('Governors data response:', governorsData);
+    const processedGovernorsData = processGovernorsData(governorsData, walletAddress);
+    console.log('Processed governors data:', processedGovernorsData);
+    
+    return processedGovernorsData;
 
   } catch (error) {
     console.error('Error fetching Tally data:', error);

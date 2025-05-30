@@ -40,23 +40,21 @@ export const USER_GOVERNANCE_QUERY = `
         }
       }
       votes(first: 5) {
-        edges {
-          node {
+        nodes {
+          id
+          support
+          weight
+          reason
+          proposal {
             id
-            support
-            weight
-            reason
-            proposal {
-              id
-              title
-              description
-              status
-              start {
-                timestamp
-              }
-              end {
-                timestamp
-              }
+            title
+            description
+            status
+            start {
+              timestamp
+            }
+            end {
+              timestamp
             }
           }
         }
@@ -71,22 +69,20 @@ export const USER_GOVERNANCE_QUERY = `
 export const GOVERNORS_QUERY = `
   query Governors($first: Int!, $orderBy: GovernorOrderBy) {
     governors(first: $first, orderBy: $orderBy) {
-      edges {
-        node {
+      nodes {
+        id
+        name
+        slug
+        tokens {
           id
           name
-          slug
-          tokens {
-            id
-            name
-            symbol
-            supply
-          }
-          delegatesVotesCount
-          proposalsCount
-          quorum
-          timelockId
+          symbol
+          supply
         }
+        delegatesVotesCount
+        proposalsCount
+        quorum
+        timelockId
       }
     }
   }
