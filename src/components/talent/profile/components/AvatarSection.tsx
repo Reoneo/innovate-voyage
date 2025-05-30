@@ -56,49 +56,59 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   const hasContentBetweenFollowAndPoap = bio || hasSocialLinks;
   
   return (
-    <div className="flex flex-col items-center gap-2 w-full text-center">
+    <div className="flex flex-col items-center gap-2 w-full max-w-full text-center px-2">
       {/* Avatar */}
-      <ProfileAvatar 
-        avatarUrl={avatarUrl} 
-        name={name} 
-      />
+      <div className="w-full flex justify-center">
+        <ProfileAvatar 
+          avatarUrl={avatarUrl} 
+          name={name} 
+        />
+      </div>
       
       {/* Name and Address */}
-      <NameSection 
-        name={name} 
-        ownerAddress={ownerAddress}
-        displayIdentity={displayIdentity}
-      />
+      <div className="w-full max-w-full">
+        <NameSection 
+          name={name} 
+          ownerAddress={ownerAddress}
+          displayIdentity={displayIdentity}
+        />
+      </div>
       
       {/* Additional ENS Domains */}
-      <AdditionalEnsDomains domains={additionalEnsDomains} />
+      <div className="w-full max-w-full">
+        <AdditionalEnsDomains domains={additionalEnsDomains} />
+      </div>
       
       {/* Contact Info */}
-      <ProfileContact 
-        email={normalizedSocials.email}
-        telephone={telephone}
-        isOwner={isOwner}
-      />
+      <div className="w-full max-w-full">
+        <ProfileContact 
+          email={normalizedSocials.email}
+          telephone={telephone}
+          isOwner={isOwner}
+        />
+      </div>
       
       {/* Follow Button - Moved above Bio section */}
       {!isOwner && ownerAddress && (
-        <div className="mb-3">
+        <div className="mb-3 w-full flex justify-center">
           <FollowButton targetAddress={ownerAddress} />
         </div>
       )}
       
       {/* ENS Bio */}
       {bio && (
-        <div className="mb-3">
-          <p className="text-sm text-muted-foreground">{bio}</p>
+        <div className="mb-3 w-full max-w-full px-2">
+          <p className="text-sm text-muted-foreground break-words">{bio}</p>
         </div>
       )}
       
       {/* Social Links */}
-      <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
+      <div className="w-full max-w-full">
+        <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
+      </div>
       
       {/* POAP Section - Reduced spacing when no content above */}
-      <div className={`w-full ${hasContentBetweenFollowAndPoap ? 'mt-4' : 'mt-1'}`}>
+      <div className={`w-full max-w-full ${hasContentBetweenFollowAndPoap ? 'mt-4' : 'mt-1'}`}>
         <PoapSection walletAddress={ownerAddress} />
       </div>
     </div>

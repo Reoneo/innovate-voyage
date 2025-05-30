@@ -13,16 +13,16 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({
     <Card className="bg-white shadow-sm rounded-sm w-full backdrop-blur-sm bg-opacity-95" style={{
       height: 'calc(100vh - 80px)',
       width: '100%',
-      maxWidth: '95vw', // Increased from 21cm to 95% of viewport width
+      maxWidth: '100vw', // Changed from 95vw to prevent overflow
       margin: '0 auto',
-      marginTop: '8px', // Reduced from 16px
-      marginBottom: '8px', // Reduced from 16px
+      marginTop: '8px',
+      marginBottom: '8px',
       padding: 0,
       overflow: 'auto',
       border: '1px solid #f0f0f0',
       borderRadius: '8px'
     }}>
-      <CardContent className="p-6 md:p-8 print:p-4 h-full py-[10px] px-[20px] rounded-none my-0 mx-0">
+      <CardContent className="p-4 md:p-8 print:p-4 h-full py-[10px] px-[10px] md:px-[20px] rounded-none my-0 mx-0">
         {children}
       </CardContent>
     </Card>

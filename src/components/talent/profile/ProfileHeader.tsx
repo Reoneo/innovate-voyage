@@ -34,7 +34,7 @@ interface ProfileHeaderProps {
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
   return (
     <HeaderContainer>
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 w-full">
+      <div className="flex flex-col items-center gap-4 w-full max-w-full overflow-hidden">
         <AvatarSection 
           avatarUrl={passport.avatar_url}
           name={passport.name}
@@ -42,14 +42,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
           socials={passport.socials}
           bio={passport.bio}
         />
-        <div className="flex-1 flex flex-col md:flex-row justify-between w-full">
+        <div className="w-full max-w-full">
           <ProfileInfoSection
             passportId={passport.passport_id}
             ownerAddress={passport.owner_address}
             bio={passport.bio}
             socials={passport.socials}
           />
-          {/* Category badge has been removed */}
         </div>
       </div>
     </HeaderContainer>
@@ -57,4 +56,3 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ passport }) => {
 };
 
 export default ProfileHeader;
-
