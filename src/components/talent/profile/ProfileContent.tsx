@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -142,7 +143,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   additionalEnsDomains={passport.additionalEnsDomains}
                 />
                 
-                {/* POAP Section - moved to left column */}
+                {/* POAP Section - only in left column */}
                 <PoapSection walletAddress={passport.owner_address} />
               </div>
               
