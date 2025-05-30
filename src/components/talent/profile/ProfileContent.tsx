@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -108,18 +109,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
       ) : passport ? (
         <HeaderContainer>
           <div className="w-full space-y-4 md:space-y-6 h-full">
-            {/* Single column layout for mobile, grid layout for desktop */}
-            <div className={`w-full ${
-              isMobile 
-                ? 'flex flex-col gap-4' 
-                : 'grid grid-cols-10 gap-6'
-            }`}>
-              {/* Avatar section - full width on mobile, 3 cols on desktop */}
-              <div className={`w-full ${
-                isMobile 
-                  ? 'order-1' 
-                  : 'col-span-3'
-              } flex flex-col space-y-3 md:space-y-4`}>
+            {/* Force single column layout for mobile */}
+            <div className="w-full flex flex-col gap-4 md:gap-6">
+              {/* Avatar section - always full width */}
+              <div className="w-full flex flex-col space-y-3 md:space-y-4">
                 <AvatarSection
                   avatarUrl={passport.avatar_url}
                   name={passport.name}
@@ -134,12 +127,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 />
               </div>
               
-              {/* Content sections - full width on mobile, 7 cols on desktop */}
-              <div className={`w-full ${
-                isMobile 
-                  ? 'order-2' 
-                  : 'col-span-7'
-              } space-y-4 md:space-y-6`}>
+              {/* Content sections - always stacked vertically in mobile */}
+              <div className="w-full space-y-4 md:space-y-6">
                 <TalentScoreBanner walletAddress={passport.owner_address} />
                 
                 {showGitHubSection && (
