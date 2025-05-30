@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 const HeroTitle: React.FC = () => {
@@ -10,10 +11,10 @@ const HeroTitle: React.FC = () => {
       </div>
       
       <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-white mb-6">
-        Find Talent on the
+        Find 
         <br />
         <span className="bg-gradient-to-r from-blue-400 to-slate-300 bg-clip-text text-transparent">
-          Blockchain
+          Blockchain Talent
         </span>
       </h1>
       

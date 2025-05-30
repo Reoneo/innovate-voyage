@@ -22,6 +22,13 @@ import {
   w3mProvider,
 } from '@web3modal/ethereum';
 import { Web3Modal } from '@web3modal/react';
+
+import '@rainbow-me/rainbowkit/styles.css';
+import {
+  getDefaultWallets,
+  RainbowKitProvider,
+} from '@rainbow-me/rainbowkit';
+
 import App from './App.tsx';
 import './index.css';
 
@@ -63,10 +70,17 @@ const { chains, publicClient } = configureChains(
   ]
 );
 
-// Create wagmi config with Web3Modal connectors
+// Get default wallets for RainbowKit
+const { connectors } = getDefaultWallets({
+  appName: 'Recruitment.box',
+  projectId,
+  chains,
+});
+
+// Create wagmi config with RainbowKit connectors
 const wagmiConfig = createConfig({
   autoConnect: true,
-  connectors: w3mConnectors({ projectId, chains }),
+  connectors,
   publicClient,
 });
 
@@ -76,7 +90,9 @@ const ethereumClient = new EthereumClient(wagmiConfig, chains);
 const root = createRoot(document.getElementById("root")!);
 root.render(
   <WagmiConfig config={wagmiConfig}>
-    <App />
+    <RainbowKitProvider chains={chains}>
+      <App />
+    </RainbowKitProvider>
     <Web3Modal
       projectId={projectId}
       ethereumClient={ethereumClient}

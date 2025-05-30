@@ -6,6 +6,7 @@ import HeroTitle from '@/components/home/HeroTitle';
 import SearchSection from '@/components/home/SearchSection';
 import ActionButtonsSection from '@/components/home/ActionButtonsSection';
 import FeaturedProfileSection from '@/components/home/FeaturedProfileSection';
+import RainbowWalletConnect from '@/components/home/RainbowWalletConnect';
 
 const Index = () => {
   return (
@@ -22,6 +23,7 @@ const Index = () => {
           <div className="max-w-7xl mx-auto">
             <HeroTitle />
             <SearchSection />
+            <RainbowWalletConnect />
             <ActionButtonsSection />
             <FeaturedProfileSection />
           </div>
