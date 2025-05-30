@@ -1,119 +1,83 @@
 
-import { useState, useEffect } from 'react';
-import { web3Api } from '@/api/web3Api';
-import { useEnsResolver } from './useEnsResolver';
-import { useTalentProtocolSkills } from '@/components/talent/profile/components/skills/useTalentProtocolSkills';
+import { useEnsResolver } from '@/hooks/useEnsResolver';
+import { useBlockchainData } from '@/hooks/useBlockchainData';
+import { usePassportGenerator } from '@/hooks/usePassportGenerator';
 
-export function useProfileData(ensNameOrAddress?: string) {
-  const [passport, setPassport] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const {
-    resolvedAddress,
-    resolvedEns,
-    avatarUrl,
-    ensLinks,
-    isLoading: ensLoading,
-    error: ensError
-  } = useEnsResolver(ensNameOrAddress);
-
-  const { 
-    talentSkills, 
-    credentialSkills, 
-    talentScore, 
-    isLoading: talentLoading 
-  } = useTalentProtocolSkills(resolvedAddress);
-
-  useEffect(() => {
-    const fetchPassportData = async () => {
-      if (!resolvedAddress) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        console.log('🔄 Fetching passport data for address:', resolvedAddress);
-        
-        // Fetch web3 bio profile and blockchain data in parallel
-        const [web3BioProfile, blockchainProfile] = await Promise.all([
-          web3Api.fetchWeb3BioProfile(resolvedAddress),
-          web3Api.getBlockchainProfile(resolvedAddress)
-        ]);
-
-        console.log('📊 Web3 bio profile:', web3BioProfile);
-        console.log('🔗 Blockchain profile:', blockchainProfile);
-
-        // Extract blockchain data with proper error handling
-        const transactions = blockchainProfile.latestTransactions || [];
-        const tokenTransfers = blockchainProfile.tokenTransfers || [];
-
-        // Build comprehensive passport object
-        const passportData = {
-          owner_address: resolvedAddress,
-          name: web3BioProfile?.displayName || resolvedEns || ensNameOrAddress || `${resolvedAddress.slice(0, 6)}...${resolvedAddress.slice(-4)}`,
-          avatar_url: avatarUrl || web3BioProfile?.avatar,
-          bio: web3BioProfile?.description || null,
-          socials: {
-            github: web3BioProfile?.links?.github || ensLinks?.socials?.github,
-            twitter: web3BioProfile?.links?.twitter || ensLinks?.socials?.twitter,
-            linkedin: web3BioProfile?.links?.linkedin || ensLinks?.socials?.linkedin,
-            website: web3BioProfile?.links?.website || ensLinks?.socials?.website,
-            email: web3BioProfile?.links?.email || ensLinks?.socials?.email,
-            facebook: web3BioProfile?.links?.facebook || ensLinks?.socials?.facebook,
-            instagram: web3BioProfile?.links?.instagram || ensLinks?.socials?.instagram,
-            youtube: web3BioProfile?.links?.youtube || ensLinks?.socials?.youtube,
-            bluesky: web3BioProfile?.links?.bluesky || ensLinks?.socials?.bluesky,
-          },
-          blockchainProfile: blockchainProfile,
-          transactions: transactions,
-          tokenTransfers: tokenTransfers,
-          web3BioProfile: web3BioProfile,
-          blockchainExtendedData: {
-            boxDomains: web3BioProfile?.domains?.filter(d => d.endsWith('.box')) || [],
-            snsActive: web3BioProfile?.sns?.length > 0,
-            description: web3BioProfile?.description
-          },
-          avatarUrl: avatarUrl,
-          additionalEnsDomains: web3BioProfile?.domains?.filter(d => d.endsWith('.eth') && d !== ensNameOrAddress) || [],
-          skills: {
-            verified: talentSkills || [],
-            credentials: credentialSkills || [],
-            user_added: []
-          },
-          talentScore: talentScore
-        };
-
-        console.log('✅ Profile data loaded successfully:', {
-          hasPassport: !!passportData,
-          hasAvatar: !!passportData.avatar_url,
-          hasBlockchainData: !!blockchainProfile,
-          hasTalentData: !!talentScore
-        });
-
-        setPassport(passportData);
-      } catch (err) {
-        console.error('❌ Error fetching passport data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load profile data');
-      } finally {
-        setLoading(false);
+/**
+ * Hook to fetch and combine all profile data for a blockchain user
+ * @param ensName Optional ENS name to fetch data for
+ * @param address Optional Ethereum address to fetch data for
+ * @returns Object containing profile data including passport, blockchain data, and loading state
+ */
+export function useProfileData(ensName?: string, address?: string) {
+  // Resolve ENS and address
+  const { resolvedAddress, resolvedEns, avatarUrl, ensLinks, ensBio } = useEnsResolver(ensName, address);
+  
+  // Fetch blockchain data
+  const blockchainData = useBlockchainData(resolvedAddress, resolvedEns);
+  
+  console.log('ENS Links in useProfileData:', ensLinks);
+  
+  // Check if talent protocol data is available - using a more reliable property check
+  const hasTalentProtocolData = !!(blockchainData.blockchainExtendedData?.snsActive);
+  
+  // Enhance blockchain profile with ENS links
+  const enhancedBlockchainProfile = blockchainData.blockchainProfile 
+    ? {
+        ...blockchainData.blockchainProfile,
+        socials: {
+          ...ensLinks?.socials,
+          ...(blockchainData.blockchainProfile.socials || {})
+        },
+        ensLinks: ensLinks?.ensLinks || [],
+        description: blockchainData.blockchainProfile.description || 
+                     ensLinks?.description || 
+                     ensBio ||
+                     blockchainData.blockchainExtendedData?.description
       }
-    };
-
-    if (resolvedAddress && !ensLoading) {
-      fetchPassportData();
+    : null;
+  
+  // Debug GitHub sources
+  console.log('GitHub sources:', {
+    ensGitHub: ensLinks?.socials?.github,
+    blockchainGitHub: blockchainData.blockchainProfile?.socials?.github,
+    web3BioGitHub: blockchainData.web3BioProfile?.github,
+    hasTalentProtocolData
+  });
+  
+  // Generate passport
+  const { passport, loading } = usePassportGenerator(
+    resolvedAddress, 
+    resolvedEns, 
+    {
+      ...blockchainData,
+      blockchainProfile: enhancedBlockchainProfile,
+      avatarUrl,
+      web3BioProfile: {
+        ...blockchainData.web3BioProfile,
+        description: blockchainData.web3BioProfile?.description || ensBio,
+        // Make sure GitHub username is passed through
+        github: blockchainData.web3BioProfile?.github || ensLinks?.socials?.github,
+        // Make sure LinkedIn handle is passed through
+        linkedin: blockchainData.web3BioProfile?.linkedin || ensLinks?.socials?.linkedin
+      }
     }
-  }, [resolvedAddress, ensLoading, avatarUrl, ensLinks, resolvedEns, ensNameOrAddress, talentSkills, credentialSkills, talentScore]);
+  );
 
-  // Combined loading state
-  const isLoading = loading || ensLoading || talentLoading;
+  // Add the talent protocol data flag to the passport
+  const enhancedPassport = passport ? {
+    ...passport,
+    hasTalentProtocolData
+  } : null;
 
   return {
-    passport,
-    loading: isLoading,
-    error: error || ensError,
-    resolvedAddress,
+    loading,
+    passport: enhancedPassport,
+    blockchainProfile: enhancedBlockchainProfile,
+    transactions: blockchainData.transactions,
     resolvedEns,
-    avatarUrl
+    blockchainExtendedData: blockchainData.blockchainExtendedData,
+    avatarUrl,
+    hasTalentProtocolData
   };
 }

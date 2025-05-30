@@ -6,9 +6,6 @@ export interface BlockchainProfile {
   transactionCount: number;
   latestTransactions?: any[];
   tokenTransfers?: any[];
-  firstTransaction?: any;
-  optimismTransactions?: any[];
-  accountAge?: number;
   boxDomains?: string[];
   snsActive?: boolean;
   socials?: {

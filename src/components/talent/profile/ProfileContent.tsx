@@ -5,9 +5,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
-import BlockchainActivitySection from './components/BlockchainActivitySection';
 import LinkedInExperienceSection from './components/LinkedInExperienceSection';
-import PoapSection from './components/poap/PoapSection';
 import { useLinkedInExperience } from '@/api/services/linkedinService';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -117,8 +115,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
   
-  // Hide LinkedIn section until API key is available
-  const showLinkedInSection = false; // Temporarily disabled
+  // Simplified LinkedIn section logic - only show if there's a LinkedIn handle
+  const showLinkedInSection = !!passport?.socials?.linkedin;
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -142,12 +140,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   displayIdentity={ensNameOrAddress}
                   additionalEnsDomains={passport.additionalEnsDomains}
                 />
-                
-                {/* Single POAP Section - only in left column */}
-                <PoapSection 
-                  walletAddress={passport.owner_address} 
-                  className="border-t pt-4"
-                />
               </div>
               
               {/* Content sections */}
@@ -161,8 +153,16 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   </div>
                 )}
                 
-                {/* Blockchain Activity Section */}
-                <BlockchainActivitySection walletAddress={passport.owner_address} />
+                {/* LinkedIn work experience - Show if there's a LinkedIn handle */}
+                {showLinkedInSection && (
+                  <div>
+                    <LinkedInExperienceSection 
+                      experience={linkedInExperience}
+                      isLoading={linkedInLoading}
+                      error={linkedInError}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

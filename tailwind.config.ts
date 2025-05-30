@@ -109,24 +109,13 @@ export default {
 					to: {
 						transform: 'translateX(0)'
 					}
-				},
-				'rainbow-border': {
-					'0%': { borderColor: '#ff0000' },
-					'14%': { borderColor: '#ff8000' },
-					'28%': { borderColor: '#ffff00' },
-					'42%': { borderColor: '#00ff00' },
-					'56%': { borderColor: '#00ffff' },
-					'70%': { borderColor: '#0000ff' },
-					'84%': { borderColor: '#8000ff' },
-					'100%': { borderColor: '#ff0000' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
-				'slide-in': 'slide-in 0.3s ease-out',
-				'rainbow-border': 'rainbow-border 3s linear infinite'
+				'slide-in': 'slide-in 0.3s ease-out'
 			}
 		}
 	},

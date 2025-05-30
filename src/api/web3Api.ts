@@ -1,3 +1,4 @@
+
 import { ENSRecord, SkillNFT, Web3Credentials, Web3BioProfile } from './types/web3Types';
 import { BlockchainProfile } from './types/etherscanTypes';
 import { 
@@ -14,10 +15,7 @@ import {
   getAccountBalance,
   getTransactionCount,
   getLatestTransactions,
-  getTokenTransfers,
-  getFirstTransaction,
-  getOptimismTransactions,
-  getAccountAge
+  getTokenTransfers
 } from './services/etherscanService';
 import { fetchWeb3BioProfile } from './utils/web3/index';
 import { getRealAvatar } from './services/avatar';
@@ -35,44 +33,21 @@ async function getWeb3CredentialsByAddress(address: string): Promise<Web3Credent
   };
 }
 
-// Get blockchain profile data from Etherscan with enhanced data and debugging
+// Get blockchain profile data from Etherscan
 async function getBlockchainProfile(address: string): Promise<BlockchainProfile> {
-  console.log('🔄 Fetching enhanced blockchain profile for:', address);
-  
-  const [
-    balanceResult,
-    transactionCountResult,
-    latestTransactionsResult,
-    tokenTransfersResult,
-    firstTransactionResult,
-    optimismTxsResult,
-    accountAgeResult
-  ] = await Promise.all([
+  const [balance, transactionCount, latestTransactions, tokenTransfers] = await Promise.all([
     getAccountBalance(address),
     getTransactionCount(address),
-    getLatestTransactions(address, 10),
-    getTokenTransfers(address, 5),
-    getFirstTransaction(address),
-    getOptimismTransactions(address, 5),
-    getAccountAge(address)
+    getLatestTransactions(address),
+    getTokenTransfers(address)
   ]);
-  
-  console.log('📊 Blockchain profile results:', {
-    balance: balanceResult.balance,
-    txCount: transactionCountResult.count,
-    firstTx: firstTransactionResult.transaction,
-    accountAge: accountAgeResult.age
-  });
   
   return {
     address,
-    balance: balanceResult.balance,
-    transactionCount: transactionCountResult.count,
-    latestTransactions: latestTransactionsResult.transactions,
-    tokenTransfers: tokenTransfersResult.transfers,
-    firstTransaction: firstTransactionResult.transaction,
-    optimismTransactions: optimismTxsResult.transactions,
-    accountAge: accountAgeResult.age
+    balance,
+    transactionCount,
+    latestTransactions,
+    tokenTransfers
   };
 }
 
@@ -90,10 +65,7 @@ export const web3Api = {
   getLatestTransactions,
   getTokenTransfers,
   getBlockchainProfile,
-  getEnsBio,
-  getFirstTransaction,
-  getOptimismTransactions,
-  getAccountAge
+  getEnsBio
 };
 
 // Re-export types for convenience
