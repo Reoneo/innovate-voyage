@@ -78,9 +78,9 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name, identity
           onLoad={handleImageLoad}
         />
       ) : isBoxUser ? (
-        // Use the .box default avatar for .box users
+        // Use the new .box default avatar for .box users
         <AvatarImage 
-          src="/lovable-uploads/26ba59b2-7e52-4417-a186-90544cd0e1ef.png" 
+          src="/lovable-uploads/b157962f-1e82-4e5c-99e2-9e0552af7c59.png" 
           alt={name} 
           className="object-cover"
           onError={handleBoxDefaultError}
