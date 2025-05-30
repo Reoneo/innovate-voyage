@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -6,6 +7,7 @@ import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import LinkedInExperienceSection from './components/LinkedInExperienceSection';
+import PoapSection from './components/poap/PoapSection';
 import { useLinkedInExperience } from '@/api/services/linkedinService';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -163,6 +165,11 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                     />
                   </div>
                 )}
+                
+                {/* POAP Section */}
+                <div>
+                  <PoapSection walletAddress={passport.owner_address} />
+                </div>
               </div>
             </div>
           </div>
