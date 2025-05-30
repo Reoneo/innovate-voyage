@@ -1,11 +1,6 @@
 
-import { SocialPlatform } from '@/constants/socialPlatforms';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
-
-// LinkedIn API credentials
-const CLIENT_ID = '78tbmy2vayozmc';
-const CLIENT_SECRET = 'WPL_AP1.UZZde4p0GU2HWbzY.QWNWog==';
 
 export interface LinkedInJob {
   id: string;
@@ -21,8 +16,6 @@ export interface LinkedInJob {
 
 /**
  * Extract LinkedIn handle from a LinkedIn URL or username
- * @param linkedinValue The LinkedIn URL or username from the profile
- * @returns Clean LinkedIn handle without URL parts
  */
 export const extractLinkedInHandle = (linkedinValue?: string): string | null => {
   if (!linkedinValue) {
@@ -33,7 +26,6 @@ export const extractLinkedInHandle = (linkedinValue?: string): string | null => 
   console.log('Extracting LinkedIn handle from:', linkedinValue);
   
   try {
-    // Remove any leading/trailing whitespace
     const cleanValue = linkedinValue.trim();
     
     // Handle direct username format (no URL, no special characters)
@@ -72,9 +64,8 @@ export const extractLinkedInHandle = (linkedinValue?: string): string | null => 
       return username?.trim() || null;
     }
     
-    // If it looks like a URL but doesn't match our patterns, try to extract username
+    // If it looks like a URL but doesn't match our patterns, try regex
     if (cleanValue.includes('linkedin')) {
-      // Try to find anything that looks like a username after linkedin
       const match = cleanValue.match(/linkedin[^\/]*\/+(?:in\/)?([^\/\?#\s]+)/i);
       if (match && match[1]) {
         console.log('Extracted using regex pattern:', match[1]);
@@ -91,116 +82,32 @@ export const extractLinkedInHandle = (linkedinValue?: string): string | null => 
 };
 
 /**
- * Simulates LinkedIn profile data extraction similar to JXA scraping
- * @param handle LinkedIn handle
- * @returns Enhanced mock work experiences with realistic data
- */
-const simulateLinkedInScraping = (handle: string): LinkedInJob[] => {
-  // Simulate data that would be extracted using selectors like .text-heading-xlarge
-  if (handle.includes('franklyn') || handle === '30315-eth' || handle === '30315eth' || handle.toLowerCase().includes('reon')) {
-    return [
-      {
-        id: '1',
-        company: 'TalentDAO',
-        role: 'Senior Blockchain Developer', // Simulates .text-heading-xlarge extraction
-        startDate: '2023-01',
-        endDate: null,
-        description: 'Leading Web3 infrastructure development using React, Solidity, and Node.js. Built decentralized talent marketplace with 10k+ users. Integrated ENS, POAP, and multi-chain wallet support.',
-        location: 'Remote - Global',
-        skills: ['Solidity', 'React', 'TypeScript', 'Web3.js', 'Smart Contracts'],
-        profileUrl: `https://www.linkedin.com/in/${handle}/`
-      },
-      {
-        id: '2',
-        company: 'Ethereum Foundation',
-        role: 'Protocol Research Engineer',
-        startDate: '2021-08',
-        endDate: '2022-12',
-        description: 'Contributed to Ethereum 2.0 research and development. Authored 3 EIPs for layer 2 scaling solutions. Collaborated with core developers on consensus mechanism improvements.',
-        location: 'Berlin, Germany',
-        skills: ['Ethereum', 'Consensus Algorithms', 'Go', 'Python', 'Research'],
-        profileUrl: `https://www.linkedin.com/in/${handle}/`
-      },
-      {
-        id: '3',
-        company: 'ConsenSys',
-        role: 'Full Stack Developer',
-        startDate: '2020-01',
-        endDate: '2021-07',
-        description: 'Developed DeFi protocols and NFT marketplaces. Built MetaMask integration features used by millions. Created automated testing frameworks for smart contracts.',
-        location: 'Brooklyn, NY',
-        skills: ['JavaScript', 'Solidity', 'IPFS', 'MetaMask', 'DeFi'],
-        profileUrl: `https://www.linkedin.com/in/${handle}/`
-      }
-    ];
-  } else {
-    // Generic realistic data for other profiles
-    return [
-      {
-        id: '1',
-        company: 'Decentralized Technologies Inc',
-        role: 'Lead Frontend Engineer',
-        startDate: '2022-03',
-        endDate: null,
-        description: 'Leading frontend development for Web3 applications. Built responsive interfaces for DeFi protocols with 50k+ daily active users. Implemented wallet connectivity and transaction management.',
-        location: 'San Francisco, CA',
-        skills: ['React', 'TypeScript', 'Web3.js', 'Tailwind CSS', 'Wagmi'],
-        profileUrl: `https://www.linkedin.com/in/${handle}/`
-      },
-      {
-        id: '2',
-        company: 'Blockchain Ventures LLC',
-        role: 'Smart Contract Developer',
-        startDate: '2020-06',
-        endDate: '2022-02',
-        description: 'Designed and deployed 15+ smart contracts managing $10M+ in TVL. Implemented security audits and gas optimization strategies. Mentored junior developers on Solidity best practices.',
-        location: 'Austin, TX',
-        skills: ['Solidity', 'Hardhat', 'OpenZeppelin', 'Security Auditing', 'Gas Optimization'],
-        profileUrl: `https://www.linkedin.com/in/${handle}/`
-      }
-    ];
-  }
-};
-
-/**
  * Fetch LinkedIn work experience for a user
- * Enhanced to simulate JXA-style data extraction
- * @param handle LinkedIn handle
- * @returns Array of user's work experiences with enhanced data
+ * This would integrate with actual LinkedIn API or scraping service
  */
 export const fetchLinkedInExperience = async (handle: string): Promise<LinkedInJob[]> => {
-  console.log(`🔍 Simulating LinkedIn profile scraping for handle: ${handle}`);
-  console.log('📊 Extracting data from selectors: .text-heading-xlarge, .text-body-medium');
-  
-  // Simulate network delay and scraping time
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  console.log(`🔍 Attempting to fetch LinkedIn experience for handle: ${handle}`);
   
   try {
-    // Simulate the JXA browser detection and data extraction
-    console.log('🌐 Browser detection: Chrome/Arc/Safari detected');
-    console.log('✅ URL verification: LinkedIn profile page confirmed');
-    console.log('📋 DOM traversal: Experience section found');
+    // TODO: Replace with actual LinkedIn API integration
+    // For now, return empty array since we're not using mock data
+    console.log('⚠️ LinkedIn API integration not yet implemented');
+    console.log('📝 This would normally scrape or fetch from LinkedIn API');
     
-    const scrapedJobs = simulateLinkedInScraping(handle);
+    // Simulate network delay for realistic UX
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    console.log(`✨ Successfully extracted ${scrapedJobs.length} work experiences`);
-    console.log('📄 Profile data extracted:', {
-      name: 'Profile Name (from .text-heading-xlarge)',
-      title: 'Current Title (from .text-body-medium)',
-      experiences: scrapedJobs.length
-    });
+    // Return empty array - no mock data when we have real handles
+    return [];
     
-    return scrapedJobs;
   } catch (error) {
-    console.error(`❌ Error during LinkedIn scraping simulation for ${handle}:`, error);
-    throw new Error('Failed to extract LinkedIn profile data');
+    console.error(`❌ Error fetching LinkedIn experience for ${handle}:`, error);
+    throw new Error('Failed to fetch LinkedIn profile data');
   }
 };
 
 /**
  * Hook to fetch LinkedIn work experience for a user
- * @param socials User's social media profiles
- * @returns Work experience data and loading state
  */
 export function useLinkedInExperience(socials?: Record<string, string>) {
   const [experience, setExperience] = useState<LinkedInJob[]>([]);
@@ -226,23 +133,27 @@ export function useLinkedInExperience(socials?: Record<string, string>) {
         return;
       }
       
-      console.log(`🚀 Starting LinkedIn profile extraction for: ${linkedinHandle}`);
+      console.log(`🚀 Starting LinkedIn profile fetch for: ${linkedinHandle}`);
       setIsLoading(true);
       setError(null);
       
       try {
         const jobs = await fetchLinkedInExperience(linkedinHandle);
-        console.log('LinkedIn experience extraction completed:', jobs);
+        console.log('LinkedIn experience fetch completed:', jobs);
         setExperience(jobs);
+        
+        if (jobs.length === 0) {
+          console.log('ℹ️ No LinkedIn experience data available - API integration needed');
+        }
       } catch (err) {
-        console.error('Error during LinkedIn data extraction:', err);
-        const errorMessage = 'Failed to extract work experience from LinkedIn profile';
+        console.error('Error during LinkedIn data fetch:', err);
+        const errorMessage = 'LinkedIn API integration required for live data';
         setError(errorMessage);
         setExperience([]);
         
         toast({
-          title: "LinkedIn Extraction Error",
-          description: "Could not extract work experience data from LinkedIn profile",
+          title: "LinkedIn Integration Needed",
+          description: "Connect to LinkedIn API to fetch real work experience data",
           variant: "destructive"
         });
       } finally {
