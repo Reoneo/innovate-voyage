@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { fetchUserNfts, type OpenSeaNft } from '@/api/services/openseaService';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -76,7 +77,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
 
   return <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
-        <DialogContent className={`${isMobile ? 'max-w-[95vw] h-[95vh] m-2' : 'max-w-7xl h-[90vh]'} flex flex-col bg-white text-gray-900 border-0 shadow-2xl rounded-2xl p-0`}>
+        <DialogContent className={`${isMobile ? 'max-w-[95vw] h-[95vh] m-2' : 'max-w-4xl w-[90vw] h-[80vh]'} flex flex-col bg-white text-gray-900 border-0 shadow-2xl rounded-2xl p-0 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}>
           <NftDialogHeader 
             totalNfts={totalNfts}
             selectedType={selectedType}
