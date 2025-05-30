@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -122,41 +121,46 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className={`w-full ${isMobile ? 'flex flex-col space-y-6' : 'grid grid-cols-1 md:grid-cols-10 gap-6'} h-full`}>
-            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
-              <AvatarSection
-                avatarUrl={passport.avatar_url}
-                name={passport.name}
-                ownerAddress={passport.owner_address}
-                socials={{
-                  ...passport.socials,
-                  linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
-                }}
-                bio={passport.bio}
-                displayIdentity={ensNameOrAddress}
-                additionalEnsDomains={passport.additionalEnsDomains}
-              />
-            </div>
-            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
-              <TalentScoreBanner walletAddress={passport.owner_address} />
+          <div className="w-full space-y-6 h-full">
+            {/* Avatar and basic info section */}
+            <div className={`w-full ${isMobile ? 'flex flex-col space-y-4' : 'grid grid-cols-1 md:grid-cols-10 gap-6'}`}>
+              <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
+                <AvatarSection
+                  avatarUrl={passport.avatar_url}
+                  name={passport.name}
+                  ownerAddress={passport.owner_address}
+                  socials={{
+                    ...passport.socials,
+                    linkedin: passport.socials.linkedin ? passport.socials.linkedin : undefined
+                  }}
+                  bio={passport.bio}
+                  displayIdentity={ensNameOrAddress}
+                  additionalEnsDomains={passport.additionalEnsDomains}
+                />
+              </div>
               
-              {/* GitHub contribution graph */}
-              {showGitHubSection && (
-                <div className="mt-4">
-                  <GitHubContributionGraph username={githubUsername!} />
-                </div>
-              )}
-              
-              {/* LinkedIn work experience */}
-              {showLinkedInSection && (
-                <div className="mt-4">
-                  <LinkedInExperienceSection 
-                    experience={linkedInExperience}
-                    isLoading={linkedInLoading}
-                    error={linkedInError}
-                  />
-                </div>
-              )}
+              {/* Content sections */}
+              <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
+                <TalentScoreBanner walletAddress={passport.owner_address} />
+                
+                {/* GitHub contribution graph */}
+                {showGitHubSection && (
+                  <div>
+                    <GitHubContributionGraph username={githubUsername!} />
+                  </div>
+                )}
+                
+                {/* LinkedIn work experience */}
+                {showLinkedInSection && (
+                  <div>
+                    <LinkedInExperienceSection 
+                      experience={linkedInExperience}
+                      isLoading={linkedInLoading}
+                      error={linkedInError}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </HeaderContainer>
