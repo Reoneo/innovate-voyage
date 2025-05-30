@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -50,7 +49,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
       {/* POAP count display */}
       {poaps.length > 0 && !isLoading && (
         <div className="text-sm text-center mb-10 text-muted-foreground z-10 relative">
-          <span className="font-medium text-primary">{poaps.length}</span> POAPs collected
+          <span className="font-medium text-black">{poaps.length}</span> POAPs collected
         </div>
       )}
 
