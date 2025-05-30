@@ -27,7 +27,9 @@ export async function tallyFetcher({ query, variables = {} }: { query: string; v
 
   if (!response.ok) {
     console.error('Tally API error:', response.status, response.statusText);
-    throw new Error(`Tally API error: ${response.status}`);
+    const errorText = await response.text();
+    console.error('Tally API error response:', errorText);
+    throw new Error(`Tally API error: ${response.status} - ${errorText}`);
   }
 
   const data = await response.json();
@@ -35,7 +37,7 @@ export async function tallyFetcher({ query, variables = {} }: { query: string; v
   
   if (data.errors) {
     console.error('Tally GraphQL errors:', data.errors);
-    throw new Error('GraphQL query failed');
+    throw new Error(`GraphQL query failed: ${JSON.stringify(data.errors)}`);
   }
 
   return data.data;

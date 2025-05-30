@@ -2,95 +2,99 @@
 import { TallyData } from '@/types/tally';
 
 /**
- * Process user governance data from Tally API response
+ * Process user governance data from Tally API response using accounts query
  */
 export function processUserGovernanceData(userData: any, walletAddress: string): TallyData | null {
   console.log('Processing user governance data:', userData);
   
-  const account = userData?.account;
+  const accounts = userData?.accounts || [];
   
-  if (!account) {
+  if (accounts.length === 0) {
     console.log('No account data found');
     return null;
   }
 
-  const delegates = account.delegatesVotes || [];
-  const votes = account.votes?.nodes || [];
+  const account = accounts[0];
+  console.log('Account found:', account);
   
-  console.log('Delegates found:', delegates.length);
-  console.log('Votes found:', votes.length);
-  
-  // Get the primary governance participation
-  const primaryDelegate = delegates[0];
-  
-  if (!primaryDelegate) {
-    console.log('No primary delegate found');
-    return null;
-  }
-
-  const governor = primaryDelegate.governor;
-  const delegateInfo = primaryDelegate.delegate;
-  
-  console.log('Governor info:', governor);
-  console.log('Delegate info:', delegateInfo);
-  
-  // Process recent votes
-  const recentVotes = votes.map((vote: any) => {
-    return {
-      proposalId: vote.proposal.id,
-      proposalTitle: vote.proposal.title,
-      choice: vote.support === 'FOR' ? 'for' as const : 
-             vote.support === 'AGAINST' ? 'against' as const : 'abstain' as const,
-      timestamp: vote.proposal.end?.timestamp ? 
-                 new Date(vote.proposal.end.timestamp).getTime() : 
-                 Date.now()
-    };
-  });
-
-  console.log('Processed votes:', recentVotes);
-
+  // Create basic governance data from account info
   return {
     governorInfo: {
-      id: governor.id,
-      name: governor.name,
-      symbol: governor.tokens?.[0]?.symbol || 'TOKEN',
-      iconUrl: `https://assets.tally.xyz/governors/${governor.slug}/icon.svg`,
-      totalSupply: governor.tokens?.[0]?.supply || '0'
+      id: account.id?.toString() || 'unknown',
+      name: account.name || 'Unknown DAO',
+      symbol: 'TOKEN',
+      iconUrl: account.picture || "https://assets.tally.xyz/tally-logo.svg",
+      totalSupply: '0'
     },
     votingInfo: {
       address: walletAddress,
-      delegatesTo: delegateInfo?.account?.address || null,
-      votingPower: delegateInfo?.votesCount?.toString() || '0',
-      votingPowerPercent: '0%', // Would need additional calculation
-      receivedDelegations: delegates.length > 0 ? `${delegates.length} delegation(s)` : null,
-      recentVotes: recentVotes
+      delegatesTo: null,
+      votingPower: account.votes?.toString() || '0',
+      votingPowerPercent: '0%',
+      receivedDelegations: account.proposalsCreatedCount > 0 ? `${account.proposalsCreatedCount} proposals created` : null,
+      recentVotes: []
     }
   };
 }
 
 /**
- * Process governors data when no user data is available
+ * Process delegate data from Tally API response
  */
-export function processGovernorsData(governorsData: any, walletAddress: string): TallyData | null {
-  console.log('Processing governors data:', governorsData);
+export function processDelegateData(delegateData: any, walletAddress: string): TallyData | null {
+  console.log('Processing delegate data:', delegateData);
   
-  const governors = governorsData?.governors?.nodes || [];
+  const delegations = delegateData?.delegatees?.nodes || [];
   
-  if (governors.length === 0) {
-    console.log('No governors found');
+  if (delegations.length === 0) {
+    console.log('No delegate data found');
     return null;
   }
 
-  const governorNode = governors[0];
-  console.log('Using governor:', governorNode);
+  const delegation = delegations[0];
+  console.log('Delegation found:', delegation);
   
   return {
     governorInfo: {
-      id: governorNode.id,
-      name: governorNode.name,
-      symbol: governorNode.tokens?.[0]?.symbol || 'TOKEN',
-      iconUrl: `https://assets.tally.xyz/governors/${governorNode.slug}/icon.svg`,
-      totalSupply: governorNode.tokens?.[0]?.supply || '0'
+      id: delegation.organization?.id || delegation.token?.id || 'unknown',
+      name: delegation.organization?.name || delegation.token?.name || 'Unknown DAO',
+      symbol: delegation.token?.symbol || 'TOKEN',
+      iconUrl: `https://assets.tally.xyz/governors/${delegation.organization?.slug || 'default'}/icon.svg`,
+      totalSupply: delegation.token?.supply || '0'
+    },
+    votingInfo: {
+      address: walletAddress,
+      delegatesTo: delegation.delegate?.address || null,
+      votingPower: delegation.votes?.toString() || '0',
+      votingPowerPercent: '0%',
+      receivedDelegations: null,
+      recentVotes: []
+    }
+  };
+}
+
+/**
+ * Process general delegates data when no user-specific data is available
+ */
+export function processGeneralDelegatesData(delegatesData: any, walletAddress: string): TallyData | null {
+  console.log('Processing general delegates data:', delegatesData);
+  
+  const delegates = delegatesData?.delegates?.nodes || [];
+  
+  if (delegates.length === 0) {
+    console.log('No delegates found');
+    return null;
+  }
+
+  const delegate = delegates[0];
+  console.log('Using delegate:', delegate);
+  
+  return {
+    governorInfo: {
+      id: delegate.governor?.id || delegate.organization?.id || 'unknown',
+      name: delegate.governor?.name || delegate.organization?.name || 'Unknown DAO',
+      symbol: delegate.governor?.token?.symbol || 'TOKEN',
+      iconUrl: `https://assets.tally.xyz/governors/${delegate.governor?.slug || delegate.organization?.slug || 'default'}/icon.svg`,
+      totalSupply: delegate.governor?.token?.supply || '0'
     },
     votingInfo: {
       address: walletAddress,

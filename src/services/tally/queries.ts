@@ -4,85 +4,103 @@
  */
 
 /**
- * GraphQL query to get user's governance data
+ * GraphQL query to get user's governance data using the accounts query
  */
 export const USER_GOVERNANCE_QUERY = `
-  query Account($address: Address!) {
-    account(address: $address) {
+  query Accounts($addresses: [Address!]) {
+    accounts(addresses: $addresses) {
+      id
       address
+      ens
+      twitter
       name
       bio
       picture
-      delegatesVotes {
-        governor {
+      type
+      votes
+      proposalsCreatedCount
+    }
+  }
+`;
+
+/**
+ * GraphQL query to get delegate information for a user
+ */
+export const USER_DELEGATE_QUERY = `
+  query Delegatees($input: DelegationsInput!) {
+    delegatees(input: $input) {
+      nodes {
+        ... on Delegation {
           id
-          name
-          slug
-          timelockId
-          tokens {
+          votes
+          delegate {
+            id
+            address
+            name
+            bio
+            picture
+          }
+          token {
             id
             name
             symbol
             supply
           }
-        }
-        delegate {
-          account {
-            address
+          organization {
+            id
             name
+            slug
           }
-          votesCount
-        }
-        token {
-          id
-          name
-          symbol
         }
       }
-      votes(first: 5) {
-        nodes {
-          id
-          support
-          weight
-          reason
-          proposal {
-            id
-            title
-            description
-            status
-            start {
-              timestamp
-            }
-            end {
-              timestamp
-            }
-          }
-        }
+      pageInfo {
+        firstCursor
+        lastCursor
+        count
       }
     }
   }
 `;
 
 /**
- * GraphQL query to get popular governors/DAOs
+ * GraphQL query to get delegates for an organization
  */
-export const GOVERNORS_QUERY = `
-  query Governors($first: Int!, $orderBy: GovernorOrderBy) {
-    governors(first: $first, orderBy: $orderBy) {
+export const DELEGATES_QUERY = `
+  query Delegates($input: DelegatesInput!) {
+    delegates(input: $input) {
       nodes {
-        id
-        name
-        slug
-        tokens {
+        ... on Delegate {
           id
-          name
-          symbol
-          supply
+          votesCount
+          account {
+            id
+            address
+            name
+            bio
+            picture
+          }
+          governor {
+            id
+            name
+            slug
+            token {
+              id
+              name
+              symbol
+              supply
+            }
+          }
+          organization {
+            id
+            name
+            slug
+          }
         }
-        delegatesVotesCount
-        proposalsCount
-        quorum
-        timelockId
+      }
+      pageInfo {
+        firstCursor
+        lastCursor
+        count
       }
     }
   }
