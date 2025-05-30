@@ -16,8 +16,8 @@ const Index = () => {
       {/* Animated Professional Background */}
       <HeroBackground />
       
-      {/* Top Left Wallet Connect */}
-      <div className="absolute top-4 left-4 z-20">
+      {/* Top Right Wallet Connect */}
+      <div className="absolute top-4 right-4 z-20">
         <RainbowWalletConnect />
       </div>
       
