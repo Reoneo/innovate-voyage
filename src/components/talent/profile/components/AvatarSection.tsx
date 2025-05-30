@@ -52,9 +52,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   // Check if there are any social links
   const hasSocialLinks = Object.entries(normalizedSocials || {}).some(([key, val]) => val && val.trim() !== '');
   
-  // Determine spacing based on content availability
-  const hasContentBetweenFollowAndPoap = bio || hasSocialLinks;
-  
   return (
     <div className="flex flex-col items-center gap-2 w-full text-center">
       {/* Avatar */}
@@ -97,8 +94,8 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       {/* Social Links */}
       <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
       
-      {/* POAP Section - Reduced spacing when no content above */}
-      <div className={`w-full ${hasContentBetweenFollowAndPoap ? 'mt-4' : 'mt-1'}`}>
+      {/* POAP Section - Reduced spacing */}
+      <div className="w-full mt-2">
         <PoapSection walletAddress={ownerAddress} />
       </div>
     </div>
