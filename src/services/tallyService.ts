@@ -1,8 +1,8 @@
 
 import { TallyData } from '@/types/tally';
 import { tallyFetcher } from './tally/apiClient';
-import { USER_GOVERNANCE_QUERY, USER_DELEGATEE_QUERY, DELEGATES_QUERY } from './tally/queries';
-import { processUserGovernanceData, processDelegateeData, processGeneralDelegatesData } from './tally/dataProcessor';
+import { USER_GOVERNANCE_QUERY, USER_DELEGATE_QUERY, DELEGATES_QUERY } from './tally/queries';
+import { processUserGovernanceData, processDelegateData, processGeneralDelegatesData } from './tally/dataProcessor';
 
 /**
  * Fetch data from Tally API for a specific wallet address
@@ -30,7 +30,7 @@ export async function fetchTallyData(apiKey: string, walletAddress: string): Pro
     console.log('🔄 Step 2: No account data found, trying delegatee data...');
     try {
       const delegateeData = await tallyFetcher({
-        query: USER_DELEGATEE_QUERY,
+        query: USER_DELEGATE_QUERY,
         variables: {
           input: {
             filters: {
@@ -44,7 +44,7 @@ export async function fetchTallyData(apiKey: string, walletAddress: string): Pro
       });
 
       console.log('🔄 Delegatee data received:', delegateeData);
-      const processedDelegateeData = processDelegateeData(delegateeData, walletAddress);
+      const processedDelegateeData = processDelegateData(delegateeData, walletAddress);
       
       if (processedDelegateeData) {
         console.log('✅ Successfully processed delegatee data:', processedDelegateeData);
