@@ -46,7 +46,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
   if (poaps.length === 0 && !isLoading) return null;
 
   return (
-    <div className="w-full">
+    <>
       {/* POAP count display */}
       {poaps.length > 0 && !isLoading && (
         <div className="text-sm text-center mb-6 text-muted-foreground">
@@ -93,7 +93,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 
