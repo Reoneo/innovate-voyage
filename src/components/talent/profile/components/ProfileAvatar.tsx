@@ -6,9 +6,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface ProfileAvatarProps {
   avatarUrl: string | undefined;
   name: string;
+  userIdentity?: string; // Add userIdentity to determine if it's a .box user
 }
 
-const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
+const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name, userIdentity }) => {
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -17,6 +18,9 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
     setImageError(false);
     setIsLoading(true);
   }, [avatarUrl]);
+  
+  // Check if this is a .box user
+  const isDotBoxUser = userIdentity?.endsWith('.box') || false;
   
   // Generate initials for the fallback
   const getInitials = (name: string): string => {
@@ -62,7 +66,17 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
           onError={handleImageError}
           onLoad={handleImageLoad}
         />
+      ) : isDotBoxUser ? (
+        // For .box users without avatar, show the uploaded image
+        <AvatarImage 
+          src="/lovable-uploads/a6ed85ae-167e-4aa9-ba2e-c8f872954eb2.png" 
+          alt={name} 
+          className="object-cover"
+          onError={handlePlaceholderError}
+          onLoad={() => setIsLoading(false)}
+        />
       ) : (
+        // For .eth users and others, use the regular placeholder
         <AvatarImage 
           src="/placeholder.svg" 
           alt={name} 
