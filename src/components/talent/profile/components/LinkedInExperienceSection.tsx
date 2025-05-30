@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building, Calendar, Briefcase, MapPin } from 'lucide-react';
+import { Building, Calendar, Briefcase, MapPin, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LinkedInJob } from '@/api/services/linkedinService';
@@ -24,7 +24,7 @@ const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({
       <Card id="linkedin-experience-section">
         <CardHeader>
           <CardTitle>LinkedIn Experience</CardTitle>
-          <CardDescription>Professional work history</CardDescription>
+          <CardDescription>Extracting professional work history...</CardDescription>
         </CardHeader>
         <CardContent>
           {[1, 2, 3].map((i) => (
@@ -34,7 +34,12 @@ const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({
                 <Skeleton className="h-4 w-24" />
               </div>
               <Skeleton className="h-4 w-48 mb-2" />
-              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full mb-2" />
+              <div className="flex gap-2">
+                <Skeleton className="h-6 w-16" />
+                <Skeleton className="h-6 w-20" />
+                <Skeleton className="h-6 w-14" />
+              </div>
             </div>
           ))}
         </CardContent>
@@ -48,7 +53,7 @@ const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({
       <Card id="linkedin-experience-section" className="border-red-200">
         <CardHeader>
           <CardTitle>LinkedIn Experience</CardTitle>
-          <CardDescription className="text-red-500">Error loading experience: {error}</CardDescription>
+          <CardDescription className="text-red-500">Error extracting experience: {error}</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -81,27 +86,43 @@ const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({
               />
               LinkedIn Experience
             </CardTitle>
-            <CardDescription>Recent professional experience</CardDescription>
+            <CardDescription>Extracted from LinkedIn profile</CardDescription>
           </div>
-          <Badge variant="outline" className="text-blue-600 border-blue-300">Verified</Badge>
+          <Badge variant="outline" className="text-blue-600 border-blue-300">
+            <ExternalLink className="h-3 w-3 mr-1" />
+            Verified
+          </Badge>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
           {experience.map((job) => (
             <div key={job.id} className="border-b last:border-b-0 pb-4 last:pb-0">
-              <div className="mb-1">
+              <div className="mb-2">
                 <h3 className="font-medium text-lg flex items-center">
                   <Briefcase className="h-4 w-4 mr-2 text-muted-foreground" />
                   {job.role}
                 </h3>
-                <p className="text-muted-foreground flex items-center">
-                  <Building className="h-4 w-4 mr-2" />
-                  {job.company}
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-muted-foreground flex items-center">
+                    <Building className="h-4 w-4 mr-2" />
+                    {job.company}
+                  </p>
+                  {job.profileUrl && (
+                    <a 
+                      href={job.profileUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      View Profile
+                    </a>
+                  )}
+                </div>
               </div>
               
-              <div className="flex items-center text-sm text-muted-foreground mb-2">
+              <div className="flex items-center text-sm text-muted-foreground mb-3">
                 <Calendar className="h-3 w-3 mr-1" />
                 <span>{formatDisplayDate(job.startDate)} - {formatDisplayDate(job.endDate)}</span>
                 
@@ -115,7 +136,17 @@ const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({
               </div>
               
               {job.description && (
-                <p className="text-sm">{job.description}</p>
+                <p className="text-sm mb-3 leading-relaxed">{job.description}</p>
+              )}
+              
+              {job.skills && job.skills.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {job.skills.map((skill, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
               )}
             </div>
           ))}

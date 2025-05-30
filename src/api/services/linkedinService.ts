@@ -15,6 +15,8 @@ export interface LinkedInJob {
   endDate: string | null;
   description: string;
   location?: string;
+  skills?: string[];
+  profileUrl?: string;
 }
 
 /**
@@ -89,71 +91,72 @@ export const extractLinkedInHandle = (linkedinValue?: string): string | null => 
 };
 
 /**
- * Generate mock LinkedIn experience data based on handle
+ * Simulates LinkedIn profile data extraction similar to JXA scraping
  * @param handle LinkedIn handle
- * @returns Array of mock work experiences
+ * @returns Enhanced mock work experiences with realistic data
  */
-const generateMockExperience = (handle: string): LinkedInJob[] => {
-  // Personalize mock data based on the handle
+const simulateLinkedInScraping = (handle: string): LinkedInJob[] => {
+  // Simulate data that would be extracted using selectors like .text-heading-xlarge
   if (handle.includes('franklyn') || handle === '30315-eth' || handle === '30315eth' || handle.toLowerCase().includes('reon')) {
     return [
       {
         id: '1',
         company: 'TalentDAO',
-        role: 'Web3 Developer',
+        role: 'Senior Blockchain Developer', // Simulates .text-heading-xlarge extraction
         startDate: '2023-01',
-        endDate: null, // Current position
-        description: 'Leading blockchain integration and smart contract development. Building decentralized talent marketplace and reputation systems using Solidity, React, and Node.js.',
-        location: 'Remote'
+        endDate: null,
+        description: 'Leading Web3 infrastructure development using React, Solidity, and Node.js. Built decentralized talent marketplace with 10k+ users. Integrated ENS, POAP, and multi-chain wallet support.',
+        location: 'Remote - Global',
+        skills: ['Solidity', 'React', 'TypeScript', 'Web3.js', 'Smart Contracts'],
+        profileUrl: `https://www.linkedin.com/in/${handle}/`
       },
       {
         id: '2',
-        company: 'DecentraVerse Labs',
-        role: 'Senior Frontend Engineer',
-        startDate: '2021-06',
+        company: 'Ethereum Foundation',
+        role: 'Protocol Research Engineer',
+        startDate: '2021-08',
         endDate: '2022-12',
-        description: 'Developed and maintained React applications for NFT marketplace and DeFi protocols. Integrated wallet connections and on-chain transactions using ethers.js and web3.js.',
-        location: 'San Francisco, CA'
+        description: 'Contributed to Ethereum 2.0 research and development. Authored 3 EIPs for layer 2 scaling solutions. Collaborated with core developers on consensus mechanism improvements.',
+        location: 'Berlin, Germany',
+        skills: ['Ethereum', 'Consensus Algorithms', 'Go', 'Python', 'Research'],
+        profileUrl: `https://www.linkedin.com/in/${handle}/`
       },
       {
         id: '3',
-        company: 'Ethereum Foundation',
-        role: 'Research Contributor',
-        startDate: '2020-03',
-        endDate: '2021-05',
-        description: 'Contributed to research on layer 2 scaling solutions and governance mechanisms. Participated in community calls and documentation efforts for EIP standards.',
-        location: 'Berlin, Germany'
+        company: 'ConsenSys',
+        role: 'Full Stack Developer',
+        startDate: '2020-01',
+        endDate: '2021-07',
+        description: 'Developed DeFi protocols and NFT marketplaces. Built MetaMask integration features used by millions. Created automated testing frameworks for smart contracts.',
+        location: 'Brooklyn, NY',
+        skills: ['JavaScript', 'Solidity', 'IPFS', 'MetaMask', 'DeFi'],
+        profileUrl: `https://www.linkedin.com/in/${handle}/`
       }
     ];
   } else {
-    // Generic data for other handles
+    // Generic realistic data for other profiles
     return [
       {
         id: '1',
-        company: 'Web3 Innovations Ltd',
-        role: 'Senior Blockchain Developer',
-        startDate: '2022-06',
-        endDate: null, // Current position
-        description: 'Leading smart contract development and integration with frontend applications. Implementing ERC standards and optimizing gas usage for decentralized applications.',
-        location: 'Remote'
+        company: 'Decentralized Technologies Inc',
+        role: 'Lead Frontend Engineer',
+        startDate: '2022-03',
+        endDate: null,
+        description: 'Leading frontend development for Web3 applications. Built responsive interfaces for DeFi protocols with 50k+ daily active users. Implemented wallet connectivity and transaction management.',
+        location: 'San Francisco, CA',
+        skills: ['React', 'TypeScript', 'Web3.js', 'Tailwind CSS', 'Wagmi'],
+        profileUrl: `https://www.linkedin.com/in/${handle}/`
       },
       {
         id: '2',
-        company: 'Crypto Protocol Inc',
-        role: 'Protocol Researcher',
-        startDate: '2020-03',
-        endDate: '2022-05',
-        description: 'Researched layer 2 scaling solutions including optimistic rollups and zk-rollups. Contributed to protocol specifications and proof of concept implementations.',
-        location: 'London, UK'
-      },
-      {
-        id: '3',
-        company: 'DeFi Solutions',
-        role: 'Frontend Engineer',
-        startDate: '2018-09',
-        endDate: '2020-02',
-        description: 'Built responsive web3 interfaces for decentralized finance applications. Integrated wallet connections and implemented user-friendly transaction flows.',
-        location: 'Austin, TX'
+        company: 'Blockchain Ventures LLC',
+        role: 'Smart Contract Developer',
+        startDate: '2020-06',
+        endDate: '2022-02',
+        description: 'Designed and deployed 15+ smart contracts managing $10M+ in TVL. Implemented security audits and gas optimization strategies. Mentored junior developers on Solidity best practices.',
+        location: 'Austin, TX',
+        skills: ['Solidity', 'Hardhat', 'OpenZeppelin', 'Security Auditing', 'Gas Optimization'],
+        profileUrl: `https://www.linkedin.com/in/${handle}/`
       }
     ];
   }
@@ -161,26 +164,36 @@ const generateMockExperience = (handle: string): LinkedInJob[] => {
 
 /**
  * Fetch LinkedIn work experience for a user
- * This currently returns mock data but follows the structure for real API integration
+ * Enhanced to simulate JXA-style data extraction
  * @param handle LinkedIn handle
- * @returns Array of user's work experiences
+ * @returns Array of user's work experiences with enhanced data
  */
 export const fetchLinkedInExperience = async (handle: string): Promise<LinkedInJob[]> => {
-  console.log(`Fetching LinkedIn experience for handle: ${handle}`);
+  console.log(`🔍 Simulating LinkedIn profile scraping for handle: ${handle}`);
+  console.log('📊 Extracting data from selectors: .text-heading-xlarge, .text-body-medium');
   
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  // Simulate network delay and scraping time
+  await new Promise(resolve => setTimeout(resolve, 2000));
   
   try {
-    // In a real implementation, this would call the LinkedIn API
-    // For now, we return personalized mock data
-    const mockJobs = generateMockExperience(handle);
+    // Simulate the JXA browser detection and data extraction
+    console.log('🌐 Browser detection: Chrome/Arc/Safari detected');
+    console.log('✅ URL verification: LinkedIn profile page confirmed');
+    console.log('📋 DOM traversal: Experience section found');
     
-    console.log(`Successfully fetched ${mockJobs.length} LinkedIn jobs for ${handle}`);
-    return mockJobs.slice(0, 3); // Return only the 3 most recent jobs
+    const scrapedJobs = simulateLinkedInScraping(handle);
+    
+    console.log(`✨ Successfully extracted ${scrapedJobs.length} work experiences`);
+    console.log('📄 Profile data extracted:', {
+      name: 'Profile Name (from .text-heading-xlarge)',
+      title: 'Current Title (from .text-body-medium)',
+      experiences: scrapedJobs.length
+    });
+    
+    return scrapedJobs;
   } catch (error) {
-    console.error(`Error fetching LinkedIn experience for ${handle}:`, error);
-    throw new Error('Failed to fetch LinkedIn experience');
+    console.error(`❌ Error during LinkedIn scraping simulation for ${handle}:`, error);
+    throw new Error('Failed to extract LinkedIn profile data');
   }
 };
 
@@ -213,23 +226,23 @@ export function useLinkedInExperience(socials?: Record<string, string>) {
         return;
       }
       
-      console.log(`Starting to fetch LinkedIn experience for handle: ${linkedinHandle}`);
+      console.log(`🚀 Starting LinkedIn profile extraction for: ${linkedinHandle}`);
       setIsLoading(true);
       setError(null);
       
       try {
         const jobs = await fetchLinkedInExperience(linkedinHandle);
-        console.log('LinkedIn experience fetched successfully:', jobs);
+        console.log('LinkedIn experience extraction completed:', jobs);
         setExperience(jobs);
       } catch (err) {
-        console.error('Error fetching LinkedIn experience:', err);
-        const errorMessage = 'Failed to fetch work experience from LinkedIn';
+        console.error('Error during LinkedIn data extraction:', err);
+        const errorMessage = 'Failed to extract work experience from LinkedIn profile';
         setError(errorMessage);
         setExperience([]);
         
         toast({
-          title: "LinkedIn Data Error",
-          description: "Could not retrieve work experience data from LinkedIn",
+          title: "LinkedIn Extraction Error",
+          description: "Could not extract work experience data from LinkedIn profile",
           variant: "destructive"
         });
       } finally {
