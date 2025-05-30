@@ -50,6 +50,21 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
     }
   };
 
+  // Generate the correct OpenSea URL with contract address
+  const getOpenSeaUrl = () => {
+    const chain = nft.chain || 'ethereum';
+    const contractAddress = nft.contractAddress;
+    const tokenId = nft.id;
+    
+    // Use the correct OpenSea URL format: /assets/{chain}/{contractAddress}/{tokenId}
+    if (contractAddress) {
+      return `https://opensea.io/assets/${chain}/${contractAddress}/${tokenId}`;
+    } else {
+      // Fallback to old format if contract address is not available
+      return `https://opensea.io/assets/${chain}/${tokenId}`;
+    }
+  };
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl bg-white text-gray-800 border border-gray-200 shadow-lg">
@@ -133,7 +148,7 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
                 asChild
               >
                 <a 
-                  href={`https://opensea.io/assets/${nft.chain}/${nft.id}`} 
+                  href={getOpenSeaUrl()} 
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
