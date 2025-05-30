@@ -7,6 +7,7 @@ import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
 import { useWebacyData } from '@/hooks/useWebacyData';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TalentScoreBannerProps {
   walletAddress: string;
@@ -18,6 +19,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
   const { score, txCount, loading } = useScoresData(walletAddress);
   const { securityData, isLoading: webacyLoading } = useWebacyData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions') => {
     setActiveDialog(type);
@@ -34,7 +36,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 md:grid-cols-3 gap-6'} ${isMobile ? 'mb-4' : 'mb-8'}`}>
         {showTalentScore && (
           <div className="transform hover:scale-105 transition-all duration-200">
             <TalentScoreBadge 
