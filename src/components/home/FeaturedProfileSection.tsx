@@ -1,10 +1,9 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 
@@ -17,55 +16,41 @@ const FeaturedProfileSection: React.FC = () => {
   };
 
   return (
-    <div className="max-w-sm mx-auto">
-      <h2 className="text-3xl font-bold text-white mb-8 text-center">
-        <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-          Featured Profile
-        </span>
-      </h2>
+    <div className="max-w-xs mx-auto">
+      <h3 className="text-xl font-semibold text-slate-300 mb-4 text-center">
+        Featured Profile
+      </h3>
       <Card 
-        className="cursor-pointer transform hover:scale-105 transition-all duration-500 bg-gradient-to-br from-black/40 to-purple-900/20 backdrop-blur-sm border-2 border-cyan-500/30 hover:border-cyan-400/50 group shadow-2xl shadow-cyan-500/20 hover:shadow-cyan-500/40 rounded-2xl" 
+        className="cursor-pointer transform hover:scale-102 transition-all duration-200 bg-slate-800/50 backdrop-blur-sm border border-slate-600/50 hover:border-slate-500 group shadow-lg hover:shadow-xl rounded-lg" 
         onClick={handleSmithBoxClick}
       >
-        <CardContent className="p-8 text-center relative overflow-hidden">
-          {/* Background glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
-          
-          <div className="relative mb-8">
-            <div className="relative">
-              <Avatar className="h-28 w-28 mx-auto border-4 border-cyan-400/50 shadow-2xl shadow-cyan-500/50 group-hover:border-cyan-300 transition-all duration-300">
-                <AvatarImage 
-                  src="https://metadata.ens.domains/mainnet/avatar/smith.box" 
-                  alt="smith.box avatar" 
-                />
-                <AvatarFallback className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white text-2xl font-bold">
-                  SB
-                </AvatarFallback>
-              </Avatar>
-              {/* Glow ring */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-purple-400/20 blur-xl animate-pulse group-hover:blur-2xl transition-all duration-300"></div>
-            </div>
-            <div className="absolute -top-3 -right-3">
-              <Badge className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black font-bold shadow-lg animate-pulse">
-                <Star className="w-4 h-4 mr-1" />
-                Featured
-              </Badge>
-            </div>
+        <CardContent className="p-6 text-center">
+          <div className="mb-4">
+            <Avatar className="h-16 w-16 mx-auto border-2 border-slate-600 group-hover:border-blue-400 transition-all duration-200">
+              <AvatarImage 
+                src="https://metadata.ens.domains/mainnet/avatar/smith.box" 
+                alt="smith.box avatar" 
+              />
+              <AvatarFallback className="bg-slate-700 text-slate-300 text-lg font-medium">
+                SB
+              </AvatarFallback>
+            </Avatar>
           </div>
           
-          <h3 className="text-3xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors duration-300">
+          <h4 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors duration-200">
             smith.box
-          </h3>
-          <p className="text-gray-300 mb-6 text-lg group-hover:text-purple-300 transition-colors duration-300">
+          </h4>
+          <p className="text-slate-400 mb-4 text-sm">
             Web3 Domain Expert
           </p>
           
           <Button 
             variant="outline" 
-            className="border-2 border-cyan-400/50 text-cyan-300 hover:bg-cyan-400/20 hover:border-cyan-300 opacity-0 group-hover:opacity-100 transition-all duration-500 font-semibold rounded-xl shadow-lg hover:shadow-cyan-400/30"
+            size="sm"
+            className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:border-blue-400 hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-200 text-sm"
           >
             View Profile
-            <ArrowRight className="ml-2 h-5 w-5 group-hover:animate-pulse" />
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </CardContent>
       </Card>

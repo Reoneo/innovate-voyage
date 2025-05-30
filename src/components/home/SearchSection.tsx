@@ -25,28 +25,25 @@ const SearchSection: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto mb-12">
+    <div className="max-w-xl mx-auto mb-8">
       <form onSubmit={handleSearch} className="flex gap-3">
-        <div className="relative flex-grow group">
+        <div className="relative flex-grow">
           <Input
             placeholder="Search by ENS name, address, or domain..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="h-14 text-base pl-14 pr-4 border-2 border-cyan-500/30 focus:border-cyan-400 bg-black/30 backdrop-blur-sm text-white placeholder:text-gray-400 rounded-xl shadow-2xl shadow-cyan-500/20 transition-all duration-300 group-hover:shadow-cyan-500/30"
+            className="h-12 text-base pl-12 pr-4 border border-slate-600/50 focus:border-blue-400 bg-slate-800/50 backdrop-blur-sm text-white placeholder:text-slate-400 rounded-lg shadow-lg transition-all duration-200"
             aria-label="Search profiles"
           />
-          <div className="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none">
-            <Search className="h-6 w-6 text-cyan-400 animate-pulse" aria-hidden="true" />
+          <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+            <Search className="h-5 w-5 text-slate-400" aria-hidden="true" />
           </div>
-          {/* Glow effect */}
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
         </div>
         <Button 
           type="submit" 
           size="lg" 
-          className="h-14 px-8 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold rounded-xl shadow-2xl shadow-cyan-500/30 border border-cyan-500/30 transition-all duration-300 hover:shadow-cyan-500/50 hover:scale-105"
+          className="h-12 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200"
         >
-          <Search className="mr-2 h-5 w-5" />
           Search
         </Button>
       </form>

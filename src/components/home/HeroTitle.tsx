@@ -5,26 +5,23 @@ import { Badge } from '@/components/ui/badge';
 const HeroTitle: React.FC = () => {
   return (
     <div className="text-center">
-      <Badge variant="secondary" className="mb-6 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border-cyan-500/30 shadow-lg shadow-cyan-500/25 animate-pulse">
-        🚀 Next-Gen Recruitment Protocol
+      <Badge variant="secondary" className="mb-6 px-4 py-2 bg-slate-800/80 text-slate-300 border-slate-600/50">
+        🚀 Professional Recruitment Platform
       </Badge>
       
-      <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-white mb-8 relative">
-        <span className="relative z-10">Find Talent on the</span>
+      <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-white mb-6">
+        Find Talent on the
         <br />
-        <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse relative z-10">
+        <span className="bg-gradient-to-r from-blue-400 to-slate-300 bg-clip-text text-transparent">
           Blockchain
         </span>
-        {/* Glow effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-purple-400/20 blur-3xl animate-pulse"></div>
       </h1>
       
-      <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12 leading-relaxed">
-        <span className="text-cyan-300">Recruitment.box</span> is the first{' '}
-        <span className="text-purple-300 font-semibold">decentralized CV & recruitment engine</span>.
+      <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed">
+        <span className="text-blue-300 font-medium">Recruitment.box</span> is the first{' '}
+        <span className="text-slate-200 font-medium">decentralized CV & recruitment engine</span>.
         <br />
-        Discover verified Web3 talent with{' '}
-        <span className="text-blue-300">blockchain-verified credentials</span>.
+        Discover verified Web3 talent with blockchain-verified credentials.
       </p>
     </div>
   );
