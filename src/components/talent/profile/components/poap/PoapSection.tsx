@@ -46,16 +46,13 @@ const PoapSection: React.FC<PoapSectionProps> = ({
 
   // Early returns for edge cases
   if (!walletAddress) return null;
-  
   if (isLoading) {
     return (
       <div className={`w-full ${className}`}>
-        <div className="text-center space-y-2">
-          <Skeleton className="h-4 w-20 mx-auto" />
-          <div className="flex gap-2 justify-center">
-            <Skeleton className="w-16 h-16 rounded-full" />
-            <Skeleton className="w-16 h-16 rounded-full" />
-            <Skeleton className="w-16 h-16 rounded-full" />
+        <div className="text-center">
+          <Skeleton className="w-52 h-52 rounded-full mx-auto" />
+          <div className="mt-4">
+            <Skeleton className="h-4 w-32 mx-auto" />
           </div>
         </div>
       </div>
@@ -67,10 +64,10 @@ const PoapSection: React.FC<PoapSectionProps> = ({
   return (
     <div className={`w-full ${className}`}>
       {/* POAP Collection Display */}
-      <div className="text-center space-y-3">
+      <div className="text-center space-y-4">
         {/* POAP count header */}
         <div className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{poaps.length}</span> POAP{poaps.length !== 1 ? 's' : ''} collected
+          <span className="font-medium text-foreground">{poaps.length}</span> POAPs collected
         </div>
         
         {/* POAP Carousel */}

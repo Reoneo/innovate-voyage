@@ -71,17 +71,19 @@ export function useProfilePage() {
     };
   }, [targetIdentifier]);
 
-  const { loading, passport, avatarUrl } = useProfileData(ens || address);
+  const { loading, passport, blockchainProfile, blockchainExtendedData, avatarUrl, hasTalentProtocolData } = useProfileData(ens, address);
   
   // Log data fetching progress
   useEffect(() => {
     if (!loading && passport) {
       console.log('✅ Profile data loaded successfully:', {
         hasPassport: !!passport,
-        hasAvatar: !!passport.avatar_url
+        hasAvatar: !!passport.avatar_url,
+        hasBlockchainData: !!blockchainProfile,
+        hasTalentData: hasTalentProtocolData
       });
     }
-  }, [loading, passport]);
+  }, [loading, passport, blockchainProfile, hasTalentProtocolData]);
   
   const { profileRef } = usePdfExport();
 
@@ -105,11 +107,13 @@ export function useProfilePage() {
     ensNameOrAddress: targetIdentifier,
     loading,
     loadingTimeout,
-    passport,
+    passport: passport ? { ...passport, hasTalentProtocolData } : null,
+    blockchainProfile,
     avatarUrl,
     profileRef,
     connectedWallet,
     handleDisconnect,
-    handleSaveChanges
+    handleSaveChanges,
+    hasTalentProtocolData
   };
 }
