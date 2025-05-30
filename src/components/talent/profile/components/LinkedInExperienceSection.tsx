@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +23,7 @@ const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({
       <Card id="linkedin-experience-section">
         <CardHeader>
           <CardTitle>LinkedIn Experience</CardTitle>
-          <CardDescription>Extracting professional work history...</CardDescription>
+          <CardDescription>Loading professional work history...</CardDescription>
         </CardHeader>
         <CardContent>
           {[1, 2, 3].map((i) => (
@@ -53,15 +52,40 @@ const LinkedInExperienceSection: React.FC<LinkedInExperienceSectionProps> = ({
       <Card id="linkedin-experience-section" className="border-red-200">
         <CardHeader>
           <CardTitle>LinkedIn Experience</CardTitle>
-          <CardDescription className="text-red-500">Error extracting experience: {error}</CardDescription>
+          <CardDescription className="text-red-500">Error: {error}</CardDescription>
         </CardHeader>
       </Card>
     );
   }
   
-  // Don't show the section if there's no experience data
+  // Show placeholder when no data is available yet
   if (!experience || experience.length === 0) {
-    return null;
+    return (
+      <Card id="linkedin-experience-section">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" 
+              alt="LinkedIn" 
+              className="w-5 h-5 mr-2"
+            />
+            LinkedIn Experience
+          </CardTitle>
+          <CardDescription>LinkedIn profile detected - API integration required for live data</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <p className="text-muted-foreground mb-4">
+              LinkedIn profile found but no experience data available yet.
+            </p>
+            <Badge variant="outline" className="text-blue-600 border-blue-300">
+              <ExternalLink className="h-3 w-3 mr-1" />
+              Ready for API Integration
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   const formatDisplayDate = (dateString: string | null): string => {

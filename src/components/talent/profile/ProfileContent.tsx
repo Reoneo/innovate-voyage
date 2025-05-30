@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -96,25 +95,28 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Fetch LinkedIn experience data
   const { experience: linkedInExperience, isLoading: linkedInLoading, error: linkedInError } = useLinkedInExperience(passport?.socials);
   
-  // Debug logging
+  // Debug LinkedIn section visibility
+  console.log('LinkedIn Section Debug:', {
+    linkedInHandle: passport?.socials?.linkedin,
+    hasLinkedInHandle: !!passport?.socials?.linkedin,
+    experienceCount: linkedInExperience?.length || 0,
+    isLoading: linkedInLoading,
+    error: linkedInError,
+    showSection: !!passport?.socials?.linkedin
+  });
+  
+  // Debug GitHub data
   console.log('GitHub data from passport:', {
     username: githubUsername,
     originalValue: passport?.socials?.github,
     passport: passport ? 'exists' : 'null'
   });
   
-  console.log('LinkedIn data from passport:', {
-    linkedinHandle: passport?.socials?.linkedin,
-    experienceCount: linkedInExperience?.length || 0,
-    isLoading: linkedInLoading,
-    error: linkedInError
-  });
-  
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
   
-  // Show LinkedIn section if there's a LinkedIn handle in socials OR if there's experience data OR if it's loading
-  const showLinkedInSection = !!passport?.socials?.linkedin || linkedInExperience.length > 0 || linkedInLoading;
+  // Simplified LinkedIn section logic - only show if there's a LinkedIn handle
+  const showLinkedInSection = !!passport?.socials?.linkedin;
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -151,7 +153,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   </div>
                 )}
                 
-                {/* LinkedIn work experience - Always show if there's a LinkedIn handle */}
+                {/* LinkedIn work experience - Show if there's a LinkedIn handle */}
                 {showLinkedInSection && (
                   <div>
                     <LinkedInExperienceSection 
