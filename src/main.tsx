@@ -70,11 +70,10 @@ const { chains, publicClient } = configureChains(
   ]
 );
 
-// Get default wallets for RainbowKit
+// Get default wallets for RainbowKit - removed chains property
 const { connectors } = getDefaultWallets({
   appName: 'Recruitment.box',
   projectId,
-  chains,
 });
 
 // Create wagmi config with RainbowKit connectors
@@ -90,7 +89,7 @@ const ethereumClient = new EthereumClient(wagmiConfig, chains);
 const root = createRoot(document.getElementById("root")!);
 root.render(
   <WagmiConfig config={wagmiConfig}>
-    <RainbowKitProvider chains={chains}>
+    <RainbowKitProvider>
       <App />
     </RainbowKitProvider>
     <Web3Modal
