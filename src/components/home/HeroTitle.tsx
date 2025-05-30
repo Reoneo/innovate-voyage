@@ -17,12 +17,7 @@ const HeroTitle: React.FC = () => {
         </span>
       </h1>
       
-      <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed">
-        <span className="text-blue-300 font-medium">Recruitment.box</span> is a{' '}
-        <span className="text-slate-200 font-medium">decentralized CV & recruitment engine</span>.
-        <br />
-        Discover verified Web3 talent with blockchain-verified credentials.
-      </p>
+      
     </div>;
 };
 export default HeroTitle;
