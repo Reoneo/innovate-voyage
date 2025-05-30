@@ -8,6 +8,7 @@ import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
 import FollowButton from './identity/FollowButton';
 import PoapSection from './poap/PoapSection';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AvatarSectionProps {
   avatarUrl: string;
@@ -29,6 +30,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   displayIdentity
 }) => {
   const [isOwner, setIsOwner] = useState(false);
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -46,56 +48,67 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     }
   });
 
-  // Use WhatsApp as telephone if available and no direct telephone
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
-  
-  // Check if there are any social links
   const hasSocialLinks = Object.entries(normalizedSocials || {}).some(([key, val]) => val && val.trim() !== '');
   
   return (
-    <div className="flex flex-col items-center gap-2 w-full text-center">
+    <div className={`flex flex-col items-center gap-2 w-full text-center ${isMobile ? 'px-2' : ''}`}>
       {/* Avatar */}
-      <ProfileAvatar 
-        avatarUrl={avatarUrl} 
-        name={name} 
-      />
+      <div className={isMobile ? 'mb-2' : 'mb-3'}>
+        <ProfileAvatar 
+          avatarUrl={avatarUrl} 
+          name={name} 
+        />
+      </div>
       
       {/* Name and Address */}
-      <NameSection 
-        name={name} 
-        ownerAddress={ownerAddress}
-        displayIdentity={displayIdentity}
-      />
+      <div className={`w-full ${isMobile ? 'mb-2' : 'mb-3'}`}>
+        <NameSection 
+          name={name} 
+          ownerAddress={ownerAddress}
+          displayIdentity={displayIdentity}
+        />
+      </div>
       
       {/* Additional ENS Domains */}
-      <AdditionalEnsDomains domains={additionalEnsDomains} />
+      {additionalEnsDomains.length > 0 && (
+        <div className={`w-full ${isMobile ? 'mb-2' : 'mb-3'}`}>
+          <AdditionalEnsDomains domains={additionalEnsDomains} />
+        </div>
+      )}
       
       {/* Contact Info */}
-      <ProfileContact 
-        email={normalizedSocials.email}
-        telephone={telephone}
-        isOwner={isOwner}
-      />
+      <div className={`w-full ${isMobile ? 'mb-2' : 'mb-3'}`}>
+        <ProfileContact 
+          email={normalizedSocials.email}
+          telephone={telephone}
+          isOwner={isOwner}
+        />
+      </div>
       
-      {/* Follow Button - Moved above Bio section */}
+      {/* Follow Button */}
       {!isOwner && ownerAddress && (
-        <div className="mb-3">
+        <div className={`w-full ${isMobile ? 'mb-2' : 'mb-3'}`}>
           <FollowButton targetAddress={ownerAddress} />
         </div>
       )}
       
       {/* ENS Bio */}
       {bio && (
-        <div className="mb-3">
-          <p className="text-sm text-muted-foreground">{bio}</p>
+        <div className={`w-full ${isMobile ? 'mb-2' : 'mb-3'} ${isMobile ? 'px-2' : ''}`}>
+          <p className={`text-sm text-muted-foreground ${isMobile ? 'text-xs leading-relaxed' : ''}`}>
+            {bio}
+          </p>
         </div>
       )}
       
       {/* Social Links */}
-      <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
+      <div className={`w-full ${isMobile ? 'mb-2' : 'mb-3'}`}>
+        <SocialLinksSection socials={normalizedSocials} identity={displayIdentity} />
+      </div>
       
-      {/* POAP Section - Reduced spacing */}
-      <div className="w-full mt-2">
+      {/* POAP Section */}
+      <div className="w-full">
         <PoapSection walletAddress={ownerAddress} />
       </div>
     </div>

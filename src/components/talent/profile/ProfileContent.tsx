@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -107,17 +106,17 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className="w-full space-y-6 h-full">
-            {/* Avatar and basic info section */}
-            <div className={`w-full ${isMobile ? 'flex flex-col space-y-4' : 'grid grid-cols-1 md:grid-cols-10 gap-6'}`}>
-              <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
+          <div className="w-full space-y-4 md:space-y-6 h-full">
+            {/* Mobile-first responsive layout */}
+            <div className="w-full flex flex-col lg:grid lg:grid-cols-10 gap-4 md:gap-6">
+              {/* Avatar section - full width on mobile, 3 cols on desktop */}
+              <div className="w-full lg:col-span-3 flex flex-col space-y-3 md:space-y-4">
                 <AvatarSection
                   avatarUrl={passport.avatar_url}
                   name={passport.name}
                   ownerAddress={passport.owner_address}
                   socials={{
                     ...passport.socials,
-                    // Remove LinkedIn from socials to hide it completely
                     linkedin: undefined
                   }}
                   bio={passport.bio}
@@ -126,18 +125,15 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 />
               </div>
               
-              {/* Content sections */}
-              <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
+              {/* Content sections - full width on mobile, 7 cols on desktop */}
+              <div className="w-full lg:col-span-7 space-y-4 md:space-y-6">
                 <TalentScoreBanner walletAddress={passport.owner_address} />
                 
-                {/* GitHub contribution graph */}
                 {showGitHubSection && (
                   <div>
                     <GitHubContributionGraph username={githubUsername!} />
                   </div>
                 )}
-                
-                {/* LinkedIn section is now completely hidden - removed from this component */}
               </div>
             </div>
           </div>

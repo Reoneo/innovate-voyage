@@ -18,14 +18,14 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({
       width: '100%',
       maxWidth: isMobile ? '100vw' : '95vw',
       margin: '0 auto',
-      marginTop: '8px',
-      marginBottom: '8px',
+      marginTop: isMobile ? '4px' : '8px',
+      marginBottom: isMobile ? '4px' : '8px',
       padding: 0,
       overflow: isMobile ? 'visible' : 'auto',
       border: '1px solid #f0f0f0',
       borderRadius: '8px'
     }}>
-      <CardContent className={`${isMobile ? 'h-auto' : 'h-full'} rounded-none my-0 mx-0 ${isMobile ? 'p-3 py-2 px-2' : 'p-6 md:p-8 print:p-4 py-[10px] px-[20px]'}`}>
+      <CardContent className={`${isMobile ? 'h-auto' : 'h-full'} rounded-none my-0 mx-0 ${isMobile ? 'p-2 py-3' : 'p-6 md:p-8 print:p-4 py-[10px] px-[20px]'}`}>
         {children}
       </CardContent>
     </Card>
