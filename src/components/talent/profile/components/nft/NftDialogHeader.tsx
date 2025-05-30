@@ -4,6 +4,7 @@ import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, Grid3X3, LayoutGrid, List } from 'lucide-react';
 import NftFilterControls from './NftFilterControls';
+import CollectionsDropdown from './CollectionsDropdown';
 import type { ViewMode } from './NftCollectionsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -18,6 +19,9 @@ interface NftDialogHeaderProps {
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   onClose: () => void;
+  collections: any[];
+  selectedCollection: string | null;
+  onCollectionSelect: (collectionName: string | null) => void;
 }
 
 const NftDialogHeader: React.FC<NftDialogHeaderProps> = ({
@@ -30,7 +34,10 @@ const NftDialogHeader: React.FC<NftDialogHeaderProps> = ({
   has3dnsNfts,
   viewMode,
   onViewModeChange,
-  onClose
+  onClose,
+  collections,
+  selectedCollection,
+  onCollectionSelect
 }) => {
   const isMobile = useIsMobile();
 
@@ -40,6 +47,11 @@ const NftDialogHeader: React.FC<NftDialogHeaderProps> = ({
       case 'large-grid': return <LayoutGrid size={16} />;
       case 'list': return <List size={16} />;
     }
+  };
+
+  const handleViewModeChange = (mode: ViewMode) => {
+    console.log('Changing view mode to:', mode);
+    onViewModeChange(mode);
   };
 
   return (
@@ -75,7 +87,7 @@ const NftDialogHeader: React.FC<NftDialogHeaderProps> = ({
                     key={mode}
                     variant={viewMode === mode ? 'secondary' : 'ghost'}
                     size="sm"
-                    onClick={() => onViewModeChange(mode)}
+                    onClick={() => handleViewModeChange(mode)}
                     className={`px-3 py-1.5 rounded-md transition-all ${
                       viewMode === mode 
                         ? 'bg-white text-gray-900 shadow-sm' 
@@ -99,8 +111,18 @@ const NftDialogHeader: React.FC<NftDialogHeaderProps> = ({
           </div>
         </div>
         
-        {/* Filter Controls */}
-        <div className="mt-4">
+        {/* Collections Dropdown and Filter Controls */}
+        <div className="mt-4 space-y-3">
+          {/* Collections Dropdown */}
+          <div className="flex flex-wrap items-center gap-3">
+            <CollectionsDropdown
+              collections={collections}
+              selectedCollection={selectedCollection}
+              onCollectionSelect={onCollectionSelect}
+            />
+          </div>
+
+          {/* Filter Controls */}
           <NftFilterControls
             selectedType={selectedType}
             onTypeChange={onTypeChange}
@@ -119,7 +141,7 @@ const NftDialogHeader: React.FC<NftDialogHeaderProps> = ({
                 key={mode}
                 variant={viewMode === mode ? 'secondary' : 'ghost'}
                 size="sm"
-                onClick={() => onViewModeChange(mode)}
+                onClick={() => handleViewModeChange(mode)}
                 className={`px-3 py-1.5 rounded-md transition-all ${
                   viewMode === mode 
                     ? 'bg-white text-gray-900 shadow-sm' 

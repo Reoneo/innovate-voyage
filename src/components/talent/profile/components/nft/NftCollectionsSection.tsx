@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { fetchUserNfts, type OpenSeaNft } from '@/api/services/openseaService';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -25,6 +24,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   const [selectedType, setSelectedType] = useState<'ethereum' | 'ens' | 'poap' | '3dns' | 'all'>('all');
   const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -66,8 +66,13 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   const hasPoapNfts = collections.some(c => c.nfts.some((nft: any) => nft.type === 'poap'));
   const has3dnsNfts = collections.some(c => c.nfts.some((nft: any) => nft.type === '3dns'));
 
-  // Get total NFT count
-  const totalNfts = collections.reduce((total, collection) => total + collection.nfts.length, 0);
+  // Filter collections based on selected collection
+  const filteredCollections = selectedCollection 
+    ? collections.filter(collection => collection.name === selectedCollection)
+    : collections;
+
+  // Get total NFT count from filtered collections
+  const totalNfts = filteredCollections.reduce((total, collection) => total + collection.nfts.length, 0);
 
   return <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
@@ -83,13 +88,16 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             onClose={() => onOpenChange?.(false)}
+            collections={collections}
+            selectedCollection={selectedCollection}
+            onCollectionSelect={setSelectedCollection}
           />
 
           {/* Content Area - Made scrollable */}
           <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
             <div className={`${isMobile ? 'p-4' : 'p-6'}`}>
               <NftCollectionsContent 
-                collections={collections} 
+                collections={filteredCollections} 
                 loading={loading} 
                 selectedType={selectedType} 
                 onNftClick={handleNftClick}
