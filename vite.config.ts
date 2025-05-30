@@ -86,6 +86,18 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             vendor: ['react', 'react-dom', 'react-router-dom'],
           },
         },
+        // Handle optional dependencies that might not be available
+        onwarn(warning, warn) {
+          // Suppress warnings about missing optional dependencies
+          if (
+            warning.code === 'UNRESOLVED_IMPORT' &&
+            (warning.message.includes('@safe-global/safe-apps-sdk') || 
+             warning.message.includes('@safe-window/safe-apps-sdk'))
+          ) {
+            return;
+          }
+          warn(warning);
+        },
       },
       commonjsOptions: {
         transformMixedEsModules: true,
