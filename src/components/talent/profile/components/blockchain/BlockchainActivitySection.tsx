@@ -14,7 +14,15 @@ const BlockchainActivitySection: React.FC<BlockchainActivitySectionProps> = ({
 }) => {
   const { data, loading, hasData } = useBlockchainActivity(walletAddress);
 
+  console.log('BlockchainActivitySection render:', {
+    walletAddress,
+    loading,
+    hasData,
+    data
+  });
+
   if (loading) {
+    console.log('Showing loading state for blockchain activity');
     return (
       <Card className="w-full">
         <CardHeader>
@@ -35,8 +43,11 @@ const BlockchainActivitySection: React.FC<BlockchainActivitySectionProps> = ({
   }
 
   if (!hasData) {
+    console.log('No blockchain data available, hiding section');
     return null; // Hide section if no data available
   }
+
+  console.log('Rendering blockchain activity data:', data);
 
   return (
     <Card className="w-full">

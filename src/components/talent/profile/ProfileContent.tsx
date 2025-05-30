@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -104,6 +102,12 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
 
+  console.log('Blockchain Activity Debug:', {
+    walletAddress: passport?.owner_address,
+    hasPassport: !!passport,
+    isMobile
+  });
+
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
       {loading && !loadingTimeout ? (
@@ -111,7 +115,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
       ) : passport ? (
         <HeaderContainer>
           <div className="w-full space-y-4 md:space-y-6 h-full">
-            {/* Force single column layout for mobile */}
             <div className="w-full flex flex-col gap-4 md:gap-6">
               {/* Avatar section - always full width */}
               <div className="w-full flex flex-col space-y-3 md:space-y-4">
@@ -129,21 +132,26 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 />
               </div>
               
-              {/* Content sections - always stacked vertically in mobile */}
+              {/* Content sections - always stacked vertically */}
               <div className="w-full space-y-4 md:space-y-6">
                 <TalentScoreBanner walletAddress={passport.owner_address} />
                 
-                <div>
-                  <BlockchainActivitySection walletAddress={passport.owner_address} />
-                </div>
+                {/* Blockchain Activity Section */}
+                {passport.owner_address && (
+                  <div className="w-full">
+                    <BlockchainActivitySection walletAddress={passport.owner_address} />
+                  </div>
+                )}
                 
+                {/* GitHub Section */}
                 {showGitHubSection && (
-                  <div>
+                  <div className="w-full">
                     <GitHubContributionGraph username={githubUsername!} />
                   </div>
                 )}
                 
-                <div>
+                {/* Farcaster Section */}
+                <div className="w-full">
                   <FarcasterCastsSection 
                     ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
                     address={passport.owner_address}
