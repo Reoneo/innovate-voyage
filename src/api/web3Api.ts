@@ -1,4 +1,3 @@
-
 import { ENSRecord, SkillNFT, Web3Credentials, Web3BioProfile } from './types/web3Types';
 import { BlockchainProfile } from './types/etherscanTypes';
 import { 
@@ -15,7 +14,10 @@ import {
   getAccountBalance,
   getTransactionCount,
   getLatestTransactions,
-  getTokenTransfers
+  getTokenTransfers,
+  getFirstTransaction,
+  getOptimismTransactions,
+  getAccountAge
 } from './services/etherscanService';
 import { fetchWeb3BioProfile } from './utils/web3/index';
 import { getRealAvatar } from './services/avatar';
@@ -33,13 +35,16 @@ async function getWeb3CredentialsByAddress(address: string): Promise<Web3Credent
   };
 }
 
-// Get blockchain profile data from Etherscan
+// Get blockchain profile data from Etherscan with enhanced data
 async function getBlockchainProfile(address: string): Promise<BlockchainProfile> {
-  const [balance, transactionCount, latestTransactions, tokenTransfers] = await Promise.all([
+  const [balance, transactionCount, latestTransactions, tokenTransfers, firstTransaction, optimismTxs, accountAge] = await Promise.all([
     getAccountBalance(address),
     getTransactionCount(address),
-    getLatestTransactions(address),
-    getTokenTransfers(address)
+    getLatestTransactions(address, 10),
+    getTokenTransfers(address, 5),
+    getFirstTransaction(address),
+    getOptimismTransactions(address, 5),
+    getAccountAge(address)
   ]);
   
   return {
@@ -47,7 +52,10 @@ async function getBlockchainProfile(address: string): Promise<BlockchainProfile>
     balance,
     transactionCount,
     latestTransactions,
-    tokenTransfers
+    tokenTransfers,
+    firstTransaction,
+    optimismTransactions: optimismTxs,
+    accountAge
   };
 }
 
@@ -65,7 +73,10 @@ export const web3Api = {
   getLatestTransactions,
   getTokenTransfers,
   getBlockchainProfile,
-  getEnsBio
+  getEnsBio,
+  getFirstTransaction,
+  getOptimismTransactions,
+  getAccountAge
 };
 
 // Re-export types for convenience
