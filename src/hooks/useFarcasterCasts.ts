@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useProfile } from '@farcaster/auth-kit';
 import { toast } from 'sonner';
 
 interface FarcasterCast {
@@ -51,6 +52,7 @@ export function useFarcasterCasts(ensName?: string, address?: string) {
   const [profile, setProfile] = useState<FarcasterProfile | null>(null);
   const [casts, setCasts] = useState<FarcasterCast[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated, profile: authProfile } = useProfile();
 
   useEffect(() => {
     if (!ensName && !address) {
@@ -65,7 +67,40 @@ export function useFarcasterCasts(ensName?: string, address?: string) {
       try {
         console.log('Fetching Farcaster data for:', ensName || address);
         
-        // Use Neynar API (free tier) to fetch Farcaster data
+        // If user is authenticated with Farcaster and this is their profile, use auth data
+        if (isAuthenticated && authProfile && (
+          authProfile.username === ensName?.replace('.eth', '') ||
+          ensName === `${authProfile.username}.eth`
+        )) {
+          console.log('Using authenticated Farcaster profile data');
+          setProfile({
+            fid: authProfile.fid,
+            username: authProfile.username,
+            displayName: authProfile.displayName || authProfile.username,
+            pfp: { url: authProfile.pfpUrl || '' },
+            followerCount: 0,
+            followingCount: 0,
+            verifications: []
+          });
+          
+          // Fetch casts for authenticated user
+          const castsUrl = `https://api.neynar.com/v2/farcaster/casts?fid=${authProfile.fid}&limit=10`;
+          
+          const castsResponse = await fetch(castsUrl, {
+            headers: {
+              'Accept': 'application/json',
+            }
+          });
+
+          if (castsResponse.ok) {
+            const castsData = await castsResponse.json();
+            setCasts(castsData.result?.casts || []);
+            console.log(`Found ${castsData.result?.casts?.length || 0} Farcaster casts`);
+          }
+          return;
+        }
+        
+        // Use Neynar API (free tier) to fetch Farcaster data for other users
         const searchParam = ensName || address;
         const profileUrl = `https://api.neynar.com/v2/farcaster/user/search?q=${encodeURIComponent(searchParam)}&limit=1`;
         
@@ -115,13 +150,17 @@ export function useFarcasterCasts(ensName?: string, address?: string) {
     };
 
     fetchFarcasterData();
-  }, [ensName, address]);
+  }, [ensName, address, isAuthenticated, authProfile]);
 
   return {
     loading,
     profile,
     casts,
     error,
-    hasFarcasterData: !!profile
+    hasFarcasterData: !!profile,
+    isAuthenticatedUser: isAuthenticated && authProfile && (
+      authProfile.username === ensName?.replace('.eth', '') ||
+      ensName === `${authProfile.username}.eth`
+    )
   };
 }
