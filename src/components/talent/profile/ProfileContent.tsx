@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -107,8 +106,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className={`w-full ${isMobile ? 'flex flex-col space-y-6' : 'grid grid-cols-1 md:grid-cols-10 gap-6'} h-full`}>
-            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col space-y-4`}>
+          <div className={`w-full ${isMobile ? 'flex flex-col space-y-4' : 'grid grid-cols-1 md:grid-cols-10 gap-6'} h-full`}>
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-3'} flex flex-col ${isMobile ? 'space-y-3' : 'space-y-4'}`}>
               <AvatarSection
                 avatarUrl={passport.avatar_url}
                 name={passport.name}
@@ -122,12 +121,12 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 additionalEnsDomains={passport.additionalEnsDomains}
               />
             </div>
-            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} space-y-6`}>
+            <div className={`${isMobile ? 'w-full' : 'md:col-span-7'} ${isMobile ? 'space-y-4' : 'space-y-6'}`}>
               <TalentScoreBanner walletAddress={passport.owner_address} />
               
               {/* GitHub contribution graph */}
               {showGitHubSection && (
-                <div className="mt-4">
+                <div className={isMobile ? 'mt-3' : 'mt-4'}>
                   <GitHubContributionGraph username={githubUsername!} />
                 </div>
               )}

@@ -7,6 +7,7 @@ import TokenInvalidAlert from './components/TokenInvalidAlert';
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
 import GitHubCalendar from 'react-github-calendar';
 import { Github } from 'lucide-react';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function GitHubContributionGraph({
   username
@@ -20,6 +21,7 @@ export default function GitHubContributionGraph({
   } = useGitHubCalendar(username);
 
   const [displayedTotal, setDisplayedTotal] = useState<number>(0);
+  const isMobile = useIsMobile();
 
   if (!username) {
     console.log('No GitHub username provided to GitHubContributionGraph');
@@ -57,24 +59,28 @@ export default function GitHubContributionGraph({
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="bg-white border border-gray-200 rounded-lg p-0 overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           {/* Header with GitHub link and icon - centered */}
-          <div className="flex items-center justify-center gap-2 p-3 pb-2">
+          <div className="flex items-center justify-center gap-2 p-2 sm:p-3 pb-1 sm:pb-2">
             <a 
               href={githubProfileUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
             >
-              <Github className="w-4 h-4" />
-              <span className="text-sm font-medium">GitHub Contributions</span>
+              <Github className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+              <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>GitHub Contributions</span>
             </a>
           </div>
           
-          {/* Calendar container with no extra padding - centered */}
-          <div className="w-full overflow-x-auto flex justify-center">
+          {/* Calendar container - responsive */}
+          <div className="w-full overflow-x-auto flex justify-center px-1 sm:px-0">
             {username && (
-              <div className="w-full flex justify-center" style={{ minWidth: '650px' }}>
+              <div className="flex justify-center" style={{ 
+                minWidth: isMobile ? '300px' : '650px',
+                width: '100%',
+                maxWidth: '100%'
+              }}>
                 <GitHubCalendar 
                   username={username} 
                   colorScheme="light" 
@@ -82,10 +88,10 @@ export default function GitHubContributionGraph({
                   hideColorLegend={true} 
                   hideMonthLabels={false} 
                   showWeekdayLabels={true} 
-                  blockSize={8} 
-                  blockMargin={2} 
+                  blockSize={isMobile ? 6 : 8} 
+                  blockMargin={isMobile ? 1 : 2} 
                   blockRadius={2} 
-                  fontSize={10} 
+                  fontSize={isMobile ? 8 : 10} 
                   transformData={transformData} 
                   labels={{
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -98,7 +104,7 @@ export default function GitHubContributionGraph({
           </div>
           
           {/* Legend at bottom with minimal spacing - centered */}
-          <div className="px-3 pb-2 flex justify-center">
+          <div className="px-2 sm:px-3 pb-1 sm:pb-2 flex justify-center">
             <GitHubContributionLegend />
           </div>
         </div>
