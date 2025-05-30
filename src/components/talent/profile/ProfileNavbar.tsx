@@ -42,23 +42,28 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             <Home className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'}`} />
           </Link>
           
-          <div className={`relative w-full ${isMobile ? 'max-w-none mx-2' : 'max-w-md'}`}>
-            <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-gray-400`} aria-hidden="true" />
-            <Input 
-              type="text" 
-              placeholder={isMobile ? "Search ENS..." : "Search ENS username..."} 
-              value={search} 
-              onChange={e => setSearch(e.target.value)} 
-              className={`${isMobile ? 'pl-8 pr-16 py-1 text-sm' : 'pl-10 pr-4 py-2'} w-full bg-gray-700/30 border-gray-600/30 text-white rounded-full focus:ring-white focus:border-white`} 
-            />
-            <Button 
-              type="submit" 
-              variant="ghost" 
-              size="sm" 
-              className={`absolute right-1 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 ${isMobile ? 'px-2 py-0.5 text-xs' : 'px-3 py-1'}`}
-            >
-              {isMobile ? 'Go' : 'Search'}
-            </Button>
+          <div className={`relative ${isMobile ? 'max-w-none mx-2' : 'max-w-md'} w-full`}>
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
+              <div className="relative">
+                <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-gray-400 z-10`} aria-hidden="true" />
+                <Input 
+                  type="text" 
+                  placeholder={isMobile ? "Search ENS..." : "Search ENS username..."} 
+                  value={search} 
+                  onChange={e => setSearch(e.target.value)} 
+                  className={`${isMobile ? 'pl-8 pr-16 py-1 text-sm' : 'pl-10 pr-4 py-2'} w-full bg-white border-0 text-black rounded-full focus:ring-2 focus:ring-white focus:border-white relative z-0`} 
+                />
+                <Button 
+                  type="submit" 
+                  variant="ghost" 
+                  size="sm" 
+                  className={`absolute right-1 top-1/2 transform -translate-y-1/2 text-black hover:text-gray-600 z-10 ${isMobile ? 'px-2 py-0.5 text-xs' : 'px-3 py-1'}`}
+                >
+                  {isMobile ? 'Go' : 'Search'}
+                </Button>
+              </div>
+            </div>
           </div>
           
           <button 
