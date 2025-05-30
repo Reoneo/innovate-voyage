@@ -6,6 +6,8 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
+import LinkedInExperienceSection from './components/LinkedInExperienceSection';
+import { useLinkedInExperience } from '@/api/services/linkedinService';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -91,6 +93,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Get GitHub username from ENS records
   const githubUsername = extractGitHubUsername();
   
+  // Fetch LinkedIn experience data
+  const { experience: linkedInExperience, isLoading: linkedInLoading, error: linkedInError } = useLinkedInExperience(passport?.socials);
+  
   // Debug logging
   console.log('GitHub data from passport:', {
     username: githubUsername,
@@ -98,8 +103,18 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     passport: passport ? 'exists' : 'null'
   });
   
+  console.log('LinkedIn data from passport:', {
+    linkedinHandle: passport?.socials?.linkedin,
+    experienceCount: linkedInExperience?.length || 0,
+    isLoading: linkedInLoading,
+    error: linkedInError
+  });
+  
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
+  
+  // Only show LinkedIn section if there's experience data or it's loading
+  const showLinkedInSection = linkedInExperience.length > 0 || linkedInLoading;
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -129,6 +144,17 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               {showGitHubSection && (
                 <div className="mt-4">
                   <GitHubContributionGraph username={githubUsername!} />
+                </div>
+              )}
+              
+              {/* LinkedIn work experience */}
+              {showLinkedInSection && (
+                <div className="mt-4">
+                  <LinkedInExperienceSection 
+                    experience={linkedInExperience}
+                    isLoading={linkedInLoading}
+                    error={linkedInError}
+                  />
                 </div>
               )}
             </div>

@@ -31,31 +31,57 @@ export const extractLinkedInHandle = (linkedinValue?: string): string | null => 
   console.log('Extracting LinkedIn handle from:', linkedinValue);
   
   try {
-    // Handle direct username format
-    if (!linkedinValue.includes('/') && !linkedinValue.includes('.')) {
-      console.log('Using direct username format:', linkedinValue);
-      return linkedinValue;
+    // Remove any leading/trailing whitespace
+    const cleanValue = linkedinValue.trim();
+    
+    // Handle direct username format (no URL, no special characters)
+    if (!cleanValue.includes('/') && !cleanValue.includes('.') && !cleanValue.includes('@')) {
+      console.log('Using direct username format:', cleanValue);
+      return cleanValue;
     }
     
-    // Handle linkedin.com URL format
-    if (linkedinValue.includes('linkedin.com/in/')) {
-      const parts = linkedinValue.split('linkedin.com/in/');
-      // Get everything after linkedin.com/in/ and before any query params or hashes
+    // Handle @username format
+    if (cleanValue.startsWith('@')) {
+      const username = cleanValue.substring(1).trim();
+      console.log('Extracted from @-prefix format:', username);
+      return username || null;
+    }
+    
+    // Handle full LinkedIn URL formats
+    if (cleanValue.includes('linkedin.com/in/')) {
+      const parts = cleanValue.split('linkedin.com/in/');
       const username = parts[1]?.split(/[/?#]/)[0];
-      console.log('Extracted from linkedin.com URL:', username);
+      console.log('Extracted from full LinkedIn URL:', username);
       return username?.trim() || null;
     }
     
-    // Handle /in/ format without domain
-    if (linkedinValue.includes('/in/')) {
-      const parts = linkedinValue.split('/in/');
+    // Handle shortened /in/ format
+    if (cleanValue.includes('/in/')) {
+      const parts = cleanValue.split('/in/');
       const username = parts[1]?.split(/[/?#]/)[0];
       console.log('Extracted from /in/ format:', username);
       return username?.trim() || null;
     }
     
-    console.log('Using the value directly as handle:', linkedinValue.trim());
-    return linkedinValue.trim();
+    // Handle linkedin:// scheme
+    if (cleanValue.startsWith('linkedin://')) {
+      const username = cleanValue.replace('linkedin://', '').split(/[/?#]/)[0];
+      console.log('Extracted from linkedin:// scheme:', username);
+      return username?.trim() || null;
+    }
+    
+    // If it looks like a URL but doesn't match our patterns, try to extract username
+    if (cleanValue.includes('linkedin')) {
+      // Try to find anything that looks like a username after linkedin
+      const match = cleanValue.match(/linkedin[^\/]*\/+(?:in\/)?([^\/\?#\s]+)/i);
+      if (match && match[1]) {
+        console.log('Extracted using regex pattern:', match[1]);
+        return match[1].trim();
+      }
+    }
+    
+    console.log('Using the value directly as handle:', cleanValue);
+    return cleanValue;
   } catch (error) {
     console.error('Error extracting LinkedIn handle:', error);
     return null;
@@ -63,43 +89,30 @@ export const extractLinkedInHandle = (linkedinValue?: string): string | null => 
 };
 
 /**
- * Fetch LinkedIn work experience for a user
- * This is currently using real LinkedIn data
+ * Generate mock LinkedIn experience data based on handle
  * @param handle LinkedIn handle
- * @returns Array of user's work experiences
+ * @returns Array of mock work experiences
  */
-export const fetchLinkedInExperience = async (handle: string): Promise<LinkedInJob[]> => {
-  console.log(`Fetching LinkedIn experience for handle: ${handle}`);
-  
-  // We're just fetching the mock data for now
-  // In a real implementation, this would call the LinkedIn API with proper auth
-  
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  // For the demo, we'll use a different set of mock data based on the handle
-  // This at least personalizes what we show based on the ENS profile's LinkedIn handle
-  let mockJobs: LinkedInJob[] = [];
-  
-  if (handle.includes('franklyn') || handle === '30315-eth' || handle === '30315eth') {
-    // For Reon Franklyn or specific handles
-    mockJobs = [
+const generateMockExperience = (handle: string): LinkedInJob[] => {
+  // Personalize mock data based on the handle
+  if (handle.includes('franklyn') || handle === '30315-eth' || handle === '30315eth' || handle.toLowerCase().includes('reon')) {
+    return [
       {
         id: '1',
         company: 'TalentDAO',
         role: 'Web3 Developer',
         startDate: '2023-01',
         endDate: null, // Current position
-        description: 'Leading blockchain integration and smart contract development. Building decentralized talent marketplace and reputation systems.',
+        description: 'Leading blockchain integration and smart contract development. Building decentralized talent marketplace and reputation systems using Solidity, React, and Node.js.',
         location: 'Remote'
       },
       {
         id: '2',
-        company: 'DecentraVerse',
-        role: 'Frontend Engineer',
+        company: 'DecentraVerse Labs',
+        role: 'Senior Frontend Engineer',
         startDate: '2021-06',
         endDate: '2022-12',
-        description: 'Developed and maintained React applications for NFT marketplace and DeFi protocols. Integrated wallet connections and on-chain transactions.',
+        description: 'Developed and maintained React applications for NFT marketplace and DeFi protocols. Integrated wallet connections and on-chain transactions using ethers.js and web3.js.',
         location: 'San Francisco, CA'
       },
       {
@@ -108,44 +121,67 @@ export const fetchLinkedInExperience = async (handle: string): Promise<LinkedInJ
         role: 'Research Contributor',
         startDate: '2020-03',
         endDate: '2021-05',
-        description: 'Contributed to research on layer 2 scaling solutions and governance mechanisms. Participated in community calls and documentation efforts.',
+        description: 'Contributed to research on layer 2 scaling solutions and governance mechanisms. Participated in community calls and documentation efforts for EIP standards.',
         location: 'Berlin, Germany'
       }
     ];
   } else {
-    // Generic data for all other handles
-    mockJobs = [
+    // Generic data for other handles
+    return [
       {
         id: '1',
-        company: 'Web3 Innovations',
+        company: 'Web3 Innovations Ltd',
         role: 'Senior Blockchain Developer',
         startDate: '2022-06',
         endDate: null, // Current position
-        description: 'Leading smart contract development and integration with frontend applications. Implementing ERC standards and optimizing gas usage for dApps.',
+        description: 'Leading smart contract development and integration with frontend applications. Implementing ERC standards and optimizing gas usage for decentralized applications.',
         location: 'Remote'
       },
       {
         id: '2',
-        company: 'Ethereum Foundation',
+        company: 'Crypto Protocol Inc',
         role: 'Protocol Researcher',
         startDate: '2020-03',
         endDate: '2022-05',
-        description: 'Researched layer 2 scaling solutions including rollups and state channels. Contributed to protocol specifications and proof of concept implementations.',
-        location: 'Berlin, Germany'
+        description: 'Researched layer 2 scaling solutions including optimistic rollups and zk-rollups. Contributed to protocol specifications and proof of concept implementations.',
+        location: 'London, UK'
       },
       {
         id: '3',
-        company: 'DeFi Protocol',
+        company: 'DeFi Solutions',
         role: 'Frontend Engineer',
         startDate: '2018-09',
         endDate: '2020-02',
-        description: 'Built responsive web3 interfaces for decentralized finance applications. Integrated wallet connections and on-chain transactions into user-friendly UI.',
-        location: 'San Francisco, CA'
+        description: 'Built responsive web3 interfaces for decentralized finance applications. Integrated wallet connections and implemented user-friendly transaction flows.',
+        location: 'Austin, TX'
       }
     ];
   }
+};
+
+/**
+ * Fetch LinkedIn work experience for a user
+ * This currently returns mock data but follows the structure for real API integration
+ * @param handle LinkedIn handle
+ * @returns Array of user's work experiences
+ */
+export const fetchLinkedInExperience = async (handle: string): Promise<LinkedInJob[]> => {
+  console.log(`Fetching LinkedIn experience for handle: ${handle}`);
   
-  return mockJobs.slice(0, 3); // Return only the 3 most recent jobs
+  // Simulate API call delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
+  try {
+    // In a real implementation, this would call the LinkedIn API
+    // For now, we return personalized mock data
+    const mockJobs = generateMockExperience(handle);
+    
+    console.log(`Successfully fetched ${mockJobs.length} LinkedIn jobs for ${handle}`);
+    return mockJobs.slice(0, 3); // Return only the 3 most recent jobs
+  } catch (error) {
+    console.error(`Error fetching LinkedIn experience for ${handle}:`, error);
+    throw new Error('Failed to fetch LinkedIn experience');
+  }
 };
 
 /**
@@ -161,33 +197,39 @@ export function useLinkedInExperience(socials?: Record<string, string>) {
   
   useEffect(() => {
     const fetchExperience = async () => {
-      console.log('LinkedIn social data:', socials?.linkedin);
+      console.log('LinkedIn social data received:', socials?.linkedin);
       
       if (!socials?.linkedin) {
         console.log('No LinkedIn profile found in socials data');
+        setExperience([]);
         return;
       }
       
       const linkedinHandle = extractLinkedInHandle(socials.linkedin);
       
       if (!linkedinHandle) {
-        console.log('No valid LinkedIn handle found');
+        console.log('No valid LinkedIn handle could be extracted');
+        setExperience([]);
         return;
       }
       
+      console.log(`Starting to fetch LinkedIn experience for handle: ${linkedinHandle}`);
       setIsLoading(true);
       setError(null);
       
       try {
         const jobs = await fetchLinkedInExperience(linkedinHandle);
-        console.log('LinkedIn jobs fetched:', jobs);
+        console.log('LinkedIn experience fetched successfully:', jobs);
         setExperience(jobs);
       } catch (err) {
         console.error('Error fetching LinkedIn experience:', err);
-        setError('Failed to fetch work experience');
+        const errorMessage = 'Failed to fetch work experience from LinkedIn';
+        setError(errorMessage);
+        setExperience([]);
+        
         toast({
           title: "LinkedIn Data Error",
-          description: "Could not retrieve work experience data",
+          description: "Could not retrieve work experience data from LinkedIn",
           variant: "destructive"
         });
       } finally {
