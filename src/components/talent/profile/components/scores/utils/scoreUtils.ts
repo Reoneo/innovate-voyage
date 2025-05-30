@@ -1,18 +1,17 @@
+
 export function getBuilderTitle(score: number): string {
-  if (score >= 90) {
-    return 'Legendary Builder';
+  if (score >= 250) {
+    return 'Master';
+  } else if (score >= 170) {
+    return 'Expert';
+  } else if (score >= 120) {
+    return 'Advanced';
   } else if (score >= 80) {
-    return 'Epic Builder';
-  } else if (score >= 70) {
-    return 'Master Builder';
-  } else if (score >= 60) {
-    return 'Great Builder';
-  } else if (score >= 50) {
-    return 'Skilled Builder';
+    return 'Practitioner';
   } else if (score >= 40) {
-    return 'Promising Builder';
+    return 'Apprentice';
   } else {
-    return 'New Builder';
+    return 'Novice';
   }
 }
 

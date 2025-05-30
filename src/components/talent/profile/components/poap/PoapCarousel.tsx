@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { Poap } from '@/api/services/poapService';
 import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
@@ -107,7 +108,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
           disabled={!canScrollPrev}
           className={`p-2 rounded-full transition-all ${
             canScrollPrev 
-              ? 'bg-gradient-to-r from-purple-500 via-blue-500 to-green-500 hover:from-purple-600 hover:via-blue-600 hover:to-green-600 text-white cursor-pointer shadow-lg' 
+              ? 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-lg' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
         >
@@ -123,7 +124,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
                 onClick={() => api?.scrollTo(index)}
                 className={`w-2 h-2 rounded-full transition-all ${
                   index === current 
-                    ? 'bg-gradient-to-r from-purple-500 to-blue-500 scale-125' 
+                    ? 'bg-black scale-125' 
                     : 'bg-gray-300 hover:bg-gray-400'
                 }`}
               />
@@ -131,7 +132,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
           </div>
         ) : (
           <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <span className="font-medium bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">{current + 1}</span>
+            <span className="font-medium text-black">{current + 1}</span>
             <span>/</span>
             <span>{poaps.length}</span>
           </div>
@@ -143,7 +144,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
           disabled={!canScrollNext}
           className={`p-2 rounded-full transition-all ${
             canScrollNext 
-              ? 'bg-gradient-to-r from-purple-500 via-blue-500 to-green-500 hover:from-purple-600 hover:via-blue-600 hover:to-green-600 text-white cursor-pointer shadow-lg' 
+              ? 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-lg' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
         >
