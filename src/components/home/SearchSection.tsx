@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { toast } from 'sonner';
-import { resolveAddressToEns } from '@/utils/ensResolution';
+import { getPrimaryName } from '@/utils/ensService';
 
 const SearchSection: React.FC = () => {
   const navigate = useNavigate();
@@ -28,13 +28,13 @@ const SearchSection: React.FC = () => {
         console.log(`Searching for ENS domain for address: ${searchValue}`);
         toast.info('Looking up primary ENS domain...');
         
-        // Try to resolve address to primary ENS domain
-        const ensResult = await resolveAddressToEns(searchValue);
+        // Try to resolve address to primary ENS domain using @ensdomains/ensjs
+        const primaryName = await getPrimaryName(searchValue);
         
-        if (ensResult && ensResult.ensName) {
-          console.log(`Found primary ENS domain: ${ensResult.ensName}`);
-          toast.success(`Found primary ENS domain: ${ensResult.ensName}`);
-          navigate(`/${ensResult.ensName}`);
+        if (primaryName) {
+          console.log(`Found primary ENS domain: ${primaryName}`);
+          toast.success(`Found primary ENS domain: ${primaryName}`);
+          navigate(`/${primaryName}`);
         } else {
           // No primary ENS found, search by address directly
           console.log(`No primary ENS found, searching by address: ${searchValue}`);
