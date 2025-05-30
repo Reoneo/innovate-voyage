@@ -1,10 +1,12 @@
 
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
+import BlockchainActivitySection from './components/blockchain/BlockchainActivitySection';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import FarcasterCastsSection from './components/farcaster/FarcasterCastsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -130,6 +132,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               {/* Content sections - always stacked vertically in mobile */}
               <div className="w-full space-y-4 md:space-y-6">
                 <TalentScoreBanner walletAddress={passport.owner_address} />
+                
+                <div>
+                  <BlockchainActivitySection walletAddress={passport.owner_address} />
+                </div>
                 
                 {showGitHubSection && (
                   <div>
