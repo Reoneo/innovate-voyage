@@ -58,8 +58,8 @@ export default function GitHubContributionGraph({
       
       {!loading && !error && username && (
         <div className="bg-white border border-gray-200 rounded-lg p-0 overflow-hidden">
-          {/* Header with GitHub link and icon */}
-          <div className="flex items-center gap-2 p-3 pb-2">
+          {/* Header with GitHub link and icon - centered */}
+          <div className="flex items-center justify-center gap-2 p-3 pb-2">
             <a 
               href={githubProfileUrl}
               target="_blank"
@@ -71,10 +71,10 @@ export default function GitHubContributionGraph({
             </a>
           </div>
           
-          {/* Calendar container with no extra padding */}
-          <div className="w-full overflow-x-auto">
+          {/* Calendar container with no extra padding - centered */}
+          <div className="w-full overflow-x-auto flex justify-center">
             {username && (
-              <div className="w-full" style={{ minWidth: '650px' }}>
+              <div className="w-full flex justify-center" style={{ minWidth: '650px' }}>
                 <GitHubCalendar 
                   username={username} 
                   colorScheme="light" 
@@ -97,7 +97,7 @@ export default function GitHubContributionGraph({
             )}
           </div>
           
-          {/* Legend at bottom with minimal spacing */}
+          {/* Legend at bottom with minimal spacing - centered */}
           <div className="px-3 pb-2 flex justify-center">
             <GitHubContributionLegend />
           </div>
