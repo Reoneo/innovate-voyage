@@ -25,7 +25,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({
       border: '1px solid #f0f0f0',
       borderRadius: '8px'
     }}>
-      <CardContent className={`h-full rounded-none my-0 mx-0 ${isMobile ? 'p-3 py-2 px-2' : 'p-6 md:p-8 print:p-4 py-[10px] px-[20px]'}`}>
+      <CardContent className={`h-full rounded-none my-0 mx-0 ${isMobile ? 'p-2 py-3 px-3' : 'p-6 md:p-8 print:p-4 py-[10px] px-[20px]'}`}>
         {children}
       </CardContent>
     </Card>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -45,17 +46,17 @@ const PoapSection: React.FC<PoapSectionProps> = ({
   if (poaps.length === 0 && !isLoading) return null;
 
   return (
-    <section className="w-full flex flex-col items-center mt-8 mb-8">
+    <section className="w-full flex flex-col items-center mt-6 mb-8">
       {/* POAP count display */}
       {poaps.length > 0 && !isLoading && (
-        <div className="text-sm text-center mb-10 text-muted-foreground z-10 relative">
+        <div className="text-sm text-center mb-6 text-muted-foreground z-10 relative">
           <span className="font-medium text-black">{poaps.length}</span> POAPs collected
         </div>
       )}
 
-      <div className="relative w-full h-48 flex items-center justify-center mb-6">
+      <div className="relative w-full h-40 md:h-48 flex items-center justify-center mb-4">
         {isLoading ? (
-          <Skeleton className="w-52 h-52 rounded-full" />
+          <Skeleton className="w-40 h-40 md:w-52 md:h-52 rounded-full" />
         ) : poaps.length > 0 ? (
           <div className="relative flex items-center justify-center w-full">
             {/* POAP Badge with Carousel */}

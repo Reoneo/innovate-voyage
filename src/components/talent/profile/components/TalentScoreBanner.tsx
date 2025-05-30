@@ -34,7 +34,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8 px-2 md:px-0">
         {showTalentScore && (
           <div className="transform hover:scale-105 transition-all duration-200">
             <TalentScoreBadge 
