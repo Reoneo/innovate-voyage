@@ -55,21 +55,17 @@ export default function GitHubContributionGraph({
       
       {!loading && !error && username && (
         <div className="github-calendar-wrapper rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 border-b border-gray-200">
+          {/* Simplified Header */}
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-2 py-2 border-b border-gray-200">
             <div className="text-center">
               <div className="text-lg font-semibold text-gray-900">
-                <span className="text-gray-600">GitHub Activity: </span>
-                <span className="text-green-600" id="contribution-count-banner">
-                  {displayedTotal || stats.total || 0}
-                </span>
-                <span className="text-gray-600"> contributions in the last year</span>
+                GitHub Contributions
               </div>
             </div>
           </div>
           
-          {/* Calendar Content */}
-          <div className="p-4">
+          {/* Calendar Content with minimal padding */}
+          <div className="p-2">
             <div className="overflow-x-auto">
               {username && (
                 <div className="min-w-[650px]">
@@ -95,7 +91,7 @@ export default function GitHubContributionGraph({
               )}
             </div>
             
-            <div className="mt-3 flex justify-center">
+            <div className="mt-2 flex justify-center">
               <GitHubContributionLegend />
             </div>
           </div>
