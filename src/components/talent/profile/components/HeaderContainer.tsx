@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HeaderContainerProps {
   children: React.ReactNode;
@@ -9,20 +10,22 @@ interface HeaderContainerProps {
 const HeaderContainer: React.FC<HeaderContainerProps> = ({
   children
 }) => {
+  const isMobile = useIsMobile();
+  
   return (
     <Card className="bg-white shadow-sm rounded-sm w-full backdrop-blur-sm bg-opacity-95" style={{
       height: 'calc(100vh - 80px)',
       width: '100%',
-      maxWidth: '95vw', // Increased from 21cm to 95% of viewport width
+      maxWidth: isMobile ? '100vw' : '95vw',
       margin: '0 auto',
-      marginTop: '8px', // Reduced from 16px
-      marginBottom: '8px', // Reduced from 16px
+      marginTop: '8px',
+      marginBottom: '8px',
       padding: 0,
       overflow: 'auto',
       border: '1px solid #f0f0f0',
       borderRadius: '8px'
     }}>
-      <CardContent className="p-6 md:p-8 print:p-4 h-full py-[10px] px-[20px] rounded-none my-0 mx-0">
+      <CardContent className={`h-full rounded-none my-0 mx-0 ${isMobile ? 'p-3 py-2 px-2' : 'p-6 md:p-8 print:p-4 py-[10px] px-[20px]'}`}>
         {children}
       </CardContent>
     </Card>
