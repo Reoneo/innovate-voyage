@@ -11,10 +11,12 @@ import { usePoapData } from './usePoapData';
 
 interface PoapSectionProps {
   walletAddress?: string;
+  className?: string;
 }
 
 const PoapSection: React.FC<PoapSectionProps> = ({
-  walletAddress
+  walletAddress,
+  className = ""
 }) => {
   const [detailOpen, setDetailOpen] = useState(false);
   
@@ -42,33 +44,43 @@ const PoapSection: React.FC<PoapSectionProps> = ({
     setCurrentPoapIndex(index);
   };
 
+  // Early returns for edge cases
   if (!walletAddress) return null;
-  if (poaps.length === 0 && !isLoading) return null;
+  if (isLoading) {
+    return (
+      <div className={`w-full ${className}`}>
+        <div className="text-center">
+          <Skeleton className="w-52 h-52 rounded-full mx-auto" />
+          <div className="mt-4">
+            <Skeleton className="h-4 w-32 mx-auto" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (poaps.length === 0) return null;
 
   return (
-    <>
-      <div className="relative w-full min-h-[200px] flex flex-col items-center justify-center">
-        {isLoading ? (
-          <Skeleton className="w-52 h-52 rounded-full" />
-        ) : poaps.length > 0 ? (
-          <>
-            {/* POAP count display */}
-            <div className="text-sm text-center mb-6 text-muted-foreground">
-              <span className="font-medium text-black">{poaps.length}</span> POAPs collected
-            </div>
-            
-            {/* POAP Badge with Carousel */}
-            <div className="relative flex items-center justify-center w-full">
-              <PoapCarousel 
-                poaps={poaps} 
-                onPoapClick={handleOpenDetail}
-                onCarouselChange={handleCarouselChange} 
-              />
-            </div>
-          </>
-        ) : null}
+    <div className={`w-full ${className}`}>
+      {/* POAP Collection Display */}
+      <div className="text-center space-y-4">
+        {/* POAP count header */}
+        <div className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">{poaps.length}</span> POAPs collected
+        </div>
+        
+        {/* POAP Carousel */}
+        <div className="flex items-center justify-center">
+          <PoapCarousel 
+            poaps={poaps} 
+            onPoapClick={handleOpenDetail}
+            onCarouselChange={handleCarouselChange} 
+          />
+        </div>
       </div>
 
+      {/* POAP Detail Modal */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="max-w-md">
           {selectedPoap && (
@@ -93,7 +105,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
 
