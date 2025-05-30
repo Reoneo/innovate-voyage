@@ -69,12 +69,12 @@ export function useProfileData(ensNameOrAddress?: string) {
           tokenTransfers: tokenTransfers,
           web3BioProfile: web3BioProfile,
           blockchainExtendedData: {
-            boxDomains: web3BioProfile?.identities?.filter(d => d.endsWith('.box')) || [],
-            snsActive: web3BioProfile?.identities?.length > 0,
+            boxDomains: web3BioProfile?.aliases?.filter(d => d.endsWith('.box')) || [],
+            snsActive: web3BioProfile?.aliases?.length > 0,
             description: web3BioProfile?.description
           },
           avatarUrl: avatarUrl,
-          additionalEnsDomains: web3BioProfile?.identities?.filter(d => d.endsWith('.eth') && d !== ensNameOrAddress) || [],
+          additionalEnsDomains: web3BioProfile?.aliases?.filter(d => d.endsWith('.eth') && d !== ensNameOrAddress) || [],
           skills: {
             verified: talentSkills || [],
             credentials: credentialSkills || [],

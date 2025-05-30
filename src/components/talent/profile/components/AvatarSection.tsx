@@ -30,12 +30,15 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     <div className="flex flex-col items-center text-center space-y-4 w-full">
       <ProfileAvatar 
         avatarUrl={avatarUrl} 
-        name={name} 
-        size="large"
+        name={name}
       />
       
       <div className="space-y-2 w-full">
-        <NameSection name={name} bio={bio} />
+        <NameSection 
+          name={name} 
+          ownerAddress={ownerAddress}
+          displayIdentity={displayIdentity}
+        />
         <AddressDisplay address={ownerAddress} />
         <AdditionalEnsDomains domains={additionalEnsDomains} />
       </div>
