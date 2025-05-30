@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -112,8 +113,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
   
-  // Only show LinkedIn section if there's experience data or it's loading
-  const showLinkedInSection = linkedInExperience.length > 0 || linkedInLoading;
+  // Show LinkedIn section if there's a LinkedIn handle in socials OR if there's experience data OR if it's loading
+  const showLinkedInSection = !!passport?.socials?.linkedin || linkedInExperience.length > 0 || linkedInLoading;
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -150,7 +151,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   </div>
                 )}
                 
-                {/* LinkedIn work experience */}
+                {/* LinkedIn work experience - Always show if there's a LinkedIn handle */}
                 {showLinkedInSection && (
                   <div>
                     <LinkedInExperienceSection 
