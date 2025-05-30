@@ -1,12 +1,13 @@
 import { ethers } from 'ethers';
 
-// Multiple provider URLs for redundancy with public endpoints
+// Multiple provider URLs for redundancy with the provided Infura key
 const MAINNET_RPC_URLS = [
-  // Public RPC endpoints - use multiple for fallbacks
+  // Primary Infura endpoint with provided API key
+  "https://mainnet.infura.io/v3/a48e86456d8043f6bce467b4076ab638",
+  // Backup public RPC endpoints
   "https://eth.llamarpc.com",
   "https://ethereum.publicnode.com",
-  "https://rpc.ankr.com/eth",
-  "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+  "https://rpc.ankr.com/eth"
 ];
 
 // Create a FallbackProvider for better reliability
@@ -56,7 +57,7 @@ function createFallbackProvider() {
   }
 }
 
-// Initialize Ethereum provider with fallback mechanism
+// Initialize Ethereum provider with the provided Infura key as primary
 export const mainnetProvider = createMainnetProvider();
 
 // For Optimism (keeping simple for now)

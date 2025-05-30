@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -5,6 +6,7 @@ import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
+import BlockchainActivitySection from './components/BlockchainActivitySection';
 import LinkedInExperienceSection from './components/LinkedInExperienceSection';
 import PoapSection from './components/poap/PoapSection';
 import { useLinkedInExperience } from '@/api/services/linkedinService';
@@ -156,6 +158,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                     <GitHubContributionGraph username={githubUsername!} />
                   </div>
                 )}
+                
+                {/* Blockchain Activity Section */}
+                <BlockchainActivitySection walletAddress={passport.owner_address} />
               </div>
             </div>
           </div>
