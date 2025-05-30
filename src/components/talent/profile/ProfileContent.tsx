@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -7,7 +8,6 @@ import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import BlockchainActivitySection from './components/BlockchainActivitySection';
 import LinkedInExperienceSection from './components/LinkedInExperienceSection';
-import PoapSection from './components/poap/PoapSection';
 import { useLinkedInExperience } from '@/api/services/linkedinService';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -141,12 +141,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   bio={passport.bio}
                   displayIdentity={ensNameOrAddress}
                   additionalEnsDomains={passport.additionalEnsDomains}
-                />
-                
-                {/* Single POAP Section - only in left column */}
-                <PoapSection 
-                  walletAddress={passport.owner_address} 
-                  className="border-t pt-4"
                 />
               </div>
               
