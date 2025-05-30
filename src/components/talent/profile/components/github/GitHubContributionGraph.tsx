@@ -26,7 +26,7 @@ export default function GitHubContributionGraph({
   }
 
   const theme = {
-    dark: ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353']
+    light: ['#ffffff', '#d6d6d6', '#969696', '#545454', '#000000']
   };
 
   const transformData = useCallback(contributions => {
@@ -54,13 +54,13 @@ export default function GitHubContributionGraph({
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="github-calendar-wrapper">
+        <div className="bg-white border border-gray-200 rounded-lg p-2">
           <div className="overflow-x-auto">
             {username && (
               <div className="min-w-[650px]">
                 <GitHubCalendar 
                   username={username} 
-                  colorScheme="dark" 
+                  colorScheme="light" 
                   theme={theme} 
                   hideColorLegend={true} 
                   hideMonthLabels={false} 
@@ -80,7 +80,7 @@ export default function GitHubContributionGraph({
             )}
           </div>
           
-          <div className="mt-2 flex justify-center">
+          <div className="mt-1 flex justify-center">
             <GitHubContributionLegend />
           </div>
         </div>
