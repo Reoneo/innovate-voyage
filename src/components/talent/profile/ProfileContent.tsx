@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -117,8 +116,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
   
-  // Simplified LinkedIn section logic - only show if there's a LinkedIn handle
-  const showLinkedInSection = !!passport?.socials?.linkedin;
+  // Hide LinkedIn section until API key is available
+  const showLinkedInSection = false; // Temporarily disabled
 
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
@@ -142,6 +141,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   displayIdentity={ensNameOrAddress}
                   additionalEnsDomains={passport.additionalEnsDomains}
                 />
+                
+                {/* POAP Section - moved to left column */}
+                <PoapSection walletAddress={passport.owner_address} />
               </div>
               
               {/* Content sections */}
@@ -155,7 +157,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   </div>
                 )}
                 
-                {/* LinkedIn work experience - Show if there's a LinkedIn handle */}
+                {/* LinkedIn work experience - Hidden until API key is available */}
                 {showLinkedInSection && (
                   <div>
                     <LinkedInExperienceSection 
@@ -165,11 +167,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                     />
                   </div>
                 )}
-                
-                {/* POAP Section */}
-                <div>
-                  <PoapSection walletAddress={passport.owner_address} />
-                </div>
               </div>
             </div>
           </div>
