@@ -6,6 +6,7 @@ import GitHubContributionLegend from './components/GitHubContributionLegend';
 import TokenInvalidAlert from './components/TokenInvalidAlert';
 import { useGitHubCalendar } from './hooks/useGitHubCalendar';
 import GitHubCalendar from 'react-github-calendar';
+import { Github } from 'lucide-react';
 
 export default function GitHubContributionGraph({
   username
@@ -47,6 +48,8 @@ export default function GitHubContributionGraph({
     }
   }, [totalContributions, stats.total]);
 
+  const githubProfileUrl = `https://github.com/${username}`;
+
   return (
     <div className="w-full">
       <GitHubLoadingState loading={loading} error={error} />
@@ -54,10 +57,24 @@ export default function GitHubContributionGraph({
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="bg-white border border-gray-200 rounded-lg p-2">
-          <div className="overflow-x-auto">
+        <div className="bg-white border border-gray-200 rounded-lg p-0 overflow-hidden">
+          {/* Header with GitHub link and icon */}
+          <div className="flex items-center gap-2 p-3 pb-2">
+            <a 
+              href={githubProfileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+            >
+              <Github className="w-4 h-4" />
+              <span className="text-sm font-medium">GitHub Contributions</span>
+            </a>
+          </div>
+          
+          {/* Calendar container with no extra padding */}
+          <div className="w-full overflow-x-auto">
             {username && (
-              <div className="min-w-[650px]">
+              <div className="w-full" style={{ minWidth: '650px' }}>
                 <GitHubCalendar 
                   username={username} 
                   colorScheme="light" 
@@ -80,7 +97,8 @@ export default function GitHubContributionGraph({
             )}
           </div>
           
-          <div className="mt-1 flex justify-center">
+          {/* Legend at bottom with minimal spacing */}
+          <div className="px-3 pb-2 flex justify-center">
             <GitHubContributionLegend />
           </div>
         </div>
