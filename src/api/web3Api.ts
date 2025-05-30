@@ -35,9 +35,19 @@ async function getWeb3CredentialsByAddress(address: string): Promise<Web3Credent
   };
 }
 
-// Get blockchain profile data from Etherscan with enhanced data
+// Get blockchain profile data from Etherscan with enhanced data and debugging
 async function getBlockchainProfile(address: string): Promise<BlockchainProfile> {
-  const [balance, transactionCount, latestTransactions, tokenTransfers, firstTransaction, optimismTxs, accountAge] = await Promise.all([
+  console.log('🔄 Fetching enhanced blockchain profile for:', address);
+  
+  const [
+    balanceResult,
+    transactionCountResult,
+    latestTransactionsResult,
+    tokenTransfersResult,
+    firstTransactionResult,
+    optimismTxsResult,
+    accountAgeResult
+  ] = await Promise.all([
     getAccountBalance(address),
     getTransactionCount(address),
     getLatestTransactions(address, 10),
@@ -47,15 +57,22 @@ async function getBlockchainProfile(address: string): Promise<BlockchainProfile>
     getAccountAge(address)
   ]);
   
+  console.log('📊 Blockchain profile results:', {
+    balance: balanceResult.balance,
+    txCount: transactionCountResult.count,
+    firstTx: firstTransactionResult.transaction,
+    accountAge: accountAgeResult.age
+  });
+  
   return {
     address,
-    balance,
-    transactionCount,
-    latestTransactions,
-    tokenTransfers,
-    firstTransaction,
-    optimismTransactions: optimismTxs,
-    accountAge
+    balance: balanceResult.balance,
+    transactionCount: transactionCountResult.count,
+    latestTransactions: latestTransactionsResult.transactions,
+    tokenTransfers: tokenTransfersResult.transfers,
+    firstTransaction: firstTransactionResult.transaction,
+    optimismTransactions: optimismTxsResult.transactions,
+    accountAge: accountAgeResult.age
   };
 }
 
