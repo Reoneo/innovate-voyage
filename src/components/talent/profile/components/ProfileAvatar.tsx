@@ -6,15 +6,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface ProfileAvatarProps {
   avatarUrl: string | undefined;
   name: string;
-  identity?: string; // Added to detect .box domains
 }
 
-const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name, identity }) => {
+const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // Check if this is a .box user
-  const isBoxUser = identity?.endsWith('.box');
   
   // Reset states when avatarUrl changes
   useEffect(() => {
@@ -50,17 +46,6 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name, identity
     setIsLoading(false);
   };
   
-  // Handle .box default avatar load
-  const handleBoxDefaultLoad = () => {
-    console.log('.box default avatar loaded');
-    setIsLoading(false);
-  };
-  
-  const handleBoxDefaultError = () => {
-    console.log('.box default avatar failed to load');
-    setIsLoading(false);
-  };
-  
   return (
     <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar">
       {isLoading && (
@@ -76,15 +61,6 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name, identity
           className="object-cover"
           onError={handleImageError}
           onLoad={handleImageLoad}
-        />
-      ) : isBoxUser ? (
-        // Use the updated .box default avatar for .box users
-        <AvatarImage 
-          src="/lovable-uploads/ae2b9200-f9f6-4c3e-8e5f-d80f26cb3be4.png" 
-          alt={name} 
-          className="object-cover"
-          onError={handleBoxDefaultError}
-          onLoad={handleBoxDefaultLoad}
         />
       ) : (
         <AvatarImage 

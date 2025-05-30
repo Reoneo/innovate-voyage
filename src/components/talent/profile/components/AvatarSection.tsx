@@ -55,7 +55,6 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       <ProfileAvatar 
         avatarUrl={avatarUrl} 
         name={name} 
-        identity={displayIdentity}
       />
       
       {/* Name and Address */}
