@@ -122,9 +122,7 @@ const ProfileSkeleton = () => {
                       <div className="grid grid-cols-12 gap-1">
                         {Array.from({
                         length: 371
-                      }).map((_, i) => <Skeleton key={i} className="h-2.5 w-2.5 bg-gray-600/30 animate-pulse" style={{
-                        animationDelay: `${i % 50 * 20}ms`
-                      }} />)}
+                      }).map((_, i) => {})}
                       </div>
                     </div>
                   </CardContent>
