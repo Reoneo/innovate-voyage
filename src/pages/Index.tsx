@@ -1,4 +1,3 @@
-
 import React from 'react';
 import SeoHelmet from '@/components/home/SeoHelmet';
 import HeroBackground from '@/components/home/HeroBackground';
@@ -7,61 +6,57 @@ import SearchSection from '@/components/home/SearchSection';
 import ActionButtonsSection from '@/components/home/ActionButtonsSection';
 import FeaturedProfileSection from '@/components/home/FeaturedProfileSection';
 import RainbowWalletConnect from '@/components/home/RainbowWalletConnect';
-
 const Index = () => {
-  return (
-    <div className="min-h-screen relative overflow-hidden">
+  return <div className="min-h-screen relative overflow-hidden">
       <SeoHelmet />
       
       {/* Schema.org structured data for better SEO */}
       <script type="application/ld+json">
         {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Recruitment.box",
+        "alternateName": "Decentralized CV & Recruitment Engine",
+        "url": "https://recruitment.box",
+        "description": "Find talent on the blockchain with our decentralized CV & recruitment engine. Verify skills, connect with Web3 professionals, and hire with confidence using blockchain-verified credentials.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://recruitment.box/{search_term_string}",
+          "query-input": "required name=search_term_string"
+        },
+        "publisher": {
+          "@type": "Organization",
           "name": "Recruitment.box",
-          "alternateName": "Decentralized CV & Recruitment Engine",
-          "url": "https://recruitment.box",
-          "description": "Find talent on the blockchain with our decentralized CV & recruitment engine. Verify skills, connect with Web3 professionals, and hire with confidence using blockchain-verified credentials.",
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://recruitment.box/{search_term_string}",
-            "query-input": "required name=search_term_string"
-          },
-          "publisher": {
-            "@type": "Organization",
-            "name": "Recruitment.box",
-            "logo": {
-              "@type": "ImageObject",
-              "url": "https://recruitment.box/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png"
-            }
-          },
-          "mainEntity": {
-            "@type": "SoftwareApplication",
-            "name": "Recruitment.box",
-            "applicationCategory": "BusinessApplication",
-            "operatingSystem": "Web Browser",
-            "description": "Decentralized recruitment platform for Web3 talent discovery and blockchain-verified professional credentials",
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "reviewCount": "250"
-            },
-            "offers": {
-              "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "USD"
-            }
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://recruitment.box/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png"
           }
-        })}
+        },
+        "mainEntity": {
+          "@type": "SoftwareApplication",
+          "name": "Recruitment.box",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web Browser",
+          "description": "Decentralized recruitment platform for Web3 talent discovery and blockchain-verified professional credentials",
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "250"
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        }
+      })}
       </script>
       
       {/* Animated Professional Background */}
       <HeroBackground />
       
       {/* Top Right Wallet Connect */}
-      <div className="absolute top-4 right-4 z-20">
-        <RainbowWalletConnect />
-      </div>
+      
       
       {/* Content */}
       <div className="relative z-10 h-screen flex flex-col">
@@ -133,8 +128,6 @@ const Index = () => {
           </ul>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
