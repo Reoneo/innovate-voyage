@@ -3,9 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Heart, MessageCircle, Repeat2, ExternalLink } from 'lucide-react';
-import { SignInButton, useProfile } from '@farcaster/auth-kit';
 import { useFarcasterCasts } from '@/hooks/useFarcasterCasts';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -15,8 +13,7 @@ interface FarcasterCastsSectionProps {
 }
 
 const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, address }) => {
-  const { loading, profile, casts, error, hasFarcasterData, isAuthenticatedUser } = useFarcasterCasts(ensName, address);
-  const { isAuthenticated } = useProfile();
+  const { loading, profile, casts, error, hasFarcasterData } = useFarcasterCasts(ensName, address);
 
   if (loading) {
     return (
@@ -51,32 +48,24 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
     );
   }
 
-  if (error || !hasFarcasterData) {
-    // Show connection option if no data found and this could be the user's own profile
-    if (!hasFarcasterData && !isAuthenticated) {
-      return (
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-purple-600 flex items-center justify-center">
-                <span className="text-white text-xs font-bold">F</span>
-              </div>
-              Farcaster Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <p className="text-muted-foreground mb-4">No Farcaster profile found for this user.</p>
-              <p className="text-sm text-muted-foreground mb-4">
-                Connect your Farcaster account to display your casts here.
-              </p>
-              <SignInButton />
+  if (!hasFarcasterData) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-purple-600 flex items-center justify-center">
+              <span className="text-white text-xs font-bold">F</span>
             </div>
-          </CardContent>
-        </Card>
-      );
-    }
-    return null; // Don't show the section if there's no Farcaster data and user is authenticated
+            Farcaster Activity
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No Farcaster profile found for this user.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   const formatTimestamp = (timestamp: string) => {
@@ -103,11 +92,6 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
           {profile && (
             <Badge variant="secondary" className="ml-auto">
               @{profile.username}
-            </Badge>
-          )}
-          {isAuthenticatedUser && (
-            <Badge variant="default" className="ml-2">
-              Verified
             </Badge>
           )}
         </CardTitle>
