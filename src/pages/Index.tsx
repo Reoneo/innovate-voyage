@@ -4,7 +4,6 @@ import SeoHelmet from '@/components/home/SeoHelmet';
 import HeroBackground from '@/components/home/HeroBackground';
 import HeroTitle from '@/components/home/HeroTitle';
 import SearchSection from '@/components/home/SearchSection';
-import ActionButtonsSection from '@/components/home/ActionButtonsSection';
 import FeaturedProfileSection from '@/components/home/FeaturedProfileSection';
 import RainbowWalletConnect from '@/components/home/RainbowWalletConnect';
 import ThemeToggle from '@/components/home/ThemeToggle';
@@ -83,11 +82,6 @@ const IndexContent = () => {
             {/* Search functionality for talent discovery */}
             <div role="search" aria-label="Search for blockchain professionals and Web3 talent" className="mb-4">
               <SearchSection />
-            </div>
-            
-            {/* Call-to-action section */}
-            <div className="mb-4">
-              <ActionButtonsSection />
             </div>
             
             {/* Featured content for engagement */}
