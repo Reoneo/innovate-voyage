@@ -37,7 +37,7 @@ export async function getEnsLinks(ensName: string, network: 'mainnet' | 'optimis
     const records = await Promise.allSettled(
       socialKeys.map(async key => {
         const record = await ensClient.getTextRecord({ name: ensName, key });
-        return { key, value: record?.value };
+        return { key, value: record };
       })
     );
 

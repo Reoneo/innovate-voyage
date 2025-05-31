@@ -16,8 +16,8 @@ export async function getAllEnsRecords(): Promise<ENSRecord[]> {
         // Try to fetch real avatar using ENS client
         try {
           const avatarRecord = await ensClient.getTextRecord({ name: record.ensName, key: 'avatar' });
-          if (avatarRecord?.value) {
-            record.avatar = avatarRecord.value;
+          if (avatarRecord) {
+            record.avatar = avatarRecord;
           } else {
             record.avatar = generateFallbackAvatar();
           }

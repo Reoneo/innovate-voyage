@@ -11,8 +11,8 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
     // Try reverse resolution with ENS client
     const nameRecord = await ensClient.getName({ address: address as `0x${string}` });
     
-    if (nameRecord?.name) {
-      const ensName = nameRecord.name;
+    if (nameRecord) {
+      const ensName = nameRecord;
       
       // Get additional records
       const [avatar, description] = await Promise.all([
@@ -23,10 +23,10 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
       const record: ENSRecord = {
         address,
         ensName,
-        avatar: avatar?.value || await getRealAvatar(ensName) || generateFallbackAvatar(),
+        avatar: avatar || await getRealAvatar(ensName) || generateFallbackAvatar(),
         skills: [],
         socialProfiles: {},
-        description: description?.value || ''
+        description: description || ''
       };
       
       return record;
@@ -45,8 +45,8 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
   try {
     const addressRecord = await ensClient.getAddressRecord({ name: ensName });
     
-    if (addressRecord?.value) {
-      const address = addressRecord.value;
+    if (addressRecord) {
+      const address = addressRecord;
       
       // Get additional records
       const [avatar, description] = await Promise.all([
@@ -57,10 +57,10 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
       const record: ENSRecord = {
         address,
         ensName,
-        avatar: avatar?.value || await getRealAvatar(ensName) || generateFallbackAvatar(),
+        avatar: avatar || await getRealAvatar(ensName) || generateFallbackAvatar(),
         skills: [],
         socialProfiles: {},
-        description: description?.value || ''
+        description: description || ''
       };
       
       return record;

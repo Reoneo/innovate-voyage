@@ -10,7 +10,7 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
     
     if (ensName.endsWith('.eth')) {
       const avatarRecord = await ensClient.getTextRecord({ name: ensName, key: 'avatar' });
-      const avatar = avatarRecord?.value || null;
+      const avatar = avatarRecord || null;
       
       if (avatar) {
         console.log(`Got avatar for ${ensName}:`, avatar);
@@ -35,7 +35,7 @@ export async function getEnsBio(ensName: string, network = 'mainnet'): Promise<s
     
     if (ensName.endsWith('.eth')) {
       const descriptionRecord = await ensClient.getTextRecord({ name: ensName, key: 'description' });
-      const description = descriptionRecord?.value || null;
+      const description = descriptionRecord || null;
       
       if (description) {
         console.log(`Got description for ${ensName}:`, description);

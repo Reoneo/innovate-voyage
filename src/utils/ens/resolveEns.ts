@@ -17,7 +17,7 @@ export async function resolveEnsToAddress(ensName: string) {
   
   try {
     const addressRecord = await ensClient.getAddressRecord({ name: ensName });
-    const resolvedAddress = addressRecord?.value || null;
+    const resolvedAddress = addressRecord || null;
     
     console.log(`Resolution result for ${ensName}:`, resolvedAddress);
     return resolvedAddress;
@@ -42,7 +42,7 @@ export async function resolveAddressToEns(address: string) {
     console.log(`Looking up ENS for address: ${address} using ENS client`);
     
     const nameRecord = await ensClient.getName({ address: address as `0x${string}` });
-    const ensName = nameRecord?.name || null;
+    const ensName = nameRecord || null;
     
     if (ensName) {
       console.log(`Found ENS name for ${address}: ${ensName}`);
