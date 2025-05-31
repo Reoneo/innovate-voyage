@@ -17,7 +17,7 @@ import {
 import { fetchWeb3BioProfile } from './utils/web3/index';
 import { getRealAvatar } from './services/avatar';
 
-// Add these missing functions
+// Add these missing functions with correct return types
 export async function getEnsByAddress(address: string): Promise<ENSRecord | null> {
   try {
     const profile = await fetchWeb3BioProfile(address);
@@ -26,7 +26,7 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
         ensName: profile.identity,
         address: profile.address,
         avatar: profile.avatar,
-        bio: profile.description
+        description: profile.description
       };
     }
     return null;
@@ -36,10 +36,18 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
   }
 }
 
-export async function getAddressByEns(ensName: string): Promise<string | null> {
+export async function getAddressByEns(ensName: string): Promise<{ address: string; avatar?: string; description?: string; socialProfiles?: any } | null> {
   try {
     const profile = await fetchWeb3BioProfile(ensName);
-    return profile?.address || null;
+    if (profile && profile.address) {
+      return {
+        address: profile.address,
+        avatar: profile.avatar,
+        description: profile.description,
+        socialProfiles: profile.social || {}
+      };
+    }
+    return null;
   } catch (error) {
     console.error('Error getting address by ENS:', error);
     return null;
