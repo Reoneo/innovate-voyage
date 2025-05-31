@@ -136,13 +136,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               <div className="w-full space-y-4 md:space-y-6">
                 <TalentScoreBanner walletAddress={passport.owner_address} />
                 
-                {/* Blockchain Activity Section */}
-                {passport.owner_address && (
-                  <div className="w-full">
-                    <BlockchainActivitySection walletAddress={passport.owner_address} />
-                  </div>
-                )}
-                
                 {/* GitHub Section */}
                 {showGitHubSection && (
                   <div className="w-full">
