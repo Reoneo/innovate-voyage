@@ -1,28 +1,12 @@
 
-// Configuration for web3 services - NO SENSITIVE DATA
-import { getClientConfig, getSecureHeaders, RATE_LIMIT_CONFIG } from './secureConfig';
+// Store the API key for web3.bio
+export const WEB3_BIO_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20";
 
-// Client-side configuration (safe to expose)
-const clientConfig = getClientConfig();
-
-// Safe headers for client-side requests
-export const SAFE_HEADERS = getSecureHeaders();
-
-// Rate limiting configuration
-export const REQUEST_DELAY_MS = clientConfig.REQUEST_DELAY_MS;
-export const MAX_RETRIES = clientConfig.MAX_RETRIES;
-export const CACHE_DURATION = clientConfig.CACHE_DURATION;
-
-// Rate limiting settings
-export const RATE_LIMITS = RATE_LIMIT_CONFIG;
-
-// API endpoints (safe to expose)
-export const API_ENDPOINTS = {
-  WEB3_BIO: 'https://api.web3.bio',
-  WEBACY: 'https://api.webacy.com',
-  ETHERSCAN: 'https://api.etherscan.io/api'
+// API headers for web3.bio with authentication
+export const WEB3_BIO_HEADERS = {
+  'X-API-KEY': `Bearer ${WEB3_BIO_API_KEY}`,
+  'Accept': 'application/json'
 };
 
-// Warning: API keys should never be stored here
-// Use environment variables and proxy endpoints instead
-console.warn('API keys have been moved to secure server-side configuration');
+// Rate limiting variables
+export const REQUEST_DELAY_MS = 300; // Minimum time between requests

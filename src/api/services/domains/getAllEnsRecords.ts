@@ -2,8 +2,7 @@
 import { ENSRecord } from '../../types/web3Types';
 import { delay } from '../../jobsApi';
 import { mockEnsRecords } from '../../data/mockWeb3Data';
-import { generateFallbackAvatar } from '../../utils/web3/index';
-import { ensClient } from '@/utils/ens/ensClient';
+import { fetchWeb3BioProfile, generateFallbackAvatar } from '../../utils/web3/index';
 
 // Get all available ENS records (for demo purposes)
 export async function getAllEnsRecords(): Promise<ENSRecord[]> {
@@ -13,11 +12,11 @@ export async function getAllEnsRecords(): Promise<ENSRecord[]> {
   await Promise.all(
     mockEnsRecords.map(async (record) => {
       if (!record.avatar) {
-        // Try to fetch real avatar using ENS client
+        // Try to fetch real avatar for this ENS
         try {
-          const avatarRecord = await ensClient.getTextRecord({ name: record.ensName, key: 'avatar' });
-          if (avatarRecord) {
-            record.avatar = avatarRecord;
+          const profile = await fetchWeb3BioProfile(record.ensName);
+          if (profile && profile.avatar) {
+            record.avatar = profile.avatar;
           } else {
             record.avatar = generateFallbackAvatar();
           }

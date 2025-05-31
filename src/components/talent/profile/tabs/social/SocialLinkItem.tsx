@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
 import { Check, Copy } from 'lucide-react';
-// Removed toast import - using console.log instead
-// import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/use-toast';
 
 interface SocialLinkItemProps {
   platformType: string;
@@ -77,7 +76,10 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ platformType, url }) =>
   const handleCopyDiscord = () => {
     navigator.clipboard.writeText(displayText);
     setCopied(true);
-    console.log('Discord handle copied:', displayText); // Using console.log instead of toast
+    toast({
+      title: "Discord handle copied!",
+      description: `${displayText} has been copied to clipboard`,
+    });
     setTimeout(() => setCopied(false), 2000);
   };
 

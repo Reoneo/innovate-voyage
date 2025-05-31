@@ -13,7 +13,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({
   const isMobile = useIsMobile();
   
   return (
-    <Card className="bg-white shadow-sm rounded-sm w-full max-w-full backdrop-blur-sm bg-opacity-95 overflow-x-hidden" style={{
+    <Card className="bg-white shadow-sm rounded-sm w-full backdrop-blur-sm bg-opacity-95" style={{
       minHeight: isMobile ? 'auto' : 'calc(100vh - 80px)',
       width: '100%',
       maxWidth: '100vw',
@@ -25,10 +25,8 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({
       border: '1px solid #f0f0f0',
       borderRadius: '8px'
     }}>
-      <CardContent className={`h-auto rounded-none my-0 mx-0 w-full max-w-full overflow-x-hidden ${isMobile ? 'p-2 py-3' : 'p-6 md:p-8 print:p-4 py-[10px] px-[20px]'}`}>
-        <div className={`w-full max-w-full ${isMobile ? 'flex flex-col space-y-4' : ''} overflow-x-hidden`}>
-          {children}
-        </div>
+      <CardContent className={`h-auto rounded-none my-0 mx-0 ${isMobile ? 'p-2 py-3' : 'p-6 md:p-8 print:p-4 py-[10px] px-[20px]'}`}>
+        {children}
       </CardContent>
     </Card>
   );

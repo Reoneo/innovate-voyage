@@ -67,7 +67,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
           
           setState(prev => ({
             ...prev,
-            resolvedAddress: resolvedAddress,
+            resolvedAddress,
             ensLinks: links || prev.ensLinks,
             avatarUrl: avatar || prev.avatarUrl,
             ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
