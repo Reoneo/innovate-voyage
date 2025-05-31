@@ -53,7 +53,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
   return (
     <div className={`grid ${gridCols} gap-2 md:gap-4 w-full h-[calc(100vh-80px)] px-1 md:px-2`}>
       {/* Column 1: Fixed sidebar with avatar and basic info */}
-      <div className="flex flex-col space-y-2 md:space-y-4 overflow-hidden">
+      <div className={`flex flex-col overflow-hidden ${isMobile ? 'space-y-1' : 'space-y-2 md:space-y-4'}`}>
         {/* Avatar */}
         <div className="flex flex-col items-center">
           <ProfileAvatar 
@@ -97,7 +97,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         {/* ENS Bio */}
         {passport.bio && (
           <div className="text-center">
-            <p className="text-sm text-muted-foreground">
+            <p className={`text-sm text-muted-foreground ${isMobile ? 'text-xs' : ''}`}>
               {passport.bio}
             </p>
           </div>
