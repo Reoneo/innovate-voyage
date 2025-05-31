@@ -7,7 +7,7 @@ const HeroTitle: React.FC = () => {
     <div className="text-center">
       {/* Logo Section */}
       <div className="mb-8 flex justify-center">
-        <img src="/lovable-uploads/a076c050-83c6-41d1-9b4b-0c28b0dd9531.png" alt="Recruitment.box Logo" className="h-24 w-24 object-contain drop-shadow-lg" />
+        <img src="/lovable-uploads/45686091-6e2c-40f6-b4ee-fab6cb6b13ee.png" alt="Recruitment.box Logo" className="h-48 w-48 object-contain drop-shadow-lg" />
       </div>
       
       <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-white mb-6">
