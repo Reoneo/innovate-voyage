@@ -9,13 +9,13 @@ import { generateFallbackAvatar } from '../utils/web3/index';
 export async function getEnsByAddress(address: string): Promise<ENSRecord | null> {
   try {
     // Try reverse resolution with ENS client
-    const nameRecord = await ensClient.getName({ address: address as `0x${string}` });
+    const nameResult = await ensClient.getName({ address: address as `0x${string}` });
     
-    if (nameRecord) {
-      const ensName = nameRecord;
+    if (nameResult?.name) {
+      const ensName = nameResult.name;
       
       // Get additional records
-      const [avatar, description] = await Promise.all([
+      const [avatarResult, descriptionResult] = await Promise.all([
         ensClient.getTextRecord({ name: ensName, key: 'avatar' }).catch(() => null),
         ensClient.getTextRecord({ name: ensName, key: 'description' }).catch(() => null),
       ]);
@@ -23,10 +23,10 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
       const record: ENSRecord = {
         address,
         ensName,
-        avatar: avatar || await getRealAvatar(ensName) || generateFallbackAvatar(),
+        avatar: avatarResult || await getRealAvatar(ensName) || generateFallbackAvatar(),
         skills: [],
         socialProfiles: {},
-        description: description || ''
+        description: descriptionResult || ''
       };
       
       return record;
@@ -43,13 +43,13 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
 // Reverse lookup address by ENS name
 export async function getAddressByEns(ensName: string): Promise<ENSRecord | null> {
   try {
-    const addressRecord = await ensClient.getAddressRecord({ name: ensName });
+    const addressResult = await ensClient.getAddressRecord({ name: ensName });
     
-    if (addressRecord) {
-      const address = addressRecord;
+    if (addressResult?.value) {
+      const address = addressResult.value;
       
       // Get additional records
-      const [avatar, description] = await Promise.all([
+      const [avatarResult, descriptionResult] = await Promise.all([
         ensClient.getTextRecord({ name: ensName, key: 'avatar' }).catch(() => null),
         ensClient.getTextRecord({ name: ensName, key: 'description' }).catch(() => null),
       ]);
@@ -57,10 +57,10 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
       const record: ENSRecord = {
         address,
         ensName,
-        avatar: avatar || await getRealAvatar(ensName) || generateFallbackAvatar(),
+        avatar: avatarResult || await getRealAvatar(ensName) || generateFallbackAvatar(),
         skills: [],
         socialProfiles: {},
-        description: description || ''
+        description: descriptionResult || ''
       };
       
       return record;
