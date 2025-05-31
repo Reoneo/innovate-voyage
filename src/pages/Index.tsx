@@ -13,10 +13,10 @@ const IndexContent = () => {
   const { isDayMode } = useTheme();
 
   return (
-    <div className={`min-h-screen relative ${isDayMode ? 'bg-white' : 'bg-slate-900'}`}>
+    <div className={`min-h-screen relative ${isDayMode ? 'bg-white' : 'bg-slate-900'} overflow-x-hidden`}>
       <SeoHelmet />
       
-      {/* Theme toggle in top right */}
+      {/* Animated menu and theme toggle */}
       <ThemeToggle />
       
       {/* Schema.org structured data for better SEO */}
@@ -64,28 +64,28 @@ const IndexContent = () => {
       {/* Animated Professional Background */}
       <HeroBackground />
       
-      {/* Content */}
-      <div className="relative z-10 flex flex-col">
+      {/* Content - Mobile optimized */}
+      <div className="relative z-10 flex flex-col w-full">
         {/* Hero Section with SEO-optimized structure */}
-        <section className="flex-1 py-2 px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-8">
-          <div className="max-w-7xl mx-auto">
+        <section className="flex-1 py-2 px-2 sm:px-6 lg:px-8 flex flex-col justify-start pt-16 sm:pt-8">
+          <div className="max-w-7xl mx-auto w-full">
             {/* H1 tag for primary SEO keyword */}
             <header>
               <h1 className="sr-only">Recruitment.box - Decentralized CV and Recruitment Engine for Web3 Talent</h1>
             </header>
             
-            {/* Compact Hero Title */}
-            <div className="mb-4">
+            {/* Compact Hero Title - Mobile optimized */}
+            <div className="mb-4 px-2 sm:px-0">
               <HeroTitle />
             </div>
             
-            {/* Search functionality for talent discovery */}
-            <div role="search" aria-label="Search for blockchain professionals and Web3 talent" className="mb-4">
+            {/* Search functionality for talent discovery - Mobile optimized */}
+            <div role="search" aria-label="Search for blockchain professionals and Web3 talent" className="mb-4 px-2 sm:px-0">
               <SearchSection />
             </div>
             
-            {/* Featured content for engagement */}
-            <section aria-label="Featured blockchain professionals">
+            {/* Featured content for engagement - Mobile optimized */}
+            <section aria-label="Featured blockchain professionals" className="px-1 sm:px-0">
               <FeaturedProfileSection />
             </section>
           </div>

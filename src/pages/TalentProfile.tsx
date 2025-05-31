@@ -1,8 +1,10 @@
+
 import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
 import ProfileContent from '@/components/talent/profile/ProfileContent';
 import AnimatedBackground from '@/components/talent/profile/components/AnimatedBackground';
+import HeroBackground from '@/components/home/HeroBackground';
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import { Helmet } from 'react-helmet-async';
 
@@ -77,11 +79,15 @@ const TalentProfile = () => {
         )}
       </Helmet>
       <div className="min-h-screen relative bg-transparent">
-        {/* Always show the AnimatedBackground */}
-        <AnimatedBackground 
-          avatarUrl={passport?.avatar_url} 
-          isLoading={false} 
-        />
+        {/* Use home page background when loading, then switch to profile background */}
+        {loading ? (
+          <HeroBackground />
+        ) : (
+          <AnimatedBackground 
+            avatarUrl={passport?.avatar_url} 
+            isLoading={false} 
+          />
+        )}
         
         {/* Always show Navigation Bar */}
         <ProfileNavbar 
