@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import TalentScoreBadge from './scores/TalentScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
 import SecurityScoreBadge from './scores/SecurityScoreBadge';
-import BlockchainActivitySection from './blockchain/BlockchainActivitySection';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
@@ -16,23 +15,19 @@ interface TalentScoreBannerProps {
 
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions' | 'blockchain'>('talent');
+  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions'>('talent');
   const { score, txCount, loading } = useScoresData(walletAddress);
   const { securityData, isLoading: webacyLoading } = useWebacyData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
   const isMobile = useIsMobile();
 
-  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions' | 'blockchain') => {
+  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions') => {
     setActiveDialog(type);
     setDialogOpen(true);
   };
 
   const handleNftButtonClick = () => {
     setShowNftCollections(true);
-  };
-
-  const handleBlockchainClick = () => {
-    handleBadgeClick('blockchain');
   };
 
   if (!walletAddress) return null;
@@ -44,17 +39,8 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
       <div className={`${
         isMobile 
           ? 'flex flex-col gap-4' 
-          : 'grid grid-cols-4 gap-6'
+          : 'grid grid-cols-3 gap-6'
       } mb-8`}>
-        {/* Blockchain Activity - First item */}
-        <div className="transform hover:scale-105 transition-all duration-200">
-          <BlockchainActivitySection 
-            walletAddress={walletAddress}
-            onClick={handleBlockchainClick}
-            isLoading={loading} 
-          />
-        </div>
-        
         {showTalentScore && (
           <div className="transform hover:scale-105 transition-all duration-200">
             <TalentScoreBadge 
@@ -65,7 +51,6 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             />
           </div>
         )}
-        
         <div className="transform hover:scale-105 transition-all duration-200">
           <TransactionsBadge 
             txCount={txCount}
@@ -74,7 +59,6 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             isLoading={loading} 
           />
         </div>
-        
         <div className="transform hover:scale-105 transition-all duration-200">
           <SecurityScoreBadge 
             webacyData={securityData} 
