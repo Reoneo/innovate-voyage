@@ -64,31 +64,31 @@ const FeaturedProfileSection: React.FC = () => {
         {currentSet.title}
       </h4>
       
-      {/* Profiles Grid */}
-      <div className="relative flex justify-center items-center">
+      {/* Profiles Grid - Added extra spacing for names */}
+      <div className="relative flex justify-center items-center mb-8">
         {isBoxCommunity ? (
           /* Grid layout for Box Community Members */
-          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 items-center max-w-3xl">
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 items-start max-w-4xl">
             {currentSet.profiles.map((profile, index) => (
               <div key={profile} className="flex justify-center">
-                <HoneycombProfile ensName={profile} delay={index * 50} />
+                <HoneycombProfile ensName={profile} delay={index * 50} showName={true} />
               </div>
             ))}
           </div>
         ) : (
           /* Honeycomb layout for Featured Profiles */
-          <div className="grid grid-cols-2 gap-3 items-center">
+          <div className="grid grid-cols-2 gap-6 items-start">
             {/* Top row - 2 profiles */}
             <div className="flex justify-center">
-              <HoneycombProfile ensName={currentSet.profiles[0]} delay={0} />
+              <HoneycombProfile ensName={currentSet.profiles[0]} delay={0} showName={true} />
             </div>
             <div className="flex justify-center">
-              <HoneycombProfile ensName={currentSet.profiles[1]} delay={200} />
+              <HoneycombProfile ensName={currentSet.profiles[1]} delay={200} showName={true} />
             </div>
             
             {/* Bottom row - 1 profile centered */}
-            <div className="col-span-2 flex justify-center -mt-1">
-              <HoneycombProfile ensName={currentSet.profiles[2]} delay={400} />
+            <div className="col-span-2 flex justify-center">
+              <HoneycombProfile ensName={currentSet.profiles[2]} delay={400} showName={true} />
             </div>
           </div>
         )}
