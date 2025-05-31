@@ -7,13 +7,13 @@ const FeaturedProfileSection: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto">
-      <h3 className="text-lg font-semibold text-slate-300 mb-4 text-center">
+      <h3 className="text-xl font-semibold text-slate-300 mb-8 text-center">
         Featured Profiles
       </h3>
       
-      {/* Honeycomb Grid - Smaller for compact view */}
+      {/* Honeycomb Grid */}
       <div className="relative flex justify-center items-center">
-        <div className="grid grid-cols-2 gap-3 items-center">
+        <div className="grid grid-cols-2 gap-4 items-center">
           {/* Top row - 2 profiles */}
           <div className="flex justify-center">
             <HoneycombProfile ensName={featuredProfiles[0]} delay={0} />
@@ -23,7 +23,7 @@ const FeaturedProfileSection: React.FC = () => {
           </div>
           
           {/* Bottom row - 1 profile centered */}
-          <div className="col-span-2 flex justify-center -mt-1">
+          <div className="col-span-2 flex justify-center -mt-2">
             <HoneycombProfile ensName={featuredProfiles[2]} delay={400} />
           </div>
         </div>

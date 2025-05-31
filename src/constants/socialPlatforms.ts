@@ -1,44 +1,28 @@
 
+// Define social platform types and their corresponding icon types
 export const socialPlatforms = [
   { key: 'github', type: 'github' },
   { key: 'twitter', type: 'twitter' },
   { key: 'linkedin', type: 'linkedin' },
-  { key: 'discord', type: 'discord' },
-  { key: 'telegram', type: 'telegram' },
+  { key: 'facebook', type: 'facebook' },
   { key: 'instagram', type: 'instagram' },
   { key: 'youtube', type: 'youtube' },
-  { key: 'facebook', type: 'facebook' },
-  { key: 'reddit', type: 'reddit' },
-  { key: 'website', type: 'website' },
   { key: 'bluesky', type: 'bluesky' },
+  { key: 'website', type: 'globe' },
+  { key: 'telegram', type: 'telegram' },
+  { key: 'discord', type: 'discord' },
+  { key: 'reddit', type: 'reddit' },
   { key: 'whatsapp', type: 'whatsapp' },
-  { key: 'snapchat', type: 'snapchat' },
-  { key: 'tiktok', type: 'tiktok' },
-  { key: 'medium', type: 'medium' },
-  { key: 'substack', type: 'substack' },
-  { key: 'behance', type: 'behance' },
-  { key: 'dribbble', type: 'dribbble' },
-  { key: 'stackoverflow', type: 'stackoverflow' },
-  { key: 'devto', type: 'devto' },
-  { key: 'hashnode', type: 'hashnode' },
-  { key: 'producthunt', type: 'producthunt' },
-  { key: 'twitch', type: 'twitch' },
-  { key: 'spotify', type: 'spotify' },
-  { key: 'soundcloud', type: 'soundcloud' },
-  { key: 'opensea', type: 'opensea' },
-  { key: 'foundation', type: 'foundation' },
-  { key: 'superrare', type: 'superrare' },
-  { key: 'zora', type: 'zora' },
-  { key: 'pinterest', type: 'pinterest' },
-  { key: 'flickr', type: 'flickr' },
-  { key: 'vimeo', type: 'vimeo' },
-  { key: 'mastodon', type: 'mastodon' },
-  { key: 'matrix', type: 'matrix' },
-  { key: 'signal', type: 'signal' },
-  { key: 'skype', type: 'skype' },
-  { key: 'viber', type: 'viber' },
-  { key: 'line', type: 'line' },
-  { key: 'weibo', type: 'weibo' },
-  { key: 'qq', type: 'qq' },
-  { key: 'wechat', type: 'wechat' }
+  { key: 'email', type: 'mail' },
+  { key: 'telephone', type: 'phone' },
+  { key: 'location', type: 'location' },
+  { key: 'farcaster', type: 'farcaster' },
+  { key: 'lens', type: 'lens' },
+  { key: 'opensea', type: 'opensea' }
 ];
+
+// Define social platform interface
+export interface SocialPlatform {
+  key: string;
+  type: string;
+}

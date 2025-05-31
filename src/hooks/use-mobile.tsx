@@ -16,5 +16,6 @@ export function useIsMobile() {
     return () => mql.removeEventListener("change", onChange)
   }, [])
 
+  // Force mobile layout for all screen sizes below 768px
   return !!isMobile
 }

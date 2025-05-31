@@ -3,7 +3,12 @@ import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
+import AvatarSection from './components/AvatarSection';
+import TalentScoreBanner from './components/TalentScoreBanner';
+import GitHubContributionGraph from './components/github/GitHubContributionGraph';
+import FarcasterCastsSection from './components/farcaster/FarcasterCastsSection';
 import TwoColumnLayout from './components/layout/TwoColumnLayout';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
   loading: boolean;
@@ -20,6 +25,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   profileRef,
   ensNameOrAddress
 }) => {
+  const isMobile = useIsMobile();
   
   if (loadingTimeout && loading) {
     return <ProfileTimeoutError ensNameOrAddress={ensNameOrAddress} />;
@@ -96,14 +102,57 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <ProfileSkeleton />
       ) : passport ? (
         <HeaderContainer>
-          <div className="w-full h-full">
-            {/* Use TwoColumnLayout for all devices */}
-            <TwoColumnLayout 
-              passport={passport}
-              ensNameOrAddress={ensNameOrAddress}
-              githubUsername={githubUsername}
-              showGitHubSection={showGitHubSection}
-            />
+          <div className="w-full space-y-4 md:space-y-6 h-full">
+            <div className="w-full flex flex-col gap-4 md:gap-6">
+              {/* Mobile Layout - Existing stacked layout */}
+              {isMobile ? (
+                <>
+                  {/* Avatar section - always full width */}
+                  <div className="w-full flex flex-col space-y-3 md:space-y-4">
+                    <AvatarSection
+                      avatarUrl={passport.avatar_url}
+                      name={passport.name}
+                      ownerAddress={passport.owner_address}
+                      socials={{
+                        ...passport.socials,
+                        linkedin: undefined
+                      }}
+                      bio={passport.bio}
+                      displayIdentity={ensNameOrAddress}
+                      additionalEnsDomains={passport.additionalEnsDomains}
+                    />
+                  </div>
+                  
+                  {/* Content sections - always stacked vertically */}
+                  <div className="w-full space-y-4 md:space-y-6">
+                    <TalentScoreBanner walletAddress={passport.owner_address} />
+                    
+                    {/* GitHub Section */}
+                    {showGitHubSection && (
+                      <div className="w-full">
+                        <GitHubContributionGraph username={githubUsername!} />
+                      </div>
+                    )}
+                    
+                    {/* Farcaster Section */}
+                    <div className="w-full">
+                      <FarcasterCastsSection 
+                        ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+                        address={passport.owner_address}
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* Desktop Layout - New 2-column layout */
+                <TwoColumnLayout 
+                  passport={passport}
+                  ensNameOrAddress={ensNameOrAddress}
+                  githubUsername={githubUsername}
+                  showGitHubSection={showGitHubSection}
+                />
+              )}
+            </div>
           </div>
         </HeaderContainer>
       ) : (
