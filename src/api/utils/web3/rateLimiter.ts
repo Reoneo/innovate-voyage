@@ -1,5 +1,5 @@
 
-import { WEB3_BIO_HEADERS, REQUEST_DELAY_MS } from './config';
+import { WEB3_BIO_HEADERS } from './config';
 
 // In-memory storage for rate limiting
 let lastRequestTime = 0;
@@ -7,7 +7,7 @@ let lastRequestTime = 0;
 /**
  * Helper function to enforce rate limiting
  */
-export async function enforceRateLimit(delayMs: number = REQUEST_DELAY_MS) {
+export async function enforceRateLimit(delayMs: number) {
   const now = Date.now();
   const timeSinceLastRequest = now - lastRequestTime;
   
@@ -24,19 +24,4 @@ export async function enforceRateLimit(delayMs: number = REQUEST_DELAY_MS) {
  */
 export function getWeb3BioHeaders() {
   return WEB3_BIO_HEADERS;
-}
-
-/**
- * Rate limiter function
- */
-export const rateLimiter = {
-  enforceRateLimit,
-  getWeb3BioHeaders
-};
-
-/**
- * Create rate limit function
- */
-export function createRateLimit(delayMs: number) {
-  return () => enforceRateLimit(delayMs);
 }

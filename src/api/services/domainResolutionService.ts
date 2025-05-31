@@ -20,7 +20,7 @@ export async function getEnsByAddress(address: string): Promise<ENSRecord | null
         address: primaryProfile.address || address,
         ensName: primaryProfile.identity || address,
         avatar: primaryProfile.avatar || await getRealAvatar(primaryProfile.identity) || generateFallbackAvatar(),
-        skills: [],
+        skills: [], // Will be populated later in the app
         socialProfiles: extractSocialProfiles(primaryProfile),
         description: primaryProfile.description || ''
       };
@@ -52,7 +52,7 @@ export async function getAddressByEns(ensName: string): Promise<ENSRecord | null
         address: profile.address,
         ensName: profile.identity || normalizedName,
         avatar: profile.avatar || await getRealAvatar(normalizedName) || generateFallbackAvatar(),
-        skills: [],
+        skills: [], // Will be populated later in the app
         socialProfiles: extractSocialProfiles(profile),
         description: profile.description || ''
       };

@@ -1,4 +1,5 @@
 
-// Use explicit named exports
-export { getAllEnsRecords } from './getAllEnsRecords';
-export { fetchAllEnsDomains } from './fetchAllDomains';
+// Re-export all domain service functionality
+export * from './getAllEnsRecords';
+export * from './fetchAllDomains';
+

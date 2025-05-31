@@ -1,43 +1,57 @@
 
 import * as d3 from 'd3';
 
-// Network utilities for identity visualization
-export function createNetworkData(identities: any[]) {
-  // Create network data structure
-  return {
-    nodes: identities.map((identity, index) => ({
-      id: identity.id || `node-${index}`,
-      name: identity.name || identity.identity,
-      type: identity.platform || 'ethereum'
-    })),
-    links: []
-  };
-}
-
-export function processIdentityData(data: any) {
-  // Process identity data for visualization
-  if (!data) return null;
+/**
+ * Function to create a D3 drag behavior
+ */
+export function createDragBehavior(simulation: any) {
+  function dragstarted(event: any) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    event.subject.fx = event.subject.x;
+    event.subject.fy = event.subject.y;
+  }
   
-  return {
-    identity: data.identity || '',
-    platform: data.platform || 'ethereum',
-    connections: data.connections || []
-  };
+  function dragged(event: any) {
+    event.subject.fx = event.x;
+    event.subject.fy = event.y;
+  }
+  
+  function dragended(event: any) {
+    if (!event.active) simulation.alphaTarget(0);
+    event.subject.fx = null;
+    event.subject.fy = null;
+  }
+  
+  return d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended);
 }
 
-export function calculateNodePositions(nodes: any[], width: number, height: number) {
-  // Calculate positions for nodes in the network
-  return nodes.map((node, index) => ({
-    ...node,
-    x: (width / nodes.length) * index + 50,
-    y: height / 2
-  }));
+/**
+ * Function to create a tooltip for the network graph
+ */
+export function createTooltip() {
+  return d3.select("body")
+    .append("div")
+    .attr("class", "id-network-tooltip")
+    .style("position", "absolute")
+    .style("visibility", "hidden")
+    .style("background-color", "rgba(0,0,0,0.8)")
+    .style("color", "white")
+    .style("padding", "5px 10px")
+    .style("border-radius", "4px")
+    .style("font-size", "12px")
+    .style("pointer-events", "none");
 }
 
-// Add missing color functions
-export function getNodeColor(nodeType: string, isDotBox?: boolean): string {
+/**
+ * Get color for a node based on its type
+ */
+export function getNodeColor(nodeType: string, isDotBox?: boolean) {
   if (nodeType === "user") return "#3b82f6";
   if (nodeType === "ens-domain") {
+    // Updated color handling for all ENS domains (both main and others)
     return isDotBox ? "#8b5cf6" : "#6366f1";
   }
   if (nodeType === "identity-nft") return "#10b981";
@@ -45,9 +59,13 @@ export function getNodeColor(nodeType: string, isDotBox?: boolean): string {
   return "#9ca3af";
 }
 
-export function getNodeStrokeColor(nodeType: string, isDotBox?: boolean): string {
+/**
+ * Get stroke color for a node based on its type
+ */
+export function getNodeStrokeColor(nodeType: string, isDotBox?: boolean) {
   if (nodeType === "user") return "#1d4ed8";
   if (nodeType === "ens-domain") {
+    // Updated stroke color handling for all ENS domains
     return isDotBox ? "#7c3aed" : "#4f46e5";
   }
   if (nodeType === "identity-nft") return "#059669";
@@ -55,26 +73,20 @@ export function getNodeStrokeColor(nodeType: string, isDotBox?: boolean): string
   return "#6b7280";
 }
 
-// Add missing tooltip functions
-export function createTooltip(): d3.Selection<HTMLDivElement, unknown, null, undefined> {
-  return d3.select("body")
-    .append("div")
-    .attr("class", "tooltip")
-    .style("position", "absolute")
-    .style("visibility", "hidden")
-    .style("background", "rgba(0, 0, 0, 0.8)")
-    .style("color", "white")
-    .style("padding", "8px")
-    .style("border-radius", "4px")
-    .style("font-size", "12px")
-    .style("pointer-events", "none")
-    .style("z-index", "1000");
-}
-
-export function getTooltipContent(node: any): string {
-  let content = `<strong>${node.name}</strong><br/>`;
-  content += `Type: ${node.type}<br/>`;
-  if (node.address) content += `Address: ${node.address.substring(0, 10)}...<br/>`;
-  if (node.platform) content += `Platform: ${node.platform}`;
-  return content;
+/**
+ * Get tooltip HTML content for a node
+ */
+export function getTooltipContent(node: any) {
+  if (node.type === "user") {
+    return `<strong>${node.name}</strong><br>Main profile`;
+  } else if (node.type === "ens-domain") {
+    // Updated tooltip for all ENS domains
+    const domainType = node.isDotBox ? '.box' : '.eth';
+    return `<strong>${node.name}</strong><br>${domainType} ENS Domain`;
+  } else if (node.type === "identity-nft") {
+    return `<strong>${node.name}</strong><br>Identity NFT`;
+  } else if (node.type === "platform") {
+    return `<strong>${node.name}</strong><br>Web3 Platform`;
+  }
+  return `<strong>${node.name}</strong>`;
 }
