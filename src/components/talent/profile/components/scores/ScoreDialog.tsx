@@ -5,7 +5,6 @@ import TalentScoreDialogContent from './dialogs/TalentScoreDialogContent';
 import WebacyDialogContent from './dialogs/WebacyDialogContent';
 import TransactionsDialogContent from './dialogs/TransactionsDialogContent';
 import BlockchainDialogContent from './dialogs/BlockchainDialogContent';
-import GitHubDialogContent from './dialogs/GitHubDialogContent';
 import type { DialogType, ScoreDialogData } from './types';
 
 interface ScoreDialogProps {
@@ -24,15 +23,13 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({
   const renderContent = () => {
     switch (type) {
       case 'talent':
-        return <TalentScoreDialogContent score={data.score} walletAddress={data.walletAddress} />;
+        return <TalentScoreDialogContent score={data.score} />;
       case 'webacy':
         return <WebacyDialogContent webacyData={data.webacyData} />;
       case 'transactions':
         return <TransactionsDialogContent txCount={data.txCount} walletAddress={data.walletAddress} />;
       case 'blockchain':
         return <BlockchainDialogContent walletAddress={data.walletAddress} />;
-      case 'github':
-        return data.githubUsername ? <GitHubDialogContent username={data.githubUsername} /> : null;
       default:
         return null;
     }
@@ -40,7 +37,7 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         {renderContent()}
       </DialogContent>
     </Dialog>
