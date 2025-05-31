@@ -47,8 +47,8 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
-  // Mobile layout: 80:20 (left:right), Desktop layout: 30:70 (left:right)
-  const gridCols = isMobile ? 'grid-cols-[80%_20%]' : 'grid-cols-[30%_70%]';
+  // Mobile layout: 60:40 (left:right), Desktop layout: 30:70 (left:right)
+  const gridCols = isMobile ? 'grid-cols-[60%_40%]' : 'grid-cols-[30%_70%]';
 
   return (
     <div className={`grid ${gridCols} gap-2 md:gap-4 w-full h-[calc(100vh-80px)] px-1 md:px-2`}>
