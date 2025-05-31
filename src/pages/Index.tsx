@@ -14,7 +14,7 @@ const IndexContent = () => {
   const { isDayMode } = useTheme();
 
   return (
-    <div className={`h-screen relative overflow-hidden ${isDayMode ? 'bg-white' : 'bg-slate-900'}`}>
+    <div className={`min-h-screen relative ${isDayMode ? 'bg-white' : 'bg-slate-900'}`}>
       <SeoHelmet />
       
       {/* Theme toggle in top right */}
@@ -66,7 +66,7 @@ const IndexContent = () => {
       <HeroBackground />
       
       {/* Content */}
-      <div className="relative z-10 h-full flex flex-col">
+      <div className="relative z-10 flex flex-col">
         {/* Hero Section with SEO-optimized structure */}
         <section className="flex-1 py-2 px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-8">
           <div className="max-w-7xl mx-auto">
