@@ -22,7 +22,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
   const [showNftCollections, setShowNftCollections] = useState(false);
   const isMobile = useIsMobile();
 
-  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions') => {
+  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions' | 'blockchain') => {
     setActiveDialog(type);
     setDialogOpen(true);
   };
@@ -43,9 +43,10 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
           ? 'flex flex-col gap-4' 
           : 'grid grid-cols-3 gap-6'
       } mb-6`}>
-        <div>
+        <div className="transform hover:scale-105 transition-all duration-200">
           <BlockchainActivityBadge 
             walletAddress={walletAddress}
+            onClick={() => handleBadgeClick('blockchain')}
           />
         </div>
         {showTalentScore && (

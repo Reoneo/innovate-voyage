@@ -1,9 +1,11 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
-import TwoColumnDesktopLayout from './components/layout/TwoColumnDesktopLayout';
+import AvatarSection from './components/AvatarSection';
+import TalentScoreBanner from './components/TalentScoreBanner';
+import GitHubContributionGraph from './components/github/GitHubContributionGraph';
+import FarcasterCastsSection from './components/farcaster/FarcasterCastsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -106,12 +108,43 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
       ) : passport ? (
         <HeaderContainer>
           <div className="w-full space-y-4 md:space-y-6 h-full">
-            <TwoColumnDesktopLayout
-              passport={passport}
-              ensNameOrAddress={ensNameOrAddress}
-              githubUsername={githubUsername}
-              showGitHubSection={showGitHubSection}
-            />
+            <div className="w-full flex flex-col gap-4 md:gap-6">
+              {/* Avatar section - always full width */}
+              <div className="w-full flex flex-col space-y-3 md:space-y-4">
+                <AvatarSection
+                  avatarUrl={passport.avatar_url}
+                  name={passport.name}
+                  ownerAddress={passport.owner_address}
+                  socials={{
+                    ...passport.socials,
+                    linkedin: undefined
+                  }}
+                  bio={passport.bio}
+                  displayIdentity={ensNameOrAddress}
+                  additionalEnsDomains={passport.additionalEnsDomains}
+                />
+              </div>
+              
+              {/* Content sections - always stacked vertically */}
+              <div className="w-full space-y-4 md:space-y-6">
+                <TalentScoreBanner walletAddress={passport.owner_address} />
+                
+                {/* GitHub Section */}
+                {showGitHubSection && (
+                  <div className="w-full">
+                    <GitHubContributionGraph username={githubUsername!} />
+                  </div>
+                )}
+                
+                {/* Farcaster Section */}
+                <div className="w-full">
+                  <FarcasterCastsSection 
+                    ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+                    address={passport.owner_address}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </HeaderContainer>
       ) : (
