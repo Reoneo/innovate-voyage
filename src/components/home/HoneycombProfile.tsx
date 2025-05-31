@@ -15,6 +15,9 @@ const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0,
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Check if this is a 10k ENS Club profile (numeric.eth)
+  const isEnsClub = ensName.endsWith('.eth') && /^\d+\.eth$/.test(ensName);
+
   useEffect(() => {
     const fetchAvatar = async () => {
       try {
@@ -59,15 +62,19 @@ const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0,
       }`}
       onClick={handleClick}
     >
-      {/* Square container with avatar filling it */}
-      <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg border border-blue-400/30 hover:border-blue-400 transition-all duration-300 overflow-hidden">
-        <Avatar className="w-full h-full rounded-lg">
+      {/* Square container with avatar filling it - consistent size, conditional rounded corners */}
+      <div className={`w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-400/30 hover:border-blue-400 transition-all duration-300 overflow-hidden ${
+        isEnsClub ? '' : 'rounded-lg'
+      }`}>
+        <Avatar className={`w-full h-full ${isEnsClub ? '' : 'rounded-lg'}`}>
           <AvatarImage 
             src={avatarUrl} 
             alt={`${ensName} avatar`} 
-            className="object-cover w-full h-full rounded-lg"
+            className={`object-cover w-full h-full ${isEnsClub ? '' : 'rounded-lg'}`}
           />
-          <AvatarFallback className="bg-slate-700 text-slate-300 text-xs font-medium w-full h-full rounded-lg flex items-center justify-center">
+          <AvatarFallback className={`bg-slate-700 text-slate-300 text-xs font-medium w-full h-full flex items-center justify-center ${
+            isEnsClub ? '' : 'rounded-lg'
+          }`}>
             {ensName.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
