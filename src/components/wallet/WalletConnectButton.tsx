@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { useAccount, useDisconnect } from 'wagmi';
 import { useWeb3Modal } from '@web3modal/react';
 import { Button } from '@/components/ui/button';
-import { Loader2, Wallet, LogOut } from 'lucide-react';
+import { Loader2, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { secureStorage } from '@/utils/secureStorage';
 
 const WalletConnectButton: React.FC = () => {
   const { address, isConnected } = useAccount();
@@ -12,10 +12,13 @@ const WalletConnectButton: React.FC = () => {
   const { open } = useWeb3Modal();
   const { toast } = useToast();
 
-  // Store the connected address in localStorage and window object
+  // Store the connected address securely and in window object
   React.useEffect(() => {
     if (address && isConnected) {
-      localStorage.setItem('connectedWalletAddress', address);
+      // Use secure storage instead of plain localStorage
+      secureStorage.setWalletAddress(address);
+      
+      // Keep window object for compatibility (but mark as deprecated)
       window.connectedWalletAddress = address;
       
       toast({
@@ -23,14 +26,16 @@ const WalletConnectButton: React.FC = () => {
         description: `Connected to ${address.substring(0, 6)}...${address.substring(38)}`,
       });
     } else if (!isConnected) {
-      localStorage.removeItem('connectedWalletAddress');
+      secureStorage.removeSecureItem('wallet_address');
+      localStorage.removeItem('connectedWalletAddress'); // Clean up old storage
       window.connectedWalletAddress = null;
     }
   }, [address, isConnected, toast]);
 
   const handleDisconnect = () => {
     disconnect();
-    localStorage.removeItem('connectedWalletAddress');
+    secureStorage.clearAll(); // Clear all secure storage
+    localStorage.removeItem('connectedWalletAddress'); // Clean up old storage
     window.connectedWalletAddress = null;
     
     toast({
@@ -66,7 +71,6 @@ const WalletConnectButton: React.FC = () => {
       className="flex items-center gap-2"
     >
       <span className="hidden sm:inline">Connect Wallet</span>
-      <Wallet className="h-4 w-4" />
     </Button>
   );
 };

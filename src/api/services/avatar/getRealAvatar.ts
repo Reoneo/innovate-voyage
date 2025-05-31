@@ -1,5 +1,5 @@
 
-import { avatarCache, fetchWeb3BioProfile, generateFallbackAvatar } from '../../utils/web3/index';
+import { avatarCache, generateFallbackAvatar } from '../../utils/web3/index';
 import { handleEip155Avatar } from './utils/eip155Handler';
 import { handleEnsAvatar } from './utils/ensAvatarHandler';
 import { handleDotBoxAvatar } from './utils/dotBoxHandler';
@@ -69,14 +69,6 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     if (identity.endsWith('.box')) {
       const boxAvatar = await handleDotBoxAvatar(identity);
       if (boxAvatar) return boxAvatar;
-    }
-    
-    // Try Web3Bio API as a fallback - works for all domain types
-    const profile = await fetchWeb3BioProfile(identity);
-    if (profile && profile.avatar) {
-      console.log(`Found avatar via Web3.bio for ${identity}`);
-      avatarCache[identity] = profile.avatar;
-      return profile.avatar;
     }
     
     // Try to resolve IPFS URIs

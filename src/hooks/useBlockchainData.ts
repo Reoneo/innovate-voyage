@@ -1,14 +1,13 @@
 
 import { useState, useEffect } from 'react';
 import { useBlockchainProfile, useLatestTransactions, useTokenTransfers } from '@/hooks/useEtherscan';
-import { useWeb3BioProfile } from '@/hooks/useWeb3';
 import { fetchBlockchainData } from '@/api/services/blockchainDataService';
 
 /**
  * Hook to fetch and combine blockchain-related data for a user profile
  * @param resolvedAddress Ethereum address to fetch data for
  * @param resolvedEns ENS name to fetch data for
- * @returns Object containing blockchain profile, transactions, token transfers, web3 bio and additional blockchain data
+ * @returns Object containing blockchain profile, transactions, token transfers, and additional blockchain data
  */
 export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string) {
   const [blockchainExtendedData, setBlockchainExtendedData] = useState({
@@ -23,7 +22,6 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
   const { data: blockchainProfile, isLoading: loadingBlockchain } = useBlockchainProfile(resolvedAddress);
   const { data: transactions } = useLatestTransactions(resolvedAddress, 20);
   const { data: tokenTransfers } = useTokenTransfers(resolvedAddress, 10);
-  const { data: web3BioProfile } = useWeb3BioProfile(resolvedAddress || resolvedEns);
   
   // Fetch additional blockchain data
   useEffect(() => {
@@ -61,7 +59,7 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     blockchainProfile: enhancedBlockchainProfile,
     transactions,
     tokenTransfers,
-    web3BioProfile,
+    web3BioProfile: null, // Remove web3.bio dependency
     loadingBlockchain,
     blockchainExtendedData
   };

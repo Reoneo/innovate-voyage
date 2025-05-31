@@ -11,18 +11,6 @@ if (typeof window !== 'undefined') {
 import { createRoot } from 'react-dom/client';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { mainnet, goerli } from 'wagmi/chains';
-import {
-  EthereumClient,
-  w3mConnectors,
-  w3mProvider,
-} from '@web3modal/ethereum';
-import { Web3Modal } from '@web3modal/react';
-
-import '@rainbow-me/rainbowkit/styles.css';
-import {
-  getDefaultConfig,
-  RainbowKitProvider,
-} from '@rainbow-me/rainbowkit';
 
 import App from './App.tsx';
 import './index.css';
@@ -48,13 +36,8 @@ if (typeof window !== 'undefined' && typeof global === 'undefined') {
   }
 }
 
-// WalletConnect v2 Project ID
-const projectId = import.meta.env.VITE_WC_PROJECT_ID || "YOUR_PROJECT_ID_FROM_cloud.walletconnect.com";
-
-// Create wagmi config using getDefaultConfig from RainbowKit
-const wagmiConfig = getDefaultConfig({
-  appName: 'Recruitment.box',
-  projectId,
+// Create wagmi config with basic HTTP transports
+const wagmiConfig = createConfig({
   chains: [mainnet, goerli],
   transports: {
     [mainnet.id]: http(),
@@ -62,21 +45,9 @@ const wagmiConfig = getDefaultConfig({
   },
 });
 
-// Create the Web3Modal "bridge" to wagmi - using the chains from wagmi config
-const ethereumClient = new EthereumClient(wagmiConfig, [mainnet, goerli]);
-
 const root = createRoot(document.getElementById("root")!);
 root.render(
   <WagmiProvider config={wagmiConfig}>
-    <RainbowKitProvider>
-      <App />
-    </RainbowKitProvider>
-    <Web3Modal
-      projectId={projectId}
-      ethereumClient={ethereumClient}
-      themeMode="light"
-      themeColor="default"
-      themeBackground="themeColor"
-    />
+    <App />
   </WagmiProvider>
 );

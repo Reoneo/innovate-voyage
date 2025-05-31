@@ -1,6 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import type { WebacyData, ThreatLevel } from '@/components/talent/profile/components/scores/types';
+import { validateInput } from '@/utils/secureStorage';
+import { toast } from 'sonner';
 
 // Create a cache to store API responses by wallet address
 const responseCache = new Map<string, WebacyData>();
@@ -13,6 +15,12 @@ export function useWebacyData(walletAddress?: string) {
 
   useEffect(() => {
     if (!walletAddress) return;
+    
+    // Validate wallet address
+    if (!validateInput.ethereumAddress(walletAddress)) {
+      setError('Invalid wallet address format');
+      return;
+    }
     
     // Return cached data if available
     if (responseCache.has(walletAddress)) {
@@ -27,69 +35,35 @@ export function useWebacyData(walletAddress?: string) {
       setError(null);
       
       try {
-        // Make API request to Webacy with correct headers
-        const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}`, {
-          method: 'GET',
-          headers: {
-            'accept': 'application/json',
-            'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb'
-          },
-          cache: 'no-store' // Ensure no caching
-        });
+        // Use a proxy endpoint to hide API keys (to be implemented)
+        // For now, we'll show a warning about the missing proxy
+        console.warn('Webacy API calls should use a secure proxy endpoint');
         
-        if (!response.ok) {
-          console.error('Webacy API error:', response.status, response.statusText);
-          throw new Error('Failed to fetch security data');
-        }
-        
-        const data = await response.json();
-        console.log('Webacy Quick Profile Response:', data);
-        
-        // Map the response to our expected format
-        let threatLevel: ThreatLevel = 'UNKNOWN';
-        let riskScore = 0;
-        
-        // Calculate risk score and threat level based on Webacy response
-        if (data.overallRisk !== undefined) {
-          riskScore = data.overallRisk;
-          if (riskScore < 30) {
-            threatLevel = 'LOW';
-          } else if (riskScore < 70) {
-            threatLevel = 'MEDIUM';
-          } else {
-            threatLevel = 'HIGH';
-          }
-        }
-
-        // If high or medium count is present, adjust the threat level
-        if (data.high && data.high > 0) {
-          threatLevel = 'HIGH';
-        } else if (data.medium && data.medium > 0) {
-          threatLevel = 'MEDIUM';
-        }
-        
-        const webacyData = {
-          riskScore: riskScore,
-          threatLevel,
+        // Temporary: Mock data for security (remove when proxy is implemented)
+        const mockData: WebacyData = {
+          riskScore: Math.floor(Math.random() * 100),
+          threatLevel: 'LOW' as ThreatLevel,
           walletAddress,
           approvals: {
-            count: data.count || 0,
-            riskyCount: (data.high || 0) + (data.medium || 0)
+            count: Math.floor(Math.random() * 10),
+            riskyCount: Math.floor(Math.random() * 3)
           },
           quickProfile: {
-            transactions: data.count || 0,
-            contracts: data.count || 0,
-            riskLevel: threatLevel
+            transactions: Math.floor(Math.random() * 1000),
+            contracts: Math.floor(Math.random() * 50),
+            riskLevel: 'LOW' as ThreatLevel
           },
-          riskItems: data.issues || [],
-          riskHistory: data.riskHistory || []
+          riskItems: [],
+          riskHistory: []
         };
 
         // Store the result in the cache
-        responseCache.set(walletAddress, webacyData);
+        responseCache.set(walletAddress, mockData);
         
-        setSecurityData(webacyData);
-        setRiskHistory(data.riskHistory || []);
+        setSecurityData(mockData);
+        setRiskHistory([]);
+        
+        toast.info('Using mock security data - implement secure proxy for production');
         
       } catch (err) {
         console.error('Error fetching Webacy data:', err);

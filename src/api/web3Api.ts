@@ -1,5 +1,5 @@
 
-import { ENSRecord, SkillNFT, Web3Credentials, Web3BioProfile } from './types/web3Types';
+import { ENSRecord, SkillNFT, Web3Credentials } from './types/web3Types';
 import { BlockchainProfile } from './types/etherscanTypes';
 import { 
   getEnsByAddress, 
@@ -17,7 +17,6 @@ import {
   getLatestTransactions,
   getTokenTransfers
 } from './services/etherscanService';
-import { fetchWeb3BioProfile } from './utils/web3/index';
 import { getRealAvatar } from './services/avatar';
 
 // Get all Web3 credentials (ENS + Skill NFTs) by address
@@ -59,7 +58,6 @@ export const web3Api = {
   getWeb3CredentialsByAddress,
   getAllEnsRecords,
   getAllSkillNfts,
-  fetchWeb3BioProfile,
   getAccountBalance,
   getTransactionCount,
   getLatestTransactions,
@@ -69,4 +67,4 @@ export const web3Api = {
 };
 
 // Re-export types for convenience
-export type { ENSRecord, SkillNFT, Web3Credentials, Web3BioProfile, BlockchainProfile };
+export type { ENSRecord, SkillNFT, Web3Credentials, BlockchainProfile };
