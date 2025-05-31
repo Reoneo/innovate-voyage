@@ -46,7 +46,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
   return (
-    <div className="hidden md:grid md:grid-cols-[30%_70%] gap-8 w-full">
+    <div className="hidden md:grid md:grid-cols-[30%_70%] gap-8 w-full px-6">
       {/* Column 1: Avatar to POAP Section (30%) */}
       <div className="space-y-6">
         {/* Avatar */}
