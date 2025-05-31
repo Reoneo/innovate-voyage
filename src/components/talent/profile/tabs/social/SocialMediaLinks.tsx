@@ -2,7 +2,6 @@
 import React from 'react';
 import SocialLinkItem from './SocialLinkItem';
 import { socialPlatforms } from '@/constants/socialPlatforms';
-import { Loader2 } from 'lucide-react';
 
 interface SocialMediaLinksProps {
   socials: Record<string, string>;
@@ -16,13 +15,9 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ socials, isLoading 
   // Log socials for debugging
   console.log("SocialMediaLinks - socials:", socials);
   
+  // Don't show anything while loading
   if (isLoading) {
-    return (
-      <div className="col-span-full flex items-center gap-2 text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        <span>Loading social links...</span>
-      </div>
-    );
+    return null;
   }
   
   // Check if we have any actual social links
