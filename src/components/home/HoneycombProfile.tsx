@@ -48,6 +48,8 @@ const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0 
       style={{
         clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
         background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))',
+        border: '2px solid white',
+        margin: '-1px', // Negative margin to connect borders
       }}
     >
       <div className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center p-2">

@@ -13,7 +13,7 @@ const FeaturedProfileSection: React.FC = () => {
       
       {/* Honeycomb Grid */}
       <div className="relative flex justify-center items-center">
-        <div className="grid grid-cols-2 gap-4 items-center">
+        <div className="grid grid-cols-2 gap-0 items-center"> {/* Changed gap-4 to gap-0 */}
           {/* Top row - 2 profiles */}
           <div className="flex justify-center">
             <HoneycombProfile ensName={featuredProfiles[0]} delay={0} />
@@ -23,7 +23,7 @@ const FeaturedProfileSection: React.FC = () => {
           </div>
           
           {/* Bottom row - 1 profile centered */}
-          <div className="col-span-2 flex justify-center -mt-2">
+          <div className="col-span-2 flex justify-center -mt-4"> {/* Increased negative margin to connect better */}
             <HoneycombProfile ensName={featuredProfiles[2]} delay={400} />
           </div>
         </div>
