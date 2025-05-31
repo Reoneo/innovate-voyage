@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -83,7 +84,7 @@ const FeaturedProfileSection: React.FC = () => {
   const canLoadPrevious = isEnsClub && ensClubPage > 1;
 
   return (
-    <div className="max-w-4xl mx-auto h-full flex flex-col">
+    <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-center mb-4 relative">
         <Button
           variant="ghost"
@@ -112,8 +113,8 @@ const FeaturedProfileSection: React.FC = () => {
         {currentSet.title}
       </h4>
       
-      {/* Profiles Grid - no overflow scrolling */}
-      <div className="flex-1 flex justify-center items-start">
+      {/* Profiles Grid */}
+      <div className="relative flex justify-center items-center mb-8">
         {isBoxCommunity ? (
           /* Grid layout for Box Community Members */
           <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 items-start max-w-4xl">
