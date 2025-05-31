@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
@@ -45,7 +46,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
   return (
-    <div className="grid grid-cols-[80%_20%] md:grid-cols-[30%_70%] gap-2 md:gap-4 w-full h-[calc(100vh-80px)] px-1 md:px-2">
+    <div className="grid grid-cols-[60%_40%] md:grid-cols-[30%_70%] gap-2 md:gap-4 w-full h-[calc(100vh-80px)] px-1 md:px-2">
       {/* Column 1: Fixed sidebar with avatar and basic info */}
       <div className="flex flex-col space-y-2 md:space-y-4 overflow-hidden">
         {/* Avatar */}
