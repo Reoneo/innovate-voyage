@@ -1,15 +1,30 @@
+import { InputValidator } from '../../../../utils/inputValidation';
 
-// API key for Etherscan
-const ETHERSCAN_API_KEY = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
+// SECURITY FIX: Remove hardcoded API key
+// This should be handled through a secure backend proxy
+const ETHERSCAN_API_KEY = undefined;
 
 /**
- * Fetch ENS domains from Etherscan as a fallback
+ * Fetch ENS domains from Etherscan via secure proxy
+ * SECURITY NOTE: This should be moved to a backend service
  */
 export async function fetchDomainsFromEtherscan(address: string): Promise<string[]> {
   const domains: string[] = [];
   
   try {
-    // Use the Etherscan API to get ENS domain records (ENS Registry)
+    // Validate input address
+    if (!InputValidator.isValidEthereumAddress(address)) {
+      console.warn('Invalid Ethereum address provided to Etherscan provider');
+      return domains;
+    }
+
+    // TODO: Replace with secure backend proxy call
+    // For now, return empty array to prevent API key exposure
+    console.warn('Etherscan API calls disabled for security - implement backend proxy');
+    return domains;
+    
+    // Original implementation commented out for security:
+    /*
     const response = await fetch(`https://api.etherscan.io/api?module=account&action=tokennfttx&address=${address}&contractaddress=0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85&page=1&offset=100&sort=asc&apikey=${ETHERSCAN_API_KEY}`);
     
     if (!response.ok) {
@@ -50,8 +65,10 @@ export async function fetchDomainsFromEtherscan(address: string): Promise<string
     
     console.log(`Etherscan returned ${domains.length} domains for ${address}:`, domains);
     return domains;
+    */
+    
   } catch (error) {
-    console.error(`Error fetching from Etherscan: ${error}`);
+    console.error(`Secure error handling for address ${address.substring(0, 6)}...${address.substring(38)}:`, error);
     return domains;
   }
 }
