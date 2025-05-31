@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -6,6 +7,7 @@ import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import FarcasterCastsSection from './components/farcaster/FarcasterCastsSection';
+import TwoColumnLayout from './components/layout/TwoColumnLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -36,16 +38,14 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
       const directGithub = passport.socials.github;
       console.log('GitHub from passport.socials.github:', directGithub);
       
-      // If it's already a clean username (no URL), return it
       if (typeof directGithub === 'string' && !directGithub.includes('/') && !directGithub.includes('.')) {
         if (directGithub.startsWith('@')) {
-          return directGithub.substring(1); // Remove @ prefix
+          return directGithub.substring(1);
         }
         return directGithub;
       }
     }
     
-    // If nothing found or we need to extract from URL
     if (!passport?.socials?.github) {
       console.log('No GitHub social link found in passport');
       return null;
@@ -55,25 +55,20 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     console.log('Extracting GitHub username from:', githubUrl);
     
     try {
-      // Handle different GitHub URL formats
       if (typeof githubUrl === 'string') {
-        // Handle github.com URL format
         if (githubUrl.includes('github.com/')) {
           const parts = githubUrl.split('github.com/');
-          // Get everything after github.com/ and before any query params or hashes
           const username = parts[1]?.split(/[/?#]/)[0];
           console.log('Extracted GitHub username from URL:', username);
           return username?.trim() || null;
         }
         
-        // Handle direct username format with @ prefix
         if (githubUrl.startsWith('@')) {
-          const username = githubUrl.substring(1).trim(); // Remove @ prefix
+          const username = githubUrl.substring(1).trim();
           console.log('Extracted GitHub username from @-prefix:', username);
           return username || null;
         }
         
-        // Handle pure username format (no URL, no @)
         if (githubUrl.trim() !== '') {
           const username = githubUrl.trim();
           console.log('Using GitHub value directly as username:', username);
@@ -109,41 +104,54 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <HeaderContainer>
           <div className="w-full space-y-4 md:space-y-6 h-full">
             <div className="w-full flex flex-col gap-4 md:gap-6">
-              {/* Avatar section - always full width */}
-              <div className="w-full flex flex-col space-y-3 md:space-y-4">
-                <AvatarSection
-                  avatarUrl={passport.avatar_url}
-                  name={passport.name}
-                  ownerAddress={passport.owner_address}
-                  socials={{
-                    ...passport.socials,
-                    linkedin: undefined
-                  }}
-                  bio={passport.bio}
-                  displayIdentity={ensNameOrAddress}
-                  additionalEnsDomains={passport.additionalEnsDomains}
-                />
-              </div>
-              
-              {/* Content sections - always stacked vertically */}
-              <div className="w-full space-y-4 md:space-y-6">
-                <TalentScoreBanner walletAddress={passport.owner_address} />
-                
-                {/* GitHub Section */}
-                {showGitHubSection && (
-                  <div className="w-full">
-                    <GitHubContributionGraph username={githubUsername!} />
+              {/* Mobile Layout - Existing stacked layout */}
+              {isMobile ? (
+                <>
+                  {/* Avatar section - always full width */}
+                  <div className="w-full flex flex-col space-y-3 md:space-y-4">
+                    <AvatarSection
+                      avatarUrl={passport.avatar_url}
+                      name={passport.name}
+                      ownerAddress={passport.owner_address}
+                      socials={{
+                        ...passport.socials,
+                        linkedin: undefined
+                      }}
+                      bio={passport.bio}
+                      displayIdentity={ensNameOrAddress}
+                      additionalEnsDomains={passport.additionalEnsDomains}
+                    />
                   </div>
-                )}
-                
-                {/* Farcaster Section */}
-                <div className="w-full">
-                  <FarcasterCastsSection 
-                    ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
-                    address={passport.owner_address}
-                  />
-                </div>
-              </div>
+                  
+                  {/* Content sections - always stacked vertically */}
+                  <div className="w-full space-y-4 md:space-y-6">
+                    <TalentScoreBanner walletAddress={passport.owner_address} />
+                    
+                    {/* GitHub Section */}
+                    {showGitHubSection && (
+                      <div className="w-full">
+                        <GitHubContributionGraph username={githubUsername!} />
+                      </div>
+                    )}
+                    
+                    {/* Farcaster Section */}
+                    <div className="w-full">
+                      <FarcasterCastsSection 
+                        ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+                        address={passport.owner_address}
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* Desktop Layout - New 2-column layout */
+                <TwoColumnLayout 
+                  passport={passport}
+                  ensNameOrAddress={ensNameOrAddress}
+                  githubUsername={githubUsername}
+                  showGitHubSection={showGitHubSection}
+                />
+              )}
             </div>
           </div>
         </HeaderContainer>
