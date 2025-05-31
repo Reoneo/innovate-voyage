@@ -27,12 +27,8 @@ const BlockchainActivitySection: React.FC<BlockchainActivitySectionProps> = ({
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <img 
-              src="https://freebiehive.com/wp-content/uploads/2023/07/Etherscan-Logo-PNG.jpg" 
-              alt="Etherscan" 
-              className="w-5 h-5 object-contain"
-            />
-            Blockchain Activity
+            <div className="w-5 h-5 bg-blue-500 rounded"></div>
+            Onchain Activity
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -53,12 +49,8 @@ const BlockchainActivitySection: React.FC<BlockchainActivitySectionProps> = ({
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <img 
-            src="https://freebiehive.com/wp-content/uploads/2023/07/Etherscan-Logo-PNG.jpg" 
-            alt="Etherscan" 
-            className="w-5 h-5 object-contain"
-          />
-          Blockchain Activity
+          <div className="w-5 h-5 bg-blue-500 rounded"></div>
+          Onchain Activity
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
