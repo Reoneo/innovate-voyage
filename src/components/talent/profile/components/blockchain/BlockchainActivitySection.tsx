@@ -27,12 +27,8 @@ const BlockchainActivitySection: React.FC<BlockchainActivitySectionProps> = ({
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <img 
-              src="https://socialbubbles.ae/wp-content/uploads/2024/08/etherscan-image.png" 
-              alt="Etherscan" 
-              className="w-5 h-5"
-            />
-            Blockchain Activity
+            <div className="w-5 h-5 bg-blue-500 rounded"></div>
+            Onchain Activity
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -53,12 +49,8 @@ const BlockchainActivitySection: React.FC<BlockchainActivitySectionProps> = ({
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <img 
-            src="https://socialbubbles.ae/wp-content/uploads/2024/08/etherscan-image.png" 
-            alt="Etherscan" 
-            className="w-5 h-5"
-          />
-          Blockchain Activity
+          <div className="w-5 h-5 bg-blue-500 rounded"></div>
+          Onchain Activity
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -100,11 +92,21 @@ const BlockchainActivitySection: React.FC<BlockchainActivitySectionProps> = ({
           </div>
         )}
         
-        <div className="mt-4 pt-3 border-t">
-          <p className="text-xs text-muted-foreground">
-            Data sourced from Etherscan
-          </p>
-        </div>
+        {data.hasBuilderScore && (
+          <div className="mt-4 pt-3 border-t">
+            <p className="text-xs text-muted-foreground">
+              Data sourced from Talent Protocol
+            </p>
+          </div>
+        )}
+        
+        {!data.hasBuilderScore && hasData && (
+          <div className="mt-4 pt-3 border-t">
+            <p className="text-xs text-muted-foreground">
+              Data sourced from Etherscan
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
