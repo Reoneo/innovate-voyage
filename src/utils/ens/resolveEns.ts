@@ -1,6 +1,5 @@
 
-import { mainnetProvider } from '../ethereumProviders';
-import { ccipReadEnabled, ResolveDotBitResult } from './ccipReadHandler';
+import { ensClient } from './ensClient';
 
 /**
  * Resolves an ENS name to an address
@@ -9,44 +8,16 @@ import { ccipReadEnabled, ResolveDotBitResult } from './ccipReadHandler';
  */
 export async function resolveEnsToAddress(ensName: string) {
   // Check if the input is actually an ENS name
-  if (!ensName || (!ensName.includes('.eth') && !ensName.includes('.box'))) {
+  if (!ensName || !ensName.includes('.eth')) {
     console.log(`Invalid ENS name format: ${ensName}`);
     return null;
   }
   
-  // Special handling for .box domains - uses CCIP-Read compatible resolver
-  if (ensName.endsWith('.box')) {
-    console.log(`Resolving .box domain: ${ensName} using CCIP-Read handler`);
-    try {
-      const result = await ccipReadEnabled.resolveDotBit(ensName);
-      if (result && result.address) {
-        console.log(`CCIP-Read resolution result for ${ensName}:`, result);
-        return result.address;
-      }
-    } catch (error) {
-      console.error(`CCIP-Read error resolving ${ensName}:`, error);
-    }
-  }
-  
-  // Default flow for .eth domains or as fallback for .box domains
-  const provider = mainnetProvider;
-  
-  console.log(`Resolving domain: ${ensName} using Mainnet provider`);
+  console.log(`Resolving domain: ${ensName} using ENS client`);
   
   try {
-    // Using resolveName with a timeout
-    const resolvePromise = provider.resolveName(ensName);
-    
-    // Create a timeout promise
-    const timeoutPromise = new Promise<null>((_, reject) => 
-      setTimeout(() => reject(new Error('ENS resolution timeout')), 5000)
-    );
-    
-    // Race between the resolution and the timeout
-    const resolvedAddress = await Promise.race([
-      resolvePromise,
-      timeoutPromise
-    ]) as string | null;
+    const addressRecord = await ensClient.getAddressRecord({ name: ensName });
+    const resolvedAddress = addressRecord?.value || null;
     
     console.log(`Resolution result for ${ensName}:`, resolvedAddress);
     return resolvedAddress;
@@ -67,35 +38,11 @@ export async function resolveAddressToEns(address: string) {
     return null;
   }
   
-  // Try using CCIP-Read for reverse resolution
   try {
-    console.log(`Looking up domains for address: ${address} using CCIP-Read handler`);
-    const boxDomains = await ccipReadEnabled.getDotBitByAddress(address);
-    if (boxDomains && boxDomains.length > 0) {
-      console.log(`Found .box domains for ${address}:`, boxDomains);
-      return { ensName: boxDomains[0], network: 'mainnet' as const };
-    }
-  } catch (error) {
-    console.error(`Error in CCIP-Read lookup for ${address}:`, error);
-  }
-  
-  // Try mainnet lookup as fallback
-  try {
-    console.log(`Looking up ENS for address: ${address} on Mainnet`);
+    console.log(`Looking up ENS for address: ${address} using ENS client`);
     
-    // Using lookupAddress with a timeout
-    const lookupPromise = mainnetProvider.lookupAddress(address);
-    
-    // Create a timeout promise
-    const timeoutPromise = new Promise<null>((_, reject) => 
-      setTimeout(() => reject(new Error('ENS lookup timeout')), 5000)
-    );
-    
-    // Race between the lookup and the timeout
-    const ensName = await Promise.race([
-      lookupPromise,
-      timeoutPromise
-    ]) as string | null;
+    const nameRecord = await ensClient.getName({ address: address as `0x${string}` });
+    const ensName = nameRecord?.name || null;
     
     if (ensName) {
       console.log(`Found ENS name for ${address}: ${ensName}`);

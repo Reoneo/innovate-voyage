@@ -1,19 +1,10 @@
 
-import { Web3BioProvider } from '../services/domains/providers/web3BioProvider';
-import { EtherscanProvider } from '../services/domains/providers/etherscanProvider';
 import { Profile } from '@/types/profile';
 import { validateInput } from '@/utils/secureStorage';
-import { enforceRateLimit, getSafeHeaders } from './rateLimiter';
-import { getServerConfig } from './secureConfig';
-
-const serverConfig = getServerConfig();
-
-// Initialize providers with API keys from secure config
-const web3BioProvider = new Web3BioProvider(serverConfig.WEB3_BIO_API_KEY);
-const etherscanProvider = new EtherscanProvider();
+import { ensClient } from '@/utils/ens/ensClient';
 
 /**
- * Fetches profile information from multiple sources based on the input string.
+ * Fetches profile information using ENS client
  * @param input - An Ethereum address, ENS name, or other identifier.
  * @returns A promise that resolves to a Profile object or null if no profile is found.
  */
@@ -30,25 +21,43 @@ export async function fetchProfile(input: string): Promise<Profile | null> {
   }
 
   try {
-    // 1. Try fetching from Web3.bio
-    if (serverConfig.WEB3_BIO_API_KEY) {
-      const web3BioProfile = await web3BioProvider.fetchProfile(input);
-      if (web3BioProfile) {
-        console.log('Profile found in Web3.bio');
-        return web3BioProfile;
-      }
-    } else {
-      console.warn('Web3.bio API key not set, skipping Web3.bio profile fetch');
+    let address: string | null = null;
+    let identity: string = input;
+
+    // If input is an ENS name, resolve to address
+    if (validateInput.ensName(input)) {
+      const addressRecord = await ensClient.getAddressRecord({ name: input });
+      address = addressRecord?.value || null;
+      identity = input;
+    } else if (validateInput.ethereumAddress(input)) {
+      // If input is an address, try reverse resolution
+      const nameRecord = await ensClient.getName({ address: input as `0x${string}` });
+      address = input;
+      identity = nameRecord?.name || input;
     }
 
-    // 2. Try fetching from Etherscan
-    const etherscanProfile = await etherscanProvider.fetchProfile(input);
-    if (etherscanProfile) {
-      console.log('Profile found in Etherscan');
-      return etherscanProfile;
+    if (address) {
+      // Try to get additional ENS records
+      const [avatar, description] = await Promise.all([
+        ensClient.getTextRecord({ name: identity, key: 'avatar' }).catch(() => null),
+        ensClient.getTextRecord({ name: identity, key: 'description' }).catch(() => null),
+      ]);
+
+      const profile: Profile = {
+        address,
+        identity,
+        avatar: avatar?.value || undefined,
+        description: description?.value || undefined,
+        platform: 'ens',
+        socialProfiles: {},
+        links: {}
+      };
+
+      console.log('Profile found via ENS client');
+      return profile;
     }
 
-    console.log('No profile found in any source');
+    console.log('No profile found');
     return null;
 
   } catch (error: any) {
