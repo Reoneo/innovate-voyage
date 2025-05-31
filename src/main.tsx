@@ -11,12 +11,6 @@ if (typeof window !== 'undefined') {
 import { createRoot } from 'react-dom/client';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { mainnet, goerli } from 'wagmi/chains';
-import {
-  EthereumClient,
-  w3mConnectors,
-  w3mProvider,
-} from '@web3modal/ethereum';
-import { Web3Modal } from '@web3modal/react';
 
 import '@rainbow-me/rainbowkit/styles.css';
 import {
@@ -62,21 +56,11 @@ const wagmiConfig = getDefaultConfig({
   },
 });
 
-// Create the Web3Modal "bridge" to wagmi - using the chains from wagmi config
-const ethereumClient = new EthereumClient(wagmiConfig, [mainnet, goerli]);
-
 const root = createRoot(document.getElementById("root")!);
 root.render(
   <WagmiProvider config={wagmiConfig}>
     <RainbowKitProvider>
       <App />
     </RainbowKitProvider>
-    <Web3Modal
-      projectId={projectId}
-      ethereumClient={ethereumClient}
-      themeMode="light"
-      themeColor="default"
-      themeBackground="themeColor"
-    />
   </WagmiProvider>
 );
