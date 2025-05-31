@@ -11,7 +11,6 @@ import PoapSection from '../poap/PoapSection';
 import TalentScoreBanner from '../TalentScoreBanner';
 import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TwoColumnLayoutProps {
   passport: any;
@@ -27,7 +26,6 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
   showGitHubSection
 }) => {
   const [isOwner, setIsOwner] = React.useState(false);
-  const isMobile = useIsMobile();
   
   React.useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -47,13 +45,11 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
-  // Mobile layout: 60:40 (left:right), Desktop layout: 30:70 (left:right)
-  const gridCols = isMobile ? 'grid-cols-[60%_40%]' : 'grid-cols-[30%_70%]';
-
+  // Always use desktop layout: 30:70 (left:right)
   return (
-    <div className={`grid ${gridCols} gap-2 md:gap-4 w-full h-[calc(100vh-80px)] px-1 md:px-2`}>
+    <div className="grid grid-cols-[30%_70%] gap-4 w-full h-[calc(100vh-80px)] px-2">
       {/* Column 1: Fixed sidebar with avatar and basic info */}
-      <div className={`flex flex-col overflow-hidden ${isMobile ? 'space-y-1' : 'space-y-2 md:space-y-4'}`}>
+      <div className="flex flex-col overflow-hidden space-y-4">
         {/* Avatar */}
         <div className="flex flex-col items-center">
           <ProfileAvatar 
@@ -97,7 +93,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         {/* ENS Bio */}
         {passport.bio && (
           <div className="text-center">
-            <p className={`text-sm text-muted-foreground ${isMobile ? 'text-xs' : ''}`}>
+            <p className="text-sm text-muted-foreground">
               {passport.bio}
             </p>
           </div>
@@ -115,7 +111,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
       </div>
       
       {/* Column 2: Scrollable content */}
-      <div className="overflow-y-auto space-y-4 md:space-y-6 h-full pr-1 md:pr-2">
+      <div className="overflow-y-auto space-y-6 h-full pr-2">
         {/* Talent Score Banner (includes Blockchain Activity) */}
         <TalentScoreBanner walletAddress={passport.owner_address} />
         
