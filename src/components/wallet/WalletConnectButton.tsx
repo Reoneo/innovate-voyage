@@ -2,7 +2,7 @@ import React from 'react';
 import { useAccount, useDisconnect } from 'wagmi';
 import { useWeb3Modal } from '@web3modal/react';
 import { Button } from '@/components/ui/button';
-import { Loader2, Wallet, LogOut } from 'lucide-react';
+import { Loader2, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { secureStorage } from '@/utils/secureStorage';
 
@@ -71,7 +71,6 @@ const WalletConnectButton: React.FC = () => {
       className="flex items-center gap-2"
     >
       <span className="hidden sm:inline">Connect Wallet</span>
-      <Wallet className="h-4 w-4" />
     </Button>
   );
 };
