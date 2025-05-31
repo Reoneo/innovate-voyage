@@ -11,6 +11,7 @@ import PoapSection from '../poap/PoapSection';
 import TalentScoreBanner from '../TalentScoreBanner';
 import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TwoColumnLayoutProps {
   passport: any;
@@ -26,6 +27,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
   showGitHubSection
 }) => {
   const [isOwner, setIsOwner] = React.useState(false);
+  const isMobile = useIsMobile();
   
   React.useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -45,8 +47,11 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
+  // Mobile layout: 80:20 (left:right), Desktop layout: 30:70 (left:right)
+  const gridCols = isMobile ? 'grid-cols-[80%_20%]' : 'grid-cols-[30%_70%]';
+
   return (
-    <div className="grid grid-cols-[60%_40%] md:grid-cols-[30%_70%] gap-2 md:gap-4 w-full h-[calc(100vh-80px)] px-1 md:px-2">
+    <div className={`grid ${gridCols} gap-2 md:gap-4 w-full h-[calc(100vh-80px)] px-1 md:px-2`}>
       {/* Column 1: Fixed sidebar with avatar and basic info */}
       <div className="flex flex-col space-y-2 md:space-y-4 overflow-hidden">
         {/* Avatar */}

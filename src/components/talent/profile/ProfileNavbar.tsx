@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Search } from 'lucide-react';
+import { Home, Search, Menu } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
@@ -16,6 +17,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
 }) => {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handleOpenXmtpModal = () => {
     if (window.xmtpMessageModal) {
@@ -34,28 +36,28 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-600/20 shadow-sm bg-gray-800/30">
-      <div className="mx-auto px-3 py-2 flex items-center justify-between h-14 max-w-full">
-        <form onSubmit={handleSearch} className="flex-1 flex items-center justify-center gap-2">
+      <div className={`mx-auto px-2 md:px-3 py-2 flex items-center justify-between h-12 md:h-14 max-w-full`}>
+        <form onSubmit={handleSearch} className="flex-1 flex items-center justify-center gap-1 md:gap-2">
           <Link to="/" className="text-white hover:text-gray-300 transition-colors flex-shrink-0">
-            <Home className="h-5 w-5" />
+            <Home className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
           </Link>
           
-          <div className="relative w-full max-w-sm mx-2">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" aria-hidden="true" />
+          <div className={`relative w-full ${isMobile ? 'max-w-xs mx-1' : 'max-w-sm mx-2'}`}>
+            <Search className={`absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 ${isMobile ? 'h-3 w-3' : 'h-3 w-3'} text-gray-400`} aria-hidden="true" />
             <Input 
               type="text" 
-              placeholder="Search ENS..." 
+              placeholder={isMobile ? "Search..." : "Search ENS..."} 
               value={search} 
               onChange={e => setSearch(e.target.value)} 
-              className="pl-8 pr-12 py-1 text-sm w-full bg-gray-700/30 border-gray-600/30 text-white rounded-full focus:ring-white focus:border-white" 
+              className={`${isMobile ? 'pl-6 pr-10 py-1 text-xs' : 'pl-8 pr-12 py-1 text-sm'} w-full bg-gray-700/30 border-gray-600/30 text-white rounded-full focus:ring-white focus:border-white`} 
             />
             <Button 
               type="submit" 
               variant="ghost" 
               size="sm" 
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 px-2 py-0.5 text-xs"
+              className={`absolute right-1 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 ${isMobile ? 'px-1 py-0.5 text-xs' : 'px-2 py-0.5 text-xs'}`}
             >
-              Go
+              {isMobile ? ">" : "Go"}
             </Button>
           </div>
           
@@ -67,7 +69,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             <img 
               src="https://raw.githubusercontent.com/xmtp/brand/main/assets/x-mark-red.png" 
               alt="XMTP Messages" 
-              className="h-5 w-5"
+              className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`}
             />
           </button>
         </form>
