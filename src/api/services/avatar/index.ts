@@ -1,3 +1,3 @@
 
-// Re-export all avatar service functionality
-export * from './getRealAvatar';
+// Use explicit named exports
+export { getRealAvatar } from './getRealAvatar';
