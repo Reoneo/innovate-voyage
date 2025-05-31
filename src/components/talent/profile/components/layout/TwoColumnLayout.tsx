@@ -46,11 +46,11 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
   return (
-    <div className="hidden md:grid md:grid-cols-[80%_20%] gap-6 w-full px-6 h-screen">
-      {/* Column 1: Main Profile Content (80%) */}
-      <div className="flex flex-col items-center space-y-6 overflow-y-auto">
+    <div className="hidden md:grid md:grid-cols-[30%_70%] gap-8 w-full px-6">
+      {/* Column 1: Avatar to POAP Section (30%) */}
+      <div className="space-y-6">
         {/* Avatar */}
-        <div className="flex flex-col items-center mt-8">
+        <div className="flex flex-col items-center">
           <ProfileAvatar 
             avatarUrl={passport.avatar_url} 
             name={passport.name} 
@@ -91,7 +91,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         
         {/* ENS Bio */}
         {passport.bio && (
-          <div className="text-center max-w-md">
+          <div className="text-center">
             <p className="text-sm text-muted-foreground">
               {passport.bio}
             </p>
@@ -109,27 +109,21 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         </div>
       </div>
       
-      {/* Column 2: Scrollable Content (20%) */}
-      <div className="h-full overflow-y-auto space-y-4 pt-8">
+      {/* Column 2: Blockchain Activity and Rest (70%) */}
+      <div className="space-y-6">
         {/* Talent Score Banner (includes Blockchain Activity) */}
-        <div className="sticky top-0 bg-background/80 backdrop-blur-sm">
-          <TalentScoreBanner walletAddress={passport.owner_address} />
-        </div>
+        <TalentScoreBanner walletAddress={passport.owner_address} />
         
         {/* GitHub Section */}
         {showGitHubSection && (
-          <div className="w-full">
-            <GitHubContributionGraph username={githubUsername!} />
-          </div>
+          <GitHubContributionGraph username={githubUsername!} />
         )}
         
         {/* Farcaster Section */}
-        <div className="w-full">
-          <FarcasterCastsSection 
-            ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
-            address={passport.owner_address}
-          />
-        </div>
+        <FarcasterCastsSection 
+          ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+          address={passport.owner_address}
+        />
       </div>
     </div>
   );
