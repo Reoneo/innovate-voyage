@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -88,7 +89,7 @@ const FeaturedProfileSection: React.FC = () => {
         {currentSet.title}
       </h4>
       
-      {/* Profiles Grid - Added extra spacing for names */}
+      {/* Profiles Grid - Removed any scroll-blocking behavior */}
       <div className="relative flex justify-center items-center mb-8">
         {isBoxCommunity ? (
           /* Grid layout for Box Community Members */
