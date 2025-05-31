@@ -61,7 +61,7 @@ const Index = () => {
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col">
         {/* Hero Section with SEO-optimized structure */}
-        <section className="flex-1 py-8 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
+        <section className="flex-1 py-2 px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-8">
           <div className="max-w-7xl mx-auto">
             {/* H1 tag for primary SEO keyword */}
             <header>
@@ -69,17 +69,17 @@ const Index = () => {
             </header>
             
             {/* Compact Hero Title */}
-            <div className="mb-6">
+            <div className="mb-4">
               <HeroTitle />
             </div>
             
             {/* Search functionality for talent discovery */}
-            <div role="search" aria-label="Search for blockchain professionals and Web3 talent" className="mb-6">
+            <div role="search" aria-label="Search for blockchain professionals and Web3 talent" className="mb-4">
               <SearchSection />
             </div>
             
             {/* Call-to-action section */}
-            <div className="mb-6">
+            <div className="mb-4">
               <ActionButtonsSection />
             </div>
             
