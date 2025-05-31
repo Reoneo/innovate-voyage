@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
@@ -5,11 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { toast } from 'sonner';
-
 const SearchSection: React.FC = () => {
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState('');
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchInput.trim()) {
@@ -22,12 +21,11 @@ const SearchSection: React.FC = () => {
     navigate(`/${searchValue}`);
     toast.success(`Looking up profile for ${searchValue}`);
   };
-
   return <div className="max-w-xl mx-auto mb-8">
       <form onSubmit={handleSearch} className="relative">
         <div className="relative">
           <Input 
-            placeholder="Search by ENS ID" 
+            placeholder="Search by ENS name, address, or domain..." 
             value={searchInput} 
             onChange={e => setSearchInput(e.target.value)} 
             aria-label="Search profiles" 
@@ -47,5 +45,4 @@ const SearchSection: React.FC = () => {
       </form>
     </div>;
 };
-
 export default SearchSection;
