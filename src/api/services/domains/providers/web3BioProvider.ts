@@ -1,5 +1,6 @@
-
 import { WEB3_BIO_API_KEY } from '../../../utils/web3/config';
+import { enforceRateLimit, getSafeHeaders } from '../../../utils/web3/rateLimiter';
+import { getServerConfig } from '../../../utils/web3/secureConfig';
 
 /**
  * Fetch domains from web3.bio API

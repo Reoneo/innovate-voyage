@@ -9,13 +9,35 @@ export function useIsMobile() {
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
     const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+      const mobile = window.innerWidth < MOBILE_BREAKPOINT
+      setIsMobile(mobile)
+      
+      // Force mobile layout adjustments
+      if (mobile) {
+        document.body.style.overflowX = 'hidden'
+        document.documentElement.style.overflowX = 'hidden'
+        document.body.style.width = '100vw'
+        document.body.style.maxWidth = '100vw'
+      } else {
+        document.body.style.overflowX = ''
+        document.documentElement.style.overflowX = ''
+        document.body.style.width = ''
+        document.body.style.maxWidth = ''
+      }
     }
+    
     mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
+    onChange() // Set initial state
+    
+    return () => {
+      mql.removeEventListener("change", onChange)
+      // Clean up styles on unmount
+      document.body.style.overflowX = ''
+      document.documentElement.style.overflowX = ''
+      document.body.style.width = ''
+      document.body.style.maxWidth = ''
+    }
   }, [])
 
-  // Force mobile layout for all screen sizes below 768px
   return !!isMobile
 }
