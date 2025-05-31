@@ -1,16 +1,24 @@
 
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HoneycombProfile from './HoneycombProfile';
 
 const FeaturedProfileSection: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [ensClubPage, setEnsClubPage] = useState(1);
   
+  const generateEnsClubProfiles = (page: number) => {
+    const startNum = (page - 1) * 20 + 1;
+    const endNum = Math.min(page * 20, 999);
+    return Array.from({ length: endNum - startNum + 1 }, (_, i) => `${startNum + i}.eth`);
+  };
+
   const profileSets = [
     {
       title: "Featured Profiles",
-      profiles: ['smith.box', 'spyda.eth', 'zorida.eth']
+      profiles: ['smith.box', 'spyda.eth', 'zorida.eth'],
+      type: 'featured'
     },
     {
       title: ".Box Community Members",
@@ -19,7 +27,13 @@ const FeaturedProfileSection: React.FC = () => {
         'hunter.box', 'mike.box', 'smith.box', 'blockchaineazy.box', 
         'stars.box', 'mystic.box', 'doom.box', 'seansky.box', 
         'onigiri.box', 'cypherpunk.box', 'yx.box', 'dude.box'
-      ]
+      ],
+      type: 'grid'
+    },
+    {
+      title: "10k ENS Club",
+      profiles: generateEnsClubProfiles(ensClubPage),
+      type: 'ensClub'
     }
   ];
 
@@ -31,8 +45,16 @@ const FeaturedProfileSection: React.FC = () => {
     setCurrentSlide((prev) => (prev - 1 + profileSets.length) % profileSets.length);
   };
 
+  const loadMoreEnsProfiles = () => {
+    if (ensClubPage * 20 < 999) {
+      setEnsClubPage(prev => prev + 1);
+    }
+  };
+
   const currentSet = profileSets[currentSlide];
   const isBoxCommunity = currentSlide === 1;
+  const isEnsClub = currentSlide === 2;
+  const canLoadMore = isEnsClub && ensClubPage * 20 < 999;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -75,6 +97,15 @@ const FeaturedProfileSection: React.FC = () => {
               </div>
             ))}
           </div>
+        ) : isEnsClub ? (
+          /* Grid layout for ENS Club */
+          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-4 items-start max-w-5xl">
+            {currentSet.profiles.map((profile, index) => (
+              <div key={profile} className="flex justify-center">
+                <HoneycombProfile ensName={profile} delay={index * 25} showName={true} />
+              </div>
+            ))}
+          </div>
         ) : (
           /* Honeycomb layout for Featured Profiles */
           <div className="grid grid-cols-2 gap-6 items-start">
@@ -93,6 +124,20 @@ const FeaturedProfileSection: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Load More Button for ENS Club */}
+      {canLoadMore && (
+        <div className="flex justify-center mb-4">
+          <Button
+            onClick={loadMoreEnsProfiles}
+            variant="outline"
+            className="border-slate-600 hover:bg-slate-800 text-slate-300 hover:text-white"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Load 20 More ({ensClubPage * 20}/999)
+          </Button>
+        </div>
+      )}
 
       {/* Slide indicators */}
       <div className="flex justify-center mt-4 space-x-2">
