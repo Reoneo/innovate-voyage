@@ -1,24 +1,12 @@
 
 import * as React from "react"
-import { useLocation } from "react-router-dom"
 
 const MOBILE_BREAKPOINT = 768
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
-  const location = useLocation()
 
   React.useEffect(() => {
-    // Force desktop mode for talent profile pages
-    const isTalentProfilePage = location.pathname.includes('/recruitment.box/') || 
-                               location.pathname.match(/^\/[^\/]+\.(eth|ens|crypto|nft|x|wallet|bitcoin|blockchain|dao|zil|unstoppable|kred|addr|luxe|888|coin|ecc)$/i) ||
-                               location.pathname.match(/^\/0x[a-fA-F0-9]{40}$/);
-    
-    if (isTalentProfilePage) {
-      setIsMobile(false)
-      return
-    }
-
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
     const onChange = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
@@ -26,7 +14,7 @@ export function useIsMobile() {
     mql.addEventListener("change", onChange)
     setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     return () => mql.removeEventListener("change", onChange)
-  }, [location.pathname])
+  }, [])
 
   return !!isMobile
 }

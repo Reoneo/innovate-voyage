@@ -45,11 +45,11 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
-  // Always use desktop layout: 30:70 (left:right)
+  // Responsive layout: Single column on mobile, two columns on desktop
   return (
-    <div className="grid grid-cols-[30%_70%] gap-4 w-full h-[calc(100vh-80px)] px-2">
-      {/* Column 1: Fixed sidebar with avatar and basic info */}
-      <div className="flex flex-col overflow-hidden space-y-4">
+    <div className="w-full h-[calc(100vh-80px)] px-2">
+      {/* Mobile Layout - Single Column */}
+      <div className="block md:hidden w-full space-y-4 overflow-y-auto h-full">
         {/* Avatar */}
         <div className="flex flex-col items-center">
           <ProfileAvatar 
@@ -92,7 +92,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         
         {/* ENS Bio */}
         {passport.bio && (
-          <div className="text-center">
+          <div className="text-center px-4">
             <p className="text-sm text-muted-foreground">
               {passport.bio}
             </p>
@@ -104,15 +104,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
           <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
         </div>
         
-        {/* POAP Section */}
-        <div className="text-center">
-          <PoapSection walletAddress={passport.owner_address} />
-        </div>
-      </div>
-      
-      {/* Column 2: Scrollable content */}
-      <div className="overflow-y-auto space-y-6 h-full pr-2">
-        {/* Talent Score Banner (includes Blockchain Activity) */}
+        {/* Talent Score Banner */}
         <TalentScoreBanner walletAddress={passport.owner_address} />
         
         {/* GitHub Section */}
@@ -125,6 +117,93 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
           ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
           address={passport.owner_address}
         />
+        
+        {/* POAP Section */}
+        <div className="text-center">
+          <PoapSection walletAddress={passport.owner_address} />
+        </div>
+      </div>
+
+      {/* Desktop Layout - Two Columns */}
+      <div className="hidden md:grid md:grid-cols-[30%_70%] gap-4 w-full h-full">
+        {/* Column 1: Fixed sidebar with avatar and basic info */}
+        <div className="flex flex-col overflow-hidden space-y-4">
+          {/* Avatar */}
+          <div className="flex flex-col items-center">
+            <ProfileAvatar 
+              avatarUrl={passport.avatar_url} 
+              name={passport.name} 
+            />
+          </div>
+          
+          {/* Name and Address */}
+          <div className="text-center">
+            <NameSection 
+              name={passport.name} 
+              ownerAddress={passport.owner_address}
+              displayIdentity={ensNameOrAddress}
+            />
+          </div>
+          
+          {/* Additional ENS Domains */}
+          {passport.additionalEnsDomains?.length > 0 && (
+            <div className="text-center">
+              <AdditionalEnsDomains domains={passport.additionalEnsDomains} />
+            </div>
+          )}
+          
+          {/* Contact Info */}
+          <div className="text-center">
+            <ProfileContact 
+              email={normalizedSocials.email}
+              telephone={telephone}
+              isOwner={isOwner}
+            />
+          </div>
+          
+          {/* Follow Button */}
+          {!isOwner && passport.owner_address && (
+            <div className="text-center">
+              <FollowButton targetAddress={passport.owner_address} />
+            </div>
+          )}
+          
+          {/* ENS Bio */}
+          {passport.bio && (
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                {passport.bio}
+              </p>
+            </div>
+          )}
+          
+          {/* Social Links */}
+          <div className="text-center">
+            <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
+          </div>
+          
+          {/* POAP Section */}
+          <div className="text-center">
+            <PoapSection walletAddress={passport.owner_address} />
+          </div>
+        </div>
+        
+        {/* Column 2: Scrollable content */}
+        <div className="overflow-y-auto space-y-6 h-full pr-2">
+          {/* Talent Score Banner (includes Blockchain Activity) */}
+          <TalentScoreBanner walletAddress={passport.owner_address} />
+          
+          {/* GitHub Section */}
+          {showGitHubSection && (
+            <GitHubContributionGraph username={githubUsername!} />
+          )}
+          
+          {/* Farcaster Section */}
+          <FarcasterCastsSection 
+            ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+            address={passport.owner_address}
+          />
+        </div>
       </div>
     </div>
   );
