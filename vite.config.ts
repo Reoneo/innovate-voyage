@@ -26,9 +26,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           __dirname,
           'node_modules/@web3modal/ethereum/dist/index.js'
         ),
-        // This Rollup aliases are extracted from @esbuild-plugins/node-modules-polyfill,
-        // see https://github.com/remorses/esbuild-plugins/blob/master/node-modules-polyfill/src/polyfills.ts
-        // process and buffer are excluded because already managed by other plugins
+        // Fixed polyfill aliases - using correct paths
         util: 'rollup-plugin-node-polyfills/polyfills/util',
         sys: 'util',
         events: 'rollup-plugin-node-polyfills/polyfills/events',
@@ -37,6 +35,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
         punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
         url: 'rollup-plugin-node-polyfills/polyfills/url',
+        // Fix the string_decoder alias to use the correct path
         string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
         http: 'rollup-plugin-node-polyfills/polyfills/http',
         https: 'rollup-plugin-node-polyfills/polyfills/http',
