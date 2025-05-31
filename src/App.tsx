@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { useAccount } from 'wagmi';
 import { AuthKitProvider } from '@farcaster/auth-kit';
 import '@farcaster/auth-kit/styles.css';
 import Index from "./pages/Index";
@@ -40,21 +39,8 @@ if (import.meta.env.DEV) {
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const { address, isConnected } = useAccount();
   
   useEffect(() => {
-    // If connected via wagmi, use that address
-    if (isConnected && address) {
-      window.connectedWalletAddress = address;
-      localStorage.setItem('connectedWalletAddress', address);
-    } else {
-      // Otherwise check for stored address from previous session
-      const storedAddress = localStorage.getItem('connectedWalletAddress');
-      if (storedAddress) {
-        window.connectedWalletAddress = storedAddress;
-      }
-    }
-    
     // Use a shorter timeout to reduce blank screen time
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -72,7 +58,7 @@ const App = () => {
     cleanupUrl();
     
     return () => clearTimeout(timer);
-  }, [address, isConnected]);
+  }, []);
 
   // Show minimal loading spinner instead of blank screen
   if (isLoading) {
