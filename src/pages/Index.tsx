@@ -7,11 +7,18 @@ import SearchSection from '@/components/home/SearchSection';
 import ActionButtonsSection from '@/components/home/ActionButtonsSection';
 import FeaturedProfileSection from '@/components/home/FeaturedProfileSection';
 import RainbowWalletConnect from '@/components/home/RainbowWalletConnect';
+import ThemeToggle from '@/components/home/ThemeToggle';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 
-const Index = () => {
+const IndexContent = () => {
+  const { isDayMode } = useTheme();
+
   return (
-    <div className="h-screen relative overflow-hidden">
+    <div className={`h-screen relative overflow-hidden ${isDayMode ? 'bg-white' : 'bg-slate-900'}`}>
       <SeoHelmet />
+      
+      {/* Theme toggle in top right */}
+      <ThemeToggle />
       
       {/* Schema.org structured data for better SEO */}
       <script type="application/ld+json">
@@ -114,7 +121,6 @@ const Index = () => {
           </article>
         </section>
 
-        {/* Structured content for better crawling */}
         <div className="sr-only">
           <h2>Related Keywords and Services</h2>
           <ul>
@@ -132,6 +138,14 @@ const Index = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <ThemeProvider>
+      <IndexContent />
+    </ThemeProvider>
   );
 };
 

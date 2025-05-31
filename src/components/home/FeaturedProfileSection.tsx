@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -136,17 +134,17 @@ const FeaturedProfileSection: React.FC = () => {
         )}
       </div>
 
-      {/* Navigation buttons for ENS Club */}
+      {/* Navigation buttons for ENS Club with black text */}
       {isEnsClub && (
         <div className="flex justify-center items-center gap-4 mb-4">
           {canLoadPrevious && (
             <Button
               onClick={loadPreviousEnsProfiles}
               variant="outline"
-              className="border-slate-600 hover:bg-slate-800 text-slate-300 hover:text-white"
+              className="border-slate-600 hover:bg-slate-800 text-black hover:text-black bg-white hover:bg-gray-100"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Previous 20
+              Back
             </Button>
           )}
           
@@ -154,10 +152,10 @@ const FeaturedProfileSection: React.FC = () => {
             <Button
               onClick={loadMoreEnsProfiles}
               variant="outline"
-              className="border-slate-600 hover:bg-slate-800 text-slate-300 hover:text-white"
+              className="border-slate-600 hover:bg-slate-800 text-black hover:text-black bg-white hover:bg-gray-100"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Load 20 More ({ensClubPage * 20}/999)
+              Next
             </Button>
           )}
         </div>
@@ -180,4 +178,3 @@ const FeaturedProfileSection: React.FC = () => {
 };
 
 export default FeaturedProfileSection;
-

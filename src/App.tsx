@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { AuthKitProvider } from '@farcaster/auth-kit';
 import '@farcaster/auth-kit/styles.css';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import Index from "./pages/Index";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
@@ -26,7 +27,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Farcaster AuthKit configuration
 const farcasterConfig = {
   rpcUrl: 'https://mainnet.optimism.io',
   domain: 'recruitment.box',
@@ -74,30 +74,32 @@ const App = () => {
 
   return (
     <HelmetProvider>
-      <AuthKitProvider config={farcasterConfig}>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                {/* Special route for recruitment.box domain - Fix duplication issue */}
-                <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-                {/* Catch and fix duplicate paths */}
-                <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
-                {/* Regular profile route */}
-                <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-                {/* Handle 404 and redirects */}
-                <Route path="/404" element={<NotFound />} />
-                <Route path="*" element={<Navigate to="/404" />} />
-              </Routes>
-              <XmtpMessageModal />
-            </BrowserRouter>
-          </TooltipProvider>
-        </QueryClientProvider>
-      </AuthKitProvider>
+      <ThemeProvider>
+        <AuthKitProvider config={farcasterConfig}>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  {/* Special route for recruitment.box domain - Fix duplication issue */}
+                  <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+                  {/* Catch and fix duplicate paths */}
+                  <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
+                  {/* Regular profile route */}
+                  <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+                  {/* Handle 404 and redirects */}
+                  <Route path="/404" element={<NotFound />} />
+                  <Route path="*" element={<Navigate to="/404" />} />
+                </Routes>
+                <XmtpMessageModal />
+              </BrowserRouter>
+            </TooltipProvider>
+          </QueryClientProvider>
+        </AuthKitProvider>
+      </ThemeProvider>
     </HelmetProvider>
   );
 };
