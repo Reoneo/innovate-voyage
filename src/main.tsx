@@ -12,12 +12,6 @@ import { createRoot } from 'react-dom/client';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { mainnet, goerli } from 'wagmi/chains';
 
-import '@rainbow-me/rainbowkit/styles.css';
-import {
-  getDefaultConfig,
-  RainbowKitProvider,
-} from '@rainbow-me/rainbowkit';
-
 import App from './App.tsx';
 import './index.css';
 
@@ -42,13 +36,8 @@ if (typeof window !== 'undefined' && typeof global === 'undefined') {
   }
 }
 
-// WalletConnect v2 Project ID
-const projectId = import.meta.env.VITE_WC_PROJECT_ID || "YOUR_PROJECT_ID_FROM_cloud.walletconnect.com";
-
-// Create wagmi config using getDefaultConfig from RainbowKit
-const wagmiConfig = getDefaultConfig({
-  appName: 'Recruitment.box',
-  projectId,
+// Create wagmi config with basic HTTP transports
+const wagmiConfig = createConfig({
   chains: [mainnet, goerli],
   transports: {
     [mainnet.id]: http(),
@@ -59,8 +48,6 @@ const wagmiConfig = getDefaultConfig({
 const root = createRoot(document.getElementById("root")!);
 root.render(
   <WagmiProvider config={wagmiConfig}>
-    <RainbowKitProvider>
-      <App />
-    </RainbowKitProvider>
+    <App />
   </WagmiProvider>
 );
