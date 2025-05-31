@@ -60,3 +60,22 @@ export function processWeb3BioProfileData(data: any, normalizedIdentity: string)
   
   return profile;
 }
+
+/**
+ * Process profile data - alias for backward compatibility
+ */
+export function processProfileData(data: any, identity: string): Web3BioProfile | null {
+  return processWeb3BioProfileData(data, identity);
+}
+
+/**
+ * Normalize profile data - simple normalization function
+ */
+export function normalizeProfileData(profile: Web3BioProfile): Web3BioProfile {
+  return {
+    ...profile,
+    identity: profile.identity?.toLowerCase() || '',
+    displayName: profile.displayName || profile.identity || '',
+    platform: profile.platform || 'ethereum'
+  };
+}

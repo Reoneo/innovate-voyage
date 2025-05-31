@@ -1,6 +1,7 @@
 
 import { enforceRateLimit, getWeb3BioHeaders } from './rateLimiter';
 import { REQUEST_DELAY_MS } from './config';
+import { processWeb3BioProfileData } from './profileProcessor';
 import type { Web3BioProfile } from '../../types/web3Types';
 
 /**
@@ -34,27 +35,24 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     // Parse the response
     const data = await response.json();
     
-    // Extract and normalize the profile data
-    const profile: Web3BioProfile = {
-      address: data.address || '',
-      identity: identity,
-      platform: 'ethereum',
-      displayName: data.address || identity,
-      avatar: data.avatar || '',
-      description: data.description || '',
-      github: data.github || '',
-      twitter: data.twitter || '',
-      telegram: data.telegram || '',
-      lens: data.lens || '',
-      farcaster: data.farcaster || '',
-      website: data.website || '',
-      linkedin: data.linkedin || '',
-      email: data.email || ''
-    };
-    
-    return profile;
+    // Process the profile data
+    return processWeb3BioProfileData(data, identity);
   } catch (error) {
     console.error('Error fetching web3.bio profile:', error);
     return null;
   }
+}
+
+/**
+ * Fetch profile data - alias for backward compatibility
+ */
+export function fetchProfileData(identity: string): Promise<Web3BioProfile | null> {
+  return fetchWeb3BioProfile(identity);
+}
+
+/**
+ * Get profile by ID - alias for backward compatibility
+ */
+export function getProfileById(id: string): Promise<Web3BioProfile | null> {
+  return fetchWeb3BioProfile(id);
 }

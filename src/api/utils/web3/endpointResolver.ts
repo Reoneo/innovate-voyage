@@ -66,3 +66,24 @@ export function getWeb3BioEndpoint(identity: string): { endpoint: string, type: 
   // Default to universal endpoint
   return { endpoint: `https://api.web3.bio/profile/${normalizedId}`, type: 'universal' };
 }
+
+/**
+ * Resolve endpoint for web3 profile
+ */
+export function resolveEndpoint(identity: string): string {
+  return getWeb3BioEndpoint(identity).endpoint;
+}
+
+/**
+ * Get provider URL based on network
+ */
+export function getProviderUrl(network: string = 'mainnet'): string {
+  switch (network) {
+    case 'mainnet':
+      return 'https://mainnet.infura.io/v3/';
+    case 'goerli':
+      return 'https://goerli.infura.io/v3/';
+    default:
+      return 'https://mainnet.infura.io/v3/';
+  }
+}
