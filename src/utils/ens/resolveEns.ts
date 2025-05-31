@@ -6,7 +6,7 @@ import { ensClient } from './ensClient';
  * @param ensName ENS name to resolve
  * @returns Resolved address or null if not found
  */
-export async function resolveEnsToAddress(ensName: string) {
+export async function resolveEnsToAddress(ensName: string): Promise<string | null> {
   // Check if the input is actually an ENS name
   if (!ensName || !ensName.includes('.eth')) {
     console.log(`Invalid ENS name format: ${ensName}`);
@@ -17,7 +17,7 @@ export async function resolveEnsToAddress(ensName: string) {
   
   try {
     const addressRecord = await ensClient.getAddressRecord({ name: ensName });
-    const resolvedAddress = addressRecord || null;
+    const resolvedAddress = addressRecord?.value || null;
     
     console.log(`Resolution result for ${ensName}:`, resolvedAddress);
     return resolvedAddress;
@@ -32,7 +32,7 @@ export async function resolveEnsToAddress(ensName: string) {
  * @param address Ethereum address to resolve
  * @returns Object containing ENS name and network or null if not found
  */
-export async function resolveAddressToEns(address: string) {
+export async function resolveAddressToEns(address: string): Promise<{ ensName: string; network: 'mainnet' } | null> {
   if (!address || !address.startsWith('0x') || address.length !== 42) {
     console.log(`Invalid Ethereum address format: ${address}`);
     return null;
@@ -42,7 +42,7 @@ export async function resolveAddressToEns(address: string) {
     console.log(`Looking up ENS for address: ${address} using ENS client`);
     
     const nameRecord = await ensClient.getName({ address: address as `0x${string}` });
-    const ensName = nameRecord || null;
+    const ensName = nameRecord?.name || null;
     
     if (ensName) {
       console.log(`Found ENS name for ${address}: ${ensName}`);
