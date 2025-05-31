@@ -23,10 +23,12 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         events: 'events',
         stream: 'stream-browserify',
         string_decoder: 'string_decoder',
+        // Fix Safe SDK import issue
+        '@safe-globalThis/safe-apps-sdk': '@safe-global/safe-apps-sdk',
       },
     },
     optimizeDeps: {
-      include: ['buffer', 'process'],
+      include: ['buffer', 'process', '@safe-global/safe-apps-sdk'],
       esbuildOptions: {
         define: {
           global: 'globalThis',
@@ -47,6 +49,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             vendor: ['react', 'react-dom', 'react-router-dom'],
           },
         },
+        external: [],
       },
       commonjsOptions: {
         transformMixedEsModules: true,
