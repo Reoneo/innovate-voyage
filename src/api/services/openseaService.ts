@@ -9,6 +9,7 @@ export interface OpenSeaNft {
   owner?: string;
   chain?: string;
   count?: number; // Added count property
+  contractAddress?: string; // Added contract address for proper OpenSea URLs
 }
 
 interface OpenSeaCollection {
@@ -68,7 +69,7 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
         return (data.nfts || []).map((nft: any) => ({
           ...nft,
           chain: chain.id, // Add chain information to each NFT
-          walletAddress: walletAddress // Store the wallet address with each NFT
+          contractAddress: nft.contract // Extract contract address from API response
         }));
       } catch (err) {
         if (err.name === 'AbortError') {
@@ -120,8 +121,9 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
         description: nft.description,
         currentPrice: nft.last_sale?.price,
         bestOffer: nft.offers?.[0]?.price,
-        owner: nft.walletAddress || walletAddress, // Use the wallet address we stored
-        chain: nft.chain // Pass the chain information
+        owner: nft.owner,
+        chain: nft.chain, // Pass the chain information
+        contractAddress: nft.contractAddress // Pass the contract address
       });
     });
 

@@ -50,12 +50,18 @@ const NftDetailsDialog: React.FC<NftDetailsDialogProps> = ({ nft, onClose, onOpe
     }
   };
 
-  // Generate OpenSea URL using wallet address format: https://opensea.io/{WALLET_ADDRESS}
+  // Generate the correct OpenSea URL with contract address
   const getOpenSeaUrl = () => {
-    if (nft.owner) {
-      return `https://opensea.io/${nft.owner}`;
+    const chain = nft.chain || 'ethereum';
+    const contractAddress = nft.contractAddress;
+    const tokenId = nft.id;
+    
+    // Use the correct OpenSea URL format: /assets/{chain}/{contractAddress}/{tokenId}
+    if (contractAddress) {
+      return `https://opensea.io/assets/${chain}/${contractAddress}/${tokenId}`;
     } else {
-      return `https://opensea.io`;
+      // Fallback to old format if contract address is not available
+      return `https://opensea.io/assets/${chain}/${tokenId}`;
     }
   };
 
