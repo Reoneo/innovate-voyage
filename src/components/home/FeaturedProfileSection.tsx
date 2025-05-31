@@ -1,6 +1,7 @@
 
+
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import HoneycombProfile from './HoneycombProfile';
 
@@ -54,10 +55,17 @@ const FeaturedProfileSection: React.FC = () => {
     }
   };
 
+  const loadPreviousEnsProfiles = () => {
+    if (ensClubPage > 1) {
+      setEnsClubPage(prev => prev - 1);
+    }
+  };
+
   const currentSet = profileSets[currentSlide];
   const isBoxCommunity = currentSlide === 1;
   const isEnsClub = currentSlide === 2;
   const canLoadMore = isEnsClub && ensClubPage * 20 < 999;
+  const canLoadPrevious = isEnsClub && ensClubPage > 1;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -128,17 +136,30 @@ const FeaturedProfileSection: React.FC = () => {
         )}
       </div>
 
-      {/* Load More Button for ENS Club */}
-      {canLoadMore && (
-        <div className="flex justify-center mb-4">
-          <Button
-            onClick={loadMoreEnsProfiles}
-            variant="outline"
-            className="border-slate-600 hover:bg-slate-800 text-slate-300 hover:text-white"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Load 20 More ({ensClubPage * 20}/999)
-          </Button>
+      {/* Navigation buttons for ENS Club */}
+      {isEnsClub && (
+        <div className="flex justify-center items-center gap-4 mb-4">
+          {canLoadPrevious && (
+            <Button
+              onClick={loadPreviousEnsProfiles}
+              variant="outline"
+              className="border-slate-600 hover:bg-slate-800 text-slate-300 hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Previous 20
+            </Button>
+          )}
+          
+          {canLoadMore && (
+            <Button
+              onClick={loadMoreEnsProfiles}
+              variant="outline"
+              className="border-slate-600 hover:bg-slate-800 text-slate-300 hover:text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Load 20 More ({ensClubPage * 20}/999)
+            </Button>
+          )}
         </div>
       )}
 
@@ -159,3 +180,4 @@ const FeaturedProfileSection: React.FC = () => {
 };
 
 export default FeaturedProfileSection;
+
