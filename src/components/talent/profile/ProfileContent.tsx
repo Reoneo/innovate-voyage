@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -7,6 +8,7 @@ import TalentScoreBanner from './components/TalentScoreBanner';
 import BlockchainActivitySection from './components/blockchain/BlockchainActivitySection';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import FarcasterCastsSection from './components/farcaster/FarcasterCastsSection';
+import PoapSection from './components/poap/PoapSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -132,32 +134,69 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 />
               </div>
               
-              {/* Content sections - always stacked vertically */}
-              <div className="w-full space-y-4 md:space-y-6">
-                <TalentScoreBanner walletAddress={passport.owner_address} />
-                
-                {/* Blockchain Activity Section */}
-                {passport.owner_address && (
+              {/* Content sections - two column layout on desktop, stacked on mobile */}
+              {isMobile ? (
+                <div className="w-full space-y-4 md:space-y-6">
+                  <TalentScoreBanner walletAddress={passport.owner_address} />
+                  
+                  {/* Blockchain Activity Section */}
+                  {passport.owner_address && (
+                    <div className="w-full">
+                      <BlockchainActivitySection walletAddress={passport.owner_address} />
+                    </div>
+                  )}
+                  
+                  {/* POAP Section */}
                   <div className="w-full">
-                    <BlockchainActivitySection walletAddress={passport.owner_address} />
+                    <PoapSection walletAddress={passport.owner_address} />
                   </div>
-                )}
-                
-                {/* GitHub Section */}
-                {showGitHubSection && (
+                  
+                  {/* GitHub Section */}
+                  {showGitHubSection && (
+                    <div className="w-full">
+                      <GitHubContributionGraph username={githubUsername!} />
+                    </div>
+                  )}
+                  
+                  {/* Farcaster Section */}
                   <div className="w-full">
-                    <GitHubContributionGraph username={githubUsername!} />
+                    <FarcasterCastsSection 
+                      ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+                      address={passport.owner_address}
+                    />
                   </div>
-                )}
-                
-                {/* Farcaster Section */}
-                <div className="w-full">
-                  <FarcasterCastsSection 
-                    ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
-                    address={passport.owner_address}
-                  />
                 </div>
-              </div>
+              ) : (
+                /* Desktop two-column layout */
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Column 1 */}
+                  <div className="space-y-6">
+                    <TalentScoreBanner walletAddress={passport.owner_address} />
+                    
+                    {/* Blockchain Activity Section */}
+                    {passport.owner_address && (
+                      <BlockchainActivitySection walletAddress={passport.owner_address} />
+                    )}
+                    
+                    {/* POAP Section */}
+                    <PoapSection walletAddress={passport.owner_address} />
+                  </div>
+                  
+                  {/* Column 2 */}
+                  <div className="space-y-6">
+                    {/* GitHub Section */}
+                    {showGitHubSection && (
+                      <GitHubContributionGraph username={githubUsername!} />
+                    )}
+                    
+                    {/* Farcaster Section */}
+                    <FarcasterCastsSection 
+                      ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+                      address={passport.owner_address}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </HeaderContainer>
