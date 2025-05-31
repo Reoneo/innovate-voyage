@@ -1,9 +1,10 @@
-
 export interface ENSRecord {
   ensName: string;
   address: string;
   avatar?: string | null;
   description?: string | null;
+  skills?: string[];
+  socialProfiles?: Record<string, string>;
 }
 
 export interface SkillNFT {
@@ -17,6 +18,7 @@ export interface SkillNFT {
   dateEarned?: string;
   verificationUrl?: string;
   category?: string;
+  owners?: string[];
 }
 
 export interface Web3Credentials {

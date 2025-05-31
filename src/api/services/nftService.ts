@@ -7,7 +7,7 @@ import { delay } from '../jobsApi';
 export async function getSkillNftsByAddress(address: string): Promise<SkillNFT[]> {
   await delay(500); // Simulate network delay
   return mockSkillNfts.filter(nft => 
-    nft.owners.some(owner => owner.toLowerCase() === address.toLowerCase())
+    nft.owners && nft.owners.some(owner => owner.toLowerCase() === address.toLowerCase())
   );
 }
 
