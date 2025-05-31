@@ -59,15 +59,15 @@ const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0,
       }`}
       onClick={handleClick}
     >
-      {/* Square container instead of hexagon */}
-      <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg border border-blue-400/30 hover:border-blue-400 transition-all duration-300 flex items-center justify-center p-2">
-        <Avatar className="w-14 h-14 md:w-16 md:h-16 border-2 border-blue-400/50 hover:border-blue-400 transition-all duration-300">
+      {/* Square container with avatar filling it */}
+      <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg border border-blue-400/30 hover:border-blue-400 transition-all duration-300 overflow-hidden">
+        <Avatar className="w-full h-full border-0">
           <AvatarImage 
             src={avatarUrl} 
             alt={`${ensName} avatar`} 
-            className="object-cover"
+            className="object-cover w-full h-full"
           />
-          <AvatarFallback className="bg-slate-700 text-slate-300 text-xs font-medium">
+          <AvatarFallback className="bg-slate-700 text-slate-300 text-xs font-medium w-full h-full rounded-lg flex items-center justify-center">
             {ensName.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>

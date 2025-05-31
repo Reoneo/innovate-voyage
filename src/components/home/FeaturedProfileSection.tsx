@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,10 @@ const FeaturedProfileSection: React.FC = () => {
   const generateEnsClubProfiles = (page: number) => {
     const startNum = (page - 1) * 20 + 1;
     const endNum = Math.min(page * 20, 999);
-    return Array.from({ length: endNum - startNum + 1 }, (_, i) => `${startNum + i}.eth`);
+    return Array.from({ length: endNum - startNum + 1 }, (_, i) => {
+      const num = startNum + i;
+      return `${num.toString().padStart(3, '0')}.eth`;
+    });
   };
 
   const profileSets = [
