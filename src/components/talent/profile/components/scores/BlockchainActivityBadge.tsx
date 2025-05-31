@@ -44,7 +44,7 @@ const BlockchainActivityBadge: React.FC<BlockchainActivityBadgeProps> = ({
               <div>ETH: {data.ethBalance}</div>
             )}
             {data.outgoingTransactions !== null && (
-              <div>TXs: {data.outgoingTransactions}</div>
+              <div>Outgoing TXs: {data.outgoingTransactions}</div>
             )}
           </div>
         </div>

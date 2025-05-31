@@ -4,6 +4,7 @@ import TalentScoreBadge from './scores/TalentScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
 import SecurityScoreBadge from './scores/SecurityScoreBadge';
 import BlockchainActivityBadge from './scores/BlockchainActivityBadge';
+import GitHubActivityBadge from './scores/GitHubActivityBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
@@ -12,17 +13,21 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TalentScoreBannerProps {
   walletAddress: string;
+  githubUsername?: string;
 }
 
-const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
+const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ 
+  walletAddress, 
+  githubUsername 
+}) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions' | 'blockchain'>('talent');
+  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions' | 'blockchain' | 'github'>('talent');
   const { score, txCount, loading } = useScoresData(walletAddress);
   const { securityData, isLoading: webacyLoading } = useWebacyData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
   const isMobile = useIsMobile();
 
-  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions' | 'blockchain') => {
+  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions' | 'blockchain' | 'github') => {
     setActiveDialog(type);
     setDialogOpen(true);
   };
@@ -69,7 +74,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
         </div>
       </div>
 
-      {/* Second row: Risk Score (centered when only 1 item) */}
+      {/* Second row: Risk Score and GitHub Activity */}
       <div className={`${
         isMobile 
           ? 'flex flex-col gap-4' 
@@ -82,8 +87,16 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             isLoading={webacyLoading} 
           />
         </div>
-        {/* Empty divs to maintain grid layout */}
-        <div></div>
+        {githubUsername && (
+          <div className="transform hover:scale-105 transition-all duration-200">
+            <GitHubActivityBadge 
+              username={githubUsername}
+              onClick={() => handleBadgeClick('github')}
+              isLoading={false} 
+            />
+          </div>
+        )}
+        {/* Empty div to maintain grid layout */}
         <div></div>
       </div>
 
@@ -101,7 +114,8 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
           score,
           webacyData: securityData,
           txCount,
-          walletAddress
+          walletAddress,
+          githubUsername
         }}
       />
     </>

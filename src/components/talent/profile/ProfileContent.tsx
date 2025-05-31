@@ -4,8 +4,6 @@ import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
-import GitHubContributionGraph from './components/github/GitHubContributionGraph';
-import FarcasterCastsSection from './components/farcaster/FarcasterCastsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -98,9 +96,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     passport: passport ? 'exists' : 'null'
   });
   
-  // Only show GitHub section if there's a GitHub username
-  const showGitHubSection = !!githubUsername;
-
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
       {loading && !loadingTimeout ? (
@@ -127,22 +122,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               
               {/* Content sections - always stacked vertically */}
               <div className="w-full space-y-4 md:space-y-6">
-                <TalentScoreBanner walletAddress={passport.owner_address} />
-                
-                {/* GitHub Section */}
-                {showGitHubSection && (
-                  <div className="w-full">
-                    <GitHubContributionGraph username={githubUsername!} />
-                  </div>
-                )}
-                
-                {/* Farcaster Section */}
-                <div className="w-full">
-                  <FarcasterCastsSection 
-                    ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
-                    address={passport.owner_address}
-                  />
-                </div>
+                <TalentScoreBanner 
+                  walletAddress={passport.owner_address} 
+                  githubUsername={githubUsername || undefined}
+                />
               </div>
             </div>
           </div>

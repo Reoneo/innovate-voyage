@@ -1,3 +1,4 @@
+
 export interface ScoreBadgeProps {
   onClick?: () => void;
   isLoading?: boolean;
@@ -27,6 +28,7 @@ export interface ScoreDialogData {
   webacyData: WebacyData | null;
   txCount: number | null;
   walletAddress: string;
+  githubUsername?: string;
 }
 
-export type DialogType = 'talent' | 'webacy' | 'transactions' | 'blockchain';
+export type DialogType = 'talent' | 'webacy' | 'transactions' | 'blockchain' | 'github';
