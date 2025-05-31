@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -7,6 +8,7 @@ import TalentScoreBanner from './components/TalentScoreBanner';
 import BlockchainActivitySection from './components/blockchain/BlockchainActivitySection';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import FarcasterCastsSection from './components/farcaster/FarcasterCastsSection';
+import PoapSection from './components/poap/PoapSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileContentProps {
@@ -145,6 +147,11 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                     </div>
                   )}
                   
+                  {/* POAP Section */}
+                  <div className="w-full">
+                    <PoapSection walletAddress={passport.owner_address} />
+                  </div>
+                  
                   {/* GitHub Section */}
                   {showGitHubSection && (
                     <div className="w-full">
@@ -161,10 +168,22 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   </div>
                 </div>
               ) : (
-                /* Desktop: Two column layout - SWAPPED */
+                /* Desktop: Two column layout */
                 <div className="w-full grid grid-cols-2 gap-8">
-                  {/* Column 1: GitHub, Farcaster */}
+                  {/* Column 1: POAP Section */}
                   <div className="space-y-6">
+                    <PoapSection walletAddress={passport.owner_address} />
+                  </div>
+                  
+                  {/* Column 2: Scores, Blockchain Activity, GitHub, Farcaster */}
+                  <div className="space-y-6">
+                    <TalentScoreBanner walletAddress={passport.owner_address} />
+                    
+                    {/* Blockchain Activity Section */}
+                    {passport.owner_address && (
+                      <BlockchainActivitySection walletAddress={passport.owner_address} />
+                    )}
+                    
                     {/* GitHub Section */}
                     {showGitHubSection && (
                       <GitHubContributionGraph username={githubUsername!} />
@@ -175,16 +194,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                       ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
                       address={passport.owner_address}
                     />
-                  </div>
-                  
-                  {/* Column 2: Scores, Blockchain Activity, POAP */}
-                  <div className="space-y-6">
-                    <TalentScoreBanner walletAddress={passport.owner_address} />
-                    
-                    {/* Blockchain Activity Section */}
-                    {passport.owner_address && (
-                      <BlockchainActivitySection walletAddress={passport.owner_address} />
-                    )}
                   </div>
                 </div>
               )}
