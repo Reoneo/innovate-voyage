@@ -19,7 +19,7 @@ const BlockchainActivityBadge: React.FC<BlockchainActivityBadgeProps> = ({
       <div className="text-center space-y-2 w-full">
         <div className="flex items-center justify-center gap-2">
           <img src="https://socialbubbles.ae/wp-content/uploads/2024/08/etherscan-image.png" alt="Etherscan" className="h-5 w-5" />
-          <h3 className="text-lg font-semibold text-gray-800 px-0 py-[10px]">Blockchain Activity</h3>
+          <h3 className="text-lg font-semibold text-gray-800 px-0 py-[10px]">Onchain Activity</h3>
         </div>
         <div className="text-sm text-gray-600 space-y-1">
           {data.firstTransaction ? <div>First TX: {data.firstTransaction}</div> : <div>First TX: N/A</div>}
