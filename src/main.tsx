@@ -25,6 +25,7 @@ import {
 
 import App from './App.tsx';
 import './index.css';
+import { initializeSecurity } from './utils/securityHeaders';
 
 // Double-check Buffer is available
 if (typeof window !== 'undefined' && !window.Buffer) {

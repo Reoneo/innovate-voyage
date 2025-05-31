@@ -7,6 +7,7 @@ import SearchSection from '@/components/home/SearchSection';
 import ActionButtonsSection from '@/components/home/ActionButtonsSection';
 import FeaturedProfileSection from '@/components/home/FeaturedProfileSection';
 import RainbowWalletConnect from '@/components/home/RainbowWalletConnect';
+import TestNetIcon from '@/components/home/TestNetIcon';
 
 const Index = () => {
   return (
@@ -57,6 +58,9 @@ const Index = () => {
       
       {/* Animated Professional Background */}
       <HeroBackground />
+      
+      {/* Top Left TestNet Icon */}
+      <TestNetIcon />
       
       {/* Top Right Wallet Connect */}
       <div className="absolute top-4 right-4 z-20">
