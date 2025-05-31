@@ -32,41 +32,8 @@ export function useBlockchainActivity(walletAddress: string) {
       setLoading(true);
       
       try {
-        // First, try to fetch from Talent Protocol
-        console.log('Trying Talent Protocol API...');
-        const talentResponse = await fetch(
-          `https://api.talentprotocol.com/score?id=${walletAddress}&account_source=wallet`,
-          {
-            headers: {
-              "X-API-KEY": "2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f",
-            },
-          }
-        );
-
-        if (talentResponse.ok) {
-          const talentData = await talentResponse.json();
-          console.log('Talent Protocol response:', talentData);
-          
-          if (talentData.score?.points) {
-            console.log('User has builder score, using Talent Protocol data');
-            // User has builder score, try to get onchain activity from Talent Protocol
-            const activityData = {
-              firstTransaction: talentData.first_transaction || null,
-              ethBalance: talentData.eth_balance || null,
-              outgoingTransactions: talentData.outgoing_transactions || null,
-              hasBuilderScore: true
-            };
-            
-            setData(activityData);
-            setHasData(true);
-            setLoading(false);
-            console.log('Set Talent Protocol data:', activityData);
-            return;
-          }
-        }
-
-        // Fallback to Etherscan if no Talent Protocol data
-        console.log('No Talent Protocol data, falling back to Etherscan...');
+        // Only use Etherscan for blockchain data
+        console.log('Fetching data from Etherscan...');
         
         const etherscanApiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
         
