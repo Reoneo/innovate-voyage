@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,17 @@ const FeaturedProfileSection: React.FC = () => {
     });
   };
 
+  const efpLeaderboardProfiles = [
+    'sargent.eth', '👁️‍🗨️.eth', '2️⃣2️⃣.eth', '🐈‍⬛.eth', 'shannon1.eth', 'mmmm.eth', 'going.eth', 'followmeme.eth',
+    'furyan.eth', '0xthrpw.eth', 'okarun.eth', 'autist.eth', '👨‍🎤.eth', 'didierkrux.eth', 'deadstock.eth', '🤵🏼‍♂️.eth',
+    'slowsort.eth', 'brianarmstrong.eth', 'art.mely.eth', 'bullieverisland.eth', 'efp.encrypteddegen.eth', 'broke.eth',
+    'heardle.eth', 'planetos.eth', 'ittalik.eth', '👩🏿‍🦲.eth', 'cryptodon.eth', 'dons.eth', 'captaintoken.eth', 'bobzerah.eth',
+    '👩🏻‍🎤.eth', 'tchiktchak.eth', 'yoyodyne.eth', 'poldo.eth', 'odie.eth', 'ohhkaneda.eth', 'wbush.eth', 'utd.eth',
+    '🧝🏻‍♀️.eth', 'apostolos.eth', 'pawswap.eth', 'huncho.eth', 'tostada.eth', 'madeintheusa.eth', '2021go.eth', '4444.eth',
+    'lagovskii333.eth', 'grado.eth', 'encrypteddegen.eth', 'web3go.eth', 'cordaro.eth', 'spacebro.eth', 'cocoon.eth',
+    'beautifulinwhite.eth', 'costly.eth', 'khori.eth', 'web3come.eth', 'web3cn.eth', 'brantly.eth', 'onose.eth'
+  ];
+
   const profileSets = [
     {
       title: "Featured Profiles",
@@ -31,6 +43,11 @@ const FeaturedProfileSection: React.FC = () => {
         'onigiri.box', 'cypherpunk.box', 'yx.box', 'dude.box'
       ],
       type: 'grid'
+    },
+    {
+      title: "EFP Leaderboard",
+      profiles: efpLeaderboardProfiles,
+      type: 'leaderboard'
     },
     {
       title: "10k ENS Club",
@@ -61,7 +78,8 @@ const FeaturedProfileSection: React.FC = () => {
 
   const currentSet = profileSets[currentSlide];
   const isBoxCommunity = currentSlide === 1;
-  const isEnsClub = currentSlide === 2;
+  const isEfpLeaderboard = currentSlide === 2;
+  const isEnsClub = currentSlide === 3;
   const canLoadMore = isEnsClub && ensClubPage * 20 < 999;
   const canLoadPrevious = isEnsClub && ensClubPage > 1;
 
@@ -95,7 +113,7 @@ const FeaturedProfileSection: React.FC = () => {
         {currentSet.title}
       </h4>
       
-      {/* Profiles Grid - Removed any scroll-blocking behavior */}
+      {/* Profiles Grid */}
       <div className="relative flex justify-center items-center mb-8">
         {isBoxCommunity ? (
           /* Grid layout for Box Community Members */
@@ -103,6 +121,15 @@ const FeaturedProfileSection: React.FC = () => {
             {currentSet.profiles.map((profile, index) => (
               <div key={profile} className="flex justify-center">
                 <HoneycombProfile ensName={profile} delay={index * 50} showName={true} />
+              </div>
+            ))}
+          </div>
+        ) : isEfpLeaderboard ? (
+          /* Grid layout for EFP Leaderboard */
+          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4 items-start max-w-6xl">
+            {currentSet.profiles.map((profile, index) => (
+              <div key={profile} className="flex justify-center">
+                <HoneycombProfile ensName={profile} delay={index * 20} showName={true} />
               </div>
             ))}
           </div>
