@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -162,19 +161,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                   </div>
                 </div>
               ) : (
-                /* Desktop: Two column layout */
+                /* Desktop: Two column layout - SWAPPED */
                 <div className="w-full grid grid-cols-2 gap-8">
-                  {/* Column 1: Scores, Blockchain Activity, POAP */}
-                  <div className="space-y-6">
-                    <TalentScoreBanner walletAddress={passport.owner_address} />
-                    
-                    {/* Blockchain Activity Section */}
-                    {passport.owner_address && (
-                      <BlockchainActivitySection walletAddress={passport.owner_address} />
-                    )}
-                  </div>
-                  
-                  {/* Column 2: GitHub, Farcaster */}
+                  {/* Column 1: GitHub, Farcaster */}
                   <div className="space-y-6">
                     {/* GitHub Section */}
                     {showGitHubSection && (
@@ -186,6 +175,16 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                       ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
                       address={passport.owner_address}
                     />
+                  </div>
+                  
+                  {/* Column 2: Scores, Blockchain Activity, POAP */}
+                  <div className="space-y-6">
+                    <TalentScoreBanner walletAddress={passport.owner_address} />
+                    
+                    {/* Blockchain Activity Section */}
+                    {passport.owner_address && (
+                      <BlockchainActivitySection walletAddress={passport.owner_address} />
+                    )}
                   </div>
                 </div>
               )}
