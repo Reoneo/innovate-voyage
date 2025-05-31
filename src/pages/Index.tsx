@@ -1,4 +1,3 @@
-
 import React from 'react';
 import SeoHelmet from '@/components/home/SeoHelmet';
 import HeroBackground from '@/components/home/HeroBackground';
@@ -61,13 +60,15 @@ const IndexContent = () => {
       })}
       </script>
       
-      {/* Animated Professional Background */}
-      <HeroBackground />
+      {/* Animated Professional Background - positioned at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-1/3">
+        <HeroBackground />
+      </div>
       
       {/* Content */}
-      <div className="relative z-10 flex flex-col h-full overflow-hidden">
+      <div className="relative z-10 flex flex-col h-full">
         {/* Hero Section with SEO-optimized structure */}
-        <section className="flex-1 py-2 px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-8 overflow-hidden">
+        <section className="flex-1 py-2 px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-8">
           <div className="max-w-7xl mx-auto h-full flex flex-col">
             {/* H1 tag for primary SEO keyword */}
             <header>
@@ -84,8 +85,8 @@ const IndexContent = () => {
               <SearchSection />
             </div>
             
-            {/* Featured content for engagement */}
-            <section aria-label="Featured blockchain professionals" className="flex-1 overflow-hidden">
+            {/* Featured content for engagement - no overflow scrolling */}
+            <section aria-label="Featured blockchain professionals" className="flex-1">
               <FeaturedProfileSection />
             </section>
           </div>
