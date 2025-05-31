@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScoreBadgeProps } from './types';
@@ -24,12 +22,11 @@ const BlockchainActivityBadge: React.FC<BlockchainActivityBadgeProps> = ({
           <h3 className="text-lg font-semibold text-gray-800 px-0 py-[10px]">Onchain Activity</h3>
         </div>
         <div className="text-sm text-gray-600 space-y-1">
-          {data.firstTransaction ? <div>First Transaction: {data.firstTransaction}</div> : <div>First Transaction: N/A</div>}
+          {data.firstTransaction ? <div>First TX: {data.firstTransaction}</div> : <div>First TX: N/A</div>}
           {data.ethBalance ? <div>ETH: {data.ethBalance}</div> : <div>ETH: 0</div>}
-          <div>Outgoing Transactions: {data.outgoingTransactions ?? 0}</div>
+          <div>TXs: {data.outgoingTransactions ?? 0}</div>
         </div>
       </div>
     </div>;
 };
 export default BlockchainActivityBadge;
-
