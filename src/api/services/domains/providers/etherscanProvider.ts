@@ -1,6 +1,25 @@
 
-// API key for Etherscan
-const ETHERSCAN_API_KEY = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
+/**
+ * EtherscanProvider class for handling Etherscan API calls
+ */
+export class EtherscanProvider {
+  private apiKey: string;
+
+  constructor(apiKey: string = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM") {
+    this.apiKey = apiKey;
+  }
+
+  async fetchProfile(input: string): Promise<any> {
+    try {
+      // For now, return null as Etherscan doesn't have profile data
+      // This can be extended later to fetch blockchain data
+      return null;
+    } catch (error) {
+      console.error("Error fetching from Etherscan:", error);
+      return null;
+    }
+  }
+}
 
 /**
  * Fetch ENS domains from Etherscan as a fallback
@@ -10,7 +29,7 @@ export async function fetchDomainsFromEtherscan(address: string): Promise<string
   
   try {
     // Use the Etherscan API to get ENS domain records (ENS Registry)
-    const response = await fetch(`https://api.etherscan.io/api?module=account&action=tokennfttx&address=${address}&contractaddress=0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85&page=1&offset=100&sort=asc&apikey=${ETHERSCAN_API_KEY}`);
+    const response = await fetch(`https://api.etherscan.io/api?module=account&action=tokennfttx&address=${address}&contractaddress=0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85&page=1&offset=100&sort=asc&apikey=5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM`);
     
     if (!response.ok) {
       throw new Error(`Etherscan API error: ${response.status}`);
