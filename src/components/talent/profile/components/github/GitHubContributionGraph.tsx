@@ -51,13 +51,13 @@ export default function GitHubContributionGraph({
   const githubProfileUrl = `https://github.com/${username}`;
 
   return (
-    <div className="w-full h-32">
+    <div className="w-full">
       <GitHubLoadingState loading={loading} error={error} />
       
       {tokenInvalid && <TokenInvalidAlert />}
       
       {!loading && !error && username && (
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-lg h-32 overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-lg p-0 overflow-hidden">
           {/* Header with GitHub link and icon - centered */}
           <div className="flex items-center justify-center gap-2 p-3 pb-2">
             <a 
@@ -72,9 +72,9 @@ export default function GitHubContributionGraph({
           </div>
           
           {/* Calendar container with no extra padding - centered */}
-          <div className="w-full overflow-x-auto flex justify-center px-2" style={{ height: 'calc(100% - 60px)' }}>
+          <div className="w-full overflow-x-auto flex justify-center">
             {username && (
-              <div className="w-full flex justify-center items-center" style={{ minWidth: '650px' }}>
+              <div className="w-full flex justify-center" style={{ minWidth: '650px' }}>
                 <GitHubCalendar 
                   username={username} 
                   colorScheme="light" 
@@ -82,10 +82,10 @@ export default function GitHubContributionGraph({
                   hideColorLegend={true} 
                   hideMonthLabels={false} 
                   showWeekdayLabels={true} 
-                  blockSize={6} 
-                  blockMargin={1} 
+                  blockSize={8} 
+                  blockMargin={2} 
                   blockRadius={2} 
-                  fontSize={8} 
+                  fontSize={10} 
                   transformData={transformData} 
                   labels={{
                     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -95,6 +95,11 @@ export default function GitHubContributionGraph({
                 />
               </div>
             )}
+          </div>
+          
+          {/* Legend at bottom with minimal spacing - centered */}
+          <div className="px-3 pb-2 flex justify-center">
+            <GitHubContributionLegend />
           </div>
         </div>
       )}
