@@ -27,7 +27,7 @@ const SearchSection: React.FC = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto mb-8">
+    <div className="max-w-xl mx-auto">
       <form onSubmit={handleSearch} className="relative">
         <div className="relative">
           <Input 
@@ -35,7 +35,7 @@ const SearchSection: React.FC = () => {
             value={searchInput} 
             onChange={(e) => setSearchInput(e.target.value)} 
             aria-label="Search profiles" 
-            className="h-14 text-base pl-12 pr-20 border-2 border-slate-600/50 focus:border-blue-400 backdrop-blur-sm text-white placeholder:text-slate-400 rounded-xl shadow-lg transition-all duration-200 bg-white/10" 
+            className="h-12 text-base pl-12 pr-20 border-2 border-slate-600/50 focus:border-blue-400 backdrop-blur-sm text-white placeholder:text-slate-400 rounded-xl shadow-lg transition-all duration-200 bg-white/10" 
           />
           <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
             <Search className="h-6 w-6 text-slate-400" aria-hidden="true" />
@@ -43,7 +43,7 @@ const SearchSection: React.FC = () => {
           <Button 
             type="submit" 
             size="sm" 
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200"
           >
             Search
           </Button>

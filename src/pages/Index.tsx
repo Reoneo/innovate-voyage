@@ -1,3 +1,4 @@
+
 import React from 'react';
 import SeoHelmet from '@/components/home/SeoHelmet';
 import HeroBackground from '@/components/home/HeroBackground';
@@ -6,8 +7,10 @@ import SearchSection from '@/components/home/SearchSection';
 import ActionButtonsSection from '@/components/home/ActionButtonsSection';
 import FeaturedProfileSection from '@/components/home/FeaturedProfileSection';
 import RainbowWalletConnect from '@/components/home/RainbowWalletConnect';
+
 const Index = () => {
-  return <div className="min-h-screen relative overflow-hidden">
+  return (
+    <div className="h-screen relative overflow-hidden">
       <SeoHelmet />
       
       {/* Schema.org structured data for better SEO */}
@@ -55,28 +58,30 @@ const Index = () => {
       {/* Animated Professional Background */}
       <HeroBackground />
       
-      {/* Top Right Wallet Connect */}
-      
-      
       {/* Content */}
-      <div className="relative z-10 h-screen flex flex-col">
+      <div className="relative z-10 h-full flex flex-col">
         {/* Hero Section with SEO-optimized structure */}
-        <section className="flex-1 py-20 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
+        <section className="flex-1 py-2 px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-8">
           <div className="max-w-7xl mx-auto">
             {/* H1 tag for primary SEO keyword */}
             <header>
               <h1 className="sr-only">Recruitment.box - Decentralized CV and Recruitment Engine for Web3 Talent</h1>
             </header>
             
-            <HeroTitle />
+            {/* Compact Hero Title */}
+            <div className="mb-4">
+              <HeroTitle />
+            </div>
             
             {/* Search functionality for talent discovery */}
-            <div role="search" aria-label="Search for blockchain professionals and Web3 talent">
+            <div role="search" aria-label="Search for blockchain professionals and Web3 talent" className="mb-4">
               <SearchSection />
             </div>
             
             {/* Call-to-action section */}
-            
+            <div className="mb-4">
+              <ActionButtonsSection />
+            </div>
             
             {/* Featured content for engagement */}
             <section aria-label="Featured blockchain professionals">
@@ -126,6 +131,8 @@ const Index = () => {
           </ul>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
