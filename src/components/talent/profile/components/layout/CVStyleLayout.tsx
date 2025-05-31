@@ -220,7 +220,7 @@ const CVStyleLayout: React.FC<CVStyleLayoutProps> = ({
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {Object.entries(passport.socials).map(([platform, value]) => {
-                  if (!value || platform === 'email') return null;
+                  if (!value || platform === 'email' || typeof value !== 'string') return null;
                   
                   let href = '';
                   let icon = <Globe className="h-4 w-4" />;
