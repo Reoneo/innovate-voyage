@@ -1,3 +1,4 @@
+
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -132,32 +133,62 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 />
               </div>
               
-              {/* Content sections - always stacked vertically */}
-              <div className="w-full space-y-4 md:space-y-6">
-                <TalentScoreBanner walletAddress={passport.owner_address} />
-                
-                {/* Blockchain Activity Section */}
-                {passport.owner_address && (
+              {/* Content sections */}
+              {isMobile ? (
+                /* Mobile: Stack vertically */
+                <div className="w-full space-y-4 md:space-y-6">
+                  <TalentScoreBanner walletAddress={passport.owner_address} />
+                  
+                  {/* Blockchain Activity Section */}
+                  {passport.owner_address && (
+                    <div className="w-full">
+                      <BlockchainActivitySection walletAddress={passport.owner_address} />
+                    </div>
+                  )}
+                  
+                  {/* GitHub Section */}
+                  {showGitHubSection && (
+                    <div className="w-full">
+                      <GitHubContributionGraph username={githubUsername!} />
+                    </div>
+                  )}
+                  
+                  {/* Farcaster Section */}
                   <div className="w-full">
-                    <BlockchainActivitySection walletAddress={passport.owner_address} />
+                    <FarcasterCastsSection 
+                      ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+                      address={passport.owner_address}
+                    />
                   </div>
-                )}
-                
-                {/* GitHub Section */}
-                {showGitHubSection && (
-                  <div className="w-full">
-                    <GitHubContributionGraph username={githubUsername!} />
-                  </div>
-                )}
-                
-                {/* Farcaster Section */}
-                <div className="w-full">
-                  <FarcasterCastsSection 
-                    ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
-                    address={passport.owner_address}
-                  />
                 </div>
-              </div>
+              ) : (
+                /* Desktop: Two column layout */
+                <div className="w-full grid grid-cols-2 gap-8">
+                  {/* Column 1: Scores, Blockchain Activity, POAP */}
+                  <div className="space-y-6">
+                    <TalentScoreBanner walletAddress={passport.owner_address} />
+                    
+                    {/* Blockchain Activity Section */}
+                    {passport.owner_address && (
+                      <BlockchainActivitySection walletAddress={passport.owner_address} />
+                    )}
+                  </div>
+                  
+                  {/* Column 2: GitHub, Farcaster */}
+                  <div className="space-y-6">
+                    {/* GitHub Section */}
+                    {showGitHubSection && (
+                      <GitHubContributionGraph username={githubUsername!} />
+                    )}
+                    
+                    {/* Farcaster Section */}
+                    <FarcasterCastsSection 
+                      ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+                      address={passport.owner_address}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </HeaderContainer>
