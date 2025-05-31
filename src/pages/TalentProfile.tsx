@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
@@ -5,6 +6,7 @@ import ProfileContent from '@/components/talent/profile/ProfileContent';
 import AnimatedBackground from '@/components/talent/profile/components/AnimatedBackground';
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import { Helmet } from 'react-helmet-async';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const TalentProfile = () => {
   const { 
@@ -17,6 +19,8 @@ const TalentProfile = () => {
     handleDisconnect,
     handleSaveChanges
   } = useProfilePage();
+  
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Log loading progress for debugging
@@ -76,7 +80,7 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <div className="min-h-screen relative bg-transparent">
+      <div className={`min-h-screen relative bg-transparent ${isMobile ? 'overflow-x-hidden' : ''}`}>
         {/* Always show the AnimatedBackground */}
         <AnimatedBackground 
           avatarUrl={passport?.avatar_url} 
@@ -90,7 +94,10 @@ const TalentProfile = () => {
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container px-1 relative z-10" style={{ maxWidth: '98vw' }}>
+        <div className={`container ${isMobile ? 'px-1 mx-0' : 'px-1'} relative z-10`} style={{ 
+          maxWidth: isMobile ? '100vw' : '98vw',
+          width: isMobile ? '100vw' : 'auto'
+        }}>
           {loading ? (
             /* Show detailed loading skeleton */
             <div className="pt-16">
