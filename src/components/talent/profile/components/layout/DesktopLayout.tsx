@@ -2,7 +2,6 @@
 import React from 'react';
 import AvatarSection from '../AvatarSection';
 import TalentScoreBanner from '../TalentScoreBanner';
-import BlockchainActivitySection from '../blockchain/BlockchainActivitySection';
 import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
 import PoapSection from '../poap/PoapSection';
@@ -43,7 +42,7 @@ const DesktopLayout: React.FC<DesktopLayoutProps> = ({
         </div>
       </div>
       
-      {/* Right Column: Scores, GitHub, Blockchain Activity, Farcaster */}
+      {/* Right Column: Scores, GitHub, Farcaster */}
       <div className="space-y-6">
         {/* Talent Score Banner at top */}
         <TalentScoreBanner walletAddress={passport.owner_address} />
@@ -51,11 +50,6 @@ const DesktopLayout: React.FC<DesktopLayoutProps> = ({
         {/* GitHub Section */}
         {showGitHubSection && (
           <GitHubContributionGraph username={githubUsername!} />
-        )}
-        
-        {/* Blockchain Activity Section */}
-        {passport.owner_address && (
-          <BlockchainActivitySection walletAddress={passport.owner_address} />
         )}
         
         {/* Farcaster Section */}

@@ -4,7 +4,6 @@ import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
 import AvatarSection from './components/AvatarSection';
 import TalentScoreBanner from './components/TalentScoreBanner';
-import BlockchainActivitySection from './components/blockchain/BlockchainActivitySection';
 import GitHubContributionGraph from './components/github/GitHubContributionGraph';
 import FarcasterCastsSection from './components/farcaster/FarcasterCastsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -102,12 +101,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   // Only show GitHub section if there's a GitHub username
   const showGitHubSection = !!githubUsername;
 
-  console.log('Blockchain Activity Debug:', {
-    walletAddress: passport?.owner_address,
-    hasPassport: !!passport,
-    isMobile
-  });
-
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-16">
       {loading && !loadingTimeout ? (
@@ -135,13 +128,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
               {/* Content sections - always stacked vertically */}
               <div className="w-full space-y-4 md:space-y-6">
                 <TalentScoreBanner walletAddress={passport.owner_address} />
-                
-                {/* Blockchain Activity Section */}
-                {passport.owner_address && (
-                  <div className="w-full">
-                    <BlockchainActivitySection walletAddress={passport.owner_address} />
-                  </div>
-                )}
                 
                 {/* GitHub Section */}
                 {showGitHubSection && (

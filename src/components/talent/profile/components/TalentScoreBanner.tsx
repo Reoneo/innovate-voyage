@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import TalentScoreBadge from './scores/TalentScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
 import SecurityScoreBadge from './scores/SecurityScoreBadge';
+import BlockchainActivityBadge from './scores/BlockchainActivityBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
@@ -15,13 +16,13 @@ interface TalentScoreBannerProps {
 
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions'>('talent');
+  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions' | 'blockchain'>('talent');
   const { score, txCount, loading } = useScoresData(walletAddress);
   const { securityData, isLoading: webacyLoading } = useWebacyData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
   const isMobile = useIsMobile();
 
-  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions') => {
+  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions' | 'blockchain') => {
     setActiveDialog(type);
     setDialogOpen(true);
   };
@@ -36,11 +37,18 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   return (
     <>
+      {/* First row: Blockchain Activity, Builder Score, NFT Collection */}
       <div className={`${
         isMobile 
           ? 'flex flex-col gap-4' 
           : 'grid grid-cols-3 gap-6'
-      } mb-8`}>
+      } mb-6`}>
+        <div className="transform hover:scale-105 transition-all duration-200">
+          <BlockchainActivityBadge 
+            walletAddress={walletAddress}
+            onClick={() => handleBadgeClick('blockchain')}
+          />
+        </div>
         {showTalentScore && (
           <div className="transform hover:scale-105 transition-all duration-200">
             <TalentScoreBadge 
@@ -59,6 +67,14 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             isLoading={loading} 
           />
         </div>
+      </div>
+
+      {/* Second row: Risk Score (centered when only 1 item) */}
+      <div className={`${
+        isMobile 
+          ? 'flex flex-col gap-4' 
+          : 'grid grid-cols-3 gap-6'
+      } mb-8`}>
         <div className="transform hover:scale-105 transition-all duration-200">
           <SecurityScoreBadge 
             webacyData={securityData} 
@@ -66,6 +82,9 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             isLoading={webacyLoading} 
           />
         </div>
+        {/* Empty divs to maintain grid layout */}
+        <div></div>
+        <div></div>
       </div>
 
       <NftCollectionsSection 
