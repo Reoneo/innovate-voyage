@@ -2,10 +2,7 @@
 import { ENSRecord, SkillNFT, Web3Credentials, Web3BioProfile } from './types/web3Types';
 import { BlockchainProfile } from './types/etherscanTypes';
 import { 
-  getEnsByAddress, 
-  getAddressByEns,
   getAllEnsRecords,
-  getEnsBio
 } from './services/ensService';
 import { 
   getSkillNftsByAddress,
@@ -19,6 +16,45 @@ import {
 } from './services/etherscanService';
 import { fetchWeb3BioProfile } from './utils/web3/index';
 import { getRealAvatar } from './services/avatar';
+
+// Add these missing functions
+export async function getEnsByAddress(address: string): Promise<ENSRecord | null> {
+  try {
+    const profile = await fetchWeb3BioProfile(address);
+    if (profile && profile.identity) {
+      return {
+        ensName: profile.identity,
+        address: profile.address,
+        avatar: profile.avatar,
+        bio: profile.description
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting ENS by address:', error);
+    return null;
+  }
+}
+
+export async function getAddressByEns(ensName: string): Promise<string | null> {
+  try {
+    const profile = await fetchWeb3BioProfile(ensName);
+    return profile?.address || null;
+  } catch (error) {
+    console.error('Error getting address by ENS:', error);
+    return null;
+  }
+}
+
+export async function getEnsBio(identity: string): Promise<string | null> {
+  try {
+    const profile = await fetchWeb3BioProfile(identity);
+    return profile?.description || null;
+  } catch (error) {
+    console.error('Error getting ENS bio:', error);
+    return null;
+  }
+}
 
 // Get all Web3 credentials (ENS + Skill NFTs) by address
 async function getWeb3CredentialsByAddress(address: string): Promise<Web3Credentials> {
