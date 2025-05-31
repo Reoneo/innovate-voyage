@@ -11,6 +11,7 @@ import PoapSection from '../poap/PoapSection';
 import TalentScoreBanner from '../TalentScoreBanner';
 import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TwoColumnLayoutProps {
   passport: any;
@@ -25,6 +26,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
   githubUsername,
   showGitHubSection
 }) => {
+  const isMobile = useIsMobile();
   const [isOwner, setIsOwner] = React.useState(false);
   
   React.useEffect(() => {
@@ -45,9 +47,14 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
+  // Dynamic grid classes based on screen size
+  const gridClasses = isMobile 
+    ? "grid grid-cols-[80%_20%] gap-2 w-full px-2" 
+    : "hidden md:grid md:grid-cols-[30%_70%] gap-8 w-full px-6";
+
   return (
-    <div className="hidden md:grid md:grid-cols-[30%_70%] gap-8 w-full px-6">
-      {/* Column 1: Avatar to POAP Section (30%) */}
+    <div className={gridClasses}>
+      {/* Column 1: Avatar to POAP Section */}
       <div className="space-y-6">
         {/* Avatar */}
         <div className="flex flex-col items-center">
@@ -109,8 +116,8 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         </div>
       </div>
       
-      {/* Column 2: Blockchain Activity and Rest (70%) */}
-      <div className="space-y-6">
+      {/* Column 2: Blockchain Activity and Rest */}
+      <div className={`space-y-6 ${isMobile ? 'overflow-y-auto max-h-screen' : ''}`}>
         {/* Talent Score Banner (includes Blockchain Activity) */}
         <TalentScoreBanner walletAddress={passport.owner_address} />
         
