@@ -1,72 +1,62 @@
 
-import { InputValidator } from '../../../../utils/inputValidation';
-import { secureFetch } from '../../../utils/web3/config';
+import { WEB3_BIO_API_KEY } from '../../../utils/web3/config';
 
 /**
- * Fetch domains from web3.bio API with enhanced security
+ * Fetch domains from web3.bio API
  */
 export async function fetchDomainsFromWeb3Bio(address: string): Promise<string[]> {
   try {
-    // Validate input address
-    if (!InputValidator.isValidEthereumAddress(address)) {
-      console.warn('Invalid Ethereum address provided to Web3Bio provider');
-      return [];
-    }
-
-    // Use secure API endpoint (should be proxied through backend)
+    // Add a cache-busting parameter to prevent stale data
     const url = `https://api.web3.bio/profile/${address}?nocache=${Date.now()}`;
     
-    // SECURITY NOTE: This should be proxied through backend to hide API keys
-    const response = await secureFetch(url, {
+    const response = await fetch(url, {
       headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
+        'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Accept': 'application/json'
       },
       cache: 'no-store'
     });
     
     if (!response.ok) {
-      console.warn(`Web3.bio API returned status ${response.status} for address ${address.substring(0, 6)}...${address.substring(38)}`);
+      console.warn(`Web3.bio API returned status ${response.status} for address ${address}`);
       return [];
     }
     
     const data = await response.json();
     
     if (!Array.isArray(data)) {
-      if (data.identity && typeof data.identity === 'string') {
-        // Validate and sanitize the identity
-        const sanitizedIdentity = InputValidator.sanitizeHtml(data.identity);
-        return InputValidator.isValidEnsName(sanitizedIdentity) ? [sanitizedIdentity] : [];
+      if (data.identity) {
+        return [data.identity];
       }
       return [];
     }
     
-    // Extract and validate all identities
+    // Extract all identities
     const domains: string[] = [];
     
     for (const profile of data) {
-      if (profile.identity && typeof profile.identity === 'string') {
-        const sanitizedIdentity = InputValidator.sanitizeHtml(profile.identity);
-        if (InputValidator.isValidEnsName(sanitizedIdentity)) {
-          domains.push(sanitizedIdentity);
-        }
+      if (profile.identity) {
+        domains.push(profile.identity);
       }
       
-      // Process aliases with validation
+      // Also extract aliases if available
       if (profile.aliases && Array.isArray(profile.aliases)) {
         for (const alias of profile.aliases) {
+          // Handle different alias formats
           if (typeof alias === 'string') {
-            const sanitizedAlias = InputValidator.sanitizeHtml(alias);
-            
-            if (sanitizedAlias.includes(',')) {
-              const parts = sanitizedAlias.split(',');
-              if (parts.length === 2 && InputValidator.isValidEnsName(parts[1])) {
+            if (alias.includes(',')) {
+              // Format: "platform,name"
+              const parts = alias.split(',');
+              if (parts.length === 2 && parts[1].includes('.')) {
                 if (!domains.includes(parts[1])) {
                   domains.push(parts[1]);
                 }
               }
-            } else if (InputValidator.isValidEnsName(sanitizedAlias)) {
-              if (!domains.includes(sanitizedAlias)) {
-                domains.push(sanitizedAlias);
+            } else if (alias.includes('.')) {
+              // Direct domain name
+              if (!domains.includes(alias)) {
+                domains.push(alias);
               }
             }
           }
@@ -74,10 +64,10 @@ export async function fetchDomainsFromWeb3Bio(address: string): Promise<string[]
       }
     }
     
-    console.log(`Web3.bio returned ${domains.length} validated domains for ${address.substring(0, 6)}...${address.substring(38)}`);
+    console.log(`Web3.bio returned ${domains.length} domains for ${address}:`, domains);
     return domains;
   } catch (error) {
-    console.error("Secure error handling for web3.bio:", error);
+    console.error("Error fetching from web3.bio:", error);
     return [];
   }
 }

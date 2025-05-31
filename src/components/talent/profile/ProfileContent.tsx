@@ -1,4 +1,3 @@
-
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
@@ -116,8 +115,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
       ) : passport ? (
         <HeaderContainer>
           <div className="w-full space-y-4 md:space-y-6 h-full">
-            {/* Mobile-optimized layout - single column */}
-            <div className={`w-full flex flex-col ${isMobile ? 'gap-3' : 'gap-4 md:gap-6'}`}>
+            <div className="w-full flex flex-col gap-4 md:gap-6">
               {/* Avatar section - always full width */}
               <div className="w-full flex flex-col space-y-3 md:space-y-4">
                 <AvatarSection
@@ -134,8 +132,8 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
                 />
               </div>
               
-              {/* Content sections - single column layout for mobile */}
-              <div className={`w-full ${isMobile ? 'space-y-3' : 'space-y-4 md:space-y-6'}`}>
+              {/* Content sections - always stacked vertically */}
+              <div className="w-full space-y-4 md:space-y-6">
                 <TalentScoreBanner walletAddress={passport.owner_address} />
                 
                 {/* Blockchain Activity Section */}

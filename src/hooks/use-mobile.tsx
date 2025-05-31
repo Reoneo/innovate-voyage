@@ -16,6 +16,6 @@ export function useIsMobile() {
     return () => mql.removeEventListener("change", onChange)
   }, [])
 
-  // Always return true for mobile when screen is below 768px to prevent horizontal scrolling
+  // Force mobile layout for all screen sizes below 768px
   return !!isMobile
 }

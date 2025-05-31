@@ -1,3 +1,4 @@
+
 // Polyfill Buffer first - before any other imports
 import { Buffer } from 'buffer';
 
@@ -25,7 +26,6 @@ import {
 
 import App from './App.tsx';
 import './index.css';
-import { initializeSecurity } from './utils/securityHeaders';
 
 // Double-check Buffer is available
 if (typeof window !== 'undefined' && !window.Buffer) {
@@ -64,9 +64,6 @@ const wagmiConfig = getDefaultConfig({
 
 // Create the Web3Modal "bridge" to wagmi - using the chains from wagmi config
 const ethereumClient = new EthereumClient(wagmiConfig, [mainnet, goerli]);
-
-// Initialize security measures
-initializeSecurity();
 
 const root = createRoot(document.getElementById("root")!);
 root.render(
