@@ -18,7 +18,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({
       width: '100%',
       maxWidth: '100vw',
       margin: '0 auto',
-      marginTop: isMobile ? '4px' : '8px',
+      marginTop: isMobile ? '48px' : '56px', // Account for navbar height
       marginBottom: isMobile ? '4px' : '8px',
       padding: 0,
       overflow: 'visible',
