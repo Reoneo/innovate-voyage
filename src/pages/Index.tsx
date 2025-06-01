@@ -67,29 +67,31 @@ const IndexContent = () => {
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Hero Section with SEO-optimized structure */}
-        <section className="flex-1 py-2 px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-8">
+        <main className="flex-1 py-2 px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-8">
           <div className="max-w-7xl mx-auto flex flex-col">
-            {/* H1 tag for primary SEO keyword */}
-            <header>
-              <h1 className="sr-only">Recruitment.box - Decentralized CV and Recruitment Engine for Web3 Talent</h1>
+            {/* Primary H1 tag for SEO */}
+            <header className="mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4 text-center">
+                Find Blockchain Talent & Web3 Careers
+              </h1>
+              <div className="text-center">
+                <img src="/lovable-uploads/ffc0e4c4-e1f3-45ef-8f61-8fbbb29803c5.png" alt="Recruitment.box Logo" className="h-32 w-32 object-contain drop-shadow-lg mx-auto" />
+              </div>
             </header>
             
-            {/* Compact Hero Title */}
-            <div className="mb-4">
-              <HeroTitle />
-            </div>
-            
             {/* Search functionality for talent discovery */}
-            <div role="search" aria-label="Search for blockchain professionals and Web3 talent" className="mb-4">
+            <section role="search" aria-label="Search for blockchain professionals and Web3 talent" className="mb-4">
+              <h2 className="sr-only">Search Web3 Professionals</h2>
               <SearchSection />
-            </div>
+            </section>
             
             {/* Featured content for engagement */}
             <section aria-label="Featured blockchain professionals" className="mb-8">
+              <h2 className="text-2xl font-semibold text-white mb-6 text-center">Featured Web3 Professionals</h2>
               <FeaturedProfileSection />
             </section>
           </div>
-        </section>
+        </main>
 
         {/* SEO Content Section - Hidden but crawlable */}
         <section className="sr-only" aria-label="SEO content for search engines">

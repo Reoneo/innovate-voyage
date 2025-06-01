@@ -5,13 +5,13 @@ import { Helmet } from 'react-helmet-async';
 const SeoHelmet: React.FC = () => {
   return (
     <Helmet>
-      {/* Primary SEO Meta Tags */}
-      <title>Recruitment.box | #1 Decentralized CV & Web3 Recruitment Engine | Blockchain Talent Discovery</title>
-      <meta name="description" content="🚀 Find & hire verified Web3 talent with blockchain credentials. Recruitment.box offers decentralized CV generation, smart contract developer hiring, DeFi talent discovery & crypto recruitment solutions. Join 10,000+ Web3 professionals today!" />
+      {/* Primary SEO Meta Tags - Improved title without domain */}
+      <title>Find Blockchain Talent & Web3 Careers | Decentralized Recruitment Platform</title>
+      <meta name="description" content="🚀 Find & hire verified Web3 talent with blockchain credentials. Decentralized CV generation, smart contract developer hiring, DeFi talent discovery & crypto recruitment solutions. Join 10,000+ Web3 professionals today!" />
       <meta name="keywords" content="blockchain recruitment, web3 cv, decentralized talent, ethereum hiring, blockchain verification, crypto recruitment, web3 jobs, ens profiles, decentralized hiring, blockchain cv, web3 talent, crypto jobs, ethereum recruitment, blockchain jobs, web3 hiring platform, recruitment.box, decentralized recruitment engine, smart contract developers, defi talent, dao recruitment, nft project hiring, solidity developers, cryptocurrency jobs, blockchain careers, web3 professionals, ethereum developers, crypto talent marketplace" />
       
       {/* Enhanced Open Graph Meta Tags */}
-      <meta property="og:title" content="Recruitment.box | #1 Decentralized CV & Web3 Recruitment Engine" />
+      <meta property="og:title" content="Find Blockchain Talent & Web3 Careers | Decentralized Recruitment Platform" />
       <meta property="og:description" content="🔥 Discover & hire verified Web3 talent with blockchain-verified credentials. Revolutionary decentralized recruitment platform for crypto companies & professionals. 10,000+ verified profiles!" />
       <meta property="og:image" content="https://recruitment.box/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" />
       <meta property="og:image:width" content="1200" />
@@ -26,7 +26,7 @@ const SeoHelmet: React.FC = () => {
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@recruitment_box" />
       <meta name="twitter:creator" content="@recruitment_box" />
-      <meta name="twitter:title" content="Recruitment.box | #1 Decentralized CV & Web3 Recruitment Engine" />
+      <meta name="twitter:title" content="Find Blockchain Talent & Web3 Careers | Decentralized Recruitment Platform" />
       <meta name="twitter:description" content="🚀 Find & hire verified Web3 talent with blockchain credentials. Revolutionary decentralized recruitment for crypto companies. Join 10,000+ Web3 professionals!" />
       <meta name="twitter:image" content="https://recruitment.box/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png" />
       <meta name="twitter:image:alt" content="Recruitment.box - Web3 Talent Discovery Platform" />
@@ -43,12 +43,12 @@ const SeoHelmet: React.FC = () => {
       <meta name="geo.region" content="US" />
       <meta name="geo.placename" content="United States" />
       
-      {/* Canonical URL */}
-      <link rel="canonical" href="https://recruitment.box" />
+      {/* Self-referencing canonical URL */}
+      <link rel="canonical" href="https://recruitment.box/" />
       
-      {/* Alternate Languages (for future internationalization) */}
-      <link rel="alternate" hrefLang="en" href="https://recruitment.box" />
-      <link rel="alternate" hrefLang="x-default" href="https://recruitment.box" />
+      {/* Self-referencing alternate link */}
+      <link rel="alternate" href="https://recruitment.box/" hrefLang="en" />
+      <link rel="alternate" href="https://recruitment.box/" hrefLang="x-default" />
       
       {/* Preconnect for Performance */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />

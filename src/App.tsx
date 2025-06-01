@@ -41,10 +41,10 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Use a shorter timeout to reduce blank screen time
+    // Reduced timeout for better performance
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 100);
+    }, 50);
     
     // Listen for URL changes to clean up duplicate recruitment.box in URL
     const cleanupUrl = () => {
@@ -60,13 +60,16 @@ const App = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Show minimal loading spinner instead of blank screen
+  // Minimal loading spinner with consistent positioning
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-muted-foreground">Loading...</p>
+      <div className="flex items-center justify-center min-h-screen bg-slate-900 relative">
+        {/* Same background pattern as main page */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900" />
+        <div className="relative z-10 flex flex-col items-center space-y-4">
+          <img src="/lovable-uploads/ffc0e4c4-e1f3-45ef-8f61-8fbbb29803c5.png" alt="Loading..." className="h-32 w-32 object-contain animate-pulse" />
+          <div className="w-10 h-10 border-4 border-blue-400 border-t-transparent rounded-full animate-spin" />
+          <p className="text-white">Loading Web3 Talent Platform...</p>
         </div>
       </div>
     );
