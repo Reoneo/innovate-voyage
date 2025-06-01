@@ -15,14 +15,14 @@ import NotFound from "./pages/NotFound";
 import XmtpMessageModal from "./components/wallet/XmtpMessageModal";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
-// Create a persistent QueryClient instance
+// Create a persistent QueryClient instance with optimized settings
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 2,
+      retry: 1, // Reduced retries for faster loading
       staleTime: 300000, // 5 minutes
-      gcTime: 3600000, // 1 hour (replacement for deprecated cacheTime)
+      gcTime: 3600000, // 1 hour
     },
   },
 });
@@ -33,41 +33,23 @@ const farcasterConfig = {
   siweUri: 'https://recruitment.box/login',
 };
 
-if (import.meta.env.DEV) {
-  console.log('Running in development mode - ensure all API keys are stored in environment variables');
-}
-
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Use a shorter timeout to reduce blank screen time
+    // Faster loading with minimal timeout
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 100);
-    
-    // Listen for URL changes to clean up duplicate recruitment.box in URL
-    const cleanupUrl = () => {
-      if (window.location.pathname.includes('recruitment.box/recruitment.box/')) {
-        const cleanPath = window.location.pathname.replace('recruitment.box/recruitment.box/', 'recruitment.box/');
-        window.history.replaceState({}, document.title, cleanPath);
-      }
-    };
-    
-    // Clean URL on load
-    cleanupUrl();
+    }, 50); // Reduced from 100ms
     
     return () => clearTimeout(timer);
   }, []);
 
-  // Show minimal loading spinner instead of blank screen
+  // Minimal loading screen for faster perceived performance
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -84,13 +66,9 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                  {/* Special route for recruitment.box domain - Fix duplication issue */}
                   <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-                  {/* Catch and fix duplicate paths */}
                   <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
-                  {/* Regular profile route */}
                   <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-                  {/* Handle 404 and redirects */}
                   <Route path="/404" element={<NotFound />} />
                   <Route path="*" element={<Navigate to="/404" />} />
                 </Routes>

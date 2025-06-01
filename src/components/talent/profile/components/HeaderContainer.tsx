@@ -1,9 +1,12 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useIsMobile } from "@/hooks/use-mobile";
+
 interface HeaderContainerProps {
   children: React.ReactNode;
 }
+
 const HeaderContainer: React.FC<HeaderContainerProps> = ({
   children
 }) => {
@@ -13,8 +16,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({
     width: '100%',
     maxWidth: '100vw',
     margin: '0 auto',
-    marginTop: isMobile ? '48px' : '56px',
-    // Account for navbar height
+    marginTop: isMobile ? '16px' : '24px', // Reduced from 48px/56px to match sides
     marginBottom: isMobile ? '4px' : '8px',
     padding: 0,
     overflow: 'visible',
@@ -26,4 +28,5 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({
       </CardContent>
     </Card>;
 };
+
 export default HeaderContainer;
