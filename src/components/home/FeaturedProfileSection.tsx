@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,7 +29,7 @@ const FeaturedProfileSection: React.FC = () => {
 
   const profileSets = [
     {
-      title: "Featured Profiles",
+      title: "Featured",
       profiles: ['smith.box', 'spyda.eth', 'zorida.eth'],
       type: 'featured'
     },
@@ -90,12 +89,12 @@ const FeaturedProfileSection: React.FC = () => {
           variant="ghost"
           size="icon"
           onClick={prevSlide}
-          className="absolute left-0 h-8 w-8 text-slate-300 hover:text-white hover:bg-slate-700"
+          className="absolute left-0 h-8 w-8 text-white hover:text-gray-200 hover:bg-slate-700"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
         
-        <h3 className="text-lg font-semibold text-slate-300 text-center">
+        <h3 className="text-lg font-semibold text-white text-center">
           Browse Profiles
         </h3>
         
@@ -103,13 +102,13 @@ const FeaturedProfileSection: React.FC = () => {
           variant="ghost"
           size="icon"
           onClick={nextSlide}
-          className="absolute right-0 h-8 w-8 text-slate-300 hover:text-white hover:bg-slate-700"
+          className="absolute right-0 h-8 w-8 text-white hover:text-gray-200 hover:bg-slate-700"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 
-      <h4 className="text-md font-medium text-slate-400 mb-4 text-center">
+      <h4 className="text-xl font-bold text-white mb-6 text-center bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
         {currentSet.title}
       </h4>
       
