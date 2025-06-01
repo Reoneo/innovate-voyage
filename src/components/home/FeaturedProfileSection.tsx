@@ -111,9 +111,9 @@ const FeaturedProfileSection: React.FC = () => {
           variant="ghost"
           size="icon"
           onClick={prevSlide}
-          className="absolute left-0 h-8 w-8 text-white hover:text-gray-200 hover:bg-slate-700"
+          className="absolute left-0 h-10 w-10 text-white hover:text-white hover:bg-slate-600/80 bg-slate-700/60 border border-slate-500/50 rounded-full shadow-lg backdrop-blur-sm"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-6 w-6" />
         </Button>
         
         <h3 className="text-lg font-semibold text-white text-center">
@@ -124,9 +124,9 @@ const FeaturedProfileSection: React.FC = () => {
           variant="ghost"
           size="icon"
           onClick={nextSlide}
-          className="absolute right-0 h-8 w-8 text-white hover:text-gray-200 hover:bg-slate-700"
+          className="absolute right-0 h-10 w-10 text-white hover:text-white hover:bg-slate-600/80 bg-slate-700/60 border border-slate-500/50 rounded-full shadow-lg backdrop-blur-sm"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-6 w-6" />
         </Button>
       </div>
 
