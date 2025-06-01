@@ -15,15 +15,12 @@ import { generateDeterministicAvatar } from './utils/fallbackAvatarHandler';
 export async function getRealAvatar(identity: string): Promise<string | null> {
   if (!identity) return null;
   
-  // Check cache first
-  if (avatarCache[identity]) {
-    return avatarCache[identity];
-  }
+  // Don't use cache to ensure fresh fetches
+  console.log(`Fetching fresh avatar for ${identity}`);
   
   // Special case for Avatar.ens - return the specific imgur URL
   if (identity.toLowerCase() === 'avatar.ens') {
     const avatarUrl = 'https://i.imgur.com/peeNEGL.png';
-    avatarCache[identity] = avatarUrl;
     return avatarUrl;
   }
   
@@ -33,12 +30,20 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     
     // First try the gskril/ens-api (most reliable source)
     try {
-      const ensApiResponse = await fetch(`https://ens-api.vercel.app/api/${identity}`);
+      const ensApiResponse = await fetch(`https://ens-api.vercel.app/api/${identity}`, {
+        cache: 'no-store'
+      });
       if (ensApiResponse.ok) {
         const ensApiData = await ensApiResponse.json();
         if (ensApiData && ensApiData.avatar) {
           console.log(`Found avatar via gskril/ens-api for ${identity}: ${ensApiData.avatar}`);
-          avatarCache[identity] = ensApiData.avatar;
+          
+          // Check if the avatar URL is the specific imgur URL we want to display
+          if (ensApiData.avatar === 'https://i.imgur.com/peeNEGL.png') {
+            console.log(`Returning specific imgur URL for ${identity}`);
+            return ensApiData.avatar;
+          }
+          
           return ensApiData.avatar;
         }
       }
@@ -49,11 +54,13 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     // Try metadata.ens.domains (official ENS service)
     try {
       const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
-      const metadataResponse = await fetch(metadataUrl, { method: 'HEAD' });
+      const metadataResponse = await fetch(metadataUrl, { 
+        method: 'HEAD',
+        cache: 'no-store'
+      });
       
       if (metadataResponse.ok) {
         console.log(`Found avatar via ENS metadata service for ${identity}`);
-        avatarCache[identity] = metadataUrl;
         return metadataUrl;
       }
     } catch (metadataError) {
@@ -82,7 +89,6 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     const profile = await fetchWeb3BioProfile(identity);
     if (profile && profile.avatar) {
       console.log(`Found avatar via Web3.bio for ${identity}`);
-      avatarCache[identity] = profile.avatar;
       return profile.avatar;
     }
     
