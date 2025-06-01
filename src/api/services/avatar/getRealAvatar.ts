@@ -73,8 +73,8 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
       if (eip155Avatar) return eip155Avatar;
     }
     
-    // If it's an ENS name, try multiple sources
-    if (identity.endsWith('.eth')) {
+    // If it's an ENS name or other supported domains, try multiple sources
+    if (identity.endsWith('.eth') || identity.endsWith('.bio') || identity.endsWith('.xyz') || identity.endsWith('.ai') || identity.endsWith('.io')) {
       const ensAvatar = await handleEnsAvatar(identity);
       if (ensAvatar) {
         // Check if the resolved avatar is an imgur URL

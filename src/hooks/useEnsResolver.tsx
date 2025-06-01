@@ -24,10 +24,14 @@ export function useEnsResolver(ensName?: string, address?: string) {
     lookupAddress
   } = useEnsResolution(ensName, address);
   
-  // Determine if we have an ENS name to resolve
+  // Determine if we have an ENS name to resolve - now includes additional TLDs
   const isEnsName = !!ensName && 
     (ensName.includes('.eth') || 
      ensName.includes('.box') || 
+     ensName.includes('.bio') || 
+     ensName.includes('.xyz') || 
+     ensName.includes('.ai') || 
+     ensName.includes('.io') ||
      ensName.includes('.id'));
 
   // Check if the input address looks valid
