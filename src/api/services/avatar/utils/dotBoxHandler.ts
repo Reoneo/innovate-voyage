@@ -80,9 +80,16 @@ export async function handleDotBoxAvatar(identity: string): Promise<string | nul
       }
     }
     
-    return null;
+    // Final fallback: use .box community avatar
+    console.log(`Using .box community avatar as fallback for ${identity}`);
+    const fallbackAvatar = '/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png';
+    avatarCache[identity] = fallbackAvatar;
+    return fallbackAvatar;
   } catch (error) {
     console.error(`Error fetching .box avatar for ${identity}:`, error);
-    return null;
+    // Even on error, return the .box community avatar
+    const fallbackAvatar = '/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png';
+    avatarCache[identity] = fallbackAvatar;
+    return fallbackAvatar;
   }
 }
