@@ -59,48 +59,12 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
         <HeaderContainer>
           <div className="w-full space-y-4 md:space-y-6 h-full">
             <div className="w-full flex flex-col gap-4 md:gap-6">
-              {isMobile ? (
-                <>
-                  <div className="w-full flex flex-col space-y-3 md:space-y-4">
-                    <AvatarSection
-                      avatarUrl={passport.avatar_url}
-                      name={passport.name}
-                      ownerAddress={passport.owner_address}
-                      socials={{
-                        ...passport.socials,
-                        linkedin: undefined
-                      }}
-                      bio={passport.bio}
-                      displayIdentity={ensNameOrAddress}
-                      additionalEnsDomains={passport.additionalEnsDomains}
-                    />
-                  </div>
-                  
-                  <div className="w-full space-y-4 md:space-y-6">
-                    <TalentScoreBanner walletAddress={passport.owner_address} />
-                    
-                    {showGitHubSection && (
-                      <div className="w-full">
-                        <GitHubContributionGraph username={githubUsername!} />
-                      </div>
-                    )}
-                    
-                    <div className="w-full">
-                      <FarcasterCastsSection 
-                        ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
-                        address={passport.owner_address}
-                      />
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <TwoColumnLayout 
-                  passport={passport}
-                  ensNameOrAddress={ensNameOrAddress}
-                  githubUsername={githubUsername}
-                  showGitHubSection={showGitHubSection}
-                />
-              )}
+              <TwoColumnLayout 
+                passport={passport}
+                ensNameOrAddress={ensNameOrAddress}
+                githubUsername={githubUsername}
+                showGitHubSection={showGitHubSection}
+              />
             </div>
           </div>
         </HeaderContainer>
