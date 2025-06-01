@@ -31,7 +31,7 @@ const FeaturedProfileSection: React.FC = () => {
   const profileSets = [
     {
       title: "Featured",
-      profiles: ['smith.box', 'spyda.eth', 'zorida.eth'],
+      profiles: ['smith.box', 'spyda.eth', 'zorida.eth', 'web3.bio'],
       type: 'featured'
     },
     {
@@ -143,20 +143,13 @@ const FeaturedProfileSection: React.FC = () => {
             ))}
           </div>
         ) : (
-          /* Honeycomb layout for Featured Profiles - Fixed */
+          /* Grid layout for Featured Profiles - Updated to handle 4 profiles */
           <div className="grid grid-cols-2 gap-6 items-start overflow-hidden">
-            {/* Top row - 2 profiles */}
-            <div className="flex justify-center">
-              <HoneycombProfile ensName={currentSet.profiles[0]} delay={0} showName={true} />
-            </div>
-            <div className="flex justify-center">
-              <HoneycombProfile ensName={currentSet.profiles[1]} delay={200} showName={true} />
-            </div>
-            
-            {/* Bottom row - 1 profile centered */}
-            <div className="col-span-2 flex justify-center">
-              <HoneycombProfile ensName={currentSet.profiles[2]} delay={400} showName={true} />
-            </div>
+            {currentSet.profiles.map((profile, index) => (
+              <div key={profile} className="flex justify-center">
+                <HoneycombProfile ensName={profile} delay={index * 200} showName={true} />
+              </div>
+            ))}
           </div>
         )}
       </div>
