@@ -13,7 +13,7 @@ const IndexContent = () => {
   const { isDayMode } = useTheme();
 
   return (
-    <div className={`h-screen relative overflow-hidden ${isDayMode ? 'bg-white' : 'bg-slate-900'}`}>
+    <div className={`min-h-screen relative ${isDayMode ? 'bg-white' : 'bg-slate-900'}`}>
       <SeoHelmet />
       
       {/* Theme toggle in top right */}
@@ -65,10 +65,10 @@ const IndexContent = () => {
       <HeroBackground />
       
       {/* Content */}
-      <div className="relative z-10 flex flex-col h-full overflow-hidden">
+      <div className="relative z-10 flex flex-col min-h-screen">
         {/* Hero Section with SEO-optimized structure */}
-        <section className="flex-1 py-2 px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-8 overflow-hidden">
-          <div className="max-w-7xl mx-auto h-full flex flex-col">
+        <section className="flex-1 py-2 px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-8">
+          <div className="max-w-7xl mx-auto flex flex-col">
             {/* H1 tag for primary SEO keyword */}
             <header>
               <h1 className="sr-only">Recruitment.box - Decentralized CV and Recruitment Engine for Web3 Talent</h1>
@@ -85,7 +85,7 @@ const IndexContent = () => {
             </div>
             
             {/* Featured content for engagement */}
-            <section aria-label="Featured blockchain professionals" className="flex-1 overflow-hidden">
+            <section aria-label="Featured blockchain professionals" className="mb-8">
               <FeaturedProfileSection />
             </section>
           </div>

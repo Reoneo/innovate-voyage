@@ -105,7 +105,7 @@ const FeaturedProfileSection: React.FC = () => {
   const canLoadPreviousEfp = isEfpLeaderboard && efpPage > 1;
 
   return (
-    <div className="max-w-4xl mx-auto h-full overflow-hidden">
+    <div className="max-w-4xl mx-auto h-auto">
       <div className="flex items-center justify-center mb-4 relative">
         <Button
           variant="ghost"
@@ -134,11 +134,11 @@ const FeaturedProfileSection: React.FC = () => {
         {currentSet.title}
       </h4>
       
-      {/* Profiles Grid - Fixed position, no scrolling */}
-      <div className="relative flex justify-center items-center mb-8 h-auto overflow-hidden">
+      {/* Profiles Grid - Allow scrolling */}
+      <div className="relative flex justify-center items-center mb-8 h-auto">
         {isBoxCommunity ? (
-          /* Grid layout for Box Community Members - Fixed */
-          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 items-start max-w-4xl overflow-hidden">
+          /* Grid layout for Box Community Members */
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 items-start max-w-4xl">
             {currentSet.profiles.map((profile, index) => (
               <div key={profile} className="flex justify-center">
                 <HoneycombProfile ensName={profile} delay={index * 50} showName={true} />
@@ -146,8 +146,8 @@ const FeaturedProfileSection: React.FC = () => {
             ))}
           </div>
         ) : isEfpLeaderboard ? (
-          /* Grid layout for EFP Leaderboard - Fixed */
-          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4 items-start max-w-6xl overflow-hidden">
+          /* Grid layout for EFP Leaderboard */
+          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4 items-start max-w-6xl">
             {currentSet.profiles.map((profile, index) => (
               <div key={profile} className="flex justify-center">
                 <HoneycombProfile ensName={profile} delay={index * 20} showName={true} />
@@ -155,8 +155,8 @@ const FeaturedProfileSection: React.FC = () => {
             ))}
           </div>
         ) : isEnsClub ? (
-          /* Grid layout for ENS Club - Fixed */
-          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-4 items-start max-w-5xl overflow-hidden">
+          /* Grid layout for ENS Club */
+          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-4 items-start max-w-5xl">
             {currentSet.profiles.map((profile, index) => (
               <div key={profile} className="flex justify-center">
                 <HoneycombProfile ensName={profile} delay={index * 25} showName={true} />
@@ -164,8 +164,8 @@ const FeaturedProfileSection: React.FC = () => {
             ))}
           </div>
         ) : (
-          /* Grid layout for Featured Profiles - Updated to handle 4 profiles */
-          <div className="grid grid-cols-2 gap-6 items-start overflow-hidden">
+          /* Grid layout for Featured Profiles */
+          <div className="grid grid-cols-2 gap-6 items-start">
             {currentSet.profiles.map((profile, index) => (
               <div key={profile} className="flex justify-center">
                 <HoneycombProfile ensName={profile} delay={index * 200} showName={true} />
