@@ -37,7 +37,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   return (
     <>
-      {/* First row: Blockchain Activity, Risk Score, Builder Score (when available) */}
+      {/* First row: Blockchain Activity, Builder Score, NFT Collection */}
       <div className={`${
         isMobile 
           ? 'flex flex-col gap-4' 
@@ -47,13 +47,6 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
           <BlockchainActivityBadge 
             walletAddress={walletAddress}
             onClick={() => handleBadgeClick('blockchain')}
-          />
-        </div>
-        <div className="transform hover:scale-105 transition-all duration-200">
-          <SecurityScoreBadge 
-            webacyData={securityData} 
-            onClick={() => handleBadgeClick('webacy')}
-            isLoading={webacyLoading} 
           />
         </div>
         {showTalentScore && (
@@ -66,20 +59,27 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             />
           </div>
         )}
-      </div>
-
-      {/* Second row: NFT Collection (centered) */}
-      <div className={`${
-        isMobile 
-          ? 'flex flex-col gap-4' 
-          : 'grid grid-cols-3 gap-6'
-      } mb-8`}>
         <div className="transform hover:scale-105 transition-all duration-200">
           <TransactionsBadge 
             txCount={txCount}
             walletAddress={walletAddress}
             onClick={handleNftButtonClick}
             isLoading={loading} 
+          />
+        </div>
+      </div>
+
+      {/* Second row: Risk Score (centered when only 1 item) */}
+      <div className={`${
+        isMobile 
+          ? 'flex flex-col gap-4' 
+          : 'grid grid-cols-3 gap-6'
+      } mb-8`}>
+        <div className="transform hover:scale-105 transition-all duration-200">
+          <SecurityScoreBadge 
+            webacyData={securityData} 
+            onClick={() => handleBadgeClick('webacy')}
+            isLoading={webacyLoading} 
           />
         </div>
         {/* Empty divs to maintain grid layout */}

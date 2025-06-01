@@ -15,9 +15,8 @@ const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0,
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Check if this is a 10k ENS Club profile (numeric.eth) or .box user
+  // Check if this is a 10k ENS Club profile (numeric.eth)
   const isEnsClub = ensName.endsWith('.eth') && /^\d+\.eth$/.test(ensName);
-  const isBoxUser = ensName.endsWith('.box');
 
   useEffect(() => {
     const fetchAvatar = async () => {
@@ -28,19 +27,19 @@ const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0,
         
         if (response.ok) {
           setAvatarUrl(metadataUrl);
-        } else if (isBoxUser) {
-          // Use the .box community avatar as fallback for .box domains
+        } else if (ensName.endsWith('.box')) {
+          // Use the uploaded image as fallback for .box domains
           setAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
-        } else if (isEnsClub) {
+        } else if (ensName.endsWith('.eth') && /^\d+\.eth$/.test(ensName)) {
           // For 10k ENS Club (numeric.eth), use the preview endpoint as fallback
           setAvatarUrl(`https://metadata.ens.domains/preview/${ensName}`);
         }
       } catch (error) {
         console.error(`Error fetching avatar for ${ensName}:`, error);
         // Apply fallbacks based on domain type
-        if (isBoxUser) {
+        if (ensName.endsWith('.box')) {
           setAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
-        } else if (isEnsClub) {
+        } else if (ensName.endsWith('.eth') && /^\d+\.eth$/.test(ensName)) {
           setAvatarUrl(`https://metadata.ens.domains/preview/${ensName}`);
         }
       } finally {
@@ -49,7 +48,7 @@ const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0,
     };
 
     fetchAvatar();
-  }, [ensName, delay, isBoxUser, isEnsClub]);
+  }, [ensName, delay]);
 
   const handleClick = () => {
     navigate(`/${ensName}`);
@@ -63,18 +62,18 @@ const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0,
       }`}
       onClick={handleClick}
     >
-      {/* Square container with avatar filling it - conditional rounded corners for ENS Club and .box users */}
+      {/* Square container with avatar filling it - consistent size, conditional rounded corners */}
       <div className={`w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-400/30 hover:border-blue-400 transition-all duration-300 overflow-hidden ${
-        (isEnsClub || isBoxUser) ? '' : 'rounded-lg'
+        isEnsClub ? '' : 'rounded-lg'
       }`}>
-        <Avatar className={`w-full h-full ${(isEnsClub || isBoxUser) ? '' : 'rounded-lg'}`}>
+        <Avatar className={`w-full h-full ${isEnsClub ? '' : 'rounded-lg'}`}>
           <AvatarImage 
             src={avatarUrl} 
             alt={`${ensName} avatar`} 
-            className={`object-cover w-full h-full ${(isEnsClub || isBoxUser) ? '' : 'rounded-lg'}`}
+            className={`object-cover w-full h-full ${isEnsClub ? '' : 'rounded-lg'}`}
           />
           <AvatarFallback className={`bg-slate-700 text-slate-300 text-xs font-medium w-full h-full flex items-center justify-center ${
-            (isEnsClub || isBoxUser) ? '' : 'rounded-lg'
+            isEnsClub ? '' : 'rounded-lg'
           }`}>
             {ensName.slice(0, 2).toUpperCase()}
           </AvatarFallback>
