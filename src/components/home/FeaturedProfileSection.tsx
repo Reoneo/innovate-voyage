@@ -7,6 +7,7 @@ import HoneycombProfile from './HoneycombProfile';
 const FeaturedProfileSection: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [ensClubPage, setEnsClubPage] = useState(1);
+  const [efpPage, setEfpPage] = useState(1);
   
   const generateEnsClubProfiles = (page: number) => {
     const startNum = (page - 1) * 20 + 1;
@@ -17,7 +18,7 @@ const FeaturedProfileSection: React.FC = () => {
     });
   };
 
-  const efpLeaderboardProfiles = [
+  const allEfpLeaderboardProfiles = [
     'sargent.eth', '👁️‍🗨️.eth', '2️⃣2️⃣.eth', '🐈‍⬛.eth', 'shannon1.eth', 'mmmm.eth', 'going.eth', 'followmeme.eth',
     'furyan.eth', '0xthrpw.eth', 'okarun.eth', 'autist.eth', '👨‍🎤.eth', 'didierkrux.eth', 'deadstock.eth', '🤵🏼‍♂️.eth',
     'slowsort.eth', 'brianarmstrong.eth', 'art.mely.eth', 'bullieverisland.eth', 'efp.encrypteddegen.eth', 'broke.eth',
@@ -27,6 +28,12 @@ const FeaturedProfileSection: React.FC = () => {
     'lagovskii333.eth', 'grado.eth', 'encrypteddegen.eth', 'web3go.eth', 'cordaro.eth', 'spacebro.eth', 'cocoon.eth',
     'beautifulinwhite.eth', 'costly.eth', 'khori.eth', 'web3come.eth', 'web3cn.eth', 'brantly.eth', 'onose.eth'
   ];
+
+  const getEfpLeaderboardProfiles = (page: number) => {
+    const startIndex = (page - 1) * 20;
+    const endIndex = Math.min(startIndex + 20, allEfpLeaderboardProfiles.length);
+    return allEfpLeaderboardProfiles.slice(startIndex, endIndex);
+  };
 
   const profileSets = [
     {
@@ -46,7 +53,7 @@ const FeaturedProfileSection: React.FC = () => {
     },
     {
       title: "EFP Leaderboard",
-      profiles: efpLeaderboardProfiles,
+      profiles: getEfpLeaderboardProfiles(efpPage),
       type: 'leaderboard'
     },
     {
@@ -76,12 +83,26 @@ const FeaturedProfileSection: React.FC = () => {
     }
   };
 
+  const loadMoreEfpProfiles = () => {
+    if (efpPage * 20 < allEfpLeaderboardProfiles.length) {
+      setEfpPage(prev => prev + 1);
+    }
+  };
+
+  const loadPreviousEfpProfiles = () => {
+    if (efpPage > 1) {
+      setEfpPage(prev => prev - 1);
+    }
+  };
+
   const currentSet = profileSets[currentSlide];
   const isBoxCommunity = currentSlide === 1;
   const isEfpLeaderboard = currentSlide === 2;
   const isEnsClub = currentSlide === 3;
   const canLoadMore = isEnsClub && ensClubPage * 20 < 999;
   const canLoadPrevious = isEnsClub && ensClubPage > 1;
+  const canLoadMoreEfp = isEfpLeaderboard && efpPage * 20 < allEfpLeaderboardProfiles.length;
+  const canLoadPreviousEfp = isEfpLeaderboard && efpPage > 1;
 
   return (
     <div className="max-w-4xl mx-auto h-full overflow-hidden">
@@ -153,6 +174,33 @@ const FeaturedProfileSection: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Navigation buttons for EFP Leaderboard with black text */}
+      {isEfpLeaderboard && (
+        <div className="flex justify-center items-center gap-4 mb-4">
+          {canLoadPreviousEfp && (
+            <Button
+              onClick={loadPreviousEfpProfiles}
+              variant="outline"
+              className="border-slate-600 hover:bg-slate-800 text-black hover:text-black bg-white hover:bg-gray-100"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          )}
+          
+          {canLoadMoreEfp && (
+            <Button
+              onClick={loadMoreEfpProfiles}
+              variant="outline"
+              className="border-slate-600 hover:bg-slate-800 text-black hover:text-black bg-white hover:bg-gray-100"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Next
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Navigation buttons for ENS Club with black text */}
       {isEnsClub && (
