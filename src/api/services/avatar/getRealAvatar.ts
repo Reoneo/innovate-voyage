@@ -38,9 +38,9 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
         if (ensApiData && ensApiData.avatar) {
           console.log(`Found avatar via gskril/ens-api for ${identity}: ${ensApiData.avatar}`);
           
-          // Check if the avatar URL is the specific imgur URL we want to display
-          if (ensApiData.avatar === 'https://i.imgur.com/peeNEGL.png') {
-            console.log(`Returning specific imgur URL for ${identity}`);
+          // Check if the avatar URL is an imgur URL - if so, return it directly
+          if (ensApiData.avatar.includes('imgur.com')) {
+            console.log(`Returning imgur URL for ${identity}: ${ensApiData.avatar}`);
             return ensApiData.avatar;
           }
           
@@ -76,7 +76,14 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     // If it's an ENS name, try multiple sources
     if (identity.endsWith('.eth')) {
       const ensAvatar = await handleEnsAvatar(identity);
-      if (ensAvatar) return ensAvatar;
+      if (ensAvatar) {
+        // Check if the resolved avatar is an imgur URL
+        if (ensAvatar.includes('imgur.com')) {
+          console.log(`Returning imgur URL from ENS handler for ${identity}: ${ensAvatar}`);
+          return ensAvatar;
+        }
+        return ensAvatar;
+      }
     }
     
     // For .box domains, try specific approach
@@ -89,6 +96,11 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     const profile = await fetchWeb3BioProfile(identity);
     if (profile && profile.avatar) {
       console.log(`Found avatar via Web3.bio for ${identity}`);
+      // Check if the avatar is an imgur URL
+      if (profile.avatar.includes('imgur.com')) {
+        console.log(`Returning imgur URL from Web3.bio for ${identity}: ${profile.avatar}`);
+        return profile.avatar;
+      }
       return profile.avatar;
     }
     
