@@ -20,6 +20,13 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     return avatarCache[identity];
   }
   
+  // Special case for Avatar.ens - return the specific imgur URL
+  if (identity.toLowerCase() === 'avatar.ens') {
+    const avatarUrl = 'https://i.imgur.com/peeNEGL.png';
+    avatarCache[identity] = avatarUrl;
+    return avatarUrl;
+  }
+  
   // If not in cache, fetch from API
   try {
     console.log(`Fetching avatar for ${identity}`);
