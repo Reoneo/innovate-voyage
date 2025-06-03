@@ -54,7 +54,7 @@ const HoneycombProfile: React.FC<HoneycombProfileProps> = ({
     navigate(`/${ensName}`);
     toast.success(`Loading ${ensName} profile`);
   };
-  return <div className={`relative cursor-pointer transform transition-all duration-500 hover:scale-110 hover:z-10 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} onClick={handleClick}>
+  return <div onClick={handleClick} className="">
       {/* Square container with avatar filling it - conditional rounded corners for ENS Club and .box users */}
       <div className={`w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-400/30 hover:border-blue-400 transition-all duration-300 overflow-hidden ${isEnsClub || isBoxUser ? '' : 'rounded-lg'}`}>
         <Avatar className={`w-full h-full ${isEnsClub || isBoxUser ? '' : 'rounded-lg'}`}>
