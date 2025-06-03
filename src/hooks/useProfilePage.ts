@@ -5,7 +5,6 @@ import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
 import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { secureStorage, validateInput } from '@/utils/securityUtils';
 
 export function useProfilePage() {
   const { ensNameOrAddress, userId } = useParams<{ensNameOrAddress?: string, userId?: string}>();
@@ -18,22 +17,19 @@ export function useProfilePage() {
   
   useEffect(() => {
     if (targetIdentifier) {
-      const sanitizedIdentifier = validateInput.sanitizeString(targetIdentifier.toLowerCase());
+      const normalizedIdentifier = targetIdentifier.toLowerCase();
       
-      if (validateInput.isValidEthereumAddress(sanitizedIdentifier)) {
-        setAddress(sanitizedIdentifier);
+      if (isValidEthereumAddress(normalizedIdentifier)) {
+        setAddress(normalizedIdentifier);
         setEns(undefined);
       } else {
-        const ensValue = sanitizedIdentifier.includes('.') ? sanitizedIdentifier : `${sanitizedIdentifier}.eth`;
-        if (validateInput.isValidENS(ensValue) || ensValue.includes('.')) {
-          setEns(ensValue);
-          setAddress(undefined);
-        }
+        const ensValue = normalizedIdentifier.includes('.') ? normalizedIdentifier : `${normalizedIdentifier}.eth`;
+        setEns(ensValue);
+        setAddress(undefined);
       }
     }
 
-    // Use secure storage for wallet address
-    const storedWallet = secureStorage.getItem('connectedWalletAddress');
+    const storedWallet = localStorage.getItem('connectedWalletAddress');
     setConnectedWallet(storedWallet);
 
     // Optimize viewport for faster rendering
@@ -59,7 +55,7 @@ export function useProfilePage() {
   const { profileRef } = usePdfExport();
 
   const handleDisconnect = () => {
-    secureStorage.removeItem('connectedWalletAddress');
+    localStorage.removeItem('connectedWalletAddress');
     setConnectedWallet(null);
     toast({
       title: "Wallet disconnected",
@@ -77,7 +73,7 @@ export function useProfilePage() {
   return {
     ensNameOrAddress: targetIdentifier,
     loading,
-    loadingTimeout: false,
+    loadingTimeout: false, // Removed timeout logic for faster loading
     passport: passport ? { ...passport, hasTalentProtocolData } : null,
     blockchainProfile,
     avatarUrl,

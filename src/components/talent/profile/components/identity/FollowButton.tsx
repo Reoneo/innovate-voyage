@@ -24,7 +24,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ targetAddress, className })
   };
 
   return (
-    <div className={`flex justify-center mt-1 mb-1 ${className || ''}`}>
+    <div className={`flex justify-center mt-2 mb-2 ${className || ''}`}>
       <button 
         onClick={handleClick}
         className="mx-auto"
