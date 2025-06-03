@@ -4,6 +4,14 @@ import { useBlockchainProfile, useLatestTransactions, useTokenTransfers } from '
 import { useWeb3BioProfile } from '@/hooks/useWeb3';
 import { fetchBlockchainData } from '@/api/services/blockchainDataService';
 
+interface BlockchainDataResponse {
+  mirrorPosts?: number;
+  lensActivity?: number;
+  boxDomains?: string[];
+  snsActive?: boolean;
+  description?: string;
+}
+
 /**
  * Hook to fetch and combine blockchain-related data for a user profile
  * @param resolvedAddress Ethereum address to fetch data for
@@ -33,13 +41,13 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
       if (resolvedAddress) {
         try {
           // Add timeout to prevent hanging requests
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Request timeout')), 5000)
+          const timeoutPromise = new Promise<never>((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), 3000)
           );
           
           const dataPromise = fetchBlockchainData(resolvedAddress);
           
-          const data = await Promise.race([dataPromise, timeoutPromise]);
+          const data = await Promise.race([dataPromise, timeoutPromise]) as BlockchainDataResponse;
           
           // Check if component is still mounted
           if (!controller.signal.aborted) {
