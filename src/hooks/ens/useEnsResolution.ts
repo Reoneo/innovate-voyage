@@ -31,10 +31,20 @@ export function useEnsResolution(ensName?: string, address?: string) {
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  // Maximum number of retry attempts
-  const MAX_RETRIES = 2;
+  // Reduced maximum retry attempts for faster loading
+  const MAX_RETRIES = 1;
 
-  // Function to resolve ENS name to address with retry logic
+  // Helper function to handle timeout for faster failures
+  const withTimeout = <T>(promise: Promise<T>, timeoutMs: number = 3000): Promise<T> => {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+      )
+    ]);
+  };
+
+  // Function to resolve ENS name to address with optimized error handling
   const resolveEns = useCallback(async (ensName: string) => {
     setIsLoading(true);
     setError(null);
@@ -46,55 +56,63 @@ export function useEnsResolution(ensName?: string, address?: string) {
         currentTry++;
         console.log(`Resolving ENS (attempt ${currentTry}): ${ensName}`);
         
-        const resolvedAddress = await resolveEnsToAddress(ensName);
+        const resolvedAddress = await withTimeout(resolveEnsToAddress(ensName));
         
         if (resolvedAddress) {
-          // Fetch links, avatar and bio in parallel
-          const [links, avatar, bio] = await Promise.all([
-            getEnsLinks(ensName, 'mainnet').catch(() => ({ 
-              socials: {}, ensLinks: [], keywords: [] 
-            })),
-            getEnsAvatar(ensName, 'mainnet').catch(() => null),
-            getEnsBio(ensName, 'mainnet').catch(() => null)
+          // Fetch data with shorter timeout and graceful fallbacks
+          const [links, avatar, bio] = await Promise.allSettled([
+            withTimeout(getEnsLinks(ensName, 'mainnet'), 2000),
+            withTimeout(getEnsAvatar(ensName, 'mainnet'), 2000),
+            withTimeout(getEnsBio(ensName, 'mainnet'), 2000)
           ]);
+          
+          const resolvedLinks = links.status === 'fulfilled' ? links.value : { 
+            socials: {}, ensLinks: [], keywords: [] 
+          };
+          const resolvedAvatar = avatar.status === 'fulfilled' ? avatar.value : null;
+          const resolvedBio = bio.status === 'fulfilled' ? bio.value : null;
           
           console.log(`ENS resolution for ${ensName}:`, { 
             address: resolvedAddress,
-            links,
-            avatar,
-            bio
+            links: resolvedLinks,
+            avatar: resolvedAvatar,
+            bio: resolvedBio
           });
           
           setState(prev => ({
             ...prev,
             resolvedAddress,
-            ensLinks: links || prev.ensLinks,
-            avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
+            ensLinks: resolvedLinks || prev.ensLinks,
+            avatarUrl: resolvedAvatar || prev.avatarUrl,
+            ensBio: resolvedBio || (resolvedLinks && 'description' in resolvedLinks ? resolvedLinks.description : undefined) || prev.ensBio
           }));
           
           setIsLoading(false);
           return;
         }
         
-        // If we got null but no error thrown, try again or give up
-        if (currentTry > MAX_RETRIES) {
-          setError(`Could not resolve ENS name: ${ensName}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
+        // Fast failure instead of retrying
+        setError(`Could not resolve ENS name: ${ensName}`);
+        break;
       } catch (error) {
         console.error(`Error resolving ${ensName} (attempt ${currentTry}):`, error);
         
-        if (currentTry > MAX_RETRIES) {
-          setError(`Error resolving ENS: ${(error as Error).message}`);
+        // For rate limiting or timeout errors, fail fast
+        if (error instanceof Error && 
+            (error.message.includes('timeout') || 
+             error.message.includes('too many requests') ||
+             error.message.includes('rate limit'))) {
+          console.log('Rate limit or timeout detected, failing fast');
           break;
         }
         
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
+        if (currentTry > MAX_RETRIES) {
+          setError(`Error resolving ENS: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          break;
+        }
+        
+        // Shorter wait for retry
+        await new Promise(r => setTimeout(r, 500));
       }
     }
     
@@ -102,7 +120,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
     setRetryCount(currentTry);
   }, [MAX_RETRIES]);
 
-  // Function to lookup address to ENS with retry logic
+  // Function to lookup address to ENS with optimized error handling
   const lookupAddress = useCallback(async (address: string) => {
     setIsLoading(true);
     setError(null);
@@ -114,56 +132,63 @@ export function useEnsResolution(ensName?: string, address?: string) {
         currentTry++;
         console.log(`Looking up address (attempt ${currentTry}): ${address}`);
         
-        const result = await resolveAddressToEns(address);
+        const result = await withTimeout(resolveAddressToEns(address));
         
         if (result) {
-          // Fetch links, avatar and bio in parallel
-          const [links, avatar, bio] = await Promise.all([
-            getEnsLinks(result.ensName, 'mainnet').catch(() => ({ 
-              socials: {}, ensLinks: [], keywords: [] 
-            })),
-            getEnsAvatar(result.ensName, 'mainnet').catch(() => null),
-            getEnsBio(result.ensName, 'mainnet').catch(() => null)
+          // Fetch data with shorter timeout and graceful fallbacks
+          const [links, avatar, bio] = await Promise.allSettled([
+            withTimeout(getEnsLinks(result.ensName, 'mainnet'), 2000),
+            withTimeout(getEnsAvatar(result.ensName, 'mainnet'), 2000),
+            withTimeout(getEnsBio(result.ensName, 'mainnet'), 2000)
           ]);
+          
+          const resolvedLinks = links.status === 'fulfilled' ? links.value : { 
+            socials: {}, ensLinks: [], keywords: [] 
+          };
+          const resolvedAvatar = avatar.status === 'fulfilled' ? avatar.value : null;
+          const resolvedBio = bio.status === 'fulfilled' ? bio.value : null;
           
           console.log(`Address lookup for ${address}:`, {
             ens: result.ensName,
-            links,
-            avatar,
-            bio
+            links: resolvedLinks,
+            avatar: resolvedAvatar,
+            bio: resolvedBio
           });
           
           setState(prev => ({
             ...prev,
             resolvedEns: result.ensName,
-            ensLinks: links || prev.ensLinks,
-            avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
+            ensLinks: resolvedLinks || prev.ensLinks,
+            avatarUrl: resolvedAvatar || prev.avatarUrl,
+            ensBio: resolvedBio || (resolvedLinks && 'description' in resolvedLinks ? resolvedLinks.description : undefined) || prev.ensBio
           }));
           
           setIsLoading(false);
           return;
         }
         
-        // If we got null but no error thrown, try again or give up
-        if (currentTry > MAX_RETRIES) {
-          // Don't set error here, just log - many addresses don't have ENS
-          console.log(`No ENS found for address: ${address}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
+        // Don't set error for addresses without ENS - this is normal
+        console.log(`No ENS found for address: ${address}`);
+        break;
       } catch (error) {
         console.error(`Error looking up ENS for address ${address} (attempt ${currentTry}):`, error);
         
-        if (currentTry > MAX_RETRIES) {
-          setError(`Error looking up address: ${(error as Error).message}`);
+        // For rate limiting or timeout errors, fail fast
+        if (error instanceof Error && 
+            (error.message.includes('timeout') || 
+             error.message.includes('too many requests') ||
+             error.message.includes('rate limit'))) {
+          console.log('Rate limit or timeout detected, failing fast');
           break;
         }
         
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
+        if (currentTry > MAX_RETRIES) {
+          setError(`Error looking up address: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          break;
+        }
+        
+        // Shorter wait for retry
+        await new Promise(r => setTimeout(r, 500));
       }
     }
     

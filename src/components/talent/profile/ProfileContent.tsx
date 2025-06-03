@@ -80,16 +80,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     );
   }
 
-  // For mobile, use full screen layout without HeaderContainer
-  if (isMobile) {
-    return (
-      <div ref={profileRef} id="resume-pdf" className="w-full h-screen">
-        {layoutComponent}
-      </div>
-    );
-  }
-
-  // Desktop layout with HeaderContainer
+  // Use HeaderContainer for both mobile and desktop
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-14">
       <HeaderContainer>

@@ -19,33 +19,60 @@ export function useBlockchainData(resolvedAddress?: string, resolvedEns?: string
     description: undefined as string | undefined
   });
 
-  // Fetch blockchain data
+  // Fetch blockchain data with optimized error handling
   const { data: blockchainProfile, isLoading: loadingBlockchain } = useBlockchainProfile(resolvedAddress);
   const { data: transactions } = useLatestTransactions(resolvedAddress, 20);
   const { data: tokenTransfers } = useTokenTransfers(resolvedAddress, 10);
   const { data: web3BioProfile } = useWeb3BioProfile(resolvedAddress || resolvedEns);
   
-  // Fetch additional blockchain data
+  // Fetch additional blockchain data with timeout and error handling
   useEffect(() => {
+    const controller = new AbortController();
+    
     const loadBlockchainData = async () => {
       if (resolvedAddress) {
         try {
-          const data = await fetchBlockchainData(resolvedAddress);
-          // Make sure we maintain the structure expected by our state
-          setBlockchainExtendedData({
-            mirrorPosts: data.mirrorPosts,
-            lensActivity: data.lensActivity,
-            boxDomains: data.boxDomains,
-            snsActive: data.snsActive,
-            description: data.description
-          });
+          // Add timeout to prevent hanging requests
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), 5000)
+          );
+          
+          const dataPromise = fetchBlockchainData(resolvedAddress);
+          
+          const data = await Promise.race([dataPromise, timeoutPromise]);
+          
+          // Check if component is still mounted
+          if (!controller.signal.aborted) {
+            setBlockchainExtendedData({
+              mirrorPosts: data.mirrorPosts || 0,
+              lensActivity: data.lensActivity || 0,
+              boxDomains: data.boxDomains || [],
+              snsActive: data.snsActive || false,
+              description: data.description
+            });
+          }
         } catch (error) {
-          console.error('Error fetching blockchain data:', error);
+          if (!controller.signal.aborted) {
+            console.error('Error fetching blockchain data:', error);
+            // Set default values on error instead of failing
+            setBlockchainExtendedData({
+              mirrorPosts: 0,
+              lensActivity: 0,
+              boxDomains: [],
+              snsActive: false,
+              description: undefined
+            });
+          }
         }
       }
     };
     
     loadBlockchainData();
+    
+    // Cleanup function to cancel request if component unmounts
+    return () => {
+      controller.abort();
+    };
   }, [resolvedAddress]);
 
   // Merge blockchain profile with extended data
