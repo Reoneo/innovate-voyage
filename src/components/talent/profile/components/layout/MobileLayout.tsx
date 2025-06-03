@@ -113,7 +113,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
       </div>
 
       {/* Right Column - 30% - Activity Cards with improved scroll */}
-      <div className="w-[30%] bg-gray-50 overflow-y-auto p-3 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+      <div className="w-[30%] bg-gray-50 overflow-y-auto p-3 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent py-[150px]">
         {/* Activity Cards with enhanced styling */}
         <TalentScoreBanner walletAddress={passport.owner_address} />
 

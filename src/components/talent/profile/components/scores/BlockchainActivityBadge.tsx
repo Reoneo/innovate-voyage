@@ -27,11 +27,7 @@ const BlockchainActivityBadge: React.FC<BlockchainActivityBadgeProps> = ({
               <RefreshCw className="h-4 w-4 text-gray-600" />
             </button>}
         </div>
-        <div className="text-sm text-gray-600 space-y-1">
-          {data.firstTransaction ? <div>First TX: {data.firstTransaction}</div> : <div>First TX: N/A</div>}
-          {data.ethBalance ? <div>ETH: {data.ethBalance}</div> : <div>ETH: 0</div>}
-          <div>TXs: {data.outgoingTransactions ?? 0}</div>
-        </div>
+        
       </div>
     </div>;
 };
