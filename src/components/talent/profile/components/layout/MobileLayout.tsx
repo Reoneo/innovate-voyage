@@ -10,8 +10,9 @@ import PoapSection from '../poap/PoapSection';
 import TalentScoreBanner from '../TalentScoreBanner';
 import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
-import { Copy } from 'lucide-react';
+import { Copy, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 interface MobileLayoutProps {
   passport: any;
@@ -46,132 +47,145 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
-  const handleCopyAddress = () => {
-    navigator.clipboard.writeText(passport.owner_address);
+  const handleCopyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(passport.owner_address);
+    } catch (error) {
+      console.log('Copy failed, using fallback');
+    }
   };
 
   return (
-    <div className="flex h-screen w-full bg-gray-50">
-      {/* Left Column - 70% */}
-      <div className="w-[70%] bg-white flex flex-col items-center justify-center p-6 space-y-4">
-        {/* Avatar with black circle background */}
-        <div className="relative">
-          <div className="w-32 h-32 bg-black rounded-full flex items-center justify-center">
-            <ProfileAvatar 
-              avatarUrl={passport.avatar_url} 
-              name={passport.name}
-            />
-          </div>
-        </div>
+    <div className="flex h-screen w-full bg-gradient-to-br from-purple-100 to-blue-100 overflow-hidden">
+      {/* Left Column - 70% - Main Profile */}
+      <div className="w-[70%] bg-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        {/* Gradient background accent */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-30"></div>
         
-        {/* Name/Identity */}
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-black mb-1">
-            {passport.name || ensNameOrAddress || 'web3.bio'}
-          </h1>
-          
-          {/* Address with copy button */}
-          <div className="flex items-center gap-2 justify-center">
-            <span className="text-sm text-gray-600 font-mono">
-              {passport.owner_address?.substring(0, 6)}...{passport.owner_address?.substring(passport.owner_address.length - 6)}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCopyAddress}
-              className="h-6 w-6 p-0"
-            >
-              <Copy className="h-3 w-3" />
-            </Button>
+        <div className="relative z-10 flex flex-col items-center space-y-4 max-w-full">
+          {/* Avatar with enhanced styling */}
+          <div className="relative">
+            <div className="w-36 h-36 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center shadow-xl ring-4 ring-white">
+              <div className="w-32 h-32 rounded-full overflow-hidden">
+                <ProfileAvatar 
+                  avatarUrl={passport.avatar_url} 
+                  name={passport.name}
+                />
+              </div>
+            </div>
           </div>
-        </div>
+          
+          {/* Name/Identity with better typography */}
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold text-gray-900 leading-tight">
+              {passport.name || ensNameOrAddress || 'web3.bio'}
+            </h1>
+            
+            {/* Address with improved copy functionality */}
+            <div className="flex items-center gap-2 justify-center bg-gray-50 rounded-full px-4 py-2">
+              <span className="text-sm text-gray-600 font-mono">
+                {passport.owner_address?.substring(0, 6)}...{passport.owner_address?.substring(passport.owner_address.length - 6)}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopyAddress}
+                className="h-6 w-6 p-0 hover:bg-gray-200"
+              >
+                <Copy className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
 
-        {/* Followers/Following */}
-        <div className="flex items-center gap-4 text-sm text-gray-600">
-          <span><strong>3</strong> Followers</span>
-          <span>•</span>
-          <span>Following <strong>0</strong></span>
-        </div>
+          {/* Enhanced Followers/Following */}
+          <div className="flex items-center gap-6 text-sm text-gray-600 bg-white rounded-lg px-4 py-2 shadow-sm">
+            <span><strong className="text-gray-900">3</strong> Followers</span>
+            <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+            <span>Following <strong className="text-gray-900">0</strong></span>
+          </div>
 
-        {/* Follow Button */}
-        {!isOwner && passport.owner_address && (
-          <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-8 py-2 rounded-md">
-            👤 Follow
-          </Button>
-        )}
+          {/* Enhanced Follow Button */}
+          {!isOwner && passport.owner_address && (
+            <Button className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-semibold px-8 py-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-200">
+              👤 Follow
+            </Button>
+          )}
 
-        {/* Contact Info */}
-        <div className="text-center">
-          <ProfileContact 
-            email={normalizedSocials.email}
-            telephone={telephone}
-            isOwner={isOwner}
-          />
-        </div>
+          {/* Contact Info with better visibility */}
+          {(normalizedSocials.email || telephone) && (
+            <div className="text-center bg-white rounded-lg p-3 shadow-sm">
+              {normalizedSocials.email && (
+                <div className="flex items-center gap-2 justify-center text-sm text-gray-600">
+                  <Mail className="h-4 w-4" />
+                  <span>{normalizedSocials.email}</span>
+                </div>
+              )}
+              {telephone && (
+                <div className="flex items-center gap-2 justify-center text-sm text-gray-600 mt-1">
+                  <span>📱 {telephone}</span>
+                </div>
+              )}
+            </div>
+          )}
 
-        {/* POAP Section */}
-        <div className="w-full max-w-xs">
-          <PoapSection walletAddress={passport.owner_address} />
+          {/* POAPs Section - Enhanced */}
+          <div className="w-full max-w-xs">
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <PoapSection walletAddress={passport.owner_address} />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Right Column - 30% with scroll */}
-      <div className="w-[30%] bg-gray-50 overflow-y-auto p-4 space-y-4">
-        {/* Onchain Activity Card */}
-        <div className="bg-blue-100 rounded-2xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm">⛓️</span>
-            </div>
-            <h3 className="font-semibold text-gray-800">Onchain Activity</h3>
-          </div>
-          <div className="text-sm text-gray-600 space-y-1">
-            <div>First TX: 29/09/2024</div>
-            <div>ETH: 0.0259</div>
-            <div>TXs: 15</div>
-          </div>
-        </div>
+      {/* Right Column - 30% - Activity Cards with improved scroll */}
+      <div className="w-[30%] bg-gray-50 overflow-y-auto p-3 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        {/* Activity Cards with enhanced styling */}
+        <TalentScoreBanner walletAddress={passport.owner_address} />
 
-        {/* NFT Collection Card */}
-        <div className="bg-white rounded-2xl p-4 border">
-          <h3 className="font-semibold text-gray-800 mb-3">NFT Collection</h3>
-          <div className="flex items-center justify-center">
-            <div className="relative">
-              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-2xl">⛵</span>
-              </div>
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-bold">2</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Additional sections for scroll */}
+        {/* GitHub Section - Enhanced Card */}
         {showGitHubSection && (
-          <div className="bg-white rounded-2xl p-4 border">
-            <h3 className="font-semibold text-gray-800 mb-2">GitHub Activity</h3>
+          <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+                <span className="text-white text-sm">⚡</span>
+              </div>
+              <h3 className="font-semibold text-gray-800 text-sm">GitHub Activity</h3>
+            </div>
             <GitHubContributionGraph username={githubUsername!} />
-          </div>
+          </Card>
         )}
 
-        <div className="bg-white rounded-2xl p-4 border">
-          <h3 className="font-semibold text-gray-800 mb-2">Social Links</h3>
+        {/* Social Links - Enhanced Card */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <h3 className="font-semibold text-gray-800 mb-3 text-sm flex items-center gap-2">
+            <span className="text-lg">🔗</span>
+            Social Links
+          </h3>
           <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
-        </div>
+        </Card>
 
-        <div className="bg-white rounded-2xl p-4 border">
-          <h3 className="font-semibold text-gray-800 mb-2">Talent Score</h3>
-          <TalentScoreBanner walletAddress={passport.owner_address} />
-        </div>
-
-        <div className="bg-white rounded-2xl p-4 border">
-          <h3 className="font-semibold text-gray-800 mb-2">Farcaster</h3>
+        {/* Farcaster - Enhanced Card */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <h3 className="font-semibold text-gray-800 mb-3 text-sm flex items-center gap-2">
+            <span className="text-lg">💬</span>
+            Farcaster
+          </h3>
           <FarcasterCastsSection 
             ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
             address={passport.owner_address}
           />
-        </div>
+        </Card>
+
+        {/* Additional ENS Domains if available */}
+        {passport.additionalEnsDomains?.length > 0 && (
+          <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <h3 className="font-semibold text-gray-800 mb-3 text-sm flex items-center gap-2">
+              <span className="text-lg">🌐</span>
+              Other Domains
+            </h3>
+            <AdditionalEnsDomains domains={passport.additionalEnsDomains} />
+          </Card>
+        )}
       </div>
     </div>
   );
