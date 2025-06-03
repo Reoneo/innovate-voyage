@@ -3,10 +3,6 @@ import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
 import ProfileSkeleton from './ProfileSkeleton';
 import ProfileNotFound from './ProfileNotFound';
-import AvatarSection from './components/AvatarSection';
-import TalentScoreBanner from './components/TalentScoreBanner';
-import GitHubContributionGraph from './components/github/GitHubContributionGraph';
-import FarcasterCastsSection from './components/farcaster/FarcasterCastsSection';
 import TwoColumnLayout from './components/layout/TwoColumnLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -51,6 +47,27 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   const githubUsername = extractGitHubUsername();
   const showGitHubSection = !!githubUsername;
 
+  // For mobile, use full screen layout without HeaderContainer
+  if (isMobile) {
+    return (
+      <div ref={profileRef} id="resume-pdf" className="w-full h-screen">
+        {loading ? (
+          <ProfileSkeleton />
+        ) : passport ? (
+          <TwoColumnLayout 
+            passport={passport}
+            ensNameOrAddress={ensNameOrAddress}
+            githubUsername={githubUsername}
+            showGitHubSection={showGitHubSection}
+          />
+        ) : (
+          <ProfileNotFound />
+        )}
+      </div>
+    );
+  }
+
+  // Desktop layout with HeaderContainer
   return (
     <div ref={profileRef} id="resume-pdf" className="w-full pt-14">
       {loading ? (
