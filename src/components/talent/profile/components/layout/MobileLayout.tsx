@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
@@ -10,12 +11,14 @@ import PoapSection from '../poap/PoapSection';
 import TalentScoreBanner from '../TalentScoreBanner';
 import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
+
 interface MobileLayoutProps {
   passport: any;
   ensNameOrAddress?: string;
   githubUsername: string | null;
   showGitHubSection: boolean;
 }
+
 const MobileLayout: React.FC<MobileLayoutProps> = ({
   passport,
   ensNameOrAddress,
@@ -23,9 +26,11 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   showGitHubSection
 }) => {
   const [isOwner, setIsOwner] = React.useState(false);
+  
   React.useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
-    if (connectedWallet && passport?.owner_address && connectedWallet.toLowerCase() === passport.owner_address.toLowerCase()) {
+    if (connectedWallet && passport?.owner_address && 
+        connectedWallet.toLowerCase() === passport.owner_address.toLowerCase()) {
       setIsOwner(true);
     }
   }, [passport?.owner_address]);
@@ -37,39 +42,59 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
       normalizedSocials[key.toLowerCase()] = value;
     }
   });
+
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
-  return <div className="space-y-6 py-0 px-[30px]">
+
+  return (
+    <div className="space-y-6 px-6">
       {/* Avatar */}
-      <div className="flex flex-col items-center my-0 py-0">
-        <ProfileAvatar avatarUrl={passport.avatar_url} name={passport.name} />
+      <div className="flex flex-col items-center">
+        <ProfileAvatar 
+          avatarUrl={passport.avatar_url} 
+          name={passport.name} 
+        />
       </div>
       
       {/* Name and Address */}
-      <div className="text-center my-0 mx-0">
-        <NameSection name={passport.name} ownerAddress={passport.owner_address} displayIdentity={ensNameOrAddress} />
+      <div className="text-center">
+        <NameSection 
+          name={passport.name} 
+          ownerAddress={passport.owner_address}
+          displayIdentity={ensNameOrAddress}
+        />
       </div>
       
       {/* Additional ENS Domains */}
-      {passport.additionalEnsDomains?.length > 0 && <div className="text-center">
+      {passport.additionalEnsDomains?.length > 0 && (
+        <div className="text-center">
           <AdditionalEnsDomains domains={passport.additionalEnsDomains} />
-        </div>}
+        </div>
+      )}
       
       {/* Contact Info */}
       <div className="text-center">
-        <ProfileContact email={normalizedSocials.email} telephone={telephone} isOwner={isOwner} />
+        <ProfileContact 
+          email={normalizedSocials.email}
+          telephone={telephone}
+          isOwner={isOwner}
+        />
       </div>
       
       {/* Follow Button */}
-      {!isOwner && passport.owner_address && <div className="text-center px-0 py-0 my-0">
+      {!isOwner && passport.owner_address && (
+        <div className="text-center">
           <FollowButton targetAddress={passport.owner_address} />
-        </div>}
+        </div>
+      )}
       
       {/* ENS Bio */}
-      {passport.bio && <div className="text-center">
+      {passport.bio && (
+        <div className="text-center">
           <p className="text-sm text-muted-foreground">
             {passport.bio}
           </p>
-        </div>}
+        </div>
+      )}
       
       {/* Social Links */}
       <div className="text-center">
@@ -85,10 +110,17 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
       <TalentScoreBanner walletAddress={passport.owner_address} />
       
       {/* GitHub Section */}
-      {showGitHubSection && <GitHubContributionGraph username={githubUsername!} />}
+      {showGitHubSection && (
+        <GitHubContributionGraph username={githubUsername!} />
+      )}
       
       {/* Farcaster Section */}
-      <FarcasterCastsSection ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined} address={passport.owner_address} />
-    </div>;
+      <FarcasterCastsSection 
+        ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+        address={passport.owner_address}
+      />
+    </div>
+  );
 };
+
 export default MobileLayout;
