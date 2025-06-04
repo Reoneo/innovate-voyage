@@ -23,7 +23,7 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
   return <div onClick={handleClick} className="cursor-pointer">
       <div className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-gray-900 to-black h-full rounded-2xl shadow-lg border border-gray-800 px-0 py-[12px]">
         <div className="flex items-center justify-center w-full">
-          <div className="text-white text-lg font-semibold">Builder Score</div>
+          
         </div>
         <div className="text-center w-full">
           <div className="text-4xl font-bold text-white mb-1">{score || 'N/A'}</div>
