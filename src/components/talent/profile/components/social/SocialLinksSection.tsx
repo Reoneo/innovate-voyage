@@ -15,14 +15,18 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   const [keywords, setKeywords] = useState<string[]>([]);
 
   useEffect(() => {
-    if (identity && (identity.includes('.eth') || identity.includes('.box'))) {
+    if (identity && (identity.includes('.eth') || identity.includes('.box') || identity.includes('.lens'))) {
       setIsLoading(true);
       getEnsLinks(identity)
         .then(links => {
+          console.log('ENS Links fetched:', links);
           if (links && links.socials) {
+            // Merge existing socials with ENS socials, giving priority to ENS data
             setSocialLinks(prevLinks => ({
               ...prevLinks,
-              ...links.socials
+              ...Object.fromEntries(
+                Object.entries(links.socials).filter(([_, value]) => value && value.trim() !== '')
+              )
             }));
           }
           
@@ -37,12 +41,12 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
         .finally(() => {
           setIsLoading(false);
         });
+    } else {
+      // If no valid identity, just use the provided socials
+      setSocialLinks(socials || {});
     }
-  }, [identity]);
+  }, [identity, socials]);
 
-  // Extract owner address from socials or use undefined
-  const ownerAddress = socials?.ethereum || socials?.walletAddress;
-  
   // Check if there are any social links
   const hasSocialLinks = Object.entries(socialLinks || {}).some(([key, val]) => val && val.trim() !== '');
   
