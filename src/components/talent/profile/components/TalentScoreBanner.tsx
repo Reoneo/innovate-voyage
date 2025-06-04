@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import TalentScoreBadge from './scores/TalentScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
@@ -10,117 +9,71 @@ import { NftCollectionsSection } from './nft/NftCollectionsSection';
 import GitHubContributionGraph from './github/GitHubContributionGraph';
 import { useWebacyData } from '@/hooks/useWebacyData';
 import { useIsMobile } from '@/hooks/use-mobile';
-
 interface TalentScoreBannerProps {
   walletAddress: string;
   githubUsername?: string | null;
   showGitHubSection?: boolean;
 }
-
-const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ 
-  walletAddress, 
+const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
+  walletAddress,
   githubUsername,
-  showGitHubSection 
+  showGitHubSection
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions' | 'blockchain'>('talent');
-  const { score, txCount, loading } = useScoresData(walletAddress);
-  const { securityData, isLoading: webacyLoading } = useWebacyData(walletAddress);
+  const {
+    score,
+    txCount,
+    loading
+  } = useScoresData(walletAddress);
+  const {
+    securityData,
+    isLoading: webacyLoading
+  } = useWebacyData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
   const isMobile = useIsMobile();
-
   const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions' | 'blockchain') => {
     setActiveDialog(type);
     setDialogOpen(true);
   };
-
   const handleNftButtonClick = () => {
     setShowNftCollections(true);
   };
-
   if (!walletAddress) return null;
-
   const showTalentScore = score !== null && score !== undefined;
-
-  return (
-    <>
+  return <>
       {/* Main scores grid */}
-      <div className={`${
-        isMobile 
-          ? 'grid grid-cols-2 gap-3' 
-          : 'grid grid-cols-5 gap-6'
-      } mb-6`}>
+      <div className={`${isMobile ? 'grid grid-cols-2 gap-3' : 'grid grid-cols-5 gap-6'} mb-6`}>
         <div className="transform hover:scale-105 transition-all duration-200">
-          <BlockchainActivityBadge 
-            walletAddress={walletAddress}
-            onClick={() => handleBadgeClick('blockchain')}
-          />
+          <BlockchainActivityBadge walletAddress={walletAddress} onClick={() => handleBadgeClick('blockchain')} />
         </div>
         <div className="transform hover:scale-105 transition-all duration-200">
-          <SecurityScoreBadge 
-            webacyData={securityData} 
-            onClick={() => handleBadgeClick('webacy')}
-            isLoading={webacyLoading} 
-          />
+          <SecurityScoreBadge webacyData={securityData} onClick={() => handleBadgeClick('webacy')} isLoading={webacyLoading} />
         </div>
-        {showTalentScore && (
-          <div className="transform hover:scale-105 transition-all duration-200">
-            <TalentScoreBadge 
-              score={score} 
-              onClick={() => handleBadgeClick('talent')}
-              isLoading={loading} 
-              talentId={walletAddress} 
-            />
-          </div>
-        )}
+        {showTalentScore && <div className="transform hover:scale-105 transition-all duration-200">
+            <TalentScoreBadge score={score} onClick={() => handleBadgeClick('talent')} isLoading={loading} talentId={walletAddress} />
+          </div>}
         <div className="transform hover:scale-105 transition-all duration-200">
-          <TransactionsBadge 
-            txCount={txCount}
-            walletAddress={walletAddress}
-            onClick={handleNftButtonClick}
-            isLoading={loading} 
-          />
+          <TransactionsBadge txCount={txCount} walletAddress={walletAddress} onClick={handleNftButtonClick} isLoading={loading} />
         </div>
-        {showGitHubSection && githubUsername && (
-          <div className="transform hover:scale-105 transition-all duration-200">
-            <div className="bg-white rounded-2xl h-32 shadow-lg border border-gray-200 p-4 flex flex-col items-center justify-center">
-              <h3 className="text-sm font-semibold text-gray-800 mb-2">GitHub</h3>
-              <img 
-                src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" 
-                alt="GitHub" 
-                className="h-8 w-8"
-              />
-            </div>
-          </div>
-        )}
+        {showGitHubSection && githubUsername && <div className="transform hover:scale-105 transition-all duration-200">
+            
+          </div>}
       </div>
 
       {/* GitHub Contributions - Full width below the grid */}
-      {showGitHubSection && githubUsername && (
-        <div className="mb-6">
+      {showGitHubSection && githubUsername && <div className="mb-6">
           <GitHubContributionGraph username={githubUsername} />
-        </div>
-      )}
+        </div>}
 
-      <NftCollectionsSection 
-        walletAddress={walletAddress} 
-        showCollections={showNftCollections} 
-        onOpenChange={setShowNftCollections}
-      />
+      <NftCollectionsSection walletAddress={walletAddress} showCollections={showNftCollections} onOpenChange={setShowNftCollections} />
 
-      <ScoreDialog 
-        open={dialogOpen} 
-        onOpenChange={setDialogOpen}
-        type={activeDialog}
-        data={{
-          score,
-          webacyData: securityData,
-          txCount,
-          walletAddress
-        }}
-      />
-    </>
-  );
+      <ScoreDialog open={dialogOpen} onOpenChange={setDialogOpen} type={activeDialog} data={{
+      score,
+      webacyData: securityData,
+      txCount,
+      walletAddress
+    }} />
+    </>;
 };
-
 export default TalentScoreBanner;
