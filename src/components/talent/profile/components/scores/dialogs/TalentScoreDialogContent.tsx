@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLink, Award, TrendingUp, Users, Star } from 'lucide-react';
+import { ExternalLink, Award, TrendingUp, Users, Star, X } from 'lucide-react';
 import { getBuilderTitle } from '../utils/scoreUtils';
+import { DialogClose } from '@/components/ui/dialog';
 
 interface TalentScoreDialogContentProps {
   score: number | null;
@@ -12,12 +12,17 @@ interface TalentScoreDialogContentProps {
 const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ score, walletAddress }) => {
   return (
     <div className="bg-gradient-to-br from-gray-900 to-black text-white min-h-screen">
+      <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-50">
+        <X className="h-6 w-6 text-white" />
+        <span className="sr-only">Close</span>
+      </DialogClose>
+
       <div className="p-6 space-y-6">
         {/* Header Section */}
         <div className="text-center space-y-4">
           <div className="mx-auto w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
             <img 
-              src="/talent-protocol-logo.png" 
+              src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1749024000000&signature=gA05Y_xpxrE7c0FNrxf1YPf5OUPml7643BmU_DZn2pc&downloadName=logomark_dark.jpg" 
               alt="Talent Protocol" 
               className="h-16 w-16 object-contain filter brightness-0 invert"
             />
