@@ -11,13 +11,21 @@ import type { Poap } from '@/api/services/poapService';
 
 interface PoapDetailContentProps {
   poap: Poap;
+  poapOwners?: any[];
+  loadingOwners?: boolean;
 }
 
-const PoapDetailContent: React.FC<PoapDetailContentProps> = ({ poap }) => {
-  const [owners, setOwners] = useState<any[]>([]);
-  const [loadingOwners, setLoadingOwners] = useState(true);
+const PoapDetailContent: React.FC<PoapDetailContentProps> = ({ poap, poapOwners: propOwners, loadingOwners: propLoadingOwners }) => {
+  const [owners, setOwners] = useState<any[]>(propOwners || []);
+  const [loadingOwners, setLoadingOwners] = useState(propLoadingOwners || true);
 
   useEffect(() => {
+    if (propOwners) {
+      setOwners(propOwners);
+      setLoadingOwners(propLoadingOwners || false);
+      return;
+    }
+
     const loadOwners = async () => {
       try {
         const ownersData = await fetchPoapEventOwners(poap.event.id);
@@ -30,7 +38,7 @@ const PoapDetailContent: React.FC<PoapDetailContentProps> = ({ poap }) => {
     };
 
     loadOwners();
-  }, [poap.event.id]);
+  }, [poap.event.id, propOwners, propLoadingOwners]);
 
   return (
     <div className="flex flex-col h-full">
@@ -47,7 +55,7 @@ const PoapDetailContent: React.FC<PoapDetailContentProps> = ({ poap }) => {
               <img 
                 src={poap.event.image_url} 
                 alt={poap.event.name}
-                className="w-32 h-32 rounded-full object-cover mx-auto shadow-lg"
+                className="w-40 h-40 rounded-full object-cover mx-auto shadow-lg"
               />
             </div>
             <DialogTitle className="text-2xl font-bold">{poap.event.name}</DialogTitle>
