@@ -1,7 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Poap } from '@/api/services/poapService';
+import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { type Poap } from '@/api/services/poapService';
 
 interface PoapCarouselProps {
   poaps: Poap[];
@@ -14,117 +15,147 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
   onPoapClick,
   onCarouselChange
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
 
   useEffect(() => {
-    if (onCarouselChange) {
-      onCarouselChange(currentIndex);
+    if (!api) {
+      return;
     }
-  }, [currentIndex, onCarouselChange]);
 
-  const nextPoap = () => {
-    setCurrentIndex((prev) => (prev + 1) % poaps.length);
-  };
+    const updateState = () => {
+      const currentIndex = api.selectedScrollSnap();
+      setCurrent(currentIndex);
+      setCanScrollPrev(api.canScrollPrev());
+      setCanScrollNext(api.canScrollNext());
+      onCarouselChange?.(currentIndex);
+    };
 
-  const prevPoap = () => {
-    setCurrentIndex((prev) => (prev - 1 + poaps.length) % poaps.length);
-  };
+    updateState();
+    api.on("select", updateState);
 
-  if (poaps.length === 0) return null;
+    return () => {
+      api.off("select", updateState);
+    };
+  }, [api, onCarouselChange]);
 
-  const currentPoap = poaps[currentIndex];
+  if (poaps.length <= 1) {
+    return (
+      <div className="flex items-center justify-center">
+        {poaps.map((poap) => (
+          <div 
+            key={poap.tokenId}
+            className="relative cursor-pointer group" 
+            onClick={() => onPoapClick(poap)}
+          >
+            <img 
+              src={poap.event.image_url} 
+              alt={poap.event.name} 
+              className="w-36 h-36 rounded-full cursor-pointer z-10 p-2 object-contain" 
+              style={{
+                background: 'rgba(0,0,0,0.7)'
+              }} 
+            />
+            <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // For large collections, show dots only for first 10 items and use counter
+  const shouldShowDots = poaps.length <= 10;
 
   return (
-    <div className="relative flex items-center justify-center">
-      {/* Previous Button */}
-      {poaps.length > 1 && (
-        <button
-          onClick={prevPoap}
-          className="absolute left-0 bottom-0 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
-          aria-label="Previous POAP"
-        >
-          <ChevronLeft className="h-5 w-5 text-gray-600" />
-        </button>
-      )}
-
-      {/* POAP Image with Rainbow Border */}
-      <div 
-        className="cursor-pointer transition-transform hover:scale-105 relative"
-        onClick={() => onPoapClick(currentPoap)}
+    <div className="relative w-full max-w-xs">
+      <Carousel 
+        setApi={setApi}
+        opts={{
+          align: 'center',
+          loop: poaps.length > 3
+        }} 
+        className="w-full"
       >
-        <div className="relative">
-          <style>{`
-            @keyframes rainbow-fade {
-              0% { 
-                border-color: #ff0000;
-                opacity: 0.8;
-              }
-              14% { 
-                border-color: #ff7300;
-                opacity: 1;
-              }
-              28% { 
-                border-color: #fffb00;
-                opacity: 0.9;
-              }
-              42% { 
-                border-color: #48ff00;
-                opacity: 1;
-              }
-              56% { 
-                border-color: #00ffd5;
-                opacity: 0.8;
-              }
-              70% { 
-                border-color: #002bff;
-                opacity: 1;
-              }
-              84% { 
-                border-color: #7a00ff;
-                opacity: 0.9;
-              }
-              100% { 
-                border-color: #ff0000;
-                opacity: 0.8;
-              }
-            }
-          `}</style>
-          <img
-            src={currentPoap.event.image_url}
-            alt={currentPoap.event.name}
-            className="w-80 h-80 rounded-full object-cover shadow-lg"
-            style={{
-              border: '6px solid #ff0000',
-              animation: 'rainbow-fade 3s ease-in-out infinite'
-            }}
-          />
-        </div>
+        <CarouselContent>
+          {poaps.map((poap) => (
+            <CarouselItem key={poap.tokenId} className="flex items-center justify-center">
+              <div 
+                className="relative cursor-pointer group" 
+                onClick={() => onPoapClick(poap)}
+              >
+                <img 
+                  src={poap.event.image_url} 
+                  alt={poap.event.name} 
+                  className="w-36 h-36 rounded-full cursor-pointer z-10 p-2 object-contain" 
+                  style={{
+                    background: 'rgba(0,0,0,0.7)'
+                  }} 
+                />
+                <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+
+      {/* Navigation Controls */}
+      <div className="flex items-center justify-center mt-2 space-x-4">
+        {/* Left Arrow */}
+        <button
+          onClick={() => api?.scrollPrev()}
+          disabled={!canScrollPrev}
+          className={`p-2 rounded-full transition-all ${
+            canScrollPrev 
+              ? 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-lg' 
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          }`}
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+
+        {/* Indicator: Either dots or counter */}
+        {shouldShowDots ? (
+          <div className="flex space-x-2">
+            {poaps.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => api?.scrollTo(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === current 
+                    ? 'bg-black scale-125' 
+                    : 'bg-gray-300 hover:bg-gray-400'
+                }`}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <span className="font-medium text-black">{current + 1}</span>
+            <span>/</span>
+            <span>{poaps.length}</span>
+          </div>
+        )}
+
+        {/* Right Arrow */}
+        <button
+          onClick={() => api?.scrollNext()}
+          disabled={!canScrollNext}
+          className={`p-2 rounded-full transition-all ${
+            canScrollNext 
+              ? 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-lg' 
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          }`}
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
       </div>
 
-      {/* Next Button */}
+      {/* Swipe Hint Text */}
       {poaps.length > 1 && (
-        <button
-          onClick={nextPoap}
-          className="absolute right-0 bottom-0 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
-          aria-label="Next POAP"
-        >
-          <ChevronRight className="h-5 w-5 text-gray-600" />
-        </button>
-      )}
-
-      {/* Dots Indicator */}
-      {poaps.length > 1 && (
-        <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 flex space-x-2">
-          {poaps.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                index === currentIndex ? 'bg-gray-800' : 'bg-gray-300'
-              }`}
-              aria-label={`Go to POAP ${index + 1}`}
-            />
-          ))}
+        <div className="text-xs text-center mt-1 text-muted-foreground">
+          Swipe or click arrows to browse POAPs
         </div>
       )}
     </div>

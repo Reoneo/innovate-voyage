@@ -1,151 +1,74 @@
 
 import React, { useState, useEffect } from 'react';
-import { SocialIcon } from '@/components/ui/social-icon';
-import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
+import SocialMediaLinks from '../../tabs/social/SocialMediaLinks';
 import { getEnsLinks } from '@/utils/ens/ensLinks';
+import { Badge } from '@/components/ui/badge';
 
 interface SocialLinksSectionProps {
-  socials?: Record<string, string>;
+  socials: Record<string, string>;
   identity?: string;
 }
 
-const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ 
-  socials = {}, 
-  identity 
-}) => {
-  const [allSocials, setAllSocials] = useState<Record<string, string>>(socials);
+const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identity }) => {
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>(socials || {});
   const [isLoading, setIsLoading] = useState(false);
+  const [keywords, setKeywords] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchAllSocialLinks = async () => {
-      if (!identity) return;
-
+    if (identity && (identity.includes('.eth') || identity.includes('.box') || identity.includes('.lens'))) {
       setIsLoading(true);
-      
-      try {
-        // Fetch from multiple sources
-        const [web3BioProfile, ensLinks] = await Promise.all([
-          fetchWeb3BioProfile(identity),
-          getEnsLinks(identity)
-        ]);
-
-        const combinedSocials: Record<string, string> = { ...socials };
-
-        // Add web3.bio data
-        if (web3BioProfile) {
-          if (web3BioProfile.github) combinedSocials.github = web3BioProfile.github;
-          if (web3BioProfile.twitter) combinedSocials.twitter = web3BioProfile.twitter;
-          if (web3BioProfile.linkedin) combinedSocials.linkedin = web3BioProfile.linkedin;
-          if (web3BioProfile.website) combinedSocials.website = web3BioProfile.website;
-          if (web3BioProfile.facebook) combinedSocials.facebook = web3BioProfile.facebook;
-          if (web3BioProfile.instagram) combinedSocials.instagram = web3BioProfile.instagram;
-          if (web3BioProfile.youtube) combinedSocials.youtube = web3BioProfile.youtube;
-          if (web3BioProfile.telegram) combinedSocials.telegram = web3BioProfile.telegram;
-          if (web3BioProfile.discord) combinedSocials.discord = web3BioProfile.discord;
-          if (web3BioProfile.email) combinedSocials.email = web3BioProfile.email;
-          if (web3BioProfile.whatsapp) combinedSocials.whatsapp = web3BioProfile.whatsapp;
-
-          // Handle links object
-          if (web3BioProfile.links) {
-            Object.entries(web3BioProfile.links).forEach(([key, value]: [string, any]) => {
-              if (value && value.link) {
-                combinedSocials[key] = value.link;
-              }
-            });
+      getEnsLinks(identity)
+        .then(links => {
+          console.log('ENS Links fetched:', links);
+          if (links && links.socials) {
+            // Merge existing socials with ENS socials, giving priority to ENS data
+            setSocialLinks(prevLinks => ({
+              ...prevLinks,
+              ...Object.fromEntries(
+                Object.entries(links.socials).filter(([_, value]) => value && value.trim() !== '')
+              )
+            }));
           }
-        }
-
-        // Add ENS links data
-        if (ensLinks && ensLinks.socials) {
-          Object.entries(ensLinks.socials).forEach(([key, value]) => {
-            if (value && !combinedSocials[key]) {
-              combinedSocials[key] = value;
-            }
-          });
-        }
-
-        setAllSocials(combinedSocials);
-        
-        // Refresh once more after 2 seconds to catch any delayed data
-        setTimeout(async () => {
-          try {
-            const refreshedProfile = await fetchWeb3BioProfile(identity);
-            if (refreshedProfile) {
-              const refreshedSocials = { ...combinedSocials };
-              Object.entries(refreshedProfile).forEach(([key, value]) => {
-                if (value && typeof value === 'string' && !refreshedSocials[key]) {
-                  refreshedSocials[key] = value;
-                }
-              });
-              setAllSocials(refreshedSocials);
-            }
-          } catch (error) {
-            console.error('Error during refresh:', error);
+          
+          // Extract keywords from ENS records
+          if (links && links.keywords) {
+            setKeywords(Array.isArray(links.keywords) ? links.keywords : [links.keywords]);
           }
-        }, 2000);
-
-      } catch (error) {
-        console.error('Error fetching social links:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAllSocialLinks();
+        })
+        .catch(error => {
+          console.error(`Error fetching social links for ${identity}:`, error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else {
+      // If no valid identity, just use the provided socials
+      setSocialLinks(socials || {});
+    }
   }, [identity, socials]);
 
-  const socialPlatforms = [
-    { key: 'twitter', type: 'twitter' },
-    { key: 'github', type: 'github' },
-    { key: 'linkedin', type: 'linkedin' },
-    { key: 'website', type: 'website' },
-    { key: 'discord', type: 'discord' },
-    { key: 'telegram', type: 'telegram' },
-    { key: 'instagram', type: 'instagram' },
-    { key: 'youtube', type: 'youtube' },
-    { key: 'facebook', type: 'facebook' },
-    { key: 'whatsapp', type: 'whatsapp' },
-    { key: 'email', type: 'mail' }
-  ];
-
-  const hasLinks = Object.values(allSocials).some(link => link && link.trim() !== '');
-
-  if (!hasLinks && !isLoading) {
-    return null;
+  // Check if there are any social links
+  const hasSocialLinks = Object.entries(socialLinks || {}).some(([key, val]) => val && val.trim() !== '');
+  
+  if (!hasSocialLinks && keywords.length === 0) {
+    return null; // Hide the entire section if no links or keywords available
   }
 
   return (
-    <div className="flex flex-wrap gap-2 justify-center">
-      {socialPlatforms.map((platform) => {
-        const link = allSocials[platform.key];
-        if (!link || link.trim() === '') return null;
-
-        let href = link;
-        if (platform.key === 'email') {
-          href = link.startsWith('mailto:') ? link : `mailto:${link}`;
-        } else if (platform.key === 'whatsapp') {
-          href = link.startsWith('https://') ? link : `https://wa.me/${link}`;
-        } else if (!link.startsWith('http://') && !link.startsWith('https://')) {
-          href = `https://${link}`;
-        }
-
-        return (
-          <a
-            key={platform.key}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-opacity hover:opacity-80"
-            title={`Visit ${platform.key}`}
-          >
-            <SocialIcon type={platform.type as any} size={24} />
-          </a>
-        );
-      })}
+    <div className="mt-4">
+      <div className="grid grid-cols-4 gap-4">
+        <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
+      </div>
       
-      {isLoading && (
-        <div className="text-xs text-muted-foreground">
-          Loading social links...
+      {keywords.length > 0 && (
+        <div className="mt-4">
+          <div className="flex flex-wrap gap-2">
+            {keywords.map((keyword, index) => (
+              <Badge key={index} variant="secondary" className="text-xs">
+                {keyword}
+              </Badge>
+            ))}
+          </div>
         </div>
       )}
     </div>

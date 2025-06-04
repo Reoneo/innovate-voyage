@@ -11,23 +11,14 @@ import type { Poap } from '@/api/services/poapService';
 
 interface PoapDetailContentProps {
   poap: Poap;
-  poapOwners?: any[];
-  loadingOwners?: boolean;
 }
 
-const PoapDetailContent: React.FC<PoapDetailContentProps> = ({ poap, poapOwners: propOwners, loadingOwners: propLoadingOwners }) => {
-  const [owners, setOwners] = useState<any[]>(propOwners || []);
-  const [loadingOwners, setLoadingOwners] = useState(propLoadingOwners || false);
+const PoapDetailContent: React.FC<PoapDetailContentProps> = ({ poap }) => {
+  const [owners, setOwners] = useState<any[]>([]);
+  const [loadingOwners, setLoadingOwners] = useState(true);
 
   useEffect(() => {
-    if (propOwners) {
-      setOwners(propOwners);
-      setLoadingOwners(propLoadingOwners || false);
-      return;
-    }
-
     const loadOwners = async () => {
-      setLoadingOwners(true);
       try {
         const ownersData = await fetchPoapEventOwners(poap.event.id);
         setOwners(ownersData);
@@ -39,12 +30,12 @@ const PoapDetailContent: React.FC<PoapDetailContentProps> = ({ poap, poapOwners:
     };
 
     loadOwners();
-  }, [poap.event.id, propOwners, propLoadingOwners]);
+  }, [poap.event.id]);
 
   return (
     <div className="flex flex-col h-full">
       <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-50">
-        <X className="h-6 w-6 text-white" />
+        <X className="h-6 w-6" />
         <span className="sr-only">Close</span>
       </DialogClose>
 
@@ -53,53 +44,11 @@ const PoapDetailContent: React.FC<PoapDetailContentProps> = ({ poap, poapOwners:
           {/* Header */}
           <DialogHeader className="text-center">
             <div className="mx-auto mb-4">
-              <div className="relative">
-                <style>{`
-                  @keyframes rainbow-fade {
-                    0% { 
-                      border-color: #ff0000;
-                      opacity: 0.8;
-                    }
-                    14% { 
-                      border-color: #ff7300;
-                      opacity: 1;
-                    }
-                    28% { 
-                      border-color: #fffb00;
-                      opacity: 0.9;
-                    }
-                    42% { 
-                      border-color: #48ff00;
-                      opacity: 1;
-                    }
-                    56% { 
-                      border-color: #00ffd5;
-                      opacity: 0.8;
-                    }
-                    70% { 
-                      border-color: #002bff;
-                      opacity: 1;
-                    }
-                    84% { 
-                      border-color: #7a00ff;
-                      opacity: 0.9;
-                    }
-                    100% { 
-                      border-color: #ff0000;
-                      opacity: 0.8;
-                    }
-                  }
-                `}</style>
-                <img 
-                  src={poap.event.image_url} 
-                  alt={poap.event.name}
-                  className="w-52 h-52 rounded-full object-cover mx-auto shadow-lg"
-                  style={{
-                    border: '6px solid #ff0000',
-                    animation: 'rainbow-fade 3s ease-in-out infinite'
-                  }}
-                />
-              </div>
+              <img 
+                src={poap.event.image_url} 
+                alt={poap.event.name}
+                className="w-32 h-32 rounded-full object-cover mx-auto shadow-lg"
+              />
             </div>
             <DialogTitle className="text-2xl font-bold">{poap.event.name}</DialogTitle>
           </DialogHeader>

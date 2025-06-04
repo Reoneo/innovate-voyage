@@ -65,10 +65,12 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   };
   
   return (
-    <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar rounded-lg">
+    <Avatar className={`h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar ${
+      isBoxUser ? '' : 'rounded-full'
+    }`}>
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <Skeleton className="h-full w-full rounded-lg" />
+          <Skeleton className={`h-full w-full ${isBoxUser ? 'rounded-lg' : 'rounded-full'}`} />
         </div>
       )}
       
@@ -76,7 +78,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
         <AvatarImage 
           src={finalAvatarUrl} 
           alt={name} 
-          className="object-cover rounded-lg"
+          className={`object-cover ${isBoxUser ? 'rounded-lg' : ''}`}
           onError={handleImageError}
           onLoad={handleImageLoad}
         />
@@ -84,13 +86,15 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
         <AvatarImage 
           src="/placeholder.svg" 
           alt={name} 
-          className="object-cover rounded-lg"
+          className={`object-cover ${isBoxUser ? 'rounded-lg' : ''}`}
           onError={handlePlaceholderError}
           onLoad={() => setIsLoading(false)}
         />
       )}
       
-      <AvatarFallback className="bg-primary/10 text-primary font-medium rounded-lg">
+      <AvatarFallback className={`bg-primary/10 text-primary font-medium ${
+        isBoxUser ? 'rounded-lg' : ''
+      }`}>
         {getInitials(name)}
       </AvatarFallback>
     </Avatar>
