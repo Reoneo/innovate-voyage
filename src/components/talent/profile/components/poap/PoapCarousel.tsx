@@ -40,7 +40,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
       {poaps.length > 1 && (
         <button
           onClick={prevPoap}
-          className="absolute left-0 bottom-4 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
+          className="absolute left-0 bottom-0 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
           aria-label="Previous POAP"
         >
           <ChevronLeft className="h-5 w-5 text-gray-600" />
@@ -53,25 +53,51 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
         onClick={() => onPoapClick(currentPoap)}
       >
         <div className="relative">
+          <style>{`
+            @keyframes rainbow-fade {
+              0% { 
+                border-color: #ff0000;
+                opacity: 0.8;
+              }
+              14% { 
+                border-color: #ff7300;
+                opacity: 1;
+              }
+              28% { 
+                border-color: #fffb00;
+                opacity: 0.9;
+              }
+              42% { 
+                border-color: #48ff00;
+                opacity: 1;
+              }
+              56% { 
+                border-color: #00ffd5;
+                opacity: 0.8;
+              }
+              70% { 
+                border-color: #002bff;
+                opacity: 1;
+              }
+              84% { 
+                border-color: #7a00ff;
+                opacity: 0.9;
+              }
+              100% { 
+                border-color: #ff0000;
+                opacity: 0.8;
+              }
+            }
+          `}</style>
           <img
             src={currentPoap.event.image_url}
             alt={currentPoap.event.name}
-            className="w-62 h-62 rounded-full object-cover shadow-lg animate-pulse"
+            className="w-80 h-80 rounded-full object-cover shadow-lg"
             style={{
-              border: '4px solid',
-              borderImage: 'linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000) 1',
-              animation: 'rainbow-border 3s linear infinite'
+              border: '6px solid #ff0000',
+              animation: 'rainbow-fade 3s ease-in-out infinite'
             }}
           />
-          <style jsx>{`
-            @keyframes rainbow-border {
-              0% { border-image-source: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); }
-              25% { border-image-source: linear-gradient(45deg, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000, #ff7300); }
-              50% { border-image-source: linear-gradient(45deg, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000, #ff7300, #fffb00); }
-              75% { border-image-source: linear-gradient(45deg, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000, #ff7300, #fffb00, #48ff00); }
-              100% { border-image-source: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); }
-            }
-          `}</style>
         </div>
       </div>
 
@@ -79,7 +105,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
       {poaps.length > 1 && (
         <button
           onClick={nextPoap}
-          className="absolute right-0 bottom-4 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
+          className="absolute right-0 bottom-0 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
           aria-label="Next POAP"
         >
           <ChevronRight className="h-5 w-5 text-gray-600" />

@@ -15,18 +15,18 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({
   return (
     <div className="w-full flex justify-center px-2 md:px-4">
       <Card style={{
-        minHeight: isMobile ? 'auto' : 'calc(100vh - 80px)',
+        minHeight: 'calc(100vh - 80px)',
         width: '100%',
-        maxWidth: isMobile ? '100vw' : '1200px',
+        maxWidth: '1200px',
         margin: '0 auto',
-        marginTop: isMobile ? '8px' : '16px',
-        marginBottom: isMobile ? '4px' : '8px',
+        marginTop: '16px',
+        marginBottom: '8px',
         padding: 0,
         overflow: 'visible',
         border: '1px solid #f0f0f0',
         borderRadius: '8px'
       }} className="bg-white shadow-sm rounded-sm w-full backdrop-blur-sm bg-opacity-95">
-        <CardContent className={`h-auto rounded-none ${isMobile ? 'p-3' : 'p-6 md:p-8'}`}>
+        <CardContent className="h-auto rounded-none p-6 md:p-8">
           {children}
         </CardContent>
       </Card>

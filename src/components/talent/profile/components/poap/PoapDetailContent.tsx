@@ -54,25 +54,51 @@ const PoapDetailContent: React.FC<PoapDetailContentProps> = ({ poap, poapOwners:
           <DialogHeader className="text-center">
             <div className="mx-auto mb-4">
               <div className="relative">
+                <style>{`
+                  @keyframes rainbow-fade {
+                    0% { 
+                      border-color: #ff0000;
+                      opacity: 0.8;
+                    }
+                    14% { 
+                      border-color: #ff7300;
+                      opacity: 1;
+                    }
+                    28% { 
+                      border-color: #fffb00;
+                      opacity: 0.9;
+                    }
+                    42% { 
+                      border-color: #48ff00;
+                      opacity: 1;
+                    }
+                    56% { 
+                      border-color: #00ffd5;
+                      opacity: 0.8;
+                    }
+                    70% { 
+                      border-color: #002bff;
+                      opacity: 1;
+                    }
+                    84% { 
+                      border-color: #7a00ff;
+                      opacity: 0.9;
+                    }
+                    100% { 
+                      border-color: #ff0000;
+                      opacity: 0.8;
+                    }
+                  }
+                `}</style>
                 <img 
                   src={poap.event.image_url} 
                   alt={poap.event.name}
-                  className="w-52 h-52 rounded-full object-cover mx-auto shadow-lg animate-pulse"
+                  className="w-52 h-52 rounded-full object-cover mx-auto shadow-lg"
                   style={{
-                    border: '4px solid',
-                    borderImage: 'linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000) 1',
-                    animation: 'rainbow-border 3s linear infinite'
+                    border: '6px solid #ff0000',
+                    animation: 'rainbow-fade 3s ease-in-out infinite'
                   }}
                 />
-                <style jsx>{`
-                  @keyframes rainbow-border {
-                    0% { border-image-source: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); }
-                    25% { border-image-source: linear-gradient(45deg, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000, #ff7300); }
-                    50% { border-image-source: linear-gradient(45deg, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000, #ff7300, #fffb00); }
-                    75% { border-image-source: linear-gradient(45deg, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000, #ff7300, #fffb00, #48ff00); }
-                    100% { border-image-source: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); }
-                  }
-                `}</style>
               </div>
             </div>
             <DialogTitle className="text-2xl font-bold">{poap.event.name}</DialogTitle>

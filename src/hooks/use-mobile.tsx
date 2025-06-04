@@ -16,6 +16,6 @@ export function useIsMobile() {
     return () => mql.removeEventListener("change", onChange)
   }, [])
 
-  // Force mobile layout for all screen sizes below 768px
-  return !!isMobile
+  // Force desktop layout for all screen sizes - return false to always show desktop mode
+  return false
 }
