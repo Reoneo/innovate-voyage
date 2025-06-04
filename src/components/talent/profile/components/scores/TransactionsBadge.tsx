@@ -46,7 +46,7 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({
   }
   return <>
       <div onClick={handleClick} className="cursor-pointer">
-        <div className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl h-full shadow-lg border border-gray-200 px-0 py-[14px]">
+        <div className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl h-full shadow-lg border border-gray-200 px-0 py-[16px]">
           <div className="text-center space-y-2">
             <h3 className="text-lg font-semibold text-gray-800">NFTs</h3>
             <div className="relative">
