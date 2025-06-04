@@ -9,7 +9,6 @@ import SocialLinksSection from '../social/SocialLinksSection';
 import FollowButton from '../identity/FollowButton';
 import PoapSection from '../poap/PoapSection';
 import TalentScoreBanner from '../TalentScoreBanner';
-import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -118,13 +117,12 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
       
       {/* Column 2: Blockchain Activity and Rest */}
       <div className={`space-y-6 ${isMobile ? 'overflow-y-auto max-h-screen' : ''}`}>
-        {/* Talent Score Banner (includes Blockchain Activity) */}
-        <TalentScoreBanner walletAddress={passport.owner_address} />
-        
-        {/* GitHub Section */}
-        {showGitHubSection && (
-          <GitHubContributionGraph username={githubUsername!} />
-        )}
+        {/* Talent Score Banner (includes Blockchain Activity, GitHub, NFTs) */}
+        <TalentScoreBanner 
+          walletAddress={passport.owner_address} 
+          githubUsername={githubUsername}
+          showGitHubSection={showGitHubSection}
+        />
         
         {/* Farcaster Section */}
         <FarcasterCastsSection 

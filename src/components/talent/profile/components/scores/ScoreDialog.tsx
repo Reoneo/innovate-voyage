@@ -3,9 +3,7 @@ import React from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import TalentScoreDialogContent from './dialogs/TalentScoreDialogContent';
 import WebacyDialogContent from './dialogs/WebacyDialogContent';
 import TransactionsDialogContent from './dialogs/TransactionsDialogContent';
@@ -24,8 +22,13 @@ interface ScoreDialogProps {
   };
 }
 
-const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, data }) => {
-  const getDialogContent = () => {
+const ScoreDialog: React.FC<ScoreDialogProps> = ({
+  open,
+  onOpenChange,
+  type,
+  data
+}) => {
+  const renderContent = () => {
     switch (type) {
       case 'talent':
         return <TalentScoreDialogContent score={data.score} walletAddress={data.walletAddress} />;
@@ -40,28 +43,10 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
     }
   };
 
-  const getDialogTitle = () => {
-    switch (type) {
-      case 'talent':
-        return 'Builder Score Details';
-      case 'webacy':
-        return 'Security Score Details';
-      case 'transactions':
-        return 'Transaction Details';
-      case 'blockchain':
-        return 'Blockchain Activity Details';
-      default:
-        return '';
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{getDialogTitle()}</DialogTitle>
-        </DialogHeader>
-        {getDialogContent()}
+      <DialogContent className="w-screen h-screen max-w-none m-0 rounded-none flex flex-col bg-white text-gray-900 border-0 shadow-2xl p-0">
+        {renderContent()}
       </DialogContent>
     </Dialog>
   );

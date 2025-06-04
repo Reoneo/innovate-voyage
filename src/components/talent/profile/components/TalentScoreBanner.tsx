@@ -7,14 +7,21 @@ import BlockchainActivityBadge from './scores/BlockchainActivityBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
+import GitHubContributionGraph from './github/GitHubContributionGraph';
 import { useWebacyData } from '@/hooks/useWebacyData';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TalentScoreBannerProps {
   walletAddress: string;
+  githubUsername?: string | null;
+  showGitHubSection?: boolean;
 }
 
-const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) => {
+const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ 
+  walletAddress, 
+  githubUsername,
+  showGitHubSection 
+}) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions' | 'blockchain'>('talent');
   const { score, txCount, loading } = useScoresData(walletAddress);
@@ -37,11 +44,11 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
 
   return (
     <>
-      {/* First row: Blockchain Activity, Risk Score, Builder Score (when available) */}
+      {/* Main scores grid */}
       <div className={`${
         isMobile 
-          ? 'flex flex-col gap-4' 
-          : 'grid grid-cols-3 gap-6'
+          ? 'grid grid-cols-2 gap-3' 
+          : 'grid grid-cols-5 gap-6'
       } mb-6`}>
         <div className="transform hover:scale-105 transition-all duration-200">
           <BlockchainActivityBadge 
@@ -66,14 +73,6 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             />
           </div>
         )}
-      </div>
-
-      {/* Second row: NFT Collection (centered) */}
-      <div className={`${
-        isMobile 
-          ? 'flex flex-col gap-4' 
-          : 'grid grid-cols-3 gap-6'
-      } mb-8`}>
         <div className="transform hover:scale-105 transition-all duration-200">
           <TransactionsBadge 
             txCount={txCount}
@@ -82,10 +81,26 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({ walletAddress }) 
             isLoading={loading} 
           />
         </div>
-        {/* Empty divs to maintain grid layout */}
-        <div></div>
-        <div></div>
+        {showGitHubSection && githubUsername && (
+          <div className="transform hover:scale-105 transition-all duration-200">
+            <div className="bg-white rounded-2xl h-32 shadow-lg border border-gray-200 p-4 flex flex-col items-center justify-center">
+              <h3 className="text-sm font-semibold text-gray-800 mb-2">GitHub</h3>
+              <img 
+                src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" 
+                alt="GitHub" 
+                className="h-8 w-8"
+              />
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* GitHub Contributions - Full width below the grid */}
+      {showGitHubSection && githubUsername && (
+        <div className="mb-6">
+          <GitHubContributionGraph username={githubUsername} />
+        </div>
+      )}
 
       <NftCollectionsSection 
         walletAddress={walletAddress} 

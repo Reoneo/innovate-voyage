@@ -17,7 +17,15 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
       return result;
     }
     
-    const resolver = await mainnetProvider.getResolver(ensName);
+    // Add timeout to resolver calls
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('ENS timeout')), 3000)
+    );
+    
+    const resolver = await Promise.race([
+      mainnetProvider.getResolver(ensName),
+      timeoutPromise
+    ]) as any;
     
     // Exit if no resolver found
     if (!resolver) {
@@ -25,25 +33,26 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
       return result;
     }
     
-    // Parallel fetch for all social records
+    // Parallel fetch for essential social records only
     const recordsToFetch = [
-      'com.github', 'com.twitter', 'com.discord', 'com.linkedin', 'org.telegram',
-      'com.reddit', 'email', 'url', 'description', 'avatar',
-      'com.instagram', 'io.keybase', 'xyz.lens', 'location', 'com.youtube',
-      'app.bsky', 'com.whatsapp', 'phone', 'name', 'notice', 'keywords'
+      'com.github', 'com.twitter', 'com.linkedin', 'email', 'description'
     ];
     
-    const records = await Promise.all(
-      recordsToFetch.map(async (key) => {
-        try {
-          const value = await resolver.getText(key);
-          return { key, value };
-        } catch (error) {
-          console.log(`Error fetching ${key} record:`, error);
-          return { key, value: null };
-        }
-      })
-    );
+    const recordPromises = recordsToFetch.map(async (key) => {
+      try {
+        const recordPromise = resolver.getText(key);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error(`Timeout for ${key}`)), 2000)
+        );
+        
+        const value = await Promise.race([recordPromise, timeoutPromise]) as string;
+        return { key, value };
+      } catch (error) {
+        return { key, value: null };
+      }
+    });
+    
+    const records = await Promise.all(recordPromises);
     
     // Map the records to our result structure
     records.forEach(({ key, value }) => {
@@ -56,51 +65,14 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
         case 'com.twitter':
           result.socials.twitter = value;
           break;
-        case 'com.discord':
-          result.socials.discord = value;
-          break;
         case 'com.linkedin':
           result.socials.linkedin = value;
-          console.log('Found LinkedIn in ENS records:', value);
-          break;
-        case 'org.telegram':
-          result.socials.telegram = value;
-          break;
-        case 'com.reddit':
-          result.socials.reddit = value;
           break;
         case 'email':
           result.socials.email = value;
           break;
-        case 'com.whatsapp':
-          result.socials.whatsapp = value;
-          break;
-        case 'app.bsky':
-          result.socials.bluesky = value;
-          break;
-        case 'url':
-          result.socials.website = value;
-          break;
-        case 'phone':
-          result.socials.telephone = value;
-          break;
-        case 'location':
-          result.socials.location = value;
-          break;
-        case 'com.instagram':
-          result.socials.instagram = value;
-          break;
-        case 'com.youtube':
-          result.socials.youtube = value;
-          break;
         case 'description':
           result.description = value;
-          break;
-        case 'keywords':
-          // Handle keywords - could be comma-separated or space-separated
-          result.keywords = value.split(/[,\s]+/).filter(k => k.trim().length > 0);
-          break;
-        default:
           break;
       }
     });
