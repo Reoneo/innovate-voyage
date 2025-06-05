@@ -23,52 +23,55 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
 
       try {
         // Fetch both sources in parallel with fast timeouts
-        const [web3BioProfile, ensLinks] = await Promise.allSettled([
+        const [web3BioResult, ensLinksResult] = await Promise.allSettled([
           Promise.race([
             fetchWeb3BioProfile(identity),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 800))
           ]),
           Promise.race([
             getEnsLinks(identity),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 800))
           ])
         ]);
 
-        // Process web3.bio data
-        if (web3BioProfile.status === 'fulfilled' && web3BioProfile.value) {
-          const profile = web3BioProfile.value;
+        // Process web3.bio data with proper type checking
+        if (web3BioResult.status === 'fulfilled' && web3BioResult.value && typeof web3BioResult.value === 'object') {
+          const profile = web3BioResult.value as any;
           const web3BioFields = [
             'github', 'twitter', 'linkedin', 'website', 'facebook', 'instagram', 
             'youtube', 'telegram', 'discord', 'email', 'whatsapp', 'bluesky'
           ];
           
           web3BioFields.forEach(field => {
-            if (profile[field] && !combinedSocials[field]) {
+            if (profile[field] && typeof profile[field] === 'string' && !combinedSocials[field]) {
               combinedSocials[field] = profile[field];
             }
           });
 
-          if (profile.links) {
+          if (profile.links && typeof profile.links === 'object') {
             Object.entries(profile.links).forEach(([key, value]: [string, any]) => {
-              if (value && value.link && !combinedSocials[key]) {
+              if (value && typeof value === 'object' && value.link && typeof value.link === 'string' && !combinedSocials[key]) {
                 combinedSocials[key] = value.link;
               }
             });
           }
         }
 
-        // Process ENS links data
-        if (ensLinks.status === 'fulfilled' && ensLinks.value && ensLinks.value.socials) {
-          Object.entries(ensLinks.value.socials).forEach(([key, value]) => {
-            if (value && !combinedSocials[key]) {
-              combinedSocials[key] = value;
-            }
-          });
+        // Process ENS links data with proper type checking
+        if (ensLinksResult.status === 'fulfilled' && ensLinksResult.value && typeof ensLinksResult.value === 'object') {
+          const ensData = ensLinksResult.value as any;
+          if (ensData.socials && typeof ensData.socials === 'object') {
+            Object.entries(ensData.socials).forEach(([key, value]) => {
+              if (value && typeof value === 'string' && !combinedSocials[key]) {
+                combinedSocials[key] = value;
+              }
+            });
+          }
         }
 
         setAllSocials(combinedSocials);
 
-      } catch {
+      } catch (error) {
         // Silently fail and use existing socials
         setAllSocials(combinedSocials);
       }
