@@ -44,15 +44,15 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
   return (
-    <div className="w-full px-4 space-y-6">
+    <div className="w-full space-y-3 px-1">
       {/* Profile Header Section */}
-      <div className="flex flex-col items-center space-y-4 bg-white rounded-xl p-6 shadow-sm border">
+      <div className="flex flex-col items-center space-y-3 bg-white rounded-lg p-3 shadow-sm border">
         <ProfileAvatar 
           avatarUrl={passport.avatar_url} 
           name={passport.name} 
         />
         
-        <div className="text-center w-full">
+        <div className="text-center w-full space-y-2">
           <NameSection 
             name={passport.name} 
             ownerAddress={passport.owner_address}
@@ -60,37 +60,29 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
           />
           
           {passport.additionalEnsDomains?.length > 0 && (
-            <div className="mt-2">
-              <AdditionalEnsDomains domains={passport.additionalEnsDomains} />
-            </div>
+            <AdditionalEnsDomains domains={passport.additionalEnsDomains} />
           )}
           
-          <div className="mt-3">
-            <ProfileContact 
-              email={normalizedSocials.email}
-              telephone={telephone}
-              isOwner={isOwner}
-            />
-          </div>
+          <ProfileContact 
+            email={normalizedSocials.email}
+            telephone={telephone}
+            isOwner={isOwner}
+          />
           
           {!isOwner && passport.owner_address && (
-            <div className="mt-3">
-              <FollowButton targetAddress={passport.owner_address} />
-            </div>
+            <FollowButton targetAddress={passport.owner_address} />
           )}
           
           {passport.bio && (
-            <div className="mt-3">
-              <p className="text-sm text-muted-foreground">
-                {passport.bio}
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              {passport.bio}
+            </p>
           )}
         </div>
       </div>
 
       {/* Social Links */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border">
+      <div className="bg-white rounded-lg p-3 shadow-sm border">
         <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
       </div>
       
@@ -102,12 +94,12 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
       />
       
       {/* POAP Section */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border">
+      <div className="bg-white rounded-lg p-3 shadow-sm border">
         <PoapSection walletAddress={passport.owner_address} />
       </div>
       
       {/* Farcaster Section */}
-      <div className="bg-white rounded-xl shadow-sm border">
+      <div className="bg-white rounded-lg shadow-sm border">
         <FarcasterCastsSection 
           ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
           address={passport.owner_address}

@@ -19,7 +19,7 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
     
     // Add timeout to resolver calls
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('ENS timeout')), 3000)
+      setTimeout(() => reject(new Error('ENS timeout')), 5000)
     );
     
     const resolver = await Promise.race([
@@ -33,16 +33,27 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
       return result;
     }
     
-    // Parallel fetch for essential social records only
+    // Comprehensive list of ENS text records to fetch
     const recordsToFetch = [
-      'com.github', 'com.twitter', 'com.linkedin', 'email', 'description'
+      // Social media records
+      'com.github', 'com.twitter', 'com.linkedin', 'com.discord', 'com.whatsapp',
+      'org.telegram', 'app.bsky.ens', 'xyz.farcaster.ens',
+      
+      // Contact and profile records
+      'email', 'url.ens', 'description', 'bio.ens', 'location.ens', 'keywords.ens',
+      
+      // Additional social platforms
+      'com.instagram', 'com.youtube', 'com.facebook', 'com.reddit',
+      
+      // Professional records
+      'website', 'portfolio', 'resume'
     ];
     
     const recordPromises = recordsToFetch.map(async (key) => {
       try {
         const recordPromise = resolver.getText(key);
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error(`Timeout for ${key}`)), 2000)
+          setTimeout(() => reject(new Error(`Timeout for ${key}`)), 3000)
         );
         
         const value = await Promise.race([recordPromise, timeoutPromise]) as string;
@@ -68,15 +79,60 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
         case 'com.linkedin':
           result.socials.linkedin = value;
           break;
+        case 'com.discord':
+          result.socials.discord = value;
+          break;
+        case 'com.whatsapp':
+          result.socials.whatsapp = value;
+          break;
+        case 'org.telegram':
+          result.socials.telegram = value;
+          break;
+        case 'app.bsky.ens':
+          result.socials.bluesky = value;
+          break;
+        case 'xyz.farcaster.ens':
+          result.socials.farcaster = value;
+          break;
+        case 'com.instagram':
+          result.socials.instagram = value;
+          break;
+        case 'com.youtube':
+          result.socials.youtube = value;
+          break;
+        case 'com.facebook':
+          result.socials.facebook = value;
+          break;
+        case 'com.reddit':
+          result.socials.reddit = value;
+          break;
         case 'email':
           result.socials.email = value;
           break;
+        case 'url.ens':
+        case 'website':
+          result.socials.website = value;
+          break;
         case 'description':
+        case 'bio.ens':
           result.description = value;
+          break;
+        case 'location.ens':
+          result.socials.location = value;
+          break;
+        case 'keywords.ens':
+          result.keywords = value.split(',').map(k => k.trim());
+          break;
+        case 'portfolio':
+          result.socials.portfolio = value;
+          break;
+        case 'resume':
+          result.socials.resume = value;
           break;
       }
     });
     
+    console.log(`ENS records fetched for ${ensName}:`, result);
     return result;
     
   } catch (error) {

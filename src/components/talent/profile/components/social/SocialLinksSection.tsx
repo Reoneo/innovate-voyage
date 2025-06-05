@@ -23,6 +23,8 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
       setIsLoading(true);
       
       try {
+        console.log(`Fetching comprehensive social links for ${identity}`);
+        
         // Fetch from multiple sources including all ENS text records
         const [web3BioProfile, ensLinks] = await Promise.all([
           fetchWeb3BioProfile(identity),
@@ -33,17 +35,16 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
 
         // Add web3.bio data
         if (web3BioProfile) {
-          if (web3BioProfile.github) combinedSocials.github = web3BioProfile.github;
-          if (web3BioProfile.twitter) combinedSocials.twitter = web3BioProfile.twitter;
-          if (web3BioProfile.linkedin) combinedSocials.linkedin = web3BioProfile.linkedin;
-          if (web3BioProfile.website) combinedSocials.website = web3BioProfile.website;
-          if (web3BioProfile.facebook) combinedSocials.facebook = web3BioProfile.facebook;
-          if (web3BioProfile.instagram) combinedSocials.instagram = web3BioProfile.instagram;
-          if (web3BioProfile.youtube) combinedSocials.youtube = web3BioProfile.youtube;
-          if (web3BioProfile.telegram) combinedSocials.telegram = web3BioProfile.telegram;
-          if (web3BioProfile.discord) combinedSocials.discord = web3BioProfile.discord;
-          if (web3BioProfile.email) combinedSocials.email = web3BioProfile.email;
-          if (web3BioProfile.whatsapp) combinedSocials.whatsapp = web3BioProfile.whatsapp;
+          const web3BioFields = [
+            'github', 'twitter', 'linkedin', 'website', 'facebook', 'instagram', 
+            'youtube', 'telegram', 'discord', 'email', 'whatsapp', 'bluesky'
+          ];
+          
+          web3BioFields.forEach(field => {
+            if (web3BioProfile[field]) {
+              combinedSocials[field] = web3BioProfile[field];
+            }
+          });
 
           // Handle links object
           if (web3BioProfile.links) {
@@ -55,7 +56,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
           }
         }
 
-        // Add ENS links data (this should now fetch ALL text records)
+        // Add ALL ENS links data
         if (ensLinks && ensLinks.socials) {
           Object.entries(ensLinks.socials).forEach(([key, value]) => {
             if (value && !combinedSocials[key]) {
@@ -64,9 +65,10 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
           });
         }
 
+        console.log(`Comprehensive social links for ${identity}:`, combinedSocials);
         setAllSocials(combinedSocials);
         
-        // Refresh once more after 2 seconds to catch any delayed data
+        // Refresh once more after 2 seconds to ensure we get all data
         setTimeout(async () => {
           try {
             const [refreshedProfile, refreshedEnsLinks] = await Promise.all([
@@ -93,6 +95,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
             }
             
             setAllSocials(refreshedSocials);
+            console.log(`Refreshed social links for ${identity}:`, refreshedSocials);
           } catch (error) {
             console.error('Error during refresh:', error);
           }
@@ -119,7 +122,12 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
     { key: 'youtube', type: 'youtube' },
     { key: 'facebook', type: 'facebook' },
     { key: 'whatsapp', type: 'whatsapp' },
-    { key: 'email', type: 'mail' }
+    { key: 'email', type: 'mail' },
+    { key: 'bluesky', type: 'website' },
+    { key: 'farcaster', type: 'website' },
+    { key: 'location', type: 'website' },
+    { key: 'portfolio', type: 'website' },
+    { key: 'resume', type: 'website' }
   ];
 
   const hasLinks = Object.values(allSocials).some(link => link && link.trim() !== '');
@@ -129,7 +137,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
   }
 
   return (
-    <div className="flex flex-wrap gap-3 justify-center">
+    <div className="flex flex-wrap gap-4 justify-center">
       {socialPlatforms.map((platform) => {
         const link = allSocials[platform.key];
         if (!link || link.trim() === '') return null;
@@ -139,6 +147,10 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
           href = link.startsWith('mailto:') ? link : `mailto:${link}`;
         } else if (platform.key === 'whatsapp') {
           href = link.startsWith('https://') ? link : `https://wa.me/${link}`;
+        } else if (platform.key === 'telegram') {
+          href = link.startsWith('https://') ? link : `https://t.me/${link}`;
+        } else if (platform.key === 'discord') {
+          href = link.includes('discord.com') ? link : `https://discord.com/users/${link}`;
         } else if (!link.startsWith('http://') && !link.startsWith('https://')) {
           href = `https://${link}`;
         }
@@ -150,16 +162,16 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             className="transition-opacity hover:opacity-80"
-            title={`Visit ${platform.key}`}
+            title={`Visit ${platform.key}: ${link}`}
           >
-            <SocialIcon type={platform.type as any} size={36} />
+            <SocialIcon type={platform.type as any} size={54} />
           </a>
         );
       })}
       
       {isLoading && (
         <div className="text-xs text-muted-foreground">
-          Loading social links...
+          Loading all social links...
         </div>
       )}
     </div>
