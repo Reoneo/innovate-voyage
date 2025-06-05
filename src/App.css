@@ -1,9 +1,17 @@
 
 #root {
+  width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   text-align: center;
+}
+
+@media (max-width: 768px) {
+  #root {
+    padding: 0.5rem;
+    max-width: 100%;
+  }
 }
 
 .logo {
@@ -38,16 +46,30 @@
   padding: 2em;
 }
 
+@media (max-width: 768px) {
+  .card {
+    padding: 1em;
+  }
+}
+
 .read-the-docs {
   color: #888;
 }
 
-/* GitHub Calendar Custom Styling - optimized for faster loading and more compact display */
+/* GitHub Calendar Custom Styling - optimized for mobile */
 .github-calendar-wrapper {
   border-radius: 8px;
   padding: 8px;
   background-color: #0d1117;
   margin-top: 0.5rem;
+  width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .github-calendar-wrapper {
+    padding: 4px;
+  }
 }
 
 .github-calendar-dark {
@@ -56,6 +78,8 @@
   padding: 0;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  width: 100%;
+  min-width: 300px;
 }
 
 /* Month labels - white for better visibility */
@@ -128,11 +152,19 @@
 }
 
 .calendar-container {
-  min-height: 70px; /* Further reduced height */
-  max-height: 90px; /* Reduced max height */
+  min-height: 70px;
+  max-height: 90px;
   margin-top: 0;
   padding-top: 0;
   padding-bottom: 0;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .calendar-container {
+    min-height: 60px;
+    max-height: 80px;
+  }
 }
 
 /* Make sure weekday and month labels are visible but compact */
@@ -146,13 +178,13 @@
   font-weight: 600;
 }
 
-/* Ensure the graph is responsive but compact */
+/* Ensure the graph is responsive */
 .react-github-calendar {
   width: 100%;
   overflow-x: auto;
 }
 
-/* Style the calendar graph cells with grid lines - more compact */
+/* Style the calendar graph cells with grid lines */
 .js-calendar-graph-svg rect {
   stroke: rgba(27, 31, 35, 0.6) !important;
   stroke-width: 1px !important;
@@ -163,7 +195,7 @@
   display: none;
 }
 
-/* New contribution display styles - more compact */
+/* New contribution display styles */
 .contributions-header h3 {
   font-size: 1rem;
   font-weight: 600;
@@ -171,7 +203,13 @@
   margin-bottom: 0;
 }
 
-/* Calendar container - more compact */
+@media (max-width: 768px) {
+  .contributions-header h3 {
+    font-size: 0.9rem;
+  }
+}
+
+/* Calendar container */
 .calendar-container {
   border-radius: 4px;
   overflow: hidden;
@@ -182,12 +220,18 @@
   color: #ffffff;
 }
 
+@media (max-width: 768px) {
+  .contribution-legend {
+    font-size: 0.6rem;
+  }
+}
+
 /* More compact legend items */
 .legend-item {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Optimize SVG rendering */
+/* Optimize SVG rendering for mobile */
 .react-github-calendar svg {
   width: 100%;
   height: auto;
@@ -196,11 +240,17 @@
   padding-top: 0;
 }
 
-/* Further reduce vertical spacing */
+/* Further reduce vertical spacing on mobile */
 .react-github-calendar {
   line-height: 0.9;
   margin-top: 0;
   padding-top: 0;
+}
+
+@media (max-width: 768px) {
+  .react-github-calendar {
+    line-height: 0.8;
+  }
 }
 
 /* All text in GitHub calendar components should be white */
@@ -232,8 +282,43 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-/* Profile content background becomes more transparent */
+/* Profile content background becomes more transparent and responsive */
 .profile-container {
   position: relative;
   z-index: 10;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 0;
+    margin: 0;
+  }
+}
+
+/* Ensure all containers are responsive */
+* {
+  box-sizing: border-box;
+}
+
+/* Prevent horizontal overflow */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Make sure all major containers are responsive */
+.container,
+.w-full,
+.max-w-full {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
 }

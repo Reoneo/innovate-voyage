@@ -44,9 +44,9 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
   return (
-    <div className="w-full space-y-3 px-1">
+    <div className="w-full max-w-full space-y-3 px-1 sm:px-2">
       {/* Profile Header Section */}
-      <div className="flex flex-col items-center space-y-3 bg-white rounded-lg p-3 shadow-sm border">
+      <div className="flex flex-col items-center space-y-3 bg-white rounded-lg p-3 shadow-sm border w-full">
         <ProfileAvatar 
           avatarUrl={passport.avatar_url} 
           name={passport.name} 
@@ -74,7 +74,7 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
           )}
           
           {passport.bio && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground break-words">
               {passport.bio}
             </p>
           )}
@@ -82,24 +82,26 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
       </div>
 
       {/* Social Links */}
-      <div className="bg-white rounded-lg p-3 shadow-sm border">
+      <div className="bg-white rounded-lg p-3 shadow-sm border w-full overflow-hidden">
         <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
       </div>
       
       {/* Scores and Activities */}
-      <TalentScoreBanner 
-        walletAddress={passport.owner_address} 
-        githubUsername={githubUsername}
-        showGitHubSection={showGitHubSection}
-      />
+      <div className="w-full overflow-hidden">
+        <TalentScoreBanner 
+          walletAddress={passport.owner_address} 
+          githubUsername={githubUsername}
+          showGitHubSection={showGitHubSection}
+        />
+      </div>
       
       {/* POAP Section */}
-      <div className="bg-white rounded-lg p-3 shadow-sm border">
+      <div className="bg-white rounded-lg p-3 shadow-sm border w-full overflow-hidden">
         <PoapSection walletAddress={passport.owner_address} />
       </div>
       
       {/* Farcaster Section */}
-      <div className="bg-white rounded-lg shadow-sm border">
+      <div className="bg-white rounded-lg shadow-sm border w-full overflow-hidden">
         <FarcasterCastsSection 
           ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
           address={passport.owner_address}
