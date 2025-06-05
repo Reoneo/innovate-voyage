@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
+import { getENSProfile } from '@/services/ensService';
 import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
-import { getEnsLinks } from '@/utils/ens/ensLinks';
 
 interface SocialLinksSectionProps {
   socials?: Record<string, string>;
@@ -14,66 +14,80 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
   identity 
 }) => {
   const [allSocials, setAllSocials] = useState<Record<string, string>>(socials);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchAllSocialLinks = async () => {
       if (!identity) return;
 
+      setLoading(true);
       const combinedSocials: Record<string, string> = { ...socials };
 
       try {
-        // Fetch both sources in parallel with fast timeouts
-        const [web3BioResult, ensLinksResult] = await Promise.allSettled([
-          Promise.race([
-            fetchWeb3BioProfile(identity),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 800))
-          ]),
-          Promise.race([
-            getEnsLinks(identity),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 800))
-          ])
+        // Fetch from multiple sources in parallel
+        const [ensProfile, web3BioProfile] = await Promise.allSettled([
+          getENSProfile(identity),
+          fetchWeb3BioProfile(identity)
         ]);
 
-        // Process web3.bio data with proper type checking
-        if (web3BioResult.status === 'fulfilled' && web3BioResult.value && typeof web3BioResult.value === 'object') {
-          const profile = web3BioResult.value as any;
-          const web3BioFields = [
-            'github', 'twitter', 'linkedin', 'website', 'facebook', 'instagram', 
-            'youtube', 'telegram', 'discord', 'email', 'whatsapp', 'bluesky'
-          ];
+        // Process ENS profile data
+        if (ensProfile.status === 'fulfilled' && ensProfile.value) {
+          const profile = ensProfile.value;
           
-          web3BioFields.forEach(field => {
-            if (profile[field] && typeof profile[field] === 'string' && !combinedSocials[field]) {
-              combinedSocials[field] = profile[field];
+          // Merge ENS socials
+          Object.entries(profile.socials).forEach(([key, value]) => {
+            if (value && typeof value === 'string' && !combinedSocials[key]) {
+              combinedSocials[key] = value;
             }
           });
 
-          if (profile.links && typeof profile.links === 'object') {
-            Object.entries(profile.links).forEach(([key, value]: [string, any]) => {
-              if (value && typeof value === 'object' && value.link && typeof value.link === 'string' && !combinedSocials[key]) {
-                combinedSocials[key] = value.link;
-              }
-            });
+          // Add additional fields from text records
+          if (profile.avatar && !combinedSocials.avatar) {
+            combinedSocials.avatar = profile.avatar;
+          }
+          if (profile.description && !combinedSocials.description) {
+            combinedSocials.description = profile.description;
           }
         }
 
-        // Process ENS links data with proper type checking
-        if (ensLinksResult.status === 'fulfilled' && ensLinksResult.value && typeof ensLinksResult.value === 'object') {
-          const ensData = ensLinksResult.value as any;
-          if (ensData.socials && typeof ensData.socials === 'object') {
-            Object.entries(ensData.socials).forEach(([key, value]) => {
-              if (value && typeof value === 'string' && !combinedSocials[key]) {
-                combinedSocials[key] = value;
+        // Process Web3Bio profile data
+        if (web3BioProfile.status === 'fulfilled' && web3BioProfile.value) {
+          const profile = web3BioProfile.value;
+          
+          // Handle different response formats
+          const profileData = Array.isArray(profile) ? profile[0] : profile;
+          
+          if (profileData && typeof profileData === 'object') {
+            const web3BioFields = [
+              'github', 'twitter', 'linkedin', 'website', 'facebook', 'instagram', 
+              'youtube', 'telegram', 'discord', 'email', 'whatsapp', 'bluesky', 
+              'farcaster', 'reddit', 'location'
+            ];
+            
+            web3BioFields.forEach(field => {
+              if (profileData[field] && typeof profileData[field] === 'string' && !combinedSocials[field]) {
+                combinedSocials[field] = profileData[field];
               }
             });
+
+            // Handle links object
+            if (profileData.links && typeof profileData.links === 'object') {
+              Object.entries(profileData.links).forEach(([key, value]: [string, any]) => {
+                if (value && typeof value === 'object' && value.link && typeof value.link === 'string' && !combinedSocials[key]) {
+                  combinedSocials[key] = value.link;
+                }
+              });
+            }
           }
         }
 
         setAllSocials(combinedSocials);
 
       } catch (error) {
-        // Silently fail and use existing socials
+        console.error('Error fetching social links:', error);
         setAllSocials(combinedSocials);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -94,6 +108,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
     { key: 'email', type: 'mail' },
     { key: 'bluesky', type: 'website' },
     { key: 'farcaster', type: 'website' },
+    { key: 'reddit', type: 'website' },
     { key: 'location', type: 'website' },
     { key: 'portfolio', type: 'website' },
     { key: 'resume', type: 'website' }
@@ -101,13 +116,17 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
 
   const hasLinks = Object.values(allSocials).some(link => link && link.trim() !== '');
 
-  if (!hasLinks) {
+  if (!hasLinks && !loading) {
     return null;
   }
 
   return (
     <div className="flex flex-wrap gap-3 justify-center">
-      {socialPlatforms.map((platform) => {
+      {loading && (
+        <div className="text-sm text-muted-foreground">Loading social links...</div>
+      )}
+      
+      {!loading && socialPlatforms.map((platform) => {
         const link = allSocials[platform.key];
         if (!link || link.trim() === '') return null;
 

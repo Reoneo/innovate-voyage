@@ -1,10 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { type Poap } from '@/api/services/poapService';
+
 interface PoapCarouselProps {
   poaps: Poap[];
   onPoapClick: (poap: Poap) => void;
   onCarouselChange?: (index: number) => void;
 }
+
 const PoapCarousel: React.FC<PoapCarouselProps> = ({
   poaps,
   onPoapClick,
@@ -12,20 +15,25 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [startX, setStartX] = useState<number | null>(null);
+
   useEffect(() => {
     if (onCarouselChange) {
       onCarouselChange(currentIndex);
     }
   }, [currentIndex, onCarouselChange]);
+
   const nextPoap = () => {
     setCurrentIndex(prev => (prev + 1) % poaps.length);
   };
+
   const prevPoap = () => {
     setCurrentIndex(prev => (prev - 1 + poaps.length) % poaps.length);
   };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     setStartX(e.touches[0].clientX);
   };
+
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!startX) return;
     const endX = e.changedTouches[0].clientX;
@@ -39,9 +47,13 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
     }
     setStartX(null);
   };
+
   if (poaps.length === 0) return null;
+
   const currentPoap = poaps[currentIndex];
-  return <>
+
+  return (
+    <>
       <style>
         {`
           @keyframes rainbow-spin {
@@ -94,24 +106,47 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
       </style>
       <div className="relative flex flex-col items-center justify-center">
         {/* POAP Image with Rainbow Border */}
-        <div className="cursor-pointer transition-transform hover:scale-105" onClick={() => onPoapClick(currentPoap)} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        <div 
+          className="cursor-pointer transition-transform hover:scale-105" 
+          onClick={() => onPoapClick(currentPoap)} 
+          onTouchStart={handleTouchStart} 
+          onTouchEnd={handleTouchEnd}
+        >
           <div className="rainbow-border">
-            <img src={currentPoap.event.image_url} alt={currentPoap.event.name} className="shadow-lg" />
+            <img 
+              src={currentPoap.event.image_url} 
+              alt={currentPoap.event.name} 
+              className="shadow-lg" 
+            />
           </div>
         </div>
 
         {/* Swipe Indicator */}
-        {poaps.length > 1 && <div className="mt-3 flex items-center gap-2 text-xs text-gray-500 swipe-indicator">
+        {poaps.length > 1 && (
+          <div className="mt-3 flex items-center gap-2 text-xs text-gray-500 swipe-indicator">
             <span>←</span>
             <span>Swipe to browse</span>
             <span>→</span>
-          </div>}
+          </div>
+        )}
 
         {/* Dots Indicator */}
-        {poaps.length > 1 && <div className="mt-2 flex space-x-2">
-            {poaps.map((_, index) => {})}
-          </div>}
+        {poaps.length > 1 && (
+          <div className="mt-2 flex space-x-2">
+            {poaps.map((_, index) => (
+              <button
+                key={index}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  index === currentIndex ? 'bg-blue-500' : 'bg-gray-300'
+                }`}
+                onClick={() => setCurrentIndex(index)}
+              />
+            ))}
+          </div>
+        )}
       </div>
-    </>;
+    </>
+  );
 };
+
 export default PoapCarousel;
