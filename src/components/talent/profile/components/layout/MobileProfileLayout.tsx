@@ -44,9 +44,9 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
   return (
-    <div className="w-full max-w-full space-y-3 px-1 sm:px-2">
-      {/* Profile Header Section */}
-      <div className="flex flex-col items-center space-y-3 bg-white rounded-lg p-3 shadow-sm border w-full">
+    <div className="w-full max-w-full space-y-4 px-2 py-2">
+      {/* Profile Header Section - Compact */}
+      <div className="flex flex-col items-center space-y-3 bg-white rounded-lg p-4 shadow-sm border w-full">
         <ProfileAvatar 
           avatarUrl={passport.avatar_url} 
           name={passport.name} 
@@ -74,20 +74,20 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
           )}
           
           {passport.bio && (
-            <p className="text-sm text-muted-foreground break-words">
+            <p className="text-sm text-muted-foreground break-words px-2">
               {passport.bio}
             </p>
           )}
         </div>
       </div>
 
-      {/* Social Links */}
-      <div className="bg-white rounded-lg p-3 shadow-sm border w-full overflow-hidden">
+      {/* Social Links - Compact */}
+      <div className="bg-white rounded-lg p-4 shadow-sm border w-full">
         <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
       </div>
       
-      {/* Scores and Activities */}
-      <div className="w-full overflow-hidden">
+      {/* Scores and Activities - Compact */}
+      <div className="w-full">
         <TalentScoreBanner 
           walletAddress={passport.owner_address} 
           githubUsername={githubUsername}
@@ -95,13 +95,13 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
         />
       </div>
       
-      {/* POAP Section */}
-      <div className="bg-white rounded-lg p-3 shadow-sm border w-full overflow-hidden">
+      {/* POAP Section - Compact */}
+      <div className="bg-white rounded-lg p-4 shadow-sm border w-full">
         <PoapSection walletAddress={passport.owner_address} />
       </div>
       
-      {/* Farcaster Section */}
-      <div className="bg-white rounded-lg shadow-sm border w-full overflow-hidden">
+      {/* Farcaster Section - Compact */}
+      <div className="bg-white rounded-lg shadow-sm border w-full">
         <FarcasterCastsSection 
           ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
           address={passport.owner_address}

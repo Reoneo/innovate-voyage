@@ -14,97 +14,63 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
   identity 
 }) => {
   const [allSocials, setAllSocials] = useState<Record<string, string>>(socials);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchAllSocialLinks = async () => {
       if (!identity) return;
 
-      setIsLoading(true);
-      
+      const combinedSocials: Record<string, string> = { ...socials };
+
       try {
-        console.log(`Fetching comprehensive social links for ${identity}`);
-        
-        // Fetch from multiple sources including all ENS text records
-        const [web3BioProfile, ensLinks] = await Promise.all([
-          fetchWeb3BioProfile(identity),
-          getEnsLinks(identity)
+        // Fetch both sources in parallel with fast timeouts
+        const [web3BioProfile, ensLinks] = await Promise.allSettled([
+          Promise.race([
+            fetchWeb3BioProfile(identity),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000))
+          ]),
+          Promise.race([
+            getEnsLinks(identity),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000))
+          ])
         ]);
 
-        const combinedSocials: Record<string, string> = { ...socials };
-
-        // Add web3.bio data
-        if (web3BioProfile) {
+        // Process web3.bio data
+        if (web3BioProfile.status === 'fulfilled' && web3BioProfile.value) {
+          const profile = web3BioProfile.value;
           const web3BioFields = [
             'github', 'twitter', 'linkedin', 'website', 'facebook', 'instagram', 
             'youtube', 'telegram', 'discord', 'email', 'whatsapp', 'bluesky'
           ];
           
           web3BioFields.forEach(field => {
-            if (web3BioProfile[field]) {
-              combinedSocials[field] = web3BioProfile[field];
+            if (profile[field] && !combinedSocials[field]) {
+              combinedSocials[field] = profile[field];
             }
           });
 
-          // Handle links object
-          if (web3BioProfile.links) {
-            Object.entries(web3BioProfile.links).forEach(([key, value]: [string, any]) => {
-              if (value && value.link) {
+          if (profile.links) {
+            Object.entries(profile.links).forEach(([key, value]: [string, any]) => {
+              if (value && value.link && !combinedSocials[key]) {
                 combinedSocials[key] = value.link;
               }
             });
           }
         }
 
-        // Add ALL ENS links data
-        if (ensLinks && ensLinks.socials) {
-          Object.entries(ensLinks.socials).forEach(([key, value]) => {
+        // Process ENS links data
+        if (ensLinks.status === 'fulfilled' && ensLinks.value && ensLinks.value.socials) {
+          Object.entries(ensLinks.value.socials).forEach(([key, value]) => {
             if (value && !combinedSocials[key]) {
               combinedSocials[key] = value;
             }
           });
         }
 
-        console.log(`Comprehensive social links for ${identity}:`, combinedSocials);
         setAllSocials(combinedSocials);
-        
-        // Refresh once more after 2 seconds to ensure we get all data
-        setTimeout(async () => {
-          try {
-            const [refreshedProfile, refreshedEnsLinks] = await Promise.all([
-              fetchWeb3BioProfile(identity),
-              getEnsLinks(identity)
-            ]);
-            
-            const refreshedSocials = { ...combinedSocials };
-            
-            if (refreshedProfile) {
-              Object.entries(refreshedProfile).forEach(([key, value]) => {
-                if (value && typeof value === 'string' && !refreshedSocials[key]) {
-                  refreshedSocials[key] = value;
-                }
-              });
-            }
-            
-            if (refreshedEnsLinks && refreshedEnsLinks.socials) {
-              Object.entries(refreshedEnsLinks.socials).forEach(([key, value]) => {
-                if (value && !refreshedSocials[key]) {
-                  refreshedSocials[key] = value;
-                }
-              });
-            }
-            
-            setAllSocials(refreshedSocials);
-            console.log(`Refreshed social links for ${identity}:`, refreshedSocials);
-          } catch (error) {
-            console.error('Error during refresh:', error);
-          }
-        }, 2000);
 
-      } catch (error) {
-        console.error('Error fetching social links:', error);
-      } finally {
-        setIsLoading(false);
+      } catch {
+        // Silently fail and use existing socials
+        setAllSocials(combinedSocials);
       }
     };
 
@@ -132,12 +98,12 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
 
   const hasLinks = Object.values(allSocials).some(link => link && link.trim() !== '');
 
-  if (!hasLinks && !isLoading) {
+  if (!hasLinks) {
     return null;
   }
 
   return (
-    <div className="flex flex-wrap gap-4 justify-center">
+    <div className="flex flex-wrap gap-3 justify-center">
       {socialPlatforms.map((platform) => {
         const link = allSocials[platform.key];
         if (!link || link.trim() === '') return null;
@@ -164,16 +130,10 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
             className="transition-opacity hover:opacity-80"
             title={`Visit ${platform.key}: ${link}`}
           >
-            <SocialIcon type={platform.type as any} size={54} />
+            <SocialIcon type={platform.type as any} size={60} />
           </a>
         );
       })}
-      
-      {isLoading && (
-        <div className="text-xs text-muted-foreground">
-          Loading all social links...
-        </div>
-      )}
     </div>
   );
 };

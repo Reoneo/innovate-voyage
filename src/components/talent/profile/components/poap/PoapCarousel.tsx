@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { type Poap } from '@/api/services/poapService';
 
 interface PoapCarouselProps {
@@ -41,7 +40,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
     const endX = e.changedTouches[0].clientX;
     const diff = startX - endX;
     
-    if (Math.abs(diff) > 50) { // Minimum swipe distance
+    if (Math.abs(diff) > 50) {
       if (diff > 0) {
         nextPoap();
       } else {
@@ -83,8 +82,8 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
             border-radius: 50%;
             animation: rainbow-spin 3s linear infinite;
             padding: 3px;
-            width: 200px;
-            height: 200px;
+            width: 160px;
+            height: 160px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -93,25 +92,23 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
           .rainbow-border img {
             display: block;
             border-radius: 50%;
-            width: 194px;
-            height: 194px;
+            width: 154px;
+            height: 154px;
             object-fit: cover;
+          }
+          
+          .swipe-indicator {
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+          }
+          
+          .swipe-indicator:hover {
+            opacity: 1;
           }
         `}
       </style>
-      <div className="relative flex items-center justify-center">
-        {/* Previous Button */}
-        {poaps.length > 1 && (
-          <button
-            onClick={prevPoap}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
-            aria-label="Previous POAP"
-          >
-            <ChevronLeft className="h-5 w-5 text-gray-600" />
-          </button>
-        )}
-
-        {/* POAP Image with Rainbow Border - Reduced by 20% and touch enabled */}
+      <div className="relative flex flex-col items-center justify-center">
+        {/* POAP Image with Rainbow Border */}
         <div 
           className="cursor-pointer transition-transform hover:scale-105"
           onClick={() => onPoapClick(currentPoap)}
@@ -127,20 +124,18 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
           </div>
         </div>
 
-        {/* Next Button */}
+        {/* Swipe Indicator */}
         {poaps.length > 1 && (
-          <button
-            onClick={nextPoap}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
-            aria-label="Next POAP"
-          >
-            <ChevronRight className="h-5 w-5 text-gray-600" />
-          </button>
+          <div className="mt-3 flex items-center gap-2 text-xs text-gray-500 swipe-indicator">
+            <span>←</span>
+            <span>Swipe to browse</span>
+            <span>→</span>
+          </div>
         )}
 
         {/* Dots Indicator */}
         {poaps.length > 1 && (
-          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          <div className="mt-2 flex space-x-2">
             {poaps.map((_, index) => (
               <button
                 key={index}
