@@ -20,7 +20,7 @@ const BlockchainActivityBadge: React.FC<BlockchainActivityBadgeProps> = ({
     return <Skeleton className="h-32 w-full rounded-2xl" />;
   }
   return <div onClick={onClick} className="cursor-pointer">
-      <div className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-blue-50 to-blue-100 h-32 rounded-2xl shadow-lg border border-blue-200 px-0 py-3 relative">
+      <div className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-blue-50 to-blue-100 h-32 rounded-2xl shadow-lg border border-blue-200 px-0 relative py-[20px]">
         <div className="text-center space-y-2 w-full">
           <div className="text-lg font-semibold text-gray-800">
             Activity
