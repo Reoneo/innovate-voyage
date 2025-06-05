@@ -23,7 +23,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
       setIsLoading(true);
       
       try {
-        // Fetch from multiple sources
+        // Fetch from multiple sources including all ENS text records
         const [web3BioProfile, ensLinks] = await Promise.all([
           fetchWeb3BioProfile(identity),
           getEnsLinks(identity)
@@ -55,7 +55,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
           }
         }
 
-        // Add ENS links data
+        // Add ENS links data (this should now fetch ALL text records)
         if (ensLinks && ensLinks.socials) {
           Object.entries(ensLinks.socials).forEach(([key, value]) => {
             if (value && !combinedSocials[key]) {
@@ -69,16 +69,30 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
         // Refresh once more after 2 seconds to catch any delayed data
         setTimeout(async () => {
           try {
-            const refreshedProfile = await fetchWeb3BioProfile(identity);
+            const [refreshedProfile, refreshedEnsLinks] = await Promise.all([
+              fetchWeb3BioProfile(identity),
+              getEnsLinks(identity)
+            ]);
+            
+            const refreshedSocials = { ...combinedSocials };
+            
             if (refreshedProfile) {
-              const refreshedSocials = { ...combinedSocials };
               Object.entries(refreshedProfile).forEach(([key, value]) => {
                 if (value && typeof value === 'string' && !refreshedSocials[key]) {
                   refreshedSocials[key] = value;
                 }
               });
-              setAllSocials(refreshedSocials);
             }
+            
+            if (refreshedEnsLinks && refreshedEnsLinks.socials) {
+              Object.entries(refreshedEnsLinks.socials).forEach(([key, value]) => {
+                if (value && !refreshedSocials[key]) {
+                  refreshedSocials[key] = value;
+                }
+              });
+            }
+            
+            setAllSocials(refreshedSocials);
           } catch (error) {
             console.error('Error during refresh:', error);
           }
@@ -115,7 +129,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
   }
 
   return (
-    <div className="flex flex-wrap gap-2 justify-center">
+    <div className="flex flex-wrap gap-3 justify-center">
       {socialPlatforms.map((platform) => {
         const link = allSocials[platform.key];
         if (!link || link.trim() === '') return null;
@@ -138,7 +152,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
             className="transition-opacity hover:opacity-80"
             title={`Visit ${platform.key}`}
           >
-            <SocialIcon type={platform.type as any} size={24} />
+            <SocialIcon type={platform.type as any} size={36} />
           </a>
         );
       })}
