@@ -18,57 +18,69 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
   const [priorityLoaded, setPriorityLoaded] = useState(false);
 
   useEffect(() => {
-    const fetchPrioritySocialLinks = async () => {
+    const fetchSocialLinks = async () => {
       if (!identity) return;
 
       setLoading(true);
       let combinedSocials: Record<string, string> = { ...socials };
 
       try {
-        // First: Fetch priority ENS records (GitHub, LinkedIn, Twitter) super fast
+        // Step 1: Fast priority fetch for immediate display (GitHub, LinkedIn, Twitter)
         if (identity.endsWith('.eth') || identity.endsWith('.box')) {
+          console.log(`Fetching priority socials for ${identity}`);
+          
           const priorityProfile = await getPriorityENSRecords(identity);
           
           if (priorityProfile.socials) {
             Object.entries(priorityProfile.socials).forEach(([key, value]) => {
-              if (value && typeof value === 'string' && !combinedSocials[key]) {
+              if (value && typeof value === 'string' && value.trim() && !combinedSocials[key]) {
                 combinedSocials[key] = value;
               }
             });
             
-            // Update state immediately with priority socials
+            // Update state immediately with priority socials for fast loading
             setAllSocials(combinedSocials);
             setPriorityLoaded(true);
+            console.log(`Priority socials loaded:`, priorityProfile.socials);
           }
         }
 
-        // Second: Fetch remaining data in background
-        const [ensProfile, web3BioProfile] = await Promise.allSettled([
+        // Step 2: Background fetch for complete data
+        const [ensProfileResult, web3BioResult] = await Promise.allSettled([
           getENSProfile(identity),
           fetchWeb3BioProfile(identity)
         ]);
 
         // Process complete ENS profile data
-        if (ensProfile.status === 'fulfilled' && ensProfile.value) {
-          const profile = ensProfile.value;
+        if (ensProfileResult.status === 'fulfilled' && ensProfileResult.value) {
+          const profile = ensProfileResult.value;
+          console.log(`Complete ENS profile loaded:`, profile);
           
-          Object.entries(profile.socials).forEach(([key, value]) => {
-            if (value && typeof value === 'string' && !combinedSocials[key]) {
+          Object.entries(profile.socials || {}).forEach(([key, value]) => {
+            if (value && typeof value === 'string' && value.trim() && !combinedSocials[key]) {
               combinedSocials[key] = value;
             }
           });
 
+          // Add profile fields as socials
           if (profile.avatar && !combinedSocials.avatar) {
             combinedSocials.avatar = profile.avatar;
           }
           if (profile.description && !combinedSocials.description) {
             combinedSocials.description = profile.description;
           }
+          if (profile.email && !combinedSocials.email) {
+            combinedSocials.email = profile.email;
+          }
+          if (profile.website && !combinedSocials.website) {
+            combinedSocials.website = profile.website;
+          }
         }
 
         // Process Web3Bio profile data
-        if (web3BioProfile.status === 'fulfilled' && web3BioProfile.value) {
-          const profile = web3BioProfile.value;
+        if (web3BioResult.status === 'fulfilled' && web3BioResult.value) {
+          const profile = web3BioResult.value;
+          console.log(`Web3Bio profile loaded:`, profile);
           
           if (profile && typeof profile === 'object') {
             const profileData = Array.isArray(profile) ? profile[0] : profile;
@@ -77,7 +89,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
               const web3BioFields = [
                 'github', 'twitter', 'linkedin', 'website', 'facebook', 'instagram', 
                 'youtube', 'telegram', 'discord', 'email', 'whatsapp', 'bluesky', 
-                'farcaster', 'reddit', 'location'
+                'farcaster', 'reddit', 'location', 'portfolio', 'resume'
               ];
               
               web3BioFields.forEach(field => {
@@ -98,6 +110,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
           }
         }
 
+        console.log(`Final combined socials:`, combinedSocials);
         setAllSocials(combinedSocials);
 
       } catch (error) {
@@ -108,7 +121,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
       }
     };
 
-    fetchPrioritySocialLinks();
+    fetchSocialLinks();
   }, [identity, socials]);
 
   const socialPlatforms = [
