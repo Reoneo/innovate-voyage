@@ -1,18 +1,17 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExternalLink, Award, TrendingUp, Users, Star, X } from 'lucide-react';
 import { getBuilderTitle } from '../utils/scoreUtils';
 import { DialogClose } from '@/components/ui/dialog';
-
 interface TalentScoreDialogContentProps {
   score: number | null;
   walletAddress: string;
 }
-
-const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ score, walletAddress }) => {
-  return (
-    <div className="bg-gradient-to-br from-gray-900 to-black text-white min-h-screen">
+const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({
+  score,
+  walletAddress
+}) => {
+  return <div className="bg-gradient-to-br from-gray-900 to-black text-white min-h-screen">
       <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-50">
         <X className="h-6 w-6 text-white" />
         <span className="sr-only">Close</span>
@@ -22,11 +21,7 @@ const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ sco
         {/* Header Section */}
         <div className="text-center space-y-4">
           <div className="mx-auto w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-            <img 
-              src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1749024000000&signature=gA05Y_xpxrE7c0FNrxf1YPf5OUPml7643BmU_DZn2pc&downloadName=logomark_dark.jpg" 
-              alt="Talent Protocol" 
-              className="h-16 w-16 object-contain filter brightness-0 invert"
-            />
+            <img alt="Talent Protocol" className="h-16 w-16 object-contain filter brightness-0 invert" src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1749232800000&signature=Z8ASIkHi091SbRTNk9aH4V9qa0H34hecpLNXcQ1eR9Q&downloadName=logomark_dark.jpg" />
           </div>
           <h1 className="text-3xl font-bold text-white">Builder Score</h1>
           <div className="text-6xl font-bold text-yellow-400">
@@ -105,51 +100,42 @@ const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ sco
 
         {/* Call to Action */}
         <div className="text-center">
-          <a 
-            href={`https://app.talentprotocol.com/profile/${walletAddress}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition-all"
-          >
+          <a href={`https://app.talentprotocol.com/profile/${walletAddress}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition-all">
             View Full Profile <ExternalLink size={16} />
           </a>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 interface ScoreItemProps {
   label: string;
   score: string;
   percentage: number;
 }
-
-const ScoreItem: React.FC<ScoreItemProps> = ({ label, score, percentage }) => (
-  <div className="flex items-center justify-between p-3 bg-gray-700/20 rounded-lg">
+const ScoreItem: React.FC<ScoreItemProps> = ({
+  label,
+  score,
+  percentage
+}) => <div className="flex items-center justify-between p-3 bg-gray-700/20 rounded-lg">
     <span className="text-gray-300">{label}</span>
     <div className="flex items-center gap-3">
       <div className="w-20 bg-gray-600 rounded-full h-2">
-        <div 
-          className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full transition-all"
-          style={{ width: `${percentage}%` }}
-        />
+        <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full transition-all" style={{
+        width: `${percentage}%`
+      }} />
       </div>
       <span className="font-medium text-white min-w-[60px] text-right">{score}</span>
     </div>
-  </div>
-);
-
+  </div>;
 interface PlatformItemProps {
   label: string;
   score: string;
 }
-
-const PlatformItem: React.FC<PlatformItemProps> = ({ label, score }) => (
-  <div className="flex justify-between p-2 bg-gray-700/10 rounded">
+const PlatformItem: React.FC<PlatformItemProps> = ({
+  label,
+  score
+}) => <div className="flex justify-between p-2 bg-gray-700/10 rounded">
     <span className="text-gray-300">{label}</span>
     <span className="font-medium text-white">{score}</span>
-  </div>
-);
-
+  </div>;
 export default TalentScoreDialogContent;
