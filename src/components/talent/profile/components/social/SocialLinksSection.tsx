@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
 import { getPriorityENSRecords, getENSProfile } from '@/services/ensService';
@@ -15,7 +14,6 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
 }) => {
   const [allSocials, setAllSocials] = useState<Record<string, string>>(socials);
   const [loading, setLoading] = useState(false);
-  const [priorityLoaded, setPriorityLoaded] = useState(false);
 
   useEffect(() => {
     const fetchSocialLinks = async () => {
@@ -25,36 +23,16 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
       let combinedSocials: Record<string, string> = { ...socials };
 
       try {
-        // Step 1: Fast priority fetch for immediate display (GitHub, LinkedIn, Twitter)
-        if (identity.endsWith('.eth') || identity.endsWith('.box')) {
-          console.log(`Fetching priority socials for ${identity}`);
-          
-          const priorityProfile = await getPriorityENSRecords(identity);
-          
-          if (priorityProfile.socials) {
-            Object.entries(priorityProfile.socials).forEach(([key, value]) => {
-              if (value && typeof value === 'string' && value.trim() && !combinedSocials[key]) {
-                combinedSocials[key] = value;
-              }
-            });
-            
-            // Update state immediately with priority socials for fast loading
-            setAllSocials(combinedSocials);
-            setPriorityLoaded(true);
-            console.log(`Priority socials loaded:`, priorityProfile.socials);
-          }
-        }
-
-        // Step 2: Background fetch for complete data
+        // Fetch all data in parallel for faster loading
         const [ensProfileResult, web3BioResult] = await Promise.allSettled([
-          getENSProfile(identity),
+          (identity.endsWith('.eth') || identity.endsWith('.box')) ? getENSProfile(identity) : Promise.resolve(null),
           fetchWeb3BioProfile(identity)
         ]);
 
         // Process complete ENS profile data
         if (ensProfileResult.status === 'fulfilled' && ensProfileResult.value) {
           const profile = ensProfileResult.value;
-          console.log(`Complete ENS profile loaded:`, profile);
+          console.log(`ENS profile loaded:`, profile);
           
           Object.entries(profile.socials || {}).forEach(([key, value]) => {
             if (value && typeof value === 'string' && value.trim() && !combinedSocials[key]) {
@@ -110,6 +88,21 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
           }
         }
 
+        // Deduplicate website entries - only keep one
+        const websiteKeys = ['website', 'url'];
+        let websiteValue = null;
+        websiteKeys.forEach(key => {
+          if (combinedSocials[key] && !websiteValue) {
+            websiteValue = combinedSocials[key];
+          }
+        });
+        
+        // Remove all website entries and add back only one
+        websiteKeys.forEach(key => delete combinedSocials[key]);
+        if (websiteValue) {
+          combinedSocials.website = websiteValue;
+        }
+
         console.log(`Final combined socials:`, combinedSocials);
         setAllSocials(combinedSocials);
 
@@ -127,7 +120,8 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
   const socialPlatforms = [
     { key: 'github', type: 'github', priority: true },
     { key: 'linkedin', type: 'linkedin', priority: true },
-    { key: 'twitter', type: 'twitter', priority: true },
+    { key: 'twitter', type: 'twitter', priority: false },
+    { key: 'farcaster', type: 'farcaster', priority: false },
     { key: 'website', type: 'website', priority: false },
     { key: 'discord', type: 'discord', priority: false },
     { key: 'telegram', type: 'telegram', priority: false },
@@ -137,7 +131,6 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
     { key: 'whatsapp', type: 'whatsapp', priority: false },
     { key: 'email', type: 'mail', priority: false },
     { key: 'bluesky', type: 'website', priority: false },
-    { key: 'farcaster', type: 'website', priority: false },
     { key: 'reddit', type: 'website', priority: false },
     { key: 'location', type: 'website', priority: false },
     { key: 'portfolio', type: 'website', priority: false },
@@ -146,13 +139,13 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
 
   const hasLinks = Object.values(allSocials).some(link => link && link.trim() !== '');
 
-  if (!hasLinks && !loading && !priorityLoaded) {
+  if (!hasLinks && !loading) {
     return null;
   }
 
   return (
     <div className="flex flex-wrap gap-3 justify-center">
-      {loading && !priorityLoaded && (
+      {loading && (
         <div className="text-sm text-muted-foreground">Loading social links...</div>
       )}
       
@@ -169,6 +162,8 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
           href = link.startsWith('https://') ? link : `https://t.me/${link}`;
         } else if (platform.key === 'discord') {
           href = link.includes('discord.com') ? link : `https://discord.com/users/${link}`;
+        } else if (platform.key === 'farcaster') {
+          href = link.startsWith('https://') ? link : `https://farcaster.xyz/${link}`;
         } else if (!link.startsWith('http://') && !link.startsWith('https://')) {
           href = `https://${link}`;
         }
@@ -179,7 +174,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className={`transition-opacity hover:opacity-80 ${platform.priority ? 'order-first' : ''}`}
+            className="transition-opacity hover:opacity-80"
             title={`Visit ${platform.key}: ${link}`}
           >
             <SocialIcon type={platform.type as any} size={60} />

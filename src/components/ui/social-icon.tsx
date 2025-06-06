@@ -56,7 +56,7 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
     case 'location':
       return <img src="https://cdn-icons-png.flaticon.com/512/355/355980.png" width={iconSize} height={iconSize} alt="Location" className={iconClasses} />;
     case 'farcaster':
-      return <img src="https://cdn-icons-png.flaticon.com/512/5968/5968872.png" width={iconSize} height={iconSize} alt="Farcaster" className={iconClasses} />;
+      return <img src="https://developers.moralis.com/wp-content/uploads/web3wiki/166-farcaster/637aede94d31498505bc9412_DpYIEpePqjDcHIbux04cOKhrRwBhi7F0-dBF_JCdCYY.png" width={iconSize} height={iconSize} alt="Farcaster" className={iconClasses} />;
     case 'lens':
       return <img src="https://cdn-icons-png.flaticon.com/512/5968/5968770.png" width={iconSize} height={iconSize} alt="Lens" className={iconClasses} />;
     case 'opensea':
