@@ -5,30 +5,34 @@ import { normalize } from 'viem/ens';
 import { getRecords, getResolver, getName } from '@ensdomains/ensjs/public';
 import { addEnsContracts } from '@ensdomains/ensjs';
 
-// Create viem client with ENS contracts
+// Create viem client with ENS contracts - simplified configuration
 const client = createPublicClient({
   chain: addEnsContracts(mainnet),
   transport: http('https://eth-mainnet.g.alchemy.com/v2/demo')
 });
 
-// Comprehensive list of ENS text records to fetch
-const TEXT_RECORDS = [
+// Priority ENS text records for fast loading of social links
+const PRIORITY_RECORDS = [
+  'com.github',
+  'com.twitter', 
+  'com.linkedin',
   'avatar',
-  'description', 
-  'display',
+  'description',
   'email',
+  'url',
+  'website'
+];
+
+// Comprehensive list of ENS text records
+const ALL_TEXT_RECORDS = [
+  ...PRIORITY_RECORDS,
+  'display',
   'keywords',
   'mail',
   'notice',
   'location',
   'phone',
-  'url',
-  'com.github',
   'com.peepeth',
-  'com.linkedin',
-  'com.twitter',
-  'io.keybase',
-  'org.telegram',
   'com.discord',
   'com.reddit',
   'com.youtube',
@@ -45,8 +49,7 @@ const TEXT_RECORDS = [
   'location.ens',
   'keywords.ens',
   'portfolio',
-  'resume',
-  'website'
+  'resume'
 ];
 
 export interface ENSProfile {
@@ -61,33 +64,123 @@ export interface ENSProfile {
 }
 
 /**
- * Fetch comprehensive ENS profile for a given ENS name
+ * Fast fetch of priority ENS records (GitHub, LinkedIn, Twitter, etc.)
+ */
+export async function getPriorityENSRecords(ensName: string): Promise<Partial<ENSProfile>> {
+  try {
+    if (!ensName || (!ensName.endsWith('.eth') && !ensName.endsWith('.box'))) {
+      return { socials: {}, textRecords: {} };
+    }
+
+    const normalizedName = normalize(ensName);
+    
+    // Get resolver with timeout
+    const resolver = await Promise.race([
+      getResolver(client, { name: normalizedName }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Resolver timeout')), 1000))
+    ]);
+
+    if (!resolver) {
+      return { socials: {}, textRecords: {} };
+    }
+
+    // Fetch priority records quickly
+    const recordsResult = await Promise.race([
+      getRecords(client, {
+        name: normalizedName,
+        records: {
+          texts: PRIORITY_RECORDS,
+          coinTypes: [60] // ETH address
+        }
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Records timeout')), 1500))
+    ]);
+
+    const profile: Partial<ENSProfile> = {
+      ensName: normalizedName,
+      socials: {},
+      textRecords: {}
+    };
+
+    if (recordsResult && typeof recordsResult === 'object' && 'texts' in recordsResult && recordsResult.texts) {
+      // Process priority text records
+      Object.entries(recordsResult.texts).forEach(([key, value]) => {
+        if (value && typeof value === 'string') {
+          profile.textRecords![key] = value;
+          
+          // Map to social fields immediately
+          switch (key) {
+            case 'avatar':
+              profile.avatar = value;
+              break;
+            case 'description':
+            case 'bio.ens':
+              profile.description = value;
+              break;
+            case 'email':
+            case 'mail':
+              profile.email = value;
+              profile.socials!.email = value;
+              break;
+            case 'url':
+            case 'website':
+              profile.website = value;
+              profile.socials!.website = value;
+              break;
+            case 'com.github':
+              profile.socials!.github = value;
+              break;
+            case 'com.twitter':
+              profile.socials!.twitter = value;
+              break;
+            case 'com.linkedin':
+              profile.socials!.linkedin = value;
+              break;
+          }
+        }
+      });
+    }
+
+    // Get address
+    if (recordsResult && typeof recordsResult === 'object' && 'addresses' in recordsResult && recordsResult.addresses) {
+      const ethAddress = recordsResult.addresses['60'];
+      if (ethAddress) {
+        profile.address = ethAddress;
+      }
+    }
+
+    return profile;
+
+  } catch (error) {
+    console.error(`Error fetching priority ENS records for ${ensName}:`, error);
+    return { socials: {}, textRecords: {} };
+  }
+}
+
+/**
+ * Fetch comprehensive ENS profile (slower, for complete data)
  */
 export async function getENSProfile(ensName: string): Promise<ENSProfile | null> {
   try {
-    console.log(`Fetching ENS profile for: ${ensName}`);
-    
     if (!ensName || (!ensName.endsWith('.eth') && !ensName.endsWith('.box'))) {
       return null;
     }
 
     const normalizedName = normalize(ensName);
     
-    // Get resolver first
     const resolver = await getResolver(client, { name: normalizedName });
     
     if (!resolver) {
-      console.log(`No resolver found for ${ensName}`);
       return null;
     }
 
-    // Fetch all records in parallel
+    // Fetch all records
     const [recordsResult, addressResult] = await Promise.all([
       getRecords(client, {
         name: normalizedName,
         records: {
-          texts: TEXT_RECORDS,
-          coinTypes: [60] // ETH address
+          texts: ALL_TEXT_RECORDS,
+          coinTypes: [60]
         }
       }).catch(() => null),
       client.getEnsAddress({ name: normalizedName }).catch(() => null)
@@ -100,8 +193,8 @@ export async function getENSProfile(ensName: string): Promise<ENSProfile | null>
       textRecords: {}
     };
 
-    if (recordsResult?.texts) {
-      // Process text records
+    if (recordsResult && typeof recordsResult === 'object' && 'texts' in recordsResult && recordsResult.texts) {
+      // Process all text records
       Object.entries(recordsResult.texts).forEach(([key, value]) => {
         if (value && typeof value === 'string') {
           profile.textRecords[key] = value;
@@ -177,7 +270,6 @@ export async function getENSProfile(ensName: string): Promise<ENSProfile | null>
       });
     }
 
-    console.log(`ENS profile fetched for ${ensName}:`, profile);
     return profile;
 
   } catch (error) {
@@ -191,15 +283,12 @@ export async function getENSProfile(ensName: string): Promise<ENSProfile | null>
  */
 export async function getENSNameByAddress(address: string): Promise<string | null> {
   try {
-    console.log(`Reverse lookup ENS for address: ${address}`);
-    
     if (!address || !address.startsWith('0x')) {
       return null;
     }
 
     const ensName = await getName(client, { address: address as `0x${string}` });
     
-    console.log(`Found ENS name for ${address}: ${ensName}`);
     return ensName || null;
 
   } catch (error) {
