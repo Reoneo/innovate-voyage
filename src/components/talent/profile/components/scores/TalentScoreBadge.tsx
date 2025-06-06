@@ -30,7 +30,7 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
       <div className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-gray-900 to-black h-full rounded-2xl shadow-lg border border-gray-800 px-0 py-[10px]">
         <div className="flex items-center justify-center w-full">
           <img 
-            src="/talent-protocol-logo.png" 
+            src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1749024000000&signature=gA05Y_xpxrE7c0FNrxf1YPf5OUPml7643BmU_DZn2pc&downloadName=logomark_dark.jpg" 
             alt="Talent Protocol" 
             className="h-8 w-8 object-contain filter brightness-0 invert" 
           />
