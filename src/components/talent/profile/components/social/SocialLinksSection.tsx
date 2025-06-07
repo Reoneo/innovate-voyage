@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
-import { getENSProfile } from '@/services/ensService';
+import { getENSProfile } from '@/services/ens';
 import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
 
 interface SocialLinksSectionProps {
@@ -102,20 +102,18 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
     { key: 'whatsapp', type: 'whatsapp', priority: false },
     { key: 'bluesky', type: 'website', priority: false },
     { key: 'reddit', type: 'website', priority: false }
-  ];
-
-  const hasLinks = socialPlatforms.some(platform => {
+  ].filter(platform => {
     const link = allSocials[platform.key];
     return link && link.trim() !== '';
   });
 
-  if (!hasLinks && !loading) {
+  if (socialPlatforms.length === 0 && !loading) {
     return null;
   }
 
   return (
     <div className="flex flex-wrap gap-3 justify-center">
-      {loading && (
+      {loading && socialPlatforms.length === 0 && (
         <div className="text-sm text-muted-foreground">Loading social links...</div>
       )}
       

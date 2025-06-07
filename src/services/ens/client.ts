@@ -10,7 +10,6 @@ export const ensClient = createPublicClient({
   batch: {
     multicall: true,
   },
-  cacheTime: 30_000, // 30 seconds cache
 });
 
 // Alternative RPC endpoints for fallback

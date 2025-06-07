@@ -2,7 +2,7 @@
 import { getTextRecord } from '@ensdomains/ensjs/public';
 import { ensClient, fallbackClients } from './client';
 import { ALL_TEXT_RECORDS, PRIORITY_RECORDS, RECORD_TO_PLATFORM_MAP } from './types';
-import type { ENSTextRecord, ENSProfile } from './types';
+import type { ENSTextRecord, ENSProfile, ENSTextRecordKey } from './types';
 
 /**
  * Fast batch fetch of priority ENS text records (GitHub, Twitter, LinkedIn)
@@ -46,11 +46,12 @@ export async function fetchPriorityRecords(ensName: string): Promise<Partial<ENS
           profile.socials![platform] = value;
         }
         
-        // Handle special cases
-        if (key === 'avatar') profile.avatar = value;
-        if (key === 'description') profile.description = value;
-        if (key === 'email') profile.email = value;
-        if (key === 'url' || key === 'website') profile.website = value;
+        // Handle special cases - check against ENSTextRecordKey type
+        const recordKey = key as ENSTextRecordKey;
+        if (recordKey === 'avatar') profile.avatar = value;
+        if (recordKey === 'description') profile.description = value;
+        if (recordKey === 'email') profile.email = value;
+        if (recordKey === 'url' || recordKey === 'website') profile.website = value;
       }
     });
 
@@ -115,10 +116,11 @@ export async function fetchAllTextRecords(ensName: string): Promise<ENSProfile> 
             }
             
             // Handle special profile fields
-            if (key === 'avatar') profile.avatar = value;
-            if (key === 'description') profile.description = value;
-            if (key === 'email') profile.email = value;
-            if (key === 'url' || key === 'website') profile.website = value;
+            const recordKey = key as ENSTextRecordKey;
+            if (recordKey === 'avatar') profile.avatar = value;
+            if (recordKey === 'description') profile.description = value;
+            if (recordKey === 'email') profile.email = value;
+            if (recordKey === 'url' || recordKey === 'website') profile.website = value;
           }
         });
 
