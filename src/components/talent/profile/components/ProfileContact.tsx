@@ -17,9 +17,7 @@ const ProfileContact: React.FC<ProfileContactProps> = ({
   telephone, 
   location,
   website,
-  isOwner = false,
-  passportId, 
-  ownerAddress 
+  isOwner = false
 }) => {
   if (!email && !telephone && !location && !website && !isOwner) {
     return null;
