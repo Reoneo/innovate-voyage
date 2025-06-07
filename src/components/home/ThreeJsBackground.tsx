@@ -16,47 +16,60 @@ const ThreeJsBackground: React.FC = () => {
     const scene = new THREE.Scene();
     sceneRef.current = scene;
     
-    // Set background color based on theme
-    scene.background = new THREE.Color(isDayMode ? 0xffffff : 0x0f172a);
+    // Professional gradient background
+    scene.background = new THREE.Color(isDayMode ? 0x1e3a8a : 0x0f172a);
 
     const camera = new THREE.PerspectiveCamera(
-      75,
+      60,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000
+      2000
     );
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true,
+      alpha: true 
+    });
     rendererRef.current = renderer;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
 
     mountRef.current.appendChild(renderer.domElement);
 
-    // Create 1000 cubes
+    // Create 1000 professional-looking cubes
     const cubes: THREE.Mesh[] = [];
-    const cubeGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+    const cubeGeometry = new THREE.BoxGeometry(0.15, 0.15, 0.15);
     
     for (let i = 0; i < 1000; i++) {
-      // Different materials for day/night mode
+      // Professional color palette
+      const hue = isDayMode 
+        ? (i * 0.618033988749895) % 1  // Golden ratio for even distribution
+        : (i * 0.618033988749895) % 1;
+      
       const material = new THREE.MeshBasicMaterial({
-        color: isDayMode 
-          ? new THREE.Color().setHSL(Math.random(), 0.7, 0.6)  // Bright colors for day
-          : new THREE.Color().setHSL(Math.random(), 0.7, 0.5), // Darker colors for night
+        color: new THREE.Color().setHSL(
+          hue, 
+          isDayMode ? 0.6 : 0.8, 
+          isDayMode ? 0.7 : 0.4
+        ),
         transparent: true,
-        opacity: isDayMode ? 0.8 : 0.6
+        opacity: isDayMode ? 0.6 : 0.4
       });
 
       const cube = new THREE.Mesh(cubeGeometry, material);
       
-      // Random positions
+      // More organized distribution
+      const radius = 20 + Math.random() * 60;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      
       cube.position.set(
-        (Math.random() - 0.5) * 50,
-        (Math.random() - 0.5) * 50,
-        (Math.random() - 0.5) * 50
+        radius * Math.sin(phi) * Math.cos(theta),
+        radius * Math.sin(phi) * Math.sin(theta),
+        radius * Math.cos(phi)
       );
       
-      // Random rotations
       cube.rotation.set(
         Math.random() * Math.PI,
         Math.random() * Math.PI,
@@ -67,24 +80,25 @@ const ThreeJsBackground: React.FC = () => {
       cubes.push(cube);
     }
 
-    camera.position.z = 15;
+    camera.position.z = 25;
 
-    // Animation loop
+    // Professional animation
     const animate = () => {
       requestAnimationFrame(animate);
 
-      // Rotate cubes
+      // Smooth, professional rotation
       cubes.forEach((cube, index) => {
-        cube.rotation.x += 0.005 + (index * 0.00001);
-        cube.rotation.y += 0.005 + (index * 0.00001);
+        const speed = 0.002 + (index * 0.000005);
+        cube.rotation.x += speed;
+        cube.rotation.y += speed * 0.7;
         
-        // Gentle floating motion
-        cube.position.y += Math.sin(Date.now() * 0.001 + index) * 0.002;
+        // Gentle wave motion
+        cube.position.y += Math.sin(Date.now() * 0.001 + index * 0.1) * 0.01;
       });
 
-      // Camera movement
-      camera.position.x = Math.sin(Date.now() * 0.0005) * 2;
-      camera.position.y = Math.cos(Date.now() * 0.0003) * 1;
+      // Smooth camera movement
+      camera.position.x = Math.sin(Date.now() * 0.0003) * 3;
+      camera.position.y = Math.cos(Date.now() * 0.0002) * 2;
       camera.lookAt(0, 0, 0);
 
       renderer.render(scene, camera);
@@ -92,7 +106,6 @@ const ThreeJsBackground: React.FC = () => {
 
     animate();
 
-    // Handle resize
     const handleResize = () => {
       if (!camera || !renderer) return;
       

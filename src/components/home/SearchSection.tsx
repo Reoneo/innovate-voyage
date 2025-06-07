@@ -22,6 +22,7 @@ const SearchSection: React.FC = () => {
       searchValue = `${searchValue}.eth`;
     }
 
+    // Navigate directly without domain duplication
     navigate(`/${searchValue}`);
     toast.success(`Looking up profile for ${searchValue}`);
   };

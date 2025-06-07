@@ -15,14 +15,13 @@ import NotFound from "./pages/NotFound";
 import XmtpMessageModal from "./components/wallet/XmtpMessageModal";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
-// Create a persistent QueryClient instance with optimized settings
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1, // Reduced retries for faster loading
-      staleTime: 300000, // 5 minutes
-      gcTime: 3600000, // 1 hour
+      retry: 1,
+      staleTime: 300000,
+      gcTime: 3600000,
     },
   },
 });
@@ -37,15 +36,13 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Faster loading with minimal timeout
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 50); // Reduced from 100ms
+    }, 50);
     
     return () => clearTimeout(timer);
   }, []);
 
-  // Minimal loading screen for faster perceived performance
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -66,8 +63,6 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-                  <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
                   <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
                   <Route path="/404" element={<NotFound />} />
                   <Route path="*" element={<Navigate to="/404" />} />

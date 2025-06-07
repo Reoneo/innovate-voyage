@@ -27,38 +27,33 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
       let combinedSocials: Record<string, string> = { ...socials };
 
       try {
-        // Fetch all data in parallel for faster loading
-        const fetchPromises = [];
+        // Fetch all data sources simultaneously
+        const promises = [];
         
         if (identity.endsWith('.eth') || identity.endsWith('.box')) {
-          fetchPromises.push(getENSProfile(identity));
-        } else {
-          fetchPromises.push(Promise.resolve(null));
+          promises.push(getENSProfile(identity));
         }
         
-        fetchPromises.push(fetchWeb3BioProfile(identity));
+        promises.push(fetchWeb3BioProfile(identity));
 
-        const [ensProfileResult, web3BioResult] = await Promise.allSettled(fetchPromises);
+        const results = await Promise.allSettled(promises);
 
-        // Process ENS profile data
-        if (ensProfileResult.status === 'fulfilled' && ensProfileResult.value) {
-          const profile = ensProfileResult.value;
-          console.log(`ENS profile loaded:`, profile);
-          
+        // Process ENS data
+        if (results[0]?.status === 'fulfilled' && results[0].value) {
+          const profile = results[0].value;
           if (profile.socials) {
             Object.entries(profile.socials).forEach(([key, value]) => {
-              if (value && typeof value === 'string' && value.trim() && !combinedSocials[key]) {
+              if (value && typeof value === 'string' && value.trim()) {
                 combinedSocials[key] = value;
               }
             });
           }
         }
 
-        // Process Web3Bio profile data
-        if (web3BioResult.status === 'fulfilled' && web3BioResult.value) {
-          const profile = web3BioResult.value;
-          console.log(`Web3Bio profile loaded:`, profile);
-          
+        // Process Web3Bio data
+        const web3BioIndex = promises.length > 1 ? 1 : 0;
+        if (results[web3BioIndex]?.status === 'fulfilled' && results[web3BioIndex].value) {
+          const profile = results[web3BioIndex].value;
           if (profile && typeof profile === 'object') {
             const profileData = Array.isArray(profile) ? profile[0] : profile;
             
@@ -70,16 +65,15 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
               
               web3BioFields.forEach(field => {
                 const fieldValue = (profileData as any)[field];
-                if (fieldValue && typeof fieldValue === 'string' && !combinedSocials[field]) {
+                if (fieldValue && typeof fieldValue === 'string') {
                   combinedSocials[field] = fieldValue;
                 }
               });
 
-              // Handle links object
               const links = (profileData as any).links;
               if (links && typeof links === 'object') {
                 Object.entries(links).forEach(([key, value]: [string, any]) => {
-                  if (value && typeof value === 'object' && value.link && typeof value.link === 'string' && !combinedSocials[key]) {
+                  if (value && typeof value === 'object' && value.link && typeof value.link === 'string') {
                     combinedSocials[key] = value.link;
                   }
                 });
@@ -88,7 +82,6 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
           }
         }
 
-        console.log(`Final combined socials:`, combinedSocials);
         setAllSocials(combinedSocials);
 
       } catch (error) {
@@ -102,20 +95,20 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
     fetchSocialLinks();
   }, [identity, JSON.stringify(socials)]);
 
-  // Filter out contact info (telephone, email, location, website) from social links
+  // Filter out contact info from social links
   const socialPlatforms = [
-    { key: 'github', type: 'github' as const, priority: true },
-    { key: 'linkedin', type: 'linkedin' as const, priority: true },
-    { key: 'twitter', type: 'twitter' as const, priority: false },
-    { key: 'farcaster', type: 'farcaster' as const, priority: false },
-    { key: 'discord', type: 'discord' as const, priority: false },
-    { key: 'telegram', type: 'telegram' as const, priority: false },
-    { key: 'instagram', type: 'instagram' as const, priority: false },
-    { key: 'youtube', type: 'youtube' as const, priority: false },
-    { key: 'facebook', type: 'facebook' as const, priority: false },
-    { key: 'whatsapp', type: 'whatsapp' as const, priority: false },
-    { key: 'bluesky', type: 'website' as const, priority: false },
-    { key: 'reddit', type: 'website' as const, priority: false }
+    { key: 'github', type: 'github' as const },
+    { key: 'linkedin', type: 'linkedin' as const },
+    { key: 'twitter', type: 'twitter' as const },
+    { key: 'farcaster', type: 'farcaster' as const },
+    { key: 'discord', type: 'discord' as const },
+    { key: 'telegram', type: 'telegram' as const },
+    { key: 'instagram', type: 'instagram' as const },
+    { key: 'youtube', type: 'youtube' as const },
+    { key: 'facebook', type: 'facebook' as const },
+    { key: 'whatsapp', type: 'whatsapp' as const },
+    { key: 'bluesky', type: 'website' as const },
+    { key: 'reddit', type: 'website' as const }
   ].filter(platform => {
     const link = allSocials[platform.key];
     return link && link.trim() !== '';
@@ -127,10 +120,6 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
 
   return (
     <div className="flex flex-wrap gap-3 justify-center">
-      {loading && socialPlatforms.length === 0 && (
-        <div className="text-sm text-muted-foreground">Loading social links...</div>
-      )}
-      
       {socialPlatforms.map((platform) => {
         const link = allSocials[platform.key];
         if (!link || link.trim() === '') return null;

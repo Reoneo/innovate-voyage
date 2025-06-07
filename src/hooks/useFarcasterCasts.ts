@@ -20,7 +20,7 @@ interface FarcasterUser {
   pfp: string;
 }
 
-export const useFarcasterCasts = (username: string | undefined) => {
+export const useFarcasterCasts = (username?: string) => {
   const [casts, setCasts] = useState<FarcasterCast[]>([]);
   const [user, setUser] = useState<FarcasterUser | null>(null);
   const [loading, setLoading] = useState(false);

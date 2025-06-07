@@ -33,7 +33,6 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
     }
   }, [passport?.owner_address]);
 
-  // Format socials object
   const normalizedSocials: Record<string, string> = {};
   Object.entries(passport?.socials || {}).forEach(([key, value]) => {
     if (value && typeof value === 'string' && value.trim() !== '') {
@@ -44,15 +43,15 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
   return (
-    <div className="w-full max-w-full space-y-2 px-1">
-      {/* Profile Header Section - Compact */}
-      <div className="flex flex-col items-center space-y-2 bg-white rounded-lg p-2 shadow-sm border w-full">
+    <div className="w-full max-w-full space-y-1 px-0.5">
+      {/* Profile Header Section - Ultra Compact */}
+      <div className="flex flex-col items-center space-y-1 bg-white rounded-lg p-1.5 shadow-sm border w-full">
         <ProfileAvatar 
           avatarUrl={passport.avatar_url} 
           name={passport.name} 
         />
         
-        <div className="text-center w-full space-y-1">
+        <div className="text-center w-full space-y-0.5">
           <NameSection 
             name={passport.name} 
             ownerAddress={passport.owner_address}
@@ -76,7 +75,7 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
           )}
           
           {passport.bio && (
-            <p className="text-sm text-muted-foreground break-words px-1">
+            <p className="text-xs text-muted-foreground break-words px-0.5">
               {passport.bio}
             </p>
           )}
@@ -84,7 +83,7 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
       </div>
 
       {/* Social Links - Compact */}
-      <div className="bg-white rounded-lg p-2 shadow-sm border w-full">
+      <div className="bg-white rounded-lg p-1.5 shadow-sm border w-full">
         <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
       </div>
       
@@ -106,7 +105,7 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
       </div>
       
       {/* POAP Section - Compact */}
-      <div className="bg-white rounded-lg p-2 shadow-sm border w-full">
+      <div className="bg-white rounded-lg p-1.5 shadow-sm border w-full">
         <PoapSection walletAddress={passport.owner_address} />
       </div>
     </div>
