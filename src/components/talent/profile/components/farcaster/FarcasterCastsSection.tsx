@@ -10,7 +10,6 @@ interface FarcasterCastsSectionProps {
 }
 
 const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, address }) => {
-  // Extract username from ENS name
   const username = ensName ? ensName.replace('.eth', '').replace('.box', '') : undefined;
   
   const { casts, user, loading, error } = useFarcasterCasts(username);
@@ -47,7 +46,7 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
     return null;
   }
 
-  const formatTimestamp = (ts: number) => {
+  const formatTimestamp = (ts: number): string => {
     const date = new Date(ts * 1000);
     return date.toLocaleDateString();
   };

@@ -9,79 +9,81 @@ interface SocialLinksSectionProps {
   identity?: string;
 }
 
+interface SocialPlatform {
+  key: string;
+  type: 'github' | 'linkedin' | 'twitter' | 'farcaster' | 'discord' | 'telegram' | 'instagram' | 'youtube' | 'facebook' | 'whatsapp' | 'website';
+}
+
 const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ 
   socials = {}, 
   identity 
 }) => {
   const [allSocials, setAllSocials] = useState<Record<string, string>>(socials);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchAllSocialLinks = async () => {
+      if (!identity) {
+        setAllSocials(socials);
+        setLoading(false);
+        return;
+      }
+
       console.log('Fetching social links for identity:', identity);
       setLoading(true);
       
       let combinedSocials: Record<string, string> = { ...socials };
 
       try {
-        // Always fetch data if we have an identity
-        if (identity) {
-          const promises: Promise<unknown>[] = [];
-          
-          // Add ENS profile fetch if it's an ENS name
-          if (identity.endsWith('.eth') || identity.endsWith('.box')) {
-            promises.push(getENSProfile(identity));
-          }
-          
-          // Always try Web3Bio
-          promises.push(fetchWeb3BioProfile(identity));
+        const promises: Promise<any>[] = [];
+        
+        if (identity.endsWith('.eth') || identity.endsWith('.box')) {
+          promises.push(getENSProfile(identity));
+        }
+        
+        promises.push(fetchWeb3BioProfile(identity));
 
-          const results = await Promise.allSettled(promises);
+        const results = await Promise.allSettled(promises);
 
-          // Process ENS data
-          let ensIndex = 0;
-          if (identity.endsWith('.eth') || identity.endsWith('.box')) {
-            if (results[ensIndex]?.status === 'fulfilled') {
-              const ensProfile = results[ensIndex].value as any;
-              if (ensProfile?.socials) {
-                Object.entries(ensProfile.socials).forEach(([key, value]) => {
-                  if (value && typeof value === 'string' && value.trim()) {
-                    combinedSocials[key.toLowerCase()] = value;
-                  }
-                });
-              }
-            }
-            ensIndex++;
-          }
-
-          // Process Web3Bio data
+        let ensIndex = 0;
+        if (identity.endsWith('.eth') || identity.endsWith('.box')) {
           if (results[ensIndex]?.status === 'fulfilled') {
-            const web3BioProfile = results[ensIndex].value as any;
-            if (web3BioProfile) {
-              const profileData = Array.isArray(web3BioProfile) ? web3BioProfile[0] : web3BioProfile;
+            const ensProfile = (results[ensIndex] as PromiseFulfilledResult<any>).value;
+            if (ensProfile?.socials) {
+              Object.entries(ensProfile.socials).forEach(([key, value]) => {
+                if (value && typeof value === 'string' && value.trim()) {
+                  combinedSocials[key.toLowerCase()] = value;
+                }
+              });
+            }
+          }
+          ensIndex++;
+        }
+
+        if (results[ensIndex]?.status === 'fulfilled') {
+          const web3BioProfile = (results[ensIndex] as PromiseFulfilledResult<any>).value;
+          if (web3BioProfile) {
+            const profileData = Array.isArray(web3BioProfile) ? web3BioProfile[0] : web3BioProfile;
+            
+            if (profileData && typeof profileData === 'object') {
+              const socialFields = [
+                'github', 'twitter', 'linkedin', 'discord', 'telegram', 'instagram', 
+                'youtube', 'facebook', 'whatsapp', 'bluesky', 'farcaster', 'reddit'
+              ];
               
-              if (profileData && typeof profileData === 'object') {
-                // Direct social fields
-                const socialFields = [
-                  'github', 'twitter', 'linkedin', 'discord', 'telegram', 'instagram', 
-                  'youtube', 'facebook', 'whatsapp', 'bluesky', 'farcaster', 'reddit'
-                ];
-                
-                socialFields.forEach(field => {
-                  const fieldValue = profileData[field];
-                  if (fieldValue && typeof fieldValue === 'string') {
-                    combinedSocials[field] = fieldValue;
+              socialFields.forEach(field => {
+                const fieldValue = profileData[field];
+                if (fieldValue && typeof fieldValue === 'string') {
+                  combinedSocials[field] = fieldValue;
+                }
+              });
+
+              if (profileData.links && typeof profileData.links === 'object') {
+                Object.entries(profileData.links).forEach(([key, value]: [string, any]) => {
+                  if (value && typeof value === 'object' && value.link && typeof value.link === 'string') {
+                    combinedSocials[key.toLowerCase()] = value.link;
                   }
                 });
-
-                // Links object
-                if (profileData.links && typeof profileData.links === 'object') {
-                  Object.entries(profileData.links).forEach(([key, value]: [string, any]) => {
-                    if (value && typeof value === 'object' && value.link && typeof value.link === 'string') {
-                      combinedSocials[key.toLowerCase()] = value.link;
-                    }
-                  });
-                }
               }
             }
           }
@@ -101,20 +103,19 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
     fetchAllSocialLinks();
   }, [identity, JSON.stringify(socials)]);
 
-  // Social platform configurations
-  const socialPlatforms = [
-    { key: 'github', type: 'github' as const },
-    { key: 'linkedin', type: 'linkedin' as const },
-    { key: 'twitter', type: 'twitter' as const },
-    { key: 'farcaster', type: 'farcaster' as const },
-    { key: 'discord', type: 'discord' as const },
-    { key: 'telegram', type: 'telegram' as const },
-    { key: 'instagram', type: 'instagram' as const },
-    { key: 'youtube', type: 'youtube' as const },
-    { key: 'facebook', type: 'facebook' as const },
-    { key: 'whatsapp', type: 'whatsapp' as const },
-    { key: 'bluesky', type: 'website' as const },
-    { key: 'reddit', type: 'website' as const }
+  const socialPlatforms: SocialPlatform[] = [
+    { key: 'github', type: 'github' },
+    { key: 'linkedin', type: 'linkedin' },
+    { key: 'twitter', type: 'twitter' },
+    { key: 'farcaster', type: 'farcaster' },
+    { key: 'discord', type: 'discord' },
+    { key: 'telegram', type: 'telegram' },
+    { key: 'instagram', type: 'instagram' },
+    { key: 'youtube', type: 'youtube' },
+    { key: 'facebook', type: 'facebook' },
+    { key: 'whatsapp', type: 'whatsapp' },
+    { key: 'bluesky', type: 'website' },
+    { key: 'reddit', type: 'website' }
   ].filter(platform => {
     const link = allSocials[platform.key];
     return link && link.trim() !== '';

@@ -6,7 +6,7 @@ interface FarcasterCast {
   fid: number;
   ts: number;
   text: string;
-  embed?: unknown;
+  embed?: any;
   replies: number;
   recasts: number;
   reactions: number;
@@ -40,7 +40,6 @@ export const useFarcasterCasts = (username?: string) => {
       try {
         console.log('Fetching Farcaster data for username:', username);
         
-        // Get FID from username
         const userResponse = await fetch(`https://api.farcaster.xyz/v2/user/byusername?username=${username}`);
         if (!userResponse.ok) {
           throw new Error('User not found');
@@ -50,7 +49,6 @@ export const useFarcasterCasts = (username?: string) => {
         const userInfo = userData.user;
         setUser(userInfo);
 
-        // Get casts from FID
         const castsResponse = await fetch(`https://api.farcaster.xyz/v2/casts?fid=${userInfo.fid}&limit=10`);
         if (!castsResponse.ok) {
           throw new Error('Failed to fetch casts');
@@ -61,7 +59,8 @@ export const useFarcasterCasts = (username?: string) => {
 
       } catch (err) {
         console.error('Farcaster fetch error:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch Farcaster data');
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch Farcaster data';
+        setError(errorMessage);
         setCasts([]);
         setUser(null);
       } finally {
