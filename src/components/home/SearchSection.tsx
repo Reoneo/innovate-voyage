@@ -24,8 +24,8 @@ const SearchSection: React.FC = () => {
       searchValue = `${searchValue}.eth`;
     }
 
-    // Navigate directly without any domain prefix
-    navigate(`/${searchValue}`);
+    // Navigate with trailing slash to prevent 404
+    navigate(`/${searchValue}/`);
     toast.success(`Looking up profile for ${searchValue}`);
   };
 

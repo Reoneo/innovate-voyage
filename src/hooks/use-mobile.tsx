@@ -15,9 +15,14 @@ export function useIsMobile() {
     mql.addEventListener("change", onChange)
     setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     
+    // Optimize mobile viewport settings
     const viewport = document.querySelector('meta[name="viewport"]');
     if (viewport) {
-      viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+      if (window.innerWidth < MOBILE_BREAKPOINT) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover');
+      } else {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, user-scalable=yes');
+      }
     }
     
     return () => mql.removeEventListener("change", onChange)

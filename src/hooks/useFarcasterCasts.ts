@@ -6,7 +6,7 @@ interface FarcasterCast {
   fid: number;
   ts: number;
   text: string;
-  embed?: any;
+  embed?: unknown;
   replies: number;
   recasts: number;
   reactions: number;
@@ -20,7 +20,14 @@ interface FarcasterUser {
   pfp: string;
 }
 
-export const useFarcasterCasts = (username?: string) => {
+interface UseFarcasterCastsReturn {
+  casts: FarcasterCast[];
+  user: FarcasterUser | null;
+  loading: boolean;
+  error: string | null;
+}
+
+export const useFarcasterCasts = (username?: string): UseFarcasterCastsReturn => {
   const [casts, setCasts] = useState<FarcasterCast[]>([]);
   const [user, setUser] = useState<FarcasterUser | null>(null);
   const [loading, setLoading] = useState(false);
@@ -46,7 +53,7 @@ export const useFarcasterCasts = (username?: string) => {
         }
         
         const userData = await userResponse.json();
-        const userInfo = userData.user;
+        const userInfo = userData.user as FarcasterUser;
         setUser(userInfo);
 
         const castsResponse = await fetch(`https://api.farcaster.xyz/v2/casts?fid=${userInfo.fid}&limit=10`);

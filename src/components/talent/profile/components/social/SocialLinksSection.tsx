@@ -25,7 +25,6 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
     const fetchAllSocialLinks = async () => {
       if (!identity) {
         setAllSocials(socials);
-        setLoading(false);
         return;
       }
 
@@ -35,61 +34,81 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
       let combinedSocials: Record<string, string> = { ...socials };
 
       try {
-        const promises: Promise<any>[] = [];
+        // Always fetch from both sources in parallel for reliability
+        const promises: Array<Promise<unknown>> = [];
         
         if (identity.endsWith('.eth') || identity.endsWith('.box')) {
-          promises.push(getENSProfile(identity));
+          promises.push(
+            getENSProfile(identity).catch(err => {
+              console.warn('ENS profile fetch failed:', err);
+              return null;
+            })
+          );
         }
         
-        promises.push(fetchWeb3BioProfile(identity));
+        promises.push(
+          fetchWeb3BioProfile(identity).catch(err => {
+            console.warn('Web3Bio profile fetch failed:', err);
+            return null;
+          })
+        );
 
         const results = await Promise.allSettled(promises);
+        console.log('Social links fetch results:', results);
 
-        let ensIndex = 0;
+        let resultIndex = 0;
+        
+        // Process ENS results if applicable
         if (identity.endsWith('.eth') || identity.endsWith('.box')) {
-          if (results[ensIndex]?.status === 'fulfilled') {
-            const ensProfile = (results[ensIndex] as PromiseFulfilledResult<any>).value;
-            if (ensProfile?.socials) {
-              Object.entries(ensProfile.socials).forEach(([key, value]) => {
+          const ensResult = results[resultIndex];
+          if (ensResult.status === 'fulfilled' && ensResult.value) {
+            const ensProfile = ensResult.value as Record<string, unknown>;
+            if (ensProfile?.socials && typeof ensProfile.socials === 'object') {
+              Object.entries(ensProfile.socials as Record<string, unknown>).forEach(([key, value]) => {
                 if (value && typeof value === 'string' && value.trim()) {
                   combinedSocials[key.toLowerCase()] = value;
                 }
               });
             }
           }
-          ensIndex++;
+          resultIndex++;
         }
 
-        if (results[ensIndex]?.status === 'fulfilled') {
-          const web3BioProfile = (results[ensIndex] as PromiseFulfilledResult<any>).value;
-          if (web3BioProfile) {
-            const profileData = Array.isArray(web3BioProfile) ? web3BioProfile[0] : web3BioProfile;
+        // Process Web3Bio results
+        const web3BioResult = results[resultIndex];
+        if (web3BioResult.status === 'fulfilled' && web3BioResult.value) {
+          const web3BioProfile = web3BioResult.value as Record<string, unknown>;
+          const profileData = Array.isArray(web3BioProfile) ? web3BioProfile[0] : web3BioProfile;
+          
+          if (profileData && typeof profileData === 'object') {
+            const socialFields = [
+              'github', 'twitter', 'linkedin', 'discord', 'telegram', 'instagram', 
+              'youtube', 'facebook', 'whatsapp', 'bluesky', 'farcaster', 'reddit'
+            ];
             
-            if (profileData && typeof profileData === 'object') {
-              const socialFields = [
-                'github', 'twitter', 'linkedin', 'discord', 'telegram', 'instagram', 
-                'youtube', 'facebook', 'whatsapp', 'bluesky', 'farcaster', 'reddit'
-              ];
-              
-              socialFields.forEach(field => {
-                const fieldValue = profileData[field];
-                if (fieldValue && typeof fieldValue === 'string') {
-                  combinedSocials[field] = fieldValue;
+            socialFields.forEach(field => {
+              const fieldValue = (profileData as Record<string, unknown>)[field];
+              if (fieldValue && typeof fieldValue === 'string') {
+                combinedSocials[field] = fieldValue;
+              }
+            });
+
+            // Process links object
+            const links = (profileData as Record<string, unknown>).links;
+            if (links && typeof links === 'object') {
+              Object.entries(links as Record<string, unknown>).forEach(([key, value]) => {
+                if (value && typeof value === 'object') {
+                  const linkValue = (value as Record<string, unknown>).link;
+                  if (linkValue && typeof linkValue === 'string') {
+                    combinedSocials[key.toLowerCase()] = linkValue;
+                  }
                 }
               });
-
-              if (profileData.links && typeof profileData.links === 'object') {
-                Object.entries(profileData.links).forEach(([key, value]: [string, any]) => {
-                  if (value && typeof value === 'object' && value.link && typeof value.link === 'string') {
-                    combinedSocials[key.toLowerCase()] = value.link;
-                  }
-                });
-              }
             }
           }
         }
 
-        console.log('Combined socials:', combinedSocials);
+        console.log('Final combined socials:', combinedSocials);
         setAllSocials(combinedSocials);
 
       } catch (error) {
