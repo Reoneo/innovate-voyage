@@ -22,6 +22,7 @@ const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({
         email={socials?.email} 
         telephone={socials?.telephone}
         location={socials?.location}
+        website={socials?.website || socials?.url}
       />
     </div>
   );

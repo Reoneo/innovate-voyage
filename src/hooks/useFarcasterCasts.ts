@@ -1,50 +1,32 @@
 
 import { useState, useEffect } from 'react';
 import { useProfile } from '@farcaster/auth-kit';
-import { toast } from 'sonner';
 
 interface FarcasterCast {
   hash: string;
   text: string;
-  timestamp: string;
-  author: {
-    username: string;
-    displayName: string;
-    pfp: {
-      url: string;
-    };
-    fid: number;
-  };
-  replies: {
-    count: number;
-  };
-  reactions: {
-    likes: {
-      count: number;
-    };
-    recasts: {
-      count: number;
-    };
-  };
-  embeds?: Array<{
+  ts: number;
+  fid: number;
+  embed?: {
     url?: string;
     metadata?: {
       content_type?: string;
       content_length?: number;
     };
-  }>;
+  };
+  replies?: number;
+  recasts?: number;
+  reactions?: number;
 }
 
 interface FarcasterProfile {
   fid: number;
   username: string;
   displayName: string;
-  pfp: {
-    url: string;
-  };
-  followerCount: number;
-  followingCount: number;
-  verifications: string[];
+  pfp?: string;
+  followerCount?: number;
+  followingCount?: number;
+  verifications?: string[];
 }
 
 export function useFarcasterCasts(ensName?: string, address?: string) {
@@ -77,65 +59,67 @@ export function useFarcasterCasts(ensName?: string, address?: string) {
             fid: authProfile.fid,
             username: authProfile.username,
             displayName: authProfile.displayName || authProfile.username,
-            pfp: { url: authProfile.pfpUrl || '' },
+            pfp: authProfile.pfpUrl || '',
             followerCount: 0,
             followingCount: 0,
             verifications: []
           });
           
           // Fetch casts for authenticated user
-          const castsUrl = `https://api.neynar.com/v2/farcaster/casts?fid=${authProfile.fid}&limit=10`;
-          
-          const castsResponse = await fetch(castsUrl, {
-            headers: {
-              'Accept': 'application/json',
-            }
-          });
+          const castsResponse = await fetch(`https://api.farcaster.xyz/v2/casts?fid=${authProfile.fid}&limit=10`);
 
           if (castsResponse.ok) {
             const castsData = await castsResponse.json();
-            setCasts(castsData.result?.casts || []);
-            console.log(`Found ${castsData.result?.casts?.length || 0} Farcaster casts`);
+            setCasts(castsData.casts || []);
+            console.log(`Found ${castsData.casts?.length || 0} Farcaster casts`);
           }
           return;
         }
         
-        // Use Neynar API (free tier) to fetch Farcaster data for other users
+        // Use Farcaster API to fetch data for other users
         const searchParam = ensName || address;
-        const profileUrl = `https://api.neynar.com/v2/farcaster/user/search?q=${encodeURIComponent(searchParam)}&limit=1`;
+        let username = searchParam;
         
-        const profileResponse = await fetch(profileUrl, {
-          headers: {
-            'Accept': 'application/json',
-          }
-        });
-
-        if (!profileResponse.ok) {
-          throw new Error(`Failed to fetch Farcaster profile: ${profileResponse.status}`);
+        // Extract username from ENS name
+        if (ensName && ensName.includes('.')) {
+          username = ensName.replace('.eth', '').replace('.box', '');
         }
-
-        const profileData = await profileResponse.json();
         
-        if (profileData.result?.users?.length > 0) {
-          const user = profileData.result.users[0];
-          setProfile(user);
-          
-          // Fetch user's casts
-          const castsUrl = `https://api.neynar.com/v2/farcaster/casts?fid=${user.fid}&limit=10`;
-          
-          const castsResponse = await fetch(castsUrl, {
-            headers: {
-              'Accept': 'application/json',
-            }
-          });
+        console.log('Looking up Farcaster user:', username);
+        
+        // Get user by username
+        const profileResponse = await fetch(`https://api.farcaster.xyz/v2/user/byusername?username=${username}`);
 
-          if (castsResponse.ok) {
-            const castsData = await castsResponse.json();
-            setCasts(castsData.result?.casts || []);
-            console.log(`Found ${castsData.result?.casts?.length || 0} Farcaster casts`);
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json();
+          
+          if (profileData.user) {
+            const user = profileData.user;
+            setProfile({
+              fid: user.fid,
+              username: user.username,
+              displayName: user.displayName || user.username,
+              pfp: user.pfp,
+              followerCount: user.followerCount || 0,
+              followingCount: user.followingCount || 0,
+              verifications: user.verifications || []
+            });
+            
+            // Fetch user's casts
+            const castsResponse = await fetch(`https://api.farcaster.xyz/v2/casts?fid=${user.fid}&limit=10`);
+
+            if (castsResponse.ok) {
+              const castsData = await castsResponse.json();
+              setCasts(castsData.casts || []);
+              console.log(`Found ${castsData.casts?.length || 0} Farcaster casts`);
+            }
+          } else {
+            console.log('No Farcaster profile found for:', username);
+            setProfile(null);
+            setCasts([]);
           }
         } else {
-          console.log('No Farcaster profile found for:', searchParam);
+          console.log('Farcaster API error:', profileResponse.status);
           setProfile(null);
           setCasts([]);
         }

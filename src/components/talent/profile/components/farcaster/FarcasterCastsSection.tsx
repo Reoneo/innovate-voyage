@@ -1,150 +1,149 @@
+
 import React from 'react';
+import { useFarcasterCasts } from '@/hooks/useFarcasterCasts';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Repeat2, ExternalLink } from 'lucide-react';
-import { SignInButton, useProfile } from '@farcaster/auth-kit';
-import { useFarcasterCasts } from '@/hooks/useFarcasterCasts';
-import { Skeleton } from '@/components/ui/skeleton';
+import { MessageCircle, Repeat2, Heart, ExternalLink } from 'lucide-react';
+
 interface FarcasterCastsSectionProps {
   ensName?: string;
   address?: string;
 }
+
 const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
   ensName,
   address
 }) => {
-  const {
-    loading,
-    profile,
-    casts,
-    error,
-    hasFarcasterData,
-    isAuthenticatedUser
-  } = useFarcasterCasts(ensName, address);
-  const {
-    isAuthenticated
-  } = useProfile();
+  const { loading, profile, casts, error, hasFarcasterData } = useFarcasterCasts(ensName, address);
+
   if (loading) {
-    return <Card className="w-full">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-6 w-6" />
-            <Skeleton className="h-6 w-32" />
-          </div>
+    return (
+      <Card className="w-full">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <img 
+              src="https://developers.moralis.com/wp-content/uploads/web3wiki/166-farcaster/637aede94d31498505bc9412_DpYIEpePqjDcHIbux04cOKhrRwBhi7F0-dBF_JCdCYY.png" 
+              alt="Farcaster" 
+              className="w-5 h-5"
+            />
+            Farcaster Activity
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => <div key={i} className="border rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-16 w-full" />
-                    <div className="flex gap-4">
-                      <Skeleton className="h-4 w-12" />
-                      <Skeleton className="h-4 w-12" />
-                      <Skeleton className="h-4 w-12" />
-                    </div>
-                  </div>
-                </div>
-              </div>)}
-          </div>
+          <div className="text-sm text-muted-foreground">Loading Farcaster activity...</div>
         </CardContent>
-      </Card>;
+      </Card>
+    );
   }
+
   if (error || !hasFarcasterData) {
-    // Show connection option if no data found and this could be the user's own profile
-    if (!hasFarcasterData && !isAuthenticated) {
-      return;
-    }
-    return null; // Don't show the section if there's no Farcaster data and user is authenticated
+    return null; // Hide section if no Farcaster data
   }
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
+
+  const formatTimestamp = (ts: number) => {
+    const date = new Date(ts * 1000);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    if (diffInHours < 24) {
-      return `${diffInHours}h ago`;
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffDays > 0) {
+      return `${diffDays}d ago`;
+    } else if (diffHours > 0) {
+      return `${diffHours}h ago`;
     } else {
-      const diffInDays = Math.floor(diffInHours / 24);
-      return `${diffInDays}d ago`;
+      return 'Just now';
     }
   };
-  return <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded bg-purple-600 flex items-center justify-center">
-            <span className="text-white text-xs font-bold">F</span>
-          </div>
+
+  return (
+    <Card className="w-full">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <img 
+            src="https://developers.moralis.com/wp-content/uploads/web3wiki/166-farcaster/637aede94d31498505bc9412_DpYIEpePqjDcHIbux04cOKhrRwBhi7F0-dBF_JCdCYY.png" 
+            alt="Farcaster" 
+            className="w-5 h-5"
+          />
           Farcaster Activity
-          {profile && <Badge variant="secondary" className="ml-auto">
-              @{profile.username}
-            </Badge>}
-          {isAuthenticatedUser && <Badge variant="default" className="ml-2">
-              Verified
-            </Badge>}
         </CardTitle>
-        {profile && <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span>{profile.followerCount} followers</span>
-            <span>{profile.followingCount} following</span>
-          </div>}
+        {profile && (
+          <div className="flex items-center gap-3 pt-2">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={profile.pfp} alt={profile.username} />
+              <AvatarFallback>{profile.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium text-sm">{profile.displayName}</p>
+              <p className="text-xs text-muted-foreground">@{profile.username}</p>
+            </div>
+            <div className="flex gap-3 ml-auto text-xs text-muted-foreground">
+              {profile.followerCount !== undefined && (
+                <span>{profile.followerCount} followers</span>
+              )}
+              {profile.followingCount !== undefined && (
+                <span>{profile.followingCount} following</span>
+              )}
+            </div>
+          </div>
+        )}
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {casts.length === 0 ? <p className="text-muted-foreground text-center py-4">No recent casts found</p> : casts.slice(0, 5).map(cast => <div key={cast.hash} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
-                <div className="flex items-start gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={cast.author.pfp?.url} alt={cast.author.displayName} />
-                    <AvatarFallback>
-                      {cast.author.displayName?.slice(0, 2).toUpperCase() || 'FC'}
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-medium text-sm">{cast.author.displayName}</span>
-                      <span className="text-muted-foreground text-sm">@{cast.author.username}</span>
-                      <span className="text-muted-foreground text-sm">·</span>
-                      <span className="text-muted-foreground text-sm">{formatTimestamp(cast.timestamp)}</span>
-                    </div>
-                    
-                    <p className="text-sm mb-3 whitespace-pre-wrap break-words">{cast.text}</p>
-                    
-                    {cast.embeds && cast.embeds.length > 0 && <div className="mb-3">
-                        {cast.embeds.map((embed, index) => embed.url && <a key={index} href={embed.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800">
-                              <ExternalLink className="h-4 w-4" />
-                              {embed.url.length > 50 ? `${embed.url.slice(0, 50)}...` : embed.url}
-                            </a>)}
-                      </div>}
-                    
-                    <div className="flex items-center gap-6 text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="h-4 w-4" />
-                        <span className="text-sm">{cast.replies?.count || 0}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Repeat2 className="h-4 w-4" />
-                        <span className="text-sm">{cast.reactions?.recasts?.count || 0}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Heart className="h-4 w-4" />
-                        <span className="text-sm">{cast.reactions?.likes?.count || 0}</span>
-                      </div>
-                    </div>
-                  </div>
+      <CardContent className="space-y-4">
+        {casts.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No recent casts found.</p>
+        ) : (
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {casts.map((cast) => (
+              <div key={cast.hash} className="border-b border-border pb-4 last:border-b-0">
+                <div className="flex justify-between items-start mb-2">
+                  <p className="text-sm leading-relaxed">{cast.text || '(No text content)'}</p>
+                  <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
+                    {formatTimestamp(cast.ts)}
+                  </span>
                 </div>
-              </div>)}
-        </div>
-        
-        {profile && <div className="mt-4 pt-4 border-t">
-            <a href={`https://warpcast.com/${profile.username}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium">
-              View all casts on Warpcast
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </div>}
+                
+                {cast.embed?.url && (
+                  <div className="mt-2">
+                    <a 
+                      href={cast.embed.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-xs text-primary hover:underline flex items-center gap-1"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      View attachment
+                    </a>
+                  </div>
+                )}
+                
+                <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                  {cast.replies !== undefined && (
+                    <div className="flex items-center gap-1">
+                      <MessageCircle className="h-3 w-3" />
+                      <span>{cast.replies}</span>
+                    </div>
+                  )}
+                  {cast.recasts !== undefined && (
+                    <div className="flex items-center gap-1">
+                      <Repeat2 className="h-3 w-3" />
+                      <span>{cast.recasts}</span>
+                    </div>
+                  )}
+                  {cast.reactions !== undefined && (
+                    <div className="flex items-center gap-1">
+                      <Heart className="h-3 w-3" />
+                      <span>{cast.reactions}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 export default FarcasterCastsSection;

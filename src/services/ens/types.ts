@@ -1,109 +1,107 @@
 
-export interface ENSProfile {
-  address?: string;
-  ensName?: string;
-  avatar?: string;
-  description?: string;
-  email?: string;
-  website?: string;
-  socials: Record<string, string>;
-  textRecords: Record<string, string>;
-}
-
 export interface ENSTextRecord {
   key: string;
-  value: string | null;
+  value: string;
 }
 
 export interface ENSSocialRecord {
   platform: string;
-  value: string;
-  verified: boolean;
+  handle: string;
+  url: string;
 }
 
-// Priority records that should be fetched first for fast loading
-export const PRIORITY_RECORDS = [
-  'com.github',
-  'com.twitter', 
-  'com.linkedin',
-  'avatar',
-  'description',
-  'email',
-  'url',
-  'website'
-] as const;
+export interface ENSProfile {
+  ensName: string;
+  address?: string;
+  avatar?: string;
+  description?: string;
+  email?: string;
+  website?: string;
+  telephone?: string;
+  location?: string;
+  socials: Record<string, string>;
+  textRecords: Record<string, string>;
+}
 
-// Comprehensive list of all supported ENS text records
-export const ALL_TEXT_RECORDS = [
-  // Priority records (social platforms)
-  'com.github',
-  'com.twitter', 
-  'com.linkedin',
-  'com.discord',
-  'com.reddit',
-  'com.youtube',
-  'com.instagram',
-  'com.facebook',
-  'com.twitch',
-  'com.medium',
-  'com.substack',
-  'xyz.farcaster',
-  'app.bsky',
-  'org.telegram',
-  
-  // Profile info
+export type ENSTextRecordKey = 
+  | 'avatar'
+  | 'description' 
+  | 'email'
+  | 'url'
+  | 'website'
+  | 'location'
+  | 'telephone'
+  | 'github'
+  | 'twitter'
+  | 'linkedin'
+  | 'discord'
+  | 'telegram'
+  | 'instagram'
+  | 'youtube'
+  | 'facebook'
+  | 'reddit'
+  | 'snapchat'
+  | 'tiktok'
+  | 'medium'
+  | 'substack'
+  | 'mirror'
+  | 'lens'
+  | 'farcaster'
+  | 'nostr'
+  | 'mastodon'
+  | 'bluesky';
+
+export type PriorityRecordKey = 'github' | 'linkedin' | 'twitter';
+
+export const PRIORITY_RECORDS: PriorityRecordKey[] = ['github', 'linkedin', 'twitter'];
+
+export const ALL_TEXT_RECORDS: ENSTextRecordKey[] = [
   'avatar',
   'description',
-  'email',
+  'email', 
   'url',
   'website',
-  'display',
-  'keywords',
-  'mail',
-  'notice',
   'location',
-  'phone',
-  'portfolio',
-  'resume',
-  'bio',
-  
-  // Extended social platforms
-  'com.peepeth',
-  'com.whatsapp',
-  'lens.protocol',
+  'telephone',
+  'github',
+  'twitter',
+  'linkedin',
+  'discord',
+  'telegram',
+  'instagram',
+  'youtube',
+  'facebook',
+  'reddit',
+  'snapchat',
+  'tiktok',
+  'medium',
+  'substack',
+  'mirror',
+  'lens',
+  'farcaster',
   'nostr',
-  'matrix',
-  'keybase'
-] as const;
+  'mastodon',
+  'bluesky'
+];
 
-export type ENSTextRecordKey = typeof ALL_TEXT_RECORDS[number];
-export type PriorityRecordKey = typeof PRIORITY_RECORDS[number];
-
-// Mapping of ENS record keys to social platform names
 export const RECORD_TO_PLATFORM_MAP: Record<string, string> = {
-  'com.github': 'github',
-  'com.twitter': 'twitter',
-  'com.linkedin': 'linkedin',
-  'com.discord': 'discord',
-  'com.reddit': 'reddit',
-  'com.youtube': 'youtube',
-  'com.instagram': 'instagram',
-  'com.facebook': 'facebook',
-  'com.twitch': 'twitch',
-  'com.medium': 'medium',
-  'com.substack': 'substack',
-  'xyz.farcaster': 'farcaster',
-  'app.bsky': 'bluesky',
-  'org.telegram': 'telegram',
-  'com.peepeth': 'peepeth',
-  'com.whatsapp': 'whatsapp',
-  'lens.protocol': 'lens',
-  'nostr': 'nostr',
-  'matrix': 'matrix',
-  'keybase': 'keybase',
-  'email': 'email',
-  'url': 'website',
-  'website': 'website',
-  'portfolio': 'portfolio',
-  'resume': 'resume'
+  'github': 'github',
+  'twitter': 'twitter', 
+  'linkedin': 'linkedin',
+  'discord': 'discord',
+  'telegram': 'telegram',
+  'instagram': 'instagram',
+  'youtube': 'youtube',
+  'facebook': 'facebook',
+  'reddit': 'reddit',
+  'snapchat': 'snapchat',
+  'tiktok': 'tiktok',
+  'medium': 'website',
+  'substack': 'website',
+  'mirror': 'website',
+  'lens': 'website',
+  'farcaster': 'farcaster',
+  'nostr': 'website',
+  'mastodon': 'website',
+  'bluesky': 'website'
 };
