@@ -43,9 +43,9 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
   return (
-    <div className="w-full max-w-full space-y-1 px-0.5">
+    <div className="w-full max-w-full space-y-0.5 px-0.5 pb-safe">
       {/* Profile Header Section - Ultra Compact */}
-      <div className="flex flex-col items-center space-y-1 bg-white rounded-lg p-1.5 shadow-sm border w-full">
+      <div className="flex flex-col items-center space-y-0.5 bg-white rounded-lg p-1 shadow-sm border w-full">
         <ProfileAvatar 
           avatarUrl={passport.avatar_url} 
           name={passport.name} 
@@ -83,7 +83,7 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
       </div>
 
       {/* Social Links - Compact */}
-      <div className="bg-white rounded-lg p-1.5 shadow-sm border w-full">
+      <div className="bg-white rounded-lg p-1 shadow-sm border w-full">
         <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
       </div>
       
@@ -97,7 +97,7 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
       </div>
       
       {/* Farcaster Section - Compact */}
-      <div className="bg-white rounded-lg shadow-sm border w-full">
+      <div className="bg-white rounded-lg shadow-sm border w-full overflow-hidden">
         <FarcasterCastsSection 
           ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
           address={passport.owner_address}
@@ -105,7 +105,7 @@ const MobileProfileLayout: React.FC<MobileProfileLayoutProps> = ({
       </div>
       
       {/* POAP Section - Compact */}
-      <div className="bg-white rounded-lg p-1.5 shadow-sm border w-full">
+      <div className="bg-white rounded-lg p-1 shadow-sm border w-full">
         <PoapSection walletAddress={passport.owner_address} />
       </div>
     </div>

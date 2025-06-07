@@ -14,74 +14,80 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
   identity 
 }) => {
   const [allSocials, setAllSocials] = useState<Record<string, string>>(socials);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSocialLinks = async () => {
-      if (!identity) {
-        setAllSocials(socials);
-        return;
-      }
-
+    const fetchAllSocialLinks = async () => {
+      console.log('Fetching social links for identity:', identity);
       setLoading(true);
+      
       let combinedSocials: Record<string, string> = { ...socials };
 
       try {
-        // Fetch all data sources simultaneously
-        const promises = [];
-        
-        if (identity.endsWith('.eth') || identity.endsWith('.box')) {
-          promises.push(getENSProfile(identity));
-        }
-        
-        promises.push(fetchWeb3BioProfile(identity));
-
-        const results = await Promise.allSettled(promises);
-
-        // Process ENS data
-        if (results[0]?.status === 'fulfilled' && results[0].value) {
-          const profile = results[0].value;
-          if (profile.socials) {
-            Object.entries(profile.socials).forEach(([key, value]) => {
-              if (value && typeof value === 'string' && value.trim()) {
-                combinedSocials[key] = value;
-              }
-            });
+        // Always fetch data if we have an identity
+        if (identity) {
+          const promises: Promise<unknown>[] = [];
+          
+          // Add ENS profile fetch if it's an ENS name
+          if (identity.endsWith('.eth') || identity.endsWith('.box')) {
+            promises.push(getENSProfile(identity));
           }
-        }
+          
+          // Always try Web3Bio
+          promises.push(fetchWeb3BioProfile(identity));
 
-        // Process Web3Bio data
-        const web3BioIndex = promises.length > 1 ? 1 : 0;
-        if (results[web3BioIndex]?.status === 'fulfilled' && results[web3BioIndex].value) {
-          const profile = results[web3BioIndex].value;
-          if (profile && typeof profile === 'object') {
-            const profileData = Array.isArray(profile) ? profile[0] : profile;
-            
-            if (profileData && typeof profileData === 'object') {
-              const web3BioFields = [
-                'github', 'twitter', 'linkedin', 'discord', 'telegram', 'instagram', 
-                'youtube', 'facebook', 'whatsapp', 'bluesky', 'farcaster', 'reddit'
-              ];
-              
-              web3BioFields.forEach(field => {
-                const fieldValue = (profileData as any)[field];
-                if (fieldValue && typeof fieldValue === 'string') {
-                  combinedSocials[field] = fieldValue;
-                }
-              });
+          const results = await Promise.allSettled(promises);
 
-              const links = (profileData as any).links;
-              if (links && typeof links === 'object') {
-                Object.entries(links).forEach(([key, value]: [string, any]) => {
-                  if (value && typeof value === 'object' && value.link && typeof value.link === 'string') {
-                    combinedSocials[key] = value.link;
+          // Process ENS data
+          let ensIndex = 0;
+          if (identity.endsWith('.eth') || identity.endsWith('.box')) {
+            if (results[ensIndex]?.status === 'fulfilled') {
+              const ensProfile = results[ensIndex].value as any;
+              if (ensProfile?.socials) {
+                Object.entries(ensProfile.socials).forEach(([key, value]) => {
+                  if (value && typeof value === 'string' && value.trim()) {
+                    combinedSocials[key.toLowerCase()] = value;
                   }
                 });
+              }
+            }
+            ensIndex++;
+          }
+
+          // Process Web3Bio data
+          if (results[ensIndex]?.status === 'fulfilled') {
+            const web3BioProfile = results[ensIndex].value as any;
+            if (web3BioProfile) {
+              const profileData = Array.isArray(web3BioProfile) ? web3BioProfile[0] : web3BioProfile;
+              
+              if (profileData && typeof profileData === 'object') {
+                // Direct social fields
+                const socialFields = [
+                  'github', 'twitter', 'linkedin', 'discord', 'telegram', 'instagram', 
+                  'youtube', 'facebook', 'whatsapp', 'bluesky', 'farcaster', 'reddit'
+                ];
+                
+                socialFields.forEach(field => {
+                  const fieldValue = profileData[field];
+                  if (fieldValue && typeof fieldValue === 'string') {
+                    combinedSocials[field] = fieldValue;
+                  }
+                });
+
+                // Links object
+                if (profileData.links && typeof profileData.links === 'object') {
+                  Object.entries(profileData.links).forEach(([key, value]: [string, any]) => {
+                    if (value && typeof value === 'object' && value.link && typeof value.link === 'string') {
+                      combinedSocials[key.toLowerCase()] = value.link;
+                    }
+                  });
+                }
               }
             }
           }
         }
 
+        console.log('Combined socials:', combinedSocials);
         setAllSocials(combinedSocials);
 
       } catch (error) {
@@ -92,10 +98,10 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
       }
     };
 
-    fetchSocialLinks();
+    fetchAllSocialLinks();
   }, [identity, JSON.stringify(socials)]);
 
-  // Filter out contact info from social links
+  // Social platform configurations
   const socialPlatforms = [
     { key: 'github', type: 'github' as const },
     { key: 'linkedin', type: 'linkedin' as const },
@@ -114,8 +120,20 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
     return link && link.trim() !== '';
   });
 
-  if (socialPlatforms.length === 0 && !loading) {
-    return null;
+  if (loading) {
+    return (
+      <div className="flex justify-center">
+        <div className="text-xs text-muted-foreground">Loading social links...</div>
+      </div>
+    );
+  }
+
+  if (socialPlatforms.length === 0) {
+    return (
+      <div className="flex justify-center">
+        <div className="text-xs text-muted-foreground">No social links found</div>
+      </div>
+    );
   }
 
   return (

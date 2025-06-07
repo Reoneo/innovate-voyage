@@ -18,11 +18,13 @@ const SearchSection: React.FC = () => {
     }
 
     let searchValue = searchInput.trim();
+    
+    // Add .eth if it's just a plain username
     if (!searchValue.includes('.') && !isValidEthereumAddress(searchValue) && /^[a-zA-Z0-9]+$/.test(searchValue)) {
       searchValue = `${searchValue}.eth`;
     }
 
-    // Navigate directly without domain duplication
+    // Navigate directly without any domain prefix
     navigate(`/${searchValue}`);
     toast.success(`Looking up profile for ${searchValue}`);
   };
