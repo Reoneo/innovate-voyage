@@ -1,184 +1,100 @@
 
-import React, { useState, useEffect } from 'react';
-import { DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React from 'react';
+import { Poap } from '@/api/services/poapService';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Users, ExternalLink, X } from 'lucide-react';
-import { fetchPoapEventOwners } from '@/api/services/poapService';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from "@/components/ui/skeleton";
+import { ExternalLink } from 'lucide-react';
 import PoapOwnerItem from './PoapOwnerItem';
-import type { Poap } from '@/api/services/poapService';
 
 interface PoapDetailContentProps {
   poap: Poap;
-  poapOwners?: any[];
-  loadingOwners?: boolean;
+  poapOwners: any[];
+  loadingOwners: boolean;
 }
 
-const PoapDetailContent: React.FC<PoapDetailContentProps> = ({ poap, poapOwners: propOwners, loadingOwners: propLoadingOwners }) => {
-  const [owners, setOwners] = useState<any[]>(propOwners || []);
-  const [loadingOwners, setLoadingOwners] = useState(propLoadingOwners || false);
-
-  useEffect(() => {
-    if (propOwners) {
-      setOwners(propOwners);
-      setLoadingOwners(propLoadingOwners || false);
-      return;
-    }
-
-    const loadOwners = async () => {
-      setLoadingOwners(true);
-      try {
-        const ownersData = await fetchPoapEventOwners(poap.event.id);
-        setOwners(ownersData);
-      } catch (error) {
-        console.error('Error fetching POAP owners:', error);
-      } finally {
-        setLoadingOwners(false);
-      }
-    };
-
-    loadOwners();
-  }, [poap.event.id, propOwners, propLoadingOwners]);
+const PoapDetailContent: React.FC<PoapDetailContentProps> = ({
+  poap,
+  poapOwners,
+  loadingOwners
+}) => {
+  // Extract wallet address from poap.owner
+  const walletAddress = poap.owner;
+  
+  // Generate POAP.xyz collection URL
+  const getPoapCollectionUrl = () => {
+    return `https://app.poap.xyz/scan/${walletAddress}`;
+  };
 
   return (
-    <>
-      <style>
-        {`
-          @keyframes rainbow-border {
-            0% { --angle: 0deg; }
-            100% { --angle: 360deg; }
-          }
-          
-          .rainbow-border {
-            position: relative;
-            border-radius: 50%;
-            background: conic-gradient(from var(--angle, 0deg), #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-            animation: rainbow-border 3s linear infinite;
-            padding: 4px;
-          }
-          
-          .rainbow-border img {
-            display: block;
-            border-radius: 50%;
-          }
-        `}
-      </style>
-      <div className="flex flex-col h-full">
-        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-50">
-          <X className="h-6 w-6 text-white" />
-          <span className="sr-only">Close</span>
-        </DialogClose>
-
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-4xl mx-auto space-y-6">
-            {/* Header */}
-            <DialogHeader className="text-center">
-              <div className="mx-auto mb-4">
-                <div className="rainbow-border">
-                  <img 
-                    src={poap.event.image_url} 
-                    alt={poap.event.name}
-                    className="w-52 h-52 object-cover mx-auto shadow-lg"
-                  />
-                </div>
-              </div>
-              <DialogTitle className="text-2xl font-bold">{poap.event.name}</DialogTitle>
-            </DialogHeader>
-
-            {/* Event Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Event Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {poap.event.description && (
-                  <p className="text-gray-700">{poap.event.description}</p>
-                )}
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4" />
-                      <span className="font-medium">Date:</span>
-                      <span>{new Date(poap.event.start_date).toLocaleDateString()}</span>
-                    </div>
-                    
-                    {(poap.event.city || poap.event.country) && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="h-4 w-4" />
-                        <span className="font-medium">Location:</span>
-                        <span>{[poap.event.city, poap.event.country].filter(Boolean).join(', ')}</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Users className="h-4 w-4" />
-                      <span className="font-medium">Supply:</span>
-                      <span>{poap.event.supply.toLocaleString()}</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 text-sm">
-                      <Badge variant="secondary">#{poap.tokenId}</Badge>
-                    </div>
-                  </div>
-                </div>
-
-                {poap.event.event_url && (
-                  <a 
-                    href={poap.event.event_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-blue-500 hover:underline"
-                  >
-                    View Event <ExternalLink size={14} />
-                  </a>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* POAP Owners */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  POAP Holders ({loadingOwners ? '...' : owners.length.toLocaleString()})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loadingOwners ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[...Array(9)].map((_, i) => (
-                      <Skeleton key={i} className="h-16 w-full" />
-                    ))}
-                  </div>
-                ) : owners.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-                    {owners.slice(0, 100).map((owner, index) => (
-                      <PoapOwnerItem key={`${owner.owner || owner.address || index}`} owner={owner} />
-                    ))}
-                    {owners.length > 100 && (
-                      <div className="col-span-full text-center text-gray-500 text-sm mt-4">
-                        Showing first 100 of {owners.length.toLocaleString()} holders
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    No holders data available
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+    <div className="space-y-4">
+      <img src={poap.event.image_url} alt={poap.event.name} className="w-32 h-32 mx-auto object-contain" />
+      <div className="space-y-2">
+        <p className="text-sm">{poap.event.description}</p>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <p className="text-xs text-muted-foreground">Token ID</p>
+            <p className="text-sm font-medium">#{poap.tokenId}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Supply</p>
+            <p className="text-sm font-medium">{poap.event.supply || "Unlimited"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Date</p>
+            <p className="text-sm font-medium">
+              {new Date(poap.event.start_date).toLocaleDateString()}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Chain</p>
+            <p className="text-sm font-medium">{poap.chain}</p>
           </div>
         </div>
+
+        {/* Link to view full POAP collection */}
+        <div className="pt-2 border-t">
+          <a 
+            href={getPoapCollectionUrl()} 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline text-sm flex items-center justify-center gap-1"
+          >
+            View full POAP collection on POAP.xyz
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+
+        <div className="mt-4">
+          <h3 className="text-sm font-semibold mb-2">
+            Other POAP Owners {poapOwners.length > 0 && `(${poapOwners.length})`}
+          </h3>
+          
+          {loadingOwners ? (
+            <div className="flex flex-col space-y-2">
+              {[1, 2, 3].map((_, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              ))}
+            </div>
+          ) : poapOwners && poapOwners.length > 0 ? (
+            <div className="max-h-48 overflow-y-auto space-y-2">
+              {poapOwners.map((owner, index) => (
+                <PoapOwnerItem key={`${owner.owner}-${index}`} owner={owner} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-sm text-muted-foreground mb-2">No other owners data available</p>
+              <p className="text-xs text-muted-foreground">
+                This may be due to API limitations or the event being private
+              </p>
+            </div>
+          )}
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

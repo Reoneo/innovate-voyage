@@ -15,13 +15,9 @@ import { generateDeterministicAvatar } from './utils/fallbackAvatarHandler';
 export async function getRealAvatar(identity: string): Promise<string | null> {
   if (!identity) return null;
   
-  // Don't use cache to ensure fresh fetches
-  console.log(`Fetching fresh avatar for ${identity}`);
-  
-  // Special case for Avatar.ens - return the specific imgur URL
-  if (identity.toLowerCase() === 'avatar.ens') {
-    const avatarUrl = 'https://i.imgur.com/peeNEGL.png';
-    return avatarUrl;
+  // Check cache first
+  if (avatarCache[identity]) {
+    return avatarCache[identity];
   }
   
   // If not in cache, fetch from API
@@ -30,20 +26,12 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     
     // First try the gskril/ens-api (most reliable source)
     try {
-      const ensApiResponse = await fetch(`https://ens-api.vercel.app/api/${identity}`, {
-        cache: 'no-store'
-      });
+      const ensApiResponse = await fetch(`https://ens-api.vercel.app/api/${identity}`);
       if (ensApiResponse.ok) {
         const ensApiData = await ensApiResponse.json();
         if (ensApiData && ensApiData.avatar) {
           console.log(`Found avatar via gskril/ens-api for ${identity}: ${ensApiData.avatar}`);
-          
-          // Check if the avatar URL is an imgur URL - if so, return it directly
-          if (ensApiData.avatar.includes('imgur.com')) {
-            console.log(`Returning imgur URL for ${identity}: ${ensApiData.avatar}`);
-            return ensApiData.avatar;
-          }
-          
+          avatarCache[identity] = ensApiData.avatar;
           return ensApiData.avatar;
         }
       }
@@ -54,13 +42,11 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     // Try metadata.ens.domains (official ENS service)
     try {
       const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${identity}`;
-      const metadataResponse = await fetch(metadataUrl, { 
-        method: 'HEAD',
-        cache: 'no-store'
-      });
+      const metadataResponse = await fetch(metadataUrl, { method: 'HEAD' });
       
       if (metadataResponse.ok) {
         console.log(`Found avatar via ENS metadata service for ${identity}`);
+        avatarCache[identity] = metadataUrl;
         return metadataUrl;
       }
     } catch (metadataError) {
@@ -73,17 +59,10 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
       if (eip155Avatar) return eip155Avatar;
     }
     
-    // If it's an ENS name or other supported domains, try multiple sources
-    if (identity.endsWith('.eth') || identity.endsWith('.bio') || identity.endsWith('.xyz') || identity.endsWith('.ai') || identity.endsWith('.io')) {
+    // If it's an ENS name, try multiple sources
+    if (identity.endsWith('.eth')) {
       const ensAvatar = await handleEnsAvatar(identity);
-      if (ensAvatar) {
-        // Check if the resolved avatar is an imgur URL
-        if (ensAvatar.includes('imgur.com')) {
-          console.log(`Returning imgur URL from ENS handler for ${identity}: ${ensAvatar}`);
-          return ensAvatar;
-        }
-        return ensAvatar;
-      }
+      if (ensAvatar) return ensAvatar;
     }
     
     // For .box domains, try specific approach
@@ -96,11 +75,7 @@ export async function getRealAvatar(identity: string): Promise<string | null> {
     const profile = await fetchWeb3BioProfile(identity);
     if (profile && profile.avatar) {
       console.log(`Found avatar via Web3.bio for ${identity}`);
-      // Check if the avatar is an imgur URL
-      if (profile.avatar.includes('imgur.com')) {
-        console.log(`Returning imgur URL from Web3.bio for ${identity}: ${profile.avatar}`);
-        return profile.avatar;
-      }
+      avatarCache[identity] = profile.avatar;
       return profile.avatar;
     }
     

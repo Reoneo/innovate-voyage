@@ -1,141 +1,93 @@
+
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLink, Award, TrendingUp, Users, Star, X } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { ExternalLink } from 'lucide-react';
 import { getBuilderTitle } from '../utils/scoreUtils';
-import { DialogClose } from '@/components/ui/dialog';
+
 interface TalentScoreDialogContentProps {
   score: number | null;
   walletAddress: string;
 }
-const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({
-  score,
-  walletAddress
-}) => {
-  return <div className="bg-gradient-to-br from-gray-900 to-black text-white min-h-screen">
-      <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-50">
-        <X className="h-6 w-6 text-white" />
-        <span className="sr-only">Close</span>
-      </DialogClose>
 
-      <div className="p-6 space-y-6">
-        {/* Header Section */}
-        <div className="text-center space-y-4">
-          <div className="mx-auto w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-            <img alt="Talent Protocol" className="h-16 w-16 object-contain filter brightness-0 invert" src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1749232800000&signature=Z8ASIkHi091SbRTNk9aH4V9qa0H34hecpLNXcQ1eR9Q&downloadName=logomark_dark.jpg" />
-          </div>
-          <h1 className="text-3xl font-bold text-white">Builder Score</h1>
-          <div className="text-6xl font-bold text-yellow-400">
-            {score ?? 'N/A'}
-          </div>
-          <p className="text-xl text-gray-300">
-            {score ? getBuilderTitle(score) : 'Unknown Level'}
-          </p>
-        </div>
-
-        {/* Overview Card */}
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Award className="h-5 w-5 text-yellow-400" />
-              Builder Profile Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-gray-700/30 rounded-lg">
-                <TrendingUp className="h-8 w-8 text-green-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{score || 0}</div>
-                <div className="text-sm text-gray-300">Total Score</div>
-              </div>
-              <div className="text-center p-4 bg-gray-700/30 rounded-lg">
-                <Star className="h-8 w-8 text-blue-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">
-                  {score ? Math.floor(score / 10) + 1 : 1}
-                </div>
-                <div className="text-sm text-gray-300">Builder Level</div>
-              </div>
+const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ score, walletAddress }) => {
+  return (
+    <div className="bg-black text-white">
+      <div className="p-4">
+        <Card className="bg-gray-900 border-gray-700">
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-medium text-white">Total Builder Score</h3>
+              <span className="text-xl font-bold text-yellow-400">
+                {score ?? 'N/A'}
+              </span>
+            </div>
+            <div className="text-sm text-gray-300 mb-2">
+              <p>Current Level: {score ? getBuilderTitle(score) : 'Unknown'}</p>
+            </div>
+            
+            <ScoreBreakdownSection />
+            <OtherPlatformsSection />
+            
+            <div className="mt-4 text-center">
+              <a 
+                href={`https://app.talentprotocol.com/profile/${walletAddress}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 flex items-center gap-1 justify-center"
+              >
+                Verify on Talent Protocol <ExternalLink size={14} />
+              </a>
             </div>
           </CardContent>
         </Card>
-
-        {/* Score Breakdown */}
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">Score Breakdown</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ScoreItem label="Human Checkmark" score="20/20" percentage={100} />
-            <ScoreItem label="GitHub Activity" score="26/130" percentage={20} />
-            <ScoreItem label="Onchain Activity" score="24/48" percentage={50} />
-            <ScoreItem label="Talent Protocol" score="0/20" percentage={0} />
-            <ScoreItem label="X/Twitter" score="4/4" percentage={100} />
-          </CardContent>
-        </Card>
-
-        {/* Platform Connections */}
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Users className="h-5 w-5 text-purple-400" />
-              Platform Connections
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <PlatformItem label="Base" score="0/127" />
-              <PlatformItem label="Bountycaster" score="0/12" />
-              <PlatformItem label="BUILD" score="0/20" />
-              <PlatformItem label="Crypto Nomads" score="0/12" />
-              <PlatformItem label="DAOBase" score="0/8" />
-              <PlatformItem label="Developer DAO" score="0/20" />
-              <PlatformItem label="Devfolio" score="0/64" />
-              <PlatformItem label="ENS" score="0/6" />
-              <PlatformItem label="ETHGlobal" score="0/106" />
-              <PlatformItem label="Farcaster" score="0/82" />
-              <PlatformItem label="Lens" score="0/6" />
-              <PlatformItem label="Stack" score="0/12" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Call to Action */}
-        <div className="text-center">
-          <a href={`https://app.talentprotocol.com/profile/${walletAddress}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition-all">
-            View Full Profile <ExternalLink size={16} />
-          </a>
-        </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
+const ScoreBreakdownSection = () => (
+  <div className="border-t border-gray-700 pt-4 mt-4">
+    <h4 className="font-medium mb-3 text-white">Score Breakdown</h4>
+    <div className="space-y-2">
+      <ScoreItem label="Human Checkmark" score="20/20" />
+      <ScoreItem label="GitHub" score="26/130" />
+      <ScoreItem label="Onchain Activity" score="24/48" />
+      <ScoreItem label="Talent Protocol" score="0/20" />
+      <ScoreItem label="X/Twitter" score="4/4" />
+    </div>
+  </div>
+);
+
+const OtherPlatformsSection = () => (
+  <div className="border-t border-gray-700 pt-4 mt-4">
+    <h4 className="font-medium mb-3 text-white">Other Platforms</h4>
+    <div className="grid grid-cols-2 gap-2 text-sm">
+      <ScoreItem label="Base" score="0/127" />
+      <ScoreItem label="Bountycaster" score="0/12" />
+      <ScoreItem label="BUILD" score="0/20" />
+      <ScoreItem label="Crypto Nomads" score="0/12" />
+      <ScoreItem label="DAOBase" score="0/8" />
+      <ScoreItem label="Developer DAO" score="0/20" />
+      <ScoreItem label="Devfolio" score="0/64" />
+      <ScoreItem label="ENS" score="0/6" />
+      <ScoreItem label="ETHGlobal" score="0/106" />
+      <ScoreItem label="Farcaster" score="0/82" />
+      <ScoreItem label="Lens" score="0/6" />
+      <ScoreItem label="Stack" score="0/12" />
+    </div>
+  </div>
+);
+
 interface ScoreItemProps {
   label: string;
   score: string;
-  percentage: number;
 }
-const ScoreItem: React.FC<ScoreItemProps> = ({
-  label,
-  score,
-  percentage
-}) => <div className="flex items-center justify-between p-3 bg-gray-700/20 rounded-lg">
-    <span className="text-gray-300">{label}</span>
-    <div className="flex items-center gap-3">
-      <div className="w-20 bg-gray-600 rounded-full h-2">
-        <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full transition-all" style={{
-        width: `${percentage}%`
-      }} />
-      </div>
-      <span className="font-medium text-white min-w-[60px] text-right">{score}</span>
-    </div>
-  </div>;
-interface PlatformItemProps {
-  label: string;
-  score: string;
-}
-const PlatformItem: React.FC<PlatformItemProps> = ({
-  label,
-  score
-}) => <div className="flex justify-between p-2 bg-gray-700/10 rounded">
+
+const ScoreItem: React.FC<ScoreItemProps> = ({ label, score }) => (
+  <div className="flex justify-between">
     <span className="text-gray-300">{label}</span>
     <span className="font-medium text-white">{score}</span>
-  </div>;
+  </div>
+);
+
 export default TalentScoreDialogContent;

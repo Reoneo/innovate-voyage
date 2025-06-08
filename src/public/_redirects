@@ -1,5 +1,0 @@
-
-/*    /index.html   200
-
-# Handle URLs with and without trailing slash
-/:ensNameOrAddress  /:ensNameOrAddress/   301

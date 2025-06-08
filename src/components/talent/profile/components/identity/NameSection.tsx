@@ -51,8 +51,12 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
       return;
     }
     
-    // Simplified follow without extensive error handling for speed
-    await followAddress(address);
+    try {
+      await followAddress(address);
+    } catch (error) {
+      console.error('Follow error:', error);
+      // Error is already handled in useEfpFollow
+    }
   };
 
   return (
@@ -62,16 +66,14 @@ const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayId
         <AddressDisplay address={ownerAddress} />
       </div>
       
-      {/* Follow Stats - Only show if data exists */}
-      {(followers > 0 || following > 0) && (
-        <FollowStats 
-          followers={followers}
-          following={following}
-          loading={loading}
-          openFollowersDialog={openFollowersDialog}
-          openFollowingDialog={openFollowingDialog}
-        />
-      )}
+      {/* Follow Stats */}
+      <FollowStats 
+        followers={followers}
+        following={following}
+        loading={loading}
+        openFollowersDialog={openFollowersDialog}
+        openFollowingDialog={openFollowingDialog}
+      />
       
       {/* Followers/Following Dialog */}
       <FollowersDialog

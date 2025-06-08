@@ -1,61 +1,75 @@
-
 import React from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogClose,
-} from '@/components/ui/dialog';
-import { X } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import TalentScoreDialogContent from './dialogs/TalentScoreDialogContent';
 import WebacyDialogContent from './dialogs/WebacyDialogContent';
 import TransactionsDialogContent from './dialogs/TransactionsDialogContent';
-import BlockchainDialogContent from './dialogs/BlockchainDialogContent';
-import type { WebacyData } from './types';
-
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 interface ScoreDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type: 'talent' | 'webacy' | 'transactions' | 'blockchain';
+  type: 'talent' | 'webacy' | 'transactions';
   data: {
-    score: number | null;
-    webacyData: WebacyData | null;
-    txCount: number | null;
-    walletAddress: string;
+    score?: number;
+    webacyData?: any;
+    txCount?: number;
+    walletAddress?: string;
   };
 }
-
 const ScoreDialog: React.FC<ScoreDialogProps> = ({
   open,
   onOpenChange,
   type,
   data
 }) => {
-  const renderContent = () => {
+  const {
+    score,
+    webacyData,
+    txCount,
+    walletAddress
+  } = data;
+  const renderDialogContent = () => {
     switch (type) {
       case 'talent':
-        return <TalentScoreDialogContent score={data.score} walletAddress={data.walletAddress} />;
+        return <TalentScoreDialogContent score={score} walletAddress={walletAddress} />;
       case 'webacy':
-        return <WebacyDialogContent webacyData={data.webacyData} />;
+        return <WebacyDialogContent webacyData={webacyData} />;
       case 'transactions':
-        return <TransactionsDialogContent txCount={data.txCount} walletAddress={data.walletAddress} />;
-      case 'blockchain':
-        return <BlockchainDialogContent walletAddress={data.walletAddress} />;
-      default:
-        return null;
+        return <TransactionsDialogContent txCount={txCount} walletAddress={walletAddress} />;
     }
   };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-screen h-screen max-w-none m-0 rounded-none flex flex-col bg-white text-gray-900 border-0 shadow-2xl p-0">
-        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-50">
-          <X className="h-6 w-6" />
-          <span className="sr-only">Close</span>
-        </DialogClose>
-        {renderContent()}
+  const getDialogTitle = () => {
+    switch (type) {
+      case 'talent':
+        return 'Builder Score';
+      case 'webacy':
+        return 'Security Score';
+      case 'transactions':
+        return 'Transaction History';
+    }
+  };
+  const getDialogClass = () => {
+    return type === 'webacy' ? 'max-w-md' : 'max-w-4xl';
+  };
+  return <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={`${getDialogClass()} max-h-[80vh] overflow-y-auto p-0 ${type === 'webacy' ? 'bg-white text-black' : 'bg-black text-white'}`}>
+        {type !== 'webacy' && <div className={`sticky top-0 z-10 bg-black text-white flex justify-between items-center pb-2 p-4`}>
+            <div className="flex items-center gap-3">
+              {type === 'talent' && <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center overflow-hidden">
+                  <img alt="Builder Score" className="h-full w-full object-cover" src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1748664000000&signature=JSrKMhJuBay0CUjwXneo0EpijfNFd2-AFamWCFKobAo&downloadName=logomark_dark.jpg" />
+                </div>}
+              <h2 className="text-lg font-semibold">
+                {getDialogTitle()}
+              </h2>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className={`rounded-full h-8 w-8 text-white hover:bg-gray-800`}>
+              <X size={18} />
+            </Button>
+          </div>}
+        <div className={`p-0 ${type === 'webacy' ? 'bg-white text-black' : 'bg-black'}`}>
+          {renderDialogContent()}
+        </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
-
 export default ScoreDialog;

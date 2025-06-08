@@ -13,24 +13,22 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({
   const isMobile = useIsMobile();
   
   return (
-    <div className="w-full flex justify-center px-1">
-      <Card style={{
-        minHeight: 'auto',
-        width: '100%',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        marginTop: isMobile ? '1px' : '4px',
-        marginBottom: isMobile ? '1px' : '2px',
-        padding: 0,
-        overflow: 'visible',
-        border: '1px solid #f0f0f0',
-        borderRadius: '6px'
-      }} className="bg-white shadow-sm rounded-sm w-full backdrop-blur-sm bg-opacity-95">
-        <CardContent className={`h-auto rounded-none ${isMobile ? 'p-1' : 'p-2'}`}>
-          {children}
-        </CardContent>
-      </Card>
-    </div>
+    <Card className="bg-white shadow-sm rounded-sm w-full backdrop-blur-sm bg-opacity-95" style={{
+      minHeight: isMobile ? 'auto' : 'calc(100vh - 80px)',
+      width: '100%',
+      maxWidth: '100vw',
+      margin: '0 auto',
+      marginTop: isMobile ? '4px' : '8px',
+      marginBottom: isMobile ? '4px' : '8px',
+      padding: 0,
+      overflow: 'visible',
+      border: '1px solid #f0f0f0',
+      borderRadius: '8px'
+    }}>
+      <CardContent className={`h-auto rounded-none my-0 mx-0 ${isMobile ? 'p-2 py-3' : 'p-6 md:p-8 print:p-4 py-[10px] px-[20px]'}`}>
+        {children}
+      </CardContent>
+    </Card>
   );
 };
 

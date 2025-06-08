@@ -1,135 +1,72 @@
 
 import React, { useState, useEffect } from 'react';
-import { SocialIcon } from '@/components/ui/social-icon';
-import { getCompleteENSData } from '@/services/ens/unifiedTextRecords';
+import SocialMediaLinks from '../../tabs/social/SocialMediaLinks';
+import { getEnsLinks } from '@/utils/ens/ensLinks';
+import { Badge } from '@/components/ui/badge';
 
 interface SocialLinksSectionProps {
-  socials?: Record<string, string>;
+  socials: Record<string, string>;
   identity?: string;
 }
 
-type SocialPlatformType = 'github' | 'linkedin' | 'twitter' | 'farcaster' | 'discord' | 'telegram' | 'instagram' | 'youtube' | 'facebook' | 'whatsapp' | 'website';
-
-interface SocialPlatform {
-  key: string;
-  type: SocialPlatformType;
-}
-
-const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ 
-  socials = {}, 
-  identity 
-}) => {
-  const [allSocials, setAllSocials] = useState<Record<string, string>>(socials);
-  const [loading, setLoading] = useState(false);
+const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identity }) => {
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>(socials || {});
+  const [isLoading, setIsLoading] = useState(false);
+  const [keywords, setKeywords] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchAllSocialLinks = async () => {
-      if (!identity || !identity.includes('.')) {
-        setAllSocials(socials);
-        return;
-      }
-
-      console.log('Fetching social links via unified ENS for identity:', identity);
-      setLoading(true);
-      
-      let combinedSocials: Record<string, string> = { ...socials };
-
-      try {
-        // Use unified ENS data fetcher
-        const ensData = await getCompleteENSData(identity);
-        
-        console.log('ENS data for social links:', ensData);
-        
-        // Merge ENS socials with existing socials
-        Object.entries(ensData.socials).forEach(([platform, value]) => {
-          if (value && value.trim()) {
-            combinedSocials[platform] = value;
+    if (identity && (identity.includes('.eth') || identity.includes('.box'))) {
+      setIsLoading(true);
+      getEnsLinks(identity)
+        .then(links => {
+          if (links && links.socials) {
+            setSocialLinks(prevLinks => ({
+              ...prevLinks,
+              ...links.socials
+            }));
           }
+          
+          // Extract keywords from ENS records
+          if (links && links.keywords) {
+            setKeywords(Array.isArray(links.keywords) ? links.keywords : [links.keywords]);
+          }
+        })
+        .catch(error => {
+          console.error(`Error fetching social links for ${identity}:`, error);
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
+    }
+  }, [identity]);
 
-        // Add Farcaster handle if available
-        if (ensData.farcasterHandle) {
-          combinedSocials['farcaster'] = ensData.farcasterHandle;
-        }
-
-        console.log('Final combined socials:', combinedSocials);
-        setAllSocials(combinedSocials);
-
-      } catch (error) {
-        console.error('Error fetching social links via ENS:', error);
-        setAllSocials(combinedSocials);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAllSocialLinks();
-  }, [identity, JSON.stringify(socials)]);
-
-  const socialPlatforms: SocialPlatform[] = [
-    { key: 'github', type: 'github' },
-    { key: 'linkedin', type: 'linkedin' },
-    { key: 'twitter', type: 'twitter' },
-    { key: 'farcaster', type: 'farcaster' },
-    { key: 'discord', type: 'discord' },
-    { key: 'telegram', type: 'telegram' },
-    { key: 'instagram', type: 'instagram' },
-    { key: 'youtube', type: 'youtube' },
-    { key: 'facebook', type: 'facebook' },
-    { key: 'whatsapp', type: 'whatsapp' }
-  ].filter(platform => {
-    const link = allSocials[platform.key];
-    return link && link.trim() !== '';
-  });
-
-  if (loading) {
-    return (
-      <div className="flex justify-center">
-        <div className="text-xs text-muted-foreground">Loading social links...</div>
-      </div>
-    );
-  }
-
-  if (socialPlatforms.length === 0) {
-    return (
-      <div className="flex justify-center">
-        <div className="text-xs text-muted-foreground">No social links found</div>
-      </div>
-    );
+  // Extract owner address from socials or use undefined
+  const ownerAddress = socials?.ethereum || socials?.walletAddress;
+  
+  // Check if there are any social links
+  const hasSocialLinks = Object.entries(socialLinks || {}).some(([key, val]) => val && val.trim() !== '');
+  
+  if (!hasSocialLinks && keywords.length === 0) {
+    return null; // Hide the entire section if no links or keywords available
   }
 
   return (
-    <div className="flex flex-wrap gap-3 justify-center">
-      {socialPlatforms.map((platform) => {
-        const link = allSocials[platform.key];
-        if (!link || link.trim() === '') return null;
-
-        let href = link;
-        if (platform.key === 'whatsapp') {
-          href = link.startsWith('https://') ? link : `https://wa.me/${link}`;
-        } else if (platform.key === 'telegram') {
-          href = link.startsWith('https://') ? link : `https://t.me/${link}`;
-        } else if (platform.key === 'discord') {
-          href = link.includes('discord.com') ? link : `https://discord.com/users/${link}`;
-        } else if (platform.key === 'farcaster') {
-          href = link.startsWith('https://') ? link : `https://warpcast.com/${link}`;
-        } else if (!link.startsWith('http://') && !link.startsWith('https://')) {
-          href = `https://${link}`;
-        }
-
-        return (
-          <a
-            key={platform.key}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-opacity hover:opacity-80"
-            title={`Visit ${platform.key}: ${link}`}
-          >
-            <SocialIcon type={platform.type} size={60} />
-          </a>
-        );
-      })}
+    <div className="mt-4">
+      <div className="grid grid-cols-4 gap-4">
+        <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
+      </div>
+      
+      {keywords.length > 0 && (
+        <div className="mt-4">
+          <div className="flex flex-wrap gap-2">
+            {keywords.map((keyword, index) => (
+              <Badge key={index} variant="secondary" className="text-xs">
+                {keyword}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

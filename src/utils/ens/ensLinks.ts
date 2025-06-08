@@ -11,87 +11,104 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
     keywords: [] as string[]
   };
   
-  // If the name doesn't end with .eth or .box, return empty result quickly
-  if (!ensName.endsWith('.eth') && !ensName.endsWith('.box')) {
-    return result;
-  }
-  
   try {
-    // Fast timeout for quick loading
-    const resolver = await Promise.race([
-      mainnetProvider.getResolver(ensName),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1500))
-    ]) as any;
-    
-    if (!resolver) {
+    // If the name doesn't end with .eth or .box, return empty result
+    if (!ensName.endsWith('.eth') && !ensName.endsWith('.box')) {
       return result;
     }
     
-    // Comprehensive list of ENS text records
+    const resolver = await mainnetProvider.getResolver(ensName);
+    
+    // Exit if no resolver found
+    if (!resolver) {
+      console.log('No resolver found for', ensName);
+      return result;
+    }
+    
+    // Parallel fetch for all social records
     const recordsToFetch = [
-      'com.github', 'com.twitter', 'com.linkedin', 'com.discord.ens', 'com.whatsapp.ens',
-      'org.telegram', 'app.bsky.ens', 'xyz.farcaster.ens', 'email', 'url.ens', 
-      'description', 'bio.ens', 'location.ens', 'keywords.ens', 'com.instagram', 
-      'com.youtube', 'com.facebook', 'com.reddit', 'website', 'portfolio', 'resume'
+      'com.github', 'com.twitter', 'com.discord', 'com.linkedin', 'org.telegram',
+      'com.reddit', 'email', 'url', 'description', 'avatar',
+      'com.instagram', 'io.keybase', 'xyz.lens', 'location', 'com.youtube',
+      'app.bsky', 'com.whatsapp', 'phone', 'name', 'notice', 'keywords'
     ];
     
-    // Batch fetch all records quickly
-    const recordPromises = recordsToFetch.map(async (key) => {
-      try {
-        const value = await Promise.race([
-          resolver.getText(key),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 800))
-        ]) as string;
-        return { key, value: value?.trim() || null };
-      } catch {
-        return { key, value: null };
-      }
-    });
-    
-    const recordResults = await Promise.allSettled(recordPromises);
-    
-    // Process results without error handling overhead
-    recordResults.forEach((promiseResult) => {
-      if (promiseResult.status === 'fulfilled') {
-        const { key, value } = promiseResult.value;
-        if (!value) return;
-        
-        // Map ENS records to social fields
-        const mapping: Record<string, string> = {
-          'com.github': 'github',
-          'com.twitter': 'twitter',
-          'com.linkedin': 'linkedin',
-          'com.discord.ens': 'discord',
-          'com.whatsapp.ens': 'whatsapp',
-          'org.telegram': 'telegram',
-          'app.bsky.ens': 'bluesky',
-          'xyz.farcaster.ens': 'farcaster',
-          'com.instagram': 'instagram',
-          'com.youtube': 'youtube',
-          'com.facebook': 'facebook',
-          'com.reddit': 'reddit',
-          'email': 'email',
-          'url.ens': 'website',
-          'website': 'website',
-          'location.ens': 'location',
-          'portfolio': 'portfolio',
-          'resume': 'resume'
-        };
-
-        if (mapping[key]) {
-          result.socials[mapping[key]] = value;
-        } else if (key === 'description' || key === 'bio.ens') {
-          result.description = value;
-        } else if (key === 'keywords.ens') {
-          result.keywords = value.split(',').map(k => k.trim());
+    const records = await Promise.all(
+      recordsToFetch.map(async (key) => {
+        try {
+          const value = await resolver.getText(key);
+          return { key, value };
+        } catch (error) {
+          console.log(`Error fetching ${key} record:`, error);
+          return { key, value: null };
         }
+      })
+    );
+    
+    // Map the records to our result structure
+    records.forEach(({ key, value }) => {
+      if (!value) return;
+      
+      switch (key) {
+        case 'com.github':
+          result.socials.github = value;
+          break;
+        case 'com.twitter':
+          result.socials.twitter = value;
+          break;
+        case 'com.discord':
+          result.socials.discord = value;
+          break;
+        case 'com.linkedin':
+          result.socials.linkedin = value;
+          console.log('Found LinkedIn in ENS records:', value);
+          break;
+        case 'org.telegram':
+          result.socials.telegram = value;
+          break;
+        case 'com.reddit':
+          result.socials.reddit = value;
+          break;
+        case 'email':
+          result.socials.email = value;
+          break;
+        case 'com.whatsapp':
+          result.socials.whatsapp = value;
+          break;
+        case 'app.bsky':
+          result.socials.bluesky = value;
+          break;
+        case 'url':
+          result.socials.website = value;
+          break;
+        case 'phone':
+          result.socials.telephone = value;
+          break;
+        case 'location':
+          result.socials.location = value;
+          break;
+        case 'com.instagram':
+          result.socials.instagram = value;
+          break;
+        case 'com.youtube':
+          result.socials.youtube = value;
+          break;
+        case 'description':
+          result.description = value;
+          break;
+        case 'keywords':
+          // Handle keywords - could be comma-separated or space-separated
+          result.keywords = value.split(/[,\s]+/).filter(k => k.trim().length > 0);
+          break;
+        default:
+          break;
       }
     });
     
     return result;
     
-  } catch {
-    // Return partial results even on error
+  } catch (error) {
+    console.error(`Error fetching ENS links for ${ensName}:`, error);
     return result;
   }
 }

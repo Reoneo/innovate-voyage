@@ -21,12 +21,3 @@ export interface WebacyData {
   riskItems?: any[];
   riskHistory?: any[];
 }
-
-export interface ScoreDialogData {
-  score: number | null;
-  webacyData: WebacyData | null;
-  txCount: number | null;
-  walletAddress: string;
-}
-
-export type DialogType = 'talent' | 'webacy' | 'transactions' | 'blockchain';
