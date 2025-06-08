@@ -30,8 +30,8 @@ export async function getEnsAvatar(ensName: string, network: 'mainnet' | 'optimi
       return avatar;
     }
     
-    // Fallback: Try to use resolver directly - only for ENS domains on mainnet
-    if (ensName.endsWith('.eth')) {
+    // Fallback: Try to use resolver directly - for ENS domains and other supported TLDs on mainnet
+    if (ensName.endsWith('.eth') || ensName.endsWith('.bio') || ensName.endsWith('.xyz') || ensName.endsWith('.ai') || ensName.endsWith('.io')) {
       try {
         const provider = mainnetProvider;
         const resolver = await provider.getResolver(ensName);
