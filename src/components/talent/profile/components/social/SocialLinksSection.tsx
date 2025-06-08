@@ -9,9 +9,11 @@ interface SocialLinksSectionProps {
   identity?: string;
 }
 
+type SocialPlatformType = 'github' | 'linkedin' | 'twitter' | 'farcaster' | 'discord' | 'telegram' | 'instagram' | 'youtube' | 'facebook' | 'whatsapp' | 'website';
+
 interface SocialPlatform {
   key: string;
-  type: 'github' | 'linkedin' | 'twitter' | 'farcaster' | 'discord' | 'telegram' | 'instagram' | 'youtube' | 'facebook' | 'whatsapp' | 'website';
+  type: SocialPlatformType;
 }
 
 const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ 
