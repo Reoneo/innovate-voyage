@@ -99,32 +99,35 @@ const A4Layout: React.FC<A4LayoutProps> = ({
         </div>
       </div>
       
-      {/* Social Links */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold mb-3">Social Links</h3>
-        <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
-      </div>
-      
-      {/* Talent Score and Activity */}
-      <div className="mb-8">
-        <TalentScoreBanner 
-          walletAddress={passport.owner_address} 
-          githubUsername={githubUsername}
-          showGitHubSection={showGitHubSection}
-        />
-      </div>
-      
-      {/* Farcaster Activity */}
-      <div className="mb-8">
-        <FarcasterCastsSection 
-          ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
-          address={passport.owner_address}
-        />
-      </div>
-      
-      {/* POAPs */}
-      <div>
-        <PoapSection walletAddress={passport.owner_address} />
+      {/* Single Column Layout */}
+      <div className="space-y-8">
+        {/* Social Links */}
+        <div>
+          <h3 className="text-lg font-semibold mb-3">Social Links</h3>
+          <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
+        </div>
+        
+        {/* Talent Score and Activity */}
+        <div>
+          <TalentScoreBanner 
+            walletAddress={passport.owner_address} 
+            githubUsername={githubUsername}
+            showGitHubSection={showGitHubSection}
+          />
+        </div>
+        
+        {/* Farcaster Activity */}
+        <div>
+          <FarcasterCastsSection 
+            ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+            address={passport.owner_address}
+          />
+        </div>
+        
+        {/* POAPs */}
+        <div>
+          <PoapSection walletAddress={passport.owner_address} />
+        </div>
       </div>
     </div>
   );

@@ -1,8 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFarcasterCasts } from '@/hooks/useFarcasterCasts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageCircle, Repeat, Heart } from 'lucide-react';
+import { getTextRecord } from '@ensdomains/ensjs/public';
+import { ensClient } from '@/services/ens/client';
 
 interface FarcasterCastsSectionProps {
   ensName?: string;
@@ -10,49 +12,65 @@ interface FarcasterCastsSectionProps {
 }
 
 const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, address }) => {
-  // Try multiple username variations for better ENS resolution
-  const getUsernameVariations = () => {
-    const variations = [];
-    
-    if (ensName) {
-      // Try the full ENS name
-      variations.push(ensName);
-      
-      // Try without .eth extension
-      if (ensName.endsWith('.eth')) {
-        variations.push(ensName.replace('.eth', ''));
+  const [farcasterUsername, setFarcasterUsername] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch Farcaster username from ENS records
+  useEffect(() => {
+    const fetchFarcasterUsername = async () => {
+      if (!ensName) {
+        setLoading(false);
+        return;
       }
+
+      console.log('Fetching Farcaster username for ENS:', ensName);
       
-      // Try without .box extension
-      if (ensName.endsWith('.box')) {
-        variations.push(ensName.replace('.box', ''));
+      try {
+        // Try to get the Farcaster handle from ENS text records
+        const farcasterHandle = await getTextRecord(ensClient, { 
+          name: ensName, 
+          key: 'com.farcaster' 
+        });
+        
+        if (farcasterHandle) {
+          console.log('Found Farcaster handle in ENS:', farcasterHandle);
+          setFarcasterUsername(farcasterHandle);
+        } else {
+          // Fallback: try without .eth extension
+          const baseUsername = ensName.replace('.eth', '').replace('.box', '');
+          console.log('No Farcaster handle in ENS, trying base username:', baseUsername);
+          setFarcasterUsername(baseUsername);
+        }
+      } catch (error) {
+        console.warn('Error fetching Farcaster username from ENS:', error);
+        // Fallback: use base ENS name
+        const baseUsername = ensName.replace('.eth', '').replace('.box', '');
+        setFarcasterUsername(baseUsername);
+      } finally {
+        setLoading(false);
       }
-    }
-    
-    return variations;
-  };
+    };
+
+    fetchFarcasterUsername();
+  }, [ensName]);
   
-  const usernameVariations = getUsernameVariations();
-  const primaryUsername = usernameVariations[0]?.replace('.eth', '').replace('.box', '');
-  
-  const { casts, user, loading, error } = useFarcasterCasts(primaryUsername);
+  const { casts, user, loading: castsLoading, error } = useFarcasterCasts(farcasterUsername);
 
   console.log('Farcaster component:', { 
     ensName, 
-    primaryUsername, 
-    usernameVariations,
+    farcasterUsername, 
     user, 
     casts: casts.length, 
-    loading, 
+    loading: loading || castsLoading, 
     error 
   });
 
-  if (!primaryUsername) {
-    console.log('No username for Farcaster');
+  if (!ensName) {
+    console.log('No ENS name for Farcaster');
     return null;
   }
 
-  if (loading) {
+  if (loading || castsLoading) {
     return (
       <Card className="w-full">
         <CardHeader className="pb-2">
@@ -90,7 +108,7 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
         </CardHeader>
         <CardContent className="pt-0">
           <div className="text-center text-xs text-muted-foreground">
-            No Farcaster activity found for {primaryUsername}
+            No Farcaster activity found for {farcasterUsername}
           </div>
         </CardContent>
       </Card>
@@ -111,7 +129,7 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
             alt="Farcaster" 
             className="w-4 h-4"
           />
-          Recent Farcaster Casts
+          Recent Farcaster Casts ({farcasterUsername})
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 pt-0">

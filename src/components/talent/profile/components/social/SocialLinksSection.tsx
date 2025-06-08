@@ -125,18 +125,18 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
   }, [identity, JSON.stringify(socials)]);
 
   const socialPlatforms: SocialPlatform[] = [
-    { key: 'github', type: 'github' },
-    { key: 'linkedin', type: 'linkedin' },
-    { key: 'twitter', type: 'twitter' },
-    { key: 'farcaster', type: 'farcaster' },
-    { key: 'discord', type: 'discord' },
-    { key: 'telegram', type: 'telegram' },
-    { key: 'instagram', type: 'instagram' },
-    { key: 'youtube', type: 'youtube' },
-    { key: 'facebook', type: 'facebook' },
-    { key: 'whatsapp', type: 'whatsapp' },
-    { key: 'bluesky', type: 'website' },
-    { key: 'reddit', type: 'website' }
+    { key: 'github', type: 'github' as SocialPlatformType },
+    { key: 'linkedin', type: 'linkedin' as SocialPlatformType },
+    { key: 'twitter', type: 'twitter' as SocialPlatformType },
+    { key: 'farcaster', type: 'farcaster' as SocialPlatformType },
+    { key: 'discord', type: 'discord' as SocialPlatformType },
+    { key: 'telegram', type: 'telegram' as SocialPlatformType },
+    { key: 'instagram', type: 'instagram' as SocialPlatformType },
+    { key: 'youtube', type: 'youtube' as SocialPlatformType },
+    { key: 'facebook', type: 'facebook' as SocialPlatformType },
+    { key: 'whatsapp', type: 'whatsapp' as SocialPlatformType },
+    { key: 'bluesky', type: 'website' as SocialPlatformType },
+    { key: 'reddit', type: 'website' as SocialPlatformType }
   ].filter(platform => {
     const link = allSocials[platform.key];
     return link && link.trim() !== '';
