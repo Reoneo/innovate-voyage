@@ -1,8 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
-import { getENSProfile } from '@/services/ens';
-import { fetchWeb3BioProfile } from '@/api/utils/web3Utils';
 
 interface SocialLinksSectionProps {
   socials?: Record<string, string>;
@@ -36,56 +34,17 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
       let combinedSocials: Record<string, string> = { ...socials };
 
       try {
-        // Always fetch from both sources in parallel for reliability
-        const promises: Array<Promise<unknown>> = [];
+        // Fetch from Web3Bio for additional social links
+        const web3BioResponse = await fetch(`https://api.web3.bio/profile/${identity}`).catch(() => null);
         
-        if (identity.endsWith('.eth') || identity.endsWith('.box')) {
-          promises.push(
-            getENSProfile(identity).catch(err => {
-              console.warn('ENS profile fetch failed:', err);
-              return null;
-            })
-          );
-        }
-        
-        promises.push(
-          fetchWeb3BioProfile(identity).catch(err => {
-            console.warn('Web3Bio profile fetch failed:', err);
-            return null;
-          })
-        );
-
-        const results = await Promise.allSettled(promises);
-        console.log('Social links fetch results:', results);
-
-        let resultIndex = 0;
-        
-        // Process ENS results if applicable
-        if (identity.endsWith('.eth') || identity.endsWith('.box')) {
-          const ensResult = results[resultIndex];
-          if (ensResult.status === 'fulfilled' && ensResult.value) {
-            const ensProfile = ensResult.value as Record<string, unknown>;
-            if (ensProfile?.socials && typeof ensProfile.socials === 'object') {
-              Object.entries(ensProfile.socials as Record<string, unknown>).forEach(([key, value]) => {
-                if (value && typeof value === 'string' && value.trim()) {
-                  combinedSocials[key.toLowerCase()] = value;
-                }
-              });
-            }
-          }
-          resultIndex++;
-        }
-
-        // Process Web3Bio results
-        const web3BioResult = results[resultIndex];
-        if (web3BioResult.status === 'fulfilled' && web3BioResult.value) {
-          const web3BioProfile = web3BioResult.value as Record<string, unknown>;
+        if (web3BioResponse?.ok) {
+          const web3BioProfile = await web3BioResponse.json();
           const profileData = Array.isArray(web3BioProfile) ? web3BioProfile[0] : web3BioProfile;
           
           if (profileData && typeof profileData === 'object') {
             const socialFields = [
               'github', 'twitter', 'linkedin', 'discord', 'telegram', 'instagram', 
-              'youtube', 'facebook', 'whatsapp', 'bluesky', 'farcaster', 'reddit'
+              'youtube', 'facebook', 'whatsapp', 'farcaster'
             ];
             
             socialFields.forEach(field => {
@@ -125,18 +84,16 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
   }, [identity, JSON.stringify(socials)]);
 
   const socialPlatforms: SocialPlatform[] = [
-    { key: 'github', type: 'github' as SocialPlatformType },
-    { key: 'linkedin', type: 'linkedin' as SocialPlatformType },
-    { key: 'twitter', type: 'twitter' as SocialPlatformType },
-    { key: 'farcaster', type: 'farcaster' as SocialPlatformType },
-    { key: 'discord', type: 'discord' as SocialPlatformType },
-    { key: 'telegram', type: 'telegram' as SocialPlatformType },
-    { key: 'instagram', type: 'instagram' as SocialPlatformType },
-    { key: 'youtube', type: 'youtube' as SocialPlatformType },
-    { key: 'facebook', type: 'facebook' as SocialPlatformType },
-    { key: 'whatsapp', type: 'whatsapp' as SocialPlatformType },
-    { key: 'bluesky', type: 'website' as SocialPlatformType },
-    { key: 'reddit', type: 'website' as SocialPlatformType }
+    { key: 'github', type: 'github' },
+    { key: 'linkedin', type: 'linkedin' },
+    { key: 'twitter', type: 'twitter' },
+    { key: 'farcaster', type: 'farcaster' },
+    { key: 'discord', type: 'discord' },
+    { key: 'telegram', type: 'telegram' },
+    { key: 'instagram', type: 'instagram' },
+    { key: 'youtube', type: 'youtube' },
+    { key: 'facebook', type: 'facebook' },
+    { key: 'whatsapp', type: 'whatsapp' }
   ].filter(platform => {
     const link = allSocials[platform.key];
     return link && link.trim() !== '';

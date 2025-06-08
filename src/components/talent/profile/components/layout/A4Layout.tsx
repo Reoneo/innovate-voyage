@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
 import NameSection from '../identity/NameSection';
@@ -24,6 +25,7 @@ const A4Layout: React.FC<A4LayoutProps> = ({
   showGitHubSection
 }) => {
   const [isOwner, setIsOwner] = React.useState(false);
+  const isMobile = useIsMobile();
   
   React.useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -42,6 +44,68 @@ const A4Layout: React.FC<A4LayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
+  if (isMobile) {
+    // Mobile layout - single column
+    return (
+      <div className="w-full max-w-sm mx-auto bg-white rounded-lg shadow-lg p-4 space-y-4">
+        {/* Mobile Header */}
+        <div className="flex flex-col items-center space-y-3">
+          <ProfileAvatar 
+            avatarUrl={passport.avatar_url} 
+            name={passport.name} 
+          />
+          
+          <div className="text-center space-y-2">
+            <NameSection 
+              name={passport.name} 
+              ownerAddress={passport.owner_address}
+              displayIdentity={ensNameOrAddress}
+            />
+            
+            {passport.additionalEnsDomains?.length > 0 && (
+              <AdditionalEnsDomains domains={passport.additionalEnsDomains} />
+            )}
+            
+            <ProfileContact 
+              email={normalizedSocials.email}
+              telephone={telephone}
+              isOwner={isOwner}
+            />
+            
+            {!isOwner && passport.owner_address && (
+              <FollowButton targetAddress={passport.owner_address} />
+            )}
+            
+            {passport.bio && (
+              <p className="text-xs text-muted-foreground px-2">
+                {passport.bio}
+              </p>
+            )}
+          </div>
+        </div>
+        
+        {/* Mobile Content */}
+        <div className="space-y-4">
+          <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
+          
+          <TalentScoreBanner 
+            walletAddress={passport.owner_address} 
+            githubUsername={githubUsername}
+            showGitHubSection={showGitHubSection}
+          />
+          
+          <FarcasterCastsSection 
+            ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+            address={passport.owner_address}
+          />
+          
+          <PoapSection walletAddress={passport.owner_address} />
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop layout - two column
   return (
     <div 
       className="bg-white mx-auto shadow-lg"
@@ -53,7 +117,7 @@ const A4Layout: React.FC<A4LayoutProps> = ({
         boxSizing: 'border-box'
       }}
     >
-      {/* Header Section */}
+      {/* Desktop Header Section */}
       <div className="flex items-start gap-6 mb-8">
         <div className="flex-shrink-0">
           <ProfileAvatar 
@@ -99,34 +163,36 @@ const A4Layout: React.FC<A4LayoutProps> = ({
         </div>
       </div>
       
-      {/* Single Column Layout */}
-      <div className="space-y-8">
-        {/* Social Links */}
-        <div>
-          <h3 className="text-lg font-semibold mb-3">Social Links</h3>
-          <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
+      {/* Desktop Two Column Layout */}
+      <div className="grid grid-cols-2 gap-8">
+        {/* Left Column */}
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Social Links</h3>
+            <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
+          </div>
+          
+          <div>
+            <PoapSection walletAddress={passport.owner_address} />
+          </div>
         </div>
         
-        {/* Talent Score and Activity */}
-        <div>
-          <TalentScoreBanner 
-            walletAddress={passport.owner_address} 
-            githubUsername={githubUsername}
-            showGitHubSection={showGitHubSection}
-          />
-        </div>
-        
-        {/* Farcaster Activity */}
-        <div>
-          <FarcasterCastsSection 
-            ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
-            address={passport.owner_address}
-          />
-        </div>
-        
-        {/* POAPs */}
-        <div>
-          <PoapSection walletAddress={passport.owner_address} />
+        {/* Right Column */}
+        <div className="space-y-6">
+          <div>
+            <TalentScoreBanner 
+              walletAddress={passport.owner_address} 
+              githubUsername={githubUsername}
+              showGitHubSection={showGitHubSection}
+            />
+          </div>
+          
+          <div>
+            <FarcasterCastsSection 
+              ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+              address={passport.owner_address}
+            />
+          </div>
         </div>
       </div>
     </div>

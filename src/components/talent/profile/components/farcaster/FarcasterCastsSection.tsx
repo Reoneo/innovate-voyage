@@ -13,24 +13,73 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
   const [farcasterUsername, setFarcasterUsername] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
-  // Extract Farcaster username from ENS name or use existing social data
+  // Fetch Farcaster handle from ENS records or use fallback
   useEffect(() => {
-    const extractFarcasterUsername = () => {
+    const fetchFarcasterHandle = async () => {
       if (!ensName) {
         setLoading(false);
         return;
       }
 
-      console.log('Extracting Farcaster username for ENS:', ensName);
+      console.log('Fetching Farcaster handle for ENS:', ensName);
+      setLoading(true);
       
-      // Use the base ENS name as fallback
-      const baseUsername = ensName.replace('.eth', '').replace('.box', '');
-      console.log('Using base username for Farcaster:', baseUsername);
-      setFarcasterUsername(baseUsername);
-      setLoading(false);
+      try {
+        // Try multiple methods to get Farcaster username
+        let farcasterHandle: string | null = null;
+        
+        // Method 1: Try ENS text record for 'com.farcaster'
+        try {
+          const response = await fetch(`https://ens-api.vercel.app/api/${ensName}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data?.records?.['com.farcaster']) {
+              farcasterHandle = data.records['com.farcaster'];
+              console.log('Found Farcaster handle in ENS records:', farcasterHandle);
+            }
+          }
+        } catch (error) {
+          console.warn('ENS API call failed:', error);
+        }
+        
+        // Method 2: Try Web3Bio as fallback
+        if (!farcasterHandle) {
+          try {
+            const web3BioResponse = await fetch(`https://api.web3.bio/profile/${ensName}`);
+            if (web3BioResponse.ok) {
+              const web3BioData = await web3BioResponse.json();
+              const profileData = Array.isArray(web3BioData) ? web3BioData[0] : web3BioData;
+              if (profileData?.links?.farcaster?.link) {
+                const link = profileData.links.farcaster.link;
+                farcasterHandle = link.replace('https://farcaster.xyz/', '').replace('@', '');
+                console.log('Found Farcaster handle in Web3Bio:', farcasterHandle);
+              }
+            }
+          } catch (error) {
+            console.warn('Web3Bio API call failed:', error);
+          }
+        }
+        
+        // Method 3: Use base ENS name as last fallback
+        if (!farcasterHandle) {
+          const baseUsername = ensName.replace('.eth', '').replace('.box', '');
+          console.log('Using base username for Farcaster:', baseUsername);
+          farcasterHandle = baseUsername;
+        }
+        
+        setFarcasterUsername(farcasterHandle);
+        
+      } catch (error) {
+        console.error('Error fetching Farcaster handle:', error);
+        // Fallback to base ENS name
+        const baseUsername = ensName.replace('.eth', '').replace('.box', '');
+        setFarcasterUsername(baseUsername);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    extractFarcasterUsername();
+    fetchFarcasterHandle();
   }, [ensName]);
   
   const { casts, user, loading: castsLoading, error } = useFarcasterCasts(farcasterUsername);
@@ -72,7 +121,6 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
   if (error || !user || casts.length === 0) {
     console.log('Farcaster error or no data:', { error, user: !!user, castsLength: casts.length });
     
-    // Show a message when we can't find Farcaster data
     return (
       <Card className="w-full">
         <CardHeader className="pb-2">
