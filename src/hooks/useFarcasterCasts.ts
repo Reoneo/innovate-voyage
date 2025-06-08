@@ -6,7 +6,7 @@ interface FarcasterCast {
   fid: number;
   ts: number;
   text: string;
-  embed?: unknown;
+  embed?: any;
   replies: number;
   recasts: number;
   reactions: number;

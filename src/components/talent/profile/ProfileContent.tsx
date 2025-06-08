@@ -1,11 +1,9 @@
 
 import React from 'react';
 import HeaderContainer from './components/HeaderContainer';
-import ProfileSkeleton from './ProfileSkeleton';
+import SimpleLoadingScreen from './SimpleLoadingScreen';
 import ProfileNotFound from './ProfileNotFound';
-import TwoColumnLayout from './components/layout/TwoColumnLayout';
-import MobileProfileLayout from './components/layout/MobileProfileLayout';
-import { useIsMobile } from '@/hooks/use-mobile';
+import A4Layout from './components/layout/A4Layout';
 import { useDataPreloader } from '@/hooks/useDataPreloader';
 
 interface ProfileContentProps {
@@ -22,7 +20,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   profileRef,
   ensNameOrAddress
 }) => {
-  const isMobile = useIsMobile();
   
   // Preload data
   useDataPreloader(passport?.owner_address, ensNameOrAddress);
@@ -53,28 +50,17 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   const showGitHubSection = !!githubUsername;
 
   return (
-    <div ref={profileRef} id="resume-pdf" className="w-full pt-14">
+    <div ref={profileRef} id="resume-pdf" className="w-full pt-14 flex justify-center">
       {loading ? (
-        <ProfileSkeleton />
+        <SimpleLoadingScreen />
       ) : passport ? (
         <HeaderContainer>
-          <div className="w-full h-full">
-            {isMobile ? (
-              <MobileProfileLayout 
-                passport={passport}
-                ensNameOrAddress={ensNameOrAddress}
-                githubUsername={githubUsername}
-                showGitHubSection={showGitHubSection}
-              />
-            ) : (
-              <TwoColumnLayout 
-                passport={passport}
-                ensNameOrAddress={ensNameOrAddress}
-                githubUsername={githubUsername}
-                showGitHubSection={showGitHubSection}
-              />
-            )}
-          </div>
+          <A4Layout 
+            passport={passport}
+            ensNameOrAddress={ensNameOrAddress}
+            githubUsername={githubUsername}
+            showGitHubSection={showGitHubSection}
+          />
         </HeaderContainer>
       ) : (
         <ProfileNotFound />

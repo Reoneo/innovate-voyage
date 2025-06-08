@@ -10,13 +10,44 @@ interface FarcasterCastsSectionProps {
 }
 
 const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, address }) => {
-  const username = ensName ? ensName.replace('.eth', '').replace('.box', '') : undefined;
+  // Try multiple username variations for better ENS resolution
+  const getUsernameVariations = () => {
+    const variations = [];
+    
+    if (ensName) {
+      // Try the full ENS name
+      variations.push(ensName);
+      
+      // Try without .eth extension
+      if (ensName.endsWith('.eth')) {
+        variations.push(ensName.replace('.eth', ''));
+      }
+      
+      // Try without .box extension
+      if (ensName.endsWith('.box')) {
+        variations.push(ensName.replace('.box', ''));
+      }
+    }
+    
+    return variations;
+  };
   
-  const { casts, user, loading, error } = useFarcasterCasts(username);
+  const usernameVariations = getUsernameVariations();
+  const primaryUsername = usernameVariations[0]?.replace('.eth', '').replace('.box', '');
+  
+  const { casts, user, loading, error } = useFarcasterCasts(primaryUsername);
 
-  console.log('Farcaster component:', { ensName, username, user, casts: casts.length, loading, error });
+  console.log('Farcaster component:', { 
+    ensName, 
+    primaryUsername, 
+    usernameVariations,
+    user, 
+    casts: casts.length, 
+    loading, 
+    error 
+  });
 
-  if (!username) {
+  if (!primaryUsername) {
     console.log('No username for Farcaster');
     return null;
   }
@@ -35,7 +66,7 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="text-center text-xs text-muted-foreground">Loading...</div>
+          <div className="text-center text-xs text-muted-foreground">Loading Farcaster data...</div>
         </CardContent>
       </Card>
     );
@@ -43,7 +74,27 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
 
   if (error || !user || casts.length === 0) {
     console.log('Farcaster error or no data:', { error, user: !!user, castsLength: casts.length });
-    return null;
+    
+    // Show a message when we can't find Farcaster data
+    return (
+      <Card className="w-full">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <img 
+              src="https://developers.moralis.com/wp-content/uploads/web3wiki/166-farcaster/637aede94d31498505bc9412_DpYIEpePqjDcHIbux04cOKhrRwBhi7F0-dBF_JCdCYY.png" 
+              alt="Farcaster" 
+              className="w-4 h-4"
+            />
+            Farcaster Activity
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="text-center text-xs text-muted-foreground">
+            No Farcaster activity found for {primaryUsername}
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   const formatTimestamp = (ts: number): string => {
