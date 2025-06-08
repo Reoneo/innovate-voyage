@@ -1,6 +1,7 @@
 
 import { useState, useCallback } from 'react';
-import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ensResolution';
+import { resolveEnsToAddress, resolveAddressToEns } from '@/utils/ensResolution';
+import { getCompleteENSData } from '@/services/ens/unifiedTextRecords';
 
 interface EnsResolutionState {
   resolvedAddress: string | undefined;
@@ -29,147 +30,93 @@ export function useEnsResolution(ensName?: string, address?: string) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
 
-  // Maximum number of retry attempts
-  const MAX_RETRIES = 2;
-
-  // Function to resolve ENS name to address with retry logic
+  // Function to resolve ENS name to address using unified system
   const resolveEns = useCallback(async (ensName: string) => {
     setIsLoading(true);
     setError(null);
     
-    let currentTry = 0;
-    
-    while (currentTry <= MAX_RETRIES) {
-      try {
-        currentTry++;
-        console.log(`Resolving ENS (attempt ${currentTry}): ${ensName}`);
+    try {
+      console.log(`Resolving ENS via unified system: ${ensName}`);
+      
+      // Resolve address
+      const resolvedAddress = await resolveEnsToAddress(ensName);
+      
+      if (resolvedAddress) {
+        // Fetch all ENS data using unified system
+        const ensData = await getCompleteENSData(ensName);
         
-        const resolvedAddress = await resolveEnsToAddress(ensName);
+        console.log(`Unified ENS resolution for ${ensName}:`, { 
+          address: resolvedAddress,
+          ensData
+        });
         
-        if (resolvedAddress) {
-          // Fetch links, avatar and bio in parallel
-          const [links, avatar, bio] = await Promise.all([
-            getEnsLinks(ensName, 'mainnet').catch(() => ({ 
-              socials: {}, ensLinks: [], keywords: [] 
-            })),
-            getEnsAvatar(ensName, 'mainnet').catch(() => null),
-            getEnsBio(ensName, 'mainnet').catch(() => null)
-          ]);
-          
-          console.log(`ENS resolution for ${ensName}:`, { 
-            address: resolvedAddress,
-            links,
-            avatar,
-            bio
-          });
-          
-          setState(prev => ({
-            ...prev,
-            resolvedAddress,
-            ensLinks: links || prev.ensLinks,
-            avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
-          }));
-          
-          setIsLoading(false);
-          return;
-        }
-        
-        // If we got null but no error thrown, try again or give up
-        if (currentTry > MAX_RETRIES) {
-          setError(`Could not resolve ENS name: ${ensName}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
-      } catch (error) {
-        console.error(`Error resolving ${ensName} (attempt ${currentTry}):`, error);
-        
-        if (currentTry > MAX_RETRIES) {
-          setError(`Error resolving ENS: ${(error as Error).message}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
+        setState(prev => ({
+          ...prev,
+          resolvedAddress,
+          avatarUrl: ensData.avatar || prev.avatarUrl,
+          ensBio: ensData.description || prev.ensBio,
+          ensLinks: {
+            socials: ensData.socials,
+            ensLinks: Object.values(ensData.socials).filter(Boolean),
+            description: ensData.description || undefined,
+            keywords: []
+          }
+        }));
+      } else {
+        setError(`Could not resolve ENS name: ${ensName}`);
       }
+      
+    } catch (error) {
+      console.error(`Error in unified ENS resolution for ${ensName}:`, error);
+      setError(`Error resolving ENS: ${(error as Error).message}`);
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
-    setRetryCount(currentTry);
-  }, [MAX_RETRIES]);
+  }, []);
 
-  // Function to lookup address to ENS with retry logic
+  // Function to lookup address to ENS using unified system
   const lookupAddress = useCallback(async (address: string) => {
     setIsLoading(true);
     setError(null);
     
-    let currentTry = 0;
-    
-    while (currentTry <= MAX_RETRIES) {
-      try {
-        currentTry++;
-        console.log(`Looking up address (attempt ${currentTry}): ${address}`);
+    try {
+      console.log(`Looking up address via unified system: ${address}`);
+      
+      const result = await resolveAddressToEns(address);
+      
+      if (result) {
+        // Fetch all ENS data using unified system
+        const ensData = await getCompleteENSData(result.ensName);
         
-        const result = await resolveAddressToEns(address);
+        console.log(`Unified address lookup for ${address}:`, {
+          ens: result.ensName,
+          ensData
+        });
         
-        if (result) {
-          // Fetch links, avatar and bio in parallel
-          const [links, avatar, bio] = await Promise.all([
-            getEnsLinks(result.ensName, 'mainnet').catch(() => ({ 
-              socials: {}, ensLinks: [], keywords: [] 
-            })),
-            getEnsAvatar(result.ensName, 'mainnet').catch(() => null),
-            getEnsBio(result.ensName, 'mainnet').catch(() => null)
-          ]);
-          
-          console.log(`Address lookup for ${address}:`, {
-            ens: result.ensName,
-            links,
-            avatar,
-            bio
-          });
-          
-          setState(prev => ({
-            ...prev,
-            resolvedEns: result.ensName,
-            ensLinks: links || prev.ensLinks,
-            avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
-          }));
-          
-          setIsLoading(false);
-          return;
-        }
-        
-        // If we got null but no error thrown, try again or give up
-        if (currentTry > MAX_RETRIES) {
-          // Don't set error here, just log - many addresses don't have ENS
-          console.log(`No ENS found for address: ${address}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
-      } catch (error) {
-        console.error(`Error looking up ENS for address ${address} (attempt ${currentTry}):`, error);
-        
-        if (currentTry > MAX_RETRIES) {
-          setError(`Error looking up address: ${(error as Error).message}`);
-          break;
-        }
-        
-        // Wait before retrying
-        await new Promise(r => setTimeout(r, 1000));
+        setState(prev => ({
+          ...prev,
+          resolvedEns: result.ensName,
+          avatarUrl: ensData.avatar || prev.avatarUrl,
+          ensBio: ensData.description || prev.ensBio,
+          ensLinks: {
+            socials: ensData.socials,
+            ensLinks: Object.values(ensData.socials).filter(Boolean),
+            description: ensData.description || undefined,
+            keywords: []
+          }
+        }));
+      } else {
+        console.log(`No ENS found for address: ${address}`);
       }
+      
+    } catch (error) {
+      console.error(`Error in unified address lookup for ${address}:`, error);
+      setError(`Error looking up address: ${(error as Error).message}`);
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
-    setRetryCount(currentTry);
-  }, [MAX_RETRIES]);
+  }, []);
 
   return {
     state,
@@ -178,7 +125,7 @@ export function useEnsResolution(ensName?: string, address?: string) {
     setIsLoading,
     error,
     setError,
-    retryCount,
+    retryCount: 0,
     resolveEns,
     lookupAddress
   };

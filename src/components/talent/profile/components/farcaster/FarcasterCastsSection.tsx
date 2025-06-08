@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useFarcasterCasts } from '@/hooks/useFarcasterCasts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageCircle, Repeat, Heart } from 'lucide-react';
+import { getCompleteENSData } from '@/services/ens/unifiedTextRecords';
 
 interface FarcasterCastsSectionProps {
   ensName?: string;
@@ -13,64 +14,38 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
   const [farcasterUsername, setFarcasterUsername] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
-  // Fetch Farcaster handle from ENS records or use fallback
+  // Fetch Farcaster handle from ENS records
   useEffect(() => {
     const fetchFarcasterHandle = async () => {
       if (!ensName) {
+        console.log('No ENS name provided for Farcaster lookup');
         setLoading(false);
         return;
       }
 
-      console.log('Fetching Farcaster handle for ENS:', ensName);
+      console.log('Fetching Farcaster handle from ENS records for:', ensName);
       setLoading(true);
       
       try {
-        // Try multiple methods to get Farcaster username
-        let farcasterHandle: string | null = null;
+        // Use unified ENS data fetcher
+        const ensData = await getCompleteENSData(ensName);
         
-        // Method 1: Try ENS text record for 'com.farcaster'
-        try {
-          const response = await fetch(`https://ens-api.vercel.app/api/${ensName}`);
-          if (response.ok) {
-            const data = await response.json();
-            if (data?.records?.['com.farcaster']) {
-              farcasterHandle = data.records['com.farcaster'];
-              console.log('Found Farcaster handle in ENS records:', farcasterHandle);
-            }
-          }
-        } catch (error) {
-          console.warn('ENS API call failed:', error);
-        }
+        console.log('ENS data for Farcaster:', ensData);
         
-        // Method 2: Try Web3Bio as fallback
-        if (!farcasterHandle) {
-          try {
-            const web3BioResponse = await fetch(`https://api.web3.bio/profile/${ensName}`);
-            if (web3BioResponse.ok) {
-              const web3BioData = await web3BioResponse.json();
-              const profileData = Array.isArray(web3BioData) ? web3BioData[0] : web3BioData;
-              if (profileData?.links?.farcaster?.link) {
-                const link = profileData.links.farcaster.link;
-                farcasterHandle = link.replace('https://farcaster.xyz/', '').replace('@', '');
-                console.log('Found Farcaster handle in Web3Bio:', farcasterHandle);
-              }
-            }
-          } catch (error) {
-            console.warn('Web3Bio API call failed:', error);
-          }
-        }
-        
-        // Method 3: Use base ENS name as last fallback
-        if (!farcasterHandle) {
+        if (ensData.farcasterHandle) {
+          console.log('Found Farcaster handle in xyz.farcaster record:', ensData.farcasterHandle);
+          setFarcasterUsername(ensData.farcasterHandle);
+        } else {
+          console.log('No xyz.farcaster record found, trying fallback methods');
+          
+          // Fallback: try base ENS name
           const baseUsername = ensName.replace('.eth', '').replace('.box', '');
-          console.log('Using base username for Farcaster:', baseUsername);
-          farcasterHandle = baseUsername;
+          console.log('Using base username as fallback:', baseUsername);
+          setFarcasterUsername(baseUsername);
         }
-        
-        setFarcasterUsername(farcasterHandle);
         
       } catch (error) {
-        console.error('Error fetching Farcaster handle:', error);
+        console.error('Error fetching Farcaster handle from ENS:', error);
         // Fallback to base ENS name
         const baseUsername = ensName.replace('.eth', '').replace('.box', '');
         setFarcasterUsername(baseUsername);
@@ -84,7 +59,7 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
   
   const { casts, user, loading: castsLoading, error } = useFarcasterCasts(farcasterUsername);
 
-  console.log('Farcaster component:', { 
+  console.log('Farcaster component state:', { 
     ensName, 
     farcasterUsername, 
     user, 
@@ -94,7 +69,6 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
   });
 
   if (!ensName) {
-    console.log('No ENS name for Farcaster');
     return null;
   }
 

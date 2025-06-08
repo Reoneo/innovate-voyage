@@ -5,6 +5,13 @@ export { getENSProfile } from './fullProfile';
 export { getENSNameByAddress } from './reverseLookup';
 export { fetchPriorityRecords, fetchAllTextRecords, fetchRecordsBatch } from './textRecords';
 
+// New unified ENS system
+export { 
+  fetchAllENSTextRecords, 
+  processENSTextRecords, 
+  getCompleteENSData 
+} from './unifiedTextRecords';
+
 // Type exports
 export type { 
   ENSProfile, 
@@ -13,6 +20,12 @@ export type {
   ENSTextRecordKey,
   PriorityRecordKey
 } from './types';
+
+// New unified types
+export type { 
+  ENSTextRecords, 
+  ENSSocialData 
+} from './unifiedTextRecords';
 
 // Constant exports
 export { 

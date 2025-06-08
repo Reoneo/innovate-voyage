@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
+import { getCompleteENSData } from '@/services/ens/unifiedTextRecords';
 
 interface SocialLinksSectionProps {
   socials?: Record<string, string>;
@@ -23,57 +24,39 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
 
   useEffect(() => {
     const fetchAllSocialLinks = async () => {
-      if (!identity) {
+      if (!identity || !identity.includes('.')) {
         setAllSocials(socials);
         return;
       }
 
-      console.log('Fetching social links for identity:', identity);
+      console.log('Fetching social links via unified ENS for identity:', identity);
       setLoading(true);
       
       let combinedSocials: Record<string, string> = { ...socials };
 
       try {
-        // Fetch from Web3Bio for additional social links
-        const web3BioResponse = await fetch(`https://api.web3.bio/profile/${identity}`).catch(() => null);
+        // Use unified ENS data fetcher
+        const ensData = await getCompleteENSData(identity);
         
-        if (web3BioResponse?.ok) {
-          const web3BioProfile = await web3BioResponse.json();
-          const profileData = Array.isArray(web3BioProfile) ? web3BioProfile[0] : web3BioProfile;
-          
-          if (profileData && typeof profileData === 'object') {
-            const socialFields = [
-              'github', 'twitter', 'linkedin', 'discord', 'telegram', 'instagram', 
-              'youtube', 'facebook', 'whatsapp', 'farcaster'
-            ];
-            
-            socialFields.forEach(field => {
-              const fieldValue = (profileData as Record<string, unknown>)[field];
-              if (fieldValue && typeof fieldValue === 'string') {
-                combinedSocials[field] = fieldValue;
-              }
-            });
-
-            // Process links object
-            const links = (profileData as Record<string, unknown>).links;
-            if (links && typeof links === 'object') {
-              Object.entries(links as Record<string, unknown>).forEach(([key, value]) => {
-                if (value && typeof value === 'object') {
-                  const linkValue = (value as Record<string, unknown>).link;
-                  if (linkValue && typeof linkValue === 'string') {
-                    combinedSocials[key.toLowerCase()] = linkValue;
-                  }
-                }
-              });
-            }
+        console.log('ENS data for social links:', ensData);
+        
+        // Merge ENS socials with existing socials
+        Object.entries(ensData.socials).forEach(([platform, value]) => {
+          if (value && value.trim()) {
+            combinedSocials[platform] = value;
           }
+        });
+
+        // Add Farcaster handle if available
+        if (ensData.farcasterHandle) {
+          combinedSocials['farcaster'] = ensData.farcasterHandle;
         }
 
         console.log('Final combined socials:', combinedSocials);
         setAllSocials(combinedSocials);
 
       } catch (error) {
-        console.error('Error fetching social links:', error);
+        console.error('Error fetching social links via ENS:', error);
         setAllSocials(combinedSocials);
       } finally {
         setLoading(false);
@@ -129,7 +112,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
         } else if (platform.key === 'discord') {
           href = link.includes('discord.com') ? link : `https://discord.com/users/${link}`;
         } else if (platform.key === 'farcaster') {
-          href = link.startsWith('https://') ? link : `https://farcaster.xyz/${link}`;
+          href = link.startsWith('https://') ? link : `https://warpcast.com/${link}`;
         } else if (!link.startsWith('http://') && !link.startsWith('https://')) {
           href = `https://${link}`;
         }
