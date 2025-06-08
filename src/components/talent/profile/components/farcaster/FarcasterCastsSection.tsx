@@ -3,8 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useFarcasterCasts } from '@/hooks/useFarcasterCasts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageCircle, Repeat, Heart } from 'lucide-react';
-import { getTextRecord } from '@ensdomains/ensjs/public';
-import { ensClient } from '@/services/ens/client';
 
 interface FarcasterCastsSectionProps {
   ensName?: string;
@@ -15,43 +13,24 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({ ensName, 
   const [farcasterUsername, setFarcasterUsername] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
-  // Fetch Farcaster username from ENS records
+  // Extract Farcaster username from ENS name or use existing social data
   useEffect(() => {
-    const fetchFarcasterUsername = async () => {
+    const extractFarcasterUsername = () => {
       if (!ensName) {
         setLoading(false);
         return;
       }
 
-      console.log('Fetching Farcaster username for ENS:', ensName);
+      console.log('Extracting Farcaster username for ENS:', ensName);
       
-      try {
-        // Try to get the Farcaster handle from ENS text records
-        const farcasterHandle = await getTextRecord(ensClient, { 
-          name: ensName, 
-          key: 'com.farcaster' 
-        });
-        
-        if (farcasterHandle) {
-          console.log('Found Farcaster handle in ENS:', farcasterHandle);
-          setFarcasterUsername(farcasterHandle);
-        } else {
-          // Fallback: try without .eth extension
-          const baseUsername = ensName.replace('.eth', '').replace('.box', '');
-          console.log('No Farcaster handle in ENS, trying base username:', baseUsername);
-          setFarcasterUsername(baseUsername);
-        }
-      } catch (error) {
-        console.warn('Error fetching Farcaster username from ENS:', error);
-        // Fallback: use base ENS name
-        const baseUsername = ensName.replace('.eth', '').replace('.box', '');
-        setFarcasterUsername(baseUsername);
-      } finally {
-        setLoading(false);
-      }
+      // Use the base ENS name as fallback
+      const baseUsername = ensName.replace('.eth', '').replace('.box', '');
+      console.log('Using base username for Farcaster:', baseUsername);
+      setFarcasterUsername(baseUsername);
+      setLoading(false);
     };
 
-    fetchFarcasterUsername();
+    extractFarcasterUsername();
   }, [ensName]);
   
   const { casts, user, loading: castsLoading, error } = useFarcasterCasts(farcasterUsername);

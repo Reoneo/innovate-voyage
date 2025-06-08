@@ -1,6 +1,6 @@
 
 import { getTextRecord } from '@ensdomains/ensjs/public';
-import { ensClient, fallbackClients } from './client';
+import { ensClient } from './client';
 import { ALL_TEXT_RECORDS, PRIORITY_RECORDS, RECORD_TO_PLATFORM_MAP } from './types';
 import type { ENSTextRecord, ENSProfile, ENSTextRecordKey } from './types';
 
@@ -16,7 +16,7 @@ export async function fetchPriorityRecords(ensName: string): Promise<Partial<ENS
         const value = await Promise.race([
           getTextRecord(ensClient, { name: ensName, key }),
           new Promise<null>((_, reject) => 
-            setTimeout(() => reject(new Error('Timeout')), 2000)
+            setTimeout(() => reject(new Error('Timeout')), 3000)
           )
         ]);
         return { key, value: value || null };
@@ -77,62 +77,48 @@ export async function fetchAllTextRecords(ensName: string): Promise<ENSProfile> 
       textRecords: {}
     };
 
-    // Try main client first, then fallbacks
-    const clients = [ensClient, ...fallbackClients];
-    let successfulClient = null;
-
-    for (const client of clients) {
-      try {
-        const recordPromises = ALL_TEXT_RECORDS.map(async (key) => {
-          try {
-            const value = await Promise.race([
-              getTextRecord(client, { name: ensName, key }),
-              new Promise<null>((_, reject) => 
-                setTimeout(() => reject(new Error('Timeout')), 3000)
-              )
-            ]);
-            return { key, value: value || null };
-          } catch {
-            return { key, value: null };
-          }
-        });
-
-        const results = await Promise.allSettled(recordPromises);
-        
-        // Process successful results
-        let successCount = 0;
-        results.forEach((result) => {
-          if (result.status === 'fulfilled' && result.value.value) {
-            const { key, value } = result.value;
-            successCount++;
-            
-            // Store in textRecords
-            profile.textRecords[key] = value;
-            
-            // Map to social platforms
-            const platform = RECORD_TO_PLATFORM_MAP[key];
-            if (platform && value) {
-              profile.socials[platform] = value;
-            }
-            
-            // Handle special profile fields
-            const recordKey = key as ENSTextRecordKey;
-            if (recordKey === 'avatar') profile.avatar = value;
-            if (recordKey === 'description') profile.description = value;
-            if (recordKey === 'email') profile.email = value;
-            if (recordKey === 'url' || recordKey === 'website') profile.website = value;
-          }
-        });
-
-        if (successCount > 0) {
-          successfulClient = client;
-          break;
+    try {
+      const recordPromises = ALL_TEXT_RECORDS.map(async (key) => {
+        try {
+          const value = await Promise.race([
+            getTextRecord(ensClient, { name: ensName, key }),
+            new Promise<null>((_, reject) => 
+              setTimeout(() => reject(new Error('Timeout')), 3000)
+            )
+          ]);
+          return { key, value: value || null };
+        } catch {
+          return { key, value: null };
         }
-        
-      } catch (error) {
-        console.warn(`Client failed for ${ensName}, trying next...`, error);
-        continue;
-      }
+      });
+
+      const results = await Promise.allSettled(recordPromises);
+      
+      // Process successful results
+      results.forEach((result) => {
+        if (result.status === 'fulfilled' && result.value.value) {
+          const { key, value } = result.value;
+          
+          // Store in textRecords
+          profile.textRecords[key] = value;
+          
+          // Map to social platforms
+          const platform = RECORD_TO_PLATFORM_MAP[key];
+          if (platform && value) {
+            profile.socials[platform] = value;
+          }
+          
+          // Handle special profile fields
+          const recordKey = key as ENSTextRecordKey;
+          if (recordKey === 'avatar') profile.avatar = value;
+          if (recordKey === 'description') profile.description = value;
+          if (recordKey === 'email') profile.email = value;
+          if (recordKey === 'url' || recordKey === 'website') profile.website = value;
+        }
+      });
+      
+    } catch (error) {
+      console.warn(`Failed to fetch records for ${ensName}:`, error);
     }
 
     console.log(`All records fetched for ${ensName}:`, profile);

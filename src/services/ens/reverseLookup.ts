@@ -1,6 +1,6 @@
 
 import { getName } from '@ensdomains/ensjs/public';
-import { ensClient, fallbackClients } from './client';
+import { ensClient } from './client';
 
 /**
  * Reverse lookup: get ENS name for an address with fallback support
@@ -13,27 +13,21 @@ export async function getENSNameByAddress(address: string): Promise<string | nul
 
     console.log(`Reverse lookup for address: ${address}`);
     
-    // Try main client first, then fallbacks
-    const clients = [ensClient, ...fallbackClients];
-    
-    for (const client of clients) {
-      try {
-        const result = await Promise.race([
-          getName(client, { address: address as `0x${string}` }),
-          new Promise<null>((_, reject) => 
-            setTimeout(() => reject(new Error('Timeout')), 3000)
-          )
-        ]);
-        
-        if (result?.name) {
-          console.log(`Reverse lookup success: ${address} -> ${result.name}`);
-          return result.name;
-        }
-        
-      } catch (error) {
-        console.warn(`Reverse lookup failed with client, trying next...`, error);
-        continue;
+    try {
+      const result = await Promise.race([
+        getName(ensClient, { address: address as `0x${string}` }),
+        new Promise<null>((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 5000)
+        )
+      ]);
+      
+      if (result?.name) {
+        console.log(`Reverse lookup success: ${address} -> ${result.name}`);
+        return result.name;
       }
+      
+    } catch (error) {
+      console.warn(`Reverse lookup failed:`, error);
     }
     
     console.log(`No ENS name found for address: ${address}`);
