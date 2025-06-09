@@ -21,13 +21,29 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
     setImageError(false);
     setIsLoading(true);
     
-    // For .box users, use community avatar as fallback if no avatar provided
-    if (isBoxUser && (!avatarUrl || avatarUrl === '')) {
-      setFinalAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
+    // For .box users, try ENS metadata service first, then fallback to community avatar
+    if (isBoxUser) {
+      if (avatarUrl && avatarUrl !== '') {
+        setFinalAvatarUrl(avatarUrl);
+      } else {
+        // Try ENS metadata service for .box domains
+        const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${name}`;
+        fetch(metadataUrl, { method: 'HEAD' })
+          .then(response => {
+            if (response.ok) {
+              setFinalAvatarUrl(metadataUrl);
+            } else {
+              setFinalAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
+            }
+          })
+          .catch(() => {
+            setFinalAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
+          });
+      }
     } else {
       setFinalAvatarUrl(avatarUrl);
     }
-  }, [avatarUrl, isBoxUser]);
+  }, [avatarUrl, isBoxUser, name]);
   
   // Generate initials for the fallback
   const getInitials = (name: string): string => {
@@ -66,7 +82,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   
   return (
     <Avatar className={`h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar ${
-      isBoxUser ? '' : 'rounded-full'
+      isBoxUser ? 'rounded-lg' : 'rounded-full'
     }`}>
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">

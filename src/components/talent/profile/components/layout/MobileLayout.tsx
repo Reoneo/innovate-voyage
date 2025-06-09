@@ -10,7 +10,7 @@ import PoapSection from '../poap/PoapSection';
 import TalentScoreBanner from '../TalentScoreBanner';
 import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
-import { Copy, Mail } from 'lucide-react';
+import { Copy, Mail, Activity, Shield, Hammer, Image, MessageCircle, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -69,7 +69,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
               <div className="w-32 h-32 rounded-full overflow-hidden">
                 <ProfileAvatar 
                   avatarUrl={passport.avatar_url} 
-                  name={passport.name}
+                  name={passport.name || ensNameOrAddress || 'Unknown'}
                 />
               </div>
             </div>
@@ -77,9 +77,11 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
           
           {/* Name/Identity with better typography */}
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-gray-900 leading-tight">
-              {passport.name || ensNameOrAddress || 'web3.bio'}
-            </h1>
+            <NameSection 
+              name={passport.name || ensNameOrAddress || 'Unknown'}
+              ownerAddress={passport.owner_address}
+              displayIdentity={ensNameOrAddress}
+            />
             
             {/* Address with improved copy functionality */}
             <div className="flex items-center gap-2 justify-center bg-gray-50 rounded-full px-4 py-2">
@@ -95,13 +97,6 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
                 <Copy className="h-3 w-3" />
               </Button>
             </div>
-          </div>
-
-          {/* Enhanced Followers/Following */}
-          <div className="flex items-center gap-6 text-sm text-gray-600 bg-white rounded-lg px-4 py-2 shadow-sm">
-            <span><strong className="text-gray-900">3</strong> Followers</span>
-            <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
-            <span>Following <strong className="text-gray-900">0</strong></span>
           </div>
 
           {/* Enhanced Follow Button */}
@@ -137,10 +132,76 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
         </div>
       </div>
 
-      {/* Right Column - 30% - Activity Cards with improved scroll */}
+      {/* Right Column - 30% - Activity Cards with standardized button styling */}
       <div className="w-[30%] bg-gray-50 overflow-y-auto p-3 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-        {/* Activity Cards with enhanced styling */}
-        <TalentScoreBanner walletAddress={passport.owner_address} />
+        {/* Activity Cards - All with consistent styling matching Social Links */}
+        
+        {/* Activity Card */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Activity className="h-4 w-4 text-blue-600" />
+            </div>
+            <h3 className="font-semibold text-gray-800 text-sm">Activity</h3>
+          </div>
+          <div className="text-xs text-gray-600">
+            <div>First TX: 12/11/2021</div>
+          </div>
+        </Card>
+
+        {/* Risk Score Card */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <Shield className="h-4 w-4 text-green-600" />
+            </div>
+            <h3 className="font-semibold text-gray-800 text-sm">Risk Score</h3>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-red-500 mb-1">26</div>
+            <div className="text-xs text-gray-600">View Security Details</div>
+          </div>
+        </Card>
+
+        {/* Builder Score Card */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 bg-gray-900 text-white">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+              <Hammer className="h-4 w-4 text-white" />
+            </div>
+            <h3 className="font-semibold text-white text-sm">Builder Score</h3>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold mb-1">108</div>
+            <div className="text-xs text-gray-300">Practitioner</div>
+          </div>
+        </Card>
+
+        {/* NFT Collection Card */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Image className="h-4 w-4 text-blue-600" />
+            </div>
+            <h3 className="font-semibold text-gray-800 text-sm">NFT Collection</h3>
+          </div>
+          <div className="text-center">
+            <div className="w-8 h-8 bg-blue-500 rounded-full mx-auto mb-2 flex items-center justify-center">
+              <span className="text-white text-xs font-bold">99+</span>
+            </div>
+          </div>
+        </Card>
+
+        {/* Social Links - Enhanced Card */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+              <Globe className="h-4 w-4 text-purple-600" />
+            </div>
+            <h3 className="font-semibold text-gray-800 text-sm">Social Links</h3>
+          </div>
+          <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
+        </Card>
 
         {/* GitHub Section - Enhanced Card */}
         {showGitHubSection && (
@@ -155,21 +216,14 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
           </Card>
         )}
 
-        {/* Social Links - Enhanced Card */}
-        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <h3 className="font-semibold text-gray-800 mb-3 text-sm flex items-center gap-2">
-            <span className="text-lg">🔗</span>
-            Social Links
-          </h3>
-          <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
-        </Card>
-
         {/* Farcaster - Enhanced Card */}
         <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <h3 className="font-semibold text-gray-800 mb-3 text-sm flex items-center gap-2">
-            <span className="text-lg">💬</span>
-            Farcaster
-          </h3>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+              <MessageCircle className="h-4 w-4 text-purple-600" />
+            </div>
+            <h3 className="font-semibold text-gray-800 text-sm">Farcaster</h3>
+          </div>
           <FarcasterCastsSection 
             ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
             address={passport.owner_address}
@@ -179,10 +233,12 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
         {/* Additional ENS Domains if available */}
         {passport.additionalEnsDomains?.length > 0 && (
           <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <h3 className="font-semibold text-gray-800 mb-3 text-sm flex items-center gap-2">
-              <span className="text-lg">🌐</span>
-              Other Domains
-            </h3>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <Globe className="h-4 w-4 text-green-600" />
+              </div>
+              <h3 className="font-semibold text-gray-800 text-sm">Other Domains</h3>
+            </div>
             <AdditionalEnsDomains domains={passport.additionalEnsDomains} />
           </Card>
         )}
