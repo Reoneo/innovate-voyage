@@ -4,89 +4,88 @@ import SeoHelmet from '@/components/home/SeoHelmet';
 import HeroBackground from '@/components/home/HeroBackground';
 import HeroTitle from '@/components/home/HeroTitle';
 import SearchSection from '@/components/home/SearchSection';
-import ActionButtonsSection from '@/components/home/ActionButtonsSection';
 import FeaturedProfileSection from '@/components/home/FeaturedProfileSection';
 import RainbowWalletConnect from '@/components/home/RainbowWalletConnect';
+import ThemeToggle from '@/components/home/ThemeToggle';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 
-const Index = () => {
+const IndexContent = () => {
+  const { isDayMode } = useTheme();
+
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className={`min-h-screen relative ${isDayMode ? 'bg-white' : 'bg-slate-900'}`}>
       <SeoHelmet />
+      
+      {/* Theme toggle in top right */}
+      <ThemeToggle />
       
       {/* Schema.org structured data for better SEO */}
       <script type="application/ld+json">
         {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Recruitment.box",
+        "alternateName": "Decentralized CV & Recruitment Engine",
+        "url": "https://recruitment.box",
+        "description": "Find talent on the blockchain with our decentralized CV & recruitment engine. Verify skills, connect with Web3 professionals, and hire with confidence using blockchain-verified credentials.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://recruitment.box/{search_term_string}",
+          "query-input": "required name=search_term_string"
+        },
+        "publisher": {
+          "@type": "Organization",
           "name": "Recruitment.box",
-          "alternateName": "Decentralized CV & Recruitment Engine",
-          "url": "https://recruitment.box",
-          "description": "Find talent on the blockchain with our decentralized CV & recruitment engine. Verify skills, connect with Web3 professionals, and hire with confidence using blockchain-verified credentials.",
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://recruitment.box/{search_term_string}",
-            "query-input": "required name=search_term_string"
-          },
-          "publisher": {
-            "@type": "Organization",
-            "name": "Recruitment.box",
-            "logo": {
-              "@type": "ImageObject",
-              "url": "https://recruitment.box/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png"
-            }
-          },
-          "mainEntity": {
-            "@type": "SoftwareApplication",
-            "name": "Recruitment.box",
-            "applicationCategory": "BusinessApplication",
-            "operatingSystem": "Web Browser",
-            "description": "Decentralized recruitment platform for Web3 talent discovery and blockchain-verified professional credentials",
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "reviewCount": "250"
-            },
-            "offers": {
-              "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "USD"
-            }
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://recruitment.box/lovable-uploads/f64eb31d-31b2-49af-ab07-c31aecdacd10.png"
           }
-        })}
+        },
+        "mainEntity": {
+          "@type": "SoftwareApplication",
+          "name": "Recruitment.box",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web Browser",
+          "description": "Decentralized recruitment platform for Web3 talent discovery and blockchain-verified professional credentials",
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "250"
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        }
+      })}
       </script>
       
       {/* Animated Professional Background */}
       <HeroBackground />
       
-      {/* Top Right Wallet Connect */}
-      <div className="absolute top-4 right-4 z-20">
-        <RainbowWalletConnect />
-      </div>
-      
       {/* Content */}
-      <div className="relative z-10 h-screen flex flex-col">
+      <div className="relative z-10 flex flex-col min-h-screen">
         {/* Hero Section with SEO-optimized structure */}
-        <section className="flex-1 py-20 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
-          <div className="max-w-7xl mx-auto">
+        <section className="flex-1 py-2 px-4 sm:px-6 lg:px-8 flex flex-col justify-start pt-8">
+          <div className="max-w-7xl mx-auto flex flex-col">
             {/* H1 tag for primary SEO keyword */}
             <header>
               <h1 className="sr-only">Recruitment.box - Decentralized CV and Recruitment Engine for Web3 Talent</h1>
             </header>
             
-            <HeroTitle />
+            {/* Compact Hero Title */}
+            <div className="mb-4">
+              <HeroTitle />
+            </div>
             
             {/* Search functionality for talent discovery */}
-            <div role="search" aria-label="Search for blockchain professionals and Web3 talent">
+            <div role="search" aria-label="Search for blockchain professionals and Web3 talent" className="mb-4">
               <SearchSection />
             </div>
             
-            {/* Call-to-action section */}
-            <nav aria-label="Main navigation and actions">
-              <ActionButtonsSection />
-            </nav>
-            
             {/* Featured content for engagement */}
-            <section aria-label="Featured blockchain professionals">
+            <section aria-label="Featured blockchain professionals" className="mb-8">
               <FeaturedProfileSection />
             </section>
           </div>
@@ -116,7 +115,6 @@ const Index = () => {
           </article>
         </section>
 
-        {/* Structured content for better crawling */}
         <div className="sr-only">
           <h2>Related Keywords and Services</h2>
           <ul>
@@ -134,6 +132,14 @@ const Index = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <ThemeProvider>
+      <IndexContent />
+    </ThemeProvider>
   );
 };
 

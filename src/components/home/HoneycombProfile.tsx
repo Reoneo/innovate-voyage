@@ -7,12 +7,17 @@ import { toast } from 'sonner';
 interface HoneycombProfileProps {
   ensName: string;
   delay?: number;
+  showName?: boolean;
 }
 
-const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0 }) => {
+const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0, showName = true }) => {
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // Check if this is a 10k ENS Club profile (numeric.eth) or .box user
+  const isEnsClub = ensName.endsWith('.eth') && /^\d+\.eth$/.test(ensName);
+  const isBoxUser = ensName.endsWith('.box');
 
   useEffect(() => {
     const fetchAvatar = async () => {
@@ -23,16 +28,28 @@ const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0 
         
         if (response.ok) {
           setAvatarUrl(metadataUrl);
+        } else if (isBoxUser) {
+          // Use the .box community avatar as fallback for .box domains
+          setAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
+        } else if (isEnsClub) {
+          // For 10k ENS Club (numeric.eth), use the preview endpoint as fallback
+          setAvatarUrl(`https://metadata.ens.domains/preview/${ensName}`);
         }
       } catch (error) {
         console.error(`Error fetching avatar for ${ensName}:`, error);
+        // Apply fallbacks based on domain type
+        if (isBoxUser) {
+          setAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
+        } else if (isEnsClub) {
+          setAvatarUrl(`https://metadata.ens.domains/preview/${ensName}`);
+        }
       } finally {
         setTimeout(() => setIsLoaded(true), delay);
       }
     };
 
     fetchAvatar();
-  }, [ensName, delay]);
+  }, [ensName, delay, isBoxUser, isEnsClub]);
 
   const handleClick = () => {
     navigate(`/${ensName}`);
@@ -45,30 +62,33 @@ const HoneycombProfile: React.FC<HoneycombProfileProps> = ({ ensName, delay = 0 
         isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}
       onClick={handleClick}
-      style={{
-        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))',
-      }}
     >
-      <div className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center p-2">
-        <Avatar className="w-14 h-14 md:w-16 md:h-16 border-2 border-blue-400/50 hover:border-blue-400 transition-all duration-300">
+      {/* Square container with avatar filling it - conditional rounded corners for ENS Club and .box users */}
+      <div className={`w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-400/30 hover:border-blue-400 transition-all duration-300 overflow-hidden ${
+        (isEnsClub || isBoxUser) ? '' : 'rounded-lg'
+      }`}>
+        <Avatar className={`w-full h-full ${(isEnsClub || isBoxUser) ? '' : 'rounded-lg'}`}>
           <AvatarImage 
             src={avatarUrl} 
             alt={`${ensName} avatar`} 
-            className="object-cover"
+            className={`object-cover w-full h-full ${(isEnsClub || isBoxUser) ? '' : 'rounded-lg'}`}
           />
-          <AvatarFallback className="bg-slate-700 text-slate-300 text-xs font-medium">
+          <AvatarFallback className={`bg-slate-700 text-slate-300 text-xs font-medium w-full h-full flex items-center justify-center ${
+            (isEnsClub || isBoxUser) ? '' : 'rounded-lg'
+          }`}>
             {ensName.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
       </div>
       
-      {/* Tooltip */}
-      <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        <div className="bg-slate-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-          {ensName}
+      {/* Profile Name */}
+      {showName && (
+        <div className="mt-2 text-center">
+          <p className="text-xs text-slate-300 font-medium truncate max-w-20 md:max-w-24">
+            {ensName}
+          </p>
         </div>
-      </div>
+      )}
     </div>
   );
 };

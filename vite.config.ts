@@ -17,15 +17,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        // Force Rollup to resolve the published CJS builds inside node_modules
-        '@web3modal/react': path.resolve(
-          __dirname,
-          'node_modules/@web3modal/react/dist/index.js'
-        ),
-        '@web3modal/ethereum': path.resolve(
-          __dirname,
-          'node_modules/@web3modal/ethereum/dist/index.js'
-        ),
         // This Rollup aliases are extracted from @esbuild-plugins/node-modules-polyfill,
         // see https://github.com/remorses/esbuild-plugins/blob/master/node-modules-polyfill/src/polyfills.ts
         // process and buffer are excluded because already managed by other plugins

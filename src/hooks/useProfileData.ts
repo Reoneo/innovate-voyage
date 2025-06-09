@@ -1,4 +1,5 @@
 
+import { useMemo } from 'react';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { useBlockchainData } from '@/hooks/useBlockchainData';
 import { usePassportGenerator } from '@/hooks/usePassportGenerator';
@@ -13,39 +14,45 @@ export function useProfileData(ensName?: string, address?: string) {
   // Resolve ENS and address
   const { resolvedAddress, resolvedEns, avatarUrl, ensLinks, ensBio } = useEnsResolver(ensName, address);
   
-  // Fetch blockchain data
+  // Fetch blockchain data only when we have a resolved address
   const blockchainData = useBlockchainData(resolvedAddress, resolvedEns);
   
-  console.log('ENS Links in useProfileData:', ensLinks);
+  // Memoize enhanced blockchain profile to prevent unnecessary recalculations
+  const enhancedBlockchainProfile = useMemo(() => {
+    if (!blockchainData.blockchainProfile) return null;
+    
+    return {
+      ...blockchainData.blockchainProfile,
+      socials: {
+        ...ensLinks?.socials,
+        ...(blockchainData.blockchainProfile.socials || {})
+      },
+      ensLinks: ensLinks?.ensLinks || [],
+      description: blockchainData.blockchainProfile.description || 
+                   ensLinks?.description || 
+                   ensBio ||
+                   blockchainData.blockchainExtendedData?.description
+    };
+  }, [blockchainData.blockchainProfile, ensLinks, ensBio, blockchainData.blockchainExtendedData?.description]);
   
   // Check if talent protocol data is available - using a more reliable property check
-  const hasTalentProtocolData = !!(blockchainData.blockchainExtendedData?.snsActive);
+  const hasTalentProtocolData = useMemo(() => {
+    return !!(blockchainData.blockchainExtendedData?.snsActive);
+  }, [blockchainData.blockchainExtendedData?.snsActive]);
   
-  // Enhance blockchain profile with ENS links
-  const enhancedBlockchainProfile = blockchainData.blockchainProfile 
-    ? {
-        ...blockchainData.blockchainProfile,
-        socials: {
-          ...ensLinks?.socials,
-          ...(blockchainData.blockchainProfile.socials || {})
-        },
-        ensLinks: ensLinks?.ensLinks || [],
-        description: blockchainData.blockchainProfile.description || 
-                     ensLinks?.description || 
-                     ensBio ||
-                     blockchainData.blockchainExtendedData?.description
-      }
-    : null;
+  // Memoize web3 bio profile enhancement
+  const enhancedWeb3BioProfile = useMemo(() => {
+    if (!blockchainData.web3BioProfile) return null;
+    
+    return {
+      ...blockchainData.web3BioProfile,
+      description: blockchainData.web3BioProfile.description || ensBio,
+      github: blockchainData.web3BioProfile.github || ensLinks?.socials?.github,
+      linkedin: blockchainData.web3BioProfile.linkedin || ensLinks?.socials?.linkedin
+    };
+  }, [blockchainData.web3BioProfile, ensBio, ensLinks?.socials?.github, ensLinks?.socials?.linkedin]);
   
-  // Debug GitHub sources
-  console.log('GitHub sources:', {
-    ensGitHub: ensLinks?.socials?.github,
-    blockchainGitHub: blockchainData.blockchainProfile?.socials?.github,
-    web3BioGitHub: blockchainData.web3BioProfile?.github,
-    hasTalentProtocolData
-  });
-  
-  // Generate passport
+  // Generate passport with optimized data
   const { passport, loading } = usePassportGenerator(
     resolvedAddress, 
     resolvedEns, 
@@ -53,22 +60,19 @@ export function useProfileData(ensName?: string, address?: string) {
       ...blockchainData,
       blockchainProfile: enhancedBlockchainProfile,
       avatarUrl,
-      web3BioProfile: {
-        ...blockchainData.web3BioProfile,
-        description: blockchainData.web3BioProfile?.description || ensBio,
-        // Make sure GitHub username is passed through
-        github: blockchainData.web3BioProfile?.github || ensLinks?.socials?.github,
-        // Make sure LinkedIn handle is passed through
-        linkedin: blockchainData.web3BioProfile?.linkedin || ensLinks?.socials?.linkedin
-      }
+      web3BioProfile: enhancedWeb3BioProfile
     }
   );
 
-  // Add the talent protocol data flag to the passport
-  const enhancedPassport = passport ? {
-    ...passport,
-    hasTalentProtocolData
-  } : null;
+  // Memoize enhanced passport to prevent unnecessary re-renders
+  const enhancedPassport = useMemo(() => {
+    if (!passport) return null;
+    
+    return {
+      ...passport,
+      hasTalentProtocolData
+    };
+  }, [passport, hasTalentProtocolData]);
 
   return {
     loading,
