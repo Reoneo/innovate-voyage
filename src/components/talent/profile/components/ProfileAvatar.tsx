@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getRealAvatar } from '@/api/services/avatar/getRealAvatar';
 
 interface ProfileAvatarProps {
   avatarUrl: string | undefined;
@@ -21,13 +22,35 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
     setImageError(false);
     setIsLoading(true);
     
-    // For .box users, use community avatar as fallback if no avatar provided
-    if (isBoxUser && (!avatarUrl || avatarUrl === '')) {
-      setFinalAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
-    } else {
-      setFinalAvatarUrl(avatarUrl);
-    }
-  }, [avatarUrl, isBoxUser]);
+    const fetchAvatar = async () => {
+      try {
+        // Try to get the real avatar for ENS names
+        if (name && (name.includes('.eth') || name.includes('.box') || name.includes('.bio'))) {
+          const realAvatar = await getRealAvatar(name);
+          if (realAvatar) {
+            setFinalAvatarUrl(realAvatar);
+            return;
+          }
+        }
+        
+        // For .box users, use community avatar as fallback if no avatar provided
+        if (isBoxUser && (!avatarUrl || avatarUrl === '')) {
+          setFinalAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
+        } else {
+          setFinalAvatarUrl(avatarUrl);
+        }
+      } catch (error) {
+        console.error('Error fetching avatar:', error);
+        if (isBoxUser) {
+          setFinalAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
+        } else {
+          setFinalAvatarUrl(avatarUrl);
+        }
+      }
+    };
+    
+    fetchAvatar();
+  }, [avatarUrl, name, isBoxUser]);
   
   // Generate initials for the fallback
   const getInitials = (name: string): string => {

@@ -55,6 +55,10 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
     }
   };
 
+  // Display the ENS name if available, otherwise show the formatted address
+  const displayName = ensNameOrAddress || passport.name || 'Unknown';
+  const isEnsName = ensNameOrAddress?.includes('.');
+
   return (
     <div className="flex h-screen w-full bg-gradient-to-br from-purple-100 to-blue-100 overflow-hidden">
       {/* Left Column - 70% - Main Profile */}
@@ -69,7 +73,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
               <div className="w-32 h-32 rounded-full overflow-hidden">
                 <ProfileAvatar 
                   avatarUrl={passport.avatar_url} 
-                  name={passport.name}
+                  name={displayName}
                 />
               </div>
             </div>
@@ -78,7 +82,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
           {/* Name/Identity with better typography */}
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold text-gray-900 leading-tight">
-              {passport.name || ensNameOrAddress || 'web3.bio'}
+              {displayName}
             </h1>
             
             {/* Address with improved copy functionality */}
@@ -139,8 +143,10 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
 
       {/* Right Column - 30% - Activity Cards with improved scroll */}
       <div className="w-[30%] bg-gray-50 overflow-y-auto p-3 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-        {/* Activity Cards with enhanced styling */}
-        <TalentScoreBanner walletAddress={passport.owner_address} />
+        {/* Talent Score Banner - Styled as Card */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <TalentScoreBanner walletAddress={passport.owner_address} />
+        </Card>
 
         {/* GitHub Section - Enhanced Card */}
         {showGitHubSection && (
