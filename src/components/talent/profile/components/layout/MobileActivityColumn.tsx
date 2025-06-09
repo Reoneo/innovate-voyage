@@ -19,7 +19,7 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
   showGitHubSection
 }) => {
   return (
-    <div className="bg-gray-50 overflow-y-auto p-3 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+    <div className="bg-gray-50 p-3 space-y-3">
       {/* Talent Score Banner with updated styling */}
       <div className="space-y-3">
         <TalentScoreBanner walletAddress={passport.owner_address} />

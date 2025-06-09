@@ -15,11 +15,10 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({
   isLoading
 }) => {
   if (isLoading) {
-    return <Skeleton className="h-32 w-full rounded-2xl" />;
+    return <Skeleton className="h-16 w-full rounded-lg" />;
   }
 
-  const formattedScore = webacyData?.riskScore !== undefined ? Math.round(webacyData.riskScore) : 'N/A';
-  const riskPercentage = webacyData?.riskScore !== undefined ? `${Math.round(webacyData.riskScore)}%` : 'N/A';
+  const riskPercentage = webacyData?.riskScore !== undefined ? `${Math.round(webacyData.riskScore)}%` : '0%';
 
   const handleClick = () => {
     if (onClick) {
@@ -29,17 +28,14 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({
 
   return (
     <div onClick={handleClick} className="cursor-pointer">
-      <div className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 h-full shadow-lg border border-green-200 px-0 py-[12px]">
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2">
-            <Shield className="h-5 w-5 text-green-600" />
-            <h3 className="text-lg font-semibold text-gray-800">Risk</h3>
-          </div>
-          <div className={`text-4xl font-bold mb-1 ${getThreatColor(webacyData?.threatLevel)}`}>
+      <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow duration-200">
+        <div className="flex-shrink-0">
+          <Shield className="h-6 w-6 text-green-600" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium text-gray-900">Risk</div>
+          <div className={`text-xs ${getThreatColor(webacyData?.threatLevel)} truncate`}>
             {riskPercentage}
-          </div>
-          <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
-            <span>View Security Details</span>
           </div>
         </div>
       </div>

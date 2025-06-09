@@ -40,24 +40,26 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   const displayName = ensNameOrAddress || passport.name || 'Unknown';
 
   return (
-    <div className="grid md:grid-cols-[70%_30%] gap-0 w-full h-screen bg-gradient-to-br from-purple-100 to-blue-100">
-      {/* Left Column - 70% - Main Profile */}
-      <MobileProfileColumn
-        passport={passport}
-        ensNameOrAddress={ensNameOrAddress}
-        normalizedSocials={normalizedSocials}
-        telephone={telephone}
-        isOwner={isOwner}
-        displayName={displayName}
-      />
+    <div className="w-full min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 overflow-y-auto">
+      <div className="grid md:grid-cols-[70%_30%] gap-0 w-full">
+        {/* Left Column - 70% - Main Profile */}
+        <MobileProfileColumn
+          passport={passport}
+          ensNameOrAddress={ensNameOrAddress}
+          normalizedSocials={normalizedSocials}
+          telephone={telephone}
+          isOwner={isOwner}
+          displayName={displayName}
+        />
 
-      {/* Right Column - 30% - Activity Cards */}
-      <MobileActivityColumn
-        passport={passport}
-        ensNameOrAddress={ensNameOrAddress}
-        githubUsername={githubUsername}
-        showGitHubSection={showGitHubSection}
-      />
+        {/* Right Column - 30% - Activity Cards */}
+        <MobileActivityColumn
+          passport={passport}
+          ensNameOrAddress={ensNameOrAddress}
+          githubUsername={githubUsername}
+          showGitHubSection={showGitHubSection}
+        />
+      </div>
     </div>
   );
 };
