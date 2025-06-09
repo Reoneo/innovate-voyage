@@ -1,11 +1,14 @@
+
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getBuilderTitle } from './utils/scoreUtils';
 import { ScoreBadgeProps } from './types';
+
 interface TalentScoreBadgeProps extends ScoreBadgeProps {
   score: number | null;
   talentId?: string;
 }
+
 const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
   score,
   onClick,
@@ -15,14 +18,22 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
   if (isLoading) {
     return <Skeleton className="h-32 w-full rounded-2xl" />;
   }
+
   const handleClick = () => {
     if (onClick) {
       onClick();
     }
   };
-  return <div onClick={handleClick} className="cursor-pointer">
+
+  return (
+    <div onClick={handleClick} className="cursor-pointer">
       <div className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-gray-900 to-black h-full rounded-2xl shadow-lg border border-gray-800 px-0 py-[12px]">
-        <div className="flex items-center justify-center w-full">
+        <div className="flex items-center justify-center w-full gap-2">
+          <img 
+            src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1749456000000&signature=wVpMGWARK-VoESebvUStRy5M3WSFWM1ky_PBwsJR4tU&downloadName=logomark_dark.jpg"
+            alt="Talent Protocol"
+            className="h-6 w-6"
+          />
           <div className="text-white text-lg font-semibold">Builder Score</div>
         </div>
         <div className="text-center w-full">
@@ -32,6 +43,8 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
           </p>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default TalentScoreBadge;
