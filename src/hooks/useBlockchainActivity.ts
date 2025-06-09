@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 interface BlockchainActivityData {
   firstTransaction: string | null;
@@ -17,9 +17,8 @@ export function useBlockchainActivity(walletAddress: string) {
   });
   const [loading, setLoading] = useState(true);
   const [hasData, setHasData] = useState(false);
-  const [refetchAttempts, setRefetchAttempts] = useState(0);
 
-  const fetchBlockchainActivity = useCallback(async () => {
+  useEffect(() => {
     if (!walletAddress) {
       console.log('No wallet address provided to useBlockchainActivity');
       setLoading(false);
@@ -28,123 +27,131 @@ export function useBlockchainActivity(walletAddress: string) {
     }
 
     console.log('Starting blockchain activity fetch for:', walletAddress);
-    setLoading(true);
-    
-    try {
-      // Only use Etherscan for blockchain data
-      console.log('Fetching data from Etherscan...');
+
+    const fetchBlockchainActivity = async () => {
+      setLoading(true);
       
-      const etherscanApiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
-      
-      // Fetch balance and transactions in parallel
-      const [balanceResponse, txResponse] = await Promise.all([
-        fetch(`https://api.etherscan.io/api?module=account&action=balance&address=${walletAddress}&tag=latest&apikey=${etherscanApiKey}`),
-        fetch(`https://api.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=1000&sort=asc&apikey=${etherscanApiKey}`)
-      ]);
+      try {
+        // First, try to fetch from Talent Protocol
+        console.log('Trying Talent Protocol API...');
+        const talentResponse = await fetch(
+          `https://api.talentprotocol.com/score?id=${walletAddress}&account_source=wallet`,
+          {
+            headers: {
+              "X-API-KEY": "2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f",
+            },
+          }
+        );
 
-      const [balanceData, txData] = await Promise.all([
-        balanceResponse.json(),
-        txResponse.json()
-      ]);
-
-      console.log('Etherscan balance response:', balanceData);
-      console.log('Etherscan tx response:', txData);
-
-      let firstTx = null;
-      let outgoingTxCount = 0;
-      let ethBalance = null;
-
-      // Process balance
-      if (balanceData.status === '1') {
-        const balanceInWei = balanceData.result;
-        const balanceInEther = parseFloat(balanceInWei) / 1e18;
-        ethBalance = balanceInEther.toFixed(4);
-        console.log('Processed ETH balance:', ethBalance);
-      }
-
-      // Process transactions
-      if (txData.status === '1' && Array.isArray(txData.result) && txData.result.length > 0) {
-        const transactions = txData.result;
-        console.log('Processing', transactions.length, 'transactions');
-        
-        // Get first transaction
-        const firstTransaction = transactions[0];
-        if (firstTransaction) {
-          const date = new Date(parseInt(firstTransaction.timeStamp) * 1000);
-          firstTx = date.toLocaleDateString();
-          console.log('First transaction date:', firstTx);
+        if (talentResponse.ok) {
+          const talentData = await talentResponse.json();
+          console.log('Talent Protocol response:', talentData);
+          
+          if (talentData.score?.points) {
+            console.log('User has builder score, using Talent Protocol data');
+            // User has builder score, try to get onchain activity from Talent Protocol
+            const activityData = {
+              firstTransaction: talentData.first_transaction || null,
+              ethBalance: talentData.eth_balance || null,
+              outgoingTransactions: talentData.outgoing_transactions || null,
+              hasBuilderScore: true
+            };
+            
+            setData(activityData);
+            setHasData(true);
+            setLoading(false);
+            console.log('Set Talent Protocol data:', activityData);
+            return;
+          }
         }
 
-        // Count outgoing transactions
-        outgoingTxCount = transactions.filter(tx => 
-          tx.from.toLowerCase() === walletAddress.toLowerCase()
-        ).length;
-        console.log('Outgoing transactions count:', outgoingTxCount);
+        // Fallback to Etherscan if no Talent Protocol data
+        console.log('No Talent Protocol data, falling back to Etherscan...');
+        
+        const etherscanApiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
+        
+        // Fetch balance and transactions in parallel
+        const [balanceResponse, txResponse] = await Promise.all([
+          fetch(`https://api.etherscan.io/api?module=account&action=balance&address=${walletAddress}&tag=latest&apikey=${etherscanApiKey}`),
+          fetch(`https://api.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=1000&sort=asc&apikey=${etherscanApiKey}`)
+        ]);
+
+        const [balanceData, txData] = await Promise.all([
+          balanceResponse.json(),
+          txResponse.json()
+        ]);
+
+        console.log('Etherscan balance response:', balanceData);
+        console.log('Etherscan tx response:', txData);
+
+        let firstTx = null;
+        let outgoingTxCount = 0;
+        let ethBalance = null;
+
+        // Process balance
+        if (balanceData.status === '1') {
+          const balanceInWei = balanceData.result;
+          const balanceInEther = parseFloat(balanceInWei) / 1e18;
+          ethBalance = balanceInEther.toFixed(4);
+          console.log('Processed ETH balance:', ethBalance);
+        }
+
+        // Process transactions
+        if (txData.status === '1' && Array.isArray(txData.result) && txData.result.length > 0) {
+          const transactions = txData.result;
+          console.log('Processing', transactions.length, 'transactions');
+          
+          // Get first transaction
+          const firstTransaction = transactions[0];
+          if (firstTransaction) {
+            const date = new Date(parseInt(firstTransaction.timeStamp) * 1000);
+            firstTx = date.toLocaleDateString();
+            console.log('First transaction date:', firstTx);
+          }
+
+          // Count outgoing transactions
+          outgoingTxCount = transactions.filter(tx => 
+            tx.from.toLowerCase() === walletAddress.toLowerCase()
+          ).length;
+          console.log('Outgoing transactions count:', outgoingTxCount);
+        }
+
+        // Set data if we have any meaningful information
+        const activityData = {
+          firstTransaction: firstTx,
+          ethBalance: ethBalance,
+          outgoingTransactions: outgoingTxCount,
+          hasBuilderScore: false
+        };
+
+        console.log('Final activity data:', activityData);
+
+        // Show section if we have any data (more permissive logic)
+        const hasAnyData = firstTx || ethBalance !== null || outgoingTxCount >= 0;
+        console.log('Has any data check:', {
+          firstTx: !!firstTx,
+          hasEthBalance: ethBalance !== null,
+          hasOutgoingTx: outgoingTxCount >= 0,
+          hasAnyData
+        });
+
+        setData(activityData);
+        setHasData(hasAnyData);
+
+      } catch (error) {
+        console.error('Error fetching blockchain activity:', error);
+        // Still show the section even on error, with empty data
+        setHasData(true);
+      } finally {
+        setLoading(false);
+        console.log('Blockchain activity fetch completed');
       }
+    };
 
-      // Set data if we have any meaningful information
-      const activityData = {
-        firstTransaction: firstTx,
-        ethBalance: ethBalance,
-        outgoingTransactions: outgoingTxCount,
-        hasBuilderScore: false
-      };
-
-      console.log('Final activity data:', activityData);
-
-      // Show section if we have any data (more permissive logic)
-      const hasAnyData = firstTx || ethBalance !== null || outgoingTxCount >= 0;
-      console.log('Has any data check:', {
-        firstTx: !!firstTx,
-        hasEthBalance: ethBalance !== null,
-        hasOutgoingTx: outgoingTxCount >= 0,
-        hasAnyData
-      });
-
-      setData(activityData);
-      setHasData(hasAnyData);
-
-    } catch (error) {
-      console.error('Error fetching blockchain activity:', error);
-      // Still show the section even on error, with empty data
-      setHasData(true);
-    } finally {
-      setLoading(false);
-      console.log('Blockchain activity fetch completed');
-    }
+    fetchBlockchainActivity();
   }, [walletAddress]);
-
-  useEffect(() => {
-    fetchBlockchainActivity();
-  }, [fetchBlockchainActivity]);
-
-  // Check if data shows empty values and trigger refetch after page load
-  useEffect(() => {
-    if (!loading && hasData && refetchAttempts < 2) {
-      const hasEmptyData = !data.firstTransaction || 
-                          data.ethBalance === '0.0000' || 
-                          data.ethBalance === null ||
-                          data.outgoingTransactions === 0 ||
-                          data.outgoingTransactions === null;
-      
-      if (hasEmptyData) {
-        console.log('Detected empty data, scheduling refetch attempt:', refetchAttempts + 1);
-        const timer = setTimeout(() => {
-          setRefetchAttempts(prev => prev + 1);
-          fetchBlockchainActivity();
-        }, 2000); // Wait 2 seconds before refetching
-
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [loading, hasData, data, refetchAttempts, fetchBlockchainActivity]);
-
-  const refetch = useCallback(() => {
-    setRefetchAttempts(0);
-    fetchBlockchainActivity();
-  }, [fetchBlockchainActivity]);
 
   console.log('useBlockchainActivity hook final state:', { data, loading, hasData, walletAddress });
 
-  return { data, loading, hasData, refetch };
+  return { data, loading, hasData };
 }

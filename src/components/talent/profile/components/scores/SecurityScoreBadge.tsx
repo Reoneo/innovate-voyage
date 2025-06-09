@@ -16,7 +16,7 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({
   }
   const formattedScore = webacyData?.riskScore !== undefined ? Math.round(webacyData.riskScore) : 'N/A';
   return <div onClick={onClick} className="cursor-pointer">
-      <div className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 h-full shadow-lg border border-green-200 px-0 py-[12px]">
+      <div className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 h-full shadow-lg border border-green-200">
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-2">
             <img src="https://img.cryptorank.io/coins/webacy1675847088001.png" alt="Webacy Logo" className="h-6 w-6" />

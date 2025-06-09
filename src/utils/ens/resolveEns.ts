@@ -8,8 +8,8 @@ import { ccipReadEnabled, ResolveDotBitResult } from './ccipReadHandler';
  * @returns Resolved address or null if not found
  */
 export async function resolveEnsToAddress(ensName: string) {
-  // Check if the input is actually an ENS name - now includes additional TLDs
-  if (!ensName || (!ensName.includes('.eth') && !ensName.includes('.box') && !ensName.includes('.bio') && !ensName.includes('.xyz') && !ensName.includes('.ai') && !ensName.includes('.io'))) {
+  // Check if the input is actually an ENS name
+  if (!ensName || (!ensName.includes('.eth') && !ensName.includes('.box'))) {
     console.log(`Invalid ENS name format: ${ensName}`);
     return null;
   }
@@ -28,7 +28,7 @@ export async function resolveEnsToAddress(ensName: string) {
     }
   }
   
-  // Default flow for .eth domains or as fallback for other domains
+  // Default flow for .eth domains or as fallback for .box domains
   const provider = mainnetProvider;
   
   console.log(`Resolving domain: ${ensName} using Mainnet provider`);

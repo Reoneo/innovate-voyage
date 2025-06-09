@@ -11,39 +11,12 @@ interface ProfileAvatarProps {
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [finalAvatarUrl, setFinalAvatarUrl] = useState<string | undefined>(avatarUrl);
-  
-  // Check if this is a .box user
-  const isBoxUser = name.endsWith('.box');
   
   // Reset states when avatarUrl changes
   useEffect(() => {
     setImageError(false);
     setIsLoading(true);
-    
-    // For .box users, try ENS metadata service first, then fallback to community avatar
-    if (isBoxUser) {
-      if (avatarUrl && avatarUrl !== '') {
-        setFinalAvatarUrl(avatarUrl);
-      } else {
-        // Try ENS metadata service for .box domains
-        const metadataUrl = `https://metadata.ens.domains/mainnet/avatar/${name}`;
-        fetch(metadataUrl, { method: 'HEAD' })
-          .then(response => {
-            if (response.ok) {
-              setFinalAvatarUrl(metadataUrl);
-            } else {
-              setFinalAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
-            }
-          })
-          .catch(() => {
-            setFinalAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
-          });
-      }
-    } else {
-      setFinalAvatarUrl(avatarUrl);
-    }
-  }, [avatarUrl, isBoxUser, name]);
+  }, [avatarUrl]);
   
   // Generate initials for the fallback
   const getInitials = (name: string): string => {
@@ -56,20 +29,13 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   
   // Handle image load success
   const handleImageLoad = () => {
-    console.log('Avatar image loaded successfully:', finalAvatarUrl);
+    console.log('Avatar image loaded successfully:', avatarUrl);
     setIsLoading(false);
   };
   
   // Handle image load error
   const handleImageError = () => {
-    console.log('Avatar image failed to load:', finalAvatarUrl);
-    
-    // For .box users, try the community avatar as fallback
-    if (isBoxUser && finalAvatarUrl !== '/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png') {
-      setFinalAvatarUrl('/lovable-uploads/dc30762d-edb6-4e72-abf3-e78015f90b1d.png');
-      return;
-    }
-    
+    console.log('Avatar image failed to load:', avatarUrl);
     setImageError(true);
     setIsLoading(false);
   };
@@ -81,20 +47,18 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
   };
   
   return (
-    <Avatar className={`h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar ${
-      isBoxUser ? 'rounded-lg' : 'rounded-full'
-    }`}>
+    <Avatar className="h-48 w-48 border-2 border-white shadow-md mx-auto relative profile-avatar">
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <Skeleton className={`h-full w-full ${isBoxUser ? 'rounded-lg' : 'rounded-full'}`} />
+          <Skeleton className="h-full w-full rounded-full" />
         </div>
       )}
       
-      {!imageError && finalAvatarUrl ? (
+      {!imageError && avatarUrl ? (
         <AvatarImage 
-          src={finalAvatarUrl} 
+          src={avatarUrl} 
           alt={name} 
-          className={`object-cover ${isBoxUser ? 'rounded-lg' : ''}`}
+          className="object-cover"
           onError={handleImageError}
           onLoad={handleImageLoad}
         />
@@ -102,15 +66,13 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, name }) => {
         <AvatarImage 
           src="/placeholder.svg" 
           alt={name} 
-          className={`object-cover ${isBoxUser ? 'rounded-lg' : ''}`}
+          className="object-cover"
           onError={handlePlaceholderError}
           onLoad={() => setIsLoading(false)}
         />
       )}
       
-      <AvatarFallback className={`bg-primary/10 text-primary font-medium ${
-        isBoxUser ? 'rounded-lg' : ''
-      }`}>
+      <AvatarFallback className="bg-primary/10 text-primary font-medium">
         {getInitials(name)}
       </AvatarFallback>
     </Avatar>

@@ -13,14 +13,9 @@ interface NameSectionProps {
 }
 
 const NameSection: React.FC<NameSectionProps> = ({ name, ownerAddress, displayIdentity }) => {
-  // For ENS domains, show the full domain name with extension
-  let displayName = name;
-  if (displayIdentity) {
-    displayName = displayIdentity;
-  } else if (name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/)) {
-    // If it's just a name without extension, add .eth
-    displayName = `${name}.eth`;
-  }
+  const displayName = displayIdentity || (name && !name.includes('.') && name.match(/^[a-zA-Z0-9]+$/)
+    ? `${name}.eth`
+    : name);
   
   const { followers, following, followersList, followingList, loading, followAddress, isFollowing, isProcessing } = useEfpStats(ownerAddress);
   const [dialogOpen, setDialogOpen] = useState(false);

@@ -1,218 +1,168 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { useTheme } from '@/contexts/ThemeContext';
 
 const ThreeJsBackground: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const animationIdRef = useRef<number | null>(null);
-  const { isDayMode } = useTheme();
+  const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!mountRef.current) return;
 
-    let scene: THREE.Scene | null = null;
-    let renderer: THREE.WebGLRenderer | null = null;
-    let camera: THREE.PerspectiveCamera | null = null;
-    let cubes: THREE.Mesh[] = [];
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
-    const initThreeJS = () => {
-      try {
-        // Check WebGL support
-        const canvas = document.createElement('canvas');
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        
-        if (!gl) {
-          console.warn('WebGL not supported, falling back to CSS background');
-          return false;
-        }
+    // Initialize scene
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0f172a); // Slate-900 background
+    sceneRef.current = scene;
 
-        // Scene setup
-        scene = new THREE.Scene();
-        sceneRef.current = scene;
-        
-        // Set background color based on theme
-        scene.background = new THREE.Color(isDayMode ? 0xffffff : 0x0f172a);
+    // Initialize camera (fixed position, no controls)
+    const camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 100);
+    camera.position.set(0, 0, 15);
 
-        camera = new THREE.PerspectiveCamera(
-          75,
-          window.innerWidth / window.innerHeight,
-          0.1,
-          1000
-        );
+    // Initialize renderer
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true, 
+      alpha: true,
+      powerPreference: "high-performance"
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    rendererRef.current = renderer;
+    mountRef.current.appendChild(renderer.domElement);
 
-        // Create renderer with error handling
-        renderer = new THREE.WebGLRenderer({ 
-          antialias: true,
-          powerPreference: 'high-performance',
-          failIfMajorPerformanceCaveat: false
-        });
-        
-        rendererRef.current = renderer;
-        
-        // Add context lost/restore handlers
-        const handleContextLost = (event: Event) => {
-          event.preventDefault();
-          console.log('WebGL context lost');
-          if (animationIdRef.current) {
-            cancelAnimationFrame(animationIdRef.current);
-            animationIdRef.current = null;
-          }
-        };
-
-        const handleContextRestore = () => {
-          console.log('WebGL context restored');
-          // Reinitialize the scene
-          setTimeout(() => {
-            initThreeJS();
-          }, 100);
-        };
-
-        renderer.domElement.addEventListener('webglcontextlost', handleContextLost);
-        renderer.domElement.addEventListener('webglcontextrestored', handleContextRestore);
-
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-        if (mountRef.current) {
-          mountRef.current.appendChild(renderer.domElement);
-        }
-
-        // Create 1000 cubes
-        cubes = [];
-        const cubeGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-        
-        for (let i = 0; i < 1000; i++) {
-          // Different materials for day/night mode
-          const material = new THREE.MeshBasicMaterial({
-            color: isDayMode 
-              ? new THREE.Color().setHSL(Math.random(), 0.7, 0.6)  // Bright colors for day
-              : new THREE.Color().setHSL(Math.random(), 0.7, 0.5), // Darker colors for night
-            transparent: true,
-            opacity: isDayMode ? 0.8 : 0.6
-          });
-
-          const cube = new THREE.Mesh(cubeGeometry, material);
-          
-          // Random positions
-          cube.position.set(
-            (Math.random() - 0.5) * 50,
-            (Math.random() - 0.5) * 50,
-            (Math.random() - 0.5) * 50
-          );
-          
-          // Random rotations
-          cube.rotation.set(
-            Math.random() * Math.PI,
-            Math.random() * Math.PI,
-            Math.random() * Math.PI
-          );
-
-          scene.add(cube);
-          cubes.push(cube);
-        }
-
-        camera.position.z = 15;
-
-        // Animation loop
-        const animate = () => {
-          if (!renderer || !scene || !camera) return;
-          
-          animationIdRef.current = requestAnimationFrame(animate);
-
-          // Rotate cubes
-          cubes.forEach((cube, index) => {
-            cube.rotation.x += 0.005 + (index * 0.00001);
-            cube.rotation.y += 0.005 + (index * 0.00001);
-            
-            // Gentle floating motion
-            cube.position.y += Math.sin(Date.now() * 0.001 + index) * 0.002;
-          });
-
-          // Camera movement
-          camera.position.x = Math.sin(Date.now() * 0.0005) * 2;
-          camera.position.y = Math.cos(Date.now() * 0.0003) * 1;
-          camera.lookAt(0, 0, 0);
-
-          try {
-            renderer.render(scene, camera);
-          } catch (error) {
-            console.warn('Rendering error:', error);
-            if (animationIdRef.current) {
-              cancelAnimationFrame(animationIdRef.current);
-              animationIdRef.current = null;
-            }
-          }
-        };
-
-        animate();
-
-        // Handle resize
-        const handleResize = () => {
-          if (!camera || !renderer) return;
-          
-          camera.aspect = window.innerWidth / window.innerHeight;
-          camera.updateProjectionMatrix();
-          renderer.setSize(window.innerWidth, window.innerHeight);
-        };
-
-        window.addEventListener('resize', handleResize);
-
-        return true;
-      } catch (error) {
-        console.warn('Failed to initialize Three.js:', error);
-        return false;
-      }
-    };
-
-    // Initialize Three.js
-    const success = initThreeJS();
+    // Create 1000 cubes
+    const cubes: THREE.Mesh[] = [];
+    const cubeGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
     
-    // If Three.js fails, add a fallback CSS background
-    if (!success && mountRef.current) {
-      mountRef.current.style.background = isDayMode 
-        ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-        : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
+    // Create materials with different colors for variety
+    const materials = [
+      new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.6 }), // blue
+      new THREE.MeshBasicMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.6 }), // purple
+      new THREE.MeshBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.6 }), // cyan
+      new THREE.MeshBasicMaterial({ color: 0x64748b, transparent: true, opacity: 0.4 }), // slate
+    ];
+
+    for (let i = 0; i < 1000; i++) {
+      const material = materials[Math.floor(Math.random() * materials.length)];
+      const cube = new THREE.Mesh(cubeGeometry, material);
+
+      // Position cubes in a large sphere around the camera
+      const sphericalPosition = new THREE.Spherical(
+        5 + Math.random() * 40, // radius between 5 and 45
+        Math.random() * Math.PI, // phi (0 to PI)
+        Math.random() * Math.PI * 2 // theta (0 to 2*PI)
+      );
+      
+      const position = new THREE.Vector3();
+      position.setFromSpherical(sphericalPosition);
+      cube.position.copy(position);
+
+      // Random rotation
+      cube.rotation.x = Math.random() * Math.PI * 2;
+      cube.rotation.y = Math.random() * Math.PI * 2;
+      cube.rotation.z = Math.random() * Math.PI * 2;
+
+      // Store initial position and random speeds for animation
+      cube.userData = {
+        initialPosition: position.clone(),
+        rotationSpeed: {
+          x: (Math.random() - 0.5) * 0.01,
+          y: (Math.random() - 0.5) * 0.01,
+          z: (Math.random() - 0.5) * 0.01
+        },
+        floatSpeed: (Math.random() - 0.5) * 0.02,
+        floatOffset: Math.random() * Math.PI * 2
+      };
+
+      scene.add(cube);
+      cubes.push(cube);
     }
 
+    // Animation loop
+    let time = 0;
+    const animate = () => {
+      time += 0.01;
+
+      // Animate each cube
+      cubes.forEach((cube, index) => {
+        // Rotate cubes
+        cube.rotation.x += cube.userData.rotationSpeed.x;
+        cube.rotation.y += cube.userData.rotationSpeed.y;
+        cube.rotation.z += cube.userData.rotationSpeed.z;
+
+        // Add subtle floating motion
+        const floatY = Math.sin(time + cube.userData.floatOffset) * cube.userData.floatSpeed;
+        cube.position.y = cube.userData.initialPosition.y + floatY;
+
+        // Very subtle orbit around original position
+        const orbitAngle = time * 0.1 + index * 0.01;
+        const orbitRadius = 0.5;
+        cube.position.x = cube.userData.initialPosition.x + Math.cos(orbitAngle) * orbitRadius;
+        cube.position.z = cube.userData.initialPosition.z + Math.sin(orbitAngle) * orbitRadius;
+      });
+
+      renderer.render(scene, camera);
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    // Handle window resize
+    const handleResize = () => {
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
+
+      camera.aspect = newWidth / newHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(newWidth, newHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup function
     return () => {
-      // Cleanup
-      if (animationIdRef.current) {
-        cancelAnimationFrame(animationIdRef.current);
-        animationIdRef.current = null;
+      window.removeEventListener('resize', handleResize);
+      
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
       }
       
-      window.removeEventListener('resize', () => {});
-      
-      if (mountRef.current && renderer?.domElement) {
-        try {
-          mountRef.current.removeChild(renderer.domElement);
-        } catch (error) {
-          console.warn('Cleanup error:', error);
-        }
+      if (mountRef.current && renderer.domElement) {
+        mountRef.current.removeChild(renderer.domElement);
       }
       
-      if (renderer) {
-        renderer.dispose();
-      }
-      
-      // Dispose of geometries and materials
+      // Dispose of Three.js resources
       cubes.forEach(cube => {
-        if (cube.geometry) cube.geometry.dispose();
-        if (cube.material) {
-          if (Array.isArray(cube.material)) {
-            cube.material.forEach(material => material.dispose());
-          } else {
-            cube.material.dispose();
-          }
+        cube.geometry.dispose();
+        if (Array.isArray(cube.material)) {
+          cube.material.forEach(mat => mat.dispose());
+        } else {
+          cube.material.dispose();
         }
       });
+      
+      renderer.dispose();
     };
-  }, [isDayMode]);
+  }, []);
 
-  return <div ref={mountRef} className="absolute inset-0" />;
+  return (
+    <div 
+      ref={mountRef} 
+      className="absolute inset-0 w-full h-full"
+      style={{ 
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 1
+      }}
+    />
+  );
 };
 
 export default ThreeJsBackground;
