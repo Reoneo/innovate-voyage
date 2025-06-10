@@ -1,7 +1,16 @@
 
 import React from 'react';
-import MobileProfileColumn from './MobileProfileColumn';
-import MobileActivityColumn from './MobileActivityColumn';
+import ProfileAvatar from '../ProfileAvatar';
+import ProfileContact from '../ProfileContact';
+import NameSection from '../identity/NameSection';
+import AdditionalEnsDomains from '../identity/AdditionalEnsDomains';
+import BiographySection from '../biography/BiographySection';
+import SocialLinksSection from '../social/SocialLinksSection';
+import FollowButton from '../identity/FollowButton';
+import PoapSection from '../poap/PoapSection';
+import TalentScoreBanner from '../TalentScoreBanner';
+import GitHubContributionGraph from '../github/GitHubContributionGraph';
+import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
 
 interface MobileLayoutProps {
   passport: any;
@@ -36,38 +45,80 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
-  // Display the ENS name if available, otherwise show the formatted address
-  const displayName = ensNameOrAddress || passport.name || 'Unknown';
-
   return (
-    <div className="w-full h-screen bg-gradient-to-br from-purple-100 to-blue-100 overflow-hidden">
-      {/* Add spacing under navbar - equivalent to navbar height + padding */}
-      <div className="pt-16 md:pt-20 h-full">
-        <div className="grid grid-cols-[70%_30%] gap-0 w-full h-[calc(100vh-4rem)] overflow-hidden">
-          {/* Left Column - 70% - Main Profile - Fixed height, no scroll */}
-          <div className="h-full overflow-hidden">
-            <MobileProfileColumn
-              passport={passport}
-              ensNameOrAddress={ensNameOrAddress}
-              normalizedSocials={normalizedSocials}
-              telephone={telephone}
-              isOwner={isOwner}
-              displayName={displayName}
-            />
-          </div>
-
-          {/* Right Column - 30% - Activity Cards - Scrollable only */}
-          <div className="h-full overflow-y-auto overflow-x-hidden">
-            <MobileActivityColumn
-              passport={passport}
-              ensNameOrAddress={ensNameOrAddress}
-              githubUsername={githubUsername}
-              showGitHubSection={showGitHubSection}
-              normalizedSocials={normalizedSocials}
-            />
-          </div>
-        </div>
+    <div className="space-y-6 px-6">
+      {/* Avatar */}
+      <div className="flex flex-col items-center">
+        <ProfileAvatar 
+          avatarUrl={passport.avatar_url} 
+          name={passport.name} 
+        />
       </div>
+      
+      {/* Name and Address */}
+      <div className="text-center">
+        <NameSection 
+          name={passport.name} 
+          ownerAddress={passport.owner_address}
+          displayIdentity={ensNameOrAddress}
+        />
+      </div>
+      
+      {/* Additional ENS Domains */}
+      {passport.additionalEnsDomains?.length > 0 && (
+        <div className="text-center">
+          <AdditionalEnsDomains domains={passport.additionalEnsDomains} />
+        </div>
+      )}
+      
+      {/* Contact Info */}
+      <div className="text-center">
+        <ProfileContact 
+          email={normalizedSocials.email}
+          telephone={telephone}
+          isOwner={isOwner}
+        />
+      </div>
+      
+      {/* Follow Button */}
+      {!isOwner && passport.owner_address && (
+        <div className="text-center">
+          <FollowButton targetAddress={passport.owner_address} />
+        </div>
+      )}
+      
+      {/* ENS Bio */}
+      {passport.bio && (
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">
+            {passport.bio}
+          </p>
+        </div>
+      )}
+      
+      {/* Social Links */}
+      <div className="text-center">
+        <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
+      </div>
+      
+      {/* POAP Section */}
+      <div className="text-center">
+        <PoapSection walletAddress={passport.owner_address} />
+      </div>
+
+      {/* Talent Score Banner */}
+      <TalentScoreBanner walletAddress={passport.owner_address} />
+      
+      {/* GitHub Section */}
+      {showGitHubSection && (
+        <GitHubContributionGraph username={githubUsername!} />
+      )}
+      
+      {/* Farcaster Section */}
+      <FarcasterCastsSection 
+        ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+        address={passport.owner_address}
+      />
     </div>
   );
 };

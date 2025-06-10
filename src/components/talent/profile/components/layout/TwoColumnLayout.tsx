@@ -47,7 +47,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
-  // Mobile: Use new layout component
+  // Mobile: Use single column layout with desktop styling
   if (isMobile) {
     return (
       <MobileLayout 
