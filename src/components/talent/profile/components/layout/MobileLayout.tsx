@@ -40,28 +40,32 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   const displayName = ensNameOrAddress || passport.name || 'Unknown';
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-purple-100 to-blue-100">
+    <div className="w-full h-screen bg-gradient-to-br from-purple-100 to-blue-100 overflow-hidden">
       {/* Add spacing under navbar - equivalent to navbar height + padding */}
-      <div className="pt-16 md:pt-20">
-        <div className="grid md:grid-cols-[70%_30%] gap-0 w-full min-h-[calc(100vh-4rem)]">
-          {/* Left Column - 70% - Main Profile */}
-          <MobileProfileColumn
-            passport={passport}
-            ensNameOrAddress={ensNameOrAddress}
-            normalizedSocials={normalizedSocials}
-            telephone={telephone}
-            isOwner={isOwner}
-            displayName={displayName}
-          />
+      <div className="pt-16 md:pt-20 h-full">
+        <div className="grid grid-cols-[70%_30%] gap-0 w-full h-[calc(100vh-4rem)] overflow-hidden">
+          {/* Left Column - 70% - Main Profile - Fixed height, no scroll */}
+          <div className="h-full overflow-hidden">
+            <MobileProfileColumn
+              passport={passport}
+              ensNameOrAddress={ensNameOrAddress}
+              normalizedSocials={normalizedSocials}
+              telephone={telephone}
+              isOwner={isOwner}
+              displayName={displayName}
+            />
+          </div>
 
-          {/* Right Column - 30% - Activity Cards */}
-          <MobileActivityColumn
-            passport={passport}
-            ensNameOrAddress={ensNameOrAddress}
-            githubUsername={githubUsername}
-            showGitHubSection={showGitHubSection}
-            normalizedSocials={normalizedSocials}
-          />
+          {/* Right Column - 30% - Activity Cards - Scrollable only */}
+          <div className="h-full overflow-y-auto overflow-x-hidden">
+            <MobileActivityColumn
+              passport={passport}
+              ensNameOrAddress={ensNameOrAddress}
+              githubUsername={githubUsername}
+              showGitHubSection={showGitHubSection}
+              normalizedSocials={normalizedSocials}
+            />
+          </div>
         </div>
       </div>
     </div>
