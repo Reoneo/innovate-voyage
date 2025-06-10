@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { ShieldAlert, ExternalLink, ArrowUpRight } from 'lucide-react';
+import React from 'react';
+import { ShieldAlert, ExternalLink, ArrowUpRight, Shield } from 'lucide-react';
 import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,11 +15,7 @@ const WebacyDialogContent: React.FC<WebacyDialogContentProps> = ({ webacyData })
   return (
     <div className="py-4 px-6">
       <div className="flex items-center gap-2 mb-4">
-        <img 
-          src="https://img.cryptorank.io/coins/webacy1675847088001.png" 
-          alt="Webacy Logo" 
-          className="h-8 w-8"
-        />
+        <Shield className="h-8 w-8 text-green-600" />
         <div>
           <h2 className="text-xl font-bold flex items-center">
             Risk Score {webacyData?.riskScore !== undefined ? webacyData.riskScore : '0.00'}
