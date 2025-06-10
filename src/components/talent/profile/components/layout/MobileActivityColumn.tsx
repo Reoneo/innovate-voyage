@@ -30,15 +30,20 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
   // Fetch all ENS social links when component mounts
   useEffect(() => {
     const fetchAllSocials = async () => {
-      if (ensNameOrAddress && (ensNameOrAddress.includes('.eth') || ensNameOrAddress.includes('.box'))) {
+      if (ensNameOrAddress && (ensNameOrAddress.includes('.eth') || ensNameOrAddress.includes('.box') || ensNameOrAddress.includes('.bio'))) {
         try {
+          console.log('Fetching ENS links for:', ensNameOrAddress);
           const ensLinks = await getEnsLinks(ensNameOrAddress);
+          console.log('ENS links fetched:', ensLinks);
+          
           if (ensLinks && ensLinks.socials) {
             // Merge ENS socials with existing socials, giving priority to ENS data
-            setAllSocials(prevSocials => ({
-              ...prevSocials,
+            const mergedSocials = {
+              ...normalizedSocials,
               ...ensLinks.socials
-            }));
+            };
+            console.log('Merged socials:', mergedSocials);
+            setAllSocials(mergedSocials);
           }
         } catch (error) {
           console.error('Error fetching ENS socials:', error);
@@ -47,7 +52,10 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
     };
 
     fetchAllSocials();
-  }, [ensNameOrAddress]);
+  }, [ensNameOrAddress, normalizedSocials]);
+
+  // Check if we have any social links to show
+  const hasSocialLinks = Object.entries(allSocials || {}).some(([key, val]) => val && val.trim() !== '');
 
   return (
     <div className="bg-gray-50 p-3 space-y-3">
@@ -56,18 +64,20 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
         <TalentScoreBanner walletAddress={passport.owner_address} />
       </div>
 
-      {/* Socials Button - First in the list */}
-      <Card 
-        className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
-        onClick={() => setShowSocialsModal(true)}
-      >
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-            <Users className="h-4 w-4 text-white" />
+      {/* Socials Button - First in the list - Only show if we have social links */}
+      {hasSocialLinks && (
+        <Card 
+          className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+          onClick={() => setShowSocialsModal(true)}
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+              <Users className="h-4 w-4 text-white" />
+            </div>
+            <h3 className="font-semibold text-gray-800 text-sm">Socials</h3>
           </div>
-          <h3 className="font-semibold text-gray-800 text-sm">Socials</h3>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Activity Button */}
       <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer">
@@ -134,7 +144,11 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
             </DialogTitle>
           </DialogHeader>
           <div className="mt-4">
-            <SocialLinksSection socials={allSocials} identity={ensNameOrAddress} />
+            {hasSocialLinks ? (
+              <SocialLinksSection socials={allSocials} identity={ensNameOrAddress} />
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-4">No social links available</p>
+            )}
           </div>
         </DialogContent>
       </Dialog>
