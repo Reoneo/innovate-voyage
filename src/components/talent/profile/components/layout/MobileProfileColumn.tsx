@@ -73,17 +73,17 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
           </div>
         )}
         
-        {/* ENS Bio */}
+        {/* ENS Bio - Add this back to mobile view */}
         {passport.bio && (
-          <div>
-            <p className="text-sm text-muted-foreground">
+          <div className="mt-4">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {passport.bio}
             </p>
           </div>
         )}
         
-        {/* Social Links */}
-        <div>
+        {/* Social Links - Hide from main column since we'll show in popup */}
+        <div className="hidden">
           <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
         </div>
         

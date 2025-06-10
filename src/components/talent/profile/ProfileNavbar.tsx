@@ -49,7 +49,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               placeholder={isMobile ? "Search ENS..." : "Search ENS username..."} 
               value={search} 
               onChange={e => setSearch(e.target.value)} 
-              className={`${isMobile ? 'pl-8 pr-16 py-1 text-sm h-8' : 'pl-10 pr-4 py-2'} w-full bg-gray-700/30 border-gray-600/30 text-white rounded-full focus:ring-white focus:border-white`} 
+              className={`${isMobile ? 'pl-8 pr-16 py-1 text-sm h-8' : 'pl-10 pr-4 py-2'} w-full bg-gray-700/30 border-gray-600/30 text-white rounded-full focus:ring-white focus:border-white text-center`} 
             />
             <Button 
               type="submit" 
