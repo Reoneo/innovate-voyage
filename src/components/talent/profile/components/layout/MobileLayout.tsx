@@ -1,15 +1,12 @@
-
 import React from 'react';
 import MobileProfileColumn from './MobileProfileColumn';
 import MobileActivityColumn from './MobileActivityColumn';
-
 interface MobileLayoutProps {
   passport: any;
   ensNameOrAddress?: string;
   githubUsername: string | null;
   showGitHubSection: boolean;
 }
-
 const MobileLayout: React.FC<MobileLayoutProps> = ({
   passport,
   ensNameOrAddress,
@@ -17,11 +14,9 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   showGitHubSection
 }) => {
   const [isOwner, setIsOwner] = React.useState(false);
-  
   React.useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
-    if (connectedWallet && passport?.owner_address && 
-        connectedWallet.toLowerCase() === passport.owner_address.toLowerCase()) {
+    if (connectedWallet && passport?.owner_address && connectedWallet.toLowerCase() === passport.owner_address.toLowerCase()) {
       setIsOwner(true);
     }
   }, [passport?.owner_address]);
@@ -33,43 +28,33 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
       normalizedSocials[key.toLowerCase()] = value;
     }
   });
-
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
   // Display the ENS name if available, otherwise show the formatted address
   const displayName = ensNameOrAddress || passport.name || 'Unknown';
-
-  return (
-    <div className="w-full h-screen bg-transparent overflow-hidden touch-none" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+  return <div className="w-full h-screen bg-transparent overflow-hidden touch-none" style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
+  }}>
       {/* Container that takes full height minus navbar with matching side margins */}
-      <div className="pt-12 md:pt-20 h-full overflow-hidden" style={{ padding: '48px 2px 2px 2px' }}>
+      <div className="pt-12 md:pt-20 h-full overflow-hidden" style={{
+      padding: '48px 2px 2px 2px'
+    }}>
         <div className="grid grid-cols-[70%_30%] w-full h-full overflow-hidden">
           {/* Left Column - 70% - Main Profile - Positioned at top */}
-          <div className="h-full overflow-hidden flex items-start touch-none">
-            <MobileProfileColumn
-              passport={passport}
-              ensNameOrAddress={ensNameOrAddress}
-              normalizedSocials={normalizedSocials}
-              telephone={telephone}
-              isOwner={isOwner}
-              displayName={displayName}
-            />
+          <div className="h-full overflow-hidden flex items-start touch-none my-[2px]">
+            <MobileProfileColumn passport={passport} ensNameOrAddress={ensNameOrAddress} normalizedSocials={normalizedSocials} telephone={telephone} isOwner={isOwner} displayName={displayName} />
           </div>
 
           {/* Right Column - 30% - Activity Cards - Scrollable only */}
           <div className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            <MobileActivityColumn
-              passport={passport}
-              ensNameOrAddress={ensNameOrAddress}
-              githubUsername={githubUsername}
-              showGitHubSection={showGitHubSection}
-              normalizedSocials={normalizedSocials}
-            />
+            <MobileActivityColumn passport={passport} ensNameOrAddress={ensNameOrAddress} githubUsername={githubUsername} showGitHubSection={showGitHubSection} normalizedSocials={normalizedSocials} />
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default MobileLayout;
