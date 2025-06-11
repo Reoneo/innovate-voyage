@@ -35,11 +35,11 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   };
 
   return (
-    <div className={`fixed top-0 left-0 z-50 backdrop-blur-md border-b border-gray-600/20 shadow-sm bg-gray-800/30 ${isMobile ? 'safe-area-inset-top w-full' : 'right-0'}`}>
-      <div className={`mx-auto px-2 sm:px-4 py-2 flex items-center justify-between ${isMobile ? 'h-12' : 'h-14'} ${isMobile ? 'max-w-full' : 'max-w-6xl'}`}>
+    <div className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-600/20 shadow-sm bg-gray-800/30 w-full`}>
+      <div className={`mx-auto px-2 sm:px-4 py-2 flex items-center justify-between ${isMobile ? 'h-12' : 'h-14'} max-w-full`}>
         <form onSubmit={handleSearch} className="flex-1 flex items-center justify-center gap-1 sm:gap-2">
           <Link to="/" className="text-white hover:text-gray-300 transition-colors flex-shrink-0">
-            <Home className={`${isMobile ? 'h-4 w-4' : 'h-6 w-6'}`} />
+            <Home className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`} />
           </Link>
           
           <div className={`relative w-full ${isMobile ? 'max-w-none mx-2' : 'max-w-md'}`}>

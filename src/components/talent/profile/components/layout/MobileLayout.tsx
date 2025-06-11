@@ -41,10 +41,10 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
 
   return (
     <div className="w-full h-screen bg-transparent overflow-hidden touch-none" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-      {/* Container that takes full height minus navbar */}
-      <div className="pt-16 md:pt-20 h-full overflow-hidden">
-        <div className="grid grid-cols-[70%_30%] gap-0 w-full h-[calc(100vh-4rem)] overflow-hidden">
-          {/* Left Column - 70% - Main Profile - Same height as right column */}
+      {/* Container that takes full height minus navbar with thin margins to show ENS background */}
+      <div className="pt-16 md:pt-20 h-full overflow-hidden" style={{ padding: '64px 2px 2px 2px' }}>
+        <div className="grid grid-cols-[70%_30%] gap-1 w-full h-full overflow-hidden">
+          {/* Left Column - 70% - Main Profile - Fitted to screen with thin margins */}
           <div className="h-full overflow-hidden flex items-stretch touch-none">
             <MobileProfileColumn
               passport={passport}

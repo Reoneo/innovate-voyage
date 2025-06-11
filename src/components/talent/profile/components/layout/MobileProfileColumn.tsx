@@ -26,7 +26,7 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   displayName
 }) => {
   return (
-    <div className="bg-white flex flex-col justify-center items-center px-4 py-2 relative overflow-hidden h-full w-full">
+    <div className="bg-white flex flex-col justify-center items-center px-2 py-2 relative overflow-hidden h-full w-full" style={{ margin: '4px' }}>
       {/* Gradient background accent */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-30"></div>
       
@@ -62,7 +62,7 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
           </div>
         )}
         
-        {/* ENS Bio - Display the bio prominently */}
+        {/* ENS Bio - Display between follow button and POAP section */}
         {passport.bio && (
           <div className="mb-3 p-3 bg-gray-50 rounded-lg max-w-full">
             <h4 className="font-medium text-gray-800 mb-2 text-sm">About</h4>
