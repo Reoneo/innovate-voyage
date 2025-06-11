@@ -37,7 +37,7 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
         </div>
         
         {/* Name and Address */}
-        <div className="mb-2">
+        <div className="mb-2 my-0">
           <NameSection name={passport.name} ownerAddress={passport.owner_address} displayIdentity={ensNameOrAddress} />
         </div>
         
@@ -52,7 +52,7 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
         </div>
         
         {/* Follow Button - Reduced spacing */}
-        {!isOwner && passport.owner_address && <div className="mb-1">
+        {!isOwner && passport.owner_address && <div className="mb-1 my-0">
             <FollowButton targetAddress={passport.owner_address} />
           </div>}
         

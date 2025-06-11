@@ -66,7 +66,7 @@ const NameSection: React.FC<NameSectionProps> = ({
   };
   return <div className="mt-2 text-center my-0 mx-0 px-0">
       <h3 className="text-2xl font-semibold">{displayName}</h3>
-      <div className="flex items-center justify-center gap-2 mt-1">
+      <div className="flex items-center justify-center gap-2 mt-1 my-0">
         <AddressDisplay address={ownerAddress} />
       </div>
       
