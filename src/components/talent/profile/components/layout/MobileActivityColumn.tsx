@@ -44,7 +44,7 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
     };
     fetchAllSocials();
   }, [ensNameOrAddress]);
-  return <div className="bg-gray-50 p-3 space-y-4 h-full px-[6px] py-[25px] my-[4px]">
+  return <div className="bg-gray-50 p-3 space-y-4 h-full py-[24px] px-[5px] mx-0 my-[4px]">
       {/* Socials Button - First in the list */}
       <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer" onClick={() => setShowSocialsModal(true)}>
         <div className="flex items-center gap-2">
