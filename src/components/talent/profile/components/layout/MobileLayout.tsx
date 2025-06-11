@@ -40,12 +40,12 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   const displayName = ensNameOrAddress || passport.name || 'Unknown';
 
   return (
-    <div className="w-full h-screen bg-gradient-to-br from-purple-100 to-blue-100 overflow-hidden">
-      {/* Add spacing under navbar - equivalent to navbar height + padding */}
+    <div className="w-full h-screen bg-transparent overflow-hidden">
+      {/* Container that takes full height minus navbar */}
       <div className="pt-16 md:pt-20 h-full overflow-hidden">
         <div className="grid grid-cols-[70%_30%] gap-0 w-full h-[calc(100vh-4rem)] overflow-hidden">
-          {/* Left Column - 70% - Main Profile - Fixed height, no scroll */}
-          <div className="h-full overflow-hidden flex items-center justify-center">
+          {/* Left Column - 70% - Main Profile - Same height as right column */}
+          <div className="h-full overflow-hidden flex items-stretch">
             <MobileProfileColumn
               passport={passport}
               ensNameOrAddress={ensNameOrAddress}

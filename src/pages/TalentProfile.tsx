@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
@@ -51,6 +52,19 @@ const TalentProfile = () => {
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     }
+
+    // Disable page scrolling on mobile
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    }
+
+    return () => {
+      // Re-enable scrolling when component unmounts
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
   }, [passport?.avatar_url, ensNameOrAddress, loading, loadingTimeout]);
 
   return (
@@ -76,7 +90,7 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <div className="min-h-screen relative bg-transparent">
+      <div className="min-h-screen relative bg-transparent overflow-hidden">
         {/* Always show the AnimatedBackground */}
         <AnimatedBackground 
           avatarUrl={passport?.avatar_url} 
@@ -90,7 +104,7 @@ const TalentProfile = () => {
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container px-1 relative z-10" style={{ maxWidth: '98vw' }}>
+        <div className="container px-1 relative z-10 overflow-hidden" style={{ maxWidth: '98vw' }}>
           {loading ? (
             /* Show detailed loading skeleton */
             <div className="pt-16">
