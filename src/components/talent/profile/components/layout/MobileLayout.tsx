@@ -42,10 +42,10 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   return (
     <div className="w-full h-screen bg-gradient-to-br from-purple-100 to-blue-100 overflow-hidden">
       {/* Add spacing under navbar - equivalent to navbar height + padding */}
-      <div className="pt-16 md:pt-20 h-full">
+      <div className="pt-16 md:pt-20 h-full overflow-hidden">
         <div className="grid grid-cols-[70%_30%] gap-0 w-full h-[calc(100vh-4rem)] overflow-hidden">
           {/* Left Column - 70% - Main Profile - Fixed height, no scroll */}
-          <div className="h-full overflow-hidden">
+          <div className="h-full overflow-hidden flex items-center justify-center">
             <MobileProfileColumn
               passport={passport}
               ensNameOrAddress={ensNameOrAddress}
@@ -57,7 +57,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
           </div>
 
           {/* Right Column - 30% - Activity Cards - Scrollable only */}
-          <div className="h-full overflow-y-auto overflow-x-hidden">
+          <div className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             <MobileActivityColumn
               passport={passport}
               ensNameOrAddress={ensNameOrAddress}
