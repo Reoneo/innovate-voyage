@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import TalentScoreBanner from '../TalentScoreBanner';
 import GitHubContributionGraph from '../github/GitHubContributionGraph';
@@ -9,7 +8,6 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Users, Activity, Shield, Image } from 'lucide-react';
 import { getEnsLinks } from '@/utils/ens/ensLinks';
-
 interface MobileActivityColumnProps {
   passport: any;
   ensNameOrAddress?: string;
@@ -17,7 +15,6 @@ interface MobileActivityColumnProps {
   showGitHubSection: boolean;
   normalizedSocials: Record<string, string>;
 }
-
 const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
   passport,
   ensNameOrAddress,
@@ -32,8 +29,7 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
   // Check if current user is the owner
   useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
-    if (connectedWallet && passport?.owner_address && 
-        connectedWallet.toLowerCase() === passport.owner_address.toLowerCase()) {
+    if (connectedWallet && passport?.owner_address && connectedWallet.toLowerCase() === passport.owner_address.toLowerCase()) {
       setIsOwner(true);
     }
   }, [passport?.owner_address]);
@@ -57,15 +53,11 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
     };
     fetchAllSocials();
   }, [ensNameOrAddress]);
-
-  return (
-    <div className="bg-gray-50 p-3 space-y-4 h-full py-[24px] px-[5px] mx-0 my-[4px]">
+  return <div className="bg-gray-50 p-3 space-y-4 h-full py-[24px] px-[5px] mx-0 my-[4px]">
       {/* All Action Buttons in same div with even spacing */}
       <div className="space-y-3">
         {/* Follow Button - At the top, only show if not owner */}
-        {!isOwner && passport.owner_address && (
-          <FollowButton targetAddress={passport.owner_address} />
-        )}
+        {!isOwner && passport.owner_address && <FollowButton targetAddress={passport.owner_address} />}
         
         {/* Socials Button */}
         <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer" onClick={() => setShowSocialsModal(true)}>
@@ -76,28 +68,13 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
         </Card>
 
         {/* Activity Button */}
-        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer">
-          <div className="flex items-center gap-2 justify-center">
-            <Activity className="h-4 w-4 text-gray-600" />
-            <h3 className="font-semibold text-gray-800 text-sm">Activity</h3>
-          </div>
-        </Card>
+        
 
         {/* Risk Button */}
-        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer">
-          <div className="flex items-center gap-2 justify-center">
-            <Shield className="h-4 w-4 text-gray-600" />
-            <h3 className="font-semibold text-gray-800 text-sm">Risk</h3>
-          </div>
-        </Card>
+        
 
         {/* NFTs Button */}
-        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer">
-          <div className="flex items-center gap-2 justify-center">
-            <Image className="h-4 w-4 text-gray-600" />
-            <h3 className="font-semibold text-gray-800 text-sm">NFTs</h3>
-          </div>
-        </Card>
+        
       </div>
 
       {/* Talent Score Banner */}
@@ -106,8 +83,7 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
       </div>
 
       {/* GitHub Section */}
-      {showGitHubSection && (
-        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+      {showGitHubSection && <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm">⚡</span>
@@ -115,14 +91,10 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
             <h3 className="font-semibold text-gray-800 text-sm">GitHub Activity</h3>
           </div>
           <GitHubContributionGraph username={githubUsername!} />
-        </Card>
-      )}
+        </Card>}
 
       {/* Job Matching Section - Visible for all users */}
-      <JobMatchingSection 
-        passport={passport}
-        normalizedSocials={allSocials}
-      />
+      <JobMatchingSection passport={passport} normalizedSocials={allSocials} />
 
       {/* Socials Modal */}
       <Dialog open={showSocialsModal} onOpenChange={setShowSocialsModal}>
@@ -138,8 +110,6 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default MobileActivityColumn;
