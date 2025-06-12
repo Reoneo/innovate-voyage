@@ -45,12 +45,12 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({
     return <Skeleton className="h-32 w-full rounded-2xl" />;
   }
   return <>
-      <div onClick={handleClick} className="cursor-pointer">
-        <div className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl h-full shadow-lg border border-gray-200 px-0 py-[14px]">
+      <div onClick={handleClick} className="cursor-pointer bg-transparent">
+        <div className="flex flex-col items-center gap-3 p-6 rounded-2xl h-full shadow-lg border border-gray-200 px-0 py-[10px] bg-transparent">
           <div className="text-center space-y-2">
-            <h3 className="text-lg font-semibold text-gray-800">NFTs</h3>
+            <h3 className="text-lg font-semibold text-gray-800 py-0 my-[7px]">NFTs</h3>
             <div className="relative">
-              <img alt="NFT Collection" className="h-16 w-16 mx-auto" src="https://storage.googleapis.com/opensea-static/Logomark/Logomark-Blue.png" />
+              
               {nftCount !== null && nftCount > 0 && <Badge variant="destructive" className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-0 mx-[8px] my-[8px] py-0">
                   {nftCount > 99 ? '99+' : nftCount}
                 </Badge>}
