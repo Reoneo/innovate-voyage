@@ -56,7 +56,7 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
           <ProfileContact email={normalizedSocials.email} telephone={telephone} isOwner={isOwner} />
         </div>
         
-        {/* ENS Bio - Display where follow button used to be */}
+        {/* ENS Bio - Display between follow stats and POAP section */}
         {passport.bio && (
           <div className="mb-3 p-3 bg-gray-50 rounded-lg max-w-full">
             <h4 className="font-medium text-gray-800 mb-2 text-sm">About</h4>
