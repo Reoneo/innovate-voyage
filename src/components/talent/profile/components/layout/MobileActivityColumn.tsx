@@ -1,12 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
 import TalentScoreBanner from '../TalentScoreBanner';
 import GitHubContributionGraph from '../github/GitHubContributionGraph';
-import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
 import SocialLinksSection from '../social/SocialLinksSection';
+import FollowButton from '../identity/FollowButton';
+import JobMatchingSection from '../job-matching/JobMatchingSection';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Users, Activity, Shield, Image } from 'lucide-react';
 import { getEnsLinks } from '@/utils/ens/ensLinks';
+
 interface MobileActivityColumnProps {
   passport: any;
   ensNameOrAddress?: string;
@@ -14,6 +17,7 @@ interface MobileActivityColumnProps {
   showGitHubSection: boolean;
   normalizedSocials: Record<string, string>;
 }
+
 const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
   passport,
   ensNameOrAddress,
@@ -23,6 +27,16 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
 }) => {
   const [showSocialsModal, setShowSocialsModal] = useState(false);
   const [allSocials, setAllSocials] = useState<Record<string, string>>(normalizedSocials);
+  const [isOwner, setIsOwner] = useState(false);
+
+  // Check if current user is the owner
+  useEffect(() => {
+    const connectedWallet = localStorage.getItem('connectedWalletAddress');
+    if (connectedWallet && passport?.owner_address && 
+        connectedWallet.toLowerCase() === passport.owner_address.toLowerCase()) {
+      setIsOwner(true);
+    }
+  }, [passport?.owner_address]);
 
   // Fetch all ENS social links when component mounts
   useEffect(() => {
@@ -31,7 +45,6 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
         try {
           const ensLinks = await getEnsLinks(ensNameOrAddress);
           if (ensLinks && ensLinks.socials) {
-            // Merge ENS socials with existing socials, giving priority to ENS data
             setAllSocials(prevSocials => ({
               ...prevSocials,
               ...ensLinks.socials
@@ -44,31 +57,57 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
     };
     fetchAllSocials();
   }, [ensNameOrAddress]);
-  return <div className="bg-gray-50 p-3 space-y-4 h-full py-[24px] px-[5px] mx-0 my-[4px]">
-      {/* Socials Button - First in the list */}
-      <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer" onClick={() => setShowSocialsModal(true)}>
-        <div className="flex items-center gap-2">
-          
-          <h3 className="font-semibold text-gray-800 text-sm">Socials</h3>
-        </div>
-      </Card>
 
-      {/* Activity Button */}
-      
+  return (
+    <div className="bg-gray-50 p-3 space-y-4 h-full py-[24px] px-[5px] mx-0 my-[4px]">
+      {/* All Action Buttons in same div with even spacing */}
+      <div className="space-y-3">
+        {/* Follow Button - At the top, only show if not owner */}
+        {!isOwner && passport.owner_address && (
+          <FollowButton targetAddress={passport.owner_address} />
+        )}
+        
+        {/* Socials Button */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer" onClick={() => setShowSocialsModal(true)}>
+          <div className="flex items-center gap-2 justify-center">
+            <Users className="h-4 w-4 text-gray-600" />
+            <h3 className="font-semibold text-gray-800 text-sm">Socials</h3>
+          </div>
+        </Card>
 
-      {/* Risk Button */}
-      
+        {/* Activity Button */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer">
+          <div className="flex items-center gap-2 justify-center">
+            <Activity className="h-4 w-4 text-gray-600" />
+            <h3 className="font-semibold text-gray-800 text-sm">Activity</h3>
+          </div>
+        </Card>
 
-      {/* NFTs Button - Adjusted icon size to match others */}
-      
+        {/* Risk Button */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer">
+          <div className="flex items-center gap-2 justify-center">
+            <Shield className="h-4 w-4 text-gray-600" />
+            <h3 className="font-semibold text-gray-800 text-sm">Risk</h3>
+          </div>
+        </Card>
 
-      {/* Talent Score Banner with updated styling */}
+        {/* NFTs Button */}
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer">
+          <div className="flex items-center gap-2 justify-center">
+            <Image className="h-4 w-4 text-gray-600" />
+            <h3 className="font-semibold text-gray-800 text-sm">NFTs</h3>
+          </div>
+        </Card>
+      </div>
+
+      {/* Talent Score Banner */}
       <div className="space-y-3">
         <TalentScoreBanner walletAddress={passport.owner_address} />
       </div>
 
       {/* GitHub Section */}
-      {showGitHubSection && <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+      {showGitHubSection && (
+        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm">⚡</span>
@@ -76,12 +115,16 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
             <h3 className="font-semibold text-gray-800 text-sm">GitHub Activity</h3>
           </div>
           <GitHubContributionGraph username={githubUsername!} />
-        </Card>}
+        </Card>
+      )}
 
-      {/* Farcaster - Enhanced Card */}
-      
+      {/* Job Matching Section - Visible for all users */}
+      <JobMatchingSection 
+        passport={passport}
+        normalizedSocials={allSocials}
+      />
 
-      {/* Socials Modal - Now shows all ENS social links */}
+      {/* Socials Modal */}
       <Dialog open={showSocialsModal} onOpenChange={setShowSocialsModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -95,6 +138,8 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
           </div>
         </DialogContent>
       </Dialog>
-    </div>;
+    </div>
+  );
 };
+
 export default MobileActivityColumn;

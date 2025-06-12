@@ -1,11 +1,12 @@
+
 import React from 'react';
 import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
 import NameSection from '../identity/NameSection';
 import AdditionalEnsDomains from '../identity/AdditionalEnsDomains';
 import SocialLinksSection from '../social/SocialLinksSection';
-import FollowButton from '../identity/FollowButton';
 import PoapSection from '../poap/PoapSection';
+
 interface MobileProfileColumnProps {
   passport: any;
   ensNameOrAddress?: string;
@@ -14,6 +15,7 @@ interface MobileProfileColumnProps {
   isOwner: boolean;
   displayName: string;
 }
+
 const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   passport,
   ensNameOrAddress,
@@ -22,9 +24,10 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   isOwner,
   displayName
 }) => {
-  return <div className="bg-white flex flex-col items-center px-2 py-2 relative overflow-hidden h-full w-full" style={{
-    margin: '2px'
-  }}>
+  return (
+    <div className="bg-white flex flex-col items-center px-2 py-2 relative overflow-hidden h-full w-full" style={{
+      margin: '2px'
+    }}>
       {/* Gradient background accent */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-30 py-[3px] my-[5px] mx-[5px] px-[6px]"></div>
       
@@ -42,27 +45,26 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
         </div>
         
         {/* Additional ENS Domains */}
-        {passport.additionalEnsDomains?.length > 0 && <div className="mb-2">
+        {passport.additionalEnsDomains?.length > 0 && (
+          <div className="mb-2">
             <AdditionalEnsDomains domains={passport.additionalEnsDomains} />
-          </div>}
+          </div>
+        )}
         
         {/* Contact Info */}
         <div className="mb-2">
           <ProfileContact email={normalizedSocials.email} telephone={telephone} isOwner={isOwner} />
         </div>
         
-        {/* Follow Button - Reduced spacing */}
-        {!isOwner && passport.owner_address && <div className="mb-1 my-0">
-            <FollowButton targetAddress={passport.owner_address} />
-          </div>}
-        
-        {/* ENS Bio - Display between follow button and POAP section */}
-        {passport.bio && <div className="mb-3 p-3 bg-gray-50 rounded-lg max-w-full">
+        {/* ENS Bio - Display where follow button used to be */}
+        {passport.bio && (
+          <div className="mb-3 p-3 bg-gray-50 rounded-lg max-w-full">
             <h4 className="font-medium text-gray-800 mb-2 text-sm">About</h4>
             <p className="text-xs text-gray-600 leading-relaxed text-left">
               {passport.bio}
             </p>
-          </div>}
+          </div>
+        )}
         
         {/* Social Links - Hide from main column since we'll show in popup */}
         <div className="hidden">
@@ -74,6 +76,8 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
           <PoapSection walletAddress={passport.owner_address} />
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default MobileProfileColumn;
