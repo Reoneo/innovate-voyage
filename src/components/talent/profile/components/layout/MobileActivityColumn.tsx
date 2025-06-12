@@ -61,9 +61,9 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
         
         {/* Socials Button */}
         <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer" onClick={() => setShowSocialsModal(true)}>
-          <div className="flex items-center gap-2 justify-center">
-            <Users className="h-4 w-4 text-gray-600" />
-            <h3 className="font-semibold text-gray-800 text-sm">Socials</h3>
+          <div className="flex items-center gap-2 justify-center mx-0 px-0 my-0">
+            
+            <h3 className="font-semibold text-gray-800 text-base">Socials</h3>
           </div>
         </Card>
 

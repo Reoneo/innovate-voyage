@@ -12,10 +12,10 @@ const JobMatchingSection: React.FC<JobMatchingSectionProps> = ({
 }) => {
   const [showModal, setShowModal] = useState(false);
   return <>
-      <Card onClick={() => setShowModal(true)} className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer py-[10px] px-[8px] my-0">
+      <Card onClick={() => setShowModal(true)} className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer py-[10px] px-[8px] my-[18px]">
         <div className="flex items-center gap-2 justify-center">
-          <Briefcase className="h-4 w-4 text-gray-600" />
-          <h3 className="font-semibold text-gray-800 text-sm">Job Matching</h3>
+          
+          <h3 className="font-semibold text-gray-800 px-[12px] text-center text-base">Job Matching</h3>
         </div>
       </Card>
 
