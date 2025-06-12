@@ -21,7 +21,7 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({
     }
   };
   return <div onClick={handleClick} className="cursor-pointer">
-      <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow duration-200">
+      <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow duration-200 my-[3px]">
         <div className="flex-shrink-0">
           
         </div>

@@ -60,7 +60,7 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
         {!isOwner && passport.owner_address && <FollowButton targetAddress={passport.owner_address} />}
         
         {/* Socials Button */}
-        <Card className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer" onClick={() => setShowSocialsModal(true)}>
+        <Card onClick={() => setShowSocialsModal(true)} className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer my-0 py-[17px]">
           <div className="flex items-center gap-2 justify-center mx-0 px-0 my-0">
             
             <h3 className="font-semibold text-gray-800 text-base">Socials</h3>
