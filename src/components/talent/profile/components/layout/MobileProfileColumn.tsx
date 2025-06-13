@@ -57,14 +57,14 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
         </div>
         
         {/* ENS Bio - Display prominently in column 1 */}
-        {passport.bio && (
+        {(passport.bio || passport.description) && (
           <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100 max-w-full">
             <h4 className="font-semibold text-gray-800 mb-3 text-base flex items-center gap-2">
               <span className="text-blue-600">📝</span>
               About
             </h4>
             <p className="text-sm text-gray-700 leading-relaxed text-left whitespace-pre-wrap">
-              {passport.bio}
+              {passport.bio || passport.description}
             </p>
           </div>
         )}

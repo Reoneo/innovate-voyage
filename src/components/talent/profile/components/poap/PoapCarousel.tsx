@@ -41,7 +41,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
     };
   }, [api, onCarouselChange]);
 
-  // Always show carousel for multiple POAPs
+  // Show single POAP without carousel for single items
   if (poaps.length <= 1) {
     return (
       <div className="flex items-center justify-center w-full">
@@ -75,9 +75,10 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
         setApi={setApi}
         opts={{
           align: 'center',
-          loop: false,
+          loop: poaps.length > 1,
           skipSnaps: false,
-          dragFree: false
+          dragFree: false,
+          containScroll: 'trimSnaps'
         }} 
         className="w-full"
       >
@@ -104,62 +105,73 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
         </CarouselContent>
       </Carousel>
 
-      {/* Navigation Controls */}
-      <div className="flex items-center justify-center mt-4 space-x-4">
-        {/* Left Arrow */}
-        <button
-          onClick={() => api?.scrollPrev()}
-          disabled={!canScrollPrev}
-          className={`p-2 rounded-full transition-all ${
-            canScrollPrev 
-              ? 'bg-primary text-white hover:bg-primary/90 cursor-pointer shadow-lg' 
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
+      {/* Navigation Controls - Only show if more than 1 POAP */}
+      {poaps.length > 1 && (
+        <div className="flex items-center justify-center mt-4 space-x-4">
+          {/* Left Arrow */}
+          <button
+            onClick={() => {
+              console.log('Previous clicked, canScrollPrev:', canScrollPrev);
+              api?.scrollPrev();
+            }}
+            disabled={!canScrollPrev}
+            className={`p-2 rounded-full transition-all ${
+              canScrollPrev 
+                ? 'bg-primary text-white hover:bg-primary/90 cursor-pointer shadow-lg' 
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
 
-        {/* Indicator: Either dots or counter */}
-        {shouldShowDots ? (
-          <div className="flex space-x-2">
-            {poaps.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => api?.scrollTo(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index === current 
-                    ? 'bg-primary scale-125' 
-                    : 'bg-gray-300 hover:bg-gray-400'
-                }`}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <span className="font-medium text-primary">{current + 1}</span>
-            <span>/</span>
-            <span>{poaps.length}</span>
-          </div>
-        )}
+          {/* Indicator: Either dots or counter */}
+          {shouldShowDots ? (
+            <div className="flex space-x-2">
+              {poaps.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    console.log('Dot clicked, scrolling to index:', index);
+                    api?.scrollTo(index);
+                  }}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === current 
+                      ? 'bg-primary scale-125' 
+                      : 'bg-gray-300 hover:bg-gray-400'
+                  }`}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <span className="font-medium text-primary">{current + 1}</span>
+              <span>/</span>
+              <span>{poaps.length}</span>
+            </div>
+          )}
 
-        {/* Right Arrow */}
-        <button
-          onClick={() => api?.scrollNext()}
-          disabled={!canScrollNext}
-          className={`p-2 rounded-full transition-all ${
-            canScrollNext 
-              ? 'bg-primary text-white hover:bg-primary/90 cursor-pointer shadow-lg' 
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
+          {/* Right Arrow */}
+          <button
+            onClick={() => {
+              console.log('Next clicked, canScrollNext:', canScrollNext);
+              api?.scrollNext();
+            }}
+            disabled={!canScrollNext}
+            className={`p-2 rounded-full transition-all ${
+              canScrollNext 
+                ? 'bg-primary text-white hover:bg-primary/90 cursor-pointer shadow-lg' 
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Swipe Hint Text */}
       {poaps.length > 1 && (
         <div className="text-xs text-center mt-2 text-gray-500">
-          Swipe or click arrows to browse POAPs
+          Swipe, click arrows or dots to browse POAPs
         </div>
       )}
     </div>
