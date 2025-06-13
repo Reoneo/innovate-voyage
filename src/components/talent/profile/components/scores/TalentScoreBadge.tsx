@@ -28,7 +28,7 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
         </div>
         <div className="text-center w-full">
           <div className="text-4xl font-bold text-white mb-1 my-0">{score || 'N/A'}</div>
-          <p className="text-sm text-gray-300 py-0">
+          <p className="text-gray-300 py-0 font-normal text-sm">
             {score ? getBuilderTitle(score) : 'Unknown Level'}
           </p>
         </div>
