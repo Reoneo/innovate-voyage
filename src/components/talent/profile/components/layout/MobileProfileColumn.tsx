@@ -71,8 +71,8 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
           <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
         </div>
         
-        {/* POAP Section - Make sure it's visible */}
-        <div className="mt-2 my-0 w-full">
+        {/* POAP Section - Make sure it's visible and has proper spacing */}
+        <div className="mt-4 mb-4 w-full">
           <PoapSection walletAddress={passport.owner_address} />
         </div>
       </div>

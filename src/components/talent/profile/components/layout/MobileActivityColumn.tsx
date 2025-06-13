@@ -59,49 +59,46 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
 
   return (
     <div className="bg-gray-50 p-3 space-y-4 h-full py-[24px] px-[5px] mx-0 my-[4px]">
-      {/* All Action Buttons in same div with clean professional styling */}
+      {/* Follow Button - At the top, only show if not owner */}
+      {!isOwner && passport.owner_address && (
+        <FollowButton targetAddress={passport.owner_address} />
+      )}
+      
+      {/* All Action Buttons - Clean Professional Theme */}
       <div className="space-y-3">
-        {/* Follow Button - At the top, only show if not owner */}
-        {!isOwner && passport.owner_address && (
-          <FollowButton targetAddress={passport.owner_address} />
-        )}
-        
-        {/* Professional Button Grid */}
-        <div className="space-y-3">
-          {/* Socials Button */}
-          <Card 
-            onClick={() => setShowSocialsModal(true)} 
-            className="p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 bg-white hover:bg-gray-50"
-          >
-            <div className="flex items-center justify-center">
-              <h3 className="font-semibold text-gray-800 text-base">Socials</h3>
-            </div>
-          </Card>
+        {/* Socials Button */}
+        <Card 
+          onClick={() => setShowSocialsModal(true)} 
+          className="p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 bg-white hover:bg-gray-50"
+        >
+          <div className="flex items-center justify-center">
+            <h3 className="font-semibold text-gray-800 text-base">Socials</h3>
+          </div>
+        </Card>
 
-          {/* Activity Button Placeholder - matches styling */}
-          <Card className="p-4 shadow-sm border border-gray-200 bg-white opacity-75">
-            <div className="flex items-center justify-center">
-              <h3 className="font-medium text-gray-600 text-base">Activity</h3>
-            </div>
-          </Card>
+        {/* Activity Button Placeholder */}
+        <Card className="p-4 shadow-sm border border-gray-200 bg-white opacity-75">
+          <div className="flex items-center justify-center">
+            <h3 className="font-medium text-gray-600 text-base">Activity</h3>
+          </div>
+        </Card>
 
-          {/* Risk Button Placeholder - matches styling */}
-          <Card className="p-4 shadow-sm border border-gray-200 bg-white opacity-75">
-            <div className="flex items-center justify-center">
-              <h3 className="font-medium text-gray-600 text-base">Risk</h3>
-            </div>
-          </Card>
+        {/* Risk Button Placeholder */}
+        <Card className="p-4 shadow-sm border border-gray-200 bg-white opacity-75">
+          <div className="flex items-center justify-center">
+            <h3 className="font-medium text-gray-600 text-base">Risk</h3>
+          </div>
+        </Card>
 
-          {/* NFTs Button Placeholder - matches styling */}
-          <Card className="p-4 shadow-sm border border-gray-200 bg-white opacity-75">
-            <div className="flex items-center justify-center">
-              <h3 className="font-medium text-gray-600 text-base">NFTs</h3>
-            </div>
-          </Card>
+        {/* NFTs Button Placeholder */}
+        <Card className="p-4 shadow-sm border border-gray-200 bg-white opacity-75">
+          <div className="flex items-center justify-center">
+            <h3 className="font-medium text-gray-600 text-base">NFTs</h3>
+          </div>
+        </Card>
 
-          {/* Job Matching Section - now with consistent styling */}
-          <JobMatchingSection passport={passport} normalizedSocials={allSocials} />
-        </div>
+        {/* Job Matching Section */}
+        <JobMatchingSection passport={passport} normalizedSocials={allSocials} />
       </div>
 
       {/* Talent Score Banner */}

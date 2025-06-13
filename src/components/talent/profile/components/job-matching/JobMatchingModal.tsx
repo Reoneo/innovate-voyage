@@ -32,21 +32,35 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
       if (!jobPreferences) return [];
       
       const allJobs = await jobsApi.getAllJobs();
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
       
-      // Filter jobs based on user preferences
+      // Filter jobs based on user preferences and 3-day listing
       return allJobs.filter(job => {
+        // Check if job was posted in the last 3 days
+        const jobPostedDate = new Date(job.posted_date);
+        const isRecentlyPosted = jobPostedDate >= threeDaysAgo;
+        
+        // Location matching - more flexible
         const locationMatch = jobPreferences.country === 'Remote' || 
                              job.location.toLowerCase().includes(jobPreferences.country.toLowerCase()) ||
-                             job.location.toLowerCase().includes('remote');
+                             job.location.toLowerCase().includes('remote') ||
+                             job.location.toLowerCase().includes('uk') ||
+                             job.location.toLowerCase().includes('united kingdom');
         
-        const typeMatch = job.type.toLowerCase() === jobPreferences.jobType.toLowerCase();
+        // Job type matching - more flexible
+        const typeMatch = job.type.toLowerCase().includes(jobPreferences.jobType.toLowerCase()) ||
+                         jobPreferences.jobType.toLowerCase().includes(job.type.toLowerCase());
         
-        // Simple sector matching - you could make this more sophisticated
-        const sectorMatch = job.title.toLowerCase().includes(jobPreferences.sector.toLowerCase()) ||
-                           job.description.toLowerCase().includes(jobPreferences.sector.toLowerCase());
+        // Sector matching - expanded to check multiple fields
+        const sectorLower = jobPreferences.sector.toLowerCase();
+        const sectorMatch = job.title.toLowerCase().includes(sectorLower) ||
+                           job.description.toLowerCase().includes(sectorLower) ||
+                           job.company.toLowerCase().includes(sectorLower) ||
+                           job.skills.some(skill => skill.toLowerCase().includes(sectorLower));
         
-        return locationMatch && typeMatch && sectorMatch;
-      }).slice(0, 6); // Limit to 6 matches
+        return isRecentlyPosted && locationMatch && typeMatch && sectorMatch;
+      }).slice(0, 10); // Show up to 10 matches
     },
     enabled: open && !!jobPreferences
   });
@@ -61,7 +75,7 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Briefcase className="h-5 w-5" />
-            Job Matches for {passport?.name || 'You'}
+            Job Matches for {passport?.name || 'You'} (Last 3 Days)
             {jobPreferences && (
               <div className="ml-2 flex gap-1">
                 <Badge variant="outline">{jobPreferences.country}</Badge>
@@ -93,14 +107,22 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
           ) : jobs.length === 0 ? (
             <Card className="p-8 text-center">
               <Briefcase className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Job Matches Found</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Recent Job Matches Found</h3>
               <p className="text-gray-600">
-                We couldn't find any jobs matching your selected preferences. 
+                We couldn't find any jobs matching your selected preferences that were posted in the last 3 days. 
                 Try adjusting your criteria or check back later for new opportunities!
               </p>
+              {jobPreferences && (
+                <div className="mt-4 text-sm text-gray-500">
+                  <p>Searched for: {jobPreferences.country} • {jobPreferences.jobType} • {jobPreferences.sector}</p>
+                </div>
+              )}
             </Card>
           ) : (
             <div className="space-y-4">
+              <p className="text-sm text-gray-600 mb-4">
+                Found {jobs.length} job{jobs.length !== 1 ? 's' : ''} matching your preferences posted in the last 3 days:
+              </p>
               {jobs.map((job) => (
                 <Card key={job.job_id} className="hover:shadow-md transition-shadow">
                   <CardHeader>

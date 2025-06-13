@@ -41,9 +41,10 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
     };
   }, [api, onCarouselChange]);
 
+  // Always show carousel for multiple POAPs
   if (poaps.length <= 1) {
     return (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center w-full">
         {poaps.map((poap) => (
           <div 
             key={poap.tokenId}
@@ -69,29 +70,32 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
   const shouldShowDots = poaps.length <= 10;
 
   return (
-    <div className="relative w-full max-w-xs">
+    <div className="relative w-full max-w-sm mx-auto">
       <Carousel 
         setApi={setApi}
         opts={{
           align: 'center',
-          loop: poaps.length > 3
+          loop: false,
+          skipSnaps: false,
+          dragFree: true
         }} 
         className="w-full"
       >
-        <CarouselContent>
-          {poaps.map((poap) => (
-            <CarouselItem key={poap.tokenId} className="flex items-center justify-center">
+        <CarouselContent className="-ml-2 md:-ml-4">
+          {poaps.map((poap, index) => (
+            <CarouselItem key={`${poap.tokenId}-${index}`} className="pl-2 md:pl-4 basis-full flex items-center justify-center">
               <div 
-                className="relative cursor-pointer group" 
+                className="relative cursor-pointer group w-36 h-36" 
                 onClick={() => onPoapClick(poap)}
               >
                 <img 
                   src={poap.event.image_url} 
                   alt={poap.event.name} 
-                  className="w-36 h-36 rounded-full cursor-pointer z-10 p-2 object-contain" 
+                  className="w-full h-full rounded-full cursor-pointer z-10 p-2 object-contain" 
                   style={{
                     background: 'rgba(0,0,0,0.7)'
                   }} 
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
               </div>
@@ -101,7 +105,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
       </Carousel>
 
       {/* Navigation Controls */}
-      <div className="flex items-center justify-center mt-2 space-x-4">
+      <div className="flex items-center justify-center mt-3 space-x-4">
         {/* Left Arrow */}
         <button
           onClick={() => api?.scrollPrev()}
@@ -154,7 +158,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
 
       {/* Swipe Hint Text */}
       {poaps.length > 1 && (
-        <div className="text-xs text-center mt-1 text-muted-foreground">
+        <div className="text-xs text-center mt-2 text-muted-foreground">
           Swipe or click arrows to browse POAPs
         </div>
       )}
