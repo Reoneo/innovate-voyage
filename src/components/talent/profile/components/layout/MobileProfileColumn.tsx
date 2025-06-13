@@ -25,7 +25,7 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   displayName
 }) => {
   return (
-    <div className="bg-white flex flex-col items-center px-2 py-2 relative overflow-hidden h-full w-full" style={{
+    <div className="bg-white flex flex-col items-center px-2 py-2 relative overflow-y-auto h-full w-full" style={{
       margin: '2px'
     }}>
       {/* Gradient background accent */}
@@ -56,7 +56,7 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
           <ProfileContact email={normalizedSocials.email} telephone={telephone} isOwner={isOwner} />
         </div>
         
-        {/* ENS Bio - Display between follow stats and POAP section */}
+        {/* ENS Bio - Display after contact info */}
         {passport.bio && (
           <div className="mb-3 p-3 bg-gray-50 rounded-lg max-w-full">
             <h4 className="font-medium text-gray-800 mb-2 text-sm">About</h4>
@@ -71,8 +71,8 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
           <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
         </div>
         
-        {/* POAP Section */}
-        <div className="mt-2 my-0">
+        {/* POAP Section - Make sure it's visible */}
+        <div className="mt-2 my-0 w-full">
           <PoapSection walletAddress={passport.owner_address} />
         </div>
       </div>

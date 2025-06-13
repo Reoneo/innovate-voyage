@@ -8,42 +8,47 @@ import { Briefcase, MapPin, Clock, ExternalLink, Building } from 'lucide-react';
 import { Job } from '@/types/job';
 import { jobsApi } from '@/api/jobsApi';
 import { useQuery } from '@tanstack/react-query';
+import { JobPreferences } from './JobPreferencesModal';
 
 interface JobMatchingModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   passport: any;
   normalizedSocials: Record<string, string>;
+  jobPreferences: JobPreferences | null;
 }
 
 const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
   open,
   onOpenChange,
   passport,
-  normalizedSocials
+  normalizedSocials,
+  jobPreferences
 }) => {
-  // Fetch matched jobs based on user profile
+  // Fetch matched jobs based on user preferences
   const { data: jobs = [], isLoading } = useQuery({
-    queryKey: ['matched-jobs', passport?.owner_address],
+    queryKey: ['matched-jobs', passport?.owner_address, jobPreferences],
     queryFn: async () => {
-      // For demo purposes, get all jobs and filter by skills
+      if (!jobPreferences) return [];
+      
       const allJobs = await jobsApi.getAllJobs();
       
-      // Simple matching logic based on passport skills or common tech skills
-      const userSkills = passport?.skills || [];
-      const techSkills = ['React', 'JavaScript', 'Node.js', 'Python', 'TypeScript'];
-      const matchingSkills = userSkills.length > 0 ? userSkills : techSkills;
-      
-      return allJobs.filter(job => 
-        job.skills.some(skill => 
-          matchingSkills.some((userSkill: string) => 
-            skill.toLowerCase().includes(userSkill.toLowerCase()) ||
-            userSkill.toLowerCase().includes(skill.toLowerCase())
-          )
-        )
-      ).slice(0, 5); // Limit to 5 matches
+      // Filter jobs based on user preferences
+      return allJobs.filter(job => {
+        const locationMatch = jobPreferences.country === 'Remote' || 
+                             job.location.toLowerCase().includes(jobPreferences.country.toLowerCase()) ||
+                             job.location.toLowerCase().includes('remote');
+        
+        const typeMatch = job.type.toLowerCase() === jobPreferences.jobType.toLowerCase();
+        
+        // Simple sector matching - you could make this more sophisticated
+        const sectorMatch = job.title.toLowerCase().includes(jobPreferences.sector.toLowerCase()) ||
+                           job.description.toLowerCase().includes(jobPreferences.sector.toLowerCase());
+        
+        return locationMatch && typeMatch && sectorMatch;
+      }).slice(0, 6); // Limit to 6 matches
     },
-    enabled: open
+    enabled: open && !!jobPreferences
   });
 
   const formatSalary = (salary: string) => {
@@ -57,6 +62,13 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
           <DialogTitle className="flex items-center gap-2">
             <Briefcase className="h-5 w-5" />
             Job Matches for {passport?.name || 'You'}
+            {jobPreferences && (
+              <div className="ml-2 flex gap-1">
+                <Badge variant="outline">{jobPreferences.country}</Badge>
+                <Badge variant="outline">{jobPreferences.jobType}</Badge>
+                <Badge variant="outline">{jobPreferences.sector}</Badge>
+              </div>
+            )}
           </DialogTitle>
         </DialogHeader>
         
@@ -83,8 +95,8 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
               <Briefcase className="h-12 w-12 mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No Job Matches Found</h3>
               <p className="text-gray-600">
-                We couldn't find any jobs matching your profile at the moment. 
-                Check back later for new opportunities!
+                We couldn't find any jobs matching your selected preferences. 
+                Try adjusting your criteria or check back later for new opportunities!
               </p>
             </Card>
           ) : (
