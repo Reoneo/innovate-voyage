@@ -77,7 +77,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
           align: 'center',
           loop: false,
           skipSnaps: false,
-          dragFree: true
+          dragFree: false
         }} 
         className="w-full"
       >
@@ -105,14 +105,14 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
       </Carousel>
 
       {/* Navigation Controls */}
-      <div className="flex items-center justify-center mt-3 space-x-4">
+      <div className="flex items-center justify-center mt-4 space-x-4">
         {/* Left Arrow */}
         <button
           onClick={() => api?.scrollPrev()}
           disabled={!canScrollPrev}
           className={`p-2 rounded-full transition-all ${
             canScrollPrev 
-              ? 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-lg' 
+              ? 'bg-primary text-white hover:bg-primary/90 cursor-pointer shadow-lg' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
         >
@@ -128,15 +128,15 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
                 onClick={() => api?.scrollTo(index)}
                 className={`w-2 h-2 rounded-full transition-all ${
                   index === current 
-                    ? 'bg-black scale-125' 
+                    ? 'bg-primary scale-125' 
                     : 'bg-gray-300 hover:bg-gray-400'
                 }`}
               />
             ))}
           </div>
         ) : (
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <span className="font-medium text-black">{current + 1}</span>
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <span className="font-medium text-primary">{current + 1}</span>
             <span>/</span>
             <span>{poaps.length}</span>
           </div>
@@ -148,7 +148,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
           disabled={!canScrollNext}
           className={`p-2 rounded-full transition-all ${
             canScrollNext 
-              ? 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-lg' 
+              ? 'bg-primary text-white hover:bg-primary/90 cursor-pointer shadow-lg' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
         >
@@ -158,7 +158,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
 
       {/* Swipe Hint Text */}
       {poaps.length > 1 && (
-        <div className="text-xs text-center mt-2 text-muted-foreground">
+        <div className="text-xs text-center mt-2 text-gray-500">
           Swipe or click arrows to browse POAPs
         </div>
       )}

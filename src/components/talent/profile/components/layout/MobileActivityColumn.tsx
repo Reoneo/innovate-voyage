@@ -7,8 +7,12 @@ import FollowButton from '../identity/FollowButton';
 import JobMatchingSection from '../job-matching/JobMatchingSection';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Users, Activity, Shield, Image } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Users, Activity, Shield, X, ArrowUpDown, Clock } from 'lucide-react';
 import { getEnsLinks } from '@/utils/ens/ensLinks';
+import { useWebacyData } from '@/hooks/useWebacyData';
+import { useLatestTransactions } from '@/hooks/useEtherscan';
 
 interface MobileActivityColumnProps {
   passport: any;
@@ -26,8 +30,13 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
   normalizedSocials
 }) => {
   const [showSocialsModal, setShowSocialsModal] = useState(false);
+  const [showActivityModal, setShowActivityModal] = useState(false);
   const [allSocials, setAllSocials] = useState<Record<string, string>>(normalizedSocials);
   const [isOwner, setIsOwner] = useState(false);
+
+  // Fetch security data and transactions
+  const { securityData, isLoading: webacyLoading } = useWebacyData(passport?.owner_address);
+  const { data: transactions } = useLatestTransactions(passport?.owner_address, 10);
 
   // Check if current user is the owner
   useEffect(() => {
@@ -57,6 +66,15 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
     fetchAllSocials();
   }, [ensNameOrAddress]);
 
+  const formatTransactionValue = (value: string) => {
+    const eth = parseFloat(value) / 1e18;
+    return eth.toFixed(4);
+  };
+
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
   return (
     <div className="bg-gray-50 p-3 space-y-4 h-full py-[24px] px-[5px] mx-0 my-[4px]">
       {/* Follow Button - At the top, only show if not owner */}
@@ -76,24 +94,13 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
           </div>
         </Card>
 
-        {/* Activity Button Placeholder */}
-        <Card className="p-4 shadow-sm border border-gray-200 bg-white opacity-75">
+        {/* Activity Button */}
+        <Card 
+          onClick={() => setShowActivityModal(true)}
+          className="p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 bg-white hover:bg-gray-50"
+        >
           <div className="flex items-center justify-center">
-            <h3 className="font-medium text-gray-600 text-base">Activity</h3>
-          </div>
-        </Card>
-
-        {/* Risk Button Placeholder */}
-        <Card className="p-4 shadow-sm border border-gray-200 bg-white opacity-75">
-          <div className="flex items-center justify-center">
-            <h3 className="font-medium text-gray-600 text-base">Risk</h3>
-          </div>
-        </Card>
-
-        {/* NFTs Button Placeholder */}
-        <Card className="p-4 shadow-sm border border-gray-200 bg-white opacity-75">
-          <div className="flex items-center justify-center">
-            <h3 className="font-medium text-gray-600 text-base">NFTs</h3>
+            <h3 className="font-semibold text-gray-800 text-base">Activity</h3>
           </div>
         </Card>
 
@@ -121,15 +128,117 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
 
       {/* Socials Modal */}
       <Dialog open={showSocialsModal} onOpenChange={setShowSocialsModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
+        <DialogContent className="sm:max-w-md bg-white">
+          <DialogHeader className="relative border-b pb-4">
+            <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
+              <Users className="h-6 w-6 text-primary" />
               Social Links
             </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0 h-8 w-8"
+              onClick={() => setShowSocialsModal(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </DialogHeader>
-          <div className="mt-4">
+          <div className="mt-6">
             <SocialLinksSection socials={allSocials} identity={ensNameOrAddress} />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Activity Modal */}
+      <Dialog open={showActivityModal} onOpenChange={setShowActivityModal}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-white">
+          <DialogHeader className="relative border-b pb-4">
+            <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
+              <Activity className="h-6 w-6 text-primary" />
+              Blockchain Activity & Risk
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0 h-8 w-8"
+              onClick={() => setShowActivityModal(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogHeader>
+          
+          <div className="mt-6 space-y-6">
+            {/* Risk Score Section */}
+            <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <Shield className="h-5 w-5 text-red-600" />
+                Security Risk Assessment
+              </h3>
+              {webacyLoading ? (
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              ) : securityData ? (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Risk Level</p>
+                    <p className="text-lg font-semibold text-red-700">
+                      {Math.round(securityData.riskScore || 0)}% Risk
+                    </p>
+                  </div>
+                  <Badge 
+                    variant={securityData.threatLevel === 'low' ? 'secondary' : 'destructive'}
+                    className="capitalize"
+                  >
+                    {securityData.threatLevel || 'Unknown'}
+                  </Badge>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">Risk data unavailable</p>
+              )}
+            </div>
+
+            {/* Recent Transactions Section */}
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <ArrowUpDown className="h-5 w-5 text-blue-600" />
+                Recent Transactions
+              </h3>
+              {transactions && transactions.length > 0 ? (
+                <div className="space-y-3 max-h-60 overflow-y-auto">
+                  {transactions.slice(0, 5).map((tx) => (
+                    <div key={tx.hash} className="bg-white rounded-lg p-3 border border-blue-100">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${
+                            tx.from.toLowerCase() === passport.owner_address.toLowerCase() 
+                              ? 'bg-red-500' 
+                              : 'bg-green-500'
+                          }`}></div>
+                          <span className="text-sm font-medium">
+                            {tx.from.toLowerCase() === passport.owner_address.toLowerCase() ? 'Sent' : 'Received'}
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            {formatTransactionValue(tx.value)} ETH
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <Clock className="h-3 w-3" />
+                          {new Date(parseInt(tx.timeStamp) * 1000).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        <p>From: {formatAddress(tx.from)}</p>
+                        <p>To: {formatAddress(tx.to)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No recent transactions found</p>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
