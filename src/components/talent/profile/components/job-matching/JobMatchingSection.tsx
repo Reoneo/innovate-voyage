@@ -20,7 +20,13 @@ const JobMatchingSection: React.FC<JobMatchingSectionProps> = ({
 
   const handlePreferencesSubmit = (preferences: JobPreferences) => {
     setJobPreferences(preferences);
+    setShowPreferencesModal(false);
     setShowJobsModal(true);
+  };
+
+  const handleBackToPreferences = () => {
+    setShowJobsModal(false);
+    setShowPreferencesModal(true);
   };
 
   return (
@@ -46,6 +52,7 @@ const JobMatchingSection: React.FC<JobMatchingSectionProps> = ({
         passport={passport} 
         normalizedSocials={normalizedSocials}
         jobPreferences={jobPreferences}
+        onBackToPreferences={handleBackToPreferences}
       />
     </>
   );

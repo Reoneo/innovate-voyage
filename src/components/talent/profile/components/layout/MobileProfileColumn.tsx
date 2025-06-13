@@ -56,15 +56,15 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
           <ProfileContact email={normalizedSocials.email} telephone={telephone} isOwner={isOwner} />
         </div>
         
-        {/* ENS Bio - Display prominently in column 1 */}
-        {(passport.bio || passport.description) && (
-          <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100 max-w-full">
+        {/* ENS Bio - Display prominently in column 1 - FIXED TO SHOW PROPERLY */}
+        {(passport.bio || passport.description || passport.ens_bio) && (
+          <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100 max-w-full w-full">
             <h4 className="font-semibold text-gray-800 mb-3 text-base flex items-center gap-2">
               <span className="text-blue-600">📝</span>
               About
             </h4>
             <p className="text-sm text-gray-700 leading-relaxed text-left whitespace-pre-wrap">
-              {passport.bio || passport.description}
+              {passport.bio || passport.description || passport.ens_bio}
             </p>
           </div>
         )}
