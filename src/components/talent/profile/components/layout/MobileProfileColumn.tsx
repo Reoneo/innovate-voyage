@@ -34,7 +34,7 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
       <div className="relative z-10 space-y-3 text-center w-full max-w-md flex flex-col items-center mx-0">
         {/* Avatar - Larger size - Positioned at top */}
         <div className="flex justify-center mb-2 mt-2">
-          <div className="w-40 h-40">
+          <div className="w-32 h-32">
             <ProfileAvatar avatarUrl={passport.avatar_url} name={displayName} />
           </div>
         </div>

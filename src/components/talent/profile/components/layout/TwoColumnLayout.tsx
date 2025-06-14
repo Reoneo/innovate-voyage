@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
@@ -65,10 +66,12 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
       <div className="space-y-6">
         {/* Avatar */}
         <div className="flex flex-col items-center">
-          <ProfileAvatar 
-            avatarUrl={passport.avatar_url} 
-            name={passport.name} 
-          />
+          <div className="w-32 h-32">
+            <ProfileAvatar 
+              avatarUrl={passport.avatar_url} 
+              name={passport.name} 
+            />
+          </div>
         </div>
         
         {/* Name and Address */}
