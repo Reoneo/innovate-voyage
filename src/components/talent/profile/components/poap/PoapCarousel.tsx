@@ -1,10 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { Poap } from '@/api/services/poapService';
-import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
+import { CarouselApi } from "@/components/ui/carousel";
 import { usePoapTheme } from './hooks/usePoapTheme';
 import SinglePoapDisplay from './SinglePoapDisplay';
 import PoapCarouselControls from './PoapCarouselControls';
+import PoapMainCarousel from './PoapMainCarousel';
 
 interface PoapCarouselProps {
   poaps: Poap[];
@@ -56,40 +56,11 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
 
   return (
     <div className="relative w-full max-w-sm mx-auto">
-      <Carousel 
+      <PoapMainCarousel
+        poaps={poaps}
+        onPoapClick={onPoapClick}
         setApi={setApi}
-        opts={{
-          align: 'center',
-          loop: poaps.length > 1, // Ensure loop is conditional
-          skipSnaps: false,
-          dragFree: false,
-          containScroll: 'trimSnaps'
-        }} 
-        className="w-full"
-      >
-        <CarouselContent className="-ml-2 md:-ml-4">
-          {poaps.map((poap, index) => (
-            <CarouselItem key={`${poap.tokenId}-${index}`} className="pl-2 md:pl-4 basis-full flex items-center justify-center">
-              <div 
-                className="relative cursor-pointer group w-40 h-40" 
-                onClick={() => onPoapClick(poap)}
-              >
-                <img 
-                  src={poap.event.image_url} 
-                  alt={poap.event.name} 
-                  className="w-full h-full rounded-full cursor-pointer z-10 p-2 object-contain" 
-                  style={{
-                    background: 'rgba(0,0,0,0.7)'
-                  }} 
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
-
+      />
       <PoapCarouselControls
         api={api}
         current={current}
@@ -104,4 +75,3 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
 };
 
 export default PoapCarousel;
-
