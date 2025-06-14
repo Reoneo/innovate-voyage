@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Poap } from '@/api/services/poapService';
 import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
@@ -27,6 +28,10 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
   });
 
   useEffect(() => {
+    if (!api) {
+      return;
+    }
+
     const updateState = () => {
       const currentIndex = api.selectedScrollSnap();
       setCurrent(currentIndex);
