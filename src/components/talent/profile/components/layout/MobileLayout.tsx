@@ -21,20 +21,13 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
     return <div>Loading profile...</div>; // Or some skeleton
   }
 
-  const normalizedSocials: Record<string, string> = {};
-  Object.entries(passport?.socials || {}).forEach(([key, value]) => {
-    if (value && typeof value === 'string' && value.trim() !== '') {
-      normalizedSocials[key.toLowerCase()] = value;
-    }
-  });
-
   return (
     <div className="flex flex-col w-full px-2 pt-4 pb-20 space-y-6 overflow-y-auto h-screen"> {/* Added pb-20 for scroll room */}
       <AvatarSection
         avatarUrl={passport.avatar_url}
         name={passport.name}
         ownerAddress={passport.owner_address}
-        socials={passport.socials} // Keep passing raw socials here
+        socials={passport.socials}
         additionalEnsDomains={passport.additionalEnsDomains}
         bio={passport.bio}
         displayIdentity={ensNameOrAddress}
@@ -48,7 +41,6 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
         githubUsername={githubUsername}
         showGitHubSection={showGitHubSection}
         ensNameOrAddress={ensNameOrAddress}
-        normalizedSocials={normalizedSocials} // Pass the calculated normalizedSocials
       />
     </div>
   );
