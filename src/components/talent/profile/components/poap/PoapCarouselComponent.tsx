@@ -67,7 +67,7 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
   }
 
   return (
-    <div className="relative w-full max-w-sm mx-auto">
+    <div className="relative w-full max-w-[180px] mx-auto flex flex-col items-center"> 
       <Carousel 
         setApi={setApi}
         opts={{
@@ -79,20 +79,20 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
         }} 
         className="w-full"
       >
-        <CarouselContent className="ml-0">
+        <CarouselContent className="w-full flex items-center justify-center">
           {poaps.map((poap, index) => (
-            <CarouselItem key={`${poap.tokenId}-${index}`} className="pl-0 basis-full flex items-center justify-center">
+            <CarouselItem 
+              key={`${poap.tokenId}-${index}`} 
+              className="!basis-[100%] flex items-center justify-center"
+            >
               <div 
-                className="relative cursor-pointer group w-36 h-36" 
+                className="relative cursor-pointer group w-36 h-36 flex items-center justify-center" 
                 onClick={() => onPoapClick(poap)}
               >
                 <img 
                   src={poap.event.image_url} 
                   alt={poap.event.name} 
-                  className="w-full h-full rounded-full cursor-pointer z-10 p-2 object-contain" 
-                  style={{
-                    background: 'rgba(0,0,0,0.7)'
-                  }} 
+                  className="w-36 h-36 rounded-full z-10 p-2 object-contain bg-black/70" 
                   loading="lazy"
                 />
                 <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
@@ -119,7 +119,7 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
           </button>
 
           {/* Counter */}
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <div className="flex items-center space-x-2 text-sm text-gray-600 min-w-[48px] justify-center">
             <span className="font-medium text-black">
               {current + 1}
             </span>
@@ -153,3 +153,4 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
 };
 
 export default PoapCarouselComponent;
+
