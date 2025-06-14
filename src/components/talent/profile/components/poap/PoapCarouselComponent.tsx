@@ -66,23 +66,20 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
   }
 
   return (
-    <div className="relative w-full max-w-[180px] mx-auto flex flex-col items-center"> 
+    <div className="relative w-full max-w-xs mx-auto flex flex-col items-center"> 
       <Carousel 
         setApi={setApi}
         opts={{
           align: 'center',
           loop: true,
-          skipSnaps: false,
-          dragFree: false,
-          containScroll: 'trimSnaps'
         }} 
-        className="w-full"
+        className="w-full h-40"
       >
-        <CarouselContent className="w-full flex items-center justify-center h-40">
+        <CarouselContent className="h-full">
           {poaps.map((poap, index) => (
             <CarouselItem 
               key={`${poap.tokenId}-${index}`} 
-              className="!basis-[100%] flex items-center justify-center"
+              className="basis-full flex items-center justify-center"
             >
               <div 
                 className="relative cursor-pointer group w-36 h-36 flex items-center justify-center" 
