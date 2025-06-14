@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Poap } from '@/api/services/poapService';
 import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
@@ -43,22 +44,22 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
   // Show single POAP without carousel for single items
   if (poaps.length <= 1) {
     return (
-      <div className="flex items-center justify-center w-full">
+      <div className="flex items-center justify-center w-full min-h-[180px] py-2">
         {poaps.map((poap) => (
           <div 
             key={poap.tokenId}
-            className="relative cursor-pointer group" 
+            className="relative cursor-pointer group flex items-center justify-center w-[150px] h-[150px] mx-auto"
             onClick={() => onPoapClick(poap)}
           >
             <img 
               src={poap.event.image_url} 
               alt={poap.event.name} 
-              className="w-36 h-36 rounded-full cursor-pointer z-10 p-2 object-contain" 
+              className="block w-[128px] h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
               style={{
                 background: 'rgba(0,0,0,0.7)'
               }} 
             />
-            <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border pointer-events-none"></div>
           </div>
         ))}
       </div>
@@ -66,32 +67,32 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
   }
 
   return (
-    <div className="relative w-full max-w-xs mx-auto flex flex-col items-center"> 
+    <div className="relative w-full max-w-xs mx-auto flex flex-col items-center min-h-[210px]"> 
       <Carousel 
         setApi={setApi}
         opts={{
           align: 'center',
           loop: true,
         }} 
-        className="w-full h-40"
+        className="w-full max-w-xs min-h-[180px]"
       >
-        <CarouselContent className="h-full">
+        <CarouselContent className="h-full flex items-center justify-center min-h-[180px]">
           {poaps.map((poap, index) => (
             <CarouselItem 
               key={`${poap.tokenId}-${index}`} 
-              className="basis-full flex items-center justify-center"
+              className="basis-full flex items-center justify-center min-h-[180px]"
             >
               <div 
-                className="relative cursor-pointer group w-36 h-36 flex items-center justify-center" 
+                className="relative cursor-pointer group w-[150px] h-[150px] flex items-center justify-center mx-auto"
                 onClick={() => onPoapClick(poap)}
               >
                 <img 
                   src={poap.event.image_url} 
                   alt={poap.event.name} 
-                  className="w-36 h-36 rounded-full z-10 p-2 object-contain bg-black/70" 
+                  className="block w-[128px] h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border pointer-events-none"></div>
               </div>
             </CarouselItem>
           ))}
