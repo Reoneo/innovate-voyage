@@ -56,10 +56,15 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
         search: searchKeywords || undefined,
       });
       console.log('Total jobs fetched:', jobs.length);
-      
       return jobs;
     },
-    enabled: open && !!jobPreferences
+    enabled: open && !!jobPreferences,
+    // Logging error for troubleshooting
+    meta: {
+      onError: (err: any) => {
+        console.error('[JobMatchingModal] Job fetching error:', err);
+      }
+    }
   });
 
   React.useEffect(() => {
@@ -132,7 +137,6 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
           onBackToPreferences={onBackToPreferences}
           jobPreferences={jobPreferences}
         />
-        
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <DateFilter dateFilter={dateFilter} onDateFilterChange={setDateFilter} />
@@ -149,6 +153,13 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
                 />
             </div>
           </div>
+
+          {/* Error message if jobs query failed */}
+          {queryError && (
+            <div className="w-full text-center text-sm text-red-500 mb-2">
+              Error fetching jobs. Please try again later.
+            </div>
+          )}
 
           <JobList 
             isLoading={isLoading}

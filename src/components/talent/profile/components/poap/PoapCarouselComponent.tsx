@@ -41,27 +41,49 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
     };
   }, [api, onCarouselChange]);
 
+  useEffect(() => {
+    console.log('[POAP Carousel] poaps:', poaps);
+  }, [poaps]);
+
+  // If loading or poaps not defined/empty
+  if (!poaps || poaps.length === 0) {
+    return (
+      <div className="flex items-center justify-center w-full min-h-[160px] text-gray-400 text-sm">
+        No POAPs to display.
+      </div>
+    );
+  }
+
+  // If poaps exist but each is missing image, show error/info
+  if (poaps.every(p => !p.event || !p.event.image_url)) {
+    return (
+      <div className="flex items-center justify-center w-full min-h-[160px] text-red-500 text-sm">
+        POAP data loaded, but no images available.
+      </div>
+    );
+  }
+
   // Single POAP (no carousel)
   if (poaps.length <= 1) {
+    const poap = poaps[0];
     return (
       <div className="flex items-center justify-center w-full min-h-[180px] py-2">
-        {poaps.map((poap) => (
-          <div 
-            key={poap.tokenId}
-            className="relative cursor-pointer group flex items-center justify-center w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] mx-auto"
-            onClick={() => onPoapClick(poap)}
-          >
-            <img 
-              src={poap.event.image_url} 
-              alt={poap.event.name} 
-              className="block w-[96px] h-[96px] sm:w-[128px] sm:h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
-              style={{
-                background: 'rgba(0,0,0,0.7)'
-              }} 
-            />
-            <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border pointer-events-none"></div>
-          </div>
-        ))}
+        <div
+          key={poap.tokenId}
+          className="relative cursor-pointer group flex items-center justify-center w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] mx-auto"
+          onClick={() => onPoapClick(poap)}
+        >
+          <img
+            src={poap.event.image_url}
+            alt={poap.event.name}
+            className="block w-[96px] h-[96px] sm:w-[128px] sm:h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
+            style={{
+              background: 'rgba(0,0,0,0.7)'
+            }}
+            onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
+          />
+          <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border pointer-events-none"></div>
+        </div>
       </div>
     );
   }
@@ -78,32 +100,43 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
         className="w-full"
       >
         <CarouselContent
-          className="flex items-center justify-center min-h-[180px] w-full overflow-x-auto touch-pan-x scroll-smooth"
+          className="flex items-center justify-center min-h-[180px] w-full touch-pan-x scroll-smooth"
           style={{
-            WebkitOverflowScrolling: 'touch'
+            WebkitOverflowScrolling: 'touch',
+            overflowX: 'scroll',
+            scrollbarWidth: 'none',
           }}
         >
           {poaps.map((poap, index) => (
             <CarouselItem
               key={`${poap.tokenId}-${index}`}
-              className="flex items-center justify-center py-2 w-full min-w-0 max-w-full"
+              className="flex-shrink-0 flex-grow-0 flex items-center justify-center py-2 w-full sm:w-auto transition-all min-w-0 sm:min-w-[180px] max-w-full"
               style={{
-                scrollSnapAlign: 'center'
+                scrollSnapAlign: 'center',
+                width: "100vw",
+                maxWidth: 220
               }}
             >
               <div
                 className="relative cursor-pointer group flex items-center justify-center w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] mx-auto"
                 onClick={() => onPoapClick(poap)}
               >
-                <img
-                  src={poap.event.image_url}
-                  alt={poap.event.name}
-                  className="block w-[96px] h-[96px] sm:w-[128px] sm:h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
-                  loading="lazy"
-                  style={{
-                    background: 'rgba(0,0,0,0.7)'
-                  }}
-                />
+                {poap.event?.image_url ? (
+                  <img
+                    src={poap.event.image_url}
+                    alt={poap.event.name}
+                    loading="lazy"
+                    className="block w-[96px] h-[96px] sm:w-[128px] sm:h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
+                    style={{
+                      background: 'rgba(0,0,0,0.7)'
+                    }}
+                    onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
+                  />
+                ) : (
+                  <div className="w-[96px] h-[96px] flex items-center justify-center bg-gray-200 text-gray-500 text-xs rounded-full border-4 border-white shadow-lg">
+                    No Image
+                  </div>
+                )}
                 <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border pointer-events-none"></div>
               </div>
             </CarouselItem>
