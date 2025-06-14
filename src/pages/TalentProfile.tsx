@@ -57,9 +57,6 @@ const TalentProfile = () => {
     if (isMobile) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-      document.body.style.height = '100%';
       
       // Set viewport to prevent zooming
       let viewport = document.querySelector('meta[name="viewport"]');
@@ -75,9 +72,6 @@ const TalentProfile = () => {
       // Re-enable scrolling when component unmounts
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
       
       // Reset viewport
       const viewport = document.querySelector('meta[name="viewport"]');
