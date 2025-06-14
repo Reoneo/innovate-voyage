@@ -27,7 +27,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
         punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
         url: 'rollup-plugin-node-polyfills/polyfills/url',
-        string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
+        string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder.js',
         http: 'rollup-plugin-node-polyfills/polyfills/http',
         https: 'rollup-plugin-node-polyfills/polyfills/http',
         os: 'rollup-plugin-node-polyfills/polyfills/os',
@@ -47,7 +47,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
         process: 'rollup-plugin-node-polyfills/polyfills/process-es6',
         // Fix aliases for incorrect import path with trailing slash from cbw-sdk
-        'string_decoder': 'rollup-plugin-node-polyfills/polyfills/string-decoder.js',
         'string_decoder/': 'rollup-plugin-node-polyfills/polyfills/string-decoder.js',
         'rollup-plugin-node-polyfills/polyfills/string-decoder/': 'rollup-plugin-node-polyfills/polyfills/string-decoder.js',
       },
