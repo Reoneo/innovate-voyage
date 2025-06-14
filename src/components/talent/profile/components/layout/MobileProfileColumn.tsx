@@ -24,12 +24,22 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   isOwner,
   displayName
 }) => {
+  // Log the entire passport object to inspect its fields
+  console.log('MobileProfileColumn: passport data:', passport);
+
   // Extract and prioritize ENS bio or description fields
   const ensBio =
     passport.bio ||
     passport.description ||
     passport.ens_bio ||
     '';
+
+  // Log the derived ensBio value
+  console.log('MobileProfileColumn: derived ensBio:', ensBio);
+  console.log('MobileProfileColumn: passport.bio:', passport.bio);
+  console.log('MobileProfileColumn: passport.description:', passport.description);
+  console.log('MobileProfileColumn: passport.ens_bio:', passport.ens_bio);
+
 
   return (
     <div className="bg-white flex flex-col items-center px-2 py-2 relative overflow-y-auto h-full w-full" style={{
@@ -89,4 +99,3 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
 };
 
 export default MobileProfileColumn;
-
