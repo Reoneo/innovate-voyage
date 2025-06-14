@@ -25,36 +25,50 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   const [selectedNft, setSelectedNft] = useState<OpenSeaNft | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!walletAddress) return;
+    
     const loadNfts = async () => {
       setLoading(true);
-      console.log('Loading NFTs for wallet:', walletAddress);
+      setError(null);
+      console.log('=== NFT Loading Started ===');
+      console.log('Wallet address:', walletAddress);
+      
       try {
         const nftCollections = await fetchUserNfts(walletAddress);
-        console.log('Fetched NFT collections:', nftCollections);
+        console.log('=== NFT Loading Results ===');
+        console.log('Fetched collections count:', nftCollections.length);
+        console.log('Raw collections data:', nftCollections);
         
-        // More lenient filtering - keep more collections
-        const filteredCollections = nftCollections.filter(collection => {
-          const hasValidNfts = collection.nfts && collection.nfts.length > 0;
-          const collectionName = collection.collection || '';
-          const isNotTestCollection = !collectionName.toLowerCase().includes('test');
-          
-          console.log('Collection check:', collectionName, 'hasValidNfts:', hasValidNfts, 'isNotTestCollection:', isNotTestCollection);
-          return hasValidNfts && isNotTestCollection;
-        });
+        if (nftCollections.length === 0) {
+          console.warn('No collections returned from API');
+          setError('No NFT collections found for this wallet');
+        } else {
+          // Log each collection for debugging
+          nftCollections.forEach((collection, index) => {
+            console.log(`Collection ${index + 1}:`, {
+              name: collection.collection,
+              nftCount: collection.nfts?.length || 0,
+              firstNft: collection.nfts?.[0]
+            });
+          });
+        }
         
-        console.log('Filtered collections:', filteredCollections);
-        setCollections(filteredCollections);
+        setCollections(nftCollections);
       } catch (error) {
-        console.error('Error loading NFTs:', error);
+        console.error('=== NFT Loading Error ===');
+        console.error('Error details:', error);
+        setError('Failed to load NFT collections');
         setCollections([]);
       } finally {
         setLoading(false);
+        console.log('=== NFT Loading Completed ===');
       }
     };
+    
     loadNfts();
   }, [walletAddress]);
 
@@ -62,12 +76,6 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
 
   const handleNftClick = (nft: OpenSeaNft) => {
     setSelectedNft(nft);
-  };
-
-  const handleOpenProfile = () => {
-    if (onOpenChange) {
-      onOpenChange(false);
-    }
   };
 
   // Check what types of NFTs are available with more flexible matching
@@ -115,7 +123,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   // Get total NFT count from filtered collections
   const totalNfts = filteredCollections.reduce((total, collection) => total + collection.nfts.length, 0);
 
-  console.log('NFT Section state:', {
+  console.log('NFT Section render state:', {
     walletAddress,
     collectionsCount: collections.length,
     totalNfts,
@@ -124,7 +132,8 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     hasPoapNfts,
     has3dnsNfts,
     selectedType,
-    loading
+    loading,
+    error
   });
 
   return (
@@ -150,6 +159,16 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
           {/* Content Area - Made scrollable */}
           <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
             <div className={`${isMobile ? 'p-4' : 'p-6'}`}>
+              {error && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="text-red-700 font-medium">Error loading NFTs</div>
+                  <div className="text-red-600 text-sm mt-1">{error}</div>
+                  <div className="text-red-500 text-xs mt-2">
+                    Check browser console for detailed logs
+                  </div>
+                </div>
+              )}
+              
               <NftCollectionsContent
                 collections={filteredCollections}
                 loading={loading}
