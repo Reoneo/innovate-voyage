@@ -1,4 +1,3 @@
-
 import React from 'react';
 import SeoHelmet from '@/components/home/SeoHelmet';
 import HeroBackground from '@/components/home/HeroBackground';
@@ -11,6 +10,12 @@ import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 
 const IndexContent = () => {
   const { isDayMode } = useTheme();
+
+  // DEBUG: Visual marker to check if IndexContent renders at all
+  if (typeof window !== "undefined") {
+    // Don't use alert, just show a message above content
+    document.body.setAttribute("data-debug-indexcontent", "MOUNTED");
+  }
 
   return (
     <div className={`min-h-screen relative ${isDayMode ? 'bg-white' : 'bg-slate-900'}`}>
