@@ -1,9 +1,7 @@
-
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Poap } from '@/api/services/poapService';
 import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import ColorThief from 'colorthief';
 
 interface PoapCarouselProps {
   poaps: Poap[];
@@ -15,80 +13,20 @@ interface PoapCarouselProps {
 const PoapCarousel: React.FC<PoapCarouselProps> = ({
   poaps,
   onPoapClick,
-  onCarouselChange,
-  userAvatarUrl
+  onCarouselChange
 }) => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
   const [themeColors, setThemeColors] = useState({
-    primary: '#7856FF',
-    primaryHover: '#6B46C1',
+    primary: '#000000',
+    primaryHover: '#333333',
     secondary: '#E5E7EB',
     secondaryHover: '#9CA3AF'
   });
 
-  // Extract theme colors from user avatar
   useEffect(() => {
-    const extractThemeColors = async () => {
-      if (!userAvatarUrl) return;
-      
-      try {
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-        
-        img.onload = () => {
-          try {
-            const colorThief = new ColorThief();
-            const dominantColor = colorThief.getColor(img);
-            const palette = colorThief.getPalette(img, 3);
-            
-            if (dominantColor && palette) {
-              const primaryRgb = dominantColor;
-              const secondaryRgb = palette[1] || palette[0];
-              
-              // Convert RGB to hex
-              const rgbToHex = (r: number, g: number, b: number) => 
-                `#${[r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')}`;
-              
-              // Create darker variant for hover
-              const darkenColor = (r: number, g: number, b: number, factor = 0.8): [number, number, number] => 
-                [Math.floor(r * factor), Math.floor(g * factor), Math.floor(b * factor)];
-              
-              const primary = rgbToHex(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
-              const darkenedPrimary = darkenColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
-              const primaryHover = rgbToHex(darkenedPrimary[0], darkenedPrimary[1], darkenedPrimary[2]);
-              const secondary = rgbToHex(secondaryRgb[0], secondaryRgb[1], secondaryRgb[2]);
-              const darkenedSecondary = darkenColor(secondaryRgb[0], secondaryRgb[1], secondaryRgb[2]);
-              const secondaryHover = rgbToHex(darkenedSecondary[0], darkenedSecondary[1], darkenedSecondary[2]);
-              
-              setThemeColors({
-                primary,
-                primaryHover,
-                secondary,
-                secondaryHover
-              });
-            }
-          } catch (error) {
-            console.error('Error extracting colors from avatar:', error);
-          }
-        };
-        
-        img.src = userAvatarUrl;
-      } catch (error) {
-        console.error('Error loading avatar for color extraction:', error);
-      }
-    };
-
-    extractThemeColors();
-  }, [userAvatarUrl]);
-
-  useEffect(() => {
-    if (!api) {
-      return;
-    }
-
     const updateState = () => {
       const currentIndex = api.selectedScrollSnap();
       setCurrent(currentIndex);
