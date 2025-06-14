@@ -34,97 +34,27 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
 }) => {
   const [dateFilter, setDateFilter] = React.useState('any');
 
-  const { data: jobs = [], isLoading, error: queryError, refetch } = useQuery({
-    queryKey: ['matched-jobs', passport?.owner_address, jobPreferences, dateFilter],
+  const { data: jobs = [], isLoading, error: queryError } = useQuery({
+    queryKey: ['all-jobs', dateFilter],
     queryFn: async () => {
-      if (!jobPreferences) return [];
+      console.log('Fetching jobs with date filter:', dateFilter);
       
-      console.log('Fetching jobs with preferences:', jobPreferences, 'and date filter:', dateFilter);
-      
-      const allJobs = await jobsApi.getAllJobs();
-      console.log('Total jobs fetched:', allJobs.length);
-
-      const sectorKeywords: Record<string, string[]> = {
-        technology: ['developer', 'engineer', 'tech', 'software', 'blockchain', 'web3', 'react', 'javascript', 'python', 'node', 'css', 'solidity', 'defi', 'nft', 'data scientist'],
-        finance: ['finance', 'financial', 'fintech', 'defi', 'accounting', 'analyst', 'trading', 'quant'],
-        healthcare: ['health', 'medical', 'clinic', 'doctor', 'nurse', 'pharma', 'biotech'],
-        education: ['education', 'teacher', 'learning', 'edutech', 'research'],
-        marketing: ['marketing', 'growth', 'seo', 'content', 'social media', 'community', 'brand'],
-        design: ['design', 'designer', 'ui', 'ux', 'figma', 'sketch', 'product designer'],
-        engineering: ['engineer', 'engineering', 'mechanical', 'electrical', 'civil', 'hardware', 'platform'],
-        sales: ['sales', 'business development', 'bd', 'account executive', 'partnerships']
+      const daysMap: Record<string, number> = {
+        '24h': 1,
+        '3d': 3,
+        '7d': 7,
+        '14d': 14,
+        '30d': 30,
       };
+      const days = dateFilter !== 'any' ? daysMap[dateFilter] : undefined;
       
-      const filteredJobs = allJobs.filter(job => {
-        const locationMatch = jobPreferences.country.toLowerCase() === 'remote' || 
-                             job.location.toLowerCase().includes(jobPreferences.country.toLowerCase()) ||
-                             job.location.toLowerCase().includes('remote') ||
-                             (jobPreferences.country.toLowerCase().includes('uk') || jobPreferences.country.toLowerCase().includes('united kingdom')) &&
-                             (job.location.toLowerCase().includes('uk') || job.location.toLowerCase().includes('united kingdom') || job.location.toLowerCase().includes('london') || job.location.toLowerCase().includes('manchester') || job.location.toLowerCase().includes('birmingham'));
-        
-        const jobTypeLower = jobPreferences.jobType.toLowerCase();
-        const typeMatch = jobTypeLower === 'any' ||
-                         job.type.toLowerCase().includes(jobTypeLower) ||
-                         (jobTypeLower === 'remote' && job.location.toLowerCase().includes('remote')) ||
-                         (jobTypeLower === 'full-time' && job.type.toLowerCase().includes('full')) ||
-                         (jobTypeLower === 'part-time' && job.type.toLowerCase().includes('part'));
-        
-        const sectorLower = jobPreferences.sector.toLowerCase();
-        let sectorMatch = sectorLower === 'any';
-
-        if (!sectorMatch) {
-          const keywords = sectorKeywords[sectorLower] || [sectorLower];
-          const jobText = `${job.title.toLowerCase()} ${job.description.toLowerCase()} ${job.skills.join(' ').toLowerCase()}`;
-          
-          sectorMatch = keywords.some(keyword => jobText.includes(keyword));
-        }
-
-        let dateMatch = true;
-        if (dateFilter !== 'any') {
-          const daysMap: Record<string, number> = {
-            '24h': 1,
-            '3d': 3,
-            '7d': 7,
-            '14d': 14,
-            '30d': 30,
-          };
-          const days = daysMap[dateFilter];
-          if (days) {
-            const NdaysAgo = new Date();
-            NdaysAgo.setDate(NdaysAgo.getDate() - days);
-            const NdaysAgoString = NdaysAgo.toISOString().split('T')[0];
-            dateMatch = job.posted_date >= NdaysAgoString;
-          }
-        }
-        
-        const match = locationMatch && typeMatch && sectorMatch && dateMatch;
-        
-        if (match) {
-          console.log('Job matched:', {
-            title: job.title,
-            location: job.location,
-            type: job.type,
-            skills: job.skills,
-            posted_date: job.posted_date,
-            locationMatch,
-            typeMatch,
-            sectorMatch,
-            dateMatch,
-            preferences: jobPreferences,
-            dateFilter: dateFilter
-          });
-        }
-        
-        return match;
-      });
+      const jobs = await jobsApi.searchJobs({ postedWithinDays: days });
+      console.log('Total jobs fetched:', jobs.length);
       
-      console.log('Filtered jobs count:', filteredJobs.length);
-      return filteredJobs.slice(0, 20);
+      return jobs;
     },
-    enabled: open && !!jobPreferences
+    enabled: open
   });
-
-  const profileName = passport?.name || 'your profile';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -142,7 +72,7 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
               </Button>
               <DialogTitle className="flex items-center gap-2 text-xl sm:text-2xl font-semibold text-gray-800">
                 <Briefcase className="h-6 w-6 text-primary" />
-                Job Matches for {profileName}
+                Job Listings
               </DialogTitle>
             </div>
             {jobPreferences && (
@@ -193,7 +123,7 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
             <div className="space-y-4">
               <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 text-center sm:text-left">
                 <p className="text-md sm:text-lg font-semibold text-blue-700">
-                  Found {jobs.length} Web3 job{jobs.length !== 1 ? 's' : ''} for you
+                  Found {jobs.length} Web3 job{jobs.length !== 1 ? 's' : ''}
                 </p>
                 <p className="text-xs sm:text-sm text-blue-600 mt-1">
                   Powered by web3.career - The leading Web3 job board
