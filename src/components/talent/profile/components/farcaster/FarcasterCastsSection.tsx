@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -86,10 +85,9 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
               <p className="text-muted-foreground mb-4">
                 We couldn't find a Farcaster profile for {ensName || address}
               </p>
-              <SignInButton>
-                <Button variant="outline">
-                  Connect with Farcaster
-                </Button>
+              {/* FIXED: Use SignInButton directly, and style via props/className */}
+              <SignInButton className="shadcn-btn shadcn-btn-outline">
+                Connect with Farcaster
               </SignInButton>
             </div>
           </CardContent>
