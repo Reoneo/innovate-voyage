@@ -1,12 +1,11 @@
+
 import React, { useState } from 'react';
 import TalentScoreBadge from './scores/TalentScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
-import SecurityScoreBadge from './scores/SecurityScoreBadge';
 import BlockchainActivityBadge from './scores/BlockchainActivityBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
-import { useWebacyData } from '@/hooks/useWebacyData';
 import { useIsMobile } from '@/hooks/use-mobile';
 interface TalentScoreBannerProps {
   walletAddress: string;
@@ -21,10 +20,8 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
     txCount,
     loading
   } = useScoresData(walletAddress);
-  const {
-    securityData,
-    isLoading: webacyLoading
-  } = useWebacyData(walletAddress);
+  // SECURITY BADGE REMOVED per request
+
   const [showNftCollections, setShowNftCollections] = useState(false);
   const isMobile = useIsMobile();
   const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions' | 'blockchain') => {
@@ -37,37 +34,34 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
   if (!walletAddress) return null;
   const showTalentScore = score !== null && score !== undefined;
   return <>
-      {/* First row: Blockchain Activity, Risk Score, Builder Score (when available) */}
-      <div className={`${isMobile ? 'flex flex-col gap-4' : 'grid grid-cols-3 gap-6'} mb-6`}>
-        <div className="transform hover:scale-105 transition-all duration-200">
+      <div
+        className={`grid grid-cols-1 md:grid-cols-3 gap-4 mb-6`}
+      >
+        <div className="w-full">
           <BlockchainActivityBadge walletAddress={walletAddress} onClick={() => handleBadgeClick('blockchain')} />
         </div>
-        <div className="transform hover:scale-105 transition-all duration-200">
-          <SecurityScoreBadge webacyData={securityData} onClick={() => handleBadgeClick('webacy')} isLoading={webacyLoading} />
-        </div>
-        {showTalentScore && <div className="transform hover:scale-105 transition-all duration-200">
+        {/* SECURITY BADGE REMOVED */}
+        {showTalentScore && (
+          <div className="w-full">
             <TalentScoreBadge score={score} onClick={() => handleBadgeClick('talent')} isLoading={loading} talentId={walletAddress} />
-          </div>}
-      </div>
-
-      {/* Second row: NFT Collection (centered) */}
-      <div className="">
-        <div className="transform hover:scale-105 transition-all duration-200">
+          </div>
+        )}
+        <div className="w-full">
           <TransactionsBadge txCount={txCount} walletAddress={walletAddress} onClick={handleNftButtonClick} isLoading={loading} />
         </div>
-        {/* Empty divs to maintain grid layout */}
-        <div></div>
-        <div></div>
       </div>
 
-      <NftCollectionsSection walletAddress={walletAddress} showCollections={showNftCollections} onOpenChange={setShowNftCollections} />
+      {/* Center NFT row for spacing */}
+      <div>
+        <NftCollectionsSection walletAddress={walletAddress} showCollections={showNftCollections} onOpenChange={setShowNftCollections} />
+      </div>
 
       <ScoreDialog open={dialogOpen} onOpenChange={setDialogOpen} type={activeDialog} data={{
-      score,
-      webacyData: securityData,
-      txCount,
-      walletAddress
-    }} />
+        score,
+        webacyData: null, // Not passed, security feature disabled for now
+        txCount,
+        walletAddress
+      }} />
     </>;
 };
 export default TalentScoreBanner;

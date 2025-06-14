@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScoreBadgeProps } from './types';
@@ -42,26 +43,28 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({
     }
   };
   if (isLoading || loading) {
-    return <Skeleton className="h-32 w-full rounded-2xl" />;
+    return <Skeleton className="h-16 w-full rounded-2xl" />;
   }
-  return <>
-      <div onClick={handleClick} className="cursor-pointer bg-transparent">
-        <div className="flex flex-col items-center gap-3 p-6 rounded-2xl h-full shadow-lg border border-gray-200 px-0 py-[10px] bg-transparent my-[2px]">
-          <div className="text-center space-y-2">
-            <h3 className="text-gray-800 py-0 my-[7px] text-base font-light">NFTs</h3>
-            <div className="relative">
-              
-              {nftCount !== null && nftCount > 0 && <Badge variant="destructive" className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-0 mx-[8px] my-[8px] py-0">
-                  {nftCount > 99 ? '99+' : nftCount}
-                </Badge>}
-            </div>
-            
-          </div>
+  return (
+    <>
+      <button
+        onClick={handleClick}
+        className="flex flex-col items-center justify-center w-full h-32 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 cursor-pointer transition-all hover:shadow-xl hover:bg-gray-50 focus:outline-none gap-2"
+        style={{ minWidth: 0 }}
+      >
+        <div className="text-lg font-semibold text-gray-900">NFTs</div>
+        <div className="relative">
+          {nftCount !== null && nftCount > 0 && (
+            <Badge variant="destructive" className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-0 mx-[8px] my-[8px] py-0">
+              {nftCount > 99 ? '99+' : nftCount}
+            </Badge>
+          )}
         </div>
-      </div>
-      
+        <div className="text-xs text-gray-600">Transactions</div>
+      </button>
       {/* Profile Dialog */}
       <ProfileDialog userId={mockUserId} open={showProfile} onOpenChange={setShowProfile} />
-    </>;
+    </>
+  );
 };
 export default TransactionsBadge;

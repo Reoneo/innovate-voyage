@@ -1,38 +1,29 @@
+
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getBuilderTitle } from './utils/scoreUtils';
 import { ScoreBadgeProps } from './types';
 interface TalentScoreBadgeProps extends ScoreBadgeProps {
   score: number | null;
-  talentId?: string;
+  talentId: string;
 }
 const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
   score,
   onClick,
-  isLoading,
-  talentId
+  isLoading
 }) => {
   if (isLoading) {
-    return <Skeleton className="h-32 w-full rounded-2xl" />;
+    return <Skeleton className="h-16 w-full rounded-2xl" />;
   }
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    }
-  };
-  return <div onClick={handleClick} className="cursor-pointer">
-      <div className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-gray-900 to-black h-full shadow-lg border border-gray-800 my-0 mx-0 px-px py-[8px] rounded-sm">
-        <div className="flex items-center justify-center w-full gap-2">
-          
-          
-        </div>
-        <div className="text-center w-full">
-          <div className="text-4xl font-bold text-white mb-1 my-0">{score || 'N/A'}</div>
-          <p className="text-gray-300 py-0 font-normal text-sm">
-            {score ? getBuilderTitle(score) : 'Unknown Level'}
-          </p>
-        </div>
-      </div>
-    </div>;
+  return (
+    <button
+      onClick={onClick}
+      className="flex flex-col items-center justify-center w-full h-32 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 cursor-pointer transition-all hover:shadow-xl hover:bg-gray-50 focus:outline-none gap-2"
+      style={{ minWidth: 0 }}
+    >
+      <div className="text-lg font-semibold text-gray-900">Builder Score</div>
+      <div className="text-3xl font-bold text-blue-700">{score !== null && score !== undefined ? score : '--'}</div>
+      <div className="text-xs text-gray-600">Talent</div>
+    </button>
+  );
 };
 export default TalentScoreBadge;
