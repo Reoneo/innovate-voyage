@@ -3,22 +3,84 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Poap } from '@/api/services/poapService';
 import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import ColorThief from 'colorthief';
 
 interface PoapCarouselProps {
   poaps: Poap[];
   onPoapClick: (poap: Poap) => void;
   onCarouselChange?: (index: number) => void;
+  userAvatarUrl?: string;
 }
 
 const PoapCarousel: React.FC<PoapCarouselProps> = ({
   poaps,
   onPoapClick,
-  onCarouselChange
+  onCarouselChange,
+  userAvatarUrl
 }) => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  const [themeColors, setThemeColors] = useState({
+    primary: '#7856FF',
+    primaryHover: '#6B46C1',
+    secondary: '#E5E7EB',
+    secondaryHover: '#9CA3AF'
+  });
+
+  // Extract theme colors from user avatar
+  useEffect(() => {
+    const extractThemeColors = async () => {
+      if (!userAvatarUrl) return;
+      
+      try {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        
+        img.onload = () => {
+          try {
+            const colorThief = new ColorThief();
+            const dominantColor = colorThief.getColor(img);
+            const palette = colorThief.getPalette(img, 3);
+            
+            if (dominantColor && palette) {
+              const primaryRgb = dominantColor;
+              const secondaryRgb = palette[1] || palette[0];
+              
+              // Convert RGB to hex
+              const rgbToHex = (r: number, g: number, b: number) => 
+                `#${[r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')}`;
+              
+              // Create darker variant for hover
+              const darkenColor = (r: number, g: number, b: number, factor = 0.8) => 
+                [Math.floor(r * factor), Math.floor(g * factor), Math.floor(b * factor)];
+              
+              const primary = rgbToHex(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
+              const primaryHover = rgbToHex(...darkenColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]));
+              const secondary = rgbToHex(secondaryRgb[0], secondaryRgb[1], secondaryRgb[2]);
+              const secondaryHover = rgbToHex(...darkenColor(secondaryRgb[0], secondaryRgb[1], secondaryRgb[2]));
+              
+              setThemeColors({
+                primary,
+                primaryHover,
+                secondary,
+                secondaryHover
+              });
+            }
+          } catch (error) {
+            console.error('Error extracting colors from avatar:', error);
+          }
+        };
+        
+        img.src = userAvatarUrl;
+      } catch (error) {
+        console.error('Error loading avatar for color extraction:', error);
+      }
+    };
+
+    extractThemeColors();
+  }, [userAvatarUrl]);
 
   useEffect(() => {
     if (!api) {
@@ -117,9 +179,23 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
             disabled={!canScrollPrev}
             className={`p-2 rounded-full transition-all ${
               canScrollPrev 
-                ? 'bg-primary text-white hover:bg-primary/90 cursor-pointer shadow-lg' 
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                ? 'text-white cursor-pointer shadow-lg hover:scale-105' 
+                : 'text-gray-400 cursor-not-allowed bg-gray-100'
             }`}
+            style={canScrollPrev ? {
+              backgroundColor: themeColors.primary,
+              ':hover': { backgroundColor: themeColors.primaryHover }
+            } : {}}
+            onMouseEnter={(e) => {
+              if (canScrollPrev) {
+                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (canScrollPrev) {
+                e.currentTarget.style.backgroundColor = themeColors.primary;
+              }
+            }}
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -136,15 +212,30 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
                   }}
                   className={`w-2 h-2 rounded-full transition-all ${
                     index === current 
-                      ? 'bg-primary scale-125' 
-                      : 'bg-gray-300 hover:bg-gray-400'
+                      ? 'scale-125' 
+                      : 'hover:scale-110'
                   }`}
+                  style={{
+                    backgroundColor: index === current ? themeColors.primary : themeColors.secondary
+                  }}
+                  onMouseEnter={(e) => {
+                    if (index !== current) {
+                      e.currentTarget.style.backgroundColor = themeColors.secondaryHover;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (index !== current) {
+                      e.currentTarget.style.backgroundColor = themeColors.secondary;
+                    }
+                  }}
                 />
               ))}
             </div>
           ) : (
             <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <span className="font-medium text-primary">{current + 1}</span>
+              <span className="font-medium" style={{ color: themeColors.primary }}>
+                {current + 1}
+              </span>
               <span>/</span>
               <span>{poaps.length}</span>
             </div>
@@ -159,9 +250,22 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
             disabled={!canScrollNext}
             className={`p-2 rounded-full transition-all ${
               canScrollNext 
-                ? 'bg-primary text-white hover:bg-primary/90 cursor-pointer shadow-lg' 
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                ? 'text-white cursor-pointer shadow-lg hover:scale-105' 
+                : 'text-gray-400 cursor-not-allowed bg-gray-100'
             }`}
+            style={canScrollNext ? {
+              backgroundColor: themeColors.primary
+            } : {}}
+            onMouseEnter={(e) => {
+              if (canScrollNext) {
+                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (canScrollNext) {
+                e.currentTarget.style.backgroundColor = themeColors.primary;
+              }
+            }}
           >
             <ChevronRight className="w-4 h-4" />
           </button>
