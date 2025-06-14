@@ -1,8 +1,6 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Palette, Globe, Award, Hexagon, Grid3X3, Sparkles } from 'lucide-react';
-
 interface NftFilterControlsProps {
   selectedType: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all';
   onTypeChange: (type: 'ethereum' | 'ens' | 'poap' | '3dns' | 'all') => void;
@@ -11,7 +9,6 @@ interface NftFilterControlsProps {
   hasPoapNfts: boolean;
   has3dnsNfts?: boolean;
 }
-
 const NftFilterControls: React.FC<NftFilterControlsProps> = ({
   selectedType,
   onTypeChange,
@@ -36,53 +33,36 @@ const NftFilterControls: React.FC<NftFilterControlsProps> = ({
         return <Sparkles size={16} />;
     }
   };
-
   const filters = [{
-    type: 'all' as const,
+    type: 'all',
     label: 'All Collections',
     available: true
   }, {
-    type: 'ethereum' as const,
+    type: 'ethereum',
     label: 'NFTs',
     available: hasEthereumNfts
   }, {
-    type: 'ens' as const,
+    type: 'ens',
     label: 'ENS Domains',
     available: hasEnsNfts
   }, {
-    type: 'poap' as const,
+    type: 'poap',
     label: 'POAPs',
     available: hasPoapNfts
   }, {
-    type: '3dns' as const,
+    type: '3dns',
     label: '3DNS Domains',
     available: has3dnsNfts
-  }];
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {filters.map(({ type, label, available }) => {
-        if (!available && type !== 'all') return null;
-        
-        return (
-          <Button
-            key={type}
-            variant={selectedType === type ? 'secondary' : 'ghost'}
-            size="sm"
-            onClick={() => onTypeChange(type)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
-              selectedType === type 
-                ? 'bg-white text-gray-900 shadow-sm border border-white/20' 
-                : 'text-white/80 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            {getFilterIcon(type)}
-            <span className="text-sm font-medium">{label}</span>
-          </Button>
-        );
-      })}
-    </div>
-  );
+  }] as const;
+  return <div className="flex flex-wrap gap-2">
+      {filters.map(({
+      type,
+      label,
+      available
+    }) => {
+      if (!available && type !== 'all') return null;
+      return;
+    })}
+    </div>;
 };
-
 export default NftFilterControls;

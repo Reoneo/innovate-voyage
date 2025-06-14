@@ -1,10 +1,8 @@
-
 import React from 'react';
 import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
 import NameSection from '../identity/NameSection';
 import AdditionalEnsDomains from '../identity/AdditionalEnsDomains';
-import BiographySection from '../biography/BiographySection';
 import SocialLinksSection from '../social/SocialLinksSection';
 import FollowButton from '../identity/FollowButton';
 import PoapSection from '../poap/PoapSection';
@@ -31,16 +29,15 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const [isOwner, setIsOwner] = React.useState(false);
-
+  
   React.useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
-    if (connectedWallet && passport?.owner_address &&
+    if (connectedWallet && passport?.owner_address && 
         connectedWallet.toLowerCase() === passport.owner_address.toLowerCase()) {
       setIsOwner(true);
     }
   }, [passport?.owner_address]);
 
-  // Format socials object to ensure all keys are lowercase for consistency
   const normalizedSocials: Record<string, string> = {};
   Object.entries(passport?.socials || {}).forEach(([key, value]) => {
     if (value && typeof value === 'string' && value.trim() !== '') {
@@ -50,26 +47,6 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
-  // Extract Farcaster handle with priority: passport.socials > ensLinks > xyz.farcaster.ens
-  let farcasterHandle = normalizedSocials.farcaster;
-  
-  // Check if we have ENS links with Farcaster data
-  if (passport?.ensLinks?.socials?.farcaster && !farcasterHandle) {
-    farcasterHandle = passport.ensLinks.socials.farcaster;
-  }
-  
-  // Also check the xyz.farcaster.ens record specifically
-  if (normalizedSocials['xyz.farcaster.ens'] && !farcasterHandle) {
-    farcasterHandle = normalizedSocials['xyz.farcaster.ens'];
-  }
-  
-  // Clean up the handle - remove leading @ if present
-  if (farcasterHandle) {
-    farcasterHandle = farcasterHandle.replace(/^@/, '').trim();
-    console.log('Final Farcaster handle for activity:', farcasterHandle);
-  }
-
-  // Mobile: Use new layout component
   if (isMobile) {
     return (
       <MobileLayout 
@@ -81,11 +58,10 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
     );
   }
 
-  // Desktop: Two column layout
   return (
     <div className="grid md:grid-cols-[30%_70%] gap-8 w-full px-6">
       {/* Column 1: Avatar to POAP Section */}
-      <div className="space-y-6">
+      <div className="space-y-6 flex flex-col items-center">
         {/* Avatar */}
         <div className="flex flex-col items-center">
           <ProfileAvatar 
@@ -94,12 +70,14 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
           />
         </div>
         
-        {/* Name and Address */}
-        <div className="text-center">
+        {/* Name, FollowStats, Bio, Keywords Section */}
+        <div className="text-center w-full">
           <NameSection 
             name={passport.name} 
             ownerAddress={passport.owner_address}
             displayIdentity={ensNameOrAddress}
+            bio={passport.bio}
+            keywords={passport.ensLinks?.keywords}
           />
         </div>
         
@@ -126,14 +104,14 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
           </div>
         )}
         
-        {/* ENS Bio */}
-        {passport.bio && (
+        {/* ENS Bio - Removed as it's now in NameSection */}
+        {/* {passport.bio && !passport.ensLinks?.keywords && ( // Conditionally show if not in NameSection (though it is now)
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
               {passport.bio}
             </p>
           </div>
-        )}
+        )} */}
         
         {/* Social Links */}
         <div className="text-center">
@@ -156,28 +134,21 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
           <GitHubContributionGraph username={githubUsername} />
         )}
         
-        {/* Farcaster Section - Only show if we have a handle or ENS name */}
-        {(farcasterHandle || (ensNameOrAddress?.includes('.') && ensNameOrAddress)) && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                <MessageSquare className="h-5 w-5 text-primary" />
-                Farcaster Activity
-                {farcasterHandle && (
-                  <span className="text-sm text-muted-foreground ml-auto">
-                    @{farcasterHandle}
-                  </span>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FarcasterCastsSection 
-                ensName={farcasterHandle || (ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined)}
-                address={passport.owner_address}
-              />
-            </CardContent>
-          </Card>
-        )}
+        {/* Farcaster Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+              <MessageSquare className="h-5 w-5 text-primary" />
+              Farcaster Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FarcasterCastsSection 
+              ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+              address={passport.owner_address}
+            />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

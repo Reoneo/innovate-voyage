@@ -1,215 +1,184 @@
 
-import { supabase } from '@/integrations/supabase/client';
-
-// Nft type from OpenSea API v2
 export interface OpenSeaNft {
-  identifier: string;
-  collection: string;
-  contract: string;
-  token_standard: string;
+  id: string;
   name: string;
-  description: string;
-  image_url?: string;
-  imageUrl?: string;
-  metadata_url: string;
-  opensea_url: string;
-  updated_at: string;
-  is_disabled: boolean;
-  is_nsfw: boolean;
-  count?: number;
+  imageUrl: string;
+  collectionName: string;
+  description?: string;
+  currentPrice?: string;
+  bestOffer?: string;
+  owner?: string;
+  chain?: string;
+  count?: number; // Added count property
 }
 
-export interface Nft {
-  identifier: string;
-  collection: string;
-  contract: string;
-  token_standard: string;
+interface OpenSeaCollection {
   name: string;
-  description: string;
-  image_url: string;
-  metadata_url: string;
-  opensea_url: string;
-  updated_at: string;
-  is_disabled: boolean;
-  is_nsfw: boolean;
+  nfts: OpenSeaNft[];
+  type: 'ethereum' | 'ens' | 'poap' | '3dns';
 }
 
-export async function fetchUserNfts(address: string, chain: string = 'ethereum'): Promise<{ collection: string; nfts: OpenSeaNft[] }[]> {
+const OPENSEA_API_KEY = "33e769a3cf954b15a0d7eddf2b60028e";
+
+// Chains supported by OpenSea API
+const SUPPORTED_CHAINS = [
+  { id: 'ethereum', name: 'Ethereum' },
+  { id: 'base', name: 'Base' },
+  { id: 'optimism', name: 'Optimism' },
+  { id: 'polygon', name: 'Polygon' }
+];
+
+// Create cache to avoid redundant API calls
+const nftCache = new Map<string, OpenSeaCollection[]>();
+
+export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaCollection[]> {
+  // Check if we have cached data for this address
+  const cacheKey = walletAddress.toLowerCase();
+  if (nftCache.has(cacheKey)) {
+    return nftCache.get(cacheKey) || [];
+  }
+  
+  const collections: { [key: string]: { nfts: OpenSeaNft[], type: 'ethereum' | 'ens' | 'poap' | '3dns' } } = {};
+  
+  // Fetch NFTs from multiple chains
   try {
-    console.log(`Fetching NFTs for address: ${address} on chain: ${chain}`);
+    // Use AbortController to cancel stale requests
+    const controller = new AbortController();
+    const signal = controller.signal;
     
-    const path = `/chain/${chain}/account/${address}/nfts`;
-    console.log('Calling Supabase proxy with path:', path);
+    // Set a timeout to abort the request if it takes too long
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
     
-    const { data, error: invokeError } = await supabase.functions.invoke('proxy-opensea', {
-      body: { path },
-    });
-
-    if (invokeError) {
-      console.error('Error invoking opensea-proxy for NFTs:', invokeError);
-      return [];
-    }
-
-    console.log('Raw response from OpenSea proxy:', data);
-
-    // Handle different response formats from OpenSea API
-    let collections: { collection: string; nfts: OpenSeaNft[] }[] = [];
-
-    // Check if data has the expected structure
-    if (data && typeof data === 'object') {
-      // OpenSea API v2 format: data should have nfts array grouped by collection
-      if (Array.isArray(data.nfts)) {
-        console.log('Processing NFTs array format');
+    // Fetch in parallel to improve performance
+    const fetchPromises = SUPPORTED_CHAINS.map(async (chain) => {
+      try {
+        const response = await fetch(`https://api.opensea.io/api/v2/chain/${chain.id}/account/${walletAddress}/nfts`, {
+          headers: {
+            'X-API-KEY': OPENSEA_API_KEY,
+            'Accept': 'application/json'
+          },
+          signal
+        });
         
-        // Group NFTs by collection
-        const nftsByCollection = data.nfts.reduce((acc: Record<string, OpenSeaNft[]>, nft: any) => {
-          const collectionName = nft.collection || 'Unknown Collection';
-          if (!acc[collectionName]) {
-            acc[collectionName] = [];
-          }
-          
-          const processedNft: OpenSeaNft = {
-            identifier: nft.identifier || '',
-            collection: collectionName,
-            contract: nft.contract || '',
-            token_standard: nft.token_standard || '',
-            name: nft.name || `Token #${nft.identifier}`,
-            description: nft.description || '',
-            image_url: nft.image_url || nft.display_image_url,
-            imageUrl: nft.image_url || nft.display_image_url, // Compatibility
-            metadata_url: nft.metadata_url || '',
-            opensea_url: nft.opensea_url || '',
-            updated_at: nft.updated_at || '',
-            is_disabled: nft.is_disabled || false,
-            is_nsfw: nft.is_nsfw || false,
-            count: 1,
-          };
-          
-          acc[collectionName].push(processedNft);
-          return acc;
-        }, {});
+        if (!response.ok) {
+          console.error(`Failed to fetch NFTs from ${chain.name} chain:`, response.status);
+          return [];
+        }
 
-        collections = Object.entries(nftsByCollection).map(([collectionName, nfts]) => ({
-          collection: collectionName,
-          nfts: nfts
+        const data = await response.json();
+        return (data.nfts || []).map((nft: any) => ({
+          ...nft,
+          chain: chain.id // Add chain information to each NFT
         }));
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          console.log(`Request for ${chain.name} NFTs aborted`);
+        } else {
+          console.error(`Error fetching ${chain.name} NFTs:`, err);
+        }
+        return [];
       }
-      // Alternative format: collections array with nfts
-      else if (Array.isArray(data.collections)) {
-        console.log('Processing collections array format');
-        
-        collections = data.collections
-          .filter((col: any) => col.nfts && Array.isArray(col.nfts) && col.nfts.length > 0)
-          .map((col: any) => ({
-            collection: col.name || col.slug || col.collection || 'Unknown Collection',
-            nfts: col.nfts.map((nft: any): OpenSeaNft => ({
-              identifier: nft.identifier || '',
-              collection: col.name || col.slug || col.collection,
-              contract: nft.contract || '',
-              token_standard: nft.token_standard || '',
-              name: nft.name || `Token #${nft.identifier}`,
-              description: nft.description || '',
-              image_url: nft.image_url || nft.display_image_url,
-              imageUrl: nft.image_url || nft.display_image_url,
-              metadata_url: nft.metadata_url || '',
-              opensea_url: nft.opensea_url || '',
-              updated_at: nft.updated_at || '',
-              is_disabled: nft.is_disabled || false,
-              is_nsfw: nft.is_nsfw || false,
-              count: nft.count || 1,
-            }))
-          }));
-      }
-      // Direct collections format
-      else if (data.collection && data.nfts) {
-        console.log('Processing single collection format');
-        const processedNfts: OpenSeaNft[] = Array.isArray(data.nfts) 
-          ? data.nfts.map((nft: any): OpenSeaNft => ({
-              identifier: nft.identifier || '',
-              collection: data.collection,
-              contract: nft.contract || '',
-              token_standard: nft.token_standard || '',
-              name: nft.name || `Token #${nft.identifier}`,
-              description: nft.description || '',
-              image_url: nft.image_url || nft.display_image_url,
-              imageUrl: nft.image_url || nft.display_image_url,
-              metadata_url: nft.metadata_url || '',
-              opensea_url: nft.opensea_url || '',
-              updated_at: nft.updated_at || '',
-              is_disabled: nft.is_disabled || false,
-              is_nsfw: nft.is_nsfw || false,
-              count: nft.count || 1,
-            }))
-          : [];
-        
-        collections = [{
-          collection: data.collection,
-          nfts: processedNfts
-        }];
-      }
-    }
+    });
 
-    console.log(`Processed ${collections.length} collections:`, collections);
+    // Wait for all requests to complete or timeout
+    const results = await Promise.allSettled(fetchPromises);
+    clearTimeout(timeoutId);
     
-    // Filter out empty collections and problematic ones
-    const validCollections = collections.filter(collection => {
-      const hasNfts = collection.nfts && collection.nfts.length > 0;
-      const isNotTest = !collection.collection.toLowerCase().includes('test');
-      console.log(`Collection "${collection.collection}": hasNfts=${hasNfts}, isNotTest=${isNotTest}`);
-      return hasNfts && isNotTest;
-    });
-
-    console.log(`Returning ${validCollections.length} valid collections`);
-    return validCollections;
-
-  } catch (error) {
-    console.error(`Error fetching NFTs from OpenSea for ${address}:`, error);
-    return [];
-  }
-}
-
-// Compatibility fetchNftsByAddress
-export async function fetchNftsByAddress(address: string, chain: string = 'ethereum'): Promise<Nft[]> {
-  try {
-    const collections = await fetchUserNfts(address, chain);
-    // Convert OpenSeaNft to Nft, ensuring image_url is always provided
-    return collections.flatMap(collection => 
-      collection.nfts.map((nft): Nft => ({
-        identifier: nft.identifier,
-        collection: nft.collection,
-        contract: nft.contract,
-        token_standard: nft.token_standard,
-        name: nft.name,
+    const allNfts = results
+      .filter((result): result is PromiseFulfilledResult<any[]> => result.status === 'fulfilled')
+      .map(result => result.value)
+      .flat();
+    
+    // Group NFTs by collection and filter out poapv2 as requested
+    allNfts.forEach((nft: any) => {
+      const collectionName = nft.collection || 'Uncategorized';
+      
+      // Skip poapv2 collections as requested
+      if (collectionName.toLowerCase().includes('poap v2')) {
+        return;
+      }
+      
+      // Determine the type of NFT
+      let type: 'ethereum' | 'ens' | 'poap' | '3dns' = 'ethereum';
+      if (collectionName.toLowerCase().includes('ens')) {
+        type = 'ens';
+      } else if (collectionName.toLowerCase().includes('poap')) {
+        type = 'poap';
+      } else if (collectionName.toLowerCase().includes('3dns')) {
+        type = '3dns';
+      }
+      
+      if (!collections[collectionName]) {
+        collections[collectionName] = { nfts: [], type };
+      }
+      
+      collections[collectionName].nfts.push({
+        id: nft.identifier,
+        name: nft.name || `#${nft.identifier}`,
+        imageUrl: nft.image_url,
+        collectionName,
         description: nft.description,
-        image_url: nft.image_url || nft.imageUrl || '', // Ensure image_url is always a string
-        metadata_url: nft.metadata_url,
-        opensea_url: nft.opensea_url,
-        updated_at: nft.updated_at,
-        is_disabled: nft.is_disabled,
-        is_nsfw: nft.is_nsfw,
-      }))
-    );
+        currentPrice: nft.last_sale?.price,
+        bestOffer: nft.offers?.[0]?.price,
+        owner: nft.owner,
+        chain: nft.chain // Pass the chain information
+      });
+    });
+
+    const result = Object.entries(collections).map(([name, data]) => ({
+      name,
+      nfts: data.nfts,
+      type: data.type
+    }));
+    
+    // Cache the results to avoid redundant API calls
+    nftCache.set(cacheKey, result);
+    
+    return result;
   } catch (error) {
-    console.error(`Error fetching NFTs from OpenSea for ${address}:`, error);
+    console.error('Error fetching NFTs:', error);
     return [];
   }
 }
 
-export async function fetchNftDetails(address: string, identifier: string, chain: string): Promise<any> {
+// Function to fetch avatar for .box domain from OpenSea
+export async function fetchDotBoxAvatar(domainName: string): Promise<string | null> {
   try {
-    const path = `/chain/${chain}/contract/${address}/nfts/${identifier}`;
-    const { data, error: invokeError } = await supabase.functions.invoke('proxy-opensea', {
-      body: { path },
-    });
+    // Check if it's a .box domain
+    if (!domainName.endsWith('.box')) return null;
 
-    if (invokeError) {
-      console.error('Error invoking opensea-proxy for NFT details:', invokeError.message);
-      return null;
+    // Try to find address associated with .box domain
+    const response = await fetch(`https://api.dot.bit/v1/account/info?account=${domainName}`);
+    if (!response.ok) return null;
+    
+    const data = await response.json();
+    if (!data?.data?.address) return null;
+    
+    // Get account's NFTs to find avatar
+    const address = data.data.address;
+    const collections = await fetchUserNfts(address);
+    
+    // Look for profile NFT or ENS NFT that might be used as avatar
+    for (const collection of collections) {
+      // If we find an NFT with name matching the domain, that's likely the avatar
+      const matchingNft = collection.nfts.find(nft => {
+        const nftNameLower = nft.name.toLowerCase();
+        const domainNameLower = domainName.toLowerCase();
+        const domainWithoutSuffix = domainName.replace('.box', '').toLowerCase();
+        
+        return nftNameLower === domainNameLower || 
+               nftNameLower === domainWithoutSuffix ||
+               nftNameLower.includes(domainWithoutSuffix);
+      });
+      
+      if (matchingNft?.imageUrl) {
+        return matchingNft.imageUrl;
+      }
     }
-
-    return data.nft;
+    
+    return null;
   } catch (error) {
-    console.error(`Error fetching NFT details for ${identifier}:`, error);
+    console.error('Error fetching .box avatar from OpenSea:', error);
     return null;
   }
 }

@@ -5,9 +5,6 @@ import TalentScoreBanner from '../TalentScoreBanner';
 import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
 import PoapSection from '../poap/PoapSection';
-import VerifiedWorkExperience from '../VerifiedWorkExperience';
-import SkillsCard from '../SkillsCard';
-import ProfessionalSummary from '../ProfessionalSummary';
 
 interface DesktopLayoutProps {
   passport: any;
@@ -23,38 +20,41 @@ const DesktopLayout: React.FC<DesktopLayoutProps> = ({
   showGitHubSection
 }) => {
   return (
-    <div className="hidden md:grid md:grid-cols-2 gap-8 w-full p-4 bg-black/10 backdrop-blur-sm rounded-lg">
-      {/* Left Column: Avatar, Summary, Skills, POAPs */}
+    <div className="hidden md:grid md:grid-cols-2 gap-8 w-full">
+      {/* Left Column: Avatar, Social Links, POAPs */}
       <div className="space-y-6">
-        <div className="scale-[0.8] origin-top">
+        <div className="scale-[0.6] origin-top">
           <AvatarSection
             avatarUrl={passport.avatar_url}
             name={passport.name}
             ownerAddress={passport.owner_address}
-            socials={passport.socials}
+            socials={{
+              ...passport.socials,
+              linkedin: undefined
+            }}
             bio={passport.bio}
             displayIdentity={ensNameOrAddress}
             additionalEnsDomains={passport.additionalEnsDomains}
           />
         </div>
-
-        <ProfessionalSummary passportData={passport} />
-
-        <SkillsCard walletAddress={passport.owner_address} skills={passport.skills} />
         
-        <PoapSection walletAddress={passport.owner_address} />
+        {/* POAPs at bottom of left column */}
+        <div className="mt-8">
+          <PoapSection walletAddress={passport.owner_address} />
+        </div>
       </div>
       
-      {/* Right Column: Experience, GitHub, Scores */}
+      {/* Right Column: Scores, GitHub, Farcaster */}
       <div className="space-y-6">
-        <VerifiedWorkExperience walletAddress={passport.owner_address} />
+        {/* Talent Score Banner at top */}
+        <TalentScoreBanner walletAddress={passport.owner_address} />
         
+        {/* GitHub Section */}
         {showGitHubSection && (
           <GitHubContributionGraph username={githubUsername!} />
         )}
         
-        <TalentScoreBanner walletAddress={passport.owner_address} />
-        
+        {/* Farcaster Section */}
         <FarcasterCastsSection 
           ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
           address={passport.owner_address}

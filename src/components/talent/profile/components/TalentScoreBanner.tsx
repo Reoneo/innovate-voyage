@@ -1,18 +1,16 @@
-
 import React, { useState } from 'react';
 import TalentScoreBadge from './scores/TalentScoreBadge';
 import TransactionsBadge from './scores/TransactionsBadge';
+import SecurityScoreBadge from './scores/SecurityScoreBadge';
 import BlockchainActivityBadge from './scores/BlockchainActivityBadge';
 import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
+import { useWebacyData } from '@/hooks/useWebacyData';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Card } from '@/components/ui/card';
-
 interface TalentScoreBannerProps {
   walletAddress: string;
 }
-
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
   walletAddress
 }) => {
@@ -23,9 +21,10 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
     txCount,
     loading
   } = useScoresData(walletAddress);
-
-  // SECURITY BADGE REMOVED per request
-
+  const {
+    securityData,
+    isLoading: webacyLoading
+  } = useWebacyData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
   const isMobile = useIsMobile();
   const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions' | 'blockchain') => {
@@ -37,39 +36,38 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
   };
   if (!walletAddress) return null;
   const showTalentScore = score !== null && score !== undefined;
-
-  // Use card-style grid like your screenshot, with shadow and spacing
-  return (
-    <>
-      <div className="grid grid-cols-1">
-        <div className="flex justify-between items-stretch gap-4 mb-6">
-          {/* Card-like appearance for all stat badges */}
-          <Card className="flex-1 p-0 shadow-md rounded-2xl bg-white border transition hover:shadow-lg hover:scale-[1.01] duration-150">
-            <BlockchainActivityBadge walletAddress={walletAddress} onClick={() => handleBadgeClick('blockchain')} />
-          </Card>
-          {showTalentScore && (
-            <Card className="flex-1 p-0 shadow-md rounded-2xl bg-white border transition hover:shadow-lg hover:scale-[1.01] duration-150">
-              <TalentScoreBadge score={score} onClick={() => handleBadgeClick('talent')} isLoading={loading} talentId={walletAddress} />
-            </Card>
-          )}
-          <Card className="flex-1 p-0 shadow-md rounded-2xl bg-white border transition hover:shadow-lg hover:scale-[1.01] duration-150">
-            <TransactionsBadge txCount={txCount} walletAddress={walletAddress} onClick={handleNftButtonClick} isLoading={loading} />
-          </Card>
+  return <>
+      {/* First row: Blockchain Activity, Risk Score, Builder Score (when available) */}
+      <div className={`${isMobile ? 'flex flex-col gap-4' : 'grid grid-cols-3 gap-6'} mb-6`}>
+        <div className="transform hover:scale-105 transition-all duration-200">
+          <BlockchainActivityBadge walletAddress={walletAddress} onClick={() => handleBadgeClick('blockchain')} />
         </div>
+        <div className="transform hover:scale-105 transition-all duration-200">
+          <SecurityScoreBadge webacyData={securityData} onClick={() => handleBadgeClick('webacy')} isLoading={webacyLoading} />
+        </div>
+        {showTalentScore && <div className="transform hover:scale-105 transition-all duration-200">
+            <TalentScoreBadge score={score} onClick={() => handleBadgeClick('talent')} isLoading={loading} talentId={walletAddress} />
+          </div>}
       </div>
 
-      {/* Center NFT row for spacing */}
-      <div>
-        <NftCollectionsSection walletAddress={walletAddress} showCollections={showNftCollections} onOpenChange={setShowNftCollections} />
+      {/* Second row: NFT Collection (centered) */}
+      <div className="">
+        <div className="transform hover:scale-105 transition-all duration-200">
+          <TransactionsBadge txCount={txCount} walletAddress={walletAddress} onClick={handleNftButtonClick} isLoading={loading} />
+        </div>
+        {/* Empty divs to maintain grid layout */}
+        <div></div>
+        <div></div>
       </div>
+
+      <NftCollectionsSection walletAddress={walletAddress} showCollections={showNftCollections} onOpenChange={setShowNftCollections} />
 
       <ScoreDialog open={dialogOpen} onOpenChange={setDialogOpen} type={activeDialog} data={{
-        score,
-        webacyData: null, // Not passed, security feature disabled for now
-        txCount,
-        walletAddress
-      }} />
-    </>
-  );
+      score,
+      webacyData: securityData,
+      txCount,
+      walletAddress
+    }} />
+    </>;
 };
 export default TalentScoreBanner;
