@@ -11,33 +11,27 @@ interface SkillsCardProps {
   passportId?: string;
 }
 
-const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, passportId }) => {
-  const { talentSkills, credentialSkills, talentScore, isLoading } = useTalentProtocolSkills(walletAddress, passportId);
+const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills }) => {
+  const { verifiedSkills, loading } = useTalentProtocolSkills(walletAddress);
 
   if (!walletAddress) {
     return null;
   }
 
-  // Filter out credential skills and TalentProtocol mock skills
+  // Remove credential and TalentProtocol mock skills if present
   const filteredSkills = skills.filter(skill => 
     !skill.proof?.includes('talentprotocol.com') &&
     !skill.proof?.includes('credentials')
   );
 
-  // Create skill objects from TalentProtocol API
-  const talentProtocolSkills = talentSkills.map(skillName => ({
-    name: skillName,
-    proof: 'https://talentprotocol.com'
-  }));
-  
-  // Create skill objects from credential skills
-  const credentialProtocolSkills = credentialSkills.map(skillName => ({
-    name: skillName,
-    proof: 'credentials.talentprotocol.com'
-  }));
-
-  // Combine all skills
-  const allSkills = [...filteredSkills, ...talentProtocolSkills, ...credentialProtocolSkills];
+  // Combine local skills and externally verified skills
+  const allSkills = [
+    ...filteredSkills,
+    ...verifiedSkills.map((name) => ({
+      name,
+      proof: 'https://talentprotocol.com',
+    })),
+  ];
 
   // Remove Card border and use futuristic effect
   const sectionClass = "rounded-xl bg-gradient-to-br from-[#1A1F2C]/80 via-[#7E69AB]/30 to-[#0FA0CE]/20 shadow-[0_1px_8px_#7E69AB1f,0_0px_0px_#7E69AB00_inset] mt-4";
@@ -51,10 +45,9 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ walletAddress, skills, passport
             Skills
           </CardTitle>
         </div>
-        {/* Score moved to banner above; not duplicated here */}
       </CardHeader>
       <CardContent>
-        <SkillsList skills={allSkills} isLoading={isLoading} />
+        <SkillsList skills={allSkills} isLoading={loading} />
         {allSkills && allSkills.length > 0 && <SkillsLegend />}
       </CardContent>
     </section>

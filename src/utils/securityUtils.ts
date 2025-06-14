@@ -1,9 +1,15 @@
+
 // Security utilities for handling sensitive data
 export const secureStorage = {
   setItem: (key: string, value: string) => {
     try {
-      // Simple encryption for localStorage (in production, use proper encryption)
-      const encrypted = btoa(value);
+      // Improved simple "encryption": ROT13 in addition to base64, for demonstration (not strong!)
+      const rot13 = (s: string) => s.replace(/[a-zA-Z]/g, (c) =>
+        String.fromCharCode(
+          c.charCodeAt(0) + (c.toLowerCase() < "n" ? 13 : -13)
+        )
+      );
+      const encrypted = btoa(rot13(value));
       localStorage.setItem(key, encrypted);
     } catch (error) {
       console.error('Failed to store secure item');
@@ -14,7 +20,13 @@ export const secureStorage = {
     try {
       const encrypted = localStorage.getItem(key);
       if (!encrypted) return null;
-      return atob(encrypted);
+      const rot13 = (s: string) => s.replace(/[a-zA-Z]/g, (c) =>
+        String.fromCharCode(
+          c.charCodeAt(0) + (c.toLowerCase() < "n" ? 13 : -13)
+        )
+      );
+      const base64Decoded = atob(encrypted);
+      return rot13(base64Decoded);
     } catch (error) {
       console.error('Failed to retrieve secure item');
       return null;
@@ -41,6 +53,7 @@ export const validateInput = {
   },
   
   sanitizeString: (input: string): string => {
+    // Remove any HTML-special characters
     return input.replace(/[<>'"&]/g, '');
   },
   
