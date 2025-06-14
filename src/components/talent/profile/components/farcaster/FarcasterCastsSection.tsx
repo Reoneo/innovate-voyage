@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -7,6 +8,7 @@ import { Heart, MessageCircle, Repeat2, ExternalLink, Users, UserCheck } from 'l
 import { SignInButton, useProfile } from '@farcaster/auth-kit';
 import { useFarcasterCasts } from '@/hooks/useFarcasterCasts';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getEnsLinks } from '@/utils/ens/ensLinks';
 
 interface FarcasterCastsSectionProps {
   ensName?: string;
@@ -17,6 +19,40 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
   ensName,
   address
 }) => {
+  // State to hold ENS Farcaster handle if found
+  const [ensFarcasterHandle, setEnsFarcasterHandle] = useState<string | undefined>(undefined);
+  const [ensHandleLoaded, setEnsHandleLoaded] = useState<boolean>(false);
+
+  // Always fetch handle from ens TXT and prefer it
+  useEffect(() => {
+    let mounted = true;
+    if (ensName && (ensName.endsWith('.eth') || ensName.endsWith('.box'))) {
+      getEnsLinks(ensName).then(res => {
+        if (mounted) {
+          const handle = res.socials?.farcaster?.replace(/^@/, '').trim();
+          if (handle) {
+            setEnsFarcasterHandle(handle);
+          } else {
+            setEnsFarcasterHandle(undefined);
+          }
+          setEnsHandleLoaded(true);
+        }
+      }).catch(() => {
+        if (mounted) setEnsHandleLoaded(true);
+      });
+    } else {
+      setEnsHandleLoaded(true);
+    }
+    return () => { mounted = false; };
+  }, [ensName]);
+
+  // Use Farcaster handle from ENS TXT if present, else fallback to prop
+  const farcasterQuery = ensFarcasterHandle
+    ? { ensName: ensFarcasterHandle }
+    : (ensName
+      ? { ensName }
+      : (address ? { address } : {}));
+
   const {
     loading,
     profile,
@@ -24,9 +60,43 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
     error,
     hasFarcasterData,
     isAuthenticatedUser
-  } = useFarcasterCasts(ensName, address);
-  
+  } = useFarcasterCasts(farcasterQuery.ensName, farcasterQuery.address);
+
   const { isAuthenticated } = useProfile();
+
+  if (!ensHandleLoaded) {
+    // Show skeleton while ENS TXT is being checked
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-6 w-6" />
+            <Skeleton className="h-6 w-32" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="border rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-16 w-full" />
+                    <div className="flex gap-4">
+                      <Skeleton className="h-4 w-12" />
+                      <Skeleton className="h-4 w-12" />
+                      <Skeleton className="h-4 w-12" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (loading) {
     return (
@@ -61,7 +131,7 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
     );
   }
 
-  if (error || !hasFarcasterData) {
+  if ((error || !hasFarcasterData) && ensHandleLoaded) {
     // Show connection option if no data found and this could be the user's own profile
     if (!hasFarcasterData && !isAuthenticated) {
       return (
@@ -83,12 +153,9 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
               </div>
               <h3 className="text-lg font-semibold mb-2">No Farcaster Activity Found</h3>
               <p className="text-muted-foreground mb-4">
-                We couldn't find a Farcaster profile for {ensName || address}
+                We couldn't find a Farcaster profile for {ensFarcasterHandle ? `@${ensFarcasterHandle}` : (ensName || address)}
               </p>
-              {/* FIXED: Use SignInButton directly, and style via props/className */}
-              <SignInButton className="shadcn-btn shadcn-btn-outline">
-                Connect with Farcaster
-              </SignInButton>
+              <SignInButton className="shadcn-btn shadcn-btn-outline" />
             </div>
           </CardContent>
         </Card>
@@ -101,7 +168,6 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
     const date = new Date(timestamp);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
     if (diffInHours < 1) {
       const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
       return `${diffInMinutes}m ago`;
@@ -245,3 +311,4 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
 };
 
 export default FarcasterCastsSection;
+
