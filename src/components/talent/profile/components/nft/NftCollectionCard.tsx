@@ -1,4 +1,5 @@
 
+// Fix CollectionHeader props for correct collection field, pass all types safely
 import React from 'react';
 import { OpenSeaNft } from '@/api/services/openseaService';
 import CollectionHeader from './CollectionHeader';
@@ -12,30 +13,30 @@ interface NftCollectionCardProps {
   viewMode?: ViewMode;
 }
 
-const NftCollectionCard: React.FC<NftCollectionCardProps> = ({ 
-  collectionName, 
+const NftCollectionCard: React.FC<NftCollectionCardProps> = ({
+  collectionName,
   nfts,
   onNftClick,
   viewMode = 'grid'
 }) => {
   const isListView = viewMode === 'list';
-  
+
   return (
     <div className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 overflow-hidden group ${
       isListView ? 'flex items-center p-4 gap-6' : ''
     }`}>
       <div className={isListView ? 'flex-shrink-0' : 'p-6'}>
-        <CollectionHeader 
-          collectionName={collectionName} 
+        <CollectionHeader
+          collectionName={collectionName}
           nftCount={nfts.length}
           isListView={isListView}
         />
       </div>
-      
+
       <div className={isListView ? 'flex-1' : 'px-6 pb-6'}>
-        <NftGrid 
-          nfts={nfts} 
-          onNftClick={onNftClick} 
+        <NftGrid
+          nfts={nfts}
+          onNftClick={onNftClick}
           viewMode={viewMode}
         />
       </div>
