@@ -5,6 +5,7 @@ import { Home, Search, Wallet } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
+import WalletOptionsModal from "@/components/wallet/WalletOptionsModal";
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
@@ -16,6 +17,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   connectedWallet
 }) => {
   const [search, setSearch] = useState('');
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -55,10 +57,18 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             </Button>
           </div>
           
-          <div className="text-white hover:text-gray-300 transition-colors flex-shrink-0">
+          <div 
+            className="text-white hover:text-gray-300 transition-colors flex-shrink-0 cursor-pointer" 
+            aria-label="Open wallet options"
+            onClick={() => setWalletModalOpen(true)}
+            tabIndex={0}
+            role="button"
+            style={{outline: "none"}}
+          >
             <Wallet className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`} />
           </div>
         </form>
+        <WalletOptionsModal open={walletModalOpen} onOpenChange={setWalletModalOpen} />
       </div>
     </div>
   );
