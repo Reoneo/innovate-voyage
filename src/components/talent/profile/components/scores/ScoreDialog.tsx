@@ -3,25 +3,18 @@ import React from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import TalentScoreDialogContent from './dialogs/TalentScoreDialogContent';
-import WebacyDialogContent from './dialogs/WebacyDialogContent';
+import SecurityDialogContent from './dialogs/SecurityDialogContent';
 import TransactionsDialogContent from './dialogs/TransactionsDialogContent';
 import BlockchainDialogContent from './dialogs/BlockchainDialogContent';
-import type { WebacyData } from './types';
+import type { ScoreDialogData, DialogType } from './types';
 
 interface ScoreDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type: 'talent' | 'webacy' | 'transactions' | 'blockchain';
-  data: {
-    score: number | null;
-    webacyData: WebacyData | null;
-    txCount: number | null;
-    walletAddress: string;
-  };
+  type: DialogType;
+  data: ScoreDialogData;
 }
 
 const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, data }) => {
@@ -29,8 +22,8 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
     switch (type) {
       case 'talent':
         return <TalentScoreDialogContent score={data.score} walletAddress={data.walletAddress} />;
-      case 'webacy':
-        return <WebacyDialogContent webacyData={data.webacyData} />;
+      case 'security':
+        return <SecurityDialogContent />;
       case 'transactions':
         return <TransactionsDialogContent txCount={data.txCount} walletAddress={data.walletAddress} />;
       case 'blockchain':
@@ -40,27 +33,9 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
     }
   };
 
-  const getDialogTitle = () => {
-    switch (type) {
-      case 'talent':
-        return 'Builder Score Details';
-      case 'webacy':
-        return 'Security Score Details';
-      case 'transactions':
-        return 'Transaction Details';
-      case 'blockchain':
-        return 'Blockchain Activity Details';
-      default:
-        return '';
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{getDialogTitle()}</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-3xl bg-white text-gray-800 border border-gray-200 shadow-lg max-h-[80vh] overflow-y-auto">
         {getDialogContent()}
       </DialogContent>
     </Dialog>

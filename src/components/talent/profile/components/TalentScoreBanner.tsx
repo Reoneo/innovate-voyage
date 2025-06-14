@@ -8,6 +8,8 @@ import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
 import { useWebacyData } from '@/hooks/useWebacyData';
 import { useIsMobile } from '@/hooks/use-mobile';
+import type { DialogType } from './scores/types';
+
 interface TalentScoreBannerProps {
   walletAddress: string;
 }
@@ -15,19 +17,18 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
   walletAddress
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeDialog, setActiveDialog] = useState<'talent' | 'webacy' | 'transactions' | 'blockchain'>('talent');
+  const [activeDialog, setActiveDialog] = useState<DialogType>('talent');
   const {
     score,
     txCount,
     loading
   } = useScoresData(walletAddress);
   const {
-    securityData,
     isLoading: webacyLoading
   } = useWebacyData(walletAddress);
   const [showNftCollections, setShowNftCollections] = useState(false);
   const isMobile = useIsMobile();
-  const handleBadgeClick = (type: 'talent' | 'webacy' | 'transactions' | 'blockchain') => {
+  const handleBadgeClick = (type: DialogType) => {
     setActiveDialog(type);
     setDialogOpen(true);
   };
@@ -43,7 +44,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
           <BlockchainActivityBadge walletAddress={walletAddress} onClick={() => handleBadgeClick('blockchain')} />
         </div>
         <div className="transform hover:scale-105 transition-all duration-200">
-          <SecurityScoreBadge webacyData={securityData} onClick={() => handleBadgeClick('webacy')} isLoading={webacyLoading} />
+          <SecurityScoreBadge onClick={() => handleBadgeClick('security')} isLoading={webacyLoading} />
         </div>
         {showTalentScore && <div className="transform hover:scale-105 transition-all duration-200">
             <TalentScoreBadge score={score} onClick={() => handleBadgeClick('talent')} isLoading={loading} talentId={walletAddress} />
@@ -62,12 +63,16 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
 
       <NftCollectionsSection walletAddress={walletAddress} showCollections={showNftCollections} onOpenChange={setShowNftCollections} />
 
-      <ScoreDialog open={dialogOpen} onOpenChange={setDialogOpen} type={activeDialog} data={{
-      score,
-      webacyData: securityData,
-      txCount,
-      walletAddress
-    }} />
+      <ScoreDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        type={activeDialog}
+        data={{
+          score,
+          txCount,
+          walletAddress
+        }} 
+      />
     </>;
 };
 export default TalentScoreBanner;

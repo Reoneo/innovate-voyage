@@ -3,6 +3,7 @@ import React from 'react';
 import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { getBuilderTitle } from '../utils/scoreUtils';
+import TalentProtocolDetails from './TalentProtocolDetails';
 
 interface TalentScoreDialogContentProps {
   score: number | null;
@@ -12,7 +13,7 @@ interface TalentScoreDialogContentProps {
 const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ score, walletAddress }) => {
   return (
     <>
-      <DialogHeader>
+      <DialogHeader className="border-b border-gray-200 pb-3">
         <DialogTitle className="flex items-center gap-2">
           <img 
             src="https://file.notion.so/f/f/16cd58fd-bb08-46b6-817c-f2fce5ebd03d/40d7073c-ed54-450e-874c-6e2255570950/logomark_dark.jpg?table=block&id=403db4f5-f028-4827-b704-35095d3bdd15&spaceId=16cd58fd-bb08-46b6-817c-f2fce5ebd03d&expirationTimestamp=1749456000000&signature=wVpMGWARK-VoESebvUStRy5M3WSFWM1ky_PBwsJR4tU&downloadName=logomark_dark.jpg"
@@ -44,6 +45,8 @@ const TalentScoreDialogContent: React.FC<TalentScoreDialogContentProps> = ({ sco
             </div>
           </CardContent>
         </Card>
+        
+        <TalentProtocolDetails walletAddress={walletAddress} />
         
         <Card>
           <CardContent className="pt-6">

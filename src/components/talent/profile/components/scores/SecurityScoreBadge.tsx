@@ -2,22 +2,18 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Shield } from 'lucide-react';
-import type { WebacyData, ScoreBadgeProps } from './types';
+import type { ScoreBadgeProps } from './types';
 
-// visual fallback until more data is available
-interface SecurityScoreBadgeProps extends ScoreBadgeProps {
-  webacyData: WebacyData | null;
-}
+interface SecurityScoreBadgeProps extends ScoreBadgeProps {}
 
 const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({
-  webacyData,
   onClick,
   isLoading
 }) => {
   if (isLoading) {
     return <Skeleton className="h-32 w-full rounded-2xl" />;
   }
-  // For now, if data is not available show a safe neutral badge—can be improved when data is real
+
   const handleClick = () => {
     if (onClick) {
       onClick();
@@ -34,7 +30,7 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({
         </div>
         <div className="text-center w-full">
           <span className="text-2xl font-bold text-primary group-hover:text-purple-600 transition-colors">
-            {webacyData?.riskScore ? webacyData.riskScore : 'N/A'}
+            Analyze
           </span>
           <p className="text-gray-500 font-medium text-sm">
             Security Score

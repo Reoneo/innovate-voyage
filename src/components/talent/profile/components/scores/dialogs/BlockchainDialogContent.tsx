@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Activity, ExternalLink, Clock, DollarSign, Send } from 'lucide-react';
 import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -15,18 +14,16 @@ const BlockchainDialogContent: React.FC<BlockchainDialogContentProps> = ({ walle
   const { data, loading } = useBlockchainActivity(walletAddress);
 
   return (
-    <div className="py-4 px-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Activity className="h-8 w-8 text-blue-600" />
-        <div>
-          <h2 className="text-xl font-bold">Blockchain Activity</h2>
-          <p className="text-sm text-gray-400">
-            Complete on-chain activity analysis
-          </p>
-        </div>
-      </div>
+    <>
+      <DialogHeader className="border-b border-gray-200 pb-3">
+        <DialogTitle className="flex items-center gap-2">
+          <Activity className="h-6 w-6 text-blue-600" />
+          Blockchain Activity
+        </DialogTitle>
+        <DialogDescription>A summary of on-chain activity for this address.</DialogDescription>
+      </DialogHeader>
 
-      <div className="space-y-4">
+      <div className="space-y-4 py-4">
         {loading ? (
           <div className="space-y-4">
             <Skeleton className="h-24 w-full" />
@@ -104,7 +101,7 @@ const BlockchainDialogContent: React.FC<BlockchainDialogContentProps> = ({ walle
           </Button>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

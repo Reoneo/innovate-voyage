@@ -1,4 +1,3 @@
-
 import { useWebacyData as useGlobalWebacyData } from '@/hooks/useWebacyData';
 
 // This component-level hook now leverages the global hook to avoid duplicate calls
