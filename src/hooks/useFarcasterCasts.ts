@@ -69,8 +69,9 @@ export function useFarcasterCasts(ensName?: string, address?: string) {
         
         // If user is authenticated with Farcaster and this is their profile, use auth data
         if (isAuthenticated && authProfile && (
-          authProfile.username === ensName?.replace('.eth', '') ||
-          ensName === `${authProfile.username}.eth`
+          authProfile.username === ensName?.replace('.eth', '').replace('.box', '') ||
+          ensName === `${authProfile.username}.eth` ||
+          ensName === `${authProfile.username}.box`
         )) {
           console.log('Using authenticated Farcaster profile data');
           setProfile({
@@ -100,28 +101,109 @@ export function useFarcasterCasts(ensName?: string, address?: string) {
           return;
         }
         
-        // Use Neynar API (free tier) to fetch Farcaster data for other users
-        const searchParam = ensName || address;
-        const profileUrl = `https://api.neynar.com/v2/farcaster/user/search?q=${encodeURIComponent(searchParam)}&limit=1`;
+        // Try multiple search strategies for better user discovery
+        const searchQueries = [];
         
-        const profileResponse = await fetch(profileUrl, {
-          headers: {
-            'Accept': 'application/json',
+        // Add ENS name variations
+        if (ensName) {
+          searchQueries.push(ensName);
+          searchQueries.push(ensName.replace('.eth', '').replace('.box', ''));
+          
+          // If it's a .box domain, also try without the extension
+          if (ensName.endsWith('.box')) {
+            searchQueries.push(ensName.replace('.box', ''));
           }
-        });
-
-        if (!profileResponse.ok) {
-          throw new Error(`Failed to fetch Farcaster profile: ${profileResponse.status}`);
         }
-
-        const profileData = await profileResponse.json();
         
-        if (profileData.result?.users?.length > 0) {
-          const user = profileData.result.users[0];
-          setProfile(user);
+        // Add address
+        if (address) {
+          searchQueries.push(address);
+        }
+        
+        let foundProfile = null;
+        
+        // Try each search query until we find a profile
+        for (const query of searchQueries) {
+          try {
+            console.log(`Searching Farcaster for: ${query}`);
+            
+            // Try username search first
+            const usernameUrl = `https://api.neynar.com/v2/farcaster/user/search?q=${encodeURIComponent(query)}&limit=5`;
+            
+            const usernameResponse = await fetch(usernameUrl, {
+              headers: {
+                'Accept': 'application/json',
+              }
+            });
+
+            if (usernameResponse.ok) {
+              const usernameData = await usernameResponse.json();
+              
+              if (usernameData.result?.users?.length > 0) {
+                // Look for exact match first
+                const exactMatch = usernameData.result.users.find((user: any) => 
+                  user.username === query || 
+                  user.username === query.replace('.eth', '').replace('.box', '') ||
+                  user.verifications?.includes(address)
+                );
+                
+                if (exactMatch) {
+                  foundProfile = exactMatch;
+                  console.log(`Found exact Farcaster match for ${query}:`, foundProfile);
+                  break;
+                }
+                
+                // If no exact match, try first result that has verified addresses
+                const verifiedUser = usernameData.result.users.find((user: any) => 
+                  user.verifications?.length > 0
+                );
+                
+                if (verifiedUser && !foundProfile) {
+                  foundProfile = verifiedUser;
+                  console.log(`Found verified Farcaster user for ${query}:`, foundProfile);
+                }
+              }
+            }
+            
+            // If still no profile found, try bulk user lookup by verification
+            if (!foundProfile && address) {
+              try {
+                const bulkUrl = `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`;
+                
+                const bulkResponse = await fetch(bulkUrl, {
+                  headers: {
+                    'Accept': 'application/json',
+                  }
+                });
+
+                if (bulkResponse.ok) {
+                  const bulkData = await bulkResponse.json();
+                  
+                  if (bulkData.result && Object.keys(bulkData.result).length > 0) {
+                    const usersByAddress = bulkData.result[address.toLowerCase()];
+                    if (usersByAddress && usersByAddress.length > 0) {
+                      foundProfile = usersByAddress[0];
+                      console.log(`Found Farcaster profile by address verification:`, foundProfile);
+                      break;
+                    }
+                  }
+                }
+              } catch (bulkError) {
+                console.log('Bulk address lookup failed:', bulkError);
+              }
+            }
+            
+          } catch (queryError) {
+            console.log(`Search failed for ${query}:`, queryError);
+            continue;
+          }
+        }
+        
+        if (foundProfile) {
+          setProfile(foundProfile);
           
           // Fetch user's casts
-          const castsUrl = `https://api.neynar.com/v2/farcaster/casts?fid=${user.fid}&limit=10`;
+          const castsUrl = `https://api.neynar.com/v2/farcaster/casts?fid=${foundProfile.fid}&limit=15`;
           
           const castsResponse = await fetch(castsUrl, {
             headers: {
@@ -132,10 +214,10 @@ export function useFarcasterCasts(ensName?: string, address?: string) {
           if (castsResponse.ok) {
             const castsData = await castsResponse.json();
             setCasts(castsData.result?.casts || []);
-            console.log(`Found ${castsData.result?.casts?.length || 0} Farcaster casts`);
+            console.log(`Found ${castsData.result?.casts?.length || 0} Farcaster casts for ${foundProfile.username}`);
           }
         } else {
-          console.log('No Farcaster profile found for:', searchParam);
+          console.log('No Farcaster profile found for:', ensName || address);
           setProfile(null);
           setCasts([]);
         }
@@ -159,8 +241,9 @@ export function useFarcasterCasts(ensName?: string, address?: string) {
     error,
     hasFarcasterData: !!profile,
     isAuthenticatedUser: isAuthenticated && authProfile && (
-      authProfile.username === ensName?.replace('.eth', '') ||
-      ensName === `${authProfile.username}.eth`
+      authProfile.username === ensName?.replace('.eth', '').replace('.box', '') ||
+      ensName === `${authProfile.username}.eth` ||
+      ensName === `${authProfile.username}.box`
     )
   };
 }
