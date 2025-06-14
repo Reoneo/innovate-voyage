@@ -21,8 +21,7 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
     casts,
     error,
     hasFarcasterData,
-    isAuthenticatedUser,
-    farcasterHandle
+    isAuthenticatedUser
   } = useFarcasterCasts(ensName, address);
   const {
     isAuthenticated
@@ -56,10 +55,11 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
       </Card>;
   }
   if (error || !hasFarcasterData) {
+    // Show connection option if no data found and this could be the user's own profile
     if (!hasFarcasterData && !isAuthenticated) {
       return;
     }
-    return null;
+    return null; // Don't show the section if there's no Farcaster data and user is authenticated
   }
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -101,6 +101,7 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
                       {cast.author.displayName?.slice(0, 2).toUpperCase() || 'FC'}
                     </AvatarFallback>
                   </Avatar>
+                  
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="font-medium text-sm">{cast.author.displayName}</span>
@@ -108,13 +109,16 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
                       <span className="text-muted-foreground text-sm">·</span>
                       <span className="text-muted-foreground text-sm">{formatTimestamp(cast.timestamp)}</span>
                     </div>
+                    
                     <p className="text-sm mb-3 whitespace-pre-wrap break-words">{cast.text}</p>
+                    
                     {cast.embeds && cast.embeds.length > 0 && <div className="mb-3">
                         {cast.embeds.map((embed, index) => embed.url && <a key={index} href={embed.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800">
                               <ExternalLink className="h-4 w-4" />
                               {embed.url.length > 50 ? `${embed.url.slice(0, 50)}...` : embed.url}
                             </a>)}
                       </div>}
+                    
                     <div className="flex items-center gap-6 text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <MessageCircle className="h-4 w-4" />
@@ -133,8 +137,9 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
                 </div>
               </div>)}
         </div>
+        
         {profile && <div className="mt-4 pt-4 border-t">
-            <a href={`https://warpcast.com/${farcasterHandle || profile.username}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium">
+            <a href={`https://warpcast.com/${profile.username}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium">
               View all casts on Warpcast
               <ExternalLink className="h-4 w-4" />
             </a>

@@ -1,6 +1,6 @@
+
 import React from 'react';
 import { Phone, MapPin, ExternalLink } from 'lucide-react';
-import FarcasterIconSvg from './svg/FarcasterIcon';
 
 type SocialIconType = 'github' | 'twitter' | 'linkedin' | 'globe' | 'mail' | 'facebook' | 'whatsapp' | 'messenger' | 'bluesky' | 'instagram' | 'youtube' | 'telegram' | 'reddit' | 'discord' | 'website' | 'email' | 'phone' | 'location' | 'farcaster' | 'lens' | 'opensea';
 
@@ -56,8 +56,7 @@ export const SocialIcon: React.FC<SocialIconProps> = ({
     case 'location':
       return <img src="https://cdn-icons-png.flaticon.com/512/355/355980.png" width={iconSize} height={iconSize} alt="Location" className={iconClasses} />;
     case 'farcaster':
-      // Use a local SVG component for Farcaster
-      return <FarcasterIconSvg width={iconSize} height={iconSize} className={iconClasses} />;
+      return <img src="https://cdn-icons-png.flaticon.com/512/5968/5968872.png" width={iconSize} height={iconSize} alt="Farcaster" className={iconClasses} />;
     case 'lens':
       return <img src="https://cdn-icons-png.flaticon.com/512/5968/5968770.png" width={iconSize} height={iconSize} alt="Lens" className={iconClasses} />;
     case 'opensea':
