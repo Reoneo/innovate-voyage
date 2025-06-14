@@ -1,14 +1,17 @@
+
 import React, { useState } from 'react';
 import AddressDisplay from './AddressDisplay';
 import { useEfpStats } from '@/hooks/useEfpStats';
 import { useToast } from '@/hooks/use-toast';
 import FollowStats from './FollowStats';
 import FollowersDialog from './FollowersDialog';
+
 interface NameSectionProps {
   name: string;
   ownerAddress: string;
   displayIdentity?: string;
 }
+
 const NameSection: React.FC<NameSectionProps> = ({
   name,
   ownerAddress,
@@ -33,14 +36,17 @@ const NameSection: React.FC<NameSectionProps> = ({
   const [followLoading, setFollowLoading] = useState<{
     [key: string]: boolean;
   }>({});
+
   const openFollowersDialog = () => {
     setDialogType('followers');
     setDialogOpen(true);
   };
+
   const openFollowingDialog = () => {
     setDialogType('following');
     setDialogOpen(true);
   };
+
   const handleFollow = async (address: string) => {
     if (!address) return;
 
@@ -64,17 +70,38 @@ const NameSection: React.FC<NameSectionProps> = ({
       // Error is already handled in useEfpFollow
     }
   };
+
   return <div className="mt-2 text-center mx-0 px-0 my-0">
-      <h3 className="text-2xl font-semibold">{displayName}</h3>
+      {/* Follow Stats - MOVED UP */}
+      <FollowStats 
+        followers={followers} 
+        following={following} 
+        loading={loading} 
+        openFollowersDialog={openFollowersDialog} 
+        openFollowingDialog={openFollowingDialog} 
+      />
+      
+      {/* Name - Added mt-2 for spacing */}
+      <h3 className="text-2xl font-semibold mt-2">{displayName}</h3>
+      
+      {/* Address */}
       <div className="flex items-center justify-center gap-2 mt-1 my-0">
         <AddressDisplay address={ownerAddress} />
       </div>
       
-      {/* Follow Stats */}
-      <FollowStats followers={followers} following={following} loading={loading} openFollowersDialog={openFollowersDialog} openFollowingDialog={openFollowingDialog} />
-      
       {/* Followers/Following Dialog */}
-      <FollowersDialog open={dialogOpen} onOpenChange={setDialogOpen} dialogType={dialogType} followersList={followersList} followingList={followingList} handleFollow={handleFollow} isFollowing={isFollowing} followLoading={followLoading} isProcessing={isProcessing} />
+      <FollowersDialog 
+        open={dialogOpen} 
+        onOpenChange={setDialogOpen} 
+        dialogType={dialogType} 
+        followersList={followersList} 
+        followingList={followingList} 
+        handleFollow={handleFollow} 
+        isFollowing={isFollowing} 
+        followLoading={followLoading} 
+        isProcessing={isProcessing} 
+      />
     </div>;
 };
+
 export default NameSection;
