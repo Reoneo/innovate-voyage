@@ -1,5 +1,4 @@
 
-// Fixes for property names and type safety
 import React, { useState } from 'react';
 import { OpenSeaNft } from '@/api/services/openseaService';
 import NftItem from './NftItem';
@@ -16,9 +15,6 @@ interface NftGridProps {
 const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick, viewMode = 'grid' }) => {
   const [showAll, setShowAll] = useState(false);
   const isMobile = useIsMobile();
-
-  // Filter out POAP v2 collections as requested
-  // Collection-level filtering not required here, already filtered in parent component.
 
   // Group NFTs by identifier+collection for display with count
   const groupedNfts = nfts.reduce<Record<string, OpenSeaNft & { count?: number }>>((acc, nft) => {
@@ -71,6 +67,14 @@ const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick, viewMode = 'grid' }
         return 'grid grid-cols-3 gap-3';
     }
   };
+
+  if (uniqueNfts.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">No NFTs in this collection</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

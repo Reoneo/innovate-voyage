@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import NftCollectionCard from './NftCollectionCard';
@@ -56,12 +57,41 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
     .filter(collection => !collection.collection.toLowerCase().includes('poap v2'))
     .filter(collection => {
       if (selectedType === 'all') return true;
-      return collection.nfts.some((nft: any) => nft.type === selectedType);
+      
+      // Check if any NFT in the collection matches the selected type
+      return collection.nfts.some((nft: any) => {
+        // Map token standards to our filter types
+        switch (selectedType) {
+          case 'ethereum':
+            return nft.token_standard === 'erc721' || nft.token_standard === 'erc1155';
+          case 'ens':
+            return nft.token_standard === 'ens' || nft.collection.toLowerCase().includes('ens');
+          case 'poap':
+            return nft.token_standard === 'poap' || nft.collection.toLowerCase().includes('poap');
+          case '3dns':
+            return nft.token_standard === '3dns';
+          default:
+            return true;
+        }
+      });
     }).map(collection => ({
       ...collection,
       nfts: selectedType === 'all' 
         ? collection.nfts 
-        : collection.nfts.filter((nft: any) => nft.type === selectedType)
+        : collection.nfts.filter((nft: any) => {
+            switch (selectedType) {
+              case 'ethereum':
+                return nft.token_standard === 'erc721' || nft.token_standard === 'erc1155';
+              case 'ens':
+                return nft.token_standard === 'ens' || nft.collection.toLowerCase().includes('ens');
+              case 'poap':
+                return nft.token_standard === 'poap' || nft.collection.toLowerCase().includes('poap');
+              case '3dns':
+                return nft.token_standard === '3dns';
+              default:
+                return true;
+            }
+          })
     })).filter(collection => collection.nfts.length > 0);
 
   if (filteredCollections.length === 0) {
@@ -108,6 +138,8 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
         <div className={`flex items-center gap-2 ${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}>
           <Grid3X3 size={isMobile ? 14 : 16} />
           <span>{filteredCollections.length} collection{filteredCollections.length !== 1 ? 's' : ''}</span>
+          <span>•</span>
+          <span>{filteredCollections.reduce((total, collection) => total + collection.nfts.length, 0)} items</span>
         </div>
       </div>
 
