@@ -1,8 +1,8 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useEnsResolution } from './ens/useEnsResolution';
 import { useWeb3BioData } from './ens/useWeb3BioData';
 import { ethers } from 'ethers';
-import type { EnsData } from '@/utils/ens/ensLinks'; // Import EnsData type
 
 // Debug flags
 const DEBUG_ENS = true;
@@ -40,21 +40,11 @@ export function useEnsResolver(ensName?: string, address?: string) {
   // Update handler for Web3Bio data
   const updateStateFromWeb3Bio = useCallback((data: any) => {
     if (DEBUG_ENS) console.log('useEnsResolver: Updating state from Web3Bio', data);
-    // Ensure data.ensLinks has the correct structure if it's being updated
-    const updatedEnsLinks = data.ensLinks ? {
-      socials: data.ensLinks.socials || {},
-      ensLinks: data.ensLinks.ensLinks || [],
-      description: data.ensLinks.description,
-      keywords: data.ensLinks.keywords || [],
-      textRecords: data.ensLinks.textRecords || {}, // Include textRecords
-    } : state.ensLinks;
-
     setState(prev => ({
       ...prev,
-      ...data,
-      ensLinks: updatedEnsLinks, // Ensure ensLinks structure is maintained
+      ...data
     }));
-  }, [setState, state.ensLinks]);
+  }, [setState]);
 
   // Try Web3Bio as an alternative resolution source
   const { isLoading: isLoadingWeb3Bio } = useWeb3BioData(
@@ -72,11 +62,11 @@ export function useEnsResolver(ensName?: string, address?: string) {
       if (isEnsName) {
         // Resolve ENS name to address
         if (DEBUG_ENS) console.log(`useEnsResolver: Resolving ENS name: ${ensName}`);
-        await resolveEns(ensName!);
+        await resolveEns(ensName);
       } else if (isValidAddress) {
         // Resolve address to ENS name
         if (DEBUG_ENS) console.log(`useEnsResolver: Looking up address: ${address}`);
-        await lookupAddress(address!);
+        await lookupAddress(address);
       }
     };
 
@@ -108,8 +98,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
         resolvedAddress: state.resolvedAddress,
         resolvedEns: state.resolvedEns,
         avatarUrl: state.avatarUrl,
-        ensLinks: state.ensLinks, // This will include textRecords
-        ensBio: state.ensBio,
+        ensLinks: state.ensLinks,
         error,
         isLoading: isLoading || isLoadingWeb3Bio,
         retryCount
@@ -121,7 +110,7 @@ export function useEnsResolver(ensName?: string, address?: string) {
     resolvedAddress: state.resolvedAddress,
     resolvedEns: state.resolvedEns,
     avatarUrl: state.avatarUrl,
-    ensLinks: state.ensLinks, // Pass through the entire ensLinks object
+    ensLinks: state.ensLinks,
     ensBio: state.ensBio,
     isLoading: isLoading || isLoadingWeb3Bio,
     error
