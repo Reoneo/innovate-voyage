@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 // Nft type from OpenSea API v2
@@ -36,17 +35,57 @@ export interface Nft {
 
 export async function fetchUserNfts(address: string, chain: string = 'ethereum'): Promise<{ collection: string; nfts: OpenSeaNft[] }[]> {
   try {
+    console.log(`Fetching NFTs for address: ${address} on chain: ${chain}`);
+    
     const path = `/chain/${chain}/account/${address}/nfts`;
     const { data, error: invokeError } = await supabase.functions.invoke('proxy-opensea', {
       body: { path },
     });
 
     if (invokeError) {
-      console.error('Error invoking opensea-proxy for NFTs:', invokeError.message);
+      console.error('Error invoking opensea-proxy for NFTs:', invokeError);
       return [];
     }
 
-    // Adapt v2 API: data.collections[] contains nfts array
+    console.log('OpenSea API response:', data);
+
+    // Handle different response formats from OpenSea API v2
+    if (data?.nfts && Array.isArray(data.nfts)) {
+      // Group NFTs by collection
+      const collectionMap = new Map<string, OpenSeaNft[]>();
+      
+      data.nfts.forEach((nft: any) => {
+        const collectionName = nft.collection || nft.contract || 'Unknown Collection';
+        const mappedNft: OpenSeaNft = {
+          identifier: nft.identifier || nft.token_id,
+          collection: collectionName,
+          contract: nft.contract,
+          token_standard: nft.token_standard,
+          name: nft.name || `#${nft.identifier}`,
+          description: nft.description || '',
+          image_url: nft.image_url,
+          imageUrl: nft.image_url, // Compatibility
+          metadata_url: nft.metadata_url,
+          opensea_url: nft.opensea_url,
+          updated_at: nft.updated_at,
+          is_disabled: nft.is_disabled || false,
+          is_nsfw: nft.is_nsfw || false,
+          count: nft.count || 1,
+        };
+
+        if (!collectionMap.has(collectionName)) {
+          collectionMap.set(collectionName, []);
+        }
+        collectionMap.get(collectionName)!.push(mappedNft);
+      });
+
+      return Array.from(collectionMap.entries()).map(([collection, nfts]) => ({
+        collection,
+        nfts
+      }));
+    }
+
+    // Legacy format support - if collections array exists
     if (Array.isArray(data?.collections)) {
       return data.collections.map((col: any) => ({
         collection: col.name || col.slug || 'Unknown Collection',
@@ -58,7 +97,7 @@ export async function fetchUserNfts(address: string, chain: string = 'ethereum')
           name: n.name,
           description: n.description,
           image_url: n.image_url,
-          imageUrl: n.image_url, // Compatibility for places expecting imageUrl
+          imageUrl: n.image_url,
           metadata_url: n.metadata_url,
           opensea_url: n.opensea_url,
           updated_at: n.updated_at,
@@ -68,6 +107,8 @@ export async function fetchUserNfts(address: string, chain: string = 'ethereum')
         })),
       }));
     }
+
+    console.log('No NFTs found or unexpected response format');
     return [];
   } catch (error) {
     console.error(`Error fetching NFTs from OpenSea for ${address}:`, error);
