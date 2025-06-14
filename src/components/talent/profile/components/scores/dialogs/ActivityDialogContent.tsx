@@ -1,7 +1,7 @@
 
 import React from "react";
-import { ExternalLink, UserCircle2, BadgeDollarSign } from "lucide-react";
-import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ExternalLink, UserCircle2, BadgeDollarSign, X } from "lucide-react";
+import { DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { useBlockchainProfile } from "@/hooks/useEtherscan";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -17,7 +17,13 @@ const ActivityDialogContent: React.FC<ActivityDialogContentProps> = ({
   const { data: profile, isLoading } = useBlockchainProfile(walletAddress);
 
   return (
-    <div className="w-full h-[96vh] max-w-4xl mx-auto flex flex-col justify-center bg-white text-gray-900 rounded-2xl overflow-hidden shadow border border-gray-200 p-0">
+    <div className="relative w-full h-[96vh] max-w-4xl mx-auto flex flex-col justify-center bg-white text-gray-900 rounded-2xl overflow-hidden shadow border border-gray-200 p-0">
+       <DialogClose asChild>
+          <button className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-50">
+            <X className="h-6 w-6" />
+            <span className="sr-only">Close</span>
+          </button>
+        </DialogClose>
       <div className="grid grid-cols-1 md:grid-cols-2 min-h-[420px]">
         {/* Left: summary/visual */}
         <div className="flex flex-col items-center justify-center bg-gradient-to-br from-[#f7fafd] via-[#f9f6fa] to-[#eef3fa] p-10 md:border-r border-gray-100">

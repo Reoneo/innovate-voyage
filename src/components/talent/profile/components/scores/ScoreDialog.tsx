@@ -3,8 +3,6 @@ import React from "react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle
 } from "@/components/ui/dialog";
 import TalentScoreDialogContent from "./dialogs/TalentScoreDialogContent";
 import ActivityDialogContent from "./dialogs/ActivityDialogContent";
@@ -46,19 +44,6 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({
         );
       default:
         return null;
-    }
-  };
-
-  const getDialogTitle = () => {
-    switch (type) {
-      case "talent":
-        return "Builder Score Details";
-      case "activity":
-        return "Activity Details";
-      case "blockchain":
-        return "Blockchain Activity Details";
-      default:
-        return "";
     }
   };
 
