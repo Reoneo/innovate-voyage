@@ -24,6 +24,13 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   isOwner,
   displayName
 }) => {
+  // Extract and prioritize ENS bio or description fields
+  const ensBio =
+    passport.bio ||
+    passport.description ||
+    passport.ens_bio ||
+    '';
+
   return (
     <div className="bg-white flex flex-col items-center px-2 py-2 relative overflow-y-auto h-full w-full" style={{
       margin: '2px'
@@ -55,26 +62,24 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
         <div className="mb-2">
           <ProfileContact email={normalizedSocials.email} telephone={telephone} isOwner={isOwner} />
         </div>
-        
-        {/* ENS Bio - Display prominently in column 1 - FIXED TO SHOW PROPERLY */}
-        {(passport.bio || passport.description || passport.ens_bio) && (
+
+        {/* ENS Bio - Inserted here after contact and before POAP */}
+        {ensBio && (
           <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100 max-w-full w-full">
             <h4 className="font-semibold text-gray-800 mb-3 text-base flex items-center gap-2">
               <span className="text-blue-600">📝</span>
               About
             </h4>
-            <p className="text-sm text-gray-700 leading-relaxed text-left whitespace-pre-wrap">
-              {passport.bio || passport.description || passport.ens_bio}
-            </p>
+            <p className="text-sm text-gray-700 leading-relaxed text-left whitespace-pre-wrap">{ensBio}</p>
           </div>
         )}
         
-        {/* Social Links - Hide from main column since we'll show in popup */}
+        {/* Social Links - Hidden in this column */}
         <div className="hidden">
           <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
         </div>
         
-        {/* POAP Section - Make sure it's visible and has proper spacing */}
+        {/* POAP Section - Placed below the ENS bio */}
         <div className="mt-4 mb-4 w-full">
           <PoapSection walletAddress={passport.owner_address} />
         </div>
@@ -84,3 +89,4 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
 };
 
 export default MobileProfileColumn;
+
