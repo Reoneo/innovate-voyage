@@ -68,7 +68,7 @@ export async function fetchUserNfts(address: string, chain: string = 'ethereum')
             acc[collectionName] = [];
           }
           
-          acc[collectionName].push({
+          const processedNft: OpenSeaNft = {
             identifier: nft.identifier || '',
             collection: collectionName,
             contract: nft.contract || '',
@@ -83,8 +83,9 @@ export async function fetchUserNfts(address: string, chain: string = 'ethereum')
             is_disabled: nft.is_disabled || false,
             is_nsfw: nft.is_nsfw || false,
             count: 1,
-          });
+          };
           
+          acc[collectionName].push(processedNft);
           return acc;
         }, {});
 
@@ -101,7 +102,7 @@ export async function fetchUserNfts(address: string, chain: string = 'ethereum')
           .filter((col: any) => col.nfts && Array.isArray(col.nfts) && col.nfts.length > 0)
           .map((col: any) => ({
             collection: col.name || col.slug || col.collection || 'Unknown Collection',
-            nfts: col.nfts.map((nft: any) => ({
+            nfts: col.nfts.map((nft: any): OpenSeaNft => ({
               identifier: nft.identifier || '',
               collection: col.name || col.slug || col.collection,
               contract: nft.contract || '',
@@ -122,9 +123,28 @@ export async function fetchUserNfts(address: string, chain: string = 'ethereum')
       // Direct collections format
       else if (data.collection && data.nfts) {
         console.log('Processing single collection format');
+        const processedNfts: OpenSeaNft[] = Array.isArray(data.nfts) 
+          ? data.nfts.map((nft: any): OpenSeaNft => ({
+              identifier: nft.identifier || '',
+              collection: data.collection,
+              contract: nft.contract || '',
+              token_standard: nft.token_standard || '',
+              name: nft.name || `Token #${nft.identifier}`,
+              description: nft.description || '',
+              image_url: nft.image_url || nft.display_image_url,
+              imageUrl: nft.image_url || nft.display_image_url,
+              metadata_url: nft.metadata_url || '',
+              opensea_url: nft.opensea_url || '',
+              updated_at: nft.updated_at || '',
+              is_disabled: nft.is_disabled || false,
+              is_nsfw: nft.is_nsfw || false,
+              count: nft.count || 1,
+            }))
+          : [];
+        
         collections = [{
           collection: data.collection,
-          nfts: Array.isArray(data.nfts) ? data.nfts : []
+          nfts: processedNfts
         }];
       }
     }
@@ -152,7 +172,23 @@ export async function fetchUserNfts(address: string, chain: string = 'ethereum')
 export async function fetchNftsByAddress(address: string, chain: string = 'ethereum'): Promise<Nft[]> {
   try {
     const collections = await fetchUserNfts(address, chain);
-    return collections.flatMap(collection => collection.nfts);
+    // Convert OpenSeaNft to Nft, ensuring image_url is always provided
+    return collections.flatMap(collection => 
+      collection.nfts.map((nft): Nft => ({
+        identifier: nft.identifier,
+        collection: nft.collection,
+        contract: nft.contract,
+        token_standard: nft.token_standard,
+        name: nft.name,
+        description: nft.description,
+        image_url: nft.image_url || nft.imageUrl || '', // Ensure image_url is always a string
+        metadata_url: nft.metadata_url,
+        opensea_url: nft.opensea_url,
+        updated_at: nft.updated_at,
+        is_disabled: nft.is_disabled,
+        is_nsfw: nft.is_nsfw,
+      }))
+    );
   } catch (error) {
     console.error(`Error fetching NFTs from OpenSea for ${address}:`, error);
     return [];
