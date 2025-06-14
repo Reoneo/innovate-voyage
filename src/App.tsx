@@ -9,6 +9,13 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { AuthKitProvider } from '@farcaster/auth-kit';
 import '@farcaster/auth-kit/styles.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+
+// RainbowKit imports
+import '@rainbow-me/rainbowkit/styles.css';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { WagmiProvider } from 'wagmi';
+import { config } from '@/config/wagmi';
+
 import Index from "./pages/Index";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
@@ -57,26 +64,30 @@ const App = () => {
   return (
     <HelmetProvider>
       <ThemeProvider>
-        <AuthKitProvider config={farcasterConfig}>
+        <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-                  <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
-                  <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-                  <Route path="/404" element={<NotFound />} />
-                  <Route path="*" element={<Navigate to="/404" />} />
-                </Routes>
-                <XmtpMessageModal />
-              </BrowserRouter>
-            </TooltipProvider>
+            <RainbowKitProvider>
+              <AuthKitProvider config={farcasterConfig}>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                      <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+                      <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
+                      <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+                      <Route path="/404" element={<NotFound />} />
+                      <Route path="*" element={<Navigate to="/404" />} />
+                    </Routes>
+                    <XmtpMessageModal />
+                  </BrowserRouter>
+                </TooltipProvider>
+              </AuthKitProvider>
+            </RainbowKitProvider>
           </QueryClientProvider>
-        </AuthKitProvider>
+        </WagmiProvider>
       </ThemeProvider>
     </HelmetProvider>
   );
