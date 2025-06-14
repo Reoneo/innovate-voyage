@@ -4,7 +4,7 @@ import { Home, Search, Wallet } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
-import RainbowWalletButton from '../wallet/RainbowWalletButton';
+import RainbowWalletButton from '@/components/wallet/RainbowWalletButton';
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
