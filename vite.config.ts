@@ -17,6 +17,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        // This Rollup aliases are extracted from @esbuild-plugins/node-modules-polyfill,
+        // see https://github.com/remorses/esbuild-plugins/blob/master/node-modules-polyfill/src/polyfills.ts
+        // process and buffer are excluded because already managed by other plugins
         util: 'rollup-plugin-node-polyfills/polyfills/util',
         sys: 'util',
         events: 'rollup-plugin-node-polyfills/polyfills/events',
@@ -25,11 +28,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
         punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
         url: 'rollup-plugin-node-polyfills/polyfills/url',
-        // Use buffer polyfill for string_decoder to avoid cbw-sdk conflicts
-        string_decoder: 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
-        'string_decoder/': 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
-        'string_decoder.js': 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
-        'string_decoder.js/': 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
+        string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
         http: 'rollup-plugin-node-polyfills/polyfills/http',
         https: 'rollup-plugin-node-polyfills/polyfills/http',
         os: 'rollup-plugin-node-polyfills/polyfills/os',
@@ -52,9 +51,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     },
     optimizeDeps: {
       esbuildOptions: {
+        // Node.js global to browser globalThis
         define: {
           global: 'globalThis',
         },
+        // Enable esbuild polyfill plugins
         plugins: [
           NodeGlobalsPolyfillPlugin({
             process: true,
@@ -63,40 +64,36 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           NodeModulesPolyfillPlugin() as any,
         ],
       },
-      // Exclude problematic dependencies from optimization
-      exclude: ['cbw-sdk']
     },
     build: {
       rollupOptions: {
         external: [
           '@safe-global/safe-apps-sdk',
           '@safe-window/safe-apps-sdk',
-          '@safe-window/safe-apps-provider',
-          // Externalize cbw-sdk to avoid polyfill conflicts
-          'cbw-sdk'
+          '@safe-window/safe-apps-provider'
         ],
         plugins: [
+          // Enable rollup polyfills plugin
+          // used during production bundling
           nodePolyfills() as Plugin,
         ],
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom', 'react-router-dom'],
           },
-          // Handle externalized modules
-          globals: {
-            'cbw-sdk': 'CoinbaseWalletSDK'
-          }
         },
+        // Handle optional dependencies that might not be available
         onwarn(warning, warn) {
+          // Suppress warnings about missing optional dependencies
           if (
             warning.code === 'UNRESOLVED_IMPORT' &&
             (warning.message.includes('@safe-global/safe-apps-sdk') || 
              warning.message.includes('@safe-window/safe-apps-sdk') ||
-             warning.message.includes('@safe-window/safe-apps-provider') ||
-             warning.message.includes('cbw-sdk'))
+             warning.message.includes('@safe-window/safe-apps-provider'))
           ) {
             return;
           }
+          
           warn(warning);
         },
       },

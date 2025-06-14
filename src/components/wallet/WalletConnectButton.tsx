@@ -1,9 +1,17 @@
 
 import React from 'react';
-import RainbowWalletButton from './RainbowWalletButton';
+import { Button } from '@/components/ui/button';
 
 const WalletConnectButton: React.FC = () => {
-  return <RainbowWalletButton />;
+  return (
+    <Button 
+      variant="outline"
+      className="flex items-center gap-2"
+      disabled
+    >
+      <span className="hidden sm:inline">Wallet Disabled</span>
+    </Button>
+  );
 };
 
 export default WalletConnectButton;

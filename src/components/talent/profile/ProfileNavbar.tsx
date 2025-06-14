@@ -1,10 +1,10 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Wallet } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
-import RainbowWalletButton from '@/components/wallet/RainbowWalletButton';
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
@@ -55,8 +55,8 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             </Button>
           </div>
           
-          <div className="flex-shrink-0">
-            <RainbowWalletButton />
+          <div className="text-white hover:text-gray-300 transition-colors flex-shrink-0">
+            <Wallet className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`} />
           </div>
         </form>
       </div>
