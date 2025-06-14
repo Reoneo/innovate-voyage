@@ -1,3 +1,4 @@
+import { supabase } from '@/integrations/supabase/client';
 
 export interface OpenSeaNft {
   id: string;
@@ -17,8 +18,6 @@ interface OpenSeaCollection {
   nfts: OpenSeaNft[];
   type: 'ethereum' | 'ens' | 'poap' | '3dns';
 }
-
-const OPENSEA_API_KEY = "33e769a3cf954b15a0d7eddf2b60028e";
 
 // Chains supported by OpenSea API
 const SUPPORTED_CHAINS = [
@@ -52,20 +51,17 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
     // Fetch in parallel to improve performance
     const fetchPromises = SUPPORTED_CHAINS.map(async (chain) => {
       try {
-        const response = await fetch(`https://api.opensea.io/api/v2/chain/${chain.id}/account/${walletAddress}/nfts`, {
-          headers: {
-            'X-API-KEY': OPENSEA_API_KEY,
-            'Accept': 'application/json'
-          },
+        const path = `/chain/${chain.id}/account/${walletAddress}/nfts`;
+        const { data, error } = await supabase.functions.invoke('proxy-opensea', {
+          body: { path },
           signal
         });
-        
-        if (!response.ok) {
-          console.error(`Failed to fetch NFTs from ${chain.name} chain:`, response.status);
+
+        if (error) {
+          console.error(`Failed to fetch NFTs from ${chain.name} chain:`, error.message);
           return [];
         }
 
-        const data = await response.json();
         return (data.nfts || []).map((nft: any) => ({
           ...nft,
           chain: chain.id // Add chain information to each NFT

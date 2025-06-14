@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import type { WebacyData, ThreatLevel } from '@/components/talent/profile/components/scores/types';
+import { supabase } from '@/integrations/supabase/client';
 
 // Create a cache to store API responses by wallet address
 const responseCache = new Map<string, WebacyData>();
@@ -27,22 +27,15 @@ export function useWebacyData(walletAddress?: string) {
       setError(null);
       
       try {
-        // Make API request to Webacy with correct headers
-        const response = await fetch(`https://api.webacy.com/quick-profile/${walletAddress}`, {
-          method: 'GET',
-          headers: {
-            'accept': 'application/json',
-            'x-api-key': 'e2FUxEsqYHvUWFUDbJiL5e3kLhotB0la9L6enTgb'
-          },
-          cache: 'no-store' // Ensure no caching
+        const { data, error: invokeError } = await supabase.functions.invoke('proxy-webacy', {
+          body: { path: `/quick-profile/${walletAddress}` }
         });
-        
-        if (!response.ok) {
-          console.error('Webacy API error:', response.status, response.statusText);
+
+        if (invokeError) {
+          console.error('Webacy proxy error:', invokeError.message);
           throw new Error('Failed to fetch security data');
         }
         
-        const data = await response.json();
         console.log('Webacy Quick Profile Response:', data);
         
         // Map the response to our expected format

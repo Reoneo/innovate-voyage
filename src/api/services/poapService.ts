@@ -1,8 +1,7 @@
-
 import { enforceRateLimit } from '../utils/web3/rateLimiter';
+import { supabase } from '@/integrations/supabase/client';
 
 // POAP API configuration
-const POAP_API_KEY = "K6o3vqiX0yr5BXqOCKGVGoJbVqJQNXebRNgg2NnFfvCQ8g0vCowmpv4fgD9sXsDR6wrEhCCv7sLEoaN4neqT9whf3KNO43ILdKpfepOIvDm4nL4BTRdbETbD10ibpizW";
 const POAP_API_BASE_URL = "https://api.poap.tech";
 
 export interface PoapEvent {
@@ -38,25 +37,19 @@ export async function fetchPoapsByAddress(address: string): Promise<Poap[]> {
     // Rate limit requests
     await enforceRateLimit(300);
     
-    const url = `${POAP_API_BASE_URL}/actions/scan/${address}`;
-    console.log(`Fetching POAPs from: ${url}`);
+    const path = `/actions/scan/${address}`;
+    console.log(`Fetching POAPs from: ${POAP_API_BASE_URL}${path}`);
     
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'X-API-Key': POAP_API_KEY,
-        'Accept': 'application/json'
-      }
+    const { data, error: invokeError } = await supabase.functions.invoke('proxy-poap', {
+      body: { path }
     });
-    
-    if (!response.ok) {
-      console.error(`POAP API error: ${response.status}`);
-      const errorText = await response.text();
-      console.error(`POAP API error details: ${errorText}`);
+
+    if (invokeError) {
+      console.error(`POAP proxy error: ${invokeError.message}`);
       return [];
     }
-    
-    const data = await response.json();
+
+    const data = invokeError ? [] : data;
     console.log(`POAP API returned ${Array.isArray(data) ? data.length : 0} POAPs`);
     
     // Return all POAPs
@@ -88,22 +81,18 @@ export async function fetchPoapEventById(eventId: number): Promise<PoapEvent | n
     // Rate limit requests
     await enforceRateLimit(300);
     
-    const url = `${POAP_API_BASE_URL}/events/id/${eventId}`;
+    const path = `/events/id/${eventId}`;
     
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'X-API-Key': POAP_API_KEY,
-        'Accept': 'application/json'
-      }
+    const { data, error: invokeError } = await supabase.functions.invoke('proxy-poap', {
+      body: { path }
     });
-    
-    if (!response.ok) {
-      console.error(`POAP event API error: ${response.status}`);
+
+    if (invokeError) {
+      console.error(`POAP event proxy error: ${invokeError.message}`);
       return null;
     }
     
-    return await response.json();
+    return data;
   } catch (error) {
     console.error('Error fetching POAP event:', error);
     return null;
@@ -120,26 +109,20 @@ export async function fetchPoapEventOwners(eventId: number): Promise<any[]> {
     // Rate limit requests
     await enforceRateLimit(300);
     
-    const url = `${POAP_API_BASE_URL}/event/${eventId}/poaps`;
-    console.log(`Fetching POAP owners from: ${url}`);
+    const path = `/event/${eventId}/poaps`;
+    console.log(`Fetching POAP owners from: ${POAP_API_BASE_URL}${path}`);
     
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'X-API-Key': POAP_API_KEY,
-        'Accept': 'application/json'
-      }
+    const { data, error: invokeError } = await supabase.functions.invoke('proxy-poap', {
+      body: { path }
     });
     
-    console.log(`POAP owners API response status: ${response.status}`);
+    console.log(`POAP owners API response received`);
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`POAP owners API error: ${response.status} - ${errorText}`);
+    if (invokeError) {
+      console.error(`POAP owners proxy error: ${invokeError.message}`);
       return [];
     }
     
-    const data = await response.json();
     console.log(`POAP owners API raw response:`, data);
     console.log(`Fetched ${Array.isArray(data) ? data.length : 'unknown'} owners for event ID ${eventId}`);
     

@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TalentProtocolSkill {
   id: number;
@@ -40,9 +40,6 @@ interface UseTalentProtocolSkillsResult {
   isLoading: boolean;
 }
 
-// API key for TalentProtocol
-const TALENT_PROTOCOL_API_KEY = "2c95fd7fc86931938e0fc8363bd62267096147882462508ae18682786e4f";
-
 export function useTalentProtocolSkills(walletAddress?: string, passportId?: string): UseTalentProtocolSkillsResult {
   const [talentSkills, setTalentSkills] = useState<string[]>([]);
   const [credentialSkills, setCredentialSkills] = useState<string[]>([]);
@@ -56,35 +53,29 @@ export function useTalentProtocolSkills(walletAddress?: string, passportId?: str
       setIsLoading(true);
       try {
         // Fetch skills from TalentProtocol
-        const skillsResponse = await fetch('https://api.talentprotocol.com/api/v2/skills?verified=true', {
-          headers: {
-            'Authorization': `Bearer ${TALENT_PROTOCOL_API_KEY}`
-          }
+        const { data: skillsData, error: skillsError } = await supabase.functions.invoke('proxy-talent-protocol', {
+          body: { path: '/api/v2/skills?verified=true', useBearer: true }
         });
         
-        if (skillsResponse.ok) {
-          const skillsData = await skillsResponse.json() as TalentProtocolApiResponse;
+        if (!skillsError && skillsData) {
           const skillNames = skillsData?.data?.map((skill: TalentProtocolSkill) => skill.name) || [];
           const uniqueSkills = [...new Set(skillNames)];
           setTalentSkills(uniqueSkills);
           console.log('TalentProtocol Skills API response:', skillsData);
         } else {
-          console.error('Failed to fetch skills from TalentProtocol:', await skillsResponse.text());
+          console.error('Failed to fetch skills from TalentProtocol:', skillsError?.message);
         }
 
         // Fetch credentials from TalentProtocol using passport ID if available
-        const credentialsUrl = passportId 
-          ? `https://api.talentprotocol.com/api/v1/passport_credentials?passport_id=${encodeURIComponent(passportId)}`
-          : 'https://api.talentprotocol.com/api/v1/passport_credentials';
+        const credentialsPath = passportId 
+          ? `/api/v1/passport_credentials?passport_id=${encodeURIComponent(passportId)}`
+          : '/api/v1/passport_credentials';
           
-        const credentialsResponse = await fetch(credentialsUrl, {
-          headers: {
-            'X-API-KEY': TALENT_PROTOCOL_API_KEY
-          }
+        const { data: credentialsData, error: credentialsError } = await supabase.functions.invoke('proxy-talent-protocol', {
+          body: { path: credentialsPath, useBearer: false }
         });
         
-        if (credentialsResponse.ok) {
-          const credentialsData = await credentialsResponse.json() as PassportCredentialsApiResponse;
+        if (!credentialsError && credentialsData) {
           console.log('TalentProtocol Credentials API response:', credentialsData);
           
           // Add the credential category to make it more descriptive
@@ -94,23 +85,17 @@ export function useTalentProtocolSkills(walletAddress?: string, passportId?: str
           
           setCredentialSkills(prevSkills => [...prevSkills, ...formattedCredentials]);
         } else {
-          console.error('Failed to fetch credentials from TalentProtocol:', 
-            `Status: ${credentialsResponse.status}`, 
-            await credentialsResponse.text()
-          );
+          console.error('Failed to fetch credentials from TalentProtocol:', credentialsError?.message);
         }
 
         // Primary method: Fetch score directly with the wallet address
-        const scoreResponse = await fetch(`https://api.talentprotocol.com/score?id=${walletAddress}`, {
-          headers: {
-            'X-API-KEY': TALENT_PROTOCOL_API_KEY
-          }
+        const { data: scoreData, error: scoreError } = await supabase.functions.invoke('proxy-talent-protocol', {
+            body: { path: `/score?id=${walletAddress}`, useBearer: false }
         });
         
         console.log('Score API request sent with wallet address:', walletAddress);
         
-        if (scoreResponse.ok) {
-          const scoreData = await scoreResponse.json() as TalentScoreResponse;
+        if (!scoreError && scoreData) {
           console.log('TalentProtocol Score API response:', scoreData);
           setTalentScore(scoreData.score?.points || null);
           
@@ -127,20 +112,14 @@ export function useTalentProtocolSkills(walletAddress?: string, passportId?: str
             setCredentialSkills(prevSkills => [...prevSkills, ...scoreSkills]);
           }
         } else {
-          console.error('Failed to fetch score from TalentProtocol:', 
-            `Status: ${scoreResponse.status}`, 
-            await scoreResponse.text()
-          );
+          console.error('Failed to fetch score from TalentProtocol:', scoreError?.message);
           
           // Try with the account_source parameter
-          const retryScoreResponse = await fetch(`https://api.talentprotocol.com/score?id=${walletAddress}&account_source=wallet`, {
-            headers: {
-              'X-API-KEY': TALENT_PROTOCOL_API_KEY
-            }
+          const { data: retryScoreData, error: retryScoreError } = await supabase.functions.invoke('proxy-talent-protocol', {
+            body: { path: `/score?id=${walletAddress}&account_source=wallet`, useBearer: false }
           });
           
-          if (retryScoreResponse.ok) {
-            const retryScoreData = await retryScoreResponse.json() as TalentScoreResponse;
+          if (!retryScoreError && retryScoreData) {
             console.log('TalentProtocol Score retry API response:', retryScoreData);
             setTalentScore(retryScoreData.score?.points || null);
             
@@ -154,10 +133,7 @@ export function useTalentProtocolSkills(walletAddress?: string, passportId?: str
               setCredentialSkills(prevSkills => [...prevSkills, ...scoreSkills]);
             }
           } else {
-            console.error('Retry also failed to fetch score from TalentProtocol:', 
-              `Status: ${retryScoreResponse.status}`, 
-              await retryScoreResponse.text()
-            );
+            console.error('Retry also failed to fetch score from TalentProtocol:', retryScoreError?.message);
           }
         }
       } catch (error) {

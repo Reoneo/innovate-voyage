@@ -1,4 +1,3 @@
-
 // Security utilities for handling sensitive data
 export const secureStorage = {
   setItem: (key: string, value: string) => {
@@ -55,15 +54,4 @@ export const validateInput = {
   }
 };
 
-// API key management
-export const getSecureApiKey = (keyName: string): string | null => {
-  // In production, these should come from environment variables
-  const keys = {
-    github: import.meta.env.VITE_GITHUB_API_TOKEN || '',
-    etherscan: import.meta.env.VITE_ETHERSCAN_API_KEY || '',
-    web3bio: import.meta.env.VITE_WEB3_BIO_API_KEY || '',
-    webacy: import.meta.env.VITE_WEBACY_API_KEY || ''
-  };
-  
-  return keys[keyName as keyof typeof keys] || null;
-};
+// API key management has been moved to Supabase Edge Functions for security.
