@@ -1,3 +1,4 @@
+
 import { defineConfig, ConfigEnv, UserConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -24,13 +25,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
         punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
         url: 'rollup-plugin-node-polyfills/polyfills/url',
-        string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
-        'string_decoder/': 'rollup-plugin-node-polyfills/polyfills/string-decoder',
-        'string_decoder.js': 'rollup-plugin-node-polyfills/polyfills/string-decoder',
-        'string_decoder.js/': 'rollup-plugin-node-polyfills/polyfills/string-decoder',
-        'rollup-plugin-node-polyfills/polyfills/string-decoder/': 'rollup-plugin-node-polyfills/polyfills/string-decoder',
-        'rollup-plugin-node-polyfills/polyfills/string-decoder.js/': 'rollup-plugin-node-polyfills/polyfills/string-decoder',
-        'rollup-plugin-node-polyfills/polyfills/string-decoder.js': 'rollup-plugin-node-polyfills/polyfills/string-decoder',
+        // Use buffer polyfill for string_decoder to avoid cbw-sdk conflicts
+        string_decoder: 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
+        'string_decoder/': 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
+        'string_decoder.js': 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
+        'string_decoder.js/': 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
         http: 'rollup-plugin-node-polyfills/polyfills/http',
         https: 'rollup-plugin-node-polyfills/polyfills/http',
         os: 'rollup-plugin-node-polyfills/polyfills/os',
@@ -64,13 +63,17 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           NodeModulesPolyfillPlugin() as any,
         ],
       },
+      // Exclude problematic dependencies from optimization
+      exclude: ['cbw-sdk']
     },
     build: {
       rollupOptions: {
         external: [
           '@safe-global/safe-apps-sdk',
           '@safe-window/safe-apps-sdk',
-          '@safe-window/safe-apps-provider'
+          '@safe-window/safe-apps-provider',
+          // Externalize cbw-sdk to avoid polyfill conflicts
+          'cbw-sdk'
         ],
         plugins: [
           nodePolyfills() as Plugin,
@@ -79,13 +82,18 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           manualChunks: {
             vendor: ['react', 'react-dom', 'react-router-dom'],
           },
+          // Handle externalized modules
+          globals: {
+            'cbw-sdk': 'CoinbaseWalletSDK'
+          }
         },
         onwarn(warning, warn) {
           if (
             warning.code === 'UNRESOLVED_IMPORT' &&
             (warning.message.includes('@safe-global/safe-apps-sdk') || 
              warning.message.includes('@safe-window/safe-apps-sdk') ||
-             warning.message.includes('@safe-window/safe-apps-provider'))
+             warning.message.includes('@safe-window/safe-apps-provider') ||
+             warning.message.includes('cbw-sdk'))
           ) {
             return;
           }
