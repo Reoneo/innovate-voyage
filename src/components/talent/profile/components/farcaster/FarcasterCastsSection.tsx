@@ -155,7 +155,8 @@ const FarcasterCastsSection: React.FC<FarcasterCastsSectionProps> = ({
               <p className="text-muted-foreground mb-4">
                 We couldn't find a Farcaster profile for {ensFarcasterHandle ? `@${ensFarcasterHandle}` : (ensName || address)}
               </p>
-              <SignInButton className="shadcn-btn shadcn-btn-outline" />
+              {/* FIX: Remove className from SignInButton */}
+              <SignInButton />
             </div>
           </CardContent>
         </Card>
