@@ -54,7 +54,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   return (
     <div className={`flex flex-col items-center gap-2 w-full text-center ${isMobile ? 'px-2' : ''}`}>
       {/* Avatar */}
-      <div className={isMobile ? 'mb-2' : 'mb-3'}>
+      <div className={isMobile ? 'mb-1' : 'mb-1'}>
         <ProfileAvatar 
           avatarUrl={avatarUrl} 
           name={name} 
@@ -116,3 +116,4 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
 };
 
 export default AvatarSection;
+

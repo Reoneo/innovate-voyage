@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import NftCollectionCard from './NftCollectionCard';
@@ -54,7 +53,7 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
 
   // Filter collections based on selected type and exclude poapv2
   const filteredCollections = collections
-    .filter(collection => !collection.name.toLowerCase().includes('poap v2'))
+    .filter(collection => !collection.collection.toLowerCase().includes('poap v2'))
     .filter(collection => {
       if (selectedType === 'all') return true;
       return collection.nfts.some((nft: any) => nft.type === selectedType);
@@ -92,7 +91,6 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
     if (isMobile) {
       return viewMode === 'list' ? 'space-y-3' : 'grid grid-cols-1 gap-4';
     }
-    
     switch (viewMode) {
       case 'large-grid':
         return 'grid grid-cols-1 md:grid-cols-2 gap-8';
@@ -116,8 +114,8 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
       <div className={getGridClass()}>
         {filteredCollections.map((collection, index) => (
           <NftCollectionCard
-            key={`${collection.name}-${index}`}
-            collectionName={collection.name}
+            key={`${collection.collection}-${index}`}
+            collectionName={collection.collection}
             nfts={collection.nfts}
             onNftClick={onNftClick}
             viewMode={isMobile && viewMode === 'large-grid' ? 'grid' : viewMode}

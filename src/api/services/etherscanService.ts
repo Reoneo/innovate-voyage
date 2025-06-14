@@ -1,17 +1,11 @@
-
 import { delay } from '../jobsApi';
+import { supabase } from '@/integrations/supabase/client';
 
 // Get account balance with retry mechanism
 export async function getAccountBalance(address: string): Promise<string> {
   try {
-    const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
-    const response = await fetchWithRetry(`https://api.etherscan.io/api?module=account&action=balance&address=${address}&tag=latest&apikey=${apiKey}`);
-    
-    if (!response.ok) {
-      throw new Error(`Etherscan API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
+    const queryString = `module=account&action=balance&address=${address}&tag=latest`;
+    const data = await fetchWithRetry(queryString);
     
     if (data.status === '1') {
       // Convert wei to ether
@@ -31,16 +25,8 @@ export async function getAccountBalance(address: string): Promise<string> {
 // Get transaction count (number of transactions) with retry mechanism
 export async function getTransactionCount(address: string): Promise<number> {
   try {
-    const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
-    const response = await fetchWithRetry(
-      `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=10&sort=desc&apikey=${apiKey}`
-    );
-    
-    if (!response.ok) {
-      throw new Error(`Etherscan API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
+    const queryString = `module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=10&sort=desc`;
+    const data = await fetchWithRetry(queryString);
     
     if (data.status === '1') {
       return Array.isArray(data.result) ? data.result.length : 0;
@@ -57,16 +43,8 @@ export async function getTransactionCount(address: string): Promise<number> {
 // Get latest transactions with retry mechanism
 export async function getLatestTransactions(address: string, limit: number = 5): Promise<any[]> {
   try {
-    const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
-    const response = await fetchWithRetry(
-      `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${apiKey}`
-    );
-    
-    if (!response.ok) {
-      throw new Error(`Etherscan API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
+    const queryString = `module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc`;
+    const data = await fetchWithRetry(queryString);
     
     if (data.status === '1') {
       return data.result;
@@ -83,16 +61,8 @@ export async function getLatestTransactions(address: string, limit: number = 5):
 // Get ERC-20 token transfers with retry mechanism
 export async function getTokenTransfers(address: string, limit: number = 5): Promise<any[]> {
   try {
-    const apiKey = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
-    const response = await fetchWithRetry(
-      `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&page=1&offset=${limit}&sort=desc&apikey=${apiKey}`
-    );
-    
-    if (!response.ok) {
-      throw new Error(`Etherscan API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
+    const queryString = `module=account&action=tokentx&address=${address}&page=1&offset=${limit}&sort=desc`;
+    const data = await fetchWithRetry(queryString);
     
     if (data.status === '1') {
       return data.result;
@@ -107,7 +77,7 @@ export async function getTokenTransfers(address: string, limit: number = 5): Pro
 }
 
 // Helper function to fetch with retry logic
-async function fetchWithRetry(url: string, maxRetries = 2): Promise<Response> {
+async function fetchWithRetry(queryString: string, maxRetries = 2): Promise<any> {
   let lastError;
   
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -117,15 +87,21 @@ async function fetchWithRetry(url: string, maxRetries = 2): Promise<Response> {
         await delay(attempt * 750); // Exponential backoff
       }
       
-      const response = await fetch(url, { cache: "no-cache" });
+      const { data, error } = await supabase.functions.invoke('proxy-etherscan', {
+        body: { queryString }
+      });
       
-      // If the response is rate limited, wait and retry
-      if (response.status === 429) {
-        console.log(`Rate limited (attempt ${attempt + 1}/${maxRetries + 1}), retrying...`);
-        continue;
+      if (error) {
+        // If the response is rate limited, wait and retry
+        if (error.message.includes('rate limited') || error.message.includes('429')) {
+          console.log(`Rate limited (attempt ${attempt + 1}/${maxRetries + 1}), retrying...`);
+          lastError = error;
+          continue;
+        }
+        throw error;
       }
       
-      return response;
+      return data;
     } catch (error) {
       console.error(`Fetch attempt ${attempt + 1}/${maxRetries + 1} failed:`, error);
       lastError = error;

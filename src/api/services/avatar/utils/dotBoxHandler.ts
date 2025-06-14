@@ -1,16 +1,13 @@
 
 import { avatarCache } from '../../../utils/web3/index';
-import { fetchDotBoxAvatar } from '../../openseaService';
 import { ccipReadEnabled } from '../../../../utils/ens/ccipReadHandler';
-
-// Etherscan API key for .box domains
-const OPTIMISM_ETHERSCAN_API_KEY = "MWRCM8Q9RIGEVBT6WJ1VUNDYPAHN4M91FU";
+// Remove import { fetchDotBoxAvatar } as it does not exist.
 
 export async function handleDotBoxAvatar(identity: string): Promise<string | null> {
   try {
     console.log(`Fetching .box avatar for ${identity}`);
     
-    // First try the gskril/ens-api - most reliable
+    // First, try the gskril/ens-api - most reliable
     try {
       const ensResponse = await fetch(`https://ens-api.vercel.app/api/${identity}`);
       if (ensResponse.ok) {
@@ -33,17 +30,16 @@ export async function handleDotBoxAvatar(identity: string): Promise<string | nul
       return boxData.avatar;
     }
     
-    // Third, try Optimism Etherscan API to get metadata
-    const etherscanUrl = `https://api-optimistic.etherscan.io/api?module=account&action=txlist&address=${boxData?.address || identity}&startblock=0&endblock=99999999&sort=desc&apikey=${OPTIMISM_ETHERSCAN_API_KEY}`;
+    // Third, try proxy Edge Function for Optimism Etherscan metadata
     try {
-      const etherscanResponse = await fetch(etherscanUrl);
-      if (etherscanResponse.ok) {
-        const etherscanData = await etherscanResponse.json();
-        console.log(`Got Optimism Etherscan data for ${identity}`);
-        // Continue with other methods as we just want the transactions data for metadata
-      }
+      // Instead of hardcoding the API key, use the proxy-etherscan Edge Function with Supabase
+      const queryString = `module=account&action=txlist&address=${boxData?.address || identity}&startblock=0&endblock=99999999&sort=desc`;
+      // You would call your own Edge Function here as in your other services
+      // Example:
+      // const { data } = await supabase.functions.invoke('proxy-etherscan', { body: { queryString } });
+      // (logic to use etherscan tx data, if needed)
     } catch (etherscanError) {
-      console.error("Error fetching from Optimism Etherscan:", etherscanError);
+      console.error("Error fetching from Optimism Etherscan via proxy:", etherscanError);
     }
     
     // Fourth, try metadata.ens.domains for .box domains
@@ -60,14 +56,8 @@ export async function handleDotBoxAvatar(identity: string): Promise<string | nul
       console.error(`Error fetching ENS avatar from metadata for ${identity}:`, ensError);
     }
     
-    // Fifth, try OpenSea method to get avatar from NFTs
-    const openSeaAvatar = await fetchDotBoxAvatar(identity);
-    if (openSeaAvatar) {
-      console.log(`Found .box avatar via OpenSea for ${identity}:`, openSeaAvatar);
-      avatarCache[identity] = openSeaAvatar;
-      return openSeaAvatar;
-    }
-    
+    // Fifth, try OpenSea-like fallback (skip, as fetchDotBoxAvatar does not exist)
+
     // Try the native .bit API
     const bitProfile = await fetch(`https://indexer-v1.did.id/v1/account/records?account=${identity}&key=profile.avatar`);
     if (bitProfile.ok) {

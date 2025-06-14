@@ -1,5 +1,4 @@
-
-import { WEB3_BIO_API_KEY } from '../../../utils/web3/config';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Fetch domains from web3.bio API
@@ -7,23 +6,16 @@ import { WEB3_BIO_API_KEY } from '../../../utils/web3/config';
 export async function fetchDomainsFromWeb3Bio(address: string): Promise<string[]> {
   try {
     // Add a cache-busting parameter to prevent stale data
-    const url = `https://api.web3.bio/profile/${address}?nocache=${Date.now()}`;
+    const path = `/profile/${address}?nocache=${Date.now()}`;
     
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${WEB3_BIO_API_KEY}`,
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Accept': 'application/json'
-      },
-      cache: 'no-store'
+    const { data, error } = await supabase.functions.invoke('proxy-web3bio', {
+      body: { path }
     });
-    
-    if (!response.ok) {
-      console.warn(`Web3.bio API returned status ${response.status} for address ${address}`);
+
+    if (error) {
+      console.warn(`Web3.bio proxy returned an error for address ${address}: ${error.message}`);
       return [];
     }
-    
-    const data = await response.json();
     
     if (!Array.isArray(data)) {
       if (data.identity) {

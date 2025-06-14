@@ -25,12 +25,13 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
       return result;
     }
     
-    // Parallel fetch for all social records
+    // Parallel fetch for all social records including Farcaster
     const recordsToFetch = [
       'com.github', 'com.twitter', 'com.discord', 'com.linkedin', 'org.telegram',
       'com.reddit', 'email', 'url', 'description', 'avatar',
       'com.instagram', 'io.keybase', 'xyz.lens', 'location', 'com.youtube',
-      'app.bsky', 'com.whatsapp', 'phone', 'name', 'notice', 'keywords'
+      'app.bsky', 'com.whatsapp', 'phone', 'name', 'notice', 'keywords',
+      'xyz.farcaster.ens' // Add Farcaster ENS record
     ];
     
     const records = await Promise.all(
@@ -92,6 +93,11 @@ export async function getEnsLinks(ensName: string, networkName: string = 'mainne
           break;
         case 'com.youtube':
           result.socials.youtube = value;
+          break;
+        case 'xyz.farcaster.ens':
+          // Store Farcaster handle from ENS TXT record
+          result.socials.farcaster = value;
+          console.log('Found Farcaster handle in ENS TXT record:', value);
           break;
         case 'description':
           result.description = value;

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScoreBadgeProps } from './types';
@@ -42,26 +43,29 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({
     }
   };
   if (isLoading || loading) {
-    return <Skeleton className="h-32 w-full rounded-2xl" />;
+    return <Skeleton className="h-24 w-full rounded-2xl" />;
   }
-  return <>
-      <div onClick={handleClick} className="cursor-pointer">
-        <div className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl h-full shadow-lg border border-gray-200 px-0 py-[14px]">
-          <div className="text-center space-y-2">
-            <h3 className="text-lg font-semibold text-gray-800">NFTs</h3>
-            <div className="relative">
-              <img alt="NFT Collection" className="h-16 w-16 mx-auto" src="https://storage.googleapis.com/opensea-static/Logomark/Logomark-Blue.png" />
-              {nftCount !== null && nftCount > 0 && <Badge variant="destructive" className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-0 mx-[8px] my-[8px] py-0">
-                  {nftCount > 99 ? '99+' : nftCount}
-                </Badge>}
-            </div>
-            
-          </div>
+  return (
+    <>
+      <button
+        onClick={handleClick}
+        className="flex flex-col items-center justify-center w-full h-24 rounded-2xl bg-transparent transition-all p-0 border-0 outline-none gap-2 hover:bg-gray-50"
+        style={{ minWidth: 0 }}
+        type="button"
+      >
+        <div className="text-lg font-semibold text-gray-900 mb-1">NFTs</div>
+        <div className="relative">
+          {nftCount !== null && nftCount > 0 && (
+            <Badge variant="destructive" className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-0 mx-[8px] my-[8px] py-0">
+              {nftCount > 99 ? '99+' : nftCount}
+            </Badge>
+          )}
         </div>
-      </div>
-      
+        <div className="text-xs text-gray-600 -mt-1">Transactions</div>
+      </button>
       {/* Profile Dialog */}
       <ProfileDialog userId={mockUserId} open={showProfile} onOpenChange={setShowProfile} />
-    </>;
+    </>
+  );
 };
 export default TransactionsBadge;

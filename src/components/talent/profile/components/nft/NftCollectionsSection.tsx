@@ -35,8 +35,8 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
       try {
         const nftCollections = await fetchUserNfts(walletAddress);
         // Filter out poapv2 collections as requested
-        const filteredCollections = nftCollections.filter(collection => 
-          !collection.name.toLowerCase().includes('poap v2')
+        const filteredCollections = nftCollections.filter(collection =>
+          !collection.collection.toLowerCase().includes('poap v2')
         );
         setCollections(filteredCollections);
       } catch (error) {
@@ -54,22 +54,22 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     setSelectedNft(nft);
   };
 
-  const handleOpenProfile = (name: string) => {
+  const handleOpenProfile = () => {
     if (onOpenChange) {
       onOpenChange(false);
     }
-    window.location.href = `/${name.toLowerCase()}/`;
+    // Owner viewing not supported by returned OpenSeaNft type.
   };
 
   // Check what types of NFTs are available
-  const hasEthereumNfts = collections.some(c => c.nfts.some((nft: any) => nft.type === 'ethereum'));
-  const hasEnsNfts = collections.some(c => c.nfts.some((nft: any) => nft.type === 'ens'));
-  const hasPoapNfts = collections.some(c => c.nfts.some((nft: any) => nft.type === 'poap'));
-  const has3dnsNfts = collections.some(c => c.nfts.some((nft: any) => nft.type === '3dns'));
+  const hasEthereumNfts = collections.some(c => c.nfts.some((nft: any) => nft.token_standard === 'erc721' || nft.token_standard === 'erc1155'));
+  const hasEnsNfts = collections.some(c => c.nfts.some((nft: any) => nft.token_standard === 'ens'));
+  const hasPoapNfts = collections.some(c => c.nfts.some((nft: any) => nft.token_standard === 'poap'));
+  const has3dnsNfts = collections.some(c => c.nfts.some((nft: any) => nft.token_standard === '3dns'));
 
   // Filter collections based on selected collection
-  const filteredCollections = selectedCollection 
-    ? collections.filter(collection => collection.name === selectedCollection)
+  const filteredCollections = selectedCollection
+    ? collections.filter(collection => collection.collection === selectedCollection)
     : collections;
 
   // Get total NFT count from filtered collections
@@ -78,7 +78,7 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   return <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
         <DialogContent className={`${isMobile ? 'w-screen h-screen max-w-none m-0 rounded-none' : 'max-w-7xl w-[95vw] h-[95vh] max-h-none'} flex flex-col bg-white text-gray-900 border-0 shadow-2xl p-0`}>
-          <NftDialogHeader 
+          <NftDialogHeader
             totalNfts={totalNfts}
             selectedType={selectedType}
             onTypeChange={setSelectedType}
@@ -97,10 +97,10 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
           {/* Content Area - Made scrollable */}
           <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
             <div className={`${isMobile ? 'p-4' : 'p-6'}`}>
-              <NftCollectionsContent 
-                collections={filteredCollections} 
-                loading={loading} 
-                selectedType={selectedType} 
+              <NftCollectionsContent
+                collections={filteredCollections}
+                loading={loading}
+                selectedType={selectedType}
                 onNftClick={handleNftClick}
                 viewMode={isMobile ? 'grid' : viewMode}
               />
@@ -109,12 +109,11 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* Enhanced NFT Details Dialog */}
+      {/* NFT Details Dialog */}
       {selectedNft && (
-        <NftDetailsDialog 
-          nft={selectedNft} 
-          onClose={() => setSelectedNft(null)} 
-          onOpenProfile={handleOpenProfile} 
+        <NftDetailsDialog
+          nft={selectedNft}
+          onClose={() => setSelectedNft(null)}
         />
       )}
     </>;
