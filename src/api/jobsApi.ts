@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Job } from "@/types/job";
 
@@ -6,6 +7,11 @@ export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, 
 
 // Transform web3.career API response to our Job type
 const transformWeb3Job = (apiJob: any): Job => {
+  // Standardize date format for reliable comparisons
+  const postedDate = apiJob.date 
+    ? new Date(apiJob.date).toISOString().split('T')[0] 
+    : new Date().toISOString().split('T')[0];
+
   return {
     job_id: apiJob.id?.toString() || `job-${Date.now()}`,
     title: apiJob.title || 'Untitled Position',
@@ -16,7 +22,7 @@ const transformWeb3Job = (apiJob: any): Job => {
     skills: apiJob.tags || [],
     company: apiJob.company || 'Unknown Company',
     apply_url: apiJob.apply_url || 'https://web3.career',
-    posted_date: apiJob.date || new Date().toISOString().split('T')[0]
+    posted_date: postedDate
   };
 };
 
@@ -25,7 +31,7 @@ export const jobsApi = {
   getAllJobs: async (): Promise<Job[]> => {
     try {
       const { data, error } = await supabase.functions.invoke('proxy-web3-career', {
-        body: { path: 'v1?limit=100' },
+        body: { path: 'v1?limit=1000' },
       });
 
       if (error) {
@@ -164,3 +170,4 @@ export const jobsApi = {
     return [...locationsSet].sort();
   }
 };
+
