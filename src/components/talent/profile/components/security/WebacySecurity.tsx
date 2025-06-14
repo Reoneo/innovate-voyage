@@ -1,9 +1,5 @@
 
-import React, { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import ThreatLevelCard from './components/ThreatLevelCard';
-import SecurityDialogContent from './components/SecurityDialogContent';
-import { useWebacyData } from './hooks/useWebacyData';
+import React from 'react';
 
 interface WebacySecurityProps {
   walletAddress?: string;

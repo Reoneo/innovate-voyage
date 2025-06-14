@@ -14,14 +14,9 @@ const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({
     return <Skeleton className="h-32 w-full rounded-2xl" />;
   }
 
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    }
-  };
   return (
     <div
-      onClick={handleClick}
+      onClick={onClick}
       className="cursor-pointer group transition-transform duration-200"
     >
       <div className="flex flex-col items-center gap-2 p-6 bg-white/95 rounded-2xl shadow-md border border-gray-200 hover:shadow-lg hover:-translate-y-1 w-full min-h-[120px] transition-all">
