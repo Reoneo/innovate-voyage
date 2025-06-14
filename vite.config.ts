@@ -17,6 +17,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        // This Rollup aliases are extracted from @esbuild-plugins/node-modules-polyfill,
+        // see https://github.com/remorses/esbuild-plugins/blob/master/node-modules-polyfill/src/polyfills.ts
+        // process and buffer are excluded because already managed by other plugins
         util: 'rollup-plugin-node-polyfills/polyfills/util',
         sys: 'util',
         events: 'rollup-plugin-node-polyfills/polyfills/events',
@@ -25,8 +28,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
         punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
         url: 'rollup-plugin-node-polyfills/polyfills/url',
-        // This ensures the path is always correct no matter the environment:
-        string_decoder: require.resolve('rollup-plugin-node-polyfills/polyfills/string-decoder.js'),
+        string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
         http: 'rollup-plugin-node-polyfills/polyfills/http',
         https: 'rollup-plugin-node-polyfills/polyfills/http',
         os: 'rollup-plugin-node-polyfills/polyfills/os',
@@ -49,9 +51,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     },
     optimizeDeps: {
       esbuildOptions: {
+        // Node.js global to browser globalThis
         define: {
           global: 'globalThis',
         },
+        // Enable esbuild polyfill plugins
         plugins: [
           NodeGlobalsPolyfillPlugin({
             process: true,
@@ -69,6 +73,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           '@safe-window/safe-apps-provider'
         ],
         plugins: [
+          // Enable rollup polyfills plugin
+          // used during production bundling
           nodePolyfills() as Plugin,
         ],
         output: {
@@ -76,7 +82,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             vendor: ['react', 'react-dom', 'react-router-dom'],
           },
         },
+        // Handle optional dependencies that might not be available
         onwarn(warning, warn) {
+          // Suppress warnings about missing optional dependencies
           if (
             warning.code === 'UNRESOLVED_IMPORT' &&
             (warning.message.includes('@safe-global/safe-apps-sdk') || 
@@ -85,6 +93,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           ) {
             return;
           }
+          
           warn(warning);
         },
       },
