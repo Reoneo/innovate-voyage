@@ -66,7 +66,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
       <div className="space-y-6">
         {/* Avatar */}
         <div className="flex flex-col items-center">
-          <div className="w-32 h-32">
+          <div className="w-40 h-40">
             <ProfileAvatar 
               avatarUrl={passport.avatar_url} 
               name={passport.name} 
