@@ -68,14 +68,14 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
 
   // Carousel for multiple POAPs
   return (
-    <div className="relative w-full max-w-full min-w-0 mx-auto flex flex-col items-center min-h-[210px]">
+    <div className="relative w-full mx-auto flex flex-col items-center min-h-[210px]">
       <Carousel
         setApi={setApi}
         opts={{
           align: 'center',
           loop: true,
         }}
-        className="w-full max-w-full min-w-0"
+        className="w-full"
       >
         <CarouselContent
           className="flex items-center justify-center min-h-[180px] w-full overflow-x-auto touch-pan-x scroll-smooth"
@@ -86,13 +86,13 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
           {poaps.map((poap, index) => (
             <CarouselItem
               key={`${poap.tokenId}-${index}`}
-              className="basis-full flex-shrink-0 flex-grow-0 flex items-center justify-center min-h-[180px] py-2 min-w-0"
+              className="flex items-center justify-center py-2 w-full min-w-0 max-w-full"
               style={{
                 scrollSnapAlign: 'center'
               }}
             >
               <div
-                className="relative cursor-pointer group w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] flex items-center justify-center mx-auto"
+                className="relative cursor-pointer group flex items-center justify-center w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] mx-auto"
                 onClick={() => onPoapClick(poap)}
               >
                 <img
