@@ -48,13 +48,7 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({
   return <>
       <div onClick={handleClick} className="cursor-pointer">
         <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl shadow-sm border border-gray-200 px-0 py-[10px] my-[2px] hover:shadow-md transition-shadow duration-200 min-h-[120px] w-full">
-          <div className="flex items-center justify-center space-x-1">
-            
-            
-            {nftCount !== null && nftCount > 0 && <Badge variant="destructive" className="ml-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-0 py-0">
-                {nftCount > 99 ? '99+' : nftCount}
-              </Badge>}
-          </div>
+          
           <div className="text-center w-full mt-2">
             <span className="text-gray-500 py-0 font-normal text-base">
               {nftCount !== null ? `${nftCount} NFTs` : "No NFTs"}
