@@ -4,9 +4,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScoreBadgeProps } from './types';
 import { useBlockchainActivity } from '@/hooks/useBlockchainActivity';
 import { RefreshCw } from 'lucide-react';
+
 interface BlockchainActivityBadgeProps extends ScoreBadgeProps {
   walletAddress: string;
 }
+
 const BlockchainActivityBadge: React.FC<BlockchainActivityBadgeProps> = ({
   walletAddress,
   onClick
@@ -18,7 +20,7 @@ const BlockchainActivityBadge: React.FC<BlockchainActivityBadgeProps> = ({
   } = useBlockchainActivity(walletAddress);
   const hasEmptyData = !data.firstTransaction || data.ethBalance === '0.0000' || data.ethBalance === null || data.outgoingTransactions === 0 || data.outgoingTransactions === null;
   if (loading) {
-    return <Skeleton className="h-16 w-full rounded-2xl" />;
+    return <Skeleton className="h-24 w-full rounded-2xl" />;
   }
   const handleClick = () => {
     if (onClick) {
@@ -28,11 +30,13 @@ const BlockchainActivityBadge: React.FC<BlockchainActivityBadgeProps> = ({
   return (
     <button
       onClick={handleClick}
-      className="flex flex-col items-center justify-center w-full h-32 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 cursor-pointer transition-all hover:shadow-xl hover:bg-gray-50 focus:outline-none gap-2"
+      className="flex flex-col items-center justify-center w-full h-24 rounded-2xl p-0 cursor-pointer transition-all outline-none border-0 gap-2 bg-transparent hover:bg-gray-50"
       style={{ minWidth: 0 }}
+      type="button"
     >
-      <div className="text-lg font-semibold text-gray-900">Activity</div>
-      <div className="text-xs text-gray-600">{data.outgoingTransactions ?? 0} transactions</div>
+      <div className="text-lg font-semibold text-gray-900 mb-1">Activity</div>
+      <div className="text-2xl font-bold text-blue-700">{data.outgoingTransactions ?? 0}</div>
+      <div className="text-xs text-gray-600 -mt-1">transactions</div>
       {hasEmptyData && (
         <button 
           type="button"

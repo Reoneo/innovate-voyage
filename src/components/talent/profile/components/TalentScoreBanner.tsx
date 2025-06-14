@@ -7,9 +7,12 @@ import ScoreDialog from './scores/ScoreDialog';
 import { useScoresData } from '@/hooks/useScoresData';
 import { NftCollectionsSection } from './nft/NftCollectionsSection';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Card } from '@/components/ui/card';
+
 interface TalentScoreBannerProps {
   walletAddress: string;
 }
+
 const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
   walletAddress
 }) => {
@@ -20,6 +23,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
     txCount,
     loading
   } = useScoresData(walletAddress);
+
   // SECURITY BADGE REMOVED per request
 
   const [showNftCollections, setShowNftCollections] = useState(false);
@@ -33,21 +37,24 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
   };
   if (!walletAddress) return null;
   const showTalentScore = score !== null && score !== undefined;
-  return <>
-      <div
-        className={`grid grid-cols-1 md:grid-cols-3 gap-4 mb-6`}
-      >
-        <div className="w-full">
-          <BlockchainActivityBadge walletAddress={walletAddress} onClick={() => handleBadgeClick('blockchain')} />
-        </div>
-        {/* SECURITY BADGE REMOVED */}
-        {showTalentScore && (
-          <div className="w-full">
-            <TalentScoreBadge score={score} onClick={() => handleBadgeClick('talent')} isLoading={loading} talentId={walletAddress} />
-          </div>
-        )}
-        <div className="w-full">
-          <TransactionsBadge txCount={txCount} walletAddress={walletAddress} onClick={handleNftButtonClick} isLoading={loading} />
+
+  // Use card-style grid like your screenshot, with shadow and spacing
+  return (
+    <>
+      <div className="grid grid-cols-1">
+        <div className="flex justify-between items-stretch gap-4 mb-6">
+          {/* Card-like appearance for all stat badges */}
+          <Card className="flex-1 p-0 shadow-md rounded-2xl bg-white border transition hover:shadow-lg hover:scale-[1.01] duration-150">
+            <BlockchainActivityBadge walletAddress={walletAddress} onClick={() => handleBadgeClick('blockchain')} />
+          </Card>
+          {showTalentScore && (
+            <Card className="flex-1 p-0 shadow-md rounded-2xl bg-white border transition hover:shadow-lg hover:scale-[1.01] duration-150">
+              <TalentScoreBadge score={score} onClick={() => handleBadgeClick('talent')} isLoading={loading} talentId={walletAddress} />
+            </Card>
+          )}
+          <Card className="flex-1 p-0 shadow-md rounded-2xl bg-white border transition hover:shadow-lg hover:scale-[1.01] duration-150">
+            <TransactionsBadge txCount={txCount} walletAddress={walletAddress} onClick={handleNftButtonClick} isLoading={loading} />
+          </Card>
         </div>
       </div>
 
@@ -62,6 +69,7 @@ const TalentScoreBanner: React.FC<TalentScoreBannerProps> = ({
         txCount,
         walletAddress
       }} />
-    </>;
+    </>
+  );
 };
 export default TalentScoreBanner;

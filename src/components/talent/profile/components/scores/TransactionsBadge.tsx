@@ -43,16 +43,17 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({
     }
   };
   if (isLoading || loading) {
-    return <Skeleton className="h-16 w-full rounded-2xl" />;
+    return <Skeleton className="h-24 w-full rounded-2xl" />;
   }
   return (
     <>
       <button
         onClick={handleClick}
-        className="flex flex-col items-center justify-center w-full h-32 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 cursor-pointer transition-all hover:shadow-xl hover:bg-gray-50 focus:outline-none gap-2"
+        className="flex flex-col items-center justify-center w-full h-24 rounded-2xl bg-transparent transition-all p-0 border-0 outline-none gap-2 hover:bg-gray-50"
         style={{ minWidth: 0 }}
+        type="button"
       >
-        <div className="text-lg font-semibold text-gray-900">NFTs</div>
+        <div className="text-lg font-semibold text-gray-900 mb-1">NFTs</div>
         <div className="relative">
           {nftCount !== null && nftCount > 0 && (
             <Badge variant="destructive" className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-0 mx-[8px] my-[8px] py-0">
@@ -60,7 +61,7 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({
             </Badge>
           )}
         </div>
-        <div className="text-xs text-gray-600">Transactions</div>
+        <div className="text-xs text-gray-600 -mt-1">Transactions</div>
       </button>
       {/* Profile Dialog */}
       <ProfileDialog userId={mockUserId} open={showProfile} onOpenChange={setShowProfile} />

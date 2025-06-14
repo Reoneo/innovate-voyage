@@ -43,7 +43,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
     }
   }, [identity]);
 
-  // NEW: Fetch Farcaster handle from xyz.farcaster.ens for this identity
+  // Always fetch Farcaster handle from ENS and clearly log what is found
   useEffect(() => {
     const fetchFarcasterEns = async () => {
       try {
@@ -51,12 +51,18 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
         const resolver = await mainnetProvider.getResolver(identity);
         if (resolver) {
           const fcHandle = await resolver.getText('xyz.farcaster.ens');
+          console.log('Farcaster ENS handle record:', fcHandle);
           if (fcHandle && typeof fcHandle === 'string' && fcHandle.trim() !== '') {
             setFarcasterHandle(fcHandle.trim());
+          } else {
+            setFarcasterHandle(null);
           }
+        } else {
+          setFarcasterHandle(null);
         }
       } catch (err) {
         setFarcasterHandle(null);
+        console.error('Failed to fetch Farcaster handle from ENS TXT record:', err);
       }
     };
     fetchFarcasterEns();
@@ -68,7 +74,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   // Check if there are any social links
   const hasSocialLinks = Object.entries(socialLinks || {}).some(([key, val]) => val && val.trim() !== '');
   
-  // Don't show anything at all if no links, no Farcaster, and no keywords
+  // Show section if: social links, or keywords, or farcaster handle present
   if (!hasSocialLinks && keywords.length === 0 && !farcasterHandle) {
     return null;
   }
@@ -90,7 +96,6 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
           </a>
         )}
       </div>
-      
       {keywords.length > 0 && (
         <div className="mt-4">
           <div className="flex flex-wrap gap-2">
@@ -107,4 +112,3 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
 };
 
 export default SocialLinksSection;
-
