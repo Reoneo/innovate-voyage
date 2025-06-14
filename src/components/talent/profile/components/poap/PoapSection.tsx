@@ -12,13 +12,16 @@ interface PoapSectionProps {
 }
 
 const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
-  const { poaps, loading, error } = usePoapData(walletAddress);
+  const { poaps, isLoading, selectedPoap, setSelectedPoap, poapOwners, loadingOwners, loadPoapOwners } = usePoapData(walletAddress);
   const { avatarUrl } = useProfileData(undefined, walletAddress);
-  const [selectedPoap, setSelectedPoap] = useState<Poap | null>(null);
   const [currentPoapIndex, setCurrentPoapIndex] = useState(0);
 
   const handlePoapClick = (poap: Poap) => {
     setSelectedPoap(poap);
+    // Load owners when a POAP is selected
+    if (poap.event.id) {
+      loadPoapOwners(poap.event.id);
+    }
   };
 
   const handleCloseDialog = () => {
@@ -29,7 +32,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     setCurrentPoapIndex(index);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="w-full mt-4">
         <div className="flex items-center justify-center">
@@ -39,7 +42,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
     );
   }
 
-  if (error || !poaps || poaps.length === 0) {
+  if (!poaps || poaps.length === 0) {
     return null;
   }
 
@@ -58,7 +61,11 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
             <DialogTitle>POAP Details</DialogTitle>
           </DialogHeader>
           {selectedPoap && (
-            <PoapDetailContent poap={selectedPoap} />
+            <PoapDetailContent 
+              poap={selectedPoap} 
+              poapOwners={poapOwners}
+              loadingOwners={loadingOwners}
+            />
           )}
         </DialogContent>
       </Dialog>

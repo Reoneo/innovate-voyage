@@ -53,13 +53,15 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
                 `#${[r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')}`;
               
               // Create darker variant for hover
-              const darkenColor = (r: number, g: number, b: number, factor = 0.8) => 
+              const darkenColor = (r: number, g: number, b: number, factor = 0.8): [number, number, number] => 
                 [Math.floor(r * factor), Math.floor(g * factor), Math.floor(b * factor)];
               
               const primary = rgbToHex(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
-              const primaryHover = rgbToHex(...darkenColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]));
+              const darkenedPrimary = darkenColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
+              const primaryHover = rgbToHex(darkenedPrimary[0], darkenedPrimary[1], darkenedPrimary[2]);
               const secondary = rgbToHex(secondaryRgb[0], secondaryRgb[1], secondaryRgb[2]);
-              const secondaryHover = rgbToHex(...darkenColor(secondaryRgb[0], secondaryRgb[1], secondaryRgb[2]));
+              const darkenedSecondary = darkenColor(secondaryRgb[0], secondaryRgb[1], secondaryRgb[2]);
+              const secondaryHover = rgbToHex(darkenedSecondary[0], darkenedSecondary[1], darkenedSecondary[2]);
               
               setThemeColors({
                 primary,
@@ -183,8 +185,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
                 : 'text-gray-400 cursor-not-allowed bg-gray-100'
             }`}
             style={canScrollPrev ? {
-              backgroundColor: themeColors.primary,
-              ':hover': { backgroundColor: themeColors.primaryHover }
+              backgroundColor: themeColors.primary
             } : {}}
             onMouseEnter={(e) => {
               if (canScrollPrev) {
