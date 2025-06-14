@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -33,8 +34,10 @@ const JobPreferencesModal: React.FC<JobPreferencesModalProps> = ({
   const sectors = ['Technology', 'Finance', 'Healthcare', 'Education', 'Marketing', 'Design', 'Engineering', 'Sales'];
 
   const handleSubmit = () => {
-    onPreferencesSubmit(preferences);
-    onOpenChange(false);
+    if (preferences.country && preferences.jobType && preferences.sector) {
+      onPreferencesSubmit(preferences);
+      onOpenChange(false);
+    }
   };
 
   return (
@@ -109,7 +112,7 @@ const JobPreferencesModal: React.FC<JobPreferencesModalProps> = ({
             </Button>
             <Button 
               onClick={handleSubmit} 
-              disabled={!preferences.country}
+              disabled={!preferences.country || !preferences.jobType || !preferences.sector}
               className="flex-1"
             >
               Find Jobs

@@ -1,3 +1,4 @@
+
 import { useMemo } from 'react';
 import { useEnsResolver } from '@/hooks/useEnsResolver';
 import { useBlockchainData } from '@/hooks/useBlockchainData';
@@ -13,11 +14,6 @@ export function useProfileData(ensName?: string, address?: string) {
   // Resolve ENS and address
   const { resolvedAddress, resolvedEns, avatarUrl, ensLinks, ensBio } = useEnsResolver(ensName, address);
   
-  // Add debugging so we know what is resolved and sent to the POAP section
-  if (resolvedEns || resolvedAddress) {
-    console.log('[ProfileData hook] resolvedEns:', resolvedEns, 'resolvedAddress:', resolvedAddress, 'input ENS:', ensName, 'input address:', address);
-  }
-
   // Fetch blockchain data only when we have a resolved address
   const blockchainData = useBlockchainData(resolvedAddress, resolvedEns);
   
