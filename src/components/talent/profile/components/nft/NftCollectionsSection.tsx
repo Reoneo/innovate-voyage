@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { fetchUserNfts, type OpenSeaNft } from '@/api/services/openseaService';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -32,15 +31,26 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     if (!walletAddress) return;
     const loadNfts = async () => {
       setLoading(true);
+      console.log('Loading NFTs for wallet:', walletAddress);
       try {
         const nftCollections = await fetchUserNfts(walletAddress);
-        // Filter out poapv2 collections as requested
-        const filteredCollections = nftCollections.filter(collection =>
-          !collection.collection.toLowerCase().includes('poap v2')
-        );
+        console.log('Fetched NFT collections:', nftCollections);
+        
+        // More lenient filtering - keep more collections
+        const filteredCollections = nftCollections.filter(collection => {
+          const hasValidNfts = collection.nfts && collection.nfts.length > 0;
+          const collectionName = collection.collection || '';
+          const isNotTestCollection = !collectionName.toLowerCase().includes('test');
+          
+          console.log('Collection check:', collectionName, 'hasValidNfts:', hasValidNfts, 'isNotTestCollection:', isNotTestCollection);
+          return hasValidNfts && isNotTestCollection;
+        });
+        
+        console.log('Filtered collections:', filteredCollections);
         setCollections(filteredCollections);
       } catch (error) {
         console.error('Error loading NFTs:', error);
+        setCollections([]);
       } finally {
         setLoading(false);
       }
@@ -58,14 +68,44 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
     if (onOpenChange) {
       onOpenChange(false);
     }
-    // Owner viewing not supported by returned OpenSeaNft type.
   };
 
-  // Check what types of NFTs are available
-  const hasEthereumNfts = collections.some(c => c.nfts.some((nft: any) => nft.token_standard === 'erc721' || nft.token_standard === 'erc1155'));
-  const hasEnsNfts = collections.some(c => c.nfts.some((nft: any) => nft.token_standard === 'ens'));
-  const hasPoapNfts = collections.some(c => c.nfts.some((nft: any) => nft.token_standard === 'poap'));
-  const has3dnsNfts = collections.some(c => c.nfts.some((nft: any) => nft.token_standard === '3dns'));
+  // Check what types of NFTs are available with more flexible matching
+  const hasEthereumNfts = collections.some(c => 
+    c.nfts.some((nft: any) => {
+      const tokenStandard = nft.token_standard?.toLowerCase() || '';
+      const collectionName = (nft.collection || c.collection || '').toLowerCase();
+      return tokenStandard.includes('erc721') || 
+             tokenStandard.includes('erc1155') ||
+             tokenStandard === 'erc-721' ||
+             tokenStandard === 'erc-1155' ||
+             (!tokenStandard && !collectionName.includes('ens') && !collectionName.includes('poap'));
+    })
+  );
+  
+  const hasEnsNfts = collections.some(c => 
+    c.nfts.some((nft: any) => {
+      const tokenStandard = nft.token_standard?.toLowerCase() || '';
+      const collectionName = (nft.collection || c.collection || '').toLowerCase();
+      return tokenStandard.includes('ens') || collectionName.includes('ens');
+    })
+  );
+  
+  const hasPoapNfts = collections.some(c => 
+    c.nfts.some((nft: any) => {
+      const tokenStandard = nft.token_standard?.toLowerCase() || '';
+      const collectionName = (nft.collection || c.collection || '').toLowerCase();
+      return tokenStandard.includes('poap') || collectionName.includes('poap');
+    })
+  );
+  
+  const has3dnsNfts = collections.some(c => 
+    c.nfts.some((nft: any) => {
+      const tokenStandard = nft.token_standard?.toLowerCase() || '';
+      const collectionName = (nft.collection || c.collection || '').toLowerCase();
+      return tokenStandard.includes('3dns') || collectionName.includes('3dns');
+    })
+  );
 
   // Filter collections based on selected collection
   const filteredCollections = selectedCollection
@@ -75,7 +115,20 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
   // Get total NFT count from filtered collections
   const totalNfts = filteredCollections.reduce((total, collection) => total + collection.nfts.length, 0);
 
-  return <>
+  console.log('NFT Section state:', {
+    walletAddress,
+    collectionsCount: collections.length,
+    totalNfts,
+    hasEthereumNfts,
+    hasEnsNfts,
+    hasPoapNfts,
+    has3dnsNfts,
+    selectedType,
+    loading
+  });
+
+  return (
+    <>
       <Dialog open={showCollections} onOpenChange={onOpenChange}>
         <DialogContent className={`${isMobile ? 'w-screen h-screen max-w-none m-0 rounded-none' : 'max-w-7xl w-[95vw] h-[95vh] max-h-none'} flex flex-col bg-white text-gray-900 border-0 shadow-2xl p-0`}>
           <NftDialogHeader
@@ -116,5 +169,6 @@ export const NftCollectionsSection: React.FC<NftCollectionsSectionProps> = ({
           onClose={() => setSelectedNft(null)}
         />
       )}
-    </>;
+    </>
+  );
 };

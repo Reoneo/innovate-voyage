@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import NftCollectionCard from './NftCollectionCard';
@@ -23,6 +22,9 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
   viewMode
 }) => {
   const isMobile = useIsMobile();
+
+  console.log('NftCollectionsContent - Raw collections:', collections);
+  console.log('NftCollectionsContent - Selected type:', selectedType);
 
   if (loading) {
     const skeletonCount = isMobile ? 3 : 6;
@@ -52,47 +54,75 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
     );
   }
 
-  // Filter collections based on selected type and exclude poapv2
+  // More lenient filtering - only filter out obviously problematic collections
   const filteredCollections = collections
-    .filter(collection => !collection.collection.toLowerCase().includes('poap v2'))
+    .filter(collection => {
+      // Keep all collections unless they are clearly problematic
+      const collectionName = collection.collection || '';
+      const isProblematic = collectionName.toLowerCase().includes('poap v2') || 
+                            collectionName.toLowerCase().includes('test') ||
+                            !collection.nfts || 
+                            collection.nfts.length === 0;
+      
+      console.log('Collection filtering:', collectionName, 'isProblematic:', isProblematic);
+      return !isProblematic;
+    })
     .filter(collection => {
       if (selectedType === 'all') return true;
       
       // Check if any NFT in the collection matches the selected type
       return collection.nfts.some((nft: any) => {
-        // Map token standards to our filter types
+        // More flexible type matching
+        const tokenStandard = nft.token_standard?.toLowerCase() || '';
+        const collectionName = (nft.collection || collection.collection || '').toLowerCase();
+        
         switch (selectedType) {
           case 'ethereum':
-            return nft.token_standard === 'erc721' || nft.token_standard === 'erc1155';
+            return tokenStandard.includes('erc721') || 
+                   tokenStandard.includes('erc1155') ||
+                   tokenStandard === 'erc-721' ||
+                   tokenStandard === 'erc-1155' ||
+                   (!tokenStandard && !collectionName.includes('ens') && !collectionName.includes('poap'));
           case 'ens':
-            return nft.token_standard === 'ens' || nft.collection.toLowerCase().includes('ens');
+            return tokenStandard.includes('ens') || collectionName.includes('ens');
           case 'poap':
-            return nft.token_standard === 'poap' || nft.collection.toLowerCase().includes('poap');
+            return tokenStandard.includes('poap') || collectionName.includes('poap');
           case '3dns':
-            return nft.token_standard === '3dns';
+            return tokenStandard.includes('3dns') || collectionName.includes('3dns');
           default:
             return true;
         }
       });
-    }).map(collection => ({
+    })
+    .map(collection => ({
       ...collection,
       nfts: selectedType === 'all' 
         ? collection.nfts 
         : collection.nfts.filter((nft: any) => {
+            const tokenStandard = nft.token_standard?.toLowerCase() || '';
+            const collectionName = (nft.collection || collection.collection || '').toLowerCase();
+            
             switch (selectedType) {
               case 'ethereum':
-                return nft.token_standard === 'erc721' || nft.token_standard === 'erc1155';
+                return tokenStandard.includes('erc721') || 
+                       tokenStandard.includes('erc1155') ||
+                       tokenStandard === 'erc-721' ||
+                       tokenStandard === 'erc-1155' ||
+                       (!tokenStandard && !collectionName.includes('ens') && !collectionName.includes('poap'));
               case 'ens':
-                return nft.token_standard === 'ens' || nft.collection.toLowerCase().includes('ens');
+                return tokenStandard.includes('ens') || collectionName.includes('ens');
               case 'poap':
-                return nft.token_standard === 'poap' || nft.collection.toLowerCase().includes('poap');
+                return tokenStandard.includes('poap') || collectionName.includes('poap');
               case '3dns':
-                return nft.token_standard === '3dns';
+                return tokenStandard.includes('3dns') || collectionName.includes('3dns');
               default:
                 return true;
             }
           })
-    })).filter(collection => collection.nfts.length > 0);
+    }))
+    .filter(collection => collection.nfts.length > 0);
+
+  console.log('Filtered collections:', filteredCollections);
 
   if (filteredCollections.length === 0) {
     return (
@@ -108,10 +138,13 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
         <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-semibold text-gray-800 mb-3`}>No Collections Found</h3>
         <p className={`text-gray-500 max-w-md leading-relaxed ${isMobile ? 'text-sm px-4' : ''}`}>
           {selectedType === 'all' 
-            ? "This wallet doesn't have any NFT collections yet. Start collecting to see them here!"
+            ? "This wallet doesn't have any NFT collections yet. Collections will appear here once they're detected."
             : `No ${selectedType.toUpperCase()} collections found for this wallet. Try selecting a different category.`
           }
         </p>
+        <div className="mt-4 text-xs text-gray-400">
+          Total raw collections: {collections.length}
+        </div>
       </div>
     );
   }
@@ -147,7 +180,7 @@ const NftCollectionsContent: React.FC<NftCollectionsContentProps> = ({
         {filteredCollections.map((collection, index) => (
           <NftCollectionCard
             key={`${collection.collection}-${index}`}
-            collectionName={collection.collection}
+            collectionName={collection.collection || `Collection ${index + 1}`}
             nfts={collection.nfts}
             onNftClick={onNftClick}
             viewMode={isMobile && viewMode === 'large-grid' ? 'grid' : viewMode}
