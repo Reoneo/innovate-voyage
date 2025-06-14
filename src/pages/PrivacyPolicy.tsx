@@ -9,6 +9,7 @@ const PrivacyPolicy: React.FC = () => {
   try {
     console.log("PrivacyPolicy: render start");
 
+    console.log("PrivacyPolicy: render end");
     return (
       <div className="min-h-screen bg-background">
         <Helmet>
@@ -188,7 +189,6 @@ const PrivacyPolicy: React.FC = () => {
           
           <Footer />
         </div>
-        {console.log("PrivacyPolicy: render end")}
       </div>
     );
   } catch (e) {
