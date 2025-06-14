@@ -50,14 +50,23 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
-  // Extract Farcaster handle from ENS SOCIALS (including ENS TXT record "xyz.farcaster.ens")
+  // Extract Farcaster handle with priority: passport.socials > ensLinks > xyz.farcaster.ens
   let farcasterHandle = normalizedSocials.farcaster;
-  if (!farcasterHandle && normalizedSocials['xyz.farcaster.ens']) {
+  
+  // Check if we have ENS links with Farcaster data
+  if (passport?.ensLinks?.socials?.farcaster && !farcasterHandle) {
+    farcasterHandle = passport.ensLinks.socials.farcaster;
+  }
+  
+  // Also check the xyz.farcaster.ens record specifically
+  if (normalizedSocials['xyz.farcaster.ens'] && !farcasterHandle) {
     farcasterHandle = normalizedSocials['xyz.farcaster.ens'];
   }
-  // Remove leading @ if present, only use the handle part
+  
+  // Clean up the handle - remove leading @ if present
   if (farcasterHandle) {
     farcasterHandle = farcasterHandle.replace(/^@/, '').trim();
+    console.log('Final Farcaster handle for activity:', farcasterHandle);
   }
 
   // Mobile: Use new layout component
@@ -147,21 +156,28 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
           <GitHubContributionGraph username={githubUsername} />
         )}
         
-        {/* Farcaster Section (Fetch by handle if present) */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-              <MessageSquare className="h-5 w-5 text-primary" />
-              Farcaster Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FarcasterCastsSection 
-              ensName={farcasterHandle || (ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined)}
-              address={passport.owner_address}
-            />
-          </CardContent>
-        </Card>
+        {/* Farcaster Section - Only show if we have a handle or ENS name */}
+        {(farcasterHandle || (ensNameOrAddress?.includes('.') && ensNameOrAddress)) && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                Farcaster Activity
+                {farcasterHandle && (
+                  <span className="text-sm text-muted-foreground ml-auto">
+                    @{farcasterHandle}
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FarcasterCastsSection 
+                ensName={farcasterHandle || (ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined)}
+                address={passport.owner_address}
+              />
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

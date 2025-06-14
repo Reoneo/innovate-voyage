@@ -23,7 +23,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
       if (identity && (identity.includes('.eth') || identity.includes('.box'))) {
         setIsLoading(true);
         try {
-          // Fetch all social links from ENS text records
+          // Fetch all social links from ENS text records including xyz.farcaster.ens
           const ensLinksResult = await getEnsLinks(identity);
           if (cancelled) return;
 
@@ -40,6 +40,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
                 if (fcHandle && typeof fcHandle === 'string' && fcHandle.trim() !== '') {
                   updated.farcaster = fcHandle.trim().replace(/^@/, '');
                   farcaster = updated.farcaster;
+                  console.log('Found Farcaster handle via direct ENS lookup:', farcaster);
                 }
               }
             } catch (err) {
@@ -114,4 +115,3 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
 };
 
 export default SocialLinksSection;
-
