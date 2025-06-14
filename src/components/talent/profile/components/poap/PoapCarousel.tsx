@@ -1,15 +1,12 @@
 
 import React from 'react';
 import { Poap } from '@/api/services/poapService';
-import { useIsMobile } from '@/hooks/use-mobile';
-import PoapGrid from './PoapGrid';
-import PoapCarouselDesktop from './PoapCarouselDesktop';
+import PoapCarouselComponent from './PoapCarouselComponent';
 
 interface PoapCarouselProps {
   poaps: Poap[];
   onPoapClick: (poap: Poap) => void;
   onCarouselChange?: (index: number) => void;
-  userAvatarUrl?: string;
 }
 
 const PoapCarousel: React.FC<PoapCarouselProps> = ({
@@ -17,13 +14,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
   onPoapClick,
   onCarouselChange
 }) => {
-  const isMobile = useIsMobile();
-
-  if (isMobile) {
-    return <PoapGrid poaps={poaps} onPoapClick={onPoapClick} />;
-  }
-
-  return <PoapCarouselDesktop poaps={poaps} onPoapClick={onPoapClick} onCarouselChange={onCarouselChange} />;
+  return <PoapCarouselComponent poaps={poaps} onPoapClick={onPoapClick} onCarouselChange={onCarouselChange} />;
 };
 
 export default PoapCarousel;

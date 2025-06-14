@@ -4,13 +4,13 @@ import { Poap } from '@/api/services/poapService';
 import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-interface PoapCarouselDesktopProps {
+interface PoapCarouselComponentProps {
   poaps: Poap[];
   onPoapClick: (poap: Poap) => void;
   onCarouselChange?: (index: number) => void;
 }
 
-const PoapCarouselDesktop: React.FC<PoapCarouselDesktopProps> = ({
+const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
   poaps,
   onPoapClick,
   onCarouselChange
@@ -83,7 +83,7 @@ const PoapCarouselDesktop: React.FC<PoapCarouselDesktopProps> = ({
           align: 'center',
           loop: poaps.length > 1,
           skipSnaps: false,
-          dragFree: false,
+          dragFree: true,
           containScroll: 'trimSnaps'
         }} 
         className="w-full"
@@ -114,14 +114,11 @@ const PoapCarouselDesktop: React.FC<PoapCarouselDesktopProps> = ({
       {/* Navigation Controls - Only show if more than 1 POAP */}
       {poaps.length > 1 && (
         <div className="flex items-center justify-center mt-4 space-x-4">
-          {/* Left Arrow */}
+          {/* Left Arrow - Hidden on mobile */}
           <button
-            onClick={() => {
-              console.log('Previous clicked, canScrollPrev:', canScrollPrev);
-              api?.scrollPrev();
-            }}
+            onClick={() => api?.scrollPrev()}
             disabled={!canScrollPrev}
-            className={`p-2 rounded-full transition-all ${
+            className={`p-2 rounded-full transition-all hidden md:block ${
               canScrollPrev 
                 ? 'text-white cursor-pointer shadow-lg hover:scale-105' 
                 : 'text-gray-400 cursor-not-allowed bg-gray-100'
@@ -149,10 +146,7 @@ const PoapCarouselDesktop: React.FC<PoapCarouselDesktopProps> = ({
               {poaps.map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => {
-                    console.log('Dot clicked, scrolling to index:', index);
-                    api?.scrollTo(index);
-                  }}
+                  onClick={() => api?.scrollTo(index)}
                   className={`w-2 h-2 rounded-full transition-all ${
                     index === current 
                       ? 'scale-125' 
@@ -184,14 +178,11 @@ const PoapCarouselDesktop: React.FC<PoapCarouselDesktopProps> = ({
             </div>
           )}
 
-          {/* Right Arrow */}
+          {/* Right Arrow - Hidden on mobile */}
           <button
-            onClick={() => {
-              console.log('Next clicked, canScrollNext:', canScrollNext);
-              api?.scrollNext();
-            }}
+            onClick={() => api?.scrollNext()}
             disabled={!canScrollNext}
-            className={`p-2 rounded-full transition-all ${
+            className={`p-2 rounded-full transition-all hidden md:block ${
               canScrollNext 
                 ? 'text-white cursor-pointer shadow-lg hover:scale-105' 
                 : 'text-gray-400 cursor-not-allowed bg-gray-100'
@@ -218,11 +209,11 @@ const PoapCarouselDesktop: React.FC<PoapCarouselDesktopProps> = ({
       {/* Swipe Hint Text */}
       {poaps.length > 1 && (
         <div className="text-xs text-center mt-2 text-gray-500">
-          Swipe, click arrows or dots to browse POAPs
+          Swipe to browse POAPs
         </div>
       )}
     </div>
   );
 };
 
-export default PoapCarouselDesktop;
+export default PoapCarouselComponent;
