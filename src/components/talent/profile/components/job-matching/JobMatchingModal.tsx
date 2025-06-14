@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,17 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
       
       const allJobs = await jobsApi.getAllJobs();
       console.log('Total jobs fetched:', allJobs.length);
+
+      const sectorKeywords: Record<string, string[]> = {
+        technology: ['developer', 'engineer', 'tech', 'software', 'blockchain', 'web3', 'react', 'javascript', 'python', 'node', 'css', 'solidity', 'defi', 'nft', 'data scientist'],
+        finance: ['finance', 'financial', 'fintech', 'defi', 'accounting', 'analyst', 'trading', 'quant'],
+        healthcare: ['health', 'medical', 'clinic', 'doctor', 'nurse', 'pharma', 'biotech'],
+        education: ['education', 'teacher', 'learning', 'edutech', 'research'],
+        marketing: ['marketing', 'growth', 'seo', 'content', 'social media', 'community', 'brand'],
+        design: ['design', 'designer', 'ui', 'ux', 'figma', 'sketch', 'product designer'],
+        engineering: ['engineer', 'engineering', 'mechanical', 'electrical', 'civil', 'hardware', 'platform'],
+        sales: ['sales', 'business development', 'bd', 'account executive', 'partnerships']
+      };
       
       const filteredJobs = allJobs.filter(job => {
         const locationMatch = jobPreferences.country.toLowerCase() === 'remote' || 
@@ -46,28 +58,22 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
                              (jobPreferences.country.toLowerCase().includes('uk') || jobPreferences.country.toLowerCase().includes('united kingdom')) &&
                              (job.location.toLowerCase().includes('uk') || job.location.toLowerCase().includes('united kingdom') || job.location.toLowerCase().includes('london') || job.location.toLowerCase().includes('manchester') || job.location.toLowerCase().includes('birmingham'));
         
-        const typeMatch = jobPreferences.jobType.toLowerCase() === 'any' ||
-                         job.type.toLowerCase().includes(jobPreferences.jobType.toLowerCase()) ||
-                         job.location.toLowerCase().includes(jobPreferences.jobType.toLowerCase()) || // This line seems a bit off, job.location for jobType? Keeping as is for now.
-                         (jobPreferences.jobType.toLowerCase() === 'full-time' && (job.type.toLowerCase().includes('full') || job.location.toLowerCase().includes('full'))) ||
-                         (jobPreferences.jobType.toLowerCase() === 'part-time' && (job.type.toLowerCase().includes('part') || job.location.toLowerCase().includes('part'))) ||
-                         (jobPreferences.jobType.toLowerCase() === 'remote' && job.location.toLowerCase().includes('remote'));
+        const jobTypeLower = jobPreferences.jobType.toLowerCase();
+        const typeMatch = jobTypeLower === 'any' ||
+                         job.type.toLowerCase().includes(jobTypeLower) ||
+                         (jobTypeLower === 'remote' && job.location.toLowerCase().includes('remote')) ||
+                         (jobTypeLower === 'full-time' && job.type.toLowerCase().includes('full')) ||
+                         (jobTypeLower === 'part-time' && job.type.toLowerCase().includes('part'));
         
         const sectorLower = jobPreferences.sector.toLowerCase();
-        const sectorMatch = sectorLower === 'any' ||
-                           job.title.toLowerCase().includes(sectorLower) ||
-                           job.description.toLowerCase().includes(sectorLower) ||
-                           job.company.toLowerCase().includes(sectorLower) ||
-                           job.skills.some(skill => skill.toLowerCase().includes(sectorLower)) ||
-                           (sectorLower === 'technology' && (
-                             job.title.toLowerCase().includes('developer') ||
-                             job.title.toLowerCase().includes('engineer') ||
-                             job.title.toLowerCase().includes('tech') ||
-                             job.title.toLowerCase().includes('software') ||
-                             job.title.toLowerCase().includes('blockchain') ||
-                             job.title.toLowerCase().includes('web3') ||
-                             job.skills.some(skill => ['react', 'javascript', 'python', 'node', 'css', 'solidity', 'blockchain', 'defi', 'nft'].includes(skill.toLowerCase()))
-                           ));
+        let sectorMatch = sectorLower === 'any';
+
+        if (!sectorMatch) {
+          const keywords = sectorKeywords[sectorLower] || [sectorLower];
+          const jobText = `${job.title.toLowerCase()} ${job.description.toLowerCase()} ${job.skills.join(' ').toLowerCase()}`;
+          
+          sectorMatch = keywords.some(keyword => jobText.includes(keyword));
+        }
         
         const match = locationMatch && typeMatch && sectorMatch;
         
@@ -79,7 +85,8 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
             skills: job.skills,
             locationMatch,
             typeMatch,
-            sectorMatch
+            sectorMatch,
+            preferences: jobPreferences
           });
         }
         
