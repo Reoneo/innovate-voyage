@@ -21,8 +21,6 @@ interface OpenSeaCollection {
   type: 'ethereum' | 'ens' | 'poap' | '3dns';
 }
 
-const OPENSEA_API_KEY = "33e769a3cf954b15a0d7eddf2b60028e";
-
 const SUPPORTED_CHAINS = [
   { id: 'ethereum', name: 'Ethereum' },
   { id: 'base', name: 'Base' },
@@ -41,6 +39,15 @@ serve(async (req: Request) => {
   }
 
   try {
+    const openseaApiKey = Deno.env.get("OPENSEA_API_KEY");
+    if (!openseaApiKey) {
+      console.error('OPENSEA_API_KEY is not set in Supabase secrets.');
+      return new Response(JSON.stringify({ error: 'Server configuration error: OpenSea API key not found.' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      });
+    }
+    
     const { walletAddress } = await req.json();
     if (!walletAddress) {
       return new Response(JSON.stringify({ error: 'walletAddress is required' }), {
@@ -58,7 +65,7 @@ serve(async (req: Request) => {
     const fetchPromises = SUPPORTED_CHAINS.map(async (chain) => {
       try {
         const response = await fetch(`https://api.opensea.io/api/v2/chain/${chain.id}/account/${walletAddress}/nfts`, {
-          headers: { 'X-API-KEY': OPENSEA_API_KEY, 'Accept': 'application/json' },
+          headers: { 'X-API-KEY': openseaApiKey, 'Accept': 'application/json' },
           signal
         });
         
