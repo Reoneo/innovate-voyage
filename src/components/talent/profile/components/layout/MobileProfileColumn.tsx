@@ -8,7 +8,7 @@ import SocialLinksSection from '../social/SocialLinksSection';
 import PoapSection from '../poap/PoapSection';
 
 interface MobileProfileColumnProps {
-  passport: any;
+  passport: any; // Using 'any' for now, structure is partially known via logs
   ensNameOrAddress?: string;
   normalizedSocials: Record<string, string>;
   telephone: string;
@@ -25,21 +25,53 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   displayName
 }) => {
   // Log the entire passport object to inspect its fields
-  console.log('MobileProfileColumn: passport data:', passport);
+  console.log('MobileProfileColumn: Full passport data:', passport);
 
-  // Extract and prioritize ENS bio or description fields
-  const ensBio =
+  // Extract potential bio from prioritized fields
+  let potentialBio =
     passport.bio ||
     passport.description ||
     passport.ens_bio ||
     '';
 
-  // Log the derived ensBio value
-  console.log('MobileProfileColumn: derived ensBio:', ensBio);
+  // Log the initial potential bio and its sources
+  console.log('MobileProfileColumn: Initial potentialBio:', potentialBio);
   console.log('MobileProfileColumn: passport.bio:', passport.bio);
   console.log('MobileProfileColumn: passport.description:', passport.description);
   console.log('MobileProfileColumn: passport.ens_bio:', passport.ens_bio);
+  console.log('MobileProfileColumn: passport.keywords (for inspection):', passport.keywords);
 
+  // Prepare keywords string from passport data (assuming passport.keywords exists)
+  let keywordsString: string | undefined = undefined;
+  if (passport.keywords) {
+    if (Array.isArray(passport.keywords)) {
+      // Filter out empty strings and join, or handle empty array
+      const nonEmptyKeywords = passport.keywords.filter(kw => typeof kw === 'string' && kw.trim() !== '');
+      if (nonEmptyKeywords.length > 0) {
+        keywordsString = nonEmptyKeywords.join(', ');
+      } else {
+        keywordsString = ''; // Treat empty array of keywords as an empty string
+      }
+    } else if (typeof passport.keywords === 'string') {
+      keywordsString = passport.keywords;
+    }
+  }
+  console.log('MobileProfileColumn: Derived keywordsString:', keywordsString);
+
+  // If potentialBio exists and is identical to keywordsString, suppress the bio
+  if (potentialBio && typeof keywordsString === 'string') { // Check typeof keywordsString to ensure it was processed
+    // Normalize both strings for comparison (trim, lowercase)
+    const normalizedPotentialBio = potentialBio.trim().toLowerCase();
+    const normalizedKeywordsString = keywordsString.trim().toLowerCase();
+
+    if (normalizedPotentialBio === normalizedKeywordsString && normalizedPotentialBio !== '') { // also ensure bio is not empty string comparing to empty keywords
+      console.log('MobileProfileColumn: Bio content matched keywords. Suppressing bio.');
+      potentialBio = ''; // Clear bio
+    }
+  }
+
+  const ensBio = potentialBio;
+  console.log('MobileProfileColumn: Final ensBio after keyword check:', ensBio);
 
   return (
     <div className="bg-white flex flex-col items-center px-2 py-2 relative overflow-y-auto h-full w-full" style={{
@@ -74,7 +106,7 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
         </div>
 
         {/* ENS Bio - Inserted here after contact and before POAP */}
-        {ensBio && (
+        {ensBio && ( // Check if ensBio has content before rendering
           <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100 max-w-full w-full">
             <h4 className="font-semibold text-gray-800 mb-3 text-base flex items-center gap-2">
               <span className="text-blue-600">📝</span>
@@ -99,3 +131,4 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
 };
 
 export default MobileProfileColumn;
+
