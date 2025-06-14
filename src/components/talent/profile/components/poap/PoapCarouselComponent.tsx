@@ -41,20 +41,20 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
     };
   }, [api, onCarouselChange]);
 
-  // Show single POAP without carousel for single items
+  // Single POAP (no carousel)
   if (poaps.length <= 1) {
     return (
       <div className="flex items-center justify-center w-full min-h-[180px] py-2">
         {poaps.map((poap) => (
           <div 
             key={poap.tokenId}
-            className="relative cursor-pointer group flex items-center justify-center w-[150px] h-[150px] mx-auto"
+            className="relative cursor-pointer group flex items-center justify-center w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] mx-auto"
             onClick={() => onPoapClick(poap)}
           >
             <img 
               src={poap.event.image_url} 
               alt={poap.event.name} 
-              className="block w-[128px] h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
+              className="block w-[96px] h-[96px] sm:w-[128px] sm:h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
               style={{
                 background: 'rgba(0,0,0,0.7)'
               }} 
@@ -66,31 +66,43 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
     );
   }
 
+  // Carousel for multiple POAPs
   return (
-    <div className="relative w-full max-w-xs mx-auto flex flex-col items-center min-h-[210px]"> 
-      <Carousel 
+    <div className="relative w-full max-w-full min-w-0 mx-auto flex flex-col items-center min-h-[210px]">
+      <Carousel
         setApi={setApi}
         opts={{
           align: 'center',
           loop: true,
-        }} 
-        className="w-full max-w-xs min-h-[180px]"
+        }}
+        className="w-full max-w-full min-w-0"
       >
-        <CarouselContent className="h-full flex items-center justify-center min-h-[180px]">
+        <CarouselContent
+          className="flex items-center justify-center min-h-[180px] w-full overflow-x-auto touch-pan-x scroll-smooth"
+          style={{
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
           {poaps.map((poap, index) => (
-            <CarouselItem 
-              key={`${poap.tokenId}-${index}`} 
-              className="basis-full flex items-center justify-center min-h-[180px]"
+            <CarouselItem
+              key={`${poap.tokenId}-${index}`}
+              className="basis-full flex-shrink-0 flex-grow-0 flex items-center justify-center min-h-[180px] py-2 min-w-0"
+              style={{
+                scrollSnapAlign: 'center'
+              }}
             >
-              <div 
-                className="relative cursor-pointer group w-[150px] h-[150px] flex items-center justify-center mx-auto"
+              <div
+                className="relative cursor-pointer group w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] flex items-center justify-center mx-auto"
                 onClick={() => onPoapClick(poap)}
               >
-                <img 
-                  src={poap.event.image_url} 
-                  alt={poap.event.name} 
-                  className="block w-[128px] h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
+                <img
+                  src={poap.event.image_url}
+                  alt={poap.event.name}
+                  className="block w-[96px] h-[96px] sm:w-[128px] sm:h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
                   loading="lazy"
+                  style={{
+                    background: 'rgba(0,0,0,0.7)'
+                  }}
                 />
                 <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border pointer-events-none"></div>
               </div>
@@ -102,7 +114,6 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
       {/* Navigation Controls */}
       {poaps.length > 1 && (
         <div className="flex items-center justify-center mt-4 space-x-4">
-          {/* Left Arrow */}
           <button
             onClick={() => api?.scrollPrev()}
             disabled={!canScrollPrev}
@@ -124,7 +135,6 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
             <span>{poaps.length}</span>
           </div>
 
-          {/* Right Arrow */}
           <button
             onClick={() => api?.scrollNext()}
             disabled={!canScrollNext}
@@ -141,7 +151,7 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
 
       {/* Swipe Hint Text */}
       {poaps.length > 1 && (
-        <div className="text-xs text-center mt-2 text-gray-500">
+        <div className="text-xs text-center mt-2 text-gray-500 select-none">
           Swipe to browse POAPs
         </div>
       )}
