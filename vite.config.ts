@@ -1,4 +1,3 @@
-
 import { defineConfig, ConfigEnv, UserConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -28,7 +27,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
         punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
         url: 'rollup-plugin-node-polyfills/polyfills/url',
-        string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
+        string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder.js',
         http: 'rollup-plugin-node-polyfills/polyfills/http',
         https: 'rollup-plugin-node-polyfills/polyfills/http',
         os: 'rollup-plugin-node-polyfills/polyfills/os',
