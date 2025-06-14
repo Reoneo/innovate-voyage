@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Poap } from '@/api/services/poapService';
 import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
@@ -79,7 +78,7 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
         }} 
         className="w-full"
       >
-        <CarouselContent className="w-full flex items-center justify-center">
+        <CarouselContent className="w-full flex items-center justify-center h-40">
           {poaps.map((poap, index) => (
             <CarouselItem 
               key={`${poap.tokenId}-${index}`} 
@@ -153,4 +152,3 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
 };
 
 export default PoapCarouselComponent;
-
