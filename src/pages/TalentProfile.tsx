@@ -52,12 +52,9 @@ const TalentProfile = () => {
       window.history.replaceState({}, document.title, cleanUrl);
     }
 
-    // Disable page scrolling and zooming on mobile
+    // Set viewport on mobile to prevent zooming, without disabling scroll globally
     const isMobile = window.innerWidth < 768;
     if (isMobile) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-      
       // Set viewport to prevent zooming
       let viewport = document.querySelector('meta[name="viewport"]');
       if (!viewport) {
@@ -69,11 +66,7 @@ const TalentProfile = () => {
     }
 
     return () => {
-      // Re-enable scrolling when component unmounts
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      
-      // Reset viewport
+      // Reset viewport when component unmounts
       const viewport = document.querySelector('meta[name="viewport"]');
       if (viewport) {
         viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');

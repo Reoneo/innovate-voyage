@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Briefcase } from 'lucide-react';
@@ -26,7 +27,7 @@ const JobMatchingSection: React.FC<JobMatchingSectionProps> = ({
   return <>
       <Card onClick={() => setShowPreferencesModal(true)} className="p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer py-[17px]">
         <div className="flex items-center gap-2 justify-center mx-0 px-0 my-0">
-          <h3 className="text-gray-800 text-base px-0 mx-0 my-[2px] py-0 font-light">Job Matching</h3>
+          <h3 className="text-gray-800 text-base px-0 mx-0 my-[2px] py-0 font-light">Jobs</h3>
         </div>
       </Card>
 
