@@ -15,96 +15,98 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>(socials || {});
   const [isLoading, setIsLoading] = useState(false);
   const [keywords, setKeywords] = useState<string[]>([]);
-  const [farcasterHandle, setFarcasterHandle] = useState<string | null>(null);
+  const [ensLoaded, setEnsLoaded] = useState(false);
 
   useEffect(() => {
-    if (identity && (identity.includes('.eth') || identity.includes('.box'))) {
-      setIsLoading(true);
-      getEnsLinks(identity)
-        .then(links => {
-          if (links && links.socials) {
-            setSocialLinks(prevLinks => ({
-              ...prevLinks,
-              ...links.socials
-            }));
+    let cancelled = false;
+    const fetchSocialLinks = async () => {
+      if (identity && (identity.includes('.eth') || identity.includes('.box'))) {
+        setIsLoading(true);
+        try {
+          // Fetch all social links from ENS text records
+          const ensLinksResult = await getEnsLinks(identity);
+          if (cancelled) return;
+
+          // Merge socials: Essential to avoid duplicates and prefer on-chain/ENS when present
+          let updated = { ...socials, ...(ensLinksResult.socials || {}) };
+
+          // Also check for Farcaster handle in ENS, fallback to known record
+          let farcaster = updated.farcaster;
+          if (!farcaster) {
+            try {
+              const resolver = await mainnetProvider.getResolver(identity);
+              if (resolver) {
+                const fcHandle = await resolver.getText('xyz.farcaster.ens');
+                if (fcHandle && typeof fcHandle === 'string' && fcHandle.trim() !== '') {
+                  updated.farcaster = fcHandle.trim().replace(/^@/, '');
+                  farcaster = updated.farcaster;
+                }
+              }
+            } catch (err) {
+              // fail silently, not always set
+            }
           }
-          
-          // Extract keywords from ENS records
-          if (links && links.keywords) {
-            setKeywords(Array.isArray(links.keywords) ? links.keywords : [links.keywords]);
-          }
-        })
-        .catch(error => {
-          console.error(`Error fetching social links for ${identity}:`, error);
-        })
-        .finally(() => {
+
+          setSocialLinks(updated);
+
+          // Store keywords for badge display
+          setKeywords(Array.isArray(ensLinksResult.keywords) ? ensLinksResult.keywords : (ensLinksResult.keywords ? [ensLinksResult.keywords] : []));
+          setEnsLoaded(true);
+        } catch (error) {
+          // Log error and move on
+          console.error('Error fetching ENS social links:', error);
+          setEnsLoaded(true);
+        } finally {
           setIsLoading(false);
-        });
-    }
-  }, [identity]);
-
-  // Always fetch Farcaster handle from ENS and clearly log what is found
-  useEffect(() => {
-    const fetchFarcasterEns = async () => {
-      try {
-        if (!identity) return;
-        const resolver = await mainnetProvider.getResolver(identity);
-        if (resolver) {
-          const fcHandle = await resolver.getText('xyz.farcaster.ens');
-          console.log('Farcaster ENS handle record:', fcHandle);
-          if (fcHandle && typeof fcHandle === 'string' && fcHandle.trim() !== '') {
-            setFarcasterHandle(fcHandle.trim());
-          } else {
-            setFarcasterHandle(null);
-          }
-        } else {
-          setFarcasterHandle(null);
         }
-      } catch (err) {
-        setFarcasterHandle(null);
-        console.error('Failed to fetch Farcaster handle from ENS TXT record:', err);
       }
     };
-    fetchFarcasterEns();
+    fetchSocialLinks();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line
   }, [identity]);
 
-  // Extract owner address from socials or use undefined
-  const ownerAddress = socials?.ethereum || socials?.walletAddress;
-  
-  // Check if there are any social links
-  const hasSocialLinks = Object.entries(socialLinks || {}).some(([key, val]) => val && val.trim() !== '');
-  
-  // Show section if: social links, or keywords, or farcaster handle present
-  if (!hasSocialLinks && keywords.length === 0 && !farcasterHandle) {
+  // Only show Farcaster if found on ENS
+  const farcasterHandle = socialLinks.farcaster && socialLinks.farcaster.trim() !== '' 
+    ? socialLinks.farcaster.replace(/^@/, '')  // remove leading @ if present
+    : undefined;
+
+  // Check for any links to display
+  const hasLinks = Object.entries(socialLinks || {}).some(([key, val]) => val && val.trim() !== '') || keywords.length > 0 || !!farcasterHandle;
+
+  if (!hasLinks && ensLoaded) {
     return null;
   }
 
   return (
-    <div className="mt-4">
-      <div className="grid grid-cols-4 gap-4">
+    <div className="mt-4" data-testid="social-links-section">
+      <div className="flex flex-row flex-wrap items-center gap-2">
+        {/* Social Media Links */}
         <SocialMediaLinks socials={socialLinks} isLoading={isLoading} />
+
+        {/* Farcaster special icon/link if Farcaster found */}
         {farcasterHandle && (
           <a
-            href={`https://warpcast.com/${farcasterHandle.replace('@', '')}`}
+            href={`https://warpcast.com/${farcasterHandle}`}
             target="_blank"
             rel="noopener noreferrer"
-            title={`Farcaster: @${farcasterHandle.replace('@', '')}`}
+            title={`Farcaster: @${farcasterHandle}`}
             className="flex items-center justify-center"
             data-social-link="farcaster"
           >
-            <SocialIcon type="farcaster" size={40} />
+            <SocialIcon type="farcaster" size={32} />
+            <span className="ml-1 text-xs text-fg/80">@{farcasterHandle}</span>
           </a>
         )}
       </div>
+      {/* Keyword badges from ENS */}
       {keywords.length > 0 && (
-        <div className="mt-4">
-          <div className="flex flex-wrap gap-2">
-            {keywords.map((keyword, index) => (
-              <Badge key={index} variant="secondary" className="text-xs">
-                {keyword}
-              </Badge>
-            ))}
-          </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {keywords.map((keyword, idx) => (
+            <Badge key={idx} variant="secondary" className="text-xs">
+              {keyword}
+            </Badge>
+          ))}
         </div>
       )}
     </div>
@@ -112,3 +114,4 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ socials, identi
 };
 
 export default SocialLinksSection;
+
