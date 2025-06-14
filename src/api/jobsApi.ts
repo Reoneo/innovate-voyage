@@ -1,3 +1,4 @@
+import { supabase } from "@/integrations/supabase/client";
 import { Job } from "@/types/job";
 
 // Simulate API latency
@@ -20,16 +21,21 @@ const transformWeb3Job = (apiJob: any): Job => {
 };
 
 export const jobsApi = {
-  // Get all jobs from web3.career API
+  // Get all jobs from web3.career API via proxy
   getAllJobs: async (): Promise<Job[]> => {
     try {
-      const response = await fetch('https://web3.career/api/v1?token=t6MofgiGBPVUo57eMc5rVu9bDnZXHbfF&limit=100');
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch jobs from web3.career');
+      const { data, error } = await supabase.functions.invoke('proxy-web3-career', {
+        body: { path: 'v1?limit=100' },
+      });
+
+      if (error) {
+        console.error('Error fetching jobs via proxy:', error);
+        throw new Error('Failed to fetch jobs from web3.career proxy');
       }
-      
-      const data = await response.json();
+
+      if (!data) {
+        return [];
+      }
       
       // API returns array starting at index 2
       const jobs = data[2] || [];
