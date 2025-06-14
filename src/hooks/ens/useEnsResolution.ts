@@ -1,18 +1,13 @@
-
 import { useState, useCallback } from 'react';
 import { resolveEnsToAddress, resolveAddressToEns, getEnsAvatar, getEnsLinks, getEnsBio } from '@/utils/ensResolution';
+import type { EnsData } from '@/utils/ens/ensLinks'; // Import EnsData type
 
 interface EnsResolutionState {
   resolvedAddress: string | undefined;
   resolvedEns: string | undefined;
   avatarUrl: string | undefined;
   ensBio: string | undefined;
-  ensLinks: {
-    socials: Record<string, string>;
-    ensLinks: string[];
-    description?: string;
-    keywords?: string[];
-  };
+  ensLinks: EnsData; // Use EnsData type which includes textRecords
 }
 
 export function useEnsResolution(ensName?: string, address?: string) {
@@ -21,10 +16,12 @@ export function useEnsResolution(ensName?: string, address?: string) {
     resolvedEns: ensName,
     avatarUrl: undefined,
     ensBio: undefined,
-    ensLinks: {
+    ensLinks: { // Initialize ensLinks according to EnsData structure
       socials: {},
       ensLinks: [],
-      keywords: []
+      keywords: [],
+      description: undefined,
+      textRecords: {} // Initialize new field
     }
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -52,8 +49,8 @@ export function useEnsResolution(ensName?: string, address?: string) {
           // Fetch links, avatar and bio in parallel
           const [links, avatar, bio] = await Promise.all([
             getEnsLinks(ensName, 'mainnet').catch(() => ({ 
-              socials: {}, ensLinks: [], keywords: [] 
-            })),
+              socials: {}, ensLinks: [], keywords: [], textRecords: {} 
+            }) as EnsData), // Ensure fallback matches EnsData
             getEnsAvatar(ensName, 'mainnet').catch(() => null),
             getEnsBio(ensName, 'mainnet').catch(() => null)
           ]);
@@ -68,9 +65,9 @@ export function useEnsResolution(ensName?: string, address?: string) {
           setState(prev => ({
             ...prev,
             resolvedAddress,
-            ensLinks: links || prev.ensLinks,
+            ensLinks: links || prev.ensLinks, // links directly contains textRecords
             avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
+            ensBio: bio || links?.description || prev.ensBio
           }));
           
           setIsLoading(false);
@@ -120,8 +117,8 @@ export function useEnsResolution(ensName?: string, address?: string) {
           // Fetch links, avatar and bio in parallel
           const [links, avatar, bio] = await Promise.all([
             getEnsLinks(result.ensName, 'mainnet').catch(() => ({ 
-              socials: {}, ensLinks: [], keywords: [] 
-            })),
+              socials: {}, ensLinks: [], keywords: [], textRecords: {} 
+            }) as EnsData), // Ensure fallback matches EnsData
             getEnsAvatar(result.ensName, 'mainnet').catch(() => null),
             getEnsBio(result.ensName, 'mainnet').catch(() => null)
           ]);
@@ -136,9 +133,9 @@ export function useEnsResolution(ensName?: string, address?: string) {
           setState(prev => ({
             ...prev,
             resolvedEns: result.ensName,
-            ensLinks: links || prev.ensLinks,
+            ensLinks: links || prev.ensLinks, // links directly contains textRecords
             avatarUrl: avatar || prev.avatarUrl,
-            ensBio: bio || (links && 'description' in links ? links.description : undefined) || prev.ensBio
+            ensBio: bio || links?.description || prev.ensBio
           }));
           
           setIsLoading(false);

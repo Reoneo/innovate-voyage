@@ -6,6 +6,7 @@ import NameSection from '../identity/NameSection';
 import AdditionalEnsDomains from '../identity/AdditionalEnsDomains';
 import SocialLinksSection from '../social/SocialLinksSection';
 import PoapSection from '../poap/PoapSection';
+import EnsTextRecords from '../identity/EnsTextRecords'; // Import the new component
 
 interface MobileProfileColumnProps {
   passport: any; // Using 'any' for now, structure is partially known via logs
@@ -27,30 +28,26 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   // Log the entire passport object to inspect its fields
   console.log('MobileProfileColumn: Full passport data:', passport);
 
-  // Extract potential bio from prioritized fields
   let potentialBio =
     passport.bio ||
     passport.description ||
     passport.ens_bio ||
     '';
 
-  // Log the initial potential bio and its sources
   console.log('MobileProfileColumn: Initial potentialBio:', potentialBio);
   console.log('MobileProfileColumn: passport.bio:', passport.bio);
   console.log('MobileProfileColumn: passport.description:', passport.description);
   console.log('MobileProfileColumn: passport.ens_bio:', passport.ens_bio);
   console.log('MobileProfileColumn: passport.keywords (for inspection):', passport.keywords);
 
-  // Prepare keywords string from passport data (assuming passport.keywords exists)
   let keywordsString: string | undefined = undefined;
   if (passport.keywords) {
     if (Array.isArray(passport.keywords)) {
-      // Filter out empty strings and join, or handle empty array
       const nonEmptyKeywords = passport.keywords.filter(kw => typeof kw === 'string' && kw.trim() !== '');
       if (nonEmptyKeywords.length > 0) {
         keywordsString = nonEmptyKeywords.join(', ');
       } else {
-        keywordsString = ''; // Treat empty array of keywords as an empty string
+        keywordsString = ''; 
       }
     } else if (typeof passport.keywords === 'string') {
       keywordsString = passport.keywords;
@@ -58,20 +55,27 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   }
   console.log('MobileProfileColumn: Derived keywordsString:', keywordsString);
 
-  // If potentialBio exists and is identical to keywordsString, suppress the bio
-  if (potentialBio && typeof keywordsString === 'string') { // Check typeof keywordsString to ensure it was processed
-    // Normalize both strings for comparison (trim, lowercase)
+  if (potentialBio && typeof keywordsString === 'string') { 
     const normalizedPotentialBio = potentialBio.trim().toLowerCase();
     const normalizedKeywordsString = keywordsString.trim().toLowerCase();
 
-    if (normalizedPotentialBio === normalizedKeywordsString && normalizedPotentialBio !== '') { // also ensure bio is not empty string comparing to empty keywords
+    if (normalizedPotentialBio === normalizedKeywordsString && normalizedPotentialBio !== '') { 
       console.log('MobileProfileColumn: Bio content matched keywords. Suppressing bio.');
-      potentialBio = ''; // Clear bio
+      potentialBio = ''; 
     }
   }
 
   const ensBio = potentialBio;
   console.log('MobileProfileColumn: Final ensBio after keyword check:', ensBio);
+  
+  // Access textRecords from passport.ensLinks (or relevant path based on passport structure)
+  // The exact path might be passport.resolvedEnsData.ensLinks.textRecords or similar
+  // For now, assuming passport.ensLinks exists and might contain textRecords.
+  // This part depends on how TalentProfile.tsx assembles the passport object.
+  // Let's assume it's passport.ensLinks.textRecords as resolved by useEnsResolver.
+  const textRecords = passport?.ensLinks?.textRecords;
+  console.log('MobileProfileColumn: Text records from passport:', textRecords);
+
 
   return (
     <div className="bg-white flex flex-col items-center px-2 py-2 relative overflow-y-auto h-full w-full" style={{
@@ -105,6 +109,13 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
           <ProfileContact email={normalizedSocials.email} telephone={telephone} isOwner={isOwner} />
         </div>
 
+        {/* New ENS Text Records Section */}
+        {textRecords && Object.keys(textRecords).length > 0 && (
+          <div className="mb-3 w-full">
+            <EnsTextRecords records={textRecords} />
+          </div>
+        )}
+        
         {/* ENS Bio - Inserted here after contact and before POAP */}
         {ensBio && ( // Check if ensBio has content before rendering
           <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100 max-w-full w-full">
