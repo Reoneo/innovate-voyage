@@ -1,10 +1,10 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Search, Wallet } from 'lucide-react';
+import { Home, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
-import WalletOptionsModal from "@/components/wallet/WalletOptionsModal";
 import RainbowKitWalletButton from "@/components/wallet/RainbowKitWalletButton";
 
 interface ProfileNavbarProps {
@@ -17,7 +17,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   connectedWallet
 }) => {
   const [search, setSearch] = useState('');
-  const [walletModalOpen, setWalletModalOpen] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -37,7 +36,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           <Link to="/" className="text-white hover:text-gray-300 transition-colors flex-shrink-0">
             <Home className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`} />
           </Link>
-          
           <div className={`relative w-full ${isMobile ? 'max-w-none mx-1' : 'max-w-md'}`}>
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-gray-400`} aria-hidden="true" />
             <Input 
@@ -56,28 +54,10 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               {isMobile ? 'Go' : 'Search'}
             </Button>
           </div>
-          
-          {/* RainbowKit Wallet Connect Button */}
           <div className="flex items-center ml-2">
             <RainbowKitWalletButton />
           </div>
-          {/* You may want to hide or show this button on mobile as you see fit */}
-
-          {/* Existing wallet modal icon, keep for now */}
-          {/* 
-          <div 
-            className="text-white hover:text-gray-300 transition-colors flex-shrink-0 cursor-pointer" 
-            aria-label="Open wallet options"
-            onClick={() => setWalletModalOpen(true)}
-            tabIndex={0}
-            role="button"
-            style={{outline: "none"}}
-          >
-            <Wallet className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`} />
-          </div>
-          */}
         </form>
-        <WalletOptionsModal open={walletModalOpen} onOpenChange={setWalletModalOpen} />
       </div>
     </div>
   );
