@@ -21,9 +21,7 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
   const [canScrollNext, setCanScrollNext] = useState(false);
 
   useEffect(() => {
-    if (!api) {
-      return;
-    }
+    if (!api) return;
 
     const updateState = () => {
       const currentIndex = api.selectedScrollSnap();
@@ -54,7 +52,7 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
     );
   }
 
-  // If poaps exist but each is missing image, show error/info
+  // If poaps exist but each missing image, show error/info
   if (poaps.every(p => !p.event || !p.event.image_url)) {
     return (
       <div className="flex items-center justify-center w-full min-h-[160px] text-red-500 text-sm">
@@ -67,19 +65,20 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
   if (poaps.length <= 1) {
     const poap = poaps[0];
     return (
-      <div className="flex items-center justify-center w-full min-h-[180px] py-2">
+      <div className="flex items-center justify-center w-full min-h-[160px] sm:min-h-[180px] py-2">
         <div
           key={poap.tokenId}
-          className="relative cursor-pointer group flex items-center justify-center w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] mx-auto"
+          className="relative cursor-pointer group flex items-center justify-center 
+            w-[42vw] h-[42vw] max-w-[170px] max-h-[170px] sm:w-[150px] sm:h-[150px] mx-auto"
+          style={{ minWidth: 80, minHeight: 80 }}
           onClick={() => onPoapClick(poap)}
         >
           <img
             src={poap.event.image_url}
             alt={poap.event.name}
-            className="block w-[96px] h-[96px] sm:w-[128px] sm:h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
-            style={{
-              background: 'rgba(0,0,0,0.7)'
-            }}
+            className="block w-[36vw] h-[36vw] max-w-[128px] max-h-[128px] sm:w-[128px] sm:h-[128px] 
+              object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
+            style={{ background: 'rgba(0,0,0,0.7)', minWidth: 64, minHeight: 64 }}
             onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
           />
           <div className="absolute inset-0 rounded-full border-4 border-transparent animate-rainbow-border pointer-events-none"></div>
@@ -90,7 +89,7 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
 
   // Carousel for multiple POAPs
   return (
-    <div className="relative w-full mx-auto flex flex-col items-center min-h-[210px]">
+    <div className="relative w-full mx-auto flex flex-col items-center min-h-[150px] sm:min-h-[210px]">
       <Carousel
         setApi={setApi}
         opts={{
@@ -100,7 +99,7 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
         className="w-full"
       >
         <CarouselContent
-          className="flex items-center justify-center min-h-[180px] w-full touch-pan-x scroll-smooth"
+          className="flex items-center justify-center min-h-[130px] sm:min-h-[180px] w-full touch-pan-x scroll-smooth"
           style={{
             WebkitOverflowScrolling: 'touch',
             overflowX: 'scroll',
@@ -118,7 +117,9 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
               }}
             >
               <div
-                className="relative cursor-pointer group flex items-center justify-center w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] mx-auto"
+                className="relative cursor-pointer group flex items-center justify-center 
+                  w-[42vw] h-[42vw] max-w-[170px] max-h-[170px] sm:w-[150px] sm:h-[150px] mx-auto"
+                style={{ minWidth: 80, minHeight: 80 }}
                 onClick={() => onPoapClick(poap)}
               >
                 {poap.event?.image_url ? (
@@ -126,14 +127,15 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
                     src={poap.event.image_url}
                     alt={poap.event.name}
                     loading="lazy"
-                    className="block w-[96px] h-[96px] sm:w-[128px] sm:h-[128px] object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
-                    style={{
-                      background: 'rgba(0,0,0,0.7)'
-                    }}
+                    className="block w-[36vw] h-[36vw] max-w-[128px] max-h-[128px] sm:w-[128px] sm:h-[128px] 
+                      object-cover rounded-full bg-black/70 border-4 border-white shadow-lg"
+                    style={{ background: 'rgba(0,0,0,0.7)', minWidth: 64, minHeight: 64 }}
                     onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
                   />
                 ) : (
-                  <div className="w-[96px] h-[96px] flex items-center justify-center bg-gray-200 text-gray-500 text-xs rounded-full border-4 border-white shadow-lg">
+                  <div className="w-[36vw] h-[36vw] max-w-[128px] max-h-[128px] flex items-center justify-center bg-gray-200 text-gray-500 text-xs rounded-full border-4 border-white shadow-lg"
+                      style={{ minWidth: 64, minHeight: 64 }}
+                  >
                     No Image
                   </div>
                 )}
@@ -185,7 +187,7 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
       {/* Swipe Hint Text */}
       {poaps.length > 1 && (
         <div className="text-xs text-center mt-2 text-gray-500 select-none">
-          Swipe to browse POAPs
+          Swipe or scroll to browse POAPs
         </div>
       )}
     </div>
