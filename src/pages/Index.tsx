@@ -5,7 +5,6 @@ import HeroBackground from '@/components/home/HeroBackground';
 import HeroTitle from '@/components/home/HeroTitle';
 import SearchSection from '@/components/home/SearchSection';
 import FeaturedProfileSection from '@/components/home/FeaturedProfileSection';
-import SpruceIdUsersSection from '@/components/home/SpruceIdUsersSection';
 import RainbowWalletConnect from '@/components/home/RainbowWalletConnect';
 import ThemeToggle from '@/components/home/ThemeToggle';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
@@ -86,13 +85,8 @@ const IndexContent = () => {
             </div>
             
             {/* Featured content for engagement */}
-            <section aria-label="Featured blockchain professionals" className="mb-6">
+            <section aria-label="Featured blockchain professionals" className="mb-8">
               <FeaturedProfileSection />
-            </section>
-
-            {/* SpruceID Users Section */}
-            <section aria-label="Recent SpruceID verified credentials" className="mb-8">
-              <SpruceIdUsersSection />
             </section>
           </div>
         </section>
@@ -119,11 +113,6 @@ const IndexContent = () => {
             <h3>Smart Contract Development Hiring</h3>
             <p>Hire Solidity developers, Rust programmers, and blockchain architects. Verify coding skills through GitHub contributions and on-chain project deployments.</p>
           </article>
-
-          <article>
-            <h3>SpruceID Verified Credentials</h3>
-            <p>Browse professionals with SpruceID verified credentials including DNS verification, GitHub attestations, Twitter verification, and cross-chain identity linking through Rebase witness services.</p>
-          </article>
         </section>
 
         <div className="sr-only">
@@ -139,9 +128,6 @@ const IndexContent = () => {
             <li>nft project recruitment</li>
             <li>dao contributor discovery</li>
             <li>web3 professional verification</li>
-            <li>sprucekit verified credentials</li>
-            <li>rebase witness verification</li>
-            <li>decentralized identity verification</li>
           </ul>
         </div>
       </div>

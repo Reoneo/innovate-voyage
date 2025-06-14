@@ -30,7 +30,7 @@ export const fetchTalentProtocolData = async (walletAddress: string) => {
         console.log('Failed with status:', response.status, 'for endpoint:', endpoint);
       }
     } catch (error) {
-      console.log('Error with endpoint:', baseEndpoint, error);
+      console.log('Error with endpoint:', endpoint, error);
       continue;
     }
   }
@@ -58,7 +58,7 @@ export const fetchTalentProtocolData = async (walletAddress: string) => {
           console.log('Failed with status:', response.status, 'for endpoint:', endpoint);
         }
       } catch (error) {
-        console.log('Error with endpoint:', baseEndpoint, error);
+        console.log('Error with endpoint:', endpoint, error);
         continue;
       }
     }

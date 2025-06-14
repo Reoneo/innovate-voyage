@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
@@ -90,27 +91,7 @@ const PrivacyPolicy: React.FC = () => {
           </section>
           
           <section className="mb-10">
-            <h2 className="text-2xl font-semibold mb-4">4. Education Credentials and Verification</h2>
-            <p>
-              Our platform includes an Education & Certifications section that is designed to display verified educational credentials. 
-              Currently, this feature is in development and prepared for integration with decentralized identity verification systems.
-            </p>
-            <p>When fully implemented, this system will:</p>
-            <ul className="list-disc pl-6 mb-4">
-              <li>Display only verified educational credentials and certifications</li>
-              <li>Verify credentials using decentralized identity (DID) standards and W3C Verifiable Credentials</li>
-              <li>Show credential details including institution, degree, completion date, and associated skills</li>
-              <li>Indicate verification status and expiration dates</li>
-              <li>Respect user privacy by only displaying credentials the user chooses to make public</li>
-            </ul>
-            <p>
-              The education section is currently hidden for users who do not have verified credentials available. 
-              No mock or placeholder data is displayed to users.
-            </p>
-          </section>
-          
-          <section className="mb-10">
-            <h2 className="text-2xl font-semibold mb-4">5. LinkedIn Data Usage</h2>
+            <h2 className="text-2xl font-semibold mb-4">4. LinkedIn Data Usage</h2>
             <p>
               When you connect your LinkedIn account to recruitment.box, we access your profile data through LinkedIn's APIs in accordance with 
               LinkedIn's Platform Terms and LinkedIn's Privacy Policy. Specifically:
@@ -124,7 +105,7 @@ const PrivacyPolicy: React.FC = () => {
           </section>
           
           <section className="mb-10">
-            <h2 className="text-2xl font-semibold mb-4">6. Data Sharing and Disclosure</h2>
+            <h2 className="text-2xl font-semibold mb-4">5. Data Sharing and Disclosure</h2>
             <p>We may share your information with:</p>
             <ul className="list-disc pl-6 mb-4">
               <li>Other users of the platform, as part of your public profile</li>
@@ -139,7 +120,7 @@ const PrivacyPolicy: React.FC = () => {
           </section>
           
           <section className="mb-10">
-            <h2 className="text-2xl font-semibold mb-4">7. Your Rights and Choices</h2>
+            <h2 className="text-2xl font-semibold mb-4">6. Your Rights and Choices</h2>
             <p>Depending on your location, you may have the following rights:</p>
             <ul className="list-disc pl-6 mb-4">
               <li>Access and receive a copy of your personal data</li>
@@ -156,7 +137,7 @@ const PrivacyPolicy: React.FC = () => {
           </section>
           
           <section className="mb-10">
-            <h2 className="text-2xl font-semibold mb-4">8. Security</h2>
+            <h2 className="text-2xl font-semibold mb-4">7. Security</h2>
             <p>
               We implement appropriate security measures to protect your personal information. However, no method of transmission over the Internet 
               or electronic storage is 100% secure. We strive to use commercially acceptable means to protect your personal information, but cannot 
@@ -165,7 +146,7 @@ const PrivacyPolicy: React.FC = () => {
           </section>
           
           <section className="mb-10">
-            <h2 className="text-2xl font-semibold mb-4">9. International Data Transfers</h2>
+            <h2 className="text-2xl font-semibold mb-4">8. International Data Transfers</h2>
             <p>
               Your information may be transferred to and processed in countries other than your country of residence. These countries may have 
               different data protection laws. When we transfer your information, we will protect it as described in this Privacy Policy and comply 
@@ -174,7 +155,7 @@ const PrivacyPolicy: React.FC = () => {
           </section>
           
           <section className="mb-10">
-            <h2 className="text-2xl font-semibold mb-4">10. Children's Privacy</h2>
+            <h2 className="text-2xl font-semibold mb-4">9. Children's Privacy</h2>
             <p>
               Our services are not directed to children under 18. We do not knowingly collect personal information from children. 
               If you believe we have collected information from a child, please contact us so we can delete the information.
@@ -182,7 +163,7 @@ const PrivacyPolicy: React.FC = () => {
           </section>
           
           <section className="mb-10">
-            <h2 className="text-2xl font-semibold mb-4">11. Changes to This Privacy Policy</h2>
+            <h2 className="text-2xl font-semibold mb-4">10. Changes to This Privacy Policy</h2>
             <p>
               We may update this Privacy Policy periodically to reflect changes in our practices or for legal, operational, or regulatory reasons. 
               We will notify you of any material changes by posting the updated policy on our website with a new effective date.
@@ -190,7 +171,7 @@ const PrivacyPolicy: React.FC = () => {
           </section>
           
           <section className="mb-10">
-            <h2 className="text-2xl font-semibold mb-4">12. Contact Us</h2>
+            <h2 className="text-2xl font-semibold mb-4">11. Contact Us</h2>
             <p>
               If you have questions about this Privacy Policy or our privacy practices, please contact us at:
             </p>
