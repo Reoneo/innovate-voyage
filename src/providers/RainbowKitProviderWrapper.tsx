@@ -1,49 +1,50 @@
 
 import React from "react";
-import { WagmiConfig, createConfig } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WagmiProvider, http } from "wagmi";
+import { RainbowKitProvider, getDefaultConfig, darkTheme, type Chain } from "@rainbow-me/rainbowkit";
 import { mainnet, sepolia } from "wagmi/chains";
-import { http } from "viem";
-import { getDefaultWallets, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
-import '@rainbow-me/rainbowkit/styles.css';
+import "@rainbow-me/rainbowkit/styles.css";
 
-// Define supported chains and configure transports
-const chains = [mainnet, sepolia];
+// Define chains with tuple type for type-safety (wagmi v2+)
+const chains: readonly [Chain, ...Chain[]] = [mainnet, sepolia];
 
+// Use VITE_WC_PROJECT_ID if present, or fallback to demo for safety in dev
 const projectId = import.meta.env.VITE_WC_PROJECT_ID || "demo";
-const { connectors } = getDefaultWallets({
+
+// Use getDefaultConfig to generate wagmi config (RainbowKit v2+ API)
+const config = getDefaultConfig({
   appName: "Recruitment.box",
   projectId,
-  // Remove chains here
-});
-
-// Pass chains to createConfig per wagmi v2+
-const wagmiConfig = createConfig({
   chains,
-  connectors,
   transports: {
     [mainnet.id]: http(),
     [sepolia.id]: http(),
   },
 });
 
-const RainbowKitProviderWrapper = ({ children }: { children: React.ReactNode }) => {
-  // Only applies dark theme for now, could be dynamic per app theme
+// Create a QueryClient singleton
+const queryClient = new QueryClient();
+
+export function RainbowKitProviderWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider
-        modalSize="compact"
-        theme={darkTheme({
-          accentColor: '#3b82f6', // Tailwind blue-500
-          accentColorForeground: 'white',
-          borderRadius: 'medium',
-          fontStack: 'system',
-        })}
-        chains={chains}
-      >
-        {children}
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider
+          modalSize="compact"
+          theme={darkTheme({
+            accentColor: '#3b82f6', // Tailwind blue-500
+            accentColorForeground: 'white',
+            borderRadius: 'medium',
+            fontStack: 'system',
+          })}
+        >
+          {children}
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
-};
+}
 
 export default RainbowKitProviderWrapper;
+
