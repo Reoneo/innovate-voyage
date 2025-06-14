@@ -1,4 +1,3 @@
-
 import { Job } from "@/types/job";
 
 // Simulate API latency
@@ -35,16 +34,8 @@ export const jobsApi = {
       // API returns array starting at index 2
       const jobs = data[2] || [];
       
-      // Transform and filter jobs from last 3 days
-      const threeDaysAgo = new Date();
-      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-      
-      return jobs
-        .map(transformWeb3Job)
-        .filter((job: Job) => {
-          const jobDate = new Date(job.posted_date);
-          return jobDate >= threeDaysAgo;
-        });
+      // Transform jobs. Date filtering will be handled by searchJobs or client-side as needed.
+      return jobs.map(transformWeb3Job);
         
     } catch (error) {
       console.error('Error fetching jobs from web3.career:', error);
@@ -67,18 +58,19 @@ export const jobsApi = {
     skills?: string[];
     location?: string;
     search?: string;
+    postedWithinDays?: number; // New parameter for date filtering
   }): Promise<Job[]> => {
     await delay(700);
-    const allJobs = await jobsApi.getAllJobs();
+    const allJobs = await jobsApi.getAllJobs(); // Fetches all (transformed) jobs
     
     return allJobs.filter(job => {
       // Filter by job type
       if (params.type && !job.type.toLowerCase().includes(params.type.toLowerCase()) && 
-          !job.location.toLowerCase().includes(params.type.toLowerCase())) {
+          !job.location.toLowerCase().includes(params.type.toLowerCase())) { // Assuming type can also be in location for some reason as per original
         return false;
       }
       
-      // Filter by skills (if any skill matches)
+      // Filter by skills (if any skill matches title, description, or job.skills)
       if (params.skills && params.skills.length > 0) {
         if (!params.skills.some(skill => 
           job.skills.some(jobSkill => jobSkill.toLowerCase().includes(skill.toLowerCase())) ||
@@ -103,6 +95,22 @@ export const jobsApi = {
           job.description.toLowerCase().includes(searchLower);
         
         if (!matchesSearch) {
+          return false;
+        }
+      }
+
+      // Filter by posted date
+      if (params.postedWithinDays) {
+        const NdaysAgo = new Date();
+        NdaysAgo.setDate(NdaysAgo.getDate() - params.postedWithinDays);
+        // Normalize NdaysAgo to the start of the day for consistent comparison
+        NdaysAgo.setHours(0, 0, 0, 0); 
+        
+        const jobDate = new Date(job.posted_date);
+        // Normalize jobDate to the start of the day
+        jobDate.setHours(0, 0, 0, 0);
+
+        if (jobDate < NdaysAgo) {
           return false;
         }
       }
