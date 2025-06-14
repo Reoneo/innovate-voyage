@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
@@ -30,10 +31,10 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const [isOwner, setIsOwner] = React.useState(false);
-  
+
   React.useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
-    if (connectedWallet && passport?.owner_address && 
+    if (connectedWallet && passport?.owner_address &&
         connectedWallet.toLowerCase() === passport.owner_address.toLowerCase()) {
       setIsOwner(true);
     }
@@ -48,6 +49,16 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
   });
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
+
+  // Extract Farcaster handle from ENS SOCIALS (including ENS TXT record "xyz.farcaster.ens")
+  let farcasterHandle = normalizedSocials.farcaster;
+  if (!farcasterHandle && normalizedSocials['xyz.farcaster.ens']) {
+    farcasterHandle = normalizedSocials['xyz.farcaster.ens'];
+  }
+  // Remove leading @ if present, only use the handle part
+  if (farcasterHandle) {
+    farcasterHandle = farcasterHandle.replace(/^@/, '').trim();
+  }
 
   // Mobile: Use new layout component
   if (isMobile) {
@@ -136,7 +147,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
           <GitHubContributionGraph username={githubUsername} />
         )}
         
-        {/* Farcaster Section */}
+        {/* Farcaster Section (Fetch by handle if present) */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -146,7 +157,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
           </CardHeader>
           <CardContent>
             <FarcasterCastsSection 
-              ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+              ensName={farcasterHandle || (ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined)}
               address={passport.owner_address}
             />
           </CardContent>
