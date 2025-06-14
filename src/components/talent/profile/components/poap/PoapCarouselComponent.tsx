@@ -19,12 +19,6 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
   const [current, setCurrent] = useState(0);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
-  const [themeColors, setThemeColors] = useState({
-    primary: '#000000',
-    primaryHover: '#333333',
-    secondary: '#E5E7EB',
-    secondaryHover: '#9CA3AF'
-  });
 
   useEffect(() => {
     if (!api) {
@@ -72,25 +66,22 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
     );
   }
 
-  // For large collections, show dots only for first 10 items and use counter
-  const shouldShowDots = poaps.length <= 10;
-
   return (
     <div className="relative w-full max-w-sm mx-auto">
       <Carousel 
         setApi={setApi}
         opts={{
           align: 'center',
-          loop: poaps.length > 1,
+          loop: true,
           skipSnaps: false,
-          dragFree: true,
+          dragFree: false,
           containScroll: 'trimSnaps'
         }} 
         className="w-full"
       >
-        <CarouselContent className="-ml-2 md:-ml-4">
+        <CarouselContent className="ml-0">
           {poaps.map((poap, index) => (
-            <CarouselItem key={`${poap.tokenId}-${index}`} className="pl-2 md:pl-4 basis-full flex items-center justify-center">
+            <CarouselItem key={`${poap.tokenId}-${index}`} className="pl-0 basis-full flex items-center justify-center">
               <div 
                 className="relative cursor-pointer group w-36 h-36" 
                 onClick={() => onPoapClick(poap)}
@@ -111,95 +102,40 @@ const PoapCarouselComponent: React.FC<PoapCarouselComponentProps> = ({
         </CarouselContent>
       </Carousel>
 
-      {/* Navigation Controls - Only show if more than 1 POAP */}
+      {/* Navigation Controls */}
       {poaps.length > 1 && (
         <div className="flex items-center justify-center mt-4 space-x-4">
-          {/* Left Arrow - Hidden on mobile */}
+          {/* Left Arrow */}
           <button
             onClick={() => api?.scrollPrev()}
             disabled={!canScrollPrev}
-            className={`p-2 rounded-full transition-all hidden md:block ${
+            className={`p-2 rounded-full transition-all ${
               canScrollPrev 
-                ? 'text-white cursor-pointer shadow-lg hover:scale-105' 
+                ? 'bg-black text-white cursor-pointer shadow-lg hover:scale-105 hover:bg-gray-800' 
                 : 'text-gray-400 cursor-not-allowed bg-gray-100'
             }`}
-            style={canScrollPrev ? {
-              backgroundColor: themeColors.primary
-            } : {}}
-            onMouseEnter={(e) => {
-              if (canScrollPrev) {
-                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (canScrollPrev) {
-                e.currentTarget.style.backgroundColor = themeColors.primary;
-              }
-            }}
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
 
-          {/* Indicator: Either dots or counter */}
-          {shouldShowDots ? (
-            <div className="flex space-x-2">
-              {poaps.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => api?.scrollTo(index)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    index === current 
-                      ? 'scale-125' 
-                      : 'hover:scale-110'
-                  }`}
-                  style={{
-                    backgroundColor: index === current ? themeColors.primary : themeColors.secondary
-                  }}
-                  onMouseEnter={(e) => {
-                    if (index !== current) {
-                      e.currentTarget.style.backgroundColor = themeColors.secondaryHover;
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (index !== current) {
-                      e.currentTarget.style.backgroundColor = themeColors.secondary;
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <span className="font-medium" style={{ color: themeColors.primary }}>
-                {current + 1}
-              </span>
-              <span>/</span>
-              <span>{poaps.length}</span>
-            </div>
-          )}
+          {/* Counter */}
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <span className="font-medium text-black">
+              {current + 1}
+            </span>
+            <span>/</span>
+            <span>{poaps.length}</span>
+          </div>
 
-          {/* Right Arrow - Hidden on mobile */}
+          {/* Right Arrow */}
           <button
             onClick={() => api?.scrollNext()}
             disabled={!canScrollNext}
-            className={`p-2 rounded-full transition-all hidden md:block ${
+            className={`p-2 rounded-full transition-all ${
               canScrollNext 
-                ? 'text-white cursor-pointer shadow-lg hover:scale-105' 
+                ? 'bg-black text-white cursor-pointer shadow-lg hover:scale-105 hover:bg-gray-800' 
                 : 'text-gray-400 cursor-not-allowed bg-gray-100'
             }`}
-            style={canScrollNext ? {
-              backgroundColor: themeColors.primary
-            } : {}}
-            onMouseEnter={(e) => {
-              if (canScrollNext) {
-                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (canScrollNext) {
-                e.currentTarget.style.backgroundColor = themeColors.primary;
-              }
-            }}
           >
             <ChevronRight className="w-4 h-4" />
           </button>
