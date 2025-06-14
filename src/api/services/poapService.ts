@@ -49,11 +49,8 @@ export async function fetchPoapsByAddress(address: string): Promise<Poap[]> {
       return [];
     }
 
-    const data = invokeError ? [] : data;
-    console.log(`POAP API returned ${Array.isArray(data) ? data.length : 0} POAPs`);
-    
-    // Return all POAPs
     const poaps = Array.isArray(data) ? data : [];
+    console.log(`POAP API returned ${poaps.length} POAPs`);
     
     // Log the first POAP for debugging
     if (poaps.length > 0) {
