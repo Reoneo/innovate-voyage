@@ -118,7 +118,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
             <img 
               src={poap.event.image_url} 
               alt={poap.event.name} 
-              className="w-36 h-36 rounded-full cursor-pointer z-10 p-2 object-contain" 
+              className="w-40 h-40 rounded-full cursor-pointer z-10 p-2 object-contain" 
               style={{
                 background: 'rgba(0,0,0,0.7)'
               }} 
@@ -150,7 +150,7 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
           {poaps.map((poap, index) => (
             <CarouselItem key={`${poap.tokenId}-${index}`} className="pl-2 md:pl-4 basis-full flex items-center justify-center">
               <div 
-                className="relative cursor-pointer group w-36 h-36" 
+                className="relative cursor-pointer group w-40 h-40" 
                 onClick={() => onPoapClick(poap)}
               >
                 <img 
@@ -284,3 +284,4 @@ const PoapCarousel: React.FC<PoapCarouselProps> = ({
 };
 
 export default PoapCarousel;
+
