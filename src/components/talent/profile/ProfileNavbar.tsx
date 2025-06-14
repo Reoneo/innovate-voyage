@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Wallet } from 'lucide-react';
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
 import WalletOptionsModal from "@/components/wallet/WalletOptionsModal";
+import RainbowKitWalletButton from "@/components/wallet/RainbowKitWalletButton";
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
@@ -57,6 +57,14 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             </Button>
           </div>
           
+          {/* RainbowKit Wallet Connect Button */}
+          <div className="flex items-center ml-2">
+            <RainbowKitWalletButton />
+          </div>
+          {/* You may want to hide or show this button on mobile as you see fit */}
+
+          {/* Existing wallet modal icon, keep for now */}
+          {/* 
           <div 
             className="text-white hover:text-gray-300 transition-colors flex-shrink-0 cursor-pointer" 
             aria-label="Open wallet options"
@@ -67,6 +75,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           >
             <Wallet className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`} />
           </div>
+          */}
         </form>
         <WalletOptionsModal open={walletModalOpen} onOpenChange={setWalletModalOpen} />
       </div>

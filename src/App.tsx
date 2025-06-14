@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +13,7 @@ import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
 import XmtpMessageModal from "./components/wallet/XmtpMessageModal";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import RainbowKitProviderWrapper from "@/providers/RainbowKitProviderWrapper";
 
 // Create a persistent QueryClient instance with optimized settings
 const queryClient = new QueryClient({
@@ -59,6 +59,7 @@ const App = () => {
       <ThemeProvider>
         <AuthKitProvider config={farcasterConfig}>
           <QueryClientProvider client={queryClient}>
+            <RainbowKitProviderWrapper>
             <TooltipProvider>
               <Toaster />
               <Sonner />
@@ -75,6 +76,7 @@ const App = () => {
                 <XmtpMessageModal />
               </BrowserRouter>
             </TooltipProvider>
+            </RainbowKitProviderWrapper>
           </QueryClientProvider>
         </AuthKitProvider>
       </ThemeProvider>
