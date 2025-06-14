@@ -1,4 +1,3 @@
-
 import { defineConfig, ConfigEnv, UserConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -47,6 +46,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         domain: 'rollup-plugin-node-polyfills/polyfills/domain',
         buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
         process: 'rollup-plugin-node-polyfills/polyfills/process-es6',
+        // Add alias for incorrect import path with trailing slash from cbw-sdk
+        'string_decoder/': 'rollup-plugin-node-polyfills/polyfills/string-decoder',
       },
     },
     optimizeDeps: {
