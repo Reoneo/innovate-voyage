@@ -43,18 +43,48 @@ export function useTalentProtocolScores(walletAddress?: string) {
     const fetchScores = async () => {
       setIsLoading(true);
       try {
-        // Fetch passport data which contains detailed scoring
-        const passportResponse = await fetch(`https://api.talentprotocol.com/api/v1/passports/${walletAddress}`, {
-          headers: { 'X-API-KEY': TALENT_PROTOCOL_API_KEY, 'Content-Type': 'application/json' }
-        });
+        console.log('Fetching Talent Protocol data for:', walletAddress);
+        
+        // Try multiple approaches to fetch the data
+        const endpoints = [
+          `https://api.talentprotocol.com/api/v1/passports/${walletAddress}`,
+          `https://api.talentprotocol.com/api/v2/passports/${walletAddress}`,
+          `https://api.talentprotocol.com/passports/${walletAddress}`
+        ];
 
-        if (passportResponse.ok) {
-          const passportData = await passportResponse.json();
-          console.log("Talent Protocol Passport Data:", passportData);
+        let passportData = null;
+
+        for (const endpoint of endpoints) {
+          try {
+            console.log('Trying endpoint:', endpoint);
+            const response = await fetch(endpoint, {
+              headers: { 
+                'X-API-KEY': TALENT_PROTOCOL_API_KEY,
+                'Content-Type': 'application/json'
+              }
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log('Success with endpoint:', endpoint, data);
+              passportData = data;
+              break;
+            } else {
+              console.log('Failed with status:', response.status, 'for endpoint:', endpoint);
+            }
+          } catch (error) {
+            console.log('Error with endpoint:', endpoint, error);
+            continue;
+          }
+        }
+
+        if (passportData) {
+          const passport = passportData.passport || passportData;
+          console.log('Processing passport data:', passport);
           
-          const passport = passportData.passport;
           if (passport && passport.passport_credentials) {
             const credentials = passport.passport_credentials;
+            console.log('Found credentials:', credentials);
             
             setScores({
               humanCheckmark: {
@@ -159,8 +189,12 @@ export function useTalentProtocolScores(walletAddress?: string) {
                 maxScore: 12
               }
             });
+          } else {
+            console.log('No passport_credentials found in response');
+            setScores(null);
           }
         } else {
+          console.log('No passport data found');
           setScores(null);
         }
       } catch (error) {
