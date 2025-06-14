@@ -8,7 +8,6 @@ import SocialLinksSection from '../social/SocialLinksSection';
 import FollowButton from '../identity/FollowButton';
 import PoapSection from '../poap/PoapSection';
 import TalentScoreBanner from '../TalentScoreBanner';
-import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
 import MobileLayout from './MobileLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -129,10 +128,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         {/* Talent Score Banner */}
         <TalentScoreBanner walletAddress={passport.owner_address} />
         
-        {/* GitHub Section */}
-        {showGitHubSection && (
-          <GitHubContributionGraph username={githubUsername!} />
-        )}
+        {/* GitHub Section Removed */}
         
         {/* Farcaster Section */}
         <FarcasterCastsSection 

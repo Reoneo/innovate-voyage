@@ -1,8 +1,6 @@
-
 import React from 'react';
 import AvatarSection from '../AvatarSection';
 import TalentScoreBanner from '../TalentScoreBanner';
-import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
 import PoapSection from '../poap/PoapSection';
 
@@ -49,10 +47,7 @@ const DesktopLayout: React.FC<DesktopLayoutProps> = ({
         {/* Talent Score Banner at top */}
         <TalentScoreBanner walletAddress={passport.owner_address} />
         
-        {/* GitHub Section */}
-        {showGitHubSection && (
-          <GitHubContributionGraph username={githubUsername!} />
-        )}
+        {/* GitHub Section Removed */}
         
         {/* Farcaster Section */}
         <FarcasterCastsSection 
