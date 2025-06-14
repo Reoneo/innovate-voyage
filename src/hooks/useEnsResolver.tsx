@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useEnsResolution } from './ens/useEnsResolution';
 import { useWeb3BioData } from './ens/useWeb3BioData';
@@ -56,7 +55,9 @@ export function useEnsResolver(ensName?: string, address?: string) {
 
   // Start resolution process when inputs change
   useEffect(() => {
-    if (DEBUG_ENS) console.log(`useEnsResolver: Inputs changed: ENS=${ensName}, address=${address}`);
+    if (DEBUG_ENS) {
+      console.log('[ENS Resolver] useEnsResolver called with:', { ensName, address });
+    }
     
     const startResolution = async () => {
       if (isEnsName) {
@@ -76,6 +77,9 @@ export function useEnsResolver(ensName?: string, address?: string) {
   // Retry resolution if needed
   useEffect(() => {
     if (error && retryCount < 2) {
+      if (DEBUG_ENS) {
+        console.warn('[ENS Resolver] Error:', error, 'Retrying...');
+      }
       const timer = setTimeout(() => {
         if (DEBUG_ENS) console.log(`useEnsResolver: Retrying resolution (${retryCount + 1})`);
         setRetryCount(prev => prev + 1);
@@ -90,6 +94,15 @@ export function useEnsResolver(ensName?: string, address?: string) {
       return () => clearTimeout(timer);
     }
   }, [error, retryCount, isEnsName, ensName, resolveEns, isValidAddress, address, lookupAddress]);
+
+  // Extra logging for .box domains and fallback
+  useEffect(() => {
+    if (isEnsName && ensName?.endsWith('.box')) {
+      if (DEBUG_ENS) {
+        console.log('[ENS Resolver] Trying .box domain resolution for:', ensName, '->', state.resolvedAddress);
+      }
+    }
+  }, [isEnsName, ensName, state.resolvedAddress]);
 
   // Log the state after all processing
   useEffect(() => {

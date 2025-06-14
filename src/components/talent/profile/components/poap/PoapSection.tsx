@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { usePoapData } from './usePoapData';
@@ -15,6 +14,13 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
   const { poaps, isLoading, selectedPoap, setSelectedPoap, poapOwners, loadingOwners, loadPoapOwners } = usePoapData(walletAddress);
   const { avatarUrl } = useProfileData(undefined, walletAddress);
   const [currentPoapIndex, setCurrentPoapIndex] = useState(0);
+
+  // Extra logging for debugging what walletAddress gets used
+  React.useEffect(() => {
+    if (walletAddress) {
+      console.log('[POAP Section] walletAddress passed to usePoapData:', walletAddress);
+    }
+  }, [walletAddress]);
 
   const handlePoapClick = (poap: Poap) => {
     setSelectedPoap(poap);
@@ -38,12 +44,24 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
         <div className="flex items-center justify-center">
           <div className="w-36 h-36 bg-gray-200 animate-pulse rounded-full"></div>
         </div>
+        <div className="flex justify-center mt-2 text-sm text-gray-500">Loading POAPs…</div>
       </div>
     );
   }
 
   if (!poaps || poaps.length === 0) {
-    return null;
+    return (
+      <div className="w-full mt-4">
+        <div className="flex items-center justify-center text-gray-400 text-base py-12">
+          No POAPs were found for this wallet address.&nbsp;
+          <span className="ml-1 text-xs text-gray-500">{walletAddress}</span>
+        </div>
+        <div className="flex items-center justify-center text-xs text-gray-400">
+          If your ENS/.box address is new or recently received POAPs, it might take time to appear.<br />
+          If you believe this is incorrect, please check the resolved wallet address and your POAP collection on <a href="https://app.poap.xyz/" className="underline" target="_blank" rel="noopener noreferrer">POAP.xyz</a>.
+        </div>
+      </div>
+    );
   }
 
   return (
