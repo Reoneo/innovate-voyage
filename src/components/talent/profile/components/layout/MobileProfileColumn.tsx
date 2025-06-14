@@ -1,12 +1,11 @@
-
 import React from 'react';
 import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
 import NameSection from '../identity/NameSection';
 import AdditionalEnsDomains from '../identity/AdditionalEnsDomains';
 import SocialLinksSection from '../social/SocialLinksSection';
+import FollowButton from '../identity/FollowButton';
 import PoapSection from '../poap/PoapSection';
-
 interface MobileProfileColumnProps {
   passport: any;
   ensNameOrAddress?: string;
@@ -15,7 +14,6 @@ interface MobileProfileColumnProps {
   isOwner: boolean;
   displayName: string;
 }
-
 const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   passport,
   ensNameOrAddress,
@@ -24,63 +22,56 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   isOwner,
   displayName
 }) => {
-  return (
-    <div className="bg-white flex flex-col items-center px-2 py-2 relative overflow-y-auto h-full w-full" style={{
-      margin: '2px'
-    }}>
+  return <div className="bg-white flex flex-col justify-center items-center p-6 relative overflow-hidden h-full">
       {/* Gradient background accent */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-30 py-[3px] my-[5px] mx-[5px] px-[6px]"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-30"></div>
       
-      <div className="relative z-10 space-y-3 text-center w-full max-w-md flex flex-col items-center mx-0">
-        {/* Avatar - Larger size - Positioned at top */}
-        <div className="flex justify-center mb-2 mt-2">
-          <div className="w-40 h-40">
+      <div className="relative z-10 space-y-4 text-center w-full max-w-md flex flex-col justify-center h-full">
+        {/* Avatar - Square without border */}
+        <div className="flex justify-center py-0 mx-0 my-0 px-[3px] bg-transparent">
+          <div className="w-32 h-32">
             <ProfileAvatar avatarUrl={passport.avatar_url} name={displayName} />
           </div>
         </div>
         
         {/* Name and Address */}
-        <div className="mb-2 my-0">
+        <div className="py-0 my-2">
           <NameSection name={passport.name} ownerAddress={passport.owner_address} displayIdentity={ensNameOrAddress} />
         </div>
         
         {/* Additional ENS Domains */}
-        {passport.additionalEnsDomains?.length > 0 && (
-          <div className="mb-2">
+        {passport.additionalEnsDomains?.length > 0 && <div>
             <AdditionalEnsDomains domains={passport.additionalEnsDomains} />
-          </div>
-        )}
+          </div>}
         
         {/* Contact Info */}
-        <div className="mb-2">
+        <div>
           <ProfileContact email={normalizedSocials.email} telephone={telephone} isOwner={isOwner} />
         </div>
         
-        {/* ENS Bio - Display prominently in column 1 - FIXED TO SHOW PROPERLY */}
-        {(passport.bio || passport.description || passport.ens_bio) && (
-          <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100 max-w-full w-full">
-            <h4 className="font-semibold text-gray-800 mb-3 text-base flex items-center gap-2">
-              <span className="text-blue-600">📝</span>
-              About
-            </h4>
-            <p className="text-sm text-gray-700 leading-relaxed text-left whitespace-pre-wrap">
-              {passport.bio || passport.description || passport.ens_bio}
+        {/* Follow Button - matching desktop */}
+        {!isOwner && passport.owner_address && <div>
+            <FollowButton targetAddress={passport.owner_address} />
+          </div>}
+        
+        {/* ENS Bio - Display the bio prominently */}
+        {passport.bio && <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+            <h4 className="font-medium text-gray-800 mb-2">About</h4>
+            <p className="text-sm text-gray-600 leading-relaxed text-left">
+              {passport.bio}
             </p>
-          </div>
-        )}
+          </div>}
         
         {/* Social Links - Hide from main column since we'll show in popup */}
         <div className="hidden">
           <SocialLinksSection socials={normalizedSocials} identity={ensNameOrAddress} />
         </div>
         
-        {/* POAP Section - Make sure it's visible and has proper spacing */}
-        <div className="mt-4 mb-4 w-full">
+        {/* POAP Section */}
+        <div className="my-0">
           <PoapSection walletAddress={passport.owner_address} />
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default MobileProfileColumn;

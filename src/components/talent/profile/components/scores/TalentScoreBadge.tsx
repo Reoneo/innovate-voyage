@@ -1,31 +1,38 @@
-
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getBuilderTitle } from './utils/scoreUtils';
 import { ScoreBadgeProps } from './types';
-
 interface TalentScoreBadgeProps extends ScoreBadgeProps {
   score: number | null;
-  talentId: string;
+  talentId?: string;
 }
 const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
   score,
   onClick,
-  isLoading
+  isLoading,
+  talentId
 }) => {
   if (isLoading) {
-    return <Skeleton className="h-24 w-full rounded-2xl" />;
+    return <Skeleton className="h-32 w-full rounded-2xl" />;
   }
-  return (
-    <button
-      onClick={onClick}
-      className="flex flex-col items-center justify-center w-full h-24 rounded-2xl bg-transparent transition-all p-0 border-0 outline-none gap-2 hover:bg-gray-50"
-      style={{ minWidth: 0 }}
-      type="button"
-    >
-      <div className="text-lg font-semibold text-gray-900 mb-1">Builder Score</div>
-      <div className="text-2xl font-bold text-blue-700">{score !== null && score !== undefined ? score : '--'}</div>
-      <div className="text-xs text-gray-600 -mt-1">Talent</div>
-    </button>
-  );
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+  return <div onClick={handleClick} className="cursor-pointer">
+      <div className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-gray-900 to-black h-full shadow-lg border border-gray-800 my-0 mx-0 px-px py-[8px] rounded-sm">
+        <div className="flex items-center justify-center w-full gap-2">
+          
+          
+        </div>
+        <div className="text-center w-full">
+          <div className="text-4xl font-bold text-white mb-1 my-0">{score || 'N/A'}</div>
+          <p className="text-sm text-gray-300 py-0">
+            {score ? getBuilderTitle(score) : 'Unknown Level'}
+          </p>
+        </div>
+      </div>
+    </div>;
 };
 export default TalentScoreBadge;

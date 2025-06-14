@@ -23,20 +23,18 @@ const DesktopLayout: React.FC<DesktopLayoutProps> = ({
     <div className="hidden md:grid md:grid-cols-2 gap-8 w-full">
       {/* Left Column: Avatar, Social Links, POAPs */}
       <div className="space-y-6">
-        <div className="scale-[0.6] origin-top">
-          <AvatarSection
-            avatarUrl={passport.avatar_url}
-            name={passport.name}
-            ownerAddress={passport.owner_address}
-            socials={{
-              ...passport.socials,
-              linkedin: undefined
-            }}
-            bio={passport.bio}
-            displayIdentity={ensNameOrAddress}
-            additionalEnsDomains={passport.additionalEnsDomains}
-          />
-        </div>
+        <AvatarSection
+          avatarUrl={passport.avatar_url}
+          name={passport.name}
+          ownerAddress={passport.owner_address}
+          socials={{
+            ...passport.socials,
+            linkedin: undefined
+          }}
+          bio={passport.bio}
+          displayIdentity={ensNameOrAddress}
+          additionalEnsDomains={passport.additionalEnsDomains}
+        />
         
         {/* POAPs at bottom of left column */}
         <div className="mt-8">

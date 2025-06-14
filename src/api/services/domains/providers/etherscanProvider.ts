@@ -1,5 +1,6 @@
 
-import { supabase } from '@/integrations/supabase/client';
+// API key for Etherscan
+const ETHERSCAN_API_KEY = "5NNYEUKQQPJ82NZW9BX7Q1X1HICVRDKNPM";
 
 /**
  * Fetch ENS domains from Etherscan as a fallback
@@ -8,15 +9,14 @@ export async function fetchDomainsFromEtherscan(address: string): Promise<string
   const domains: string[] = [];
   
   try {
-    const queryString = `module=account&action=tokennfttx&address=${address}&contractaddress=0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85&page=1&offset=100&sort=asc`;
+    // Use the Etherscan API to get ENS domain records (ENS Registry)
+    const response = await fetch(`https://api.etherscan.io/api?module=account&action=tokennfttx&address=${address}&contractaddress=0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85&page=1&offset=100&sort=asc&apikey=${ETHERSCAN_API_KEY}`);
     
-    const { data, error } = await supabase.functions.invoke('proxy-etherscan', {
-      body: { queryString }
-    });
-    
-    if (error) {
-      throw new Error(`Etherscan proxy error: ${error.message}`);
+    if (!response.ok) {
+      throw new Error(`Etherscan API error: ${response.status}`);
     }
+    
+    const data = await response.json();
     
     if (data.status === '1' && data.result) {
       // Filter for ENS domain transactions

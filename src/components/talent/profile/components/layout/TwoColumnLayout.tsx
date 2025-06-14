@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
@@ -13,8 +12,6 @@ import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
 import MobileLayout from './MobileLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare } from 'lucide-react';
 
 interface TwoColumnLayoutProps {
   passport: any;
@@ -31,10 +28,10 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const [isOwner, setIsOwner] = React.useState(false);
-
+  
   React.useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
-    if (connectedWallet && passport?.owner_address &&
+    if (connectedWallet && passport?.owner_address && 
         connectedWallet.toLowerCase() === passport.owner_address.toLowerCase()) {
       setIsOwner(true);
     }
@@ -50,25 +47,6 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
-  // Extract Farcaster handle with priority: passport.socials > ensLinks > xyz.farcaster.ens
-  let farcasterHandle = normalizedSocials.farcaster;
-  
-  // Check if we have ENS links with Farcaster data
-  if (passport?.ensLinks?.socials?.farcaster && !farcasterHandle) {
-    farcasterHandle = passport.ensLinks.socials.farcaster;
-  }
-  
-  // Also check the xyz.farcaster.ens record specifically
-  if (normalizedSocials['xyz.farcaster.ens'] && !farcasterHandle) {
-    farcasterHandle = normalizedSocials['xyz.farcaster.ens'];
-  }
-  
-  // Clean up the handle - remove leading @ if present
-  if (farcasterHandle) {
-    farcasterHandle = farcasterHandle.replace(/^@/, '').trim();
-    console.log('Final Farcaster handle for activity:', farcasterHandle);
-  }
-
   // Mobile: Use new layout component
   if (isMobile) {
     return (
@@ -81,7 +59,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
     );
   }
 
-  // Desktop: Two column layout
+  // Desktop: Two column layout (unchanged)
   return (
     <div className="grid md:grid-cols-[30%_70%] gap-8 w-full px-6">
       {/* Column 1: Avatar to POAP Section */}
@@ -152,32 +130,15 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         <TalentScoreBanner walletAddress={passport.owner_address} />
         
         {/* GitHub Section */}
-        {showGitHubSection && githubUsername && (
-          <GitHubContributionGraph username={githubUsername} />
+        {showGitHubSection && (
+          <GitHubContributionGraph username={githubUsername!} />
         )}
         
-        {/* Farcaster Section - Only show if we have a handle or ENS name */}
-        {(farcasterHandle || (ensNameOrAddress?.includes('.') && ensNameOrAddress)) && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                <MessageSquare className="h-5 w-5 text-primary" />
-                Farcaster Activity
-                {farcasterHandle && (
-                  <span className="text-sm text-muted-foreground ml-auto">
-                    @{farcasterHandle}
-                  </span>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FarcasterCastsSection 
-                ensName={farcasterHandle || (ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined)}
-                address={passport.owner_address}
-              />
-            </CardContent>
-          </Card>
-        )}
+        {/* Farcaster Section */}
+        <FarcasterCastsSection 
+          ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+          address={passport.owner_address}
+        />
       </div>
     </div>
   );

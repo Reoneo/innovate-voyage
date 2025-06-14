@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { jobsApi } from '@/api/jobsApi';
 import JobListings from '@/components/jobs/JobListings';
 import JobFilters from '@/components/jobs/JobFilters';
-import { toast } from '@/hooks/use-toast';
-import { Briefcase, Database, Building, MapPin, Home, Filter, CalendarDays } from 'lucide-react';
+import { toast } from 'sonner';
+import { Briefcase, Database, Building, MapPin, Home } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -15,42 +16,13 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 const Jobs = () => {
-  const [sortBy, setSortBy] = useState('recent'); // Client-side sorting for now
+  const [sortBy, setSortBy] = useState('recent');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilters, setActiveFilters] = useState<string[]>([]); // For generic filters like "remote", "fulltime"
-  const [activeSkillFilters, setActiveSkillFilters] = useState<string[]>([]);
-  const [selectedDateFilter, setSelectedDateFilter] = useState<string>('any'); // 'any', '24h', '3d', '7d', '14d', '30d'
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   const { data: jobs, isLoading, error } = useQuery({
-    queryKey: ['jobs', searchQuery, activeFilters, activeSkillFilters, selectedDateFilter, sortBy],
-    queryFn: () => {
-      const searchParams: Parameters<typeof jobsApi.searchJobs>[0] = {
-        search: searchQuery,
-        skills: activeSkillFilters,
-      };
-
-      if (selectedDateFilter !== 'any') {
-        const daysMap: Record<string, number> = {
-          '24h': 1,
-          '3d': 3,
-          '7d': 7,
-          '14d': 14,
-          '30d': 30,
-        };
-        searchParams.postedWithinDays = daysMap[selectedDateFilter];
-      }
-
-      if (activeFilters.includes('remote')) {
-        searchParams.location = 'remote';
-      }
-      if (activeFilters.includes('fulltime')) {
-        searchParams.type = 'Full-Time'; // Ensure this matches the format in your job data
-      }
-      // "high-paying" and "entry-level" filters are not implemented in jobsApi.searchJobs
-      // They will not have an effect with the current API.
-
-      return jobsApi.searchJobs(searchParams);
-    },
+    queryKey: ['jobs', sortBy],
+    queryFn: () => jobsApi.getAllJobs(),
   });
 
   const { data: skills, isLoading: isLoadingSkills } = useQuery({
@@ -83,14 +55,10 @@ const Jobs = () => {
   });
 
   if (error) {
-    toast({ // Using object format for shadcn toast
-      title: "Error",
-      description: "Failed to load job listings. Please try again later.",
-      variant: "destructive",
-    });
+    toast.error('Failed to load job listings');
   }
 
-  const statsData = useMemo(() => {
+  const statsData = React.useMemo(() => {
     if (!jobs) return null;
     
     return {
@@ -113,23 +81,6 @@ const Jobs = () => {
         ? prevFilters.filter(f => f !== filter)
         : [...prevFilters, filter]
     );
-  };
-
-  const toggleSkillFilter = (skill: string) => {
-    setActiveSkillFilters(prev =>
-      prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
-    );
-  };
-
-  const handleDateFilterChange = (value: string) => {
-    setSelectedDateFilter(value);
-  };
-  
-  const clearAllFilters = () => {
-    setSearchQuery('');
-    setActiveFilters([]);
-    setActiveSkillFilters([]);
-    setSelectedDateFilter('any');
   };
 
   return (
@@ -216,11 +167,6 @@ const Jobs = () => {
               setSearchQuery={setSearchQuery}
               activeFilters={activeFilters}
               toggleFilter={toggleFilter}
-              activeSkillFilters={activeSkillFilters}
-              toggleSkillFilter={toggleSkillFilter}
-              selectedDateFilter={selectedDateFilter}
-              onDateFilterChange={handleDateFilterChange}
-              clearAllFilters={clearAllFilters}
             />
           </div>
           <div className="lg:col-span-3">

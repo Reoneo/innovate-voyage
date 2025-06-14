@@ -3,13 +3,8 @@
 export const secureStorage = {
   setItem: (key: string, value: string) => {
     try {
-      // Improved simple "encryption": ROT13 in addition to base64, for demonstration (not strong!)
-      const rot13 = (s: string) => s.replace(/[a-zA-Z]/g, (c) =>
-        String.fromCharCode(
-          c.charCodeAt(0) + (c.toLowerCase() < "n" ? 13 : -13)
-        )
-      );
-      const encrypted = btoa(rot13(value));
+      // Simple encryption for localStorage (in production, use proper encryption)
+      const encrypted = btoa(value);
       localStorage.setItem(key, encrypted);
     } catch (error) {
       console.error('Failed to store secure item');
@@ -20,13 +15,7 @@ export const secureStorage = {
     try {
       const encrypted = localStorage.getItem(key);
       if (!encrypted) return null;
-      const rot13 = (s: string) => s.replace(/[a-zA-Z]/g, (c) =>
-        String.fromCharCode(
-          c.charCodeAt(0) + (c.toLowerCase() < "n" ? 13 : -13)
-        )
-      );
-      const base64Decoded = atob(encrypted);
-      return rot13(base64Decoded);
+      return atob(encrypted);
     } catch (error) {
       console.error('Failed to retrieve secure item');
       return null;
@@ -53,7 +42,6 @@ export const validateInput = {
   },
   
   sanitizeString: (input: string): string => {
-    // Remove any HTML-special characters
     return input.replace(/[<>'"&]/g, '');
   },
   
@@ -67,4 +55,15 @@ export const validateInput = {
   }
 };
 
-// API key management has been moved to Supabase Edge Functions for security.
+// API key management
+export const getSecureApiKey = (keyName: string): string | null => {
+  // In production, these should come from environment variables
+  const keys = {
+    github: import.meta.env.VITE_GITHUB_API_TOKEN || '',
+    etherscan: import.meta.env.VITE_ETHERSCAN_API_KEY || '',
+    web3bio: import.meta.env.VITE_WEB3_BIO_API_KEY || '',
+    webacy: import.meta.env.VITE_WEBACY_API_KEY || ''
+  };
+  
+  return keys[keyName as keyof typeof keys] || null;
+};

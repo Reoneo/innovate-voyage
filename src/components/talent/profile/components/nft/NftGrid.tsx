@@ -1,5 +1,4 @@
 
-// Fixes for property names and type safety
 import React, { useState } from 'react';
 import { OpenSeaNft } from '@/api/services/openseaService';
 import NftItem from './NftItem';
@@ -16,23 +15,27 @@ interface NftGridProps {
 const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick, viewMode = 'grid' }) => {
   const [showAll, setShowAll] = useState(false);
   const isMobile = useIsMobile();
-
+  
   // Filter out POAP v2 collections as requested
-  // Collection-level filtering not required here, already filtered in parent component.
-
-  // Group NFTs by identifier+collection for display with count
-  const groupedNfts = nfts.reduce<Record<string, OpenSeaNft & { count?: number }>>((acc, nft) => {
-    const key = `${nft.identifier}-${nft.collection}`;
+  const filteredNfts = nfts.filter(nft => 
+    !nft.collectionName?.toLowerCase().includes('poap v2')
+  );
+  
+  // Combine NFTs by ID for display with count
+  const groupedNfts = filteredNfts.reduce<Record<string, OpenSeaNft & { count?: number }>>((acc, nft) => {
+    const key = `${nft.id}-${nft.collectionName}`;
+    
     if (acc[key]) {
       acc[key].count = (acc[key].count || 1) + 1;
     } else {
       acc[key] = { ...nft, count: 1 };
     }
+    
     return acc;
   }, {});
-
+  
   const uniqueNfts = Object.values(groupedNfts);
-
+  
   // Adjust display count based on view mode and device
   const getDisplayCount = () => {
     if (isMobile) {
@@ -41,17 +44,18 @@ const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick, viewMode = 'grid' }
         default: return 4;
       }
     }
+    
     switch (viewMode) {
       case 'large-grid': return 8;
       case 'list': return 4;
       default: return 6;
     }
   };
-
+  
   const displayCount = getDisplayCount();
   const displayNfts = showAll ? uniqueNfts : uniqueNfts.slice(0, displayCount);
   const hasMore = uniqueNfts.length > displayCount;
-
+  
   // Get grid classes based on view mode and device
   const getGridClasses = () => {
     if (isMobile) {
@@ -62,6 +66,7 @@ const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick, viewMode = 'grid' }
           return 'grid grid-cols-2 gap-2';
       }
     }
+    
     switch (viewMode) {
       case 'large-grid':
         return 'grid grid-cols-4 gap-4';
@@ -76,9 +81,9 @@ const NftGrid: React.FC<NftGridProps> = ({ nfts, onNftClick, viewMode = 'grid' }
     <div className="space-y-4">
       <div className={getGridClasses()}>
         {displayNfts.map((nft) => (
-          <NftItem
-            key={`${nft.identifier}-${nft.collection}`}
-            nft={nft}
+          <NftItem 
+            key={`${nft.id}-${nft.collectionName}`} 
+            nft={nft} 
             onClick={onNftClick}
             viewMode={viewMode}
           />
