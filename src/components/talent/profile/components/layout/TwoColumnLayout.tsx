@@ -12,6 +12,8 @@ import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
 import MobileLayout from './MobileLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MessageSquare } from 'lucide-react';
 
 interface TwoColumnLayoutProps {
   passport: any;
@@ -59,7 +61,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
     );
   }
 
-  // Desktop: Two column layout (unchanged)
+  // Desktop: Two column layout
   return (
     <div className="grid md:grid-cols-[30%_70%] gap-8 w-full px-6">
       {/* Column 1: Avatar to POAP Section */}
@@ -130,15 +132,25 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         <TalentScoreBanner walletAddress={passport.owner_address} />
         
         {/* GitHub Section */}
-        {showGitHubSection && (
-          <GitHubContributionGraph username={githubUsername!} />
+        {showGitHubSection && githubUsername && (
+          <GitHubContributionGraph username={githubUsername} />
         )}
         
         {/* Farcaster Section */}
-        <FarcasterCastsSection 
-          ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
-          address={passport.owner_address}
-        />
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+              <MessageSquare className="h-5 w-5 text-primary" />
+              Farcaster Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FarcasterCastsSection 
+              ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+              address={passport.owner_address}
+            />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
