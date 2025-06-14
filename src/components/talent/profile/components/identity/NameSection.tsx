@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AddressDisplay from './AddressDisplay';
 import { useEfpStats } from '@/hooks/useEfpStats';
@@ -71,8 +70,12 @@ const NameSection: React.FC<NameSectionProps> = ({
     }
   };
 
-  return <div className="mt-2 text-center mx-0 px-0 my-0">
-      {/* Follow Stats - MOVED UP */}
+  return (
+    <div className="mt-2 text-center mx-0 px-0 my-0">
+      {/* ENS/Domain/Display Name - should appear above FollowStats */}
+      <h3 className="text-2xl font-semibold">{displayName}</h3>
+
+      {/* Follow Stats - moved below ENS/Domain */}
       <FollowStats 
         followers={followers} 
         following={following} 
@@ -80,10 +83,7 @@ const NameSection: React.FC<NameSectionProps> = ({
         openFollowersDialog={openFollowersDialog} 
         openFollowingDialog={openFollowingDialog} 
       />
-      
-      {/* Name - Added mt-2 for spacing */}
-      <h3 className="text-2xl font-semibold mt-2">{displayName}</h3>
-      
+
       {/* Address */}
       <div className="flex items-center justify-center gap-2 mt-1 my-0">
         <AddressDisplay address={ownerAddress} />
@@ -101,7 +101,8 @@ const NameSection: React.FC<NameSectionProps> = ({
         followLoading={followLoading} 
         isProcessing={isProcessing} 
       />
-    </div>;
+    </div>
+  );
 };
 
 export default NameSection;
