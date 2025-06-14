@@ -1,33 +1,35 @@
 
 import React from "react";
-import { WagmiConfig, createConfig, configureChains, sepolia, mainnet } from "wagmi";
-import { publicProvider } from "wagmi/providers/public";
-import { getDefaultWallets, RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
+import { WagmiConfig, createConfig } from "wagmi";
+import { mainnet, sepolia } from "wagmi/chains";
+import { http } from "viem";
+import { getDefaultWallets, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import '@rainbow-me/rainbowkit/styles.css';
 
-const { chains, publicClient } = configureChains(
-  [mainnet, sepolia],
-  [publicProvider()],
-);
+// Define supported chains and configure transports
+const chains = [mainnet, sepolia];
 
+const projectId = import.meta.env.VITE_WC_PROJECT_ID || "demo";
 const { connectors } = getDefaultWallets({
   appName: "Recruitment.box",
-  projectId: import.meta.env.VITE_WC_PROJECT_ID || "demo",
+  projectId,
   chains,
 });
 
+// Setup wagmiConfig following wagmi v2 config
 const wagmiConfig = createConfig({
-  autoConnect: true,
   connectors,
-  publicClient,
+  transports: {
+    [mainnet.id]: http(),
+    [sepolia.id]: http(),
+  },
 });
 
 const RainbowKitProviderWrapper = ({ children }: { children: React.ReactNode }) => {
-  // You could set theme based on your app theme context if available
+  // Only applies dark theme for now, could be dynamic per app theme
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider
-        chains={chains}
         modalSize="compact"
         theme={darkTheme({
           accentColor: '#3b82f6', // Tailwind blue-500
@@ -43,3 +45,4 @@ const RainbowKitProviderWrapper = ({ children }: { children: React.ReactNode }) 
 };
 
 export default RainbowKitProviderWrapper;
+
