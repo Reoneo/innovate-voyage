@@ -4,8 +4,7 @@ import ProfileAvatar from './ProfileAvatar';
 import ProfileContact from './ProfileContact';
 import NameSection from './identity/NameSection';
 import AdditionalEnsDomains from './identity/AdditionalEnsDomains';
-// BiographySection is not used directly here anymore if bio is in NameSection
-// import BiographySection from './biography/BiographySection'; 
+import BiographySection from './biography/BiographySection';
 import SocialLinksSection from './social/SocialLinksSection';
 import FollowButton from './identity/FollowButton';
 import PoapSection from './poap/PoapSection';
@@ -19,7 +18,6 @@ interface AvatarSectionProps {
   additionalEnsDomains?: string[];
   bio?: string;
   displayIdentity?: string;
-  keywords?: string[]; // New prop
 }
 
 const AvatarSection: React.FC<AvatarSectionProps> = ({ 
@@ -29,11 +27,10 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   socials = {},
   additionalEnsDomains = [],
   bio,
-  displayIdentity,
-  keywords // Destructure new prop
+  displayIdentity
 }) => {
   const [isOwner, setIsOwner] = useState(false);
-  const isMobile = useIsMobile(); // This component is generally for mobile, but check is fine.
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
@@ -43,6 +40,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
     }
   }, [ownerAddress]);
   
+  // Format socials object to ensure all keys are lowercase for consistency
   const normalizedSocials: Record<string, string> = {};
   Object.entries(socials || {}).forEach(([key, value]) => {
     if (value && typeof value === 'string' && value.trim() !== '') {
@@ -51,6 +49,7 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   });
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
+  const hasSocialLinks = Object.entries(normalizedSocials || {}).some(([key, val]) => val && val.trim() !== '');
   
   return (
     <div className={`flex flex-col items-center gap-2 w-full text-center ${isMobile ? 'px-2' : ''}`}>
@@ -62,19 +61,17 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         />
       </div>
       
-      {/* Name, FollowStats, Bio, Keywords Section */}
+      {/* Name and Address */}
       <div className={`w-full ${isMobile ? 'mb-2' : 'mb-3'}`}>
         <NameSection 
           name={name} 
           ownerAddress={ownerAddress}
           displayIdentity={displayIdentity}
-          bio={bio} // Pass bio
-          keywords={keywords} // Pass keywords
         />
       </div>
       
       {/* Additional ENS Domains */}
-      {additionalEnsDomains && additionalEnsDomains.length > 0 && (
+      {additionalEnsDomains.length > 0 && (
         <div className={`w-full ${isMobile ? 'mb-2' : 'mb-3'}`}>
           <AdditionalEnsDomains domains={additionalEnsDomains} />
         </div>
@@ -96,14 +93,14 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
         </div>
       )}
       
-      {/* ENS Bio - Removed as it's now in NameSection */}
-      {/* {bio && !keywords?.length && ( // Conditionally show if not in NameSection (though it is now)
+      {/* ENS Bio */}
+      {bio && (
         <div className={`w-full ${isMobile ? 'mb-2' : 'mb-3'} ${isMobile ? 'px-2' : ''}`}>
           <p className={`text-sm text-muted-foreground ${isMobile ? 'text-xs leading-relaxed' : ''}`}>
             {bio}
           </p>
         </div>
-      )} */}
+      )}
       
       {/* Social Links */}
       <div className={`w-full ${isMobile ? 'mb-2' : 'mb-3'}`}>

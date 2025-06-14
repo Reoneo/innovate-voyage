@@ -3,6 +3,7 @@ import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
 import NameSection from '../identity/NameSection';
 import AdditionalEnsDomains from '../identity/AdditionalEnsDomains';
+import BiographySection from '../biography/BiographySection';
 import SocialLinksSection from '../social/SocialLinksSection';
 import FollowButton from '../identity/FollowButton';
 import PoapSection from '../poap/PoapSection';
@@ -11,8 +12,6 @@ import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
 import MobileLayout from './MobileLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare } from 'lucide-react';
 
 interface TwoColumnLayoutProps {
   passport: any;
@@ -38,6 +37,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
     }
   }, [passport?.owner_address]);
 
+  // Format socials object to ensure all keys are lowercase for consistency
   const normalizedSocials: Record<string, string> = {};
   Object.entries(passport?.socials || {}).forEach(([key, value]) => {
     if (value && typeof value === 'string' && value.trim() !== '') {
@@ -47,6 +47,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
 
   const telephone = normalizedSocials.telephone || normalizedSocials.whatsapp;
 
+  // Mobile: Use new layout component
   if (isMobile) {
     return (
       <MobileLayout 
@@ -58,10 +59,11 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
     );
   }
 
+  // Desktop: Two column layout (unchanged)
   return (
     <div className="grid md:grid-cols-[30%_70%] gap-8 w-full px-6">
       {/* Column 1: Avatar to POAP Section */}
-      <div className="space-y-6 flex flex-col items-center">
+      <div className="space-y-6">
         {/* Avatar */}
         <div className="flex flex-col items-center">
           <ProfileAvatar 
@@ -70,14 +72,12 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
           />
         </div>
         
-        {/* Name, FollowStats, Bio, Keywords Section */}
-        <div className="text-center w-full">
+        {/* Name and Address */}
+        <div className="text-center">
           <NameSection 
             name={passport.name} 
             ownerAddress={passport.owner_address}
             displayIdentity={ensNameOrAddress}
-            bio={passport.bio}
-            keywords={passport.ensLinks?.keywords}
           />
         </div>
         
@@ -104,14 +104,14 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
           </div>
         )}
         
-        {/* ENS Bio - Removed as it's now in NameSection */}
-        {/* {passport.bio && !passport.ensLinks?.keywords && ( // Conditionally show if not in NameSection (though it is now)
+        {/* ENS Bio */}
+        {passport.bio && (
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
               {passport.bio}
             </p>
           </div>
-        )} */}
+        )}
         
         {/* Social Links */}
         <div className="text-center">
@@ -130,25 +130,15 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         <TalentScoreBanner walletAddress={passport.owner_address} />
         
         {/* GitHub Section */}
-        {showGitHubSection && githubUsername && (
-          <GitHubContributionGraph username={githubUsername} />
+        {showGitHubSection && (
+          <GitHubContributionGraph username={githubUsername!} />
         )}
         
         {/* Farcaster Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-              <MessageSquare className="h-5 w-5 text-primary" />
-              Farcaster Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FarcasterCastsSection 
-              ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
-              address={passport.owner_address}
-            />
-          </CardContent>
-        </Card>
+        <FarcasterCastsSection 
+          ensName={ensNameOrAddress?.includes('.') ? ensNameOrAddress : undefined}
+          address={passport.owner_address}
+        />
       </div>
     </div>
   );
