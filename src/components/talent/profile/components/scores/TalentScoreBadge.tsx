@@ -1,7 +1,9 @@
+
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getBuilderTitle } from './utils/scoreUtils';
 import { ScoreBadgeProps } from './types';
+
 interface TalentScoreBadgeProps extends ScoreBadgeProps {
   score: number | null;
   talentId?: string;
@@ -20,19 +22,15 @@ const TalentScoreBadge: React.FC<TalentScoreBadgeProps> = ({
       onClick();
     }
   };
-  return <div onClick={handleClick} className="cursor-pointer">
-      <div className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-gray-900 to-black h-full shadow-lg border border-gray-800 my-0 mx-0 px-px py-[8px] rounded-sm">
-        <div className="flex items-center justify-center w-full gap-2">
-          
-          
-        </div>
+  return (
+    <div onClick={handleClick} className="cursor-pointer">
+      <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl shadow-sm border border-gray-200 px-0 py-[10px] my-[2px] hover:shadow-md transition-shadow duration-200 min-h-[120px] w-full">
         <div className="text-center w-full">
-          <div className="text-4xl font-bold text-white mb-1 my-0">{score || 'N/A'}</div>
-          <p className="text-gray-300 py-0 font-normal text-sm">
-            {score ? getBuilderTitle(score) : 'Unknown Level'}
-          </p>
+          <div className="text-4xl font-bold text-gray-800 mb-1 my-0 leading-none">{score || 'N/A'}</div>
+          <p className="text-gray-500 py-0 font-normal text-base">{score ? getBuilderTitle(score) : 'Unknown Level'}</p>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 export default TalentScoreBadge;
