@@ -1,15 +1,16 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, ArrowLeft, SearchX, Edit3 } from 'lucide-react'; // Removed MapPin, Clock, ExternalLink, Building as they are now in JobCard
+import { Briefcase, ArrowLeft } from 'lucide-react';
 import { Job } from '@/types/job';
 import { jobsApi } from '@/api/jobsApi';
 import { useQuery } from '@tanstack/react-query';
 import { JobPreferences } from './JobPreferencesModal';
-import JobCard from './JobCard'; // Import the new JobCard component
+import JobCard from './JobCard';
+import JobMatchingLoadingState from './JobMatchingLoadingState';
+import JobMatchingErrorState from './JobMatchingErrorState';
+import JobMatchingEmptyState from './JobMatchingEmptyState';
 
 interface JobMatchingModalProps {
   open: boolean;
@@ -28,7 +29,7 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
   jobPreferences,
   onBackToPreferences
 }) => {
-  const { data: jobs = [], isLoading, error: queryError } = useQuery({
+  const { data: jobs = [], isLoading, error: queryError, refetch } = useQuery({
     queryKey: ['matched-jobs', passport?.owner_address, jobPreferences],
     queryFn: async () => {
       if (!jobPreferences) return [];
@@ -91,8 +92,6 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
     enabled: open && !!jobPreferences
   });
 
-  // formatSalary function removed as it's now in JobCard.tsx
-
   const profileName = passport?.name || 'your profile';
 
   return (
@@ -133,51 +132,11 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
         
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {isLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <Card key={i} className="animate-pulse border bg-white border-gray-200 shadow-sm rounded-lg">
-                  <CardHeader className="pb-3">
-                    <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="h-4 bg-gray-200 rounded"></div>
-                      <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <JobMatchingLoadingState />
           ) : queryError ? (
-             <Card className="p-8 sm:p-12 text-center bg-white border-dashed border-2 border-red-200 rounded-xl shadow-lg">
-                <SearchX className="h-16 w-16 sm:h-20 sm:w-20 mx-auto text-red-400 mb-4 sm:mb-6" />
-                <h3 className="text-xl sm:text-2xl font-bold text-red-700 mb-3">Error Fetching Jobs</h3>
-                <p className="text-gray-600 max-w-md mx-auto text-sm sm:text-base mb-6">
-                  We encountered an issue while trying to fetch job matches. Please try again later.
-                </p>
-                <Button onClick={onBackToPreferences} variant="outline" className="text-red-700 border-red-300 hover:bg-red-50">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Preferences
-                </Button>
-              </Card>
+             <JobMatchingErrorState onRetry={onBackToPreferences} />
           ) : jobs.length === 0 ? (
-            <Card className="p-8 sm:p-12 text-center bg-white border-dashed border-2 border-gray-200 rounded-xl shadow-lg">
-              <SearchX className="h-16 w-16 sm:h-20 sm:w-20 mx-auto text-gray-400 mb-4 sm:mb-6" />
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-700 mb-3">No Job Matches Found</h3>
-              <p className="text-gray-600 max-w-md mx-auto text-sm sm:text-base mb-6">
-                We couldn't find any Web3 jobs matching your current preferences. Try adjusting your criteria for better results!
-              </p>
-              <Button onClick={onBackToPreferences} variant="default" className="bg-primary hover:bg-primary/90">
-                <Edit3 className="h-4 w-4 mr-2" />
-                Adjust Preferences
-              </Button>
-              {jobPreferences && (
-                <div className="mt-6 text-xs text-gray-400">
-                  <p>Searched for: {jobPreferences.country} • {jobPreferences.jobType} • {jobPreferences.sector}</p>
-                </div>
-              )}
-            </Card>
+            <JobMatchingEmptyState onAdjustPreferences={onBackToPreferences} jobPreferences={jobPreferences} />
           ) : (
             <div className="space-y-4">
               <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 text-center sm:text-left">
@@ -189,7 +148,7 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
                 </p>
               </div>
               {jobs.map((job) => (
-                <JobCard key={job.job_id} job={job} /> // Use the new JobCard component
+                <JobCard key={job.job_id} job={job} />
               ))}
             </div>
           )}
