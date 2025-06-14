@@ -46,8 +46,10 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         domain: 'rollup-plugin-node-polyfills/polyfills/domain',
         buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
         process: 'rollup-plugin-node-polyfills/polyfills/process-es6',
-        // Add alias for incorrect import path with trailing slash from cbw-sdk
-        'string_decoder/': 'string_decoder',
+        // Fix aliases for incorrect import path with trailing slash from cbw-sdk
+        'string_decoder': 'rollup-plugin-node-polyfills/polyfills/string-decoder.js',
+        'string_decoder/': 'rollup-plugin-node-polyfills/polyfills/string-decoder.js',
+        'rollup-plugin-node-polyfills/polyfills/string-decoder/': 'rollup-plugin-node-polyfills/polyfills/string-decoder.js',
       },
     },
     optimizeDeps: {
