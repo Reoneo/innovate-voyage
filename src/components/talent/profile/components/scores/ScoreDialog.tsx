@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
+import { X } from 'lucide-react';
 import TalentScoreDialogContent from './dialogs/TalentScoreDialogContent';
 import SecurityDialogContent from './dialogs/SecurityDialogContent';
 import TransactionsDialogContent from './dialogs/TransactionsDialogContent';
@@ -35,7 +36,13 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-screen h-screen max-w-none max-h-none top-0 left-0 translate-x-0 translate-y-0 rounded-none bg-white text-gray-800 border-none shadow-lg overflow-y-auto p-6">
+      <DialogContent className="w-screen h-screen max-w-none max-h-none top-0 left-0 translate-x-0 translate-y-0 rounded-none bg-black text-white border-none shadow-lg overflow-y-auto p-6">
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute top-4 right-4 z-50 p-2 hover:bg-gray-800 rounded-full transition-colors"
+        >
+          <X className="h-6 w-6 text-white" />
+        </button>
         {getDialogContent()}
       </DialogContent>
     </Dialog>
