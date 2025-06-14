@@ -3,7 +3,7 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, ArrowLeft } from 'lucide-react';
+import { Briefcase, ArrowLeft, CalendarDays } from 'lucide-react';
 import { Job } from '@/types/job';
 import { jobsApi } from '@/api/jobsApi';
 import { useQuery } from '@tanstack/react-query';
@@ -12,6 +12,8 @@ import JobCard from './JobCard';
 import JobMatchingLoadingState from './JobMatchingLoadingState';
 import JobMatchingErrorState from './JobMatchingErrorState';
 import JobMatchingEmptyState from './JobMatchingEmptyState';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 interface JobMatchingModalProps {
   open: boolean;
@@ -30,12 +32,14 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
   jobPreferences,
   onBackToPreferences
 }) => {
+  const [dateFilter, setDateFilter] = React.useState('any');
+
   const { data: jobs = [], isLoading, error: queryError, refetch } = useQuery({
-    queryKey: ['matched-jobs', passport?.owner_address, jobPreferences],
+    queryKey: ['matched-jobs', passport?.owner_address, jobPreferences, dateFilter],
     queryFn: async () => {
       if (!jobPreferences) return [];
       
-      console.log('Fetching jobs with preferences:', jobPreferences);
+      console.log('Fetching jobs with preferences:', jobPreferences, 'and date filter:', dateFilter);
       
       const allJobs = await jobsApi.getAllJobs();
       console.log('Total jobs fetched:', allJobs.length);
@@ -74,8 +78,26 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
           
           sectorMatch = keywords.some(keyword => jobText.includes(keyword));
         }
+
+        let dateMatch = true;
+        if (dateFilter !== 'any') {
+          const daysMap: Record<string, number> = {
+            '24h': 1,
+            '3d': 3,
+            '7d': 7,
+            '14d': 14,
+            '30d': 30,
+          };
+          const days = daysMap[dateFilter];
+          if (days) {
+            const NdaysAgo = new Date();
+            NdaysAgo.setDate(NdaysAgo.getDate() - days);
+            const NdaysAgoString = NdaysAgo.toISOString().split('T')[0];
+            dateMatch = job.posted_date >= NdaysAgoString;
+          }
+        }
         
-        const match = locationMatch && typeMatch && sectorMatch;
+        const match = locationMatch && typeMatch && sectorMatch && dateMatch;
         
         if (match) {
           console.log('Job matched:', {
@@ -83,10 +105,13 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
             location: job.location,
             type: job.type,
             skills: job.skills,
+            posted_date: job.posted_date,
             locationMatch,
             typeMatch,
             sectorMatch,
-            preferences: jobPreferences
+            dateMatch,
+            preferences: jobPreferences,
+            dateFilter: dateFilter
           });
         }
         
@@ -138,6 +163,26 @@ const JobMatchingModal: React.FC<JobMatchingModalProps> = ({
         </DialogHeader>
         
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="mb-4 max-w-xs">
+            <Label htmlFor="date-filter" className="text-sm font-medium mb-2 flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
+              Date Posted
+            </Label>
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger id="date-filter" className="w-full">
+                <SelectValue placeholder="Select date range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any time</SelectItem>
+                <SelectItem value="24h">Last 24 hours</SelectItem>
+                <SelectItem value="3d">Last 3 days</SelectItem>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+                <SelectItem value="14d">Last 14 days</SelectItem>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {isLoading ? (
             <JobMatchingLoadingState />
           ) : queryError ? (
