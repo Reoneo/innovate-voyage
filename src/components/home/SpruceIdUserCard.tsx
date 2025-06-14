@@ -14,6 +14,7 @@ interface SpruceIdUserCardProps {
 
 const SpruceIdUserCard: React.FC<SpruceIdUserCardProps> = ({ user }) => {
   const getDisplayName = () => {
+    if (user.ensName) return user.ensName;
     if (user.handle) return `@${user.handle}`;
     if (user.domain) return user.domain;
     if (user.address) return `${user.address.slice(0, 6)}...${user.address.slice(-4)}`;
@@ -21,6 +22,8 @@ const SpruceIdUserCard: React.FC<SpruceIdUserCardProps> = ({ user }) => {
   };
 
   const getProfileUrl = () => {
+    // Prefer ENS name for navigation
+    if (user.ensName) return `/${user.ensName}`;
     if (user.address) return `/${user.address}`;
     if (user.domain) return `/${user.domain}`;
     return '#';
@@ -59,7 +62,7 @@ const SpruceIdUserCard: React.FC<SpruceIdUserCardProps> = ({ user }) => {
               >
                 {getDisplayName()}
               </Link>
-              <Shield className="h-4 w-4 text-green-600" title="Verified Credential" />
+              <Shield className="h-4 w-4 text-green-600" />
             </div>
             
             <div className="flex items-center space-x-2 mb-2">
@@ -78,11 +81,11 @@ const SpruceIdUserCard: React.FC<SpruceIdUserCardProps> = ({ user }) => {
               </span>
             </div>
             
-            {user.domain && (
+            {(user.domain || user.ensName) && (
               <div className="flex items-center space-x-1 mt-1">
                 <ExternalLink className="h-3 w-3 text-muted-foreground" />
                 <span className="text-xs text-muted-foreground truncate">
-                  {user.domain}
+                  {user.ensName || user.domain}
                 </span>
               </div>
             )}
