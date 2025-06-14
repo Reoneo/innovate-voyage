@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { secureStorage, validateInput } from '@/utils/securityUtils';
 
 interface Skill {
   name: string;
@@ -23,46 +24,61 @@ export function useSkills(initialSkills: Skill[], ownerAddress?: string) {
 
     if (ownerAddress) {
       const storageKey = `user_skills_${ownerAddress}`;
-      try {
-        const savedSkills = JSON.parse(localStorage.getItem(storageKey) || '[]');
-        if (savedSkills.length > 0) {
-          const existingSkillNames = new Set(initialSkills.map(skill => skill.name));
-          const newSkills = savedSkills.filter(skill => !existingSkillNames.has(skill.name));
-          setUserSkills([...initialSkills, ...newSkills]);
+      const loadSkills = async () => {
+        try {
+          const savedSkillsData = await secureStorage.getItem(storageKey);
+          if (savedSkillsData) {
+            const savedSkills = JSON.parse(savedSkillsData);
+            if (savedSkills.length > 0) {
+              const existingSkillNames = new Set(initialSkills.map(skill => skill.name));
+              const newSkills = savedSkills.filter((skill: Skill) => !existingSkillNames.has(skill.name));
+              setUserSkills([...initialSkills, ...newSkills]);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading skills from secureStorage:', error);
         }
-      } catch (error) {
-        console.error('Error loading skills from localStorage:', error);
-      }
+      };
+      loadSkills();
     }
   }, [ownerAddress, initialSkills]);
 
   const saveSkillsToLocalStorage = (skills: Skill[]) => {
-    try {
-      const storageKey = `user_skills_${ownerAddress}`;
-      localStorage.setItem(storageKey, JSON.stringify(skills));
-    } catch (error) {
-      console.error('Error saving skills to localStorage:', error);
-    }
+    // Fire-and-forget async call
+    (async () => {
+      if (!ownerAddress) return;
+      try {
+        const storageKey = `user_skills_${ownerAddress}`;
+        await secureStorage.setItem(storageKey, JSON.stringify(skills));
+      } catch (error) {
+        console.error('Error saving skills to secureStorage:', error);
+      }
+    })();
   };
 
   const addSkill = (skillName: string) => {
+    const sanitizedSkillName = validateInput.sanitizeString(skillName.trim());
+    if (!sanitizedSkillName) return false;
+
     const newSkill = {
-      name: skillName,
+      name: sanitizedSkillName,
       proof: undefined,
       issued_by: undefined
     };
     
+    let skillAdded = false;
     setUserSkills(prevSkills => {
-      const existingSkillNames = new Set(prevSkills.map(skill => skill.name));
-      if (!existingSkillNames.has(skillName)) {
+      const existingSkillNames = new Set(prevSkills.map(skill => skill.name.toLowerCase()));
+      if (!existingSkillNames.has(sanitizedSkillName.toLowerCase())) {
         const updatedSkills = [...prevSkills, newSkill];
         saveSkillsToLocalStorage(updatedSkills);
+        skillAdded = true;
         return updatedSkills;
       }
       return prevSkills;
     });
     
-    return true;
+    return skillAdded;
   };
 
   const removeSkill = (skillName: string) => {

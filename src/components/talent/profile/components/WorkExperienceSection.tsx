@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Plus, PencilLine, Save, Trash2, Calendar, Building, Briefcase } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { secureStorage, validateInput } from '@/utils/securityUtils';
 
 interface WorkExperience {
   id: string;
@@ -38,13 +39,22 @@ const WorkExperienceSection: React.FC<WorkExperienceSectionProps> = ({ ownerAddr
       setIsOwner(false);
     }
 
-    try {
-      const savedExperiences = JSON.parse(localStorage.getItem(`user_experiences_${ownerAddress}`) || '[]');
-      if (Array.isArray(savedExperiences) && savedExperiences.length > 0) {
-        setExperiences(savedExperiences);
+    const loadExperiences = async () => {
+      try {
+        const savedData = await secureStorage.getItem(`user_experiences_${ownerAddress}`);
+        if (savedData) {
+          const savedExperiences = JSON.parse(savedData);
+          if (Array.isArray(savedExperiences) && savedExperiences.length > 0) {
+            setExperiences(savedExperiences);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading experiences from secureStorage:', error);
       }
-    } catch (error) {
-      console.error('Error loading experiences from localStorage:', error);
+    };
+    
+    if(ownerAddress) {
+      loadExperiences();
     }
   }, [ownerAddress]);
 
@@ -65,11 +75,11 @@ const WorkExperienceSection: React.FC<WorkExperienceSectionProps> = ({ ownerAddr
     setIsEditing(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     const updatedExperiences = experiences.filter(exp => exp.id !== id);
     setExperiences(updatedExperiences);
     
-    localStorage.setItem(`user_experiences_${ownerAddress}`, JSON.stringify(updatedExperiences));
+    await secureStorage.setItem(`user_experiences_${ownerAddress}`, JSON.stringify(updatedExperiences));
     
     toast({
       title: "Experience Removed",
@@ -77,22 +87,29 @@ const WorkExperienceSection: React.FC<WorkExperienceSectionProps> = ({ ownerAddr
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!currentExperience) return;
+
+    const sanitizedExperience = {
+      ...currentExperience,
+      role: validateInput.sanitizeString(currentExperience.role),
+      company: validateInput.sanitizeString(currentExperience.company),
+      description: validateInput.sanitizeString(currentExperience.description),
+    };
     
     let updatedExperiences: WorkExperience[];
     
-    if (experiences.some(exp => exp.id === currentExperience.id)) {
+    if (experiences.some(exp => exp.id === sanitizedExperience.id)) {
       updatedExperiences = experiences.map(exp => 
-        exp.id === currentExperience.id ? currentExperience : exp
+        exp.id === sanitizedExperience.id ? sanitizedExperience : exp
       );
     } else {
-      updatedExperiences = [...experiences, currentExperience];
+      updatedExperiences = [...experiences, sanitizedExperience];
     }
     
     setExperiences(updatedExperiences);
     
-    localStorage.setItem(`user_experiences_${ownerAddress}`, JSON.stringify(updatedExperiences));
+    await secureStorage.setItem(`user_experiences_${ownerAddress}`, JSON.stringify(updatedExperiences));
     
     setCurrentExperience(null);
     setIsEditing(false);

@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePdfExport } from '@/hooks/usePdfExport';
-import { isValidEthereumAddress } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { secureStorage, validateInput } from '@/utils/securityUtils';
 
@@ -17,37 +16,42 @@ export function useProfilePage() {
   const targetIdentifier = userId || ensNameOrAddress;
   
   useEffect(() => {
-    if (targetIdentifier) {
-      const sanitizedIdentifier = validateInput.sanitizeString(targetIdentifier.toLowerCase());
-      
-      if (validateInput.isValidEthereumAddress(sanitizedIdentifier)) {
-        setAddress(sanitizedIdentifier);
-        setEns(undefined);
-      } else {
-        const ensValue = sanitizedIdentifier.includes('.') ? sanitizedIdentifier : `${sanitizedIdentifier}.eth`;
-        if (validateInput.isValidENS(ensValue) || ensValue.includes('.')) {
-          setEns(ensValue);
-          setAddress(undefined);
+    const initializeProfile = async () => {
+      if (targetIdentifier) {
+        const sanitizedIdentifier = validateInput.sanitizeString(targetIdentifier.toLowerCase());
+        
+        if (validateInput.isValidEthereumAddress(sanitizedIdentifier)) {
+          setAddress(sanitizedIdentifier);
+          setEns(undefined);
+        } else {
+          const ensValue = sanitizedIdentifier.includes('.') ? sanitizedIdentifier : `${sanitizedIdentifier}.eth`;
+          if (validateInput.isValidENS(ensValue) || ensValue.includes('.')) {
+            setEns(ensValue);
+            setAddress(undefined);
+          }
         }
       }
-    }
 
-    // Use secure storage for wallet address
-    const storedWallet = secureStorage.getItem('connectedWalletAddress');
-    setConnectedWallet(storedWallet);
+      // Use secure storage for wallet address
+      const storedWallet = await secureStorage.getItem('connectedWalletAddress');
+      setConnectedWallet(storedWallet);
 
-    // Optimize viewport for faster rendering
-    const metaViewport = document.querySelector('meta[name="viewport"]');
-    if (metaViewport) {
-      metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0, user-scalable=yes');
-    }
+      // Optimize viewport for faster rendering
+      const metaViewport = document.querySelector('meta[name="viewport"]');
+      if (metaViewport) {
+        metaViewport.setAttribute('content', 'width=1024, initial-scale=1.0, user-scalable=yes');
+      }
 
-    // Simplified URL cleanup without extensive error handling
-    if (window.history && window.location.href.includes('?t=')) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
+      // Simplified URL cleanup without extensive error handling
+      if (window.history && window.location.href.includes('?t=')) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    };
+    
+    initializeProfile();
 
     return () => {
+      const metaViewport = document.querySelector('meta[name="viewport"]');
       if (metaViewport) {
         metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }
