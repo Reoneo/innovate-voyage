@@ -13,11 +13,12 @@ const projectId = import.meta.env.VITE_WC_PROJECT_ID || "demo";
 const { connectors } = getDefaultWallets({
   appName: "Recruitment.box",
   projectId,
-  chains,
+  // Remove chains here
 });
 
-// Setup wagmiConfig following wagmi v2 config
+// Pass chains to createConfig per wagmi v2+
 const wagmiConfig = createConfig({
+  chains,
   connectors,
   transports: {
     [mainnet.id]: http(),
@@ -37,6 +38,7 @@ const RainbowKitProviderWrapper = ({ children }: { children: React.ReactNode }) 
           borderRadius: 'medium',
           fontStack: 'system',
         })}
+        chains={chains}
       >
         {children}
       </RainbowKitProvider>
@@ -45,4 +47,3 @@ const RainbowKitProviderWrapper = ({ children }: { children: React.ReactNode }) 
 };
 
 export default RainbowKitProviderWrapper;
-
