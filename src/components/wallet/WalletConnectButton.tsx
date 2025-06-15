@@ -2,8 +2,12 @@
 import React from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
+// IMPORTANT: For this to work after deployment, make sure the environment variable
+// VITE_WALLETCONNECT_PROJECT_ID is set in your platform's environment variables/settings
+// with a valid WalletConnect Cloud Project ID.
+// See https://cloud.walletconnect.com/sign-in > Projects > New Project > Platform: JavaScript
+
 const WalletConnectButton: React.FC = () => {
-  // Display RainbowKit's real connect button
   return (
     <ConnectButton 
       accountStatus="avatar"
@@ -14,3 +18,4 @@ const WalletConnectButton: React.FC = () => {
 };
 
 export default WalletConnectButton;
+
