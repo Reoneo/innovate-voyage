@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import { mainnet } from 'wagmi/chains';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { config } from './lib/wagmi';
 import '@rainbow-me/rainbowkit/styles.css';
+import '@/styles/rainbowkit-overrides.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import Index from "./pages/Index";
 import TalentProfile from "./pages/TalentProfile";
