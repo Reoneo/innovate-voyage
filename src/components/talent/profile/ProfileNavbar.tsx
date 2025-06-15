@@ -61,11 +61,18 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                 account,
                 chain,
                 openAccountModal,
+                openChainModal,
                 openConnectModal,
+                authenticationStatus,
                 mounted,
               }) => {
-                const ready = mounted;
-                const connected = ready && account && chain;
+                const ready = mounted && authenticationStatus !== 'loading';
+                const connected =
+                  ready &&
+                  account &&
+                  chain &&
+                  (!authenticationStatus ||
+                    authenticationStatus === 'authenticated');
 
                 return (
                   <div
@@ -85,33 +92,74 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                             variant="ghost"
                             onClick={openConnectModal}
                             type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-1 h-auto w-auto flex items-center justify-center"
-                            style={{ minWidth: '28px', minHeight: '28px' }}
+                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center"
                           >
                             <Wallet className="h-7 w-7" />
                           </Button>
                         );
                       }
 
+                      if (chain.unsupported) {
+                        return (
+                          <Button
+                            variant="ghost"
+                            onClick={openChainModal}
+                            type="button"
+                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center"
+                          >
+                            Wrong network
+                          </Button>
+                        );
+                      }
+
                       return (
-                        <Button
-                          variant="ghost"
-                          onClick={openAccountModal}
-                          type="button"
-                          className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-1 h-auto w-auto flex items-center justify-center rounded-full"
-                          style={{ minWidth: '28px', minHeight: '28px' }}
-                        >
-                          {account.ensAvatar ? (
-                            <Avatar className="h-7 w-7 rounded-full">
-                              <AvatarImage src={account.ensAvatar} alt={account.displayName} className="rounded-full" />
-                              <AvatarFallback className="rounded-full">
-                                <Wallet className="h-7 w-7" />
-                              </AvatarFallback>
-                            </Avatar>
-                          ) : (
-                            <Wallet className="h-7 w-7" />
-                          )}
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            onClick={openChainModal}
+                            type="button"
+                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center rounded-full"
+                          >
+                            {chain.hasIcon && (
+                              <div
+                                style={{
+                                  background: chain.iconBackground,
+                                  width: 28,
+                                  height: 28,
+                                  borderRadius: 999,
+                                  overflow: 'hidden',
+                                  marginRight: 4,
+                                }}
+                              >
+                                {chain.iconUrl && (
+                                  <img
+                                    alt={chain.name ?? 'Chain icon'}
+                                    src={chain.iconUrl}
+                                    style={{ width: 28, height: 28 }}
+                                  />
+                                )}
+                              </div>
+                            )}
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            onClick={openAccountModal}
+                            type="button"
+                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center rounded-full"
+                          >
+                            {account.ensAvatar ? (
+                              <Avatar className="h-7 w-7 rounded-full">
+                                <AvatarImage src={account.ensAvatar} alt={account.displayName} className="rounded-full" />
+                                <AvatarFallback className="rounded-full">
+                                  <Wallet className="h-7 w-7" />
+                                </AvatarFallback>
+                              </Avatar>
+                            ) : (
+                              <Wallet className="h-7 w-7" />
+                            )}
+                          </Button>
+                        </div>
                       );
                     })()}
                   </div>
