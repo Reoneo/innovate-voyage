@@ -1,16 +1,15 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const WalletConnectButton: React.FC = () => {
+  // Display RainbowKit's real connect button
   return (
-    <Button 
-      variant="outline"
-      className="flex items-center gap-2"
-      disabled
-    >
-      <span className="hidden sm:inline">Wallet Disabled</span>
-    </Button>
+    <ConnectButton 
+      accountStatus="avatar"
+      chainStatus="icon"
+      showBalance={false}
+    />
   );
 };
 
