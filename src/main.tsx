@@ -1,4 +1,3 @@
-
 // Polyfill Buffer first - before any other imports
 import { Buffer } from 'buffer';
 
@@ -70,9 +69,33 @@ if (typeof window !== 'undefined') {
   };
 }
 
-const root = createRoot(document.getElementById("root")!);
-root.render(
-  <ErrorBoundary>
-    <App />
-  </ErrorBoundary>
-);
+// Debug: Is #root element present before trying to mount?
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  console.error(
+    "CRITICAL ERROR: #root element not found in index.html. App cannot render!"
+  );
+  // Friendly UI message if all else fails
+  const fallbackDiv = document.createElement("div");
+  fallbackDiv.style.position = "fixed";
+  fallbackDiv.style.top = "30%";
+  fallbackDiv.style.left = "50%";
+  fallbackDiv.style.transform = "translate(-50%, -50%)";
+  fallbackDiv.style.background = "#fee2e2";
+  fallbackDiv.style.color = "#dc2626";
+  fallbackDiv.style.padding = "2em";
+  fallbackDiv.style.borderRadius = "1em";
+  fallbackDiv.style.fontSize = "1.3em";
+  fallbackDiv.style.fontFamily = "monospace";
+  fallbackDiv.innerText = "Fatal Error: #root element missing from index.html!";
+  document.body.appendChild(fallbackDiv);
+} else {
+  console.log("Attempting React root mounting...");
+  const root = createRoot(rootElement);
+  root.render(
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  );
+  console.log("React root mounted successfully.");
+}
