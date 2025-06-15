@@ -1,3 +1,4 @@
+
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
 /* Import mobile-specific styles BEFORE tailwind */
@@ -97,6 +98,62 @@
     padding-left: 0.5rem;
     padding-right: 0.5rem;
     max-width: 100vw;
+  }
+}
+
+/* RainbowKit Mobile Optimizations */
+@media (max-width: 768px) {
+  /* RainbowKit modal container */
+  [data-rk] {
+    --rk-radii-modal: 16px;
+    --rk-radii-menuButton: 12px;
+  }
+  
+  /* RainbowKit overlay */
+  [data-rk] > div[role="dialog"] {
+    padding: 8px !important;
+    max-height: 90vh !important;
+    width: calc(100vw - 16px) !important;
+    max-width: 400px !important;
+    margin: auto !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+  
+  /* RainbowKit modal content */
+  [data-rk] div[role="dialog"] > div {
+    max-height: calc(90vh - 16px) !important;
+    overflow-y: auto !important;
+    border-radius: 16px !important;
+  }
+  
+  /* RainbowKit wallet options */
+  [data-rk] button[data-testid] {
+    padding: 12px !important;
+    min-height: 48px !important;
+    font-size: 14px !important;
+  }
+  
+  /* RainbowKit header */
+  [data-rk] h1 {
+    font-size: 18px !important;
+    margin-bottom: 16px !important;
+  }
+  
+  /* RainbowKit close button */
+  [data-rk] button[aria-label="Close"] {
+    width: 32px !important;
+    height: 32px !important;
+    top: 12px !important;
+    right: 12px !important;
+  }
+  
+  /* RainbowKit backdrop */
+  [data-rk] div[data-rk-backdrop] {
+    backdrop-filter: blur(8px) !important;
+    background-color: rgba(0, 0, 0, 0.6) !important;
   }
 }
 
@@ -302,4 +359,3 @@ body.generating-pdf {
 .github-calendar-dark .float-right {
   float: right !important;
 }
-

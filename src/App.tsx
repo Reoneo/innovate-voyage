@@ -63,7 +63,11 @@ const App = () => {
       <ThemeProvider>
         <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider>
+            <RainbowKitProvider
+              modalSize="compact"
+              initialChain={mainnet}
+              showRecentTransactions={true}
+            >
               <AuthKitProvider config={farcasterConfig}>
                 <TooltipProvider>
                   <Toaster />
