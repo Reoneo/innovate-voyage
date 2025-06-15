@@ -462,11 +462,10 @@ body.generating-pdf {
 }
 
 /* RainbowKit Modal Customization - Remove Outer Grey, Center, & Reduce Size */
-
-/* Desktop/Tablet - Bottom, Centered, No Outer Grey */
+/* --- Desktop/Tablet --- */
 @media (min-width: 768px) {
   [data-rk] > div[role="dialog"] {
-    background: transparent !important; /* Remove grey backdrop */
+    background: transparent !important;
     box-shadow: none !important;
     padding: 0 !important;
     display: flex !important;
@@ -478,37 +477,43 @@ body.generating-pdf {
     left: 0 !important;
     right: 0 !important;
     top: unset !important;
-    bottom: 24px !important;
-    margin: 0 !important;
+    bottom: 36px !important; /* slightly raised for visual centering and avoid browser chrome */
+    margin: 0 auto !important;
     z-index: 1111 !important;
+    pointer-events: none !important; /* Prevent outer modal from shifting click area */
   }
   [data-rk] div[role="dialog"] > div {
     margin: 0 auto !important;
     border-radius: 18px !important;
     background: var(--background, #fff) !important;
     box-shadow: 0 8px 32px 0 rgba(60,60,110,0.16) !important;
-    width: 400px !important;
+    width: 392px !important;
     max-width: 94vw !important;
     min-width: 0 !important;
     padding: 24px 18px 20px !important;
-    max-height: 72vh !important;
+    max-height: 68vh !important;
     overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: auto !important; /* Make inner modal interactable */
   }
 }
 
-/* Large Desktop - A bit wider */
+/* --- Large Desktop --- */
 @media (min-width: 1024px) {
   [data-rk] div[role="dialog"] > div {
-    width: 430px !important;
+    width: 420px !important;
     max-width: 96vw !important;
     padding: 32px 24px 22px !important;
   }
 }
 
-/* Mobile - Modal Bottom, Center, No Grey, Not Squeezed */
+/* --- Mobile --- */
 @media (max-width: 767px) {
   [data-rk] > div[role="dialog"] {
-    background: transparent !important; /* Remove grey backdrop */
+    background: transparent !important;
     box-shadow: none !important;
     padding: 0 !important;
     display: flex !important;
@@ -519,8 +524,9 @@ body.generating-pdf {
     right: 0 !important;
     margin: 0 !important;
     top: unset !important;
-    bottom: 10px !important;
+    bottom: 10px !important; /* small offset from screen bottom */
     z-index: 1111 !important;
+    pointer-events: none !important;
   }
   [data-rk] div[role="dialog"] > div {
     margin: 0 auto !important;
@@ -528,11 +534,16 @@ body.generating-pdf {
     background: var(--background, #fff) !important;
     box-shadow: 0 6px 24px 0 rgba(60,60,110,0.14) !important;
     width: 96vw !important;
-    max-width: 365px !important;
+    max-width: 335px !important;
     min-width: 0 !important;
     padding: 16px 8px 12px !important;
-    max-height: 74vh !important;
+    max-height: 76vh !important;
     overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: auto !important;
   }
 }
 
@@ -544,12 +555,30 @@ body.generating-pdf {
 
 /* Ensure no extra margin/padding leaks out to the screen edge */
 [data-rk] div[role="dialog"], [data-rk] div[role="dialog"] > div {
-  margin-bottom: 0 !important;
   margin-top: 0 !important;
+  margin-bottom: 0 !important;
 }
 
-/* Maintain backdrop blur */
+/* Backdrop - keep the blur, remove any harsh color overlays */
 [data-rk] div[data-rk-backdrop] {
   backdrop-filter: blur(8px) !important;
   background: rgba(0, 0, 0, 0.61) !important;
+}
+
+/* Make sure modal content is always perfectly centered horizontally */
+[data-rk] div[role="dialog"] > div {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Prevent any overflow and unwanted horizontal scroll */
+[data-rk] div[role="dialog"], 
+[data-rk] div[role="dialog"] > div {
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Maximize accessibility: always visible above content */
+[data-rk] > div[role="dialog"] {
+  z-index: 2147483647 !important;
 }
