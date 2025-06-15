@@ -5,6 +5,7 @@ import { componentTagger } from 'lovable-tagger';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
@@ -12,6 +13,14 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     plugins: [
       react(),
       mode === 'development' && componentTagger(),
+      viteStaticCopy({
+        targets: [
+          {
+            src: 'public/_redirects',
+            dest: '.' // <- this ensures _redirects is copied to dist/
+          }
+        ]
+      })
     ].filter(Boolean as any),
     resolve: {
       alias: {
