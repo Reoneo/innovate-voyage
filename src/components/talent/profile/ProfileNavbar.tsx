@@ -69,12 +69,14 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </div>
           
           <div className="flex-shrink-0">
-            <button
+            <Button
+              variant="ghost"
+              size={isMobile ? "sm" : "default"}
               onClick={handleWalletClick}
-              className="text-white hover:text-gray-300 transition-colors"
+              className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-2"
             >
-              <Wallet className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`} />
-            </button>
+              <Wallet className="h-6 w-6" />
+            </Button>
           </div>
         </form>
       </div>
@@ -83,3 +85,4 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
 };
 
 export default ProfileNavbar;
+

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import MobileProfileColumn from './MobileProfileColumn';
 import MobileActivityColumn from './MobileActivityColumn';
@@ -33,7 +32,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
 
   // Display the ENS name if available, otherwise show the formatted address
   const displayName = ensNameOrAddress || passport.name || 'Unknown';
-  return <div className="w-full h-screen bg-transparent" style={{
+  return <div className="w-full h-screen bg-transparent overflow-hidden" style={{
     position: 'fixed',
     top: 0,
     left: 0,
@@ -41,12 +40,12 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
     bottom: 0
   }}>
       {/* Container that takes full height minus navbar with matching side margins */}
-      <div className="pt-12 md:pt-20 h-full" style={{
+      <div className="pt-12 md:pt-20 h-full overflow-hidden" style={{
       padding: '48px 2px 2px 2px'
     }}>
-        <div className="grid grid-cols-[70%_30%] w-full h-full">
+        <div className="grid grid-cols-[70%_30%] w-full h-full overflow-hidden">
           {/* Left Column - 70% - Main Profile - Positioned at top */}
-          <div className="h-full flex items-start my-[2px]">
+          <div className="h-full overflow-hidden flex items-start my-[2px]">
             <MobileProfileColumn passport={passport} ensNameOrAddress={ensNameOrAddress} normalizedSocials={normalizedSocials} telephone={telephone} isOwner={isOwner} displayName={displayName} />
           </div>
 
