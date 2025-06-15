@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
@@ -6,7 +5,6 @@ import ProfileContent from '@/components/talent/profile/ProfileContent';
 import AnimatedBackground from '@/components/talent/profile/components/AnimatedBackground';
 import ProfileSkeleton from '@/components/talent/profile/ProfileSkeleton';
 import { Helmet } from 'react-helmet-async';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const TalentProfile = () => {
   const { 
@@ -19,7 +17,6 @@ const TalentProfile = () => {
     handleDisconnect,
     handleSaveChanges
   } = useProfilePage();
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Log loading progress for debugging
@@ -56,6 +53,7 @@ const TalentProfile = () => {
     }
 
     // Set viewport on mobile to prevent zooming, without disabling scroll globally
+    const isMobile = window.innerWidth < 768;
     if (isMobile) {
       // Set viewport to prevent zooming
       let viewport = document.querySelector('meta[name="viewport"]');
@@ -69,14 +67,12 @@ const TalentProfile = () => {
 
     return () => {
       // Reset viewport when component unmounts
-      if (!isMobile) {
-        const viewport = document.querySelector('meta[name="viewport"]');
-        if (viewport) {
-          viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
-        }
+      const viewport = document.querySelector('meta[name="viewport"]');
+      if (viewport) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
       }
     };
-  }, [passport?.avatar_url, ensNameOrAddress, loading, loadingTimeout, isMobile]);
+  }, [passport?.avatar_url, ensNameOrAddress, loading, loadingTimeout]);
 
   return (
     <>
@@ -102,7 +98,7 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <div className="min-h-screen relative bg-transparent">
+      <div className="min-h-screen relative bg-transparent overflow-hidden">
         {/* Always show the AnimatedBackground */}
         <AnimatedBackground 
           avatarUrl={passport?.avatar_url} 
@@ -116,10 +112,7 @@ const TalentProfile = () => {
           onSaveChanges={handleSaveChanges}
         />
         
-        <div 
-          className={`container px-1 relative z-10 ${isMobile ? '' : 'overflow-hidden'}`}
-          style={isMobile ? { paddingTop: '60px' } : { maxWidth: '98vw', height: '100vh', overflow: 'hidden' }}
-        >
+        <div className="container px-1 relative z-10 overflow-hidden" style={{ maxWidth: '98vw', height: '100vh' }}>
           {loading ? (
             /* Show detailed loading skeleton */
             <div className="pt-16">

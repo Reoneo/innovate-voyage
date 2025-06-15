@@ -1,4 +1,3 @@
-
 import React from 'react';
 import MobileProfileColumn from './MobileProfileColumn';
 import MobileActivityColumn from './MobileActivityColumn';
@@ -33,30 +32,29 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
 
   // Display the ENS name if available, otherwise show the formatted address
   const displayName = ensNameOrAddress || passport.name || 'Unknown';
-  
-  return (
-    <div className="w-full">
-        <div className="grid grid-cols-1 w-full h-full gap-4">
-          {/* Left Column (now top) - Main Profile */}
-          <MobileProfileColumn 
-            passport={passport} 
-            ensNameOrAddress={ensNameOrAddress} 
-            normalizedSocials={normalizedSocials} 
-            telephone={telephone} 
-            isOwner={isOwner} 
-            displayName={displayName} 
-          />
+  return <div className="w-full h-screen bg-transparent overflow-hidden" style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
+  }}>
+      {/* Container that takes full height minus navbar with matching side margins */}
+      <div className="pt-12 md:pt-20 h-full overflow-hidden" style={{
+      padding: '48px 2px 2px 2px'
+    }}>
+        <div className="grid grid-cols-[70%_30%] w-full h-full overflow-hidden">
+          {/* Left Column - 70% - Main Profile - Positioned at top */}
+          <div className="h-full overflow-hidden flex items-start my-[2px]">
+            <MobileProfileColumn passport={passport} ensNameOrAddress={ensNameOrAddress} normalizedSocials={normalizedSocials} telephone={telephone} isOwner={isOwner} displayName={displayName} />
+          </div>
 
-          {/* Right Column (now bottom) - Activity Cards */}
-          <MobileActivityColumn 
-            passport={passport} 
-            ensNameOrAddress={ensNameOrAddress} 
-            githubUsername={githubUsername} 
-            showGitHubSection={showGitHubSection} 
-            normalizedSocials={normalizedSocials} 
-          />
+          {/* Right Column - 30% - Activity Cards - Scrollable only */}
+          <div className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            <MobileActivityColumn passport={passport} ensNameOrAddress={ensNameOrAddress} githubUsername={githubUsername} showGitHubSection={showGitHubSection} normalizedSocials={normalizedSocials} />
+          </div>
         </div>
-    </div>
-  );
+      </div>
+    </div>;
 };
 export default MobileLayout;
