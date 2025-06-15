@@ -1,3 +1,4 @@
+
 import { defineConfig, ConfigEnv, UserConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -42,6 +43,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       },
     },
     build: {
+      target: 'esnext', // Updated to support modern JavaScript features
       rollupOptions: {
         external: [
           '@safe-global/safe-apps-sdk',
