@@ -30,7 +30,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       esbuildOptions: {
         // Node.js global to browser globalThis
         define: {
-          // global: 'globalThis', // This is now handled by NodeGlobalsPolyfillPlugin
+          global: 'globalThis',
         },
         // Enable esbuild polyfill plugins
         plugins: [
@@ -43,16 +43,15 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       },
     },
     build: {
-      target: 'esnext', // Updated to support modern JavaScript features
       rollupOptions: {
         external: [
           '@safe-global/safe-apps-sdk',
           '@safe-window/safe-apps-sdk',
-          '@safe-window/safe-apps-provider',
-          '@safe-globalThis/safe-apps-sdk',
-          '@safe-globalThis/safe-apps-provider',
+          '@safe-window/safe-apps-provider'
         ],
         plugins: [
+          // Enable rollup polyfills plugin
+          // used during production bundling
           nodePolyfills() as Plugin,
         ],
         output: {
@@ -61,16 +60,14 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             web3: ['@rainbow-me/rainbowkit', 'wagmi', 'viem'],
           },
         },
+        // Handle optional dependencies that might not be available
         onwarn(warning, warn) {
+          // Suppress warnings about missing optional dependencies
           if (
             warning.code === 'UNRESOLVED_IMPORT' &&
-            (
-              warning.message.includes('@safe-global/safe-apps-sdk') ||
-              warning.message.includes('@safe-window/safe-apps-sdk') ||
-              warning.message.includes('@safe-window/safe-apps-provider') ||
-              warning.message.includes('@safe-globalThis/safe-apps-sdk') ||
-              warning.message.includes('@safe-globalThis/safe-apps-provider')
-            )
+            (warning.message.includes('@safe-global/safe-apps-sdk') || 
+             warning.message.includes('@safe-window/safe-apps-sdk') ||
+             warning.message.includes('@safe-window/safe-apps-provider'))
           ) {
             return;
           }
@@ -83,16 +80,12 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       },
     },
     define: {
-      // 'global': 'globalThis', // This is now handled by NodeGlobalsPolyfillPlugin
+      'global': 'globalThis',
       'process.env': {},
     },
     server: {
       host: '::',
-      port: 8080,
-      watch: {
-        // Exclude large directories from file watching to prevent EMFILE errors.
-        ignored: ['**/node_modules/**', '**/.git/**'],
-      },
+      port: 8080
     },
   };
   
