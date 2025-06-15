@@ -56,6 +56,12 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
     fetchAllSocials();
   }, [ensNameOrAddress]);
 
+  const handleOpenXmtpModal = () => {
+    if (window.xmtpMessageModal) {
+      window.xmtpMessageModal.showModal();
+    }
+  };
+
   return <div className="bg-gray-50 p-3 space-y-4 h-full py-[24px] px-[5px] mx-0 my-[4px]">
       {/* Follow Button - At the top, only show if not owner */}
       {!isOwner && passport.owner_address && <FollowButton targetAddress={passport.owner_address} />}
@@ -69,8 +75,17 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
           </div>
         </Card>
 
-        {/* Activity Button */}
-        
+        {/* XMTP Messages Button */}
+        <Card onClick={handleOpenXmtpModal} className="p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 bg-white hover:bg-gray-50">
+          <div className="flex items-center justify-center gap-2">
+            <img 
+              src="https://raw.githubusercontent.com/xmtp/brand/main/assets/x-mark-red.png" 
+              alt="XMTP Messages" 
+              className="h-5 w-5"
+            />
+            <h3 className="text-gray-800 text-base font-light">Messages</h3>
+          </div>
+        </Card>
 
         {/* Job Matching Section */}
         <JobMatchingSection passport={passport} normalizedSocials={allSocials} />
@@ -80,8 +95,6 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
       <div className="space-y-3">
         <TalentScoreBanner walletAddress={passport.owner_address} />
       </div>
-
-      {/* GitHub Section Removed */}
 
       {/* Socials Modal */}
       <Dialog open={showSocialsModal} onOpenChange={setShowSocialsModal}>
@@ -100,8 +113,6 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Activity Modal Removed */}
     </div>;
 };
 export default MobileActivityColumn;
