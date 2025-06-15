@@ -14,14 +14,42 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       alias: {
         '@': path.resolve(__dirname, './src'),
         buffer: 'buffer',
+        process: 'process/browser',
+        util: 'util',
       },
     },
+    define: {
+      global: 'globalThis',
+      'process.env': '{}',
+      'process.version': '"v18.0.0"',
+      'process.browser': 'true',
+    },
     optimizeDeps: {
-      include: ['buffer'],
+      include: [
+        'buffer',
+        'process',
+        'util',
+        '@xmtp/xmtp-js',
+        'ethers',
+      ],
       esbuildOptions: {
         define: {
           global: 'globalThis',
         },
+        plugins: [
+          {
+            name: 'node-globals-polyfill',
+            setup(build) {
+              build.onResolve({ filter: /^buffer$/ }, () => ({
+                path: require.resolve('buffer'),
+              }));
+              build.onLoad({ filter: /.*/, namespace: 'buffer' }, () => ({
+                contents: 'export { Buffer } from "buffer"',
+                loader: 'js',
+              }));
+            },
+          },
+        ],
       },
     },
     build: {
@@ -37,10 +65,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       commonjsOptions: {
         transformMixedEsModules: true,
       },
-    },
-    define: {
-      global: 'globalThis',
-      'process.env': {},
     },
     server: {
       host: '::',
