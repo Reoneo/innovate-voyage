@@ -1,27 +1,23 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Wallet } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useAccount, useDisconnect } from 'wagmi';
-import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface ProfileNavbarProps {
-  connectedWallet: string | null;
-  onDisconnect: () => void;
   onSaveChanges: () => void;
 }
 
 const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
-  connectedWallet
+  onSaveChanges,
 }) => {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { isConnected } = useAccount();
-  const { openConnectModal } = useConnectModal();
-  const { disconnect } = useDisconnect();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,14 +25,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
       const searchTerm = search.trim().toLowerCase();
       navigate(`/recruitment.box/${searchTerm}/`);
       window.location.reload();
-    }
-  };
-
-  const handleWalletClick = () => {
-    if (isConnected) {
-      disconnect();
-    } else if (openConnectModal) {
-      openConnectModal();
     }
   };
 
@@ -68,13 +56,66 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </div>
           
           <div className="flex-shrink-0">
-            <Button
-              variant="ghost"
-              onClick={handleWalletClick}
-              className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-auto"
-            >
-              <Wallet className="h-6 w-6" />
-            </Button>
+            <ConnectButton.Custom>
+              {({
+                account,
+                chain,
+                openAccountModal,
+                openConnectModal,
+                mounted,
+              }) => {
+                const ready = mounted;
+                const connected = ready && account && chain;
+
+                return (
+                  <div
+                    {...(!ready && {
+                      'aria-hidden': true,
+                      style: {
+                        opacity: 0,
+                        pointerEvents: 'none',
+                        userSelect: 'none',
+                      },
+                    })}
+                  >
+                    {(() => {
+                      if (!connected) {
+                        return (
+                          <Button
+                            variant="ghost"
+                            onClick={openConnectModal}
+                            type="button"
+                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-auto"
+                          >
+                            <Wallet className="h-6 w-6" />
+                          </Button>
+                        );
+                      }
+
+                      return (
+                        <Button
+                          variant="ghost"
+                          onClick={openAccountModal}
+                          type="button"
+                          className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-auto rounded-full"
+                        >
+                          {account.ensAvatar ? (
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={account.ensAvatar} alt={account.displayName} />
+                              <AvatarFallback>
+                                <Wallet className="h-5 w-5" />
+                              </AvatarFallback>
+                            </Avatar>
+                          ) : (
+                            <Wallet className="h-6 w-6" />
+                          )}
+                        </Button>
+                      );
+                    })()}
+                  </div>
+                );
+              }}
+            </ConnectButton.Custom>
           </div>
         </form>
       </div>

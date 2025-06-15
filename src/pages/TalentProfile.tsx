@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
@@ -14,8 +13,6 @@ const TalentProfile = () => {
     loadingTimeout,
     passport, 
     profileRef,
-    connectedWallet,
-    handleDisconnect,
     handleSaveChanges
   } = useProfilePage();
 
@@ -108,8 +105,6 @@ const TalentProfile = () => {
         
         {/* Always show Navigation Bar */}
         <ProfileNavbar 
-          connectedWallet={connectedWallet}
-          onDisconnect={handleDisconnect}
           onSaveChanges={handleSaveChanges}
         />
         
