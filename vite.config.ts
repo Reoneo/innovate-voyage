@@ -39,8 +39,10 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       },
     },
     define: {
-      'global': 'globalThis',
+      global: 'globalThis',
       'process.env': {},
+      // Define Buffer at build time to be available everywhere
+      'Buffer': 'globalThis.Buffer',
     },
     server: {
       host: '::',
