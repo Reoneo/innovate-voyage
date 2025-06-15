@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -103,8 +102,8 @@ const App = () => {
                   </RainbowKitProvider>
                 </ErrorBoundary>
               </QueryClientProvider>
-            </ErrorBoundary>
-          </WagmiProvider>
+            </WagmiProvider>
+          </ErrorBoundary>
         </ThemeProvider>
       </HelmetProvider>
     </ErrorBoundary>
