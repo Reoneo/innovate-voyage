@@ -1,4 +1,3 @@
-
 import { defineConfig, ConfigEnv, UserConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -47,7 +46,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         external: [
           '@safe-global/safe-apps-sdk',
           '@safe-window/safe-apps-sdk',
-          '@safe-window/safe-apps-provider'
+          '@safe-window/safe-apps-provider',
+          '@safe-globalThis/safe-apps-sdk'
         ],
         plugins: [
           // Enable rollup polyfills plugin for production bundling
