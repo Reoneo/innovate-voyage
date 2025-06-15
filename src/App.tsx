@@ -7,14 +7,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { AuthKitProvider } from '@farcaster/auth-kit';
-// import { WagmiProvider } from 'wagmi';
-// import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
-// import { config, createWagmiConfig } from './lib/wagmi';
-// import { useWalletConnectConfig } from './hooks/useWalletConnectConfig';
 import '@farcaster/auth-kit/styles.css';
-// import '@rainbow-me/rainbowkit/styles.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import Index from "./pages/Index";
+import Jobs from "./pages/Jobs";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
 import XmtpMessageModal from "./components/wallet/XmtpMessageModal";
@@ -39,18 +35,7 @@ const farcasterConfig = {
 };
 
 const AppContent = () => {
-  // WalletKit does not need loading state since we provide async connect/disconnect in button
-  // const { projectId, isLoading } = useWalletConnectConfig();
-  // const [wagmiConfig, setWagmiConfig] = useState(config);
-
-  // useEffect(() => {
-  //   if (projectId && !isLoading) {
-  //     setWagmiConfig(createWagmiConfig(projectId));
-  //   }
-  // }, [projectId, isLoading]);
-
   return (
-    // Removed WagmiProvider and RainbowKitProvider
     <AuthKitProvider config={farcasterConfig}>
       <TooltipProvider>
         <Toaster />
@@ -58,6 +43,7 @@ const AppContent = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/jobs" element={<Jobs />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
             <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />

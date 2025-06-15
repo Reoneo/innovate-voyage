@@ -2,14 +2,17 @@
 import { Core } from '@walletconnect/core'
 import { WalletKit } from '@reown/walletkit'
 
+// Use a proper WalletConnect project ID - you should get this from WalletConnect Cloud
+const projectId = process.env.VITE_WALLETCONNECT_PROJECT_ID || '0123456789abcdef0123456789abcdef'
+
 const core = new Core({
-  projectId: 'SupaBase',
+  projectId,
 })
 
 const metadata = {
   name: 'Recruitment.box',
-  description: 'AppKit Example',
-  url: 'https://reown.com/appkit',
+  description: 'Web3 Career Platform',
+  url: window.location.origin,
   icons: ['https://assets.reown.com/reown-profile-pic.png'],
 }
 
