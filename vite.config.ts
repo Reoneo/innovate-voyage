@@ -41,6 +41,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     define: {
       'global': 'globalThis',
       'process.env': {},
+      // Explicitly define Buffer as available
+      'Buffer': 'globalThis.Buffer',
     },
     server: {
       host: '::',
