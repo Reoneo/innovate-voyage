@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,13 +20,20 @@ import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
 import XmtpMessageModal from "./components/wallet/XmtpMessageModal";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 // Create a persistent QueryClient instance with optimized settings
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1, // Reduced retries for faster loading
+      retry: (failureCount, error) => {
+        // Don't retry on certain errors that are likely permanent
+        if (error instanceof Error && error.message.includes('Network Error')) {
+          return failureCount < 1;
+        }
+        return failureCount < 1;
+      },
       staleTime: 300000, // 5 minutes
       gcTime: 3600000, // 1 hour
     },
@@ -45,7 +53,7 @@ const App = () => {
     // Faster loading with minimal timeout
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 50); // Reduced from 100ms
+    }, 50);
     
     return () => clearTimeout(timer);
   }, []);
@@ -60,38 +68,46 @@ const App = () => {
   }
 
   return (
-    <HelmetProvider>
-      <ThemeProvider>
-        <WagmiProvider config={config}>
-          <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider
-              modalSize="compact"
-              initialChain={mainnet}
-              showRecentTransactions={true}
-            >
-              <AuthKitProvider config={farcasterConfig}>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                      <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-                      <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
-                      <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-                      <Route path="/404" element={<NotFound />} />
-                      <Route path="*" element={<Navigate to="/404" />} />
-                    </Routes>
-                    <XmtpMessageModal />
-                  </BrowserRouter>
-                </TooltipProvider>
-              </AuthKitProvider>
-            </RainbowKitProvider>
-          </QueryClientProvider>
-        </WagmiProvider>
-      </ThemeProvider>
-    </HelmetProvider>
+    <ErrorBoundary>
+      <HelmetProvider>
+        <ThemeProvider>
+          <ErrorBoundary>
+            <WagmiProvider config={config}>
+              <QueryClientProvider client={queryClient}>
+                <ErrorBoundary>
+                  <RainbowKitProvider
+                    modalSize="compact"
+                    initialChain={mainnet}
+                    showRecentTransactions={true}
+                  >
+                    <ErrorBoundary>
+                      <AuthKitProvider config={farcasterConfig}>
+                        <TooltipProvider>
+                          <Toaster />
+                          <Sonner />
+                          <BrowserRouter>
+                            <Routes>
+                              <Route path="/" element={<Index />} />
+                              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                              <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+                              <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
+                              <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+                              <Route path="/404" element={<NotFound />} />
+                              <Route path="*" element={<Navigate to="/404" />} />
+                            </Routes>
+                            <XmtpMessageModal />
+                          </BrowserRouter>
+                        </TooltipProvider>
+                      </AuthKitProvider>
+                    </ErrorBoundary>
+                  </RainbowKitProvider>
+                </ErrorBoundary>
+              </QueryClientProvider>
+            </ErrorBoundary>
+          </WagmiProvider>
+        </ThemeProvider>
+      </HelmetProvider>
+    </ErrorBoundary>
   );
 };
 

@@ -1,38 +1,54 @@
 
-// Polyfill Buffer first - before any other imports
+// Enhanced Buffer polyfill for production compatibility
 import { Buffer } from 'buffer';
 
-// Make Buffer globally available
+// More robust Buffer polyfill initialization
 if (typeof window !== 'undefined') {
-  window.Buffer = window.Buffer || Buffer;
-  console.log("Main: Buffer polyfill initialized:", !!window.Buffer);
-}
-
-import { createRoot } from 'react-dom/client';
-
-import App from './App.tsx';
-import './index.css';
-
-// Double-check Buffer is available
-if (typeof window !== 'undefined' && !window.Buffer) {
-  console.error("Buffer polyfill failed to load!");
-  // Try to set it one more time
-  window.Buffer = Buffer;
-  console.log("Main: Buffer retry result:", !!window.Buffer);
-} else {
-  console.log("Main: Buffer is available:", !!window.Buffer);
-}
-
-// Workaround to make Buffer globally available for dependencies that use it
-// @ts-ignore - deliberately setting global object property
-if (typeof window !== 'undefined' && typeof global === 'undefined') {
-  // @ts-ignore - setting window.global
-  window.global = window;
-  // @ts-ignore - ensure global.Buffer exists too
-  if (window.global && !window.global.Buffer) {
-    window.global.Buffer = window.Buffer;
+  if (!window.Buffer) {
+    window.Buffer = Buffer;
+    console.log("Main: Buffer polyfill initialized");
+  }
+  
+  // Ensure global is available for web3 libraries
+  if (typeof (window as any).global === 'undefined') {
+    (window as any).global = window;
+  }
+  
+  // Ensure process.env exists
+  if (typeof (window as any).process === 'undefined') {
+    (window as any).process = { env: {} };
   }
 }
 
-const root = createRoot(document.getElementById("root")!);
-root.render(<App />);
+import { createRoot } from 'react-dom/client';
+import ErrorBoundary from './components/ErrorBoundary';
+import App from './App.tsx';
+import './index.css';
+
+try {
+  const rootElement = document.getElementById("root");
+  if (!rootElement) {
+    throw new Error('Root element not found');
+  }
+
+  const root = createRoot(rootElement);
+  root.render(
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  );
+} catch (error) {
+  console.error('Failed to initialize app:', error);
+  // Fallback render
+  document.body.innerHTML = `
+    <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: system-ui;">
+      <div style="text-align: center; padding: 20px;">
+        <h2>App failed to load</h2>
+        <p>Please refresh the page</p>
+        <button onclick="window.location.reload()" style="padding: 10px 20px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer;">
+          Reload
+        </button>
+      </div>
+    </div>
+  `;
+}
