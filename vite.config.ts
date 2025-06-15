@@ -23,6 +23,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       'process.env': '{}',
       'process.version': '"v18.0.0"',
       'process.browser': 'true',
+      Buffer: 'Buffer',
     },
     optimizeDeps: {
       include: [
@@ -35,6 +36,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       esbuildOptions: {
         define: {
           global: 'globalThis',
+          Buffer: 'Buffer',
         },
       },
     },
@@ -45,6 +47,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom', 'react-router-dom'],
+            polyfills: ['buffer', 'process'],
           },
         },
       },

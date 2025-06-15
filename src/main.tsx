@@ -1,19 +1,18 @@
 
-// Import Buffer polyfill FIRST before anything else
+// Import and setup Buffer polyfill FIRST
 import { Buffer } from 'buffer';
 
-// Set up global polyfills immediately
-if (typeof globalThis !== 'undefined') {
-  (globalThis as any).Buffer = Buffer;
-  (globalThis as any).global = globalThis;
-  (globalThis as any).process = {
-    env: {},
-    version: 'v18.0.0',
-    browser: true,
-    nextTick: (fn: Function) => setTimeout(fn, 0)
-  };
-}
+// Set up global polyfills immediately and aggressively
+(globalThis as any).Buffer = Buffer;
+(globalThis as any).global = globalThis;
+(globalThis as any).process = {
+  env: {},
+  version: 'v18.0.0',
+  browser: true,
+  nextTick: (fn: Function) => setTimeout(fn, 0)
+};
 
+// Also set on window for extra safety
 if (typeof window !== 'undefined') {
   (window as any).Buffer = Buffer;
   (window as any).global = globalThis;
@@ -25,13 +24,18 @@ if (typeof window !== 'undefined') {
   };
 }
 
-// Verify Buffer is available
-console.log("Buffer polyfill setup complete:", {
+// Force Buffer to be available in all contexts
+Object.defineProperty(globalThis, 'Buffer', {
+  value: Buffer,
+  writable: false,
+  configurable: false
+});
+
+console.log("Global polyfills setup:", {
   Buffer: typeof Buffer,
-  BufferFrom: typeof Buffer.from,
-  BufferAlloc: typeof Buffer.alloc,
-  globalBuffer: !!(globalThis as any).Buffer,
-  windowBuffer: !!(window as any)?.Buffer,
+  globalBuffer: typeof (globalThis as any).Buffer,
+  windowBuffer: typeof (window as any)?.Buffer,
+  BufferConstructor: Buffer?.constructor?.name,
 });
 
 import { createRoot } from 'react-dom/client';
