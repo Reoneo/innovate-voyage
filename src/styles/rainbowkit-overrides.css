@@ -18,7 +18,7 @@
   right: 0 !important;
   bottom: 0 !important;
   display: flex !important;
-  justify-content: center !important;
+  /* We rely on margin: auto on the child for centering */
   align-items: flex-end !important; /* Always align to bottom */
   background: transparent !important;
   border: none !important;
@@ -40,6 +40,8 @@
   pointer-events: auto !important;
   display: flex !important;
   flex-direction: column !important;
+  margin-left: auto !important; /* This is the key to robust centering */
+  margin-right: auto !important; /* This is the key to robust centering */
 }
 
 /* Universal box-sizing and overflow control */
@@ -51,3 +53,4 @@
 [data-rk] div[role="dialog"] > div {
   overflow-x: hidden !important;
 }
+
