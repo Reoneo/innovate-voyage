@@ -90,7 +90,7 @@
     align-items: flex-end !important;
     justify-content: center !important;
     background: rgba(40,40,40,0.30) !important;
-    // Redundant, but enforces no scrolling or offset/cropping
+    /* Redundant, but enforces no scrolling or offset/cropping */
     overflow-x: hidden !important;
     overflow-y: visible !important;
   }
