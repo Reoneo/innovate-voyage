@@ -47,7 +47,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         external: [
           '@safe-global/safe-apps-sdk',
           '@safe-window/safe-apps-sdk',
-          '@safe-window/safe-apps-provider'
+          '@safe-window/safe-apps-provider',
+          '@safe-globalThis/safe-apps-sdk'
         ],
         plugins: [
           // Enable rollup polyfills plugin
@@ -67,7 +68,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             warning.code === 'UNRESOLVED_IMPORT' &&
             (warning.message.includes('@safe-global/safe-apps-sdk') || 
              warning.message.includes('@safe-window/safe-apps-sdk') ||
-             warning.message.includes('@safe-window/safe-apps-provider'))
+             warning.message.includes('@safe-window/safe-apps-provider') ||
+             warning.message.includes('@safe-globalThis/safe-apps-sdk'))
           ) {
             return;
           }
