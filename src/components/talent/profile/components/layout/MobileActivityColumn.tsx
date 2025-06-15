@@ -62,7 +62,7 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
     }
   };
 
-  return <div className="bg-gray-50 p-4 space-y-4 rounded-lg shadow-sm">
+  return <div className="bg-gray-50 p-3 space-y-4 h-full py-[24px] px-[5px] mx-0 my-[4px]">
       {/* Follow Button - At the top, only show if not owner */}
       {!isOwner && passport.owner_address && <FollowButton targetAddress={passport.owner_address} />}
       

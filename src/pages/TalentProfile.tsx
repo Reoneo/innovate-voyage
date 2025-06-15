@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
@@ -113,7 +112,7 @@ const TalentProfile = () => {
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container px-1 relative z-10" style={{ maxWidth: '98vw' }}>
+        <div className="container px-1 relative z-10" style={{ maxWidth: '98vw', height: '100vh' }}>
           {loading ? (
             /* Show detailed loading skeleton */
             <div className="pt-16">
