@@ -1,12 +1,11 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Search, Wallet } from 'lucide-react';
+import { Home, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useAccount, useDisconnect } from 'wagmi';
-import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
@@ -20,9 +19,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { isConnected } = useAccount();
-  const { openConnectModal } = useConnectModal();
-  const { disconnect } = useDisconnect();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,14 +26,6 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
       const searchTerm = search.trim().toLowerCase();
       navigate(`/recruitment.box/${searchTerm}/`);
       window.location.reload();
-    }
-  };
-
-  const handleWalletClick = () => {
-    if (isConnected) {
-      disconnect();
-    } else if (openConnectModal) {
-      openConnectModal();
     }
   };
 
@@ -69,12 +57,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </div>
           
           <div className="flex-shrink-0">
-            <button
-              onClick={handleWalletClick}
-              className="text-white hover:text-gray-300 transition-colors"
-            >
-              <Wallet className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`} />
-            </button>
+            <ConnectButton />
           </div>
         </form>
       </div>

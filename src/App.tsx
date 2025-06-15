@@ -9,7 +9,6 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { AuthKitProvider } from '@farcaster/auth-kit';
 import '@farcaster/auth-kit/styles.css';
 import { WagmiProvider } from 'wagmi';
-import { mainnet } from 'wagmi/chains';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { config } from './lib/wagmi';
 import '@rainbow-me/rainbowkit/styles.css';
@@ -64,11 +63,7 @@ const App = () => {
       <ThemeProvider>
         <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider
-              modalSize="compact"
-              initialChain={mainnet}
-              showRecentTransactions={true}
-            >
+            <RainbowKitProvider>
               <AuthKitProvider config={farcasterConfig}>
                 <TooltipProvider>
                   <Toaster />
