@@ -33,7 +33,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
       <div className={`mx-auto px-2 sm:px-4 py-2 flex items-center justify-between ${isMobile ? 'h-12' : 'h-14'} max-w-full`}>
         <form onSubmit={handleSearch} className="flex-1 flex items-center justify-center gap-1 sm:gap-2">
           <Link to="/" className="text-white hover:text-gray-300 transition-colors flex-shrink-0">
-            <Home className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`} />
+            <Home className="h-7 w-7" />
           </Link>
           
           <div className={`relative w-full ${isMobile ? 'max-w-none mx-1' : 'max-w-md'}`}>
@@ -87,7 +87,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                             type="button"
                             className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-auto"
                           >
-                            <Wallet className="h-6 w-6" />
+                            <Wallet className="h-7 w-7" />
                           </Button>
                         );
                       }
@@ -100,14 +100,14 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                           className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-auto rounded-full"
                         >
                           {account.ensAvatar ? (
-                            <Avatar className="h-6 w-6">
+                            <Avatar className="h-7 w-7">
                               <AvatarImage src={account.ensAvatar} alt={account.displayName} />
                               <AvatarFallback>
-                                <Wallet className="h-5 w-5" />
+                                <Wallet className="h-7 w-7" />
                               </AvatarFallback>
                             </Avatar>
                           ) : (
-                            <Wallet className="h-6 w-6" />
+                            <Wallet className="h-7 w-7" />
                           )}
                         </Button>
                       );
