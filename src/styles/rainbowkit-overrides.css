@@ -1,36 +1,51 @@
 
 /**
  * RainbowKit Modal: Centered Dialog
- * A simplified and robust approach to center the modal on all devices.
+ * Improved to be wider and less tall on mobile for better fit.
  */
 
-/* The main dialog container from RainbowKit.
-   This will be a full-screen flex container to center the modal. */
 [data-rk] > div[role="dialog"] {
   position: fixed !important;
-  inset: 0 !important; /* Covers the whole viewport (top/right/bottom/left: 0) */
+  inset: 0 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background: rgba(40, 40, 40, 0.4) !important; /* A subtle backdrop for better focus */
+  background: rgba(40, 40, 40, 0.4) !important;
   backdrop-filter: blur(3px) !important;
-  z-index: 2147483647 !important; /* Max z-index */
-  padding: 1rem !important; /* Padding for small screens */
+  z-index: 2147483647 !important;
+  padding: 1rem !important;
   box-sizing: border-box !important;
 }
 
-/* The actual modal content box.
-   The flex container above will handle its positioning. */
+/* The actual modal content box. The flex container above will handle its positioning. */
 [data-rk] div[role="dialog"] > div {
-  max-width: 420px !important;
-  width: 100% !important;
-  max-height: calc(100vh - 2rem) !important;
+  width: 95vw !important;
+  max-width: 400px !important;
+  min-width: 0 !important;
+  max-height: 80vh !important;
   border-radius: 18px !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
   background: var(--background, #fff) !important;
-  overflow-y: auto !important; /* Allow scrolling inside the modal */
-  display: flex !important; /* This is required by rainbowkit for layout */
-  flex-direction: column !important; /* This is required by rainbowkit for layout */
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+}
+
+/* Make modal even wider and less tall on small screens */
+@media (max-width: 600px) {
+  [data-rk] div[role="dialog"] > div {
+    width: 98vw !important;
+    max-width: 98vw !important;
+    min-width: 0 !important;
+    max-height: 92vh !important;
+    border-radius: 14px !important;
+    padding: 0 !important;
+  }
+  [data-rk] > div[role="dialog"] {
+    padding: 2vw !important;
+  }
 }
 
 /* Ensure no other element covers the modal */
