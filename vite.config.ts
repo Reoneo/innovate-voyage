@@ -30,7 +30,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       esbuildOptions: {
         // Node.js global to browser globalThis
         define: {
-          global: 'globalThis',
+          // global: 'globalThis', // This is now handled by NodeGlobalsPolyfillPlugin
         },
         // Enable esbuild polyfill plugins
         plugins: [
@@ -83,7 +83,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       },
     },
     define: {
-      'global': 'globalThis',
+      // 'global': 'globalThis', // This is now handled by NodeGlobalsPolyfillPlugin
       'process.env': {},
     },
     server: {
