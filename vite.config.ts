@@ -17,7 +17,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        // Simplified polyfills for web3 compatibility
+        // Polyfills for web3 compatibility; do NOT alias anything that could break @safe-global/safe-apps-sdk
         util: 'rollup-plugin-node-polyfills/polyfills/util',
         events: 'rollup-plugin-node-polyfills/polyfills/events',
         stream: 'rollup-plugin-node-polyfills/polyfills/stream',
@@ -32,7 +32,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         define: {
           global: 'globalThis',
         },
-        // Enable esbuild polyfill plugins
         plugins: [
           NodeGlobalsPolyfillPlugin({
             process: true,
@@ -44,14 +43,14 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     },
     build: {
       rollupOptions: {
+        // Explicitly mark all Safe SDK entries as external to avoid resolution/rewriting issues
         external: [
           '@safe-global/safe-apps-sdk',
           '@safe-window/safe-apps-sdk',
           '@safe-window/safe-apps-provider'
         ],
         plugins: [
-          // Enable rollup polyfills plugin
-          // used during production bundling
+          // Enable rollup polyfills plugin for production bundling
           nodePolyfills() as Plugin,
         ],
         output: {
@@ -60,9 +59,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             web3: ['@rainbow-me/rainbowkit', 'wagmi', 'viem'],
           },
         },
-        // Handle optional dependencies that might not be available
+        // Suppress rollup warnings about unresolved Safe SDK imports (these are external and expected)
         onwarn(warning, warn) {
-          // Suppress warnings about missing optional dependencies
           if (
             warning.code === 'UNRESOLVED_IMPORT' &&
             (warning.message.includes('@safe-global/safe-apps-sdk') || 
@@ -71,7 +69,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           ) {
             return;
           }
-          
           warn(warning);
         },
       },
@@ -80,7 +77,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       },
     },
     define: {
-      'global': 'globalThis',
+      // Only define globals required for polyfills; do not insert any string rewrite that affects import paths
+      global: 'globalThis',
       'process.env': {},
     },
     server: {
