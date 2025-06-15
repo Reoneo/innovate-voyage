@@ -85,7 +85,8 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                             variant="ghost"
                             onClick={openConnectModal}
                             type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-auto"
+                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-1 h-auto w-auto flex items-center justify-center"
+                            style={{ minWidth: '28px', minHeight: '28px' }}
                           >
                             <Wallet className="h-7 w-7" />
                           </Button>
@@ -97,12 +98,13 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                           variant="ghost"
                           onClick={openAccountModal}
                           type="button"
-                          className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-auto rounded-full"
+                          className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-1 h-auto w-auto flex items-center justify-center rounded-full"
+                          style={{ minWidth: '28px', minHeight: '28px' }}
                         >
                           {account.ensAvatar ? (
-                            <Avatar className="h-7 w-7">
-                              <AvatarImage src={account.ensAvatar} alt={account.displayName} />
-                              <AvatarFallback>
+                            <Avatar className="h-7 w-7 rounded-full">
+                              <AvatarImage src={account.ensAvatar} alt={account.displayName} className="rounded-full" />
+                              <AvatarFallback className="rounded-full">
                                 <Wallet className="h-7 w-7" />
                               </AvatarFallback>
                             </Avatar>
