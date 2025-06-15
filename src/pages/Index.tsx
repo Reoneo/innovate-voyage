@@ -1,9 +1,7 @@
+
 import React from 'react';
 import HeroSection from '@/components/home/HeroSection';
 import ActionButtonsSection from '@/components/home/ActionButtonsSection';
-import TalentShowcaseSection from '@/components/home/TalentShowcaseSection';
-import WhyJoinSection from '@/components/home/WhyJoinSection';
-import TestimonialsSection from '@/components/home/TestimonialsSection';
 import Footer from '@/components/home/Footer';
 import JobsPopup from '@/components/jobs/JobsPopup';
 
@@ -16,12 +14,9 @@ const Index = () => {
         <div className="text-center mb-8">
           <JobsPopup />
         </div>
-        
       </div>
+      
       <ActionButtonsSection />
-      <TalentShowcaseSection />
-      <WhyJoinSection />
-      <TestimonialsSection />
       <Footer />
     </div>
   );
