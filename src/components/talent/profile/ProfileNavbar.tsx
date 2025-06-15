@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Wallet } from 'lucide-react';
@@ -71,9 +70,8 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           <div className="flex-shrink-0">
             <Button
               variant="ghost"
-              size={isMobile ? "sm" : "default"}
               onClick={handleWalletClick}
-              className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-2"
+              className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-auto"
             >
               <Wallet className="h-6 w-6" />
             </Button>
@@ -85,4 +83,3 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
 };
 
 export default ProfileNavbar;
-
