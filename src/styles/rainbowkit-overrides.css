@@ -1,16 +1,16 @@
 
 /**
- * RainbowKit Modal: Consistently Centered Bottom Dialog
- * Handles modal centering & sizing on all devices to appear at the bottom.
+ * RainbowKit Modal: Consistently Centered Bottom Dialog (No Grey Backdrop)
+ * The modal should have no overlay (grey div), and remain centered at the bottom.
  */
 
-/* Backdrop: consistent blur */
+/* Remove the backdrop background completely */
 [data-rk] div[data-rk-backdrop] {
-  backdrop-filter: blur(8px) !important;
-  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: none !important;
+  background: transparent !important;
 }
 
-/* Outer wrapper: fixed to screen, flexbox for centering */
+/* Outer wrapper: fixed to screen, flexbox for bottom-center alignment */
 [data-rk] > div[role="dialog"] {
   position: fixed !important;
   top: 0 !important;
@@ -18,30 +18,31 @@
   right: 0 !important;
   bottom: 0 !important;
   display: flex !important;
-  /* We rely on margin: auto on the child for centering */
-  align-items: flex-end !important; /* Always align to bottom */
+  align-items: flex-end !important; /* Align modal to the bottom */
+  justify-content: center !important; /* Center horizontally */
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   z-index: 2147483647 !important;
   pointer-events: none !important; /* Pass clicks through */
-  padding: 0 1rem 2vh 1rem !important; /* Add padding for spacing */
+  padding: 0 1rem 2vh 1rem !important; /* Add spacing at bottom */
 }
 
-/* Modal "box" (inner): the visible modal */
+/* Modal "box": the visible modal itself at the bottom center */
 [data-rk] div[role="dialog"] > div {
   background: var(--background, #fff) !important;
-  box-shadow: 0 -2px 32px 0 rgba(60,60,110,0.11) !important; /* Use bottom sheet shadow */
+  box-shadow: 0 -2px 32px 0 rgba(60,60,110,0.11) !important;
   width: 100% !important;
   max-width: 420px !important;
   max-height: 84vh !important;
-  border-radius: 18px !important; /* All corners rounded */
+  border-radius: 18px !important;
   overflow-y: auto !important;
   pointer-events: auto !important;
   display: flex !important;
   flex-direction: column !important;
-  margin-left: auto !important; /* This is the key to robust centering */
-  margin-right: auto !important; /* This is the key to robust centering */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-bottom: env(safe-area-inset-bottom, 0) !important;
 }
 
 /* Universal box-sizing and overflow control */
@@ -53,4 +54,3 @@
 [data-rk] div[role="dialog"] > div {
   overflow-x: hidden !important;
 }
-
