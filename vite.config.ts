@@ -36,20 +36,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         define: {
           global: 'globalThis',
         },
-        plugins: [
-          {
-            name: 'node-globals-polyfill',
-            setup(build) {
-              build.onResolve({ filter: /^buffer$/ }, () => ({
-                path: require.resolve('buffer'),
-              }));
-              build.onLoad({ filter: /.*/, namespace: 'buffer' }, () => ({
-                contents: 'export { Buffer } from "buffer"',
-                loader: 'js',
-              }));
-            },
-          },
-        ],
       },
     },
     build: {
