@@ -8,6 +8,7 @@ import FeaturedProfileSection from '@/components/home/FeaturedProfileSection';
 import RainbowWalletConnect from '@/components/home/RainbowWalletConnect';
 import ThemeToggle from '@/components/home/ThemeToggle';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
+import WalletConnectButton from '@/components/wallet/WalletConnectButton';
 
 const IndexContent = () => {
   const { isDayMode } = useTheme();
@@ -16,8 +17,10 @@ const IndexContent = () => {
     <div className={`min-h-screen relative ${isDayMode ? 'bg-white' : 'bg-slate-900'}`}>
       <SeoHelmet />
       
-      {/* Theme toggle in top right */}
-      <ThemeToggle />
+      <div className="absolute top-4 right-4 z-50 flex items-center gap-4">
+        <ThemeToggle />
+        <WalletConnectButton />
+      </div>
       
       {/* Schema.org structured data for better SEO */}
       <script type="application/ld+json">
