@@ -1,8 +1,9 @@
 
 
+
 /**
- * RainbowKit Modal: Consistently Centered Bottom Dialog (No Grey Backdrop)
- * The modal should have no overlay (grey div), and remain centered at the bottom.
+ * RainbowKit Modal: Perfectly Centered Dialog (No Grey Backdrop)
+ * The modal should be centered both horizontally and vertically on screen.
  */
 
 /* Remove the backdrop background completely */
@@ -11,7 +12,7 @@
   background: transparent !important;
 }
 
-/* Outer wrapper: fixed to screen, flexbox for bottom-center alignment */
+/* Outer wrapper: fixed to screen, flexbox for perfect centering */
 [data-rk] > div[role="dialog"] {
   position: fixed !important;
   top: 0 !important;
@@ -19,44 +20,43 @@
   right: 0 !important;
   bottom: 0 !important;
   display: flex !important;
-  align-items: flex-end !important; /* Align modal to the bottom */
+  align-items: center !important; /* Center vertically */
   justify-content: center !important; /* Center horizontally */
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   z-index: 2147483647 !important;
   pointer-events: none !important; /* Pass clicks through */
-  padding: 0 0.5rem 1rem 0.5rem !important; /* Reduced padding for mobile */
+  padding: 1rem !important; /* Equal padding on all sides */
 }
 
-/* Modal "box": the visible modal itself at the bottom center */
+/* Modal "box": the visible modal itself - perfectly centered */
 [data-rk] div[role="dialog"] > div {
   background: var(--background, #fff) !important;
-  box-shadow: 0 -2px 32px 0 rgba(60,60,110,0.11) !important;
+  box-shadow: 0 4px 32px 0 rgba(60,60,110,0.15) !important;
   width: 100% !important;
-  max-width: min(420px, calc(100vw - 1rem)) !important; /* Ensure it fits within viewport */
-  max-height: min(84vh, calc(100vh - 2rem)) !important; /* Ensure it fits within viewport height */
+  max-width: min(420px, calc(100vw - 2rem)) !important; /* Ensure it fits within viewport */
+  max-height: min(90vh, calc(100vh - 2rem)) !important; /* Ensure it fits within viewport height */
   border-radius: 18px !important;
   overflow-y: auto !important;
   pointer-events: auto !important;
   display: flex !important;
   flex-direction: column !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  margin-bottom: env(safe-area-inset-bottom, 0) !important;
+  /* Remove margin adjustments since we're using flexbox centering */
+  margin: 0 !important;
   /* Mobile-specific adjustments */
   min-width: 0 !important; /* Allow shrinking below content width */
   box-sizing: border-box !important;
 }
 
-/* Mobile-specific styles */
+/* Mobile-specific styles for tighter fit */
 @media (max-width: 768px) {
   [data-rk] > div[role="dialog"] {
-    padding: 0 0.25rem 0.5rem 0.25rem !important; /* Even less padding on small screens */
+    padding: 0.5rem !important; /* Tighter padding on mobile */
   }
   
   [data-rk] div[role="dialog"] > div {
-    max-width: calc(100vw - 0.5rem) !important; /* Tighter fit on mobile */
+    max-width: calc(100vw - 1rem) !important; /* Tighter fit on mobile */
     max-height: calc(100vh - 1rem) !important;
     border-radius: 12px !important; /* Slightly smaller radius on mobile */
   }
