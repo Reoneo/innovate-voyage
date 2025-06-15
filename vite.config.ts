@@ -88,7 +88,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     },
     server: {
       host: '::',
-      port: 8080
+      port: 8080,
+      watch: {
+        // Exclude large directories from file watching to prevent EMFILE errors.
+        ignored: ['**/node_modules/**', '**/.git/**'],
+      },
     },
   };
   

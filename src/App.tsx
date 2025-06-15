@@ -12,7 +12,6 @@ import '@farcaster/auth-kit/styles.css';
 import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { config } from './lib/wagmi';
-import { customRainbowKitTheme, modalStyles } from './lib/rainbowkit-theme';
 import '@rainbow-me/rainbowkit/styles.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import Index from "./pages/Index";
@@ -129,24 +128,13 @@ const App = () => {
       
       console.log('App: All components available');
       
-      // Inject custom modal styles
-      const styleElement = document.createElement('style');
-      styleElement.textContent = modalStyles;
-      document.head.appendChild(styleElement);
-      
       // Faster loading with minimal timeout
       const timer = setTimeout(() => {
         console.log('App loading complete');
         setIsLoading(false);
       }, 50); // Reduced from 100ms
       
-      return () => {
-        clearTimeout(timer);
-        // Clean up injected styles
-        if (styleElement.parentNode) {
-          styleElement.parentNode.removeChild(styleElement);
-        }
-      };
+      return () => clearTimeout(timer);
     } catch (error) {
       console.error('App: Error during initialization:', error);
       setIsLoading(false);
@@ -175,7 +163,7 @@ const App = () => {
           <ThemeProvider>
             <WagmiProvider config={config}>
               <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider theme={customRainbowKitTheme}>
+                <RainbowKitProvider>
                   <AuthKitProvider config={farcasterConfig}>
                     <TooltipProvider>
                       <Toaster />
