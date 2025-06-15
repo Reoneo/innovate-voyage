@@ -49,8 +49,6 @@
     "@vercel/node": "^5.1.15",
     "@vitejs/plugin-react": "^4.3.4",
     "@wagmi/core": "^1.4.13",
-    "@walletconnect/core": "^2.21.2",
-    "@walletconnect/utils": "^2.21.2",
     "@web3modal/ethereum": "^2.7.1",
     "@web3modal/react": "^2.7.1",
     "@xmtp/xmtp-js": "^11.2.1",
@@ -88,7 +86,6 @@
     "three": "^0.177.0",
     "vaul": "^0.9.3",
     "viem": "^2.31.2",
-    "vite-plugin-static-copy": "^3.0.2",
     "wagmi": "^2.15.4",
     "zod": "^3.23.8"
   },

@@ -1,3 +1,4 @@
+
 import { defineConfig, ConfigEnv, UserConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -5,7 +6,6 @@ import { componentTagger } from 'lovable-tagger';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
@@ -13,19 +13,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     plugins: [
       react(),
       mode === 'development' && componentTagger(),
-      viteStaticCopy({
-        targets: [
-          {
-            src: 'public/_redirects',
-            dest: '.' // <- this ensures _redirects is copied to dist/
-          }
-        ]
-      })
     ].filter(Boolean as any),
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        // Polyfills for web3 compatibility; do NOT alias anything that could break @safe-global/safe-apps-sdk
+        // Simplified polyfills for web3 compatibility
         util: 'rollup-plugin-node-polyfills/polyfills/util',
         events: 'rollup-plugin-node-polyfills/polyfills/events',
         stream: 'rollup-plugin-node-polyfills/polyfills/stream',
@@ -38,8 +30,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       esbuildOptions: {
         // Node.js global to browser globalThis
         define: {
-          global: 'globalThis',
+          // global: 'globalThis', // This is now handled by NodeGlobalsPolyfillPlugin
         },
+        // Enable esbuild polyfill plugins
         plugins: [
           NodeGlobalsPolyfillPlugin({
             process: true,
@@ -50,8 +43,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       },
     },
     build: {
+      target: 'esnext', // Updated to support modern JavaScript features
       rollupOptions: {
-        // Explicitly mark all Safe SDK entries as external to avoid resolution/rewriting issues
         external: [
           '@safe-global/safe-apps-sdk',
           '@safe-window/safe-apps-sdk',
@@ -60,7 +53,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           '@safe-globalThis/safe-apps-provider',
         ],
         plugins: [
-          // Enable rollup polyfills plugin for production bundling
           nodePolyfills() as Plugin,
         ],
         output: {
@@ -69,16 +61,20 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             web3: ['@rainbow-me/rainbowkit', 'wagmi', 'viem'],
           },
         },
-        // Suppress rollup warnings about unresolved Safe SDK imports (these are external and expected)
         onwarn(warning, warn) {
           if (
             warning.code === 'UNRESOLVED_IMPORT' &&
-            (warning.message.includes('@safe-global/safe-apps-sdk') || 
-             warning.message.includes('@safe-window/safe-apps-sdk') ||
-             warning.message.includes('@safe-window/safe-apps-provider'))
+            (
+              warning.message.includes('@safe-global/safe-apps-sdk') ||
+              warning.message.includes('@safe-window/safe-apps-sdk') ||
+              warning.message.includes('@safe-window/safe-apps-provider') ||
+              warning.message.includes('@safe-globalThis/safe-apps-sdk') ||
+              warning.message.includes('@safe-globalThis/safe-apps-provider')
+            )
           ) {
             return;
           }
+          
           warn(warning);
         },
       },
@@ -87,8 +83,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       },
     },
     define: {
-      // Only define globals required for polyfills; do not insert any string rewrite that affects import paths
-      global: 'globalThis',
+      // 'global': 'globalThis', // This is now handled by NodeGlobalsPolyfillPlugin
       'process.env': {},
     },
     server: {

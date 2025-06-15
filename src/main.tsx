@@ -1,101 +1,187 @@
-// Polyfill Buffer first - before any other imports
+
+// Enhanced Buffer polyfill - more robust for production
 import { Buffer } from 'buffer';
 
-// Make Buffer globally available
-if (typeof window !== 'undefined') {
-  window.Buffer = window.Buffer || Buffer;
-  console.log("Main: Buffer polyfill initialized:", !!window.Buffer);
-}
+console.log('Main.tsx: Starting application initialization');
 
-import { createRoot } from 'react-dom/client';
-import React from 'react';
-import App from './App.tsx';
-import ErrorBoundary from './components/ErrorBoundary';
-import './index.css';
-
-// Double-check Buffer is available
-if (typeof window !== 'undefined' && !window.Buffer) {
-  console.error("Buffer polyfill failed to load!");
-  // Try to set it one more time
-  window.Buffer = Buffer;
-  console.log("Main: Buffer retry result:", !!window.Buffer);
-} else {
-  console.log("Main: Buffer is available:", !!window.Buffer);
-}
-
-// Workaround to make Buffer globally available for dependencies that use it
-// @ts-ignore - deliberately setting global object property
-if (typeof window !== 'undefined' && typeof global === 'undefined') {
-  // @ts-ignore - setting window.global
-  window.global = window;
-  // @ts-ignore - ensure global.Buffer exists too
-  if (window.global && !window.global.Buffer) {
-    window.global.Buffer = window.Buffer;
+// Enhanced global Buffer setup
+const setupGlobalBuffer = () => {
+  try {
+    if (typeof window !== 'undefined') {
+      // Set up Buffer on window
+      if (!window.Buffer) {
+        window.Buffer = Buffer;
+        console.log('Main: Buffer polyfill set on window');
+      }
+      
+      // Set up global on window if it doesn't exist
+      if (!window.global) {
+        window.global = window;
+        console.log('Main: global set to window');
+      }
+      
+      // Ensure global.Buffer exists
+      if (window.global && !window.global.Buffer) {
+        window.global.Buffer = Buffer;
+        console.log('Main: Buffer set on global');
+      }
+      
+      console.log('Main: Buffer setup complete - Buffer available:', !!window.Buffer);
+      return true;
+    }
+  } catch (error) {
+    console.error('Main: Error setting up Buffer polyfill:', error);
+    return false;
   }
+};
+
+// Set up Buffer immediately
+const bufferSetupSuccess = setupGlobalBuffer();
+
+if (!bufferSetupSuccess) {
+  console.error('Main: Failed to set up Buffer polyfill');
 }
 
-// Global error logging for blank screen debugging
-if (typeof window !== 'undefined') {
-  window.onerror = function (message, source, lineno, colno, error) {
-    console.error("Global error:", { message, source, lineno, colno, error });
-    const errorDiv = document.createElement('div');
-    errorDiv.style.background = "#fee2e2";
-    errorDiv.style.color = "#dc2626";
-    errorDiv.style.padding = "16px";
-    errorDiv.style.position = "fixed";
-    errorDiv.style.top = "20px";
-    errorDiv.style.right = "20px";
-    errorDiv.style.zIndex = "9999";
-    errorDiv.style.fontFamily = "monospace";
-    errorDiv.innerText = "Global error: " + message;
-    document.body.appendChild(errorDiv);
-    setTimeout(() => errorDiv.remove(), 15000);
-    return false; // Let browser log as well
-  };
-  window.onunhandledrejection = function (event) {
-    console.error("Unhandled promise rejection:", event.reason);
-    const errorDiv = document.createElement('div');
-    errorDiv.style.background = "#fee2e2";
-    errorDiv.style.color = "#dc2626";
-    errorDiv.style.padding = "16px";
-    errorDiv.style.position = "fixed";
-    errorDiv.style.top = "46px";
-    errorDiv.style.right = "20px";
-    errorDiv.style.zIndex = "9999";
-    errorDiv.style.fontFamily = "monospace";
-    errorDiv.innerText = "Unhandled rejection: " + (event.reason && event.reason.toString ? event.reason.toString() : "Unknown error");
-    document.body.appendChild(errorDiv);
-    setTimeout(() => errorDiv.remove(), 15000);
-  };
-}
+// Add more detailed error handling for imports
+console.log('Main: About to import React and App component');
 
-// Debug: Is #root element present before trying to mount?
-const rootElement = document.getElementById("root");
-if (!rootElement) {
-  console.error(
-    "CRITICAL ERROR: #root element not found in index.html. App cannot render!"
-  );
-  // Friendly UI message if all else fails
-  const fallbackDiv = document.createElement("div");
-  fallbackDiv.style.position = "fixed";
-  fallbackDiv.style.top = "30%";
-  fallbackDiv.style.left = "50%";
-  fallbackDiv.style.transform = "translate(-50%, -50%)";
-  fallbackDiv.style.background = "#fee2e2";
-  fallbackDiv.style.color = "#dc2626";
-  fallbackDiv.style.padding = "2em";
-  fallbackDiv.style.borderRadius = "1em";
-  fallbackDiv.style.fontSize = "1.3em";
-  fallbackDiv.style.fontFamily = "monospace";
-  fallbackDiv.innerText = "Fatal Error: #root element missing from index.html!";
-  document.body.appendChild(fallbackDiv);
-} else {
-  console.log("Attempting React root mounting...");
-  const root = createRoot(rootElement);
-  root.render(
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  );
-  console.log("React root mounted successfully.");
-}
+let createRoot, App, React;
+
+// Convert top-level await to promise chains
+console.log('Main: Importing createRoot from react-dom/client');
+import('react-dom/client')
+  .then((reactDomClient) => {
+    createRoot = reactDomClient.createRoot;
+    console.log('Main: createRoot imported successfully');
+    
+    console.log('Main: Importing App component');
+    return import('./App.tsx');
+  })
+  .then((appModule) => {
+    App = appModule.default;
+    console.log('Main: App component imported successfully');
+    
+    console.log('Main: Importing CSS');
+    return import('./index.css');
+  })
+  .then(() => {
+    console.log('Main: CSS imported successfully');
+    return import('react');
+  })
+  .then((reactModule) => {
+    React = reactModule;
+    console.log('Main: React imported successfully');
+    
+    // Verify Buffer is still available after imports
+    if (typeof window !== 'undefined' && !window.Buffer) {
+      console.error('Main: Buffer was lost after imports, attempting to restore...');
+      setupGlobalBuffer();
+    }
+
+    console.log('Main: Final Buffer check - available:', typeof window !== 'undefined' ? !!window.Buffer : 'N/A (not in browser)');
+
+    // Enhanced root element check and creation
+    console.log('Main: Looking for root element');
+    const rootElement = document.getElementById("root");
+    if (!rootElement) {
+      console.error('Main: Root element not found in DOM');
+      throw new Error('Root element not found');
+    }
+    console.log('Main: Root element found:', rootElement);
+    
+    console.log('Main: Creating React root');
+    const root = createRoot(rootElement);
+    console.log('Main: React root created successfully');
+    
+    console.log('Main: About to render App component');
+    
+    // Wrap App in additional error boundary for main.tsx level errors
+    const AppWithErrorBoundary = () => {
+      try {
+        return React.createElement(App);
+      } catch (error) {
+        console.error('Main: Error creating App element:', error);
+        return React.createElement('div', { 
+          style: { 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            minHeight: '100vh', 
+            flexDirection: 'column', 
+            fontFamily: 'system-ui',
+            padding: '20px',
+            textAlign: 'center'
+          } 
+        }, [
+          React.createElement('h1', { 
+            key: 'title',
+            style: { color: '#ef4444', marginBottom: '1rem' } 
+          }, 'Application Error'),
+          React.createElement('p', { 
+            key: 'message',
+            style: { color: '#6b7280', marginBottom: '1rem' } 
+          }, 'Failed to initialize the application.'),
+          React.createElement('pre', { 
+            key: 'error',
+            style: { 
+              background: '#f3f4f6', 
+              padding: '1rem', 
+              borderRadius: '0.375rem',
+              fontSize: '0.875rem',
+              color: '#374151',
+              maxWidth: '600px',
+              overflow: 'auto'
+            } 
+          }, error.toString()),
+          React.createElement('button', { 
+            key: 'reload',
+            onClick: () => window.location.reload(),
+            style: { 
+              padding: '0.5rem 1rem', 
+              background: '#3b82f6', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '0.375rem', 
+              cursor: 'pointer',
+              marginTop: '1rem'
+            } 
+          }, 'Reload Page')
+        ]);
+      }
+    };
+    
+    root.render(React.createElement(AppWithErrorBoundary));
+    
+    console.log('Main: App render complete');
+  })
+  .catch((error) => {
+    console.error('Main: Fatal error during app initialization:', error);
+    
+    // More detailed fallback error display
+    const rootElement = document.getElementById("root");
+    if (rootElement) {
+      rootElement.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; font-family: system-ui; padding: 20px;">
+          <h1 style="color: #ef4444; margin-bottom: 1rem;">Application Initialization Error</h1>
+          <p style="color: #6b7280; margin-bottom: 1rem;">Failed to initialize the application.</p>
+          <pre style="background: #f3f4f6; padding: 1rem; border-radius: 0.375rem; font-size: 0.875rem; color: #374151; max-width: 600px; overflow: auto; margin-bottom: 1rem;">${error.toString()}</pre>
+          <p style="color: #6b7280; margin-bottom: 1rem; font-size: 0.875rem;">Check the browser console for more details.</p>
+          <button onclick="window.location.reload()" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer;">
+            Reload Page
+          </button>
+        </div>
+      `;
+    } else {
+      console.error('Main: Could not find root element for fallback display');
+      document.body.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; font-family: system-ui; padding: 20px;">
+          <h1 style="color: #ef4444; margin-bottom: 1rem;">Critical Application Error</h1>
+          <p style="color: #6b7280; margin-bottom: 1rem;">The application failed to start and the root element could not be found.</p>
+          <pre style="background: #f3f4f6; padding: 1rem; border-radius: 0.375rem; font-size: 0.875rem; color: #374151; max-width: 600px; overflow: auto; margin-bottom: 1rem;">${error.toString()}</pre>
+          <button onclick="window.location.reload()" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer;">
+            Reload Page
+          </button>
+        </div>
+      `;
+    }
+  });

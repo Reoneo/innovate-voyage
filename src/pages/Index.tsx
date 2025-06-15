@@ -7,10 +7,12 @@ import SearchSection from '@/components/home/SearchSection';
 import FeaturedProfileSection from '@/components/home/FeaturedProfileSection';
 import RainbowWalletConnect from '@/components/home/RainbowWalletConnect';
 import ThemeToggle from '@/components/home/ThemeToggle';
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
-const IndexContent = () => {
+const Index = () => {
   const { isDayMode } = useTheme();
+
+  console.log('Index page rendering, isDayMode:', isDayMode);
 
   return (
     <div className={`min-h-screen relative ${isDayMode ? 'bg-white' : 'bg-slate-900'}`}>
@@ -132,14 +134,6 @@ const IndexContent = () => {
         </div>
       </div>
     </div>
-  );
-};
-
-const Index = () => {
-  return (
-    <ThemeProvider>
-      <IndexContent />
-    </ThemeProvider>
   );
 };
 
