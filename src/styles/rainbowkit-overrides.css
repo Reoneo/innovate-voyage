@@ -25,7 +25,7 @@
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  z-index: 2147483647 !important;
+  z-index: 999999999 !important; /* Maximum z-index to appear over everything */
   pointer-events: none !important; /* Pass clicks through */
   padding: 1rem !important; /* Equal padding on all sides */
 }
@@ -47,6 +47,9 @@
   /* Mobile-specific adjustments */
   min-width: 0 !important; /* Allow shrinking below content width */
   box-sizing: border-box !important;
+  /* Ensure it appears over everything */
+  position: relative !important;
+  z-index: 1000000000 !important;
 }
 
 /* Mobile-specific styles for tighter fit */
@@ -59,6 +62,20 @@
     max-width: calc(100vw - 1rem) !important; /* Tighter fit on mobile */
     max-height: calc(100vh - 1rem) !important;
     border-radius: 12px !important; /* Slightly smaller radius on mobile */
+    min-height: auto !important; /* Allow natural height on mobile */
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  [data-rk] > div[role="dialog"] {
+    padding: 0.25rem !important; /* Even tighter padding on very small screens */
+  }
+  
+  [data-rk] div[role="dialog"] > div {
+    max-width: calc(100vw - 0.5rem) !important; /* Maximum width usage on tiny screens */
+    max-height: calc(100vh - 0.5rem) !important;
+    border-radius: 8px !important; /* Smaller radius for tiny screens */
   }
 }
 
@@ -72,3 +89,8 @@
   overflow-x: hidden !important;
 }
 
+/* Ensure RainbowKit modal content is properly styled */
+[data-rk] div[role="dialog"] > div > * {
+  max-width: 100% !important;
+  overflow-wrap: break-word !important;
+}
