@@ -6,9 +6,21 @@ import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
+// Define the props type for ProfileNavbar
+type ProfileNavbarProps = {
+  connectedWallet?: string | null;
+  onDisconnect?: () => void;
+  onSaveChanges?: () => void;
+};
+
 const ICON_SIZE = 24;
 
-const ProfileNavbar: React.FC = () => {
+// Accept props and use default values just in case
+const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
+  connectedWallet,
+  onDisconnect,
+  onSaveChanges,
+}) => {
   const [searchPopoverOpen, setSearchPopoverOpen] = useState(false);
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
