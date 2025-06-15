@@ -38,12 +38,20 @@ if (isMissingOrInvalidProjectId) {
       setTimeout(() => div.remove(), 20000);
     }
   }
-  // Prevent site crash: Export a dummy config instead
+  // Patch: Provide a config stub with the minimal API Wagmi+RainbowKit expect
   config = {
+    chains: [mainnet, polygon, optimism, arbitrum, base],
     connectors: [],
-    publicClient: undefined,
-    chains: [],
+    publicClient: { // fake client with dummy request so RainbowKit components won't crash
+      request: async () => { throw new Error('WalletConnect config missing.'); },
+    },
+    webSocketPublicClient: undefined,
     ssr: false,
+    // Include a fake _internal as a stub to prevent errors (fix for ._internal.ssr access)
+    _internal: {
+      ssr: false,
+      // Add any additional minimum property as needed by new RainbowKit releases
+    },
   };
 } else {
   config = getDefaultConfig({
@@ -55,3 +63,4 @@ if (isMissingOrInvalidProjectId) {
 }
 
 export { config };
+
