@@ -1,4 +1,3 @@
-
 import { defineConfig, ConfigEnv, UserConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -48,11 +47,10 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           '@safe-global/safe-apps-sdk',
           '@safe-window/safe-apps-sdk',
           '@safe-window/safe-apps-provider',
-          '@safe-globalThis/safe-apps-sdk', // Add this to suppress the error!
+          '@safe-globalThis/safe-apps-sdk',
+          '@safe-globalThis/safe-apps-provider',
         ],
         plugins: [
-          // Enable rollup polyfills plugin
-          // used during production bundling
           nodePolyfills() as Plugin,
         ],
         output: {
@@ -61,16 +59,15 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             web3: ['@rainbow-me/rainbowkit', 'wagmi', 'viem'],
           },
         },
-        // Handle optional dependencies that might not be available
         onwarn(warning, warn) {
-          // Suppress warnings about missing optional dependencies
           if (
             warning.code === 'UNRESOLVED_IMPORT' &&
             (
               warning.message.includes('@safe-global/safe-apps-sdk') ||
               warning.message.includes('@safe-window/safe-apps-sdk') ||
               warning.message.includes('@safe-window/safe-apps-provider') ||
-              warning.message.includes('@safe-globalThis/safe-apps-sdk') // Add this line!
+              warning.message.includes('@safe-globalThis/safe-apps-sdk') ||
+              warning.message.includes('@safe-globalThis/safe-apps-provider')
             )
           ) {
             return;
