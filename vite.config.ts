@@ -47,7 +47,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           '@safe-global/safe-apps-sdk',
           '@safe-window/safe-apps-sdk',
           '@safe-window/safe-apps-provider',
-          '@safe-globalThis/safe-apps-sdk'
+          '@safe-globalThis/safe-apps-sdk',
+          '@safe-globalThis/safe-apps-provider',
         ],
         plugins: [
           // Enable rollup polyfills plugin for production bundling

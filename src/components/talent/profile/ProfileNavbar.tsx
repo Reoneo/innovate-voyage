@@ -14,6 +14,7 @@ type ProfileNavbarProps = {
 };
 
 const ICON_SIZE = 24;
+const SEARCH_ICON_SIZE = ICON_SIZE * 2;
 
 // Accept props and use default values just in case
 const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
@@ -62,24 +63,25 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
     <>
       <div className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-600/20 shadow-sm bg-gray-800/30 w-full`}>
         <div className={`mx-auto px-2 sm:px-4 py-2 flex items-center justify-between ${isMobile ? 'h-12' : 'h-14'} max-w-full`}>
-          {/* Left: Home Button & Search Button */}
+          {/* Left: Home Button */}
           <div className="flex items-center gap-0">
             <Link to="/" className="text-white hover:text-gray-300 transition-colors flex-shrink-0 flex items-center" aria-label="Home">
               <Home className="h-6 w-6" size={ICON_SIZE} />
             </Link>
+          </div>
+          {/* Center: Search Button, now extra large and to right of Home */}
+          <div className="flex-1 flex justify-center items-center">
             <Button
               variant="ghost"
               aria-label="Open search"
               tabIndex={0}
-              className="ml-1 p-0 rounded-full px-0 py-0 my-0 mx-0 text-white flex items-center justify-center h-6 w-6"
-              style={{ minWidth: ICON_SIZE, minHeight: ICON_SIZE }}
+              className="p-0 rounded-full m-0 text-white flex items-center justify-center"
+              style={{ minWidth: SEARCH_ICON_SIZE, minHeight: SEARCH_ICON_SIZE }}
               onClick={() => setSearchPopoverOpen((v) => !v)}
             >
-              <Search className="h-6 w-6" size={ICON_SIZE} />
+              <Search className="h-12 w-12" size={SEARCH_ICON_SIZE} />
             </Button>
           </div>
-          {/* Center: Flexible spacer to keep right-aligned button */}
-          <div className="flex-1 flex justify-center" />
           {/* Right: WalletConnect */}
           <div className="flex-shrink-0 flex items-center">
             <ConnectButton accountStatus="avatar" chainStatus="full" showBalance={false} />
