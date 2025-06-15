@@ -75,7 +75,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               onClick={handleWalletClick}
               className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-2"
             >
-              <Wallet className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'}`} />
+              <Wallet className="h-6 w-6" />
             </Button>
           </div>
         </form>
@@ -85,3 +85,4 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
 };
 
 export default ProfileNavbar;
+
