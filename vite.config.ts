@@ -24,6 +24,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         path: 'rollup-plugin-node-polyfills/polyfills/path',
         buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
         process: 'rollup-plugin-node-polyfills/polyfills/process-es6',
+        // Fix for Safe wallet connector import issue
+        '@safe-globalThis/safe-apps-sdk': '@safe-global/safe-apps-sdk',
       },
     },
     optimizeDeps: {
@@ -67,7 +69,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             warning.code === 'UNRESOLVED_IMPORT' &&
             (warning.message.includes('@safe-global/safe-apps-sdk') || 
              warning.message.includes('@safe-window/safe-apps-sdk') ||
-             warning.message.includes('@safe-window/safe-apps-provider'))
+             warning.message.includes('@safe-window/safe-apps-provider') ||
+             warning.message.includes('@safe-globalThis/safe-apps-sdk'))
           ) {
             return;
           }
