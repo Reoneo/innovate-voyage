@@ -8,8 +8,8 @@ if (typeof window !== 'undefined') {
 }
 
 import { createRoot } from 'react-dom/client';
-
 import App from './App.tsx';
+import ErrorBoundary from './components/ErrorBoundary';
 import './index.css'; // Make sure Tailwind/global styles import is correct!
 
 if (typeof window !== 'undefined' && !window.Buffer) {
@@ -29,7 +29,11 @@ if (typeof window !== 'undefined' && typeof global === 'undefined') {
 const rootElement = document.getElementById('root');
 if (rootElement) {
   const root = createRoot(rootElement);
-  root.render(<App />);
+  root.render(
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  );
 } else {
   console.error('Root element not found! App will not render.');
 }
