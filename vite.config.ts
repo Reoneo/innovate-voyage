@@ -24,8 +24,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         path: 'rollup-plugin-node-polyfills/polyfills/path',
         buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
         process: 'rollup-plugin-node-polyfills/polyfills/process-es6',
-        // Fix for Safe wallet connector import issue
+        // Fix for Safe wallet connector import issues
         '@safe-globalThis/safe-apps-sdk': '@safe-global/safe-apps-sdk',
+        '@safe-globalThis/safe-apps-provider': '@safe-global/safe-apps-sdk',
       },
     },
     optimizeDeps: {
@@ -49,7 +50,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         external: [
           '@safe-global/safe-apps-sdk',
           '@safe-window/safe-apps-sdk',
-          '@safe-window/safe-apps-provider'
+          '@safe-window/safe-apps-provider',
+          '@safe-globalThis/safe-apps-sdk',
+          '@safe-globalThis/safe-apps-provider'
         ],
         plugins: [
           // Enable rollup polyfills plugin
@@ -70,7 +73,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             (warning.message.includes('@safe-global/safe-apps-sdk') || 
              warning.message.includes('@safe-window/safe-apps-sdk') ||
              warning.message.includes('@safe-window/safe-apps-provider') ||
-             warning.message.includes('@safe-globalThis/safe-apps-sdk'))
+             warning.message.includes('@safe-globalThis/safe-apps-sdk') ||
+             warning.message.includes('@safe-globalThis/safe-apps-provider'))
           ) {
             return;
           }
