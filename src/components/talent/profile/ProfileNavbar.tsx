@@ -5,7 +5,6 @@ import { Home, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
@@ -19,6 +18,12 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+
+  const handleOpenXmtpModal = () => {
+    if (window.xmtpMessageModal) {
+      window.xmtpMessageModal.showModal();
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,9 +61,17 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
             </Button>
           </div>
           
-          <div className="flex-shrink-0">
-            <ConnectButton />
-          </div>
+          <button 
+            onClick={handleOpenXmtpModal} 
+            className="text-white hover:text-gray-300 transition-colors flex-shrink-0" 
+            aria-label="XMTP Messages"
+          >
+            <img 
+              src="https://raw.githubusercontent.com/xmtp/brand/main/assets/x-mark-red.png" 
+              alt="XMTP Messages" 
+              className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`}
+            />
+          </button>
         </form>
       </div>
     </div>
