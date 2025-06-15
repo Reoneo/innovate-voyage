@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import WalletConnectButton from '../../wallet/WalletConnectButton';
 
 const ProfileNavigationBar: React.FC = () => {
   return (
@@ -21,7 +21,7 @@ const ProfileNavigationBar: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center">
-            <ConnectButton />
+            <WalletConnectButton />
           </div>
         </div>
       </div>
