@@ -28,7 +28,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         querystring: 'rollup-plugin-node-polyfills/polyfills/qs',
         punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
         url: 'rollup-plugin-node-polyfills/polyfills/url',
-        string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
         http: 'rollup-plugin-node-polyfills/polyfills/http',
         https: 'rollup-plugin-node-polyfills/polyfills/http',
         os: 'rollup-plugin-node-polyfills/polyfills/os',
@@ -47,6 +46,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         domain: 'rollup-plugin-node-polyfills/polyfills/domain',
         buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
         process: 'rollup-plugin-node-polyfills/polyfills/process-es6',
+        string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
       },
     },
     optimizeDeps: {
@@ -67,11 +67,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     },
     build: {
       rollupOptions: {
-        external: [
-          '@safe-global/safe-apps-sdk',
-          '@safe-window/safe-apps-sdk',
-          '@safe-window/safe-apps-provider'
-        ],
         plugins: [
           // Enable rollup polyfills plugin
           // used during production bundling
@@ -82,27 +77,13 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             vendor: ['react', 'react-dom', 'react-router-dom'],
           },
         },
-        // Handle optional dependencies that might not be available
-        onwarn(warning, warn) {
-          // Suppress warnings about missing optional dependencies
-          if (
-            warning.code === 'UNRESOLVED_IMPORT' &&
-            (warning.message.includes('@safe-global/safe-apps-sdk') || 
-             warning.message.includes('@safe-window/safe-apps-sdk') ||
-             warning.message.includes('@safe-window/safe-apps-provider'))
-          ) {
-            return;
-          }
-          
-          warn(warning);
-        },
       },
       commonjsOptions: {
         transformMixedEsModules: true,
       },
     },
     define: {
-      'global': 'window',
+      'global': 'globalThis',
       'process.env': {},
     },
     server: {

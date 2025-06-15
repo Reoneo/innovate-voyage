@@ -9,7 +9,8 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { AuthKitProvider } from '@farcaster/auth-kit';
 import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
-import { config } from './lib/wagmi';
+import { config, createWagmiConfig } from './lib/wagmi';
+import { useWalletConnectConfig } from './hooks/useWalletConnectConfig';
 import '@farcaster/auth-kit/styles.css';
 import '@rainbow-me/rainbowkit/styles.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
@@ -37,6 +38,50 @@ const farcasterConfig = {
   siweUri: 'https://recruitment.box/login',
 };
 
+const AppContent = () => {
+  const { projectId, isLoading } = useWalletConnectConfig();
+  const [wagmiConfig, setWagmiConfig] = useState(config);
+
+  useEffect(() => {
+    if (projectId && !isLoading) {
+      setWagmiConfig(createWagmiConfig(projectId));
+    }
+  }, [projectId, isLoading]);
+
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <RainbowKitProvider
+        theme={darkTheme({
+          accentColor: '#7c3aed',
+          accentColorForeground: 'white',
+          borderRadius: 'medium',
+          fontStack: 'system',
+          overlayBlur: 'small',
+        })}
+      >
+        <AuthKitProvider config={farcasterConfig}>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+                <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
+                <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+                <Route path="/404" element={<NotFound />} />
+                <Route path="*" element={<Navigate to="/404" />} />
+              </Routes>
+              <XmtpMessageModal />
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthKitProvider>
+      </RainbowKitProvider>
+    </WagmiProvider>
+  );
+};
+
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   
@@ -61,38 +106,9 @@ const App = () => {
   return (
     <HelmetProvider>
       <ThemeProvider>
-        <WagmiProvider config={config}>
-          <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider
-              theme={darkTheme({
-                accentColor: '#7c3aed',
-                accentColorForeground: 'white',
-                borderRadius: 'medium',
-                fontStack: 'system',
-                overlayBlur: 'small',
-              })}
-            >
-              <AuthKitProvider config={farcasterConfig}>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                      <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-                      <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
-                      <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-                      <Route path="/404" element={<NotFound />} />
-                      <Route path="*" element={<Navigate to="/404" />} />
-                    </Routes>
-                    <XmtpMessageModal />
-                  </BrowserRouter>
-                </TooltipProvider>
-              </AuthKitProvider>
-            </RainbowKitProvider>
-          </QueryClientProvider>
-        </WagmiProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppContent />
+        </QueryClientProvider>
       </ThemeProvider>
     </HelmetProvider>
   );
