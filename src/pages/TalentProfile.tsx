@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useProfilePage } from '@/hooks/useProfilePage';
 import ProfileNavbar from '@/components/talent/profile/ProfileNavbar';
@@ -98,7 +99,7 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <div className="min-h-screen relative bg-transparent overflow-hidden">
+      <div className="min-h-screen relative bg-transparent">
         {/* Always show the AnimatedBackground */}
         <AnimatedBackground 
           avatarUrl={passport?.avatar_url} 
@@ -112,7 +113,7 @@ const TalentProfile = () => {
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container px-1 relative z-10 overflow-hidden" style={{ maxWidth: '98vw', height: '100vh' }}>
+        <div className="container px-1 relative z-10" style={{ maxWidth: '98vw', height: '100vh' }}>
           {loading ? (
             /* Show detailed loading skeleton */
             <div className="pt-16">
