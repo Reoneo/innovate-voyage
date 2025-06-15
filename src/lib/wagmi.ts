@@ -1,6 +1,7 @@
 
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { mainnet, polygon, optimism, arbitrum, base } from 'wagmi/chains';
+import { createConfig, http } from 'wagmi';
 
 console.log('Wagmi: Initializing configuration');
 
@@ -9,8 +10,10 @@ const projectId = process.env.VITE_WALLETCONNECT_PROJECT_ID || '0000000000000000
 
 console.log('Wagmi config initialized with project ID:', projectId);
 
+let config;
+
 try {
-  export const config = getDefaultConfig({
+  config = getDefaultConfig({
     appName: 'Recruitment.box',
     projectId: projectId,
     chains: [mainnet, polygon, optimism, arbitrum, base],
@@ -22,9 +25,7 @@ try {
   console.error('Wagmi: Error creating configuration:', error);
   
   // Create a minimal fallback config
-  import { createConfig, http } from 'wagmi';
-  
-  export const config = createConfig({
+  config = createConfig({
     chains: [mainnet],
     transports: {
       [mainnet.id]: http(),
@@ -33,3 +34,5 @@ try {
   
   console.log('Wagmi: Using fallback configuration');
 }
+
+export { config };
