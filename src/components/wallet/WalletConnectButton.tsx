@@ -7,34 +7,29 @@ const WalletConnectButton: React.FC = () => {
   const [account, setAccount] = useState<string | null>(null);
   const [walletKit, setWalletKit] = useState<any>(null);
 
+  // Helper to refresh account info
+  const refreshAccounts = async (kit: any) => {
+    if (kit) {
+      const accounts = await kit.getAccounts();
+      setAccount(accounts && accounts.length > 0 ? accounts[0] : null);
+      setConnected(!!(accounts && accounts.length > 0));
+    }
+  };
+
   useEffect(() => {
-    let unsub: any;
     (async () => {
       const kit = await getWalletKit();
       setWalletKit(kit);
 
-      unsub = kit.on('accountsChanged', (accs: string[]) => {
-        setAccount(accs[0] || null);
-        setConnected(!!accs[0]);
-      });
-
-      // Try to restore session
-      if (kit.accounts && kit.accounts.length > 0) {
-        setAccount(kit.accounts[0]);
-        setConnected(true);
-      }
+      // Try to restore session/account if any
+      refreshAccounts(kit);
     })();
-
-    return () => {
-      if (unsub) unsub();
-    };
   }, []);
 
   const handleConnect = async () => {
     if (walletKit) {
       await walletKit.connect();
-      setConnected(walletKit.accounts.length > 0);
-      setAccount(walletKit.accounts[0] || null);
+      refreshAccounts(walletKit);
     }
   };
 
@@ -75,3 +70,4 @@ const WalletConnectButton: React.FC = () => {
 };
 
 export default WalletConnectButton;
+
