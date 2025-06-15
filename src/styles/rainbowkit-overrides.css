@@ -1,6 +1,4 @@
 
-
-
 /**
  * RainbowKit Modal: Perfectly Centered Dialog (No Grey Backdrop)
  * The modal should be centered both horizontally and vertically on screen.
@@ -52,9 +50,11 @@
   z-index: 1000000000 !important;
 }
 
-/* Mobile-specific styles for tighter fit */
+/* Mobile-specific styles for positioning to the right */
 @media (max-width: 768px) {
   [data-rk] > div[role="dialog"] {
+    justify-content: flex-end !important; /* Move to right on mobile */
+    align-items: center !important; /* Keep vertically centered */
     padding: 0.5rem !important; /* Tighter padding on mobile */
   }
   
@@ -63,12 +63,14 @@
     max-height: calc(100vh - 1rem) !important;
     border-radius: 12px !important; /* Slightly smaller radius on mobile */
     min-height: auto !important; /* Allow natural height on mobile */
+    margin-right: 0 !important; /* Align to right edge */
   }
 }
 
 /* Extra small mobile devices */
 @media (max-width: 480px) {
   [data-rk] > div[role="dialog"] {
+    justify-content: flex-end !important; /* Move to right on small mobile */
     padding: 0.25rem !important; /* Even tighter padding on very small screens */
   }
   
