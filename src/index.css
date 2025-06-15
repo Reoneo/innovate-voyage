@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import mobile-specific styles */
+/* Import mobile-specific styles - must be at the top */
 @import './styles/mobile.css';
 
 @layer base {

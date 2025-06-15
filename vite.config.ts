@@ -17,6 +17,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        // Safe Apps SDK alias fix
+        '@safe-globalThis/safe-apps-sdk': '@safe-global/safe-apps-sdk',
         // This Rollup aliases are extracted from @esbuild-plugins/node-modules-polyfill,
         // see https://github.com/remorses/esbuild-plugins/blob/master/node-modules-polyfill/src/polyfills.ts
         // process and buffer are excluded because already managed by other plugins
@@ -71,6 +73,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           // Enable rollup polyfills plugin
           // used during production bundling
           nodePolyfills() as Plugin,
+        ],
+        external: [
+          // Externalize Safe Apps SDK to prevent build issues
+          '@safe-globalThis/safe-apps-sdk',
+          '@safe-global/safe-apps-sdk'
         ],
         output: {
           manualChunks: {
