@@ -1,5 +1,5 @@
 
-import { defineConfig, ConfigEnv, UserConfig, Plugin } from 'vite';
+import { defineConfig, ConfigEnv, UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { componentTagger } from 'lovable-tagger';
@@ -13,10 +13,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        // Removed Safe Global SDK problematic aliases
+        buffer: 'buffer',
       },
     },
     optimizeDeps: {
+      include: ['buffer'],
       esbuildOptions: {
         define: {
           global: 'globalThis',
