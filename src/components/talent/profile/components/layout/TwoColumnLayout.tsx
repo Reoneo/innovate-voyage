@@ -10,7 +10,6 @@ import FollowButton from '../identity/FollowButton';
 import PoapSection from '../poap/PoapSection';
 import TalentScoreBanner from '../TalentScoreBanner';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
-import EducationSection from '../education/EducationSection';
 import MobileLayout from './MobileLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -60,7 +59,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
     );
   }
 
-  // Desktop: Two column layout
+  // Desktop: Two column layout (unchanged)
   return (
     <div className="grid md:grid-cols-[30%_70%] gap-8 w-full px-6">
       {/* Column 1: Avatar to POAP Section */}
@@ -132,8 +131,7 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         {/* Talent Score Banner */}
         <TalentScoreBanner walletAddress={passport.owner_address} />
         
-        {/* Education Section */}
-        <EducationSection walletAddress={passport.owner_address} />
+        {/* GitHub Section Removed */}
         
         {/* Farcaster Section */}
         <FarcasterCastsSection 
