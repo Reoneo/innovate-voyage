@@ -13,8 +13,8 @@ if (
 ) {
   // Warn in the browser and stop app from crashing silently
   // Only warn once: guard against multiple imports
-  if (!window.__RAINBOWKIT_WARNED__) {
-    window.__RAINBOWKIT_WARNED__ = true;
+  if (!(window as any).__RAINBOWKIT_WARNED__) {
+    (window as any).__RAINBOWKIT_WARNED__ = true;
     // Both dev and prod, surface in the browser console and DOM
     const msg = [
       'RainbowKit critical error:',
