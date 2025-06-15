@@ -1,3 +1,4 @@
+
 /**
  * RainbowKit Modal: Customized Bottom Sheet for Mobile,
  * Full Centered Modal for Desktop, Always Fully Visible & NO Scroll
@@ -24,7 +25,7 @@
   background: rgba(40, 40, 40, 0.4) !important;
   backdrop-filter: blur(3px) !important;
   padding: 0 !important;
-  margin: 0 auto !important; /* This helps horizontal centering */
+  margin: 0 auto !important;
   overflow-x: hidden !important;
   overflow-y: visible !important;
   transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
@@ -69,7 +70,7 @@
 
 /* --- MOBILE OVERRIDES: ABSOLUTE FULL WIDTH, NO SCROLL --- */
 @media (max-width: 900px) {
-  [data-rk], 
+  [data-rk],
   [data-rk] > div[role="dialog"],
   [data-rk] div[role="dialog"] > div,
   [data-rk] div[role="dialog"] > div > * {
@@ -103,7 +104,7 @@
     display: flex !important;
     flex-direction: column !important;
     z-index: 2147483647 !important;
-    transform: none !important; /* Disable possible Y axis animation cropping */
+    transform: none !important;
     transition: all 0.24s cubic-bezier(0.4,0,0.2,1);
     overflow-y: visible !important;
   }
