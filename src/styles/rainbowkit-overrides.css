@@ -1,8 +1,7 @@
 
 /**
- * RainbowKit Modal: Centered Bottom Sheet
+ * RainbowKit Modal: Centered Dialog for Desktop/Tablet, Bottom Sheet for Mobile
  * Handles modal centering & sizing on all devices.
- * All RainbowKit modal styles are here.
  */
 
 /* Backdrop: consistent blur */
@@ -20,7 +19,7 @@
   bottom: 0 !important;
   display: flex !important;
   justify-content: center !important;
-  align-items: flex-end !important; /* Align modal to the bottom */
+  align-items: center !important; /* Default to center alignment (for desktop/tablet) */
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -31,22 +30,27 @@
 /* Modal "box" (inner): the visible modal */
 [data-rk] div[role="dialog"] > div {
   background: var(--background, #fff) !important;
-  box-shadow: 0 -2px 32px 0 rgba(60,60,110,0.11) !important;
-  width: 100% !important; /* Take up 100% of parent's available width */
-  max-width: 420px !important; /* But not more than this */
+  box-shadow: 0 4px 32px 0 rgba(60,60,110,0.15) !important; /* Updated shadow for centered modal */
+  width: 100% !important;
+  max-width: 420px !important;
   max-height: 84vh !important;
-  border-radius: 18px 18px 0 0 !important;
-  overflow-y: auto !important; /* The box itself scrolls */
-  pointer-events: auto !important; /* This area is interactive */
+  border-radius: 18px !important; /* All corners rounded for centered modal */
+  overflow-y: auto !important;
+  pointer-events: auto !important;
   display: flex !important;
   flex-direction: column !important;
 }
 
-/* Mobile: full width */
+/* Mobile: full-width bottom sheet */
 @media (max-width: 767px) {
+  [data-rk] > div[role="dialog"] {
+    align-items: flex-end !important; /* Align to bottom for mobile */
+  }
+
   [data-rk] div[role="dialog"] > div {
-    max-width: 100vw !important; /* Take full screen width */
-    border-radius: 18px 18px 0 0 !important;
+    max-width: 100vw !important;
+    border-radius: 18px 18px 0 0 !important; /* Top corners rounded for bottom sheet */
+    box-shadow: 0 -2px 32px 0 rgba(60,60,110,0.11) !important; /* Shadow for bottom sheet */
   }
 }
 
