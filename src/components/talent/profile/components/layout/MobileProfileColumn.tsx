@@ -25,11 +25,9 @@ const MobileProfileColumn: React.FC<MobileProfileColumnProps> = ({
   displayName
 }) => {
   return (
-    <div className="bg-white flex flex-col items-center px-2 py-2 relative overflow-y-auto h-full w-full" style={{
-      margin: '2px'
-    }}>
+    <div className="bg-white flex flex-col items-center px-2 py-2 relative w-full rounded-lg">
       {/* Gradient background accent */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-30 py-[3px] my-[5px] mx-[5px] px-[6px]"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-30 py-[3px] my-[5px] mx-[5px] px-[6px] rounded-lg"></div>
       
       <div className="relative z-10 space-y-3 text-center w-full max-w-md flex flex-col items-center mx-0">
         {/* Avatar - Larger size - Positioned at top */}

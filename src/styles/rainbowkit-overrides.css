@@ -1,17 +1,16 @@
 
-
 /**
- * RainbowKit Modal: Properly Centered Dialog Across All Devices
- * Fixed responsive display for mobile, tablet, and desktop
+ * RainbowKit Modal: Universal Centering Fix
+ * Ensures the modal is perfectly centered on desktop, tablet, and mobile.
  */
 
-/* Remove the backdrop background completely */
+/* Backdrop: transparent with a slight blur */
 [data-rk] div[data-rk-backdrop] {
-  backdrop-filter: none !important;
-  background: transparent !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(4px) !important;
 }
 
-/* Universal modal container - works across all devices */
+/* Dialog container: fullscreen flexbox for centering */
 [data-rk] > div[role="dialog"] {
   position: fixed !important;
   top: 0 !important;
@@ -21,120 +20,29 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  z-index: 999999999 !important;
+  z-index: 2147483647 !important; /* Max z-index */
+  padding: 1rem !important; /* Safe area on small screens */
   pointer-events: none !important;
-  padding: 1rem !important;
-  box-sizing: border-box !important;
 }
 
-/* Modal content - centered and responsive */
+/* The actual modal panel */
 [data-rk] div[role="dialog"] > div {
-  background: var(--background, #fff) !important;
-  box-shadow: 0 4px 32px 0 rgba(60,60,110,0.15) !important;
   width: 100% !important;
   max-width: 420px !important;
-  max-height: 90vh !important;
+  max-height: calc(100vh - 2rem) !important; /* Ensure it fits in viewport */
   border-radius: 18px !important;
+  background: var(--background, #fff) !important;
+  box-shadow: 0 4px 32px 0 rgba(60, 60, 110, 0.15) !important;
   overflow-y: auto !important;
   pointer-events: auto !important;
-  display: flex !important;
-  flex-direction: column !important;
+  /* Reset any transform or positioning that might be applied by default */
+  transform: none !important;
+  position: relative !important; /* Use relative to stay in flex flow */
   margin: 0 !important;
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-  position: relative !important;
-  z-index: 1000000000 !important;
 }
 
-/* Tablet optimizations */
-@media (max-width: 1024px) and (min-width: 769px) {
-  [data-rk] > div[role="dialog"] {
-    padding: 1.5rem !important;
-  }
-  
-  [data-rk] div[role="dialog"] > div {
-    max-width: min(400px, calc(100vw - 3rem)) !important;
-    max-height: calc(100vh - 3rem) !important;
-    border-radius: 16px !important;
-  }
-}
-
-/* Mobile optimizations */
-@media (max-width: 768px) {
-  [data-rk] > div[role="dialog"] {
-    padding: 1rem !important;
-  }
-  
-  [data-rk] div[role="dialog"] > div {
-    max-width: calc(100vw - 2rem) !important;
-    max-height: calc(100vh - 2rem) !important;
-    border-radius: 12px !important;
-    min-height: auto !important;
-  }
-}
-
-/* Small mobile devices */
-@media (max-width: 480px) {
-  [data-rk] > div[role="dialog"] {
-    padding: 0.75rem !important;
-  }
-  
-  [data-rk] div[role="dialog"] > div {
-    max-width: calc(100vw - 1.5rem) !important;
-    max-height: calc(100vh - 1.5rem) !important;
-    border-radius: 8px !important;
-  }
-}
-
-/* Extra small devices */
-@media (max-width: 360px) {
-  [data-rk] > div[role="dialog"] {
-    padding: 0.5rem !important;
-  }
-  
-  [data-rk] div[role="dialog"] > div {
-    max-width: calc(100vw - 1rem) !important;
-    max-height: calc(100vh - 1rem) !important;
-  }
-}
-
-/* Universal box-sizing and overflow control */
-[data-rk] div[role="dialog"],
+/* Universal box-sizing for consistency */
 [data-rk] div[role="dialog"] *,
-[data-rk] div[role="dialog"] > div,
 [data-rk] div[role="dialog"] > div * {
   box-sizing: border-box !important;
 }
-
-/* Prevent horizontal overflow */
-[data-rk] div[role="dialog"],
-[data-rk] div[role="dialog"] > div {
-  overflow-x: hidden !important;
-}
-
-/* Ensure content doesn't break layout */
-[data-rk] div[role="dialog"] > div > * {
-  max-width: 100% !important;
-  overflow-wrap: break-word !important;
-  word-wrap: break-word !important;
-}
-
-/* Fix for potential scrolling issues on mobile */
-@media (max-width: 768px) {
-  [data-rk] div[role="dialog"] > div {
-    -webkit-overflow-scrolling: touch !important;
-  }
-}
-
-/* Ensure modal appears above everything else */
-[data-rk] {
-  z-index: 999999999 !important;
-}
-
-[data-rk] * {
-  z-index: inherit !important;
-}
-
