@@ -34,27 +34,16 @@ export function useEnsResolver(ensName?: string, address?: string) {
      ensName.includes('.io') ||
      ensName.includes('.id'));
 
-  // Check if the input address looks valid with better error handling
-  const isValidAddress = !!address && (() => {
-    try {
-      return ethers.isAddress(address);
-    } catch (error) {
-      console.warn('Address validation failed:', error);
-      return false;
-    }
-  })();
+  // Check if the input address looks valid
+  const isValidAddress = !!address && ethers.isAddress(address);
 
   // Update handler for Web3Bio data
   const updateStateFromWeb3Bio = useCallback((data: any) => {
-    try {
-      if (DEBUG_ENS) console.log('useEnsResolver: Updating state from Web3Bio', data);
-      setState(prev => ({
-        ...prev,
-        ...data
-      }));
-    } catch (error) {
-      console.error('Error updating state from Web3Bio:', error);
-    }
+    if (DEBUG_ENS) console.log('useEnsResolver: Updating state from Web3Bio', data);
+    setState(prev => ({
+      ...prev,
+      ...data
+    }));
   }, [setState]);
 
   // Try Web3Bio as an alternative resolution source
@@ -70,18 +59,14 @@ export function useEnsResolver(ensName?: string, address?: string) {
     if (DEBUG_ENS) console.log(`useEnsResolver: Inputs changed: ENS=${ensName}, address=${address}`);
     
     const startResolution = async () => {
-      try {
-        if (isEnsName) {
-          // Resolve ENS name to address
-          if (DEBUG_ENS) console.log(`useEnsResolver: Resolving ENS name: ${ensName}`);
-          await resolveEns(ensName);
-        } else if (isValidAddress) {
-          // Resolve address to ENS name
-          if (DEBUG_ENS) console.log(`useEnsResolver: Looking up address: ${address}`);
-          await lookupAddress(address);
-        }
-      } catch (error) {
-        console.error('Resolution failed:', error);
+      if (isEnsName) {
+        // Resolve ENS name to address
+        if (DEBUG_ENS) console.log(`useEnsResolver: Resolving ENS name: ${ensName}`);
+        await resolveEns(ensName);
+      } else if (isValidAddress) {
+        // Resolve address to ENS name
+        if (DEBUG_ENS) console.log(`useEnsResolver: Looking up address: ${address}`);
+        await lookupAddress(address);
       }
     };
 
@@ -95,14 +80,10 @@ export function useEnsResolver(ensName?: string, address?: string) {
         if (DEBUG_ENS) console.log(`useEnsResolver: Retrying resolution (${retryCount + 1})`);
         setRetryCount(prev => prev + 1);
         
-        try {
-          if (isEnsName) {
-            resolveEns(ensName!);
-          } else if (isValidAddress) {
-            lookupAddress(address!);
-          }
-        } catch (error) {
-          console.error('Retry failed:', error);
+        if (isEnsName) {
+          resolveEns(ensName!);
+        } else if (isValidAddress) {
+          lookupAddress(address!);
         }
       }, 1500);
       
