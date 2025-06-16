@@ -2,7 +2,7 @@
 import * as React from "react"
 
 // Simplified tooltip components to avoid initialization issues
-const TooltipProvider = ({ children }: { children: React.ReactNode }) => {
+const TooltipProvider = ({ children, delayDuration, ...props }: { children: React.ReactNode; delayDuration?: number }) => {
   return <>{children}</>;
 };
 
@@ -12,16 +12,27 @@ const Tooltip = ({ children }: { children: React.ReactNode }) => {
 
 const TooltipTrigger = React.forwardRef<
   HTMLElement,
-  React.HTMLAttributes<HTMLElement>
->(({ children, ...props }, ref) => {
+  React.HTMLAttributes<HTMLElement> & { asChild?: boolean }
+>(({ children, asChild, ...props }, ref) => {
+  if (asChild) {
+    return <>{children}</>;
+  }
   return <span {...props}>{children}</span>;
 });
 TooltipTrigger.displayName = "TooltipTrigger";
 
 const TooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className = "", children, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & {
+    side?: "top" | "right" | "bottom" | "left";
+    align?: "start" | "center" | "end";
+    hidden?: boolean;
+  }
+>(({ className = "", children, side, align, hidden, ...props }, ref) => {
+  if (hidden) {
+    return null;
+  }
+  
   return (
     <div
       ref={ref}
