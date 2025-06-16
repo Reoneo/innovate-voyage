@@ -1,80 +1,303 @@
-
-/* Import mobile-specific styles - must be at the top */
-@import './styles/mobile.css';
-
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Import mobile-specific styles */
+@import './styles/mobile.css';
+
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
+    --destructive-foreground: 210 20% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 262.1 83.3% 57.8%;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
+    --background: 224 71.4% 4.1%;
+    --foreground: 210 20% 98%;
+    --card: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 263.4 70% 50.4%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+    --accent: 215 27.9% 16.9%;
+    --accent-foreground: 210 20% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 263.4 70% 50.4%;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
   }
+  html {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    margin: 0;
+    padding: 0;
   }
+}
+
+/* Mobile-specific overrides */
+@media (max-width: 768px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+  
+  body {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    font-size: 16px; /* Prevent zoom on input focus */
+  }
+  
+  /* Ensure no horizontal scrolling */
+  * {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  
+  /* Fix any elements that might cause horizontal scroll */
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    max-width: 100vw;
+  }
+}
+
+/* Animation for gradients */
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Hide scrollbars for POAP section */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* PDF Generation Styles */
+body.generating-pdf {
+  overflow: hidden;
+}
+
+@media print {
+  #resume-pdf {
+    padding: 20mm;
+    max-width: 100%;
+    box-shadow: none !important;
+    background-color: white !important;
+  }
+  
+  #resume-pdf * {
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* Special styles for social icons in PDF */
+.social-icon-pdf {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Home page title with no animation */
+.static-title {
+  display: inline-block;
+}
+
+/* Floating animations for web3 logos */
+@keyframes floatRight {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-20vw); }
+}
+
+/* Webacy threat level styles */
+.webacy-threat-low {
+  background: linear-gradient(90deg, #d1fae5 0%, #ecfdf5 100%);
+  color: #065f46;
+}
+
+.webacy-threat-medium {
+  background: linear-gradient(90deg, #fef3c7 0%, #fffbeb 100%);
+  color: #92400e;
+}
+
+.webacy-threat-high {
+  background: linear-gradient(90deg, #fee2e2 0%, #fef2f2 100%);
+  color: #b91c1c;
+}
+
+/* GitHub Calendar Styles */
+.calendar-container {
+  min-height: 180px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+/* Dark theme for GitHub calendar */
+.github-calendar-wrapper {
+  background-color: #0d1117;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.github-calendar-dark {
+  color: #c9d1d9 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.github-calendar-dark .calendar {
+  border: none !important;
+  width: 100% !important;
+}
+
+.github-calendar-dark .contrib-number {
+  color: #f0f6fc !important;
+  font-weight: 600 !important;
+  font-size: 1.5rem !important;
+}
+
+.github-calendar-dark .contrib-column {
+  padding: 15px 0 15px 5px !important;
+  text-align: center !important;
+}
+
+.github-calendar-dark .contrib-column-first {
+  padding-left: 0 !important;
+}
+
+.github-calendar-dark .table-column {
+  padding: 5px 0 5px 5px !important;
+  text-align: center !important;
+  font-size: 12px !important;
+}
+
+.github-calendar-dark .contrib-day {
+  width: 13px !important;
+  height: 13px !important;
+  margin: 2px;
+}
+
+.github-calendar-dark .contrib-footer {
+  padding: 0 10px 12px !important;
+  margin: 0 auto !important;
+  border: none !important;
+  font-size: 12px !important;
+  color: #8b949e !important;
+}
+
+/* Calendar colors to match GitHub's dark theme */
+.github-calendar-dark .day {
+  shape-rendering: geometricPrecision;
+  outline: 1px solid rgba(27, 31, 35, 0.1);
+  background-color: #161b22 !important;
+  border-radius: 2px;
+}
+
+.github-calendar-dark .day[data-level='0'] {
+  background-color: #161b22 !important;
+}
+
+.github-calendar-dark .day[data-level='1'] {
+  background-color: #0e4429 !important;
+}
+
+.github-calendar-dark .day[data-level='2'] {
+  background-color: #006d32 !important;
+}
+
+.github-calendar-dark .day[data-level='3'] {
+  background-color: #26a641 !important;
+}
+
+.github-calendar-dark .day[data-level='4'] {
+  background-color: #39d353 !important;
+}
+
+/* Weekday labels and month labels */
+.github-calendar-dark .wday,
+.github-calendar-dark .month {
+  color: #ffffff !important;
+  font-size: 10px !important;
+}
+
+.github-calendar-dark a {
+  color: #58a6ff !important;
+  text-decoration: none !important;
+}
+
+.github-calendar-dark a:hover {
+  text-decoration: underline !important;
+}
+
+/* Improved container in dark theme */
+.github-calendar-dark .position-relative {
+  position: relative !important;
+  padding-top: 0.5rem !important;
+}
+
+/* Ensure text is visible in dark theme */
+.github-calendar-dark .text-gray {
+  color: #8b949e !important;
+}
+
+.github-calendar-dark .float-left {
+  float: left !important;
+}
+
+.github-calendar-dark .float-right {
+  float: right !important;
 }

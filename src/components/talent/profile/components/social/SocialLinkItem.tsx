@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { SocialIcon } from '@/components/ui/social-icon';
 import { Check, Copy } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/use-toast';
 
 interface SocialLinkItemProps {
   platformType: string;

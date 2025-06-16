@@ -1,5 +1,27 @@
+
 import { Client } from '@xmtp/xmtp-js';
 import { ethers } from 'ethers';
+// Import Buffer polyfill
+import { Buffer } from 'buffer';
+
+// Make Buffer available globally if not already present
+if (typeof window !== 'undefined') {
+  window.Buffer = window.Buffer || Buffer;
+  console.log("xmtpService: Buffer available:", !!window.Buffer);
+  
+  // Ensure global.Buffer is also set for libraries that use it
+  // @ts-ignore - deliberately setting global object property
+  if (typeof global === 'undefined') {
+    // @ts-ignore - setting window.global
+    window.global = window;
+  }
+  
+  // @ts-ignore - ensure global.Buffer exists too
+  if (window.global && !window.global.Buffer) {
+    // @ts-ignore
+    window.global.Buffer = window.Buffer;
+  }
+}
 
 export const initXMTP = async () => {
   try {
@@ -7,7 +29,17 @@ export const initXMTP = async () => {
       throw new Error("No Ethereum provider found. Please install MetaMask.");
     }
     
-    console.log("XMTP initialization - Buffer available:", !!window.Buffer);
+    // Triple-check Buffer is available before we try to use XMTP
+    if (!window.Buffer) {
+      console.error("Buffer is not available, attempting to set it again");
+      window.Buffer = Buffer;
+      
+      if (!window.Buffer) {
+        throw new Error("Failed to initialize Buffer polyfill");
+      }
+    }
+    
+    console.log("XMTP initialization using Buffer:", !!window.Buffer);
     
     const provider = new ethers.BrowserProvider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
