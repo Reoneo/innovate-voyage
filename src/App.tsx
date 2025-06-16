@@ -23,9 +23,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1, // Reduced retries for faster loading
-      staleTime: 300000, // 5 minutes
-      gcTime: 3600000, // 1 hour
+      retry: 1,
+      staleTime: 300000,
+      gcTime: 3600000,
     },
   },
 });
@@ -70,11 +70,10 @@ const App = () => {
   
   useEffect(() => {
     console.log("App.tsx: useEffect for loading timer");
-    // Faster loading with minimal timeout
     const timer = setTimeout(() => {
       console.log("App.tsx: Setting loading to false");
       setIsLoading(false);
-    }, 50);
+    }, 100);
     
     return () => {
       console.log("App.tsx: Cleaning up timer");
