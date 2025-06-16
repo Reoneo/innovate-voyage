@@ -8,10 +8,7 @@ interface JobMatchingSectionProps {
   passport: any;
   normalizedSocials: Record<string, string>;
 }
-const JobMatchingSection: React.FC<JobMatchingSectionProps> = ({
-  passport,
-  normalizedSocials
-}) => {
+const JobMatchingSection: React.FC<JobMatchingSectionProps> = () => {
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
   const [showJobsModal, setShowJobsModal] = useState(false);
   const [jobPreferences, setJobPreferences] = useState<JobPreferences | null>(null);
@@ -33,7 +30,12 @@ const JobMatchingSection: React.FC<JobMatchingSectionProps> = ({
 
       <JobPreferencesModal open={showPreferencesModal} onOpenChange={setShowPreferencesModal} onPreferencesSubmit={handlePreferencesSubmit} />
 
-      <JobMatchingModal open={showJobsModal} onOpenChange={setShowJobsModal} passport={passport} normalizedSocials={normalizedSocials} jobPreferences={jobPreferences} onBackToPreferences={handleBackToPreferences} />
+      <JobMatchingModal
+        open={showJobsModal}
+        onOpenChange={setShowJobsModal}
+        jobPreferences={jobPreferences}
+        onBackToPreferences={handleBackToPreferences}
+      />
     </>;
 };
 export default JobMatchingSection;
