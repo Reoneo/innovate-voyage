@@ -16,6 +16,8 @@ import NotFound from "./pages/NotFound";
 import XmtpMessageModal from "./components/wallet/XmtpMessageModal";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
+console.log("App.tsx: Starting to load");
+
 // Create a persistent QueryClient instance with optimized settings
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,6 +30,8 @@ const queryClient = new QueryClient({
   },
 });
 
+console.log("App.tsx: QueryClient created");
+
 const farcasterConfig = {
   rpcUrl: 'https://mainnet.optimism.io',
   domain: 'recruitment.box',
@@ -35,6 +39,8 @@ const farcasterConfig = {
 };
 
 const AppContent = () => {
+  console.log("App.tsx: AppContent rendering");
+  
   return (
     <AuthKitProvider config={farcasterConfig}>
       <TooltipProvider>
@@ -59,18 +65,27 @@ const AppContent = () => {
 };
 
 const App = () => {
+  console.log("App.tsx: App component rendering");
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
+    console.log("App.tsx: useEffect for loading timer");
     // Faster loading with minimal timeout
     const timer = setTimeout(() => {
+      console.log("App.tsx: Setting loading to false");
       setIsLoading(false);
     }, 50);
     
-    return () => clearTimeout(timer);
+    return () => {
+      console.log("App.tsx: Cleaning up timer");
+      clearTimeout(timer);
+    };
   }, []);
 
+  console.log("App.tsx: isLoading =", isLoading);
+
   if (isLoading) {
+    console.log("App.tsx: Rendering loading spinner");
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -78,6 +93,7 @@ const App = () => {
     );
   }
 
+  console.log("App.tsx: Rendering full app");
   return (
     <HelmetProvider>
       <ThemeProvider>
@@ -89,4 +105,5 @@ const App = () => {
   );
 };
 
+console.log("App.tsx: Exporting App component");
 export default App;
