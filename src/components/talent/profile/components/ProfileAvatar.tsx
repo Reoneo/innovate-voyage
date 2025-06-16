@@ -1,14 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getRealAvatar } from '@/api/services/avatar/getRealAvatar';
-
 interface ProfileAvatarProps {
   avatarUrl: string | undefined;
   name: string;
 }
-
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
   avatarUrl,
   name
@@ -86,38 +83,16 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
     console.log("Even placeholder failed to load");
     setIsLoading(false);
   };
-
-  return (
-    <Avatar className="h-full w-full shadow-md mx-auto relative profile-avatar rounded-lg border-2 border-gray-200">
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center">
+  return <Avatar className="h-48 w-48 shadow-md mx-auto relative profile-avatar rounded-lg">
+      {isLoading && <div className="absolute inset-0 flex items-center justify-center">
           <Skeleton className="h-full w-full rounded-lg" />
-        </div>
-      )}
+        </div>}
       
-      {!imageError && finalAvatarUrl ? (
-        <AvatarImage 
-          src={finalAvatarUrl} 
-          alt={name} 
-          onError={handleImageError} 
-          onLoad={handleImageLoad} 
-          className="rounded-lg object-cover w-full h-full" 
-        />
-      ) : (
-        <AvatarImage 
-          src="/placeholder.svg" 
-          alt={name} 
-          className="object-cover rounded-lg w-full h-full" 
-          onError={handlePlaceholderError} 
-          onLoad={() => setIsLoading(false)} 
-        />
-      )}
+      {!imageError && finalAvatarUrl ? <AvatarImage src={finalAvatarUrl} alt={name} onError={handleImageError} onLoad={handleImageLoad} className="rounded-lg object-contain" /> : <AvatarImage src="/placeholder.svg" alt={name} className="object-cover rounded-lg" onError={handlePlaceholderError} onLoad={() => setIsLoading(false)} />}
       
-      <AvatarFallback className="bg-primary/10 text-primary font-medium rounded-lg text-2xl">
+      <AvatarFallback className="bg-primary/10 text-primary font-medium rounded-lg">
         {getInitials(name)}
       </AvatarFallback>
-    </Avatar>
-  );
+    </Avatar>;
 };
-
 export default ProfileAvatar;

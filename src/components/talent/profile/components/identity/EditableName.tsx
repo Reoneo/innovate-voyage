@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PencilLine, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { secureStorage, validateInput } from '@/utils/securityUtils';
 
 interface EditableNameProps {
   ownerAddress: string;
@@ -20,14 +19,9 @@ const EditableName: React.FC<EditableNameProps> = ({
   const [tempName, setTempName] = useState('');
 
   useEffect(() => {
-    const loadName = async () => {
-      const savedName = await secureStorage.getItem(`user_name_${ownerAddress}`);
-      if (savedName) {
-        setCustomName(savedName);
-      }
-    };
-    if (ownerAddress) {
-      loadName();
+    const savedName = localStorage.getItem(`user_name_${ownerAddress}`);
+    if (savedName) {
+      setCustomName(savedName);
     }
   }, [ownerAddress]);
 
@@ -36,11 +30,10 @@ const EditableName: React.FC<EditableNameProps> = ({
     setIsEditing(true);
   };
 
-  const handleSave = async () => {
-    const sanitizedName = validateInput.sanitizeString(tempName);
-    setCustomName(sanitizedName);
+  const handleSave = () => {
+    setCustomName(tempName);
     setIsEditing(false);
-    await secureStorage.setItem(`user_name_${ownerAddress}`, sanitizedName);
+    localStorage.setItem(`user_name_${ownerAddress}`, tempName);
     toast.success("Name updated successfully");
   };
 

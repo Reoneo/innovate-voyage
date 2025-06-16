@@ -15,70 +15,72 @@ const BlockchainDialogContent: React.FC<BlockchainDialogContentProps> = ({ walle
   const { data, loading } = useBlockchainActivity(walletAddress);
 
   return (
-    <>
-      <DialogHeader className="border-b border-gray-700 pb-3">
-        <DialogTitle className="flex items-center gap-2 text-white">
-          <Activity className="h-6 w-6 text-gray-400" />
-          Blockchain Activity
-        </DialogTitle>
-        <DialogDescription className="text-gray-400">A summary of on-chain activity for this address.</DialogDescription>
-      </DialogHeader>
+    <div className="py-4 px-6">
+      <div className="flex items-center gap-2 mb-4">
+        <Activity className="h-8 w-8 text-blue-600" />
+        <div>
+          <h2 className="text-xl font-bold">Blockchain Activity</h2>
+          <p className="text-sm text-gray-400">
+            Complete on-chain activity analysis
+          </p>
+        </div>
+      </div>
 
-      <div className="space-y-4 py-4">
+      <div className="space-y-4">
         {loading ? (
           <div className="space-y-4">
-            <Skeleton className="h-24 w-full bg-gray-800" />
-            <Skeleton className="h-24 w-full bg-gray-800" />
-            <Skeleton className="h-24 w-full bg-gray-800" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
           </div>
         ) : (
           <>
-            <Card className="bg-gray-900 border-gray-700">
+            <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center gap-2 text-white">
-                  <Clock className="h-5 w-5 text-gray-400" />
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-blue-500" />
                   First Transaction
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold text-blue-600">
                   {data.firstTransaction || 'N/A'}
                 </div>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-gray-500 mt-1">
                   Date of first on-chain activity
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-900 border-gray-700">
+            <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center gap-2 text-white">
-                  <DollarSign className="h-5 w-5 text-gray-400" />
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-green-500" />
                   ETH Balance
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold text-green-600">
                   {data.ethBalance || '0.0000'} ETH
                 </div>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-gray-500 mt-1">
                   Current Ethereum balance
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-900 border-gray-700">
+            <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center gap-2 text-white">
-                  <Send className="h-5 w-5 text-gray-400" />
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Send className="h-5 w-5 text-purple-500" />
                   Outgoing Transactions
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold text-purple-600">
                   {data.outgoingTransactions ?? 0}
                 </div>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-gray-500 mt-1">
                   Total transactions sent
                 </p>
               </CardContent>
@@ -89,7 +91,7 @@ const BlockchainDialogContent: React.FC<BlockchainDialogContentProps> = ({ walle
         <div className="mt-6">
           <Button 
             variant="outline" 
-            className="w-full flex items-center justify-center gap-2 bg-gray-800 border-gray-600 text-white hover:bg-gray-700"
+            className="w-full flex items-center justify-center gap-2"
             asChild
           >
             <a 
@@ -102,7 +104,7 @@ const BlockchainDialogContent: React.FC<BlockchainDialogContentProps> = ({ walle
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

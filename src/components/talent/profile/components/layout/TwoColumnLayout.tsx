@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
@@ -9,8 +8,8 @@ import SocialLinksSection from '../social/SocialLinksSection';
 import FollowButton from '../identity/FollowButton';
 import PoapSection from '../poap/PoapSection';
 import TalentScoreBanner from '../TalentScoreBanner';
+import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
-import EducationSection from '../education/EducationSection';
 import MobileLayout from './MobileLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -60,19 +59,17 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
     );
   }
 
-  // Desktop: Two column layout
+  // Desktop: Two column layout (unchanged)
   return (
     <div className="grid md:grid-cols-[30%_70%] gap-8 w-full px-6">
       {/* Column 1: Avatar to POAP Section */}
       <div className="space-y-6">
         {/* Avatar */}
         <div className="flex flex-col items-center">
-          <div className="w-40 h-40">
-            <ProfileAvatar 
-              avatarUrl={passport.avatar_url} 
-              name={passport.name} 
-            />
-          </div>
+          <ProfileAvatar 
+            avatarUrl={passport.avatar_url} 
+            name={passport.name} 
+          />
         </div>
         
         {/* Name and Address */}
@@ -132,8 +129,10 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         {/* Talent Score Banner */}
         <TalentScoreBanner walletAddress={passport.owner_address} />
         
-        {/* Education Section */}
-        <EducationSection walletAddress={passport.owner_address} />
+        {/* GitHub Section */}
+        {showGitHubSection && (
+          <GitHubContributionGraph username={githubUsername!} />
+        )}
         
         {/* Farcaster Section */}
         <FarcasterCastsSection 
