@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { secureStorage } from '@/utils/securityUtils';
 
 // No need to redeclare the window interface here since it's defined in types/ethereum.d.ts
 // Just use the existing interface
@@ -48,7 +49,7 @@ const WalletConnectModal: React.FC = () => {
         if (accounts && accounts.length > 0) {
           // Save connected address to window and localStorage for persistence
           window.connectedWalletAddress = accounts[0];
-          localStorage.setItem('connectedWalletAddress', accounts[0]);
+          await secureStorage.setItem('connectedWalletAddress', accounts[0]);
           
           toast({
             title: "Wallet Connected",

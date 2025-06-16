@@ -4,6 +4,7 @@ import { ScoreBadgeProps } from './types';
 import { fetchUserNfts } from '@/api/services/openseaService';
 import { Badge } from '@/components/ui/badge';
 import { ProfileDialog } from '@/components/profile/Profile';
+import { GalleryHorizontal } from 'lucide-react';
 interface TransactionsBadgeProps extends ScoreBadgeProps {
   txCount: number | null;
   walletAddress: string;
@@ -46,20 +47,15 @@ const TransactionsBadge: React.FC<TransactionsBadgeProps> = ({
   }
   return <>
       <div onClick={handleClick} className="cursor-pointer">
-        <div className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl h-full shadow-lg border border-gray-200 px-0 py-[14px]">
-          <div className="text-center space-y-2">
-            <h3 className="text-lg font-semibold text-gray-800">NFTs</h3>
-            <div className="relative">
-              <img alt="NFT Collection" className="h-16 w-16 mx-auto" src="https://storage.googleapis.com/opensea-static/Logomark/Logomark-Blue.png" />
-              {nftCount !== null && nftCount > 0 && <Badge variant="destructive" className="absolute -top-2 -right-2 min-w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold px-0 mx-[8px] my-[8px] py-0">
-                  {nftCount > 99 ? '99+' : nftCount}
-                </Badge>}
-            </div>
-            
+        <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl shadow-sm border border-gray-200 px-0 py-[10px] my-[2px] hover:shadow-md transition-shadow duration-200 min-h-[120px] w-full">
+          
+          <div className="text-center w-full mt-2">
+            <span className="text-gray-500 py-0 font-normal text-base">
+              {nftCount !== null ? `${nftCount} NFTs` : "No NFTs"}
+            </span>
           </div>
         </div>
       </div>
-      
       {/* Profile Dialog */}
       <ProfileDialog userId={mockUserId} open={showProfile} onOpenChange={setShowProfile} />
     </>;
