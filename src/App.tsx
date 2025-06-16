@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { AuthKitProvider } from '@farcaster/auth-kit';
-import '@farcaster/auth-kit/styles.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import Index from "./pages/Index";
 import Jobs from "./pages/Jobs";
