@@ -1,5 +1,4 @@
 
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -10,7 +9,6 @@ import Index from "./pages/Index";
 import Jobs from "./pages/Jobs";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
-import XmtpMessageModal from "./components/wallet/XmtpMessageModal";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 console.log("App.tsx: Starting to load");
@@ -40,21 +38,18 @@ const AppContent = () => {
   
   return (
     <AuthKitProvider config={farcasterConfig}>
-      <TooltipProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/jobs" element={<Jobs />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-            <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
-            <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-            <Route path="/404" element={<NotFound />} />
-            <Route path="*" element={<Navigate to="/404" />} />
-          </Routes>
-          <XmtpMessageModal />
-        </BrowserRouter>
-      </TooltipProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/jobs" element={<Jobs />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+          <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
+          <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+          <Route path="/404" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/404" />} />
+        </Routes>
+      </BrowserRouter>
     </AuthKitProvider>
   );
 };

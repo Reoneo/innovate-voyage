@@ -28,16 +28,32 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center min-h-screen bg-background p-4">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
-            <p className="text-gray-600 mb-4">An error occurred while loading the application.</p>
-            <pre className="bg-gray-100 p-4 rounded text-sm text-left overflow-auto max-w-lg">
-              {this.state.error?.message}
-            </pre>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          minHeight: '100vh',
+          padding: '16px',
+          backgroundColor: '#f9fafb'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#dc2626', marginBottom: '16px' }}>
+              Something went wrong
+            </h1>
+            <p style={{ color: '#6b7280', marginBottom: '16px' }}>
+              An error occurred while loading the application.
+            </p>
             <button 
               onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              style={{
+                marginTop: '16px',
+                padding: '8px 16px',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
             >
               Reload Page
             </button>
