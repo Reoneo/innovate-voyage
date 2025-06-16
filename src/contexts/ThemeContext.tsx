@@ -1,29 +1,29 @@
 
-import React from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 
 interface ThemeContextType {
   isDayMode: boolean;
   toggleTheme: () => void;
 }
 
-const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
+interface ThemeProviderProps {
+  children: ReactNode;
+}
 
-export function useTheme() {
-  const context = React.useContext(ThemeContext);
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+function useTheme(): ThemeContextType {
+  const context = useContext(ThemeContext);
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
 }
 
-interface ThemeProviderProps {
-  children: React.ReactNode;
-}
+function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
+  const [isDayMode, setIsDayMode] = useState<boolean>(false);
 
-export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [isDayMode, setIsDayMode] = React.useState(false);
-
-  React.useEffect(() => {
+  useEffect(() => {
     try {
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme === 'day') {
@@ -34,7 +34,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
   }, []);
 
-  const toggleTheme = React.useCallback(() => {
+  const toggleTheme = useCallback(() => {
     try {
       const newMode = !isDayMode;
       setIsDayMode(newMode);
@@ -44,7 +44,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
   }, [isDayMode]);
 
-  const contextValue = React.useMemo(() => ({
+  const contextValue = useMemo(() => ({
     isDayMode,
     toggleTheme
   }), [isDayMode, toggleTheme]);
@@ -55,3 +55,5 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     </ThemeContext.Provider>
   );
 }
+
+export { ThemeProvider, useTheme };
