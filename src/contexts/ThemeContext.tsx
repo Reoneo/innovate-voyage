@@ -10,17 +10,11 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
+// Initialize context with undefined first
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-function useTheme(): ThemeContextType {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-}
-
-function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
+// Define the provider component
+const ThemeProvider = ({ children }: ThemeProviderProps): JSX.Element => {
   const [isDayMode, setIsDayMode] = useState<boolean>(false);
 
   useEffect(() => {
@@ -54,6 +48,16 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
       {children}
     </ThemeContext.Provider>
   );
-}
+};
 
+// Define the hook
+const useTheme = (): ThemeContextType => {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
+
+// Export both components
 export { ThemeProvider, useTheme };
