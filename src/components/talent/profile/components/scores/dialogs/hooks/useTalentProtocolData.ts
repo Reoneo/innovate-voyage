@@ -8,6 +8,27 @@ interface TalentProfile {
   headline: string;
   profile_picture_url: string;
   social_links: { url: string; }[];
+  tags?: { name: string }[];
+  verified?: boolean;
+  career_experience?: {
+    company: string;
+    title: string;
+    description: string;
+    start_date: string;
+    end_date: string | null;
+  }[];
+  milestones?: {
+    title: string;
+    description: string;
+    date: string;
+    link: string;
+  }[];
+  subscriber_count?: number;
+  subscribing_count?: number;
+  supporter_count?: number;
+  supporting_count?: number;
+  total_supply?: string;
+  token_address?: string;
 }
 
 interface TalentProtocolData {
@@ -32,6 +53,7 @@ export function useTalentProtocolData(walletAddress?: string) {
 
         if (profileResponse.ok) {
           const profileData = await profileResponse.json();
+          console.log("Full Talent Protocol Profile Data:", profileData.talent);
           setData({
             profile: profileData?.talent ?? null,
           });
