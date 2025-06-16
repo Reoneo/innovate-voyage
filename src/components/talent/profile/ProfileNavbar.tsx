@@ -5,6 +5,7 @@ import { Home, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
+import WalletConnectButton from '@/components/wallet/WalletConnectButton';
 
 interface ProfileNavbarProps {
   connectedWallet: string | null;
@@ -72,6 +73,9 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
               className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`}
             />
           </button>
+          <div className="flex-shrink-0">
+            <WalletConnectButton />
+          </div>
         </form>
       </div>
     </div>
