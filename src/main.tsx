@@ -42,6 +42,7 @@ console.log("main.tsx: Global polyfills setup:", {
 
 console.log("main.tsx: About to import React and App");
 
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import ErrorBoundary from './components/ErrorBoundary.tsx';
@@ -54,6 +55,10 @@ console.log("main.tsx: Root element found:", !!rootElement);
 
 if (!rootElement) {
   console.error("main.tsx: Root element not found!");
+  // Create a fallback root element
+  const fallbackRoot = document.createElement('div');
+  fallbackRoot.id = 'root';
+  document.body.appendChild(fallbackRoot);
   throw new Error("Root element not found");
 }
 
@@ -62,12 +67,47 @@ console.log("main.tsx: Root created, about to render App");
 
 try {
   root.render(
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
+    <React.StrictMode>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </React.StrictMode>
   );
   console.log("main.tsx: App rendered successfully");
 } catch (error) {
   console.error("main.tsx: Error rendering App:", error);
-  throw error;
+  // Fallback rendering
+  root.render(
+    <div style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      minHeight: '100vh',
+      padding: '16px',
+      backgroundColor: '#f9fafb'
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#dc2626', marginBottom: '16px' }}>
+          Application Error
+        </h1>
+        <p style={{ color: '#6b7280', marginBottom: '16px' }}>
+          Failed to load the application. Please refresh the page.
+        </p>
+        <button 
+          onClick={() => window.location.reload()}
+          style={{
+            marginTop: '16px',
+            padding: '8px 16px',
+            backgroundColor: '#2563eb',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Reload Page
+        </button>
+      </div>
+    </div>
+  );
 }

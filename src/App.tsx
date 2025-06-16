@@ -1,14 +1,11 @@
 
+import React, { Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { AuthKitProvider } from '@farcaster/auth-kit';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import Index from "./pages/Index";
-import Jobs from "./pages/Jobs";
-import TalentProfile from "./pages/TalentProfile";
-import NotFound from "./pages/NotFound";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
+import { Toaster } from '@/components/ui/toaster';
 
 console.log("App.tsx: Starting to load");
 
@@ -32,12 +29,29 @@ const farcasterConfig = {
   siweUri: 'https://recruitment.box/login',
 };
 
+// Lazy load components to prevent blocking
+const Index = React.lazy(() => import('./pages/Index'));
+const Jobs = React.lazy(() => import('./pages/Jobs'));
+const TalentProfile = React.lazy(() => import('./pages/TalentProfile'));
+const NotFound = React.lazy(() => import('./pages/NotFound'));
+const PrivacyPolicy = React.lazy(() => import('./pages/PrivacyPolicy'));
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <p className="text-gray-600 dark:text-gray-300">Loading...</p>
+    </div>
+  </div>
+);
+
 const AppContent = () => {
   console.log("App.tsx: AppContent rendering");
   
   return (
-    <AuthKitProvider config={farcasterConfig}>
-      <BrowserRouter>
+    <BrowserRouter>
+      <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/jobs" element={<Jobs />} />
@@ -48,8 +62,8 @@ const AppContent = () => {
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<Navigate to="/404" />} />
         </Routes>
-      </BrowserRouter>
-    </AuthKitProvider>
+      </Suspense>
+    </BrowserRouter>
   );
 };
 
@@ -60,7 +74,10 @@ const App = () => {
     <HelmetProvider>
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>
-          <AppContent />
+          <AuthKitProvider config={farcasterConfig}>
+            <AppContent />
+            <Toaster />
+          </AuthKitProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </HelmetProvider>
