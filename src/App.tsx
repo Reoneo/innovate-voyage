@@ -1,6 +1,4 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -44,8 +42,6 @@ const AppContent = () => {
   return (
     <AuthKitProvider config={farcasterConfig}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -66,33 +62,8 @@ const AppContent = () => {
 
 const App = () => {
   console.log("App.tsx: App component rendering");
-  const [isLoading, setIsLoading] = useState(true);
   
-  useEffect(() => {
-    console.log("App.tsx: useEffect for loading timer");
-    const timer = setTimeout(() => {
-      console.log("App.tsx: Setting loading to false");
-      setIsLoading(false);
-    }, 100);
-    
-    return () => {
-      console.log("App.tsx: Cleaning up timer");
-      clearTimeout(timer);
-    };
-  }, []);
-
-  console.log("App.tsx: isLoading =", isLoading);
-
-  if (isLoading) {
-    console.log("App.tsx: Rendering loading spinner");
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  console.log("App.tsx: Rendering full app");
+  console.log("App.tsx: Rendering full app directly");
   return (
     <HelmetProvider>
       <ThemeProvider>
