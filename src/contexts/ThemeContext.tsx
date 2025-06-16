@@ -8,19 +8,19 @@ interface ThemeContextType {
 
 const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
 
-export const useTheme = () => {
+export function useTheme() {
   const context = React.useContext(ThemeContext);
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
-};
+}
 
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-export const ThemeProvider = ({ children }: ThemeProviderProps) => {
+export function ThemeProvider({ children }: ThemeProviderProps) {
   const [isDayMode, setIsDayMode] = React.useState(false);
 
   React.useEffect(() => {
@@ -44,7 +44,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     }
   }, [isDayMode]);
 
-  const contextValue = React.useMemo<ThemeContextType>(() => ({
+  const contextValue = React.useMemo(() => ({
     isDayMode,
     toggleTheme
   }), [isDayMode, toggleTheme]);
@@ -54,4 +54,4 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
       {children}
     </ThemeContext.Provider>
   );
-};
+}
