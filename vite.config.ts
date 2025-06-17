@@ -75,7 +75,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         plugins: [
           // Enable rollup polyfills plugin
           // used during production bundling
-          nodePolyfills() as Plugin,
+          nodePolyfills({
+            include: ['string_decoder', 'util', 'buffer', 'process', 'events', 'stream', 'path', 'querystring', 'punycode', 'url', 'http', 'https', 'os', 'assert', 'constants', 'timers', 'console', 'vm', 'zlib', 'tty', 'domain']
+          }) as Plugin,
         ],
         output: {
           manualChunks: {
