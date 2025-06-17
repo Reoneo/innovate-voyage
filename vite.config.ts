@@ -29,6 +29,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         punycode: 'rollup-plugin-node-polyfills/polyfills/punycode',
         url: 'rollup-plugin-node-polyfills/polyfills/url',
         string_decoder: 'rollup-plugin-node-polyfills/polyfills/string-decoder',
+        'string-decoder': 'rollup-plugin-node-polyfills/polyfills/string-decoder',
         http: 'rollup-plugin-node-polyfills/polyfills/http',
         https: 'rollup-plugin-node-polyfills/polyfills/http',
         os: 'rollup-plugin-node-polyfills/polyfills/os',
