@@ -52,6 +52,7 @@ const PoapSection: React.FC<PoapSectionProps> = ({ walletAddress }) => {
         poaps={poaps}
         onPoapClick={handlePoapClick}
         onCarouselChange={handleCarouselChange}
+        userAvatarUrl={avatarUrl}
       />
       
       <Dialog open={!!selectedPoap} onOpenChange={handleCloseDialog}>
