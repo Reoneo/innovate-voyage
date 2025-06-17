@@ -1,20 +1,17 @@
-
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getThreatColor } from './utils/scoreUtils';
 import { Shield } from 'lucide-react';
-import type { WebacyData, ScoreBadgeProps } from './types';
-
-interface SecurityScoreBadgeProps extends ScoreBadgeProps {
-  webacyData: WebacyData | null;
-}
-
+import type { ScoreBadgeProps } from './types';
+interface SecurityScoreBadgeProps extends ScoreBadgeProps {}
 const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({
-  webacyData,
   onClick,
   isLoading
 }) => {
-  return null;
+  if (isLoading) {
+    return <Skeleton className="h-32 w-full rounded-2xl" />;
+  }
+  return <div onClick={onClick} className="cursor-pointer group transition-transform duration-200">
+      
+    </div>;
 };
-
 export default SecurityScoreBadge;
