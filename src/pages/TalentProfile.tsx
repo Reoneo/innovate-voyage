@@ -13,6 +13,8 @@ const TalentProfile = () => {
     loadingTimeout,
     passport, 
     profileRef,
+    connectedWallet,
+    handleDisconnect,
     handleSaveChanges
   } = useProfilePage();
 
@@ -96,7 +98,7 @@ const TalentProfile = () => {
           </>
         )}
       </Helmet>
-      <div className="min-h-screen relative bg-transparent">
+      <div className="min-h-screen relative bg-transparent overflow-hidden">
         {/* Always show the AnimatedBackground */}
         <AnimatedBackground 
           avatarUrl={passport?.avatar_url} 
@@ -105,10 +107,12 @@ const TalentProfile = () => {
         
         {/* Always show Navigation Bar */}
         <ProfileNavbar 
+          connectedWallet={connectedWallet}
+          onDisconnect={handleDisconnect}
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container px-1 relative z-10" style={{ maxWidth: '98vw', height: '100vh' }}>
+        <div className="container px-1 relative z-10 overflow-hidden" style={{ maxWidth: '98vw', height: '100vh' }}>
           {loading ? (
             /* Show detailed loading skeleton */
             <div className="pt-16">

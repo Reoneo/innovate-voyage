@@ -1,23 +1,27 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Wallet } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useAccount, useDisconnect } from 'wagmi';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 interface ProfileNavbarProps {
+  connectedWallet: string | null;
+  onDisconnect: () => void;
   onSaveChanges: () => void;
 }
 
 const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
-  onSaveChanges,
+  connectedWallet
 }) => {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const { disconnect } = useDisconnect();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,12 +32,20 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
     }
   };
 
+  const handleWalletClick = () => {
+    if (isConnected) {
+      disconnect();
+    } else if (openConnectModal) {
+      openConnectModal();
+    }
+  };
+
   return (
     <div className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-600/20 shadow-sm bg-gray-800/30 w-full`}>
       <div className={`mx-auto px-2 sm:px-4 py-2 flex items-center justify-between ${isMobile ? 'h-12' : 'h-14'} max-w-full`}>
         <form onSubmit={handleSearch} className="flex-1 flex items-center justify-center gap-1 sm:gap-2">
           <Link to="/" className="text-white hover:text-gray-300 transition-colors flex-shrink-0">
-            <Home className="h-7 w-7" />
+            <Home className={`${isMobile ? 'h-6 w-6' : 'h-6 w-6'}`} />
           </Link>
           
           <div className={`relative w-full ${isMobile ? 'max-w-none mx-1' : 'max-w-md'}`}>
@@ -56,116 +68,13 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </div>
           
           <div className="flex-shrink-0">
-            <ConnectButton.Custom>
-              {({
-                account,
-                chain,
-                openAccountModal,
-                openChainModal,
-                openConnectModal,
-                authenticationStatus,
-                mounted,
-              }) => {
-                const ready = mounted && authenticationStatus !== 'loading';
-                const connected =
-                  ready &&
-                  account &&
-                  chain &&
-                  (!authenticationStatus ||
-                    authenticationStatus === 'authenticated');
-
-                return (
-                  <div
-                    {...(!ready && {
-                      'aria-hidden': true,
-                      style: {
-                        opacity: 0,
-                        pointerEvents: 'none',
-                        userSelect: 'none',
-                      },
-                    })}
-                  >
-                    {(() => {
-                      if (!connected) {
-                        return (
-                          <Button
-                            variant="ghost"
-                            onClick={openConnectModal}
-                            type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center"
-                          >
-                            <Wallet className="h-7 w-7" />
-                          </Button>
-                        );
-                      }
-
-                      if (chain.unsupported) {
-                        return (
-                          <Button
-                            variant="ghost"
-                            onClick={openChainModal}
-                            type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center"
-                          >
-                            Wrong network
-                          </Button>
-                        );
-                      }
-
-                      return (
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            onClick={openChainModal}
-                            type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center rounded-full"
-                          >
-                            {chain.hasIcon && (
-                              <div
-                                style={{
-                                  background: chain.iconBackground,
-                                  width: 28,
-                                  height: 28,
-                                  borderRadius: 999,
-                                  overflow: 'hidden',
-                                  marginRight: 4,
-                                }}
-                              >
-                                {chain.iconUrl && (
-                                  <img
-                                    alt={chain.name ?? 'Chain icon'}
-                                    src={chain.iconUrl}
-                                    style={{ width: 28, height: 28 }}
-                                  />
-                                )}
-                              </div>
-                            )}
-                          </Button>
-
-                          <Button
-                            variant="ghost"
-                            onClick={openAccountModal}
-                            type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center rounded-full"
-                          >
-                            {account.ensAvatar ? (
-                              <Avatar className="h-7 w-7 rounded-full">
-                                <AvatarImage src={account.ensAvatar} alt={account.displayName} className="rounded-full" />
-                                <AvatarFallback className="rounded-full">
-                                  <Wallet className="h-7 w-7" />
-                                </AvatarFallback>
-                              </Avatar>
-                            ) : (
-                              <Wallet className="h-7 w-7" />
-                            )}
-                          </Button>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                );
-              }}
-            </ConnectButton.Custom>
+            <Button
+              variant="ghost"
+              onClick={handleWalletClick}
+              className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-auto"
+            >
+              <Wallet className="h-6 w-6" />
+            </Button>
           </div>
         </form>
       </div>
