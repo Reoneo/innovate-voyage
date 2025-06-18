@@ -17,7 +17,7 @@ const BlockchainActivityBadge: React.FC<BlockchainActivityBadgeProps> = ({
   } = useBlockchainActivity(walletAddress);
   const hasEmptyData = !data.firstTransaction || data.ethBalance === '0.0000' || data.ethBalance === null || data.outgoingTransactions === 0 || data.outgoingTransactions === null;
   if (loading) {
-    return <Skeleton className="h-32 w-full rounded-full py-[32px] px-[16px] mx-px bg-teal-200 my-[20px]" />;
+    return <Skeleton className="h-32 w-full rounded-full py-[32px] px-[16px] bg-teal-200 my-[20px] mx-0" />;
   }
   const handleClick = () => {
     if (onClick) {
