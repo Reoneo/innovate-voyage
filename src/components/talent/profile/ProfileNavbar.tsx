@@ -28,7 +28,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-600/20 shadow-sm bg-gray-800/30 w-full">
+    <div className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md border-b border-gray-600/20 shadow-sm bg-gray-800/30 w-full">
       <div className={`mx-auto px-2 sm:px-4 py-2 flex items-center justify-between ${isMobile ? 'h-12' : 'h-14'} max-w-full`}>
         <form onSubmit={handleSearch} className="flex-1 flex items-center justify-center gap-1 sm:gap-2">
           <Link to="/" className="text-white hover:text-gray-300 transition-colors flex-shrink-0">
@@ -55,17 +55,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </div>
           
           <div className="flex-shrink-0 ml-1 sm:ml-2">
-            <ConnectButton 
-              chainStatus={isMobile ? "none" : "icon"}
-              accountStatus={{
-                smallScreen: 'avatar',
-                largeScreen: 'full',
-              }}
-              showBalance={{
-                smallScreen: false,
-                largeScreen: true,
-              }}
-            />
+            <ConnectButton />
           </div>
         </form>
       </div>
