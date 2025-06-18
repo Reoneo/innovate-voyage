@@ -1,12 +1,11 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Search, Wallet } from 'lucide-react';
+import { Home, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface ProfileNavbarProps {
   onSaveChanges: () => void;
@@ -56,116 +55,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
           </div>
           
           <div className="flex-shrink-0">
-            <ConnectButton.Custom>
-              {({
-                account,
-                chain,
-                openAccountModal,
-                openChainModal,
-                openConnectModal,
-                authenticationStatus,
-                mounted,
-              }) => {
-                const ready = mounted && authenticationStatus !== 'loading';
-                const connected =
-                  ready &&
-                  account &&
-                  chain &&
-                  (!authenticationStatus ||
-                    authenticationStatus === 'authenticated');
-
-                return (
-                  <div
-                    {...(!ready && {
-                      'aria-hidden': true,
-                      style: {
-                        opacity: 0,
-                        pointerEvents: 'none',
-                        userSelect: 'none',
-                      },
-                    })}
-                  >
-                    {(() => {
-                      if (!connected) {
-                        return (
-                          <Button
-                            variant="ghost"
-                            onClick={openConnectModal}
-                            type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-6 w-6 sm:h-7 sm:w-7 flex items-center justify-center"
-                          >
-                            <Wallet className="h-6 w-6 sm:h-7 sm:w-7" />
-                          </Button>
-                        );
-                      }
-
-                      if (chain.unsupported) {
-                        return (
-                          <Button
-                            variant="ghost"
-                            onClick={openChainModal}
-                            type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 px-2 py-1 text-xs sm:text-sm h-6 sm:h-7 flex items-center justify-center"
-                          >
-                            Wrong network
-                          </Button>
-                        );
-                      }
-
-                      return (
-                        <div className="flex gap-1 sm:gap-2">
-                          <Button
-                            variant="ghost"
-                            onClick={openChainModal}
-                            type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-6 w-6 sm:h-7 sm:w-7 flex items-center justify-center rounded-full"
-                          >
-                            {chain.hasIcon && (
-                              <div
-                                style={{
-                                  background: chain.iconBackground,
-                                  width: isMobile ? 24 : 28,
-                                  height: isMobile ? 24 : 28,
-                                  borderRadius: 999,
-                                  overflow: 'hidden',
-                                  marginRight: 0,
-                                }}
-                              >
-                                {chain.iconUrl && (
-                                  <img
-                                    alt={chain.name ?? 'Chain icon'}
-                                    src={chain.iconUrl}
-                                    style={{ width: isMobile ? 24 : 28, height: isMobile ? 24 : 28 }}
-                                  />
-                                )}
-                              </div>
-                            )}
-                          </Button>
-
-                          <Button
-                            variant="ghost"
-                            onClick={openAccountModal}
-                            type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-6 w-6 sm:h-7 sm:w-7 flex items-center justify-center rounded-full"
-                          >
-                            {account.ensAvatar ? (
-                              <Avatar className="h-6 w-6 sm:h-7 sm:w-7 rounded-full">
-                                <AvatarImage src={account.ensAvatar} alt={account.displayName} className="rounded-full" />
-                                <AvatarFallback className="rounded-full">
-                                  <Wallet className="h-4 w-4 sm:h-5 sm:w-5" />
-                                </AvatarFallback>
-                              </Avatar>
-                            ) : (
-                              <Wallet className="h-6 w-6 sm:h-7 sm:w-7" />
-                            )}
-                          </Button>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                );
-              }}
-            </ConnectButton.Custom>
+            <ConnectButton />
           </div>
         </form>
       </div>
