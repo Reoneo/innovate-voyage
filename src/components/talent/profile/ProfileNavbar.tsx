@@ -33,7 +33,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
       <div className={`mx-auto px-2 sm:px-4 py-2 flex items-center justify-between ${isMobile ? 'h-12' : 'h-14'} max-w-full`}>
         <form onSubmit={handleSearch} className="flex-1 flex items-center justify-center gap-1 sm:gap-2">
           <Link to="/" className="text-white hover:text-gray-300 transition-colors flex-shrink-0">
-            <Home className="h-7 w-7" />
+            <Home className="h-6 w-6 sm:h-7 sm:w-7" />
           </Link>
           
           <div className={`relative w-full ${isMobile ? 'max-w-none mx-1' : 'max-w-md'}`}>
@@ -92,9 +92,9 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                             variant="ghost"
                             onClick={openConnectModal}
                             type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center"
+                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-6 w-6 sm:h-7 sm:w-7 flex items-center justify-center"
                           >
-                            <Wallet className="h-7 w-7" />
+                            <Wallet className="h-6 w-6 sm:h-7 sm:w-7" />
                           </Button>
                         );
                       }
@@ -105,7 +105,7 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                             variant="ghost"
                             onClick={openChainModal}
                             type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center"
+                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 px-2 py-1 text-xs sm:text-sm h-6 sm:h-7 flex items-center justify-center"
                           >
                             Wrong network
                           </Button>
@@ -113,29 +113,29 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                       }
 
                       return (
-                        <div className="flex gap-2">
+                        <div className="flex gap-1 sm:gap-2">
                           <Button
                             variant="ghost"
                             onClick={openChainModal}
                             type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center rounded-full"
+                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-6 w-6 sm:h-7 sm:w-7 flex items-center justify-center rounded-full"
                           >
                             {chain.hasIcon && (
                               <div
                                 style={{
                                   background: chain.iconBackground,
-                                  width: 28,
-                                  height: 28,
+                                  width: isMobile ? 24 : 28,
+                                  height: isMobile ? 24 : 28,
                                   borderRadius: 999,
                                   overflow: 'hidden',
-                                  marginRight: 4,
+                                  marginRight: 0,
                                 }}
                               >
                                 {chain.iconUrl && (
                                   <img
                                     alt={chain.name ?? 'Chain icon'}
                                     src={chain.iconUrl}
-                                    style={{ width: 28, height: 28 }}
+                                    style={{ width: isMobile ? 24 : 28, height: isMobile ? 24 : 28 }}
                                   />
                                 )}
                               </div>
@@ -146,17 +146,17 @@ const ProfileNavbar: React.FC<ProfileNavbarProps> = ({
                             variant="ghost"
                             onClick={openAccountModal}
                             type="button"
-                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-7 w-7 flex items-center justify-center rounded-full"
+                            className="text-white hover:text-gray-300 hover:bg-gray-700/30 p-0 h-6 w-6 sm:h-7 sm:w-7 flex items-center justify-center rounded-full"
                           >
                             {account.ensAvatar ? (
-                              <Avatar className="h-7 w-7 rounded-full">
+                              <Avatar className="h-6 w-6 sm:h-7 sm:w-7 rounded-full">
                                 <AvatarImage src={account.ensAvatar} alt={account.displayName} className="rounded-full" />
                                 <AvatarFallback className="rounded-full">
-                                  <Wallet className="h-7 w-7" />
+                                  <Wallet className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </AvatarFallback>
                               </Avatar>
                             ) : (
-                              <Wallet className="h-7 w-7" />
+                              <Wallet className="h-6 w-6 sm:h-7 sm:w-7" />
                             )}
                           </Button>
                         </div>
