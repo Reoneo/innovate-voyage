@@ -2,12 +2,14 @@
 import React from 'react';
 import MobileProfileColumn from './MobileProfileColumn';
 import MobileActivityColumn from './MobileActivityColumn';
+
 interface MobileLayoutProps {
   passport: any;
   ensNameOrAddress?: string;
   githubUsername: string | null;
   showGitHubSection: boolean;
 }
+
 const MobileLayout: React.FC<MobileLayoutProps> = ({
   passport,
   ensNameOrAddress,
@@ -15,6 +17,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   showGitHubSection
 }) => {
   const [isOwner, setIsOwner] = React.useState(false);
+  
   React.useEffect(() => {
     const connectedWallet = localStorage.getItem('connectedWalletAddress');
     if (connectedWallet && passport?.owner_address && connectedWallet.toLowerCase() === passport.owner_address.toLowerCase()) {
@@ -33,29 +36,41 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
 
   // Display the ENS name if available, otherwise show the formatted address
   const displayName = ensNameOrAddress || passport.name || 'Unknown';
-  return <div className="w-full h-screen bg-transparent" style={{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0
-  }}>
-      {/* Container that takes full height minus navbar with matching side margins */}
-      <div className="pt-12 md:pt-20 h-full" style={{
-      padding: '48px 2px 2px 2px'
-    }}>
-        <div className="grid grid-cols-[70%_30%] w-full h-full">
-          {/* Left Column - 70% - Main Profile - Positioned at top */}
-          <div className="h-full overflow-hidden flex items-start my-[2px]">
-            <MobileProfileColumn passport={passport} ensNameOrAddress={ensNameOrAddress} normalizedSocials={normalizedSocials} telephone={telephone} isOwner={isOwner} displayName={displayName} />
+
+  return (
+    <div className="w-full min-h-screen bg-white">
+      {/* Professional CV Layout - Single Column on Mobile */}
+      <div className="pt-16 pb-8 px-4 max-w-4xl mx-auto">
+        <div className="space-y-6">
+          {/* Header Section - Professional Layout */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-gray-200">
+            <MobileProfileColumn 
+              passport={passport} 
+              ensNameOrAddress={ensNameOrAddress} 
+              normalizedSocials={normalizedSocials} 
+              telephone={telephone} 
+              isOwner={isOwner} 
+              displayName={displayName} 
+            />
           </div>
 
-          {/* Right Column - 30% - Activity Cards - Scrollable only */}
-          <div className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            <MobileActivityColumn passport={passport} ensNameOrAddress={ensNameOrAddress} githubUsername={githubUsername} showGitHubSection={showGitHubSection} normalizedSocials={normalizedSocials} />
+          {/* Activity Section - Professional Cards */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
+              Professional Profile
+            </h3>
+            <MobileActivityColumn 
+              passport={passport} 
+              ensNameOrAddress={ensNameOrAddress} 
+              githubUsername={githubUsername} 
+              showGitHubSection={showGitHubSection} 
+              normalizedSocials={normalizedSocials} 
+            />
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default MobileLayout;
