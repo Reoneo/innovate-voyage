@@ -1,4 +1,3 @@
-import { supabase } from '@/integrations/supabase/client';
 
 export interface OpenSeaNft {
   id: string;
@@ -11,7 +10,6 @@ export interface OpenSeaNft {
   owner?: string;
   chain?: string;
   count?: number; // Added count property
-  type?: 'ethereum' | 'ens' | 'poap' | '3dns';
 }
 
 interface OpenSeaCollection {
@@ -19,6 +17,8 @@ interface OpenSeaCollection {
   nfts: OpenSeaNft[];
   type: 'ethereum' | 'ens' | 'poap' | '3dns';
 }
+
+const OPENSEA_API_KEY = "33e769a3cf954b15a0d7eddf2b60028e";
 
 // Chains supported by OpenSea API
 const SUPPORTED_CHAINS = [
@@ -38,26 +38,103 @@ export async function fetchUserNfts(walletAddress: string): Promise<OpenSeaColle
     return nftCache.get(cacheKey) || [];
   }
   
+  const collections: { [key: string]: { nfts: OpenSeaNft[], type: 'ethereum' | 'ens' | 'poap' | '3dns' } } = {};
+  
+  // Fetch NFTs from multiple chains
   try {
-    const { data, error } = await supabase.functions.invoke('proxy-opensea', {
-      body: { walletAddress },
+    // Use AbortController to cancel stale requests
+    const controller = new AbortController();
+    const signal = controller.signal;
+    
+    // Set a timeout to abort the request if it takes too long
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    
+    // Fetch in parallel to improve performance
+    const fetchPromises = SUPPORTED_CHAINS.map(async (chain) => {
+      try {
+        const response = await fetch(`https://api.opensea.io/api/v2/chain/${chain.id}/account/${walletAddress}/nfts`, {
+          headers: {
+            'X-API-KEY': OPENSEA_API_KEY,
+            'Accept': 'application/json'
+          },
+          signal
+        });
+        
+        if (!response.ok) {
+          console.error(`Failed to fetch NFTs from ${chain.name} chain:`, response.status);
+          return [];
+        }
+
+        const data = await response.json();
+        return (data.nfts || []).map((nft: any) => ({
+          ...nft,
+          chain: chain.id // Add chain information to each NFT
+        }));
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          console.log(`Request for ${chain.name} NFTs aborted`);
+        } else {
+          console.error(`Error fetching ${chain.name} NFTs:`, err);
+        }
+        return [];
+      }
     });
 
-    if (error) {
-      console.error('Error fetching NFTs via proxy:', error);
-      throw error;
-    }
-
-    if (!data) {
-        return [];
-    }
-
-    const collections: OpenSeaCollection[] = data;
-
-    // Cache the results to avoid redundant API calls
-    nftCache.set(cacheKey, collections);
+    // Wait for all requests to complete or timeout
+    const results = await Promise.allSettled(fetchPromises);
+    clearTimeout(timeoutId);
     
-    return collections;
+    const allNfts = results
+      .filter((result): result is PromiseFulfilledResult<any[]> => result.status === 'fulfilled')
+      .map(result => result.value)
+      .flat();
+    
+    // Group NFTs by collection and filter out poapv2 as requested
+    allNfts.forEach((nft: any) => {
+      const collectionName = nft.collection || 'Uncategorized';
+      
+      // Skip poapv2 collections as requested
+      if (collectionName.toLowerCase().includes('poap v2')) {
+        return;
+      }
+      
+      // Determine the type of NFT
+      let type: 'ethereum' | 'ens' | 'poap' | '3dns' = 'ethereum';
+      if (collectionName.toLowerCase().includes('ens')) {
+        type = 'ens';
+      } else if (collectionName.toLowerCase().includes('poap')) {
+        type = 'poap';
+      } else if (collectionName.toLowerCase().includes('3dns')) {
+        type = '3dns';
+      }
+      
+      if (!collections[collectionName]) {
+        collections[collectionName] = { nfts: [], type };
+      }
+      
+      collections[collectionName].nfts.push({
+        id: nft.identifier,
+        name: nft.name || `#${nft.identifier}`,
+        imageUrl: nft.image_url,
+        collectionName,
+        description: nft.description,
+        currentPrice: nft.last_sale?.price,
+        bestOffer: nft.offers?.[0]?.price,
+        owner: nft.owner,
+        chain: nft.chain // Pass the chain information
+      });
+    });
+
+    const result = Object.entries(collections).map(([name, data]) => ({
+      name,
+      nfts: data.nfts,
+      type: data.type
+    }));
+    
+    // Cache the results to avoid redundant API calls
+    nftCache.set(cacheKey, result);
+    
+    return result;
   } catch (error) {
     console.error('Error fetching NFTs:', error);
     return [];

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ProfileAvatar from '../ProfileAvatar';
 import ProfileContact from '../ProfileContact';
@@ -9,6 +8,7 @@ import SocialLinksSection from '../social/SocialLinksSection';
 import FollowButton from '../identity/FollowButton';
 import PoapSection from '../poap/PoapSection';
 import TalentScoreBanner from '../TalentScoreBanner';
+import GitHubContributionGraph from '../github/GitHubContributionGraph';
 import FarcasterCastsSection from '../farcaster/FarcasterCastsSection';
 import MobileLayout from './MobileLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -66,12 +66,10 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
       <div className="space-y-6">
         {/* Avatar */}
         <div className="flex flex-col items-center">
-          <div className="w-40 h-40">
-            <ProfileAvatar 
-              avatarUrl={passport.avatar_url} 
-              name={passport.name} 
-            />
-          </div>
+          <ProfileAvatar 
+            avatarUrl={passport.avatar_url} 
+            name={passport.name} 
+          />
         </div>
         
         {/* Name and Address */}
@@ -131,7 +129,10 @@ const TwoColumnLayout: React.FC<TwoColumnLayoutProps> = ({
         {/* Talent Score Banner */}
         <TalentScoreBanner walletAddress={passport.owner_address} />
         
-        {/* GitHub Section Removed */}
+        {/* GitHub Section */}
+        {showGitHubSection && (
+          <GitHubContributionGraph username={githubUsername!} />
+        )}
         
         {/* Farcaster Section */}
         <FarcasterCastsSection 

@@ -3,19 +3,25 @@ import React from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { X } from 'lucide-react';
 import TalentScoreDialogContent from './dialogs/TalentScoreDialogContent';
-import SecurityDialogContent from './dialogs/SecurityDialogContent';
+import WebacyDialogContent from './dialogs/WebacyDialogContent';
 import TransactionsDialogContent from './dialogs/TransactionsDialogContent';
 import BlockchainDialogContent from './dialogs/BlockchainDialogContent';
-import type { ScoreDialogData, DialogType } from './types';
+import type { WebacyData } from './types';
 
 interface ScoreDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type: DialogType;
-  data: ScoreDialogData;
+  type: 'talent' | 'webacy' | 'transactions' | 'blockchain';
+  data: {
+    score: number | null;
+    webacyData: WebacyData | null;
+    txCount: number | null;
+    walletAddress: string;
+  };
 }
 
 const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, data }) => {
@@ -23,8 +29,8 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
     switch (type) {
       case 'talent':
         return <TalentScoreDialogContent score={data.score} walletAddress={data.walletAddress} />;
-      case 'security':
-        return <SecurityDialogContent />;
+      case 'webacy':
+        return <WebacyDialogContent webacyData={data.webacyData} />;
       case 'transactions':
         return <TransactionsDialogContent txCount={data.txCount} walletAddress={data.walletAddress} />;
       case 'blockchain':
@@ -34,15 +40,27 @@ const ScoreDialog: React.FC<ScoreDialogProps> = ({ open, onOpenChange, type, dat
     }
   };
 
+  const getDialogTitle = () => {
+    switch (type) {
+      case 'talent':
+        return 'Builder Score Details';
+      case 'webacy':
+        return 'Security Score Details';
+      case 'transactions':
+        return 'Transaction Details';
+      case 'blockchain':
+        return 'Blockchain Activity Details';
+      default:
+        return '';
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-screen h-screen max-w-none max-h-none top-0 left-0 translate-x-0 translate-y-0 rounded-none bg-black text-white border-none shadow-lg overflow-y-auto p-6">
-        <button
-          onClick={() => onOpenChange(false)}
-          className="absolute top-4 right-4 z-50 p-2 hover:bg-gray-800 rounded-full transition-colors"
-        >
-          <X className="h-6 w-6 text-white" />
-        </button>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{getDialogTitle()}</DialogTitle>
+        </DialogHeader>
         {getDialogContent()}
       </DialogContent>
     </Dialog>

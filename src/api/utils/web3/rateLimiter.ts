@@ -1,4 +1,6 @@
 
+import { WEB3_BIO_HEADERS } from './config';
+
 // In-memory storage for rate limiting
 let lastRequestTime = 0;
 
@@ -21,8 +23,5 @@ export async function enforceRateLimit(delayMs: number) {
  * Function to get proper fetch headers for Web3.bio API
  */
 export function getWeb3BioHeaders() {
-  // This function is now deprecated as calls are proxied.
-  // Returning empty headers to avoid breaking any lingering imports,
-  // although all direct usages should be removed.
-  return {};
+  return WEB3_BIO_HEADERS;
 }

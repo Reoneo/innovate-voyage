@@ -1,10 +1,8 @@
 
 // Store the API key for web3.bio
-// HARDCODED KEY REMOVED FOR SECURITY. This should be handled via a secure backend proxy.
-export const WEB3_BIO_API_KEY = "";
+export const WEB3_BIO_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiNDkyNzREIiwiZXhwIjoyMjA1OTExMzI0LCJyb2xlIjo2fQ.dGQ7o_ItgDU8X_MxBlja4in7qvGWtmKXjqhCHq2gX20";
 
 // API headers for web3.bio with authentication
-// This will no longer work without a valid key.
 export const WEB3_BIO_HEADERS = {
   'X-API-KEY': `Bearer ${WEB3_BIO_API_KEY}`,
   'Accept': 'application/json'
