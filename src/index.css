@@ -101,16 +101,16 @@
   }
 }
 
-/* Responsive RainbowKit Modal Styles */
+/* RainbowKit Modal Styles to match the provided image */
 [data-rk] {
-  --rk-radii-modal: 16px;
-  --rk-radii-menuButton: 12px;
+  --rk-radii-modal: 24px;
+  --rk-radii-menuButton: 16px;
 }
 
-/* RainbowKit backdrop - consistent across all sizes */
+/* RainbowKit backdrop */
 [data-rk] div[data-rk-backdrop] {
-  backdrop-filter: blur(8px) !important;
-  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
@@ -119,200 +119,215 @@
   z-index: 9999 !important;
 }
 
-/* Desktop (1024px and above) */
+/* Main modal container - responsive design */
+[data-rk] > div[role="dialog"] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+  z-index: 10000 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #f5f5f5 !important;
+  border: 1px solid #e0e0e0 !important;
+}
+
+/* Desktop (1024px and up) */
 @media (min-width: 1024px) {
   [data-rk] > div[role="dialog"] {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 480px !important;
+    width: 400px !important;
     max-width: 90vw !important;
-    max-height: 80vh !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border-radius: 16px !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-    z-index: 10000 !important;
-  }
-  
-  [data-rk] div[role="dialog"] > div {
-    max-height: calc(80vh - 32px) !important;
-    overflow-y: auto !important;
-    border-radius: 16px !important;
-    padding: 24px !important;
-    background: white !important;
-  }
-  
-  [data-rk] button[data-testid] {
-    padding: 16px !important;
-    min-height: 56px !important;
-    font-size: 16px !important;
-    border-radius: 12px !important;
-    margin-bottom: 8px !important;
-  }
-  
-  [data-rk] h1 {
-    font-size: 24px !important;
-    margin-bottom: 20px !important;
-    text-align: center !important;
-    font-weight: 600 !important;
-  }
-  
-  [data-rk] button[aria-label="Close"] {
-    width: 40px !important;
-    height: 40px !important;
-    top: 16px !important;
-    right: 16px !important;
+    max-height: 85vh !important;
   }
 }
 
 /* Tablet (768px to 1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
   [data-rk] > div[role="dialog"] {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 420px !important;
+    width: 380px !important;
     max-width: 85vw !important;
-    max-height: 75vh !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border-radius: 16px !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-    z-index: 10000 !important;
-  }
-  
-  [data-rk] div[role="dialog"] > div {
-    max-height: calc(75vh - 24px) !important;
-    overflow-y: auto !important;
-    border-radius: 16px !important;
-    padding: 20px !important;
-    background: white !important;
-  }
-  
-  [data-rk] button[data-testid] {
-    padding: 14px !important;
-    min-height: 52px !important;
-    font-size: 15px !important;
-    border-radius: 10px !important;
-    margin-bottom: 6px !important;
-  }
-  
-  [data-rk] h1 {
-    font-size: 22px !important;
-    margin-bottom: 18px !important;
-    text-align: center !important;
-    font-weight: 600 !important;
-  }
-  
-  [data-rk] button[aria-label="Close"] {
-    width: 36px !important;
-    height: 36px !important;
-    top: 14px !important;
-    right: 14px !important;
+    max-height: 80vh !important;
   }
 }
 
 /* Mobile (below 768px) */
 @media (max-width: 767px) {
   [data-rk] > div[role="dialog"] {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: calc(100vw - 32px) !important;
-    max-width: 400px !important;
-    max-height: 70vh !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border-radius: 16px !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-    z-index: 10000 !important;
+    width: calc(100vw - 40px) !important;
+    max-width: 360px !important;
+    max-height: 75vh !important;
+  }
+}
+
+/* Modal content container */
+[data-rk] div[role="dialog"] > div {
+  background: #f5f5f5 !important;
+  border-radius: 24px !important;
+  padding: 32px 24px !important;
+  overflow-y: auto !important;
+  max-height: calc(85vh - 40px) !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Modal header/title */
+[data-rk] h1 {
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  color: #1a1a1a !important;
+  text-align: center !important;
+  margin: 0 0 8px 0 !important;
+  line-height: 1.2 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* Subtitle text */
+[data-rk] div[role="dialog"] > div > div:first-child + div {
+  color: #666666 !important;
+  font-size: 16px !important;
+  text-align: center !important;
+  margin-bottom: 32px !important;
+  line-height: 1.4 !important;
+}
+
+/* Close button */
+[data-rk] button[aria-label="Close"] {
+  position: absolute !important;
+  top: 20px !important;
+  right: 20px !important;
+  width: 32px !important;
+  height: 32px !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  color: #666 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+[data-rk] button[aria-label="Close"]:hover {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Wallet buttons grid */
+[data-rk] div[style*="display: grid"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 16px !important;
+  margin-bottom: 32px !important;
+}
+
+@media (max-width: 480px) {
+  [data-rk] div[style*="display: grid"] {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+/* Individual wallet buttons */
+[data-rk] button[data-testid] {
+  background: white !important;
+  border: 2px solid #e0e0e0 !important;
+  border-radius: 16px !important;
+  padding: 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  min-height: 100px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+[data-rk] button[data-testid]:hover {
+  border-color: #3b82f6 !important;
+  background: #f8faff !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Wallet icons */
+[data-rk] button[data-testid] img {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 8px !important;
+  object-fit: contain !important;
+}
+
+/* Wallet names */
+[data-rk] button[data-testid] span {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #1a1a1a !important;
+  text-align: center !important;
+}
+
+/* Bottom section with info text */
+[data-rk] div[role="dialog"] > div > div:last-child {
+  border-top: 1px solid #e0e0e0 !important;
+  padding-top: 24px !important;
+  margin-top: 24px !important;
+}
+
+/* Info heading */
+[data-rk] div[role="dialog"] h2 {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #1a1a1a !important;
+  text-align: center !important;
+  margin: 0 0 12px 0 !important;
+}
+
+/* Info text */
+[data-rk] div[role="dialog"] p {
+  font-size: 14px !important;
+  color: #666666 !important;
+  text-align: center !important;
+  line-height: 1.5 !important;
+  margin: 0 0 24px 0 !important;
+}
+
+/* Bottom action buttons */
+[data-rk] div[role="dialog"] button:not([aria-label="Close"]):not([data-testid]) {
+  background: #3b82f6 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  margin: 0 8px !important;
+}
+
+[data-rk] div[role="dialog"] button:not([aria-label="Close"]):not([data-testid]):hover {
+  background: #2563eb !important;
+}
+
+/* Responsive text adjustments */
+@media (max-width: 480px) {
+  [data-rk] h1 {
+    font-size: 24px !important;
   }
   
   [data-rk] div[role="dialog"] > div {
-    max-height: calc(70vh - 24px) !important;
-    overflow-y: auto !important;
-    border-radius: 16px !important;
-    padding: 16px !important;
-    background: white !important;
+    padding: 24px 20px !important;
   }
   
   [data-rk] button[data-testid] {
+    min-height: 80px !important;
     padding: 12px !important;
-    min-height: 48px !important;
-    font-size: 14px !important;
-    border-radius: 10px !important;
-    margin-bottom: 6px !important;
-    width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
   }
   
-  [data-rk] h1 {
-    font-size: 20px !important;
-    margin-bottom: 16px !important;
-    text-align: center !important;
-    font-weight: 600 !important;
-  }
-  
-  [data-rk] button[aria-label="Close"] {
+  [data-rk] button[data-testid] img {
     width: 32px !important;
     height: 32px !important;
-    top: 12px !important;
-    right: 12px !important;
   }
-  
-  /* Optimize wallet grid for mobile */
-  [data-rk] div[style*="display: grid"] {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-  }
-  
-  /* Better text spacing on mobile */
-  [data-rk] p {
-    font-size: 14px !important;
-    line-height: 1.4 !important;
-    margin: 8px 0 !important;
-    text-align: center !important;
-  }
-}
-
-/* Ensure proper scrolling and touch behavior */
-[data-rk] div[role="dialog"] > div {
-  -webkit-overflow-scrolling: touch !important;
-  scroll-behavior: smooth !important;
-}
-
-/* Improve wallet button hover states */
-[data-rk] button[data-testid]:hover {
-  transform: translateY(-1px) !important;
-  transition: all 0.2s ease !important;
-}
-
-/* Better focus states for accessibility */
-[data-rk] button:focus-visible {
-  outline: 2px solid #3b82f6 !important;
-  outline-offset: 2px !important;
-}
-
-/* Wallet button icons */
-[data-rk] button[data-testid] img {
-  width: 24px !important;
-  height: 24px !important;
-  border-radius: 4px !important;
-}
-
-/* Additional responsive text styles */
-[data-rk] .text-content {
-  font-size: 14px !important;
-  color: #666 !important;
-  text-align: center !important;
-  margin: 12px 0 !important;
 }
 
 /* Animation for gradients */
