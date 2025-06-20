@@ -1,7 +1,8 @@
 
-import { enforceRateLimit, getWeb3BioHeaders } from './rateLimiter';
+import { enforceRateLimit } from './rateLimiter';
 import { REQUEST_DELAY_MS } from './config';
 import type { Web3BioProfile } from '../../types/web3Types';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Fetches profile data from web3.bio API
@@ -14,25 +15,21 @@ export async function fetchWeb3BioProfile(identity: string): Promise<Web3BioProf
     await enforceRateLimit(REQUEST_DELAY_MS);
     
     // Prepare the API URL
-    const apiUrl = `https://api.web3.bio/profile/${identity}`;
+    const path = `profile/${identity}`;
     
-    // Make the API request with proper authentication
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: getWeb3BioHeaders()
+    const { data, error } = await supabase.functions.invoke('proxy-web3-bio', {
+      body: { path }
     });
     
     // Handle API errors
-    if (!response.ok) {
-      if (response.status === 404) {
-        console.log(`No web3.bio profile found for ${identity}`);
-        return null;
-      }
-      throw new Error(`Web3.bio API error: ${response.status}`);
+    if (error) {
+      console.log(`Web3.bio profile for ${identity} not found or proxy error: ${error.message}`);
+      return null;
     }
-    
-    // Parse the response
-    const data = await response.json();
+
+    if (!data) {
+        return null;
+    }
     
     // Extract and normalize the profile data
     const profile: Web3BioProfile = {
