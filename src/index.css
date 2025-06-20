@@ -1,4 +1,3 @@
-
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
 /* Import mobile-specific styles BEFORE tailwind */
@@ -101,156 +100,219 @@
   }
 }
 
-/* Enhanced RainbowKit Modal Optimizations for All Screen Sizes */
+/* Clean RainbowKit Modal Styles - Matching Reference Design */
 [data-rk] {
-  --rk-radii-modal: 16px;
-  --rk-radii-menuButton: 12px;
+  --rk-radii-modal: 24px;
+  --rk-radii-menuButton: 16px;
+  --rk-colors-modalBackground: #f5f5f5;
+  --rk-colors-modalText: #333333;
+  --rk-colors-connectButtonBackground: #ffffff;
+  --rk-colors-connectButtonText: #333333;
 }
 
-/* RainbowKit backdrop - consistent across all sizes */
+/* Modal backdrop */
 [data-rk] div[data-rk-backdrop] {
-  backdrop-filter: blur(8px) !important;
-  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
 }
 
-/* Desktop and Tablet (768px and above) */
-@media (min-width: 768px) {
+/* Main modal container - all screen sizes */
+[data-rk] > div[role="dialog"] {
+  background: #f5f5f5 !important;
+  border-radius: 24px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  padding: 0 !important;
+  border: none !important;
+  width: 480px !important;
+  max-width: 90vw !important;
+  max-height: 80vh !important;
+}
+
+/* Modal content */
+[data-rk] div[role="dialog"] > div {
+  background: #f5f5f5 !important;
+  border-radius: 24px !important;
+  padding: 32px !important;
+  max-height: calc(80vh - 0px) !important;
+  overflow-y: auto !important;
+}
+
+/* Modal title */
+[data-rk] h1 {
+  font-size: 28px !important;
+  font-weight: 600 !important;
+  color: #333333 !important;
+  text-align: center !important;
+  margin: 0 0 32px 0 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Close button */
+[data-rk] button[aria-label="Close"] {
+  position: absolute !important;
+  top: 20px !important;
+  right: 20px !important;
+  width: 32px !important;
+  height: 32px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  color: #666666 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 18px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-rk] button[aria-label="Close"]:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #333333 !important;
+}
+
+/* Wallet buttons grid */
+[data-rk] div[style*="display: grid"] {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 20px !important;
+  margin-bottom: 32px !important;
+}
+
+/* Individual wallet buttons */
+[data-rk] button[data-testid] {
+  background: #ffffff !important;
+  border: 2px solid transparent !important;
+  border-radius: 16px !important;
+  padding: 20px 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  min-height: 100px !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-rk] button[data-testid]:hover {
+  border-color: #3b82f6 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Wallet icons */
+[data-rk] button[data-testid] img {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
+}
+
+/* Wallet names */
+[data-rk] button[data-testid] div {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #333333 !important;
+  text-align: center !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  line-height: 1.2 !important;
+}
+
+/* What is a Wallet section */
+[data-rk] div:last-child {
+  margin-top: 32px !important;
+  padding-top: 24px !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-rk] div:last-child h2 {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #333333 !important;
+  text-align: center !important;
+  margin: 0 0 16px 0 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+[data-rk] div:last-child p {
+  font-size: 16px !important;
+  color: #666666 !important;
+  text-align: center !important;
+  line-height: 1.5 !important;
+  margin: 0 0 24px 0 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Action buttons */
+[data-rk] div:last-child div {
+  display: flex !important;
+  gap: 16px !important;
+  justify-content: center !important;
+}
+
+[data-rk] div:last-child button {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+[data-rk] div:last-child button:first-child {
+  background: #3b82f6 !important;
+}
+
+[data-rk] div:last-child button:last-child {
+  background: transparent !important;
+  color: #3b82f6 !important;
+  border: 2px solid #3b82f6 !important;
+}
+
+[data-rk] div:last-child button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
   [data-rk] > div[role="dialog"] {
-    padding: 16px !important;
-    max-height: 80vh !important;
-    width: 480px !important;
-    max-width: 90vw !important;
-    margin: auto !important;
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    border-radius: 16px !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 400px !important;
   }
   
   [data-rk] div[role="dialog"] > div {
-    max-height: calc(80vh - 32px) !important;
-    overflow-y: auto !important;
-    border-radius: 16px !important;
     padding: 24px !important;
   }
   
+  [data-rk] div[style*="display: grid"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+  
   [data-rk] button[data-testid] {
-    padding: 16px !important;
-    min-height: 56px !important;
-    font-size: 16px !important;
-    border-radius: 12px !important;
-    margin-bottom: 8px !important;
+    min-height: 80px !important;
+    padding: 16px 8px !important;
+  }
+  
+  [data-rk] button[data-testid] img {
+    width: 36px !important;
+    height: 36px !important;
   }
   
   [data-rk] h1 {
     font-size: 24px !important;
-    margin-bottom: 20px !important;
-    text-align: center !important;
+    margin-bottom: 24px !important;
   }
-  
-  [data-rk] button[aria-label="Close"] {
-    width: 40px !important;
-    height: 40px !important;
-    top: 16px !important;
-    right: 16px !important;
-  }
-}
-
-/* Tablet specific adjustments (768px to 1024px) */
-@media (min-width: 768px) and (max-width: 1024px) {
-  [data-rk] > div[role="dialog"] {
-    width: 420px !important;
-    max-width: 85vw !important;
-  }
-  
-  [data-rk] div[role="dialog"] > div {
-    padding: 20px !important;
-  }
-  
-  [data-rk] button[data-testid] {
-    min-height: 52px !important;
-    font-size: 15px !important;
-  }
-  
-  [data-rk] h1 {
-    font-size: 22px !important;
-  }
-}
-
-/* Mobile (below 768px) */
-@media (max-width: 767px) {
-  [data-rk] > div[role="dialog"] {
-    padding: 12px !important;
-    max-height: 85vh !important;
-    width: calc(100vw - 24px) !important;
-    max-width: 400px !important;
-    margin: auto !important;
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    border-radius: 16px !important;
-  }
-  
-  [data-rk] div[role="dialog"] > div {
-    max-height: calc(85vh - 24px) !important;
-    overflow-y: auto !important;
-    border-radius: 16px !important;
-    padding: 16px !important;
-  }
-  
-  [data-rk] button[data-testid] {
-    padding: 12px !important;
-    min-height: 48px !important;
-    font-size: 14px !important;
-    border-radius: 10px !important;
-    margin-bottom: 6px !important;
-  }
-  
-  [data-rk] h1 {
-    font-size: 18px !important;
-    margin-bottom: 16px !important;
-    text-align: center !important;
-  }
-  
-  [data-rk] button[aria-label="Close"] {
-    width: 32px !important;
-    height: 32px !important;
-    top: 12px !important;
-    right: 12px !important;
-  }
-  
-  /* Optimize wallet grid for mobile */
-  [data-rk] div[style*="display: grid"] {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
-    gap: 8px !important;
-  }
-  
-  /* Better text spacing on mobile */
-  [data-rk] p {
-    font-size: 14px !important;
-    line-height: 1.4 !important;
-    margin: 8px 0 !important;
-  }
-}
-
-/* Ensure proper scrolling and touch behavior */
-[data-rk] div[role="dialog"] > div {
-  -webkit-overflow-scrolling: touch !important;
-  scroll-behavior: smooth !important;
-}
-
-/* Improve wallet button hover states */
-[data-rk] button[data-testid]:hover {
-  transform: translateY(-1px) !important;
-  transition: all 0.2s ease !important;
-}
-
-/* Better focus states for accessibility */
-[data-rk] button:focus-visible {
-  outline: 2px solid #3b82f6 !important;
-  outline-offset: 2px !important;
 }
 
 /* Animation for gradients */
