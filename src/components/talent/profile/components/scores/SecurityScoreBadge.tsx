@@ -1,36 +1,46 @@
+
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getThreatColor } from './utils/scoreUtils';
 import { Shield } from 'lucide-react';
 import type { WebacyData, ScoreBadgeProps } from './types';
+
 interface SecurityScoreBadgeProps extends ScoreBadgeProps {
   webacyData: WebacyData | null;
 }
+
 const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({
   webacyData,
   onClick,
   isLoading
 }) => {
   if (isLoading) {
-    return <Skeleton className="h-32 w-full rounded-2xl" />;
+    return <Skeleton className="h-16 w-full rounded-lg" />;
   }
-  const formattedScore = webacyData?.riskScore !== undefined ? Math.round(webacyData.riskScore) : 'N/A';
-  return <div onClick={onClick} className="cursor-pointer">
-      <div className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 h-full shadow-lg border border-green-200 px-0 py-[12px]">
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2">
-            <img src="https://img.cryptorank.io/coins/webacy1675847088001.png" alt="Webacy Logo" className="h-6 w-6" />
-            <h3 className="text-lg font-semibold text-gray-800">Risk Score</h3>
-          </div>
-          <div className={`text-4xl font-bold mb-1 ${getThreatColor(webacyData?.threatLevel)}`}>
-            {formattedScore}
-          </div>
-          <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
-            
-            <span>View Security Details</span>
+
+  const riskPercentage = webacyData?.riskScore !== undefined ? `${Math.round(webacyData.riskScore)}%` : '0%';
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  return (
+    <div onClick={handleClick} className="cursor-pointer">
+      <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow duration-200">
+        <div className="flex-shrink-0">
+          <Shield className="h-6 w-6 text-green-600" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium text-gray-900">Risk</div>
+          <div className={`text-xs ${getThreatColor(webacyData?.threatLevel)} truncate`}>
+            {riskPercentage}
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default SecurityScoreBadge;
