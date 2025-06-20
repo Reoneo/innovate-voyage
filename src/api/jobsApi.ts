@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Job } from "@/types/job";
 
@@ -63,87 +64,67 @@ export const jobsApi = {
     return job || null;
   },
   
-  // Search and filter jobs - Fixed to return more comprehensive results
+  // Search and filter jobs
   searchJobs: async (params: {
     type?: string;
     skills?: string[];
     location?: string;
     search?: string;
-    postedWithinDays?: number;
+    postedWithinDays?: number; // New parameter for date filtering
   }): Promise<Job[]> => {
     await delay(700);
-    const allJobs = await jobsApi.getAllJobs();
+    const allJobs = await jobsApi.getAllJobs(); // Fetches all (transformed) jobs
     
     return allJobs.filter(job => {
-      // More flexible filtering for job type
-      if (params.type) {
-        const typeFilter = params.type.toLowerCase();
-        const jobType = job.type.toLowerCase();
-        const jobLocation = job.location.toLowerCase();
-        
-        // Check if type matches job type or location contains the type
-        const typeMatch = jobType.includes(typeFilter) ||
-                         jobLocation.includes(typeFilter) ||
-                         (typeFilter === 'remote' && jobLocation.includes('remote')) ||
-                         (typeFilter === 'full-time' && (jobType.includes('full') || jobType.includes('time'))) ||
-                         (typeFilter === 'part-time' && jobType.includes('part')) ||
-                         (typeFilter === 'contract' && jobType.includes('contract')) ||
-                         (typeFilter === 'internship' && jobType.includes('intern'));
-        
-        if (!typeMatch) return false;
+      // Filter by job type
+      if (params.type && !job.type.toLowerCase().includes(params.type.toLowerCase()) && 
+          !job.location.toLowerCase().includes(params.type.toLowerCase())) { // Assuming type can also be in location for some reason as per original
+        return false;
       }
       
-      // More flexible skill matching
+      // Filter by skills (if any skill matches title, description, or job.skills)
       if (params.skills && params.skills.length > 0) {
-        const hasSkillMatch = params.skills.some(skill => {
-          const skillLower = skill.toLowerCase();
-          return job.skills.some(jobSkill => jobSkill.toLowerCase().includes(skillLower)) ||
-                 job.title.toLowerCase().includes(skillLower) ||
-                 job.description.toLowerCase().includes(skillLower) ||
-                 job.company.toLowerCase().includes(skillLower);
-        });
-        
-        if (!hasSkillMatch) return false;
+        if (!params.skills.some(skill => 
+          job.skills.some(jobSkill => jobSkill.toLowerCase().includes(skill.toLowerCase())) ||
+          job.title.toLowerCase().includes(skill.toLowerCase()) ||
+          job.description.toLowerCase().includes(skill.toLowerCase())
+        )) {
+          return false;
+        }
       }
       
-      // More flexible location matching
-      if (params.location) {
-        const locationFilter = params.location.toLowerCase();
-        const jobLocation = job.location.toLowerCase();
-        
-        // Handle common location variations
-        const locationMatch = jobLocation.includes(locationFilter) ||
-                             (locationFilter.includes('uk') && (jobLocation.includes('united kingdom') || jobLocation.includes('london') || jobLocation.includes('england'))) ||
-                             (locationFilter.includes('usa') && (jobLocation.includes('united states') || jobLocation.includes('america'))) ||
-                             (locationFilter.includes('remote') && jobLocation.includes('remote'));
-        
-        if (!locationMatch) return false;
+      // Filter by location
+      if (params.location && !job.location.toLowerCase().includes(params.location.toLowerCase())) {
+        return false;
       }
       
-      // Enhanced search term matching
+      // Filter by search term (checks title, company, and description)
       if (params.search) {
         const searchLower = params.search.toLowerCase();
-        const searchableText = [
-          job.title,
-          job.company,
-          job.description,
-          job.location,
-          ...job.skills
-        ].join(' ').toLowerCase();
+        const matchesSearch = 
+          job.title.toLowerCase().includes(searchLower) ||
+          job.company.toLowerCase().includes(searchLower) ||
+          job.description.toLowerCase().includes(searchLower);
         
-        if (!searchableText.includes(searchLower)) return false;
+        if (!matchesSearch) {
+          return false;
+        }
       }
 
-      // Date filtering remains the same
+      // Filter by posted date
       if (params.postedWithinDays) {
         const NdaysAgo = new Date();
         NdaysAgo.setDate(NdaysAgo.getDate() - params.postedWithinDays);
+        // Normalize NdaysAgo to the start of the day for consistent comparison
         NdaysAgo.setHours(0, 0, 0, 0); 
         
         const jobDate = new Date(job.posted_date);
+        // Normalize jobDate to the start of the day
         jobDate.setHours(0, 0, 0, 0);
 
-        if (jobDate < NdaysAgo) return false;
+        if (jobDate < NdaysAgo) {
+          return false;
+        }
       }
       
       return true;
@@ -171,38 +152,22 @@ export const jobsApi = {
     
     jobs.forEach(job => {
       typesSet.add(job.type);
-      // Add additional derived types for better filtering
-      if (job.location.toLowerCase().includes('remote')) {
-        typesSet.add('Remote');
-      }
     });
     
     return [...typesSet].sort();
   },
   
-  // Get all unique locations - Enhanced to return more comprehensive list
+  // Get all unique locations
   getLocations: async (): Promise<string[]> => {
     await delay(200);
     const jobs = await jobsApi.getAllJobs();
     const locationsSet = new Set<string>();
     
     jobs.forEach(job => {
-      // Add the original location
       locationsSet.add(job.location);
-      
-      // Extract and add country/region information
-      const location = job.location.toLowerCase();
-      if (location.includes('remote')) locationsSet.add('Remote');
-      if (location.includes('uk') || location.includes('united kingdom') || location.includes('london')) locationsSet.add('United Kingdom');
-      if (location.includes('usa') || location.includes('united states') || location.includes('america')) locationsSet.add('United States');
-      if (location.includes('canada')) locationsSet.add('Canada');
-      if (location.includes('germany')) locationsSet.add('Germany');
-      if (location.includes('france')) locationsSet.add('France');
-      if (location.includes('netherlands')) locationsSet.add('Netherlands');
-      if (location.includes('singapore')) locationsSet.add('Singapore');
-      if (location.includes('australia')) locationsSet.add('Australia');
     });
     
     return [...locationsSet].sort();
   }
 };
+
