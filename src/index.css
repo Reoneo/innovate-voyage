@@ -101,7 +101,7 @@
   }
 }
 
-/* Enhanced RainbowKit Modal Optimizations for All Screen Sizes */
+/* Responsive RainbowKit Modal Styles */
 [data-rk] {
   --rk-radii-modal: 16px;
   --rk-radii-menuButton: 12px;
@@ -111,21 +111,29 @@
 [data-rk] div[data-rk-backdrop] {
   backdrop-filter: blur(8px) !important;
   background-color: rgba(0, 0, 0, 0.6) !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9999 !important;
 }
 
-/* Desktop and Tablet (768px and above) */
-@media (min-width: 768px) {
+/* Desktop (1024px and above) */
+@media (min-width: 1024px) {
   [data-rk] > div[role="dialog"] {
-    padding: 16px !important;
-    max-height: 80vh !important;
-    width: 480px !important;
-    max-width: 90vw !important;
-    margin: auto !important;
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
+    width: 480px !important;
+    max-width: 90vw !important;
+    max-height: 80vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
     border-radius: 16px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    z-index: 10000 !important;
   }
   
   [data-rk] div[role="dialog"] > div {
@@ -133,6 +141,7 @@
     overflow-y: auto !important;
     border-radius: 16px !important;
     padding: 24px !important;
+    background: white !important;
   }
   
   [data-rk] button[data-testid] {
@@ -147,6 +156,7 @@
     font-size: 24px !important;
     margin-bottom: 20px !important;
     text-align: center !important;
+    font-weight: 600 !important;
   }
   
   [data-rk] button[aria-label="Close"] {
@@ -157,47 +167,77 @@
   }
 }
 
-/* Tablet specific adjustments (768px to 1024px) */
-@media (min-width: 768px) and (max-width: 1024px) {
+/* Tablet (768px to 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
   [data-rk] > div[role="dialog"] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     width: 420px !important;
     max-width: 85vw !important;
+    max-height: 75vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    z-index: 10000 !important;
   }
   
   [data-rk] div[role="dialog"] > div {
+    max-height: calc(75vh - 24px) !important;
+    overflow-y: auto !important;
+    border-radius: 16px !important;
     padding: 20px !important;
+    background: white !important;
   }
   
   [data-rk] button[data-testid] {
+    padding: 14px !important;
     min-height: 52px !important;
     font-size: 15px !important;
+    border-radius: 10px !important;
+    margin-bottom: 6px !important;
   }
   
   [data-rk] h1 {
     font-size: 22px !important;
+    margin-bottom: 18px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+  }
+  
+  [data-rk] button[aria-label="Close"] {
+    width: 36px !important;
+    height: 36px !important;
+    top: 14px !important;
+    right: 14px !important;
   }
 }
 
 /* Mobile (below 768px) */
 @media (max-width: 767px) {
   [data-rk] > div[role="dialog"] {
-    padding: 12px !important;
-    max-height: 85vh !important;
-    width: calc(100vw - 24px) !important;
-    max-width: 400px !important;
-    margin: auto !important;
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 400px !important;
+    max-height: 70vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
     border-radius: 16px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    z-index: 10000 !important;
   }
   
   [data-rk] div[role="dialog"] > div {
-    max-height: calc(85vh - 24px) !important;
+    max-height: calc(70vh - 24px) !important;
     overflow-y: auto !important;
     border-radius: 16px !important;
     padding: 16px !important;
+    background: white !important;
   }
   
   [data-rk] button[data-testid] {
@@ -206,12 +246,17 @@
     font-size: 14px !important;
     border-radius: 10px !important;
     margin-bottom: 6px !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
   }
   
   [data-rk] h1 {
-    font-size: 18px !important;
+    font-size: 20px !important;
     margin-bottom: 16px !important;
     text-align: center !important;
+    font-weight: 600 !important;
   }
   
   [data-rk] button[aria-label="Close"] {
@@ -223,7 +268,8 @@
   
   /* Optimize wallet grid for mobile */
   [data-rk] div[style*="display: grid"] {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 8px !important;
   }
   
@@ -232,6 +278,7 @@
     font-size: 14px !important;
     line-height: 1.4 !important;
     margin: 8px 0 !important;
+    text-align: center !important;
   }
 }
 
@@ -251,6 +298,21 @@
 [data-rk] button:focus-visible {
   outline: 2px solid #3b82f6 !important;
   outline-offset: 2px !important;
+}
+
+/* Wallet button icons */
+[data-rk] button[data-testid] img {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 4px !important;
+}
+
+/* Additional responsive text styles */
+[data-rk] .text-content {
+  font-size: 14px !important;
+  color: #666 !important;
+  text-align: center !important;
+  margin: 12px 0 !important;
 }
 
 /* Animation for gradients */
