@@ -1,14 +1,11 @@
 
 import React from 'react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const RainbowWalletConnect: React.FC = () => {
   return (
     <div className="flex justify-center mb-8">
-      <div className="text-center">
-        <p className="text-white/80 text-sm">
-          Web3 wallet connection temporarily disabled
-        </p>
-      </div>
+      <ConnectButton />
     </div>
   );
 };

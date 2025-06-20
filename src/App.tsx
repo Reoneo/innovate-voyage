@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -64,11 +63,7 @@ const App = () => {
       <ThemeProvider>
         <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider
-              modalSize="compact"
-              initialChain={mainnet}
-              showRecentTransactions={true}
-            >
+            <RainbowKitProvider>
               <AuthKitProvider config={farcasterConfig}>
                 <TooltipProvider>
                   <Toaster />
