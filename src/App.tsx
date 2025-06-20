@@ -1,64 +1,98 @@
 
-import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { HelmetProvider } from 'react-helmet-async';
-import WalletConnectModal from "@/components/wallet/WalletConnectModal";
-import XmtpMessageModal from "@/components/wallet/XmtpMessageModal";
-
-// RainbowKit imports
-import '@rainbow-me/rainbowkit/styles.css';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { AuthKitProvider } from '@farcaster/auth-kit';
+import '@farcaster/auth-kit/styles.css';
 import { WagmiProvider } from 'wagmi';
-import { config } from '@/lib/wagmi';
+import { mainnet } from 'wagmi/chains';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { config } from './lib/wagmi';
+import '@rainbow-me/rainbowkit/styles.css';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import Index from "./pages/Index";
+import TalentProfile from "./pages/TalentProfile";
+import NotFound from "./pages/NotFound";
+import XmtpMessageModal from "./components/wallet/XmtpMessageModal";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
-// Lazy load components
-const Index = lazy(() => import("./pages/Index"));
-const TalentProfile = lazy(() => import("./pages/TalentProfile"));
-const Jobs = lazy(() => import("./pages/Jobs"));
-const JobDetail = lazy(() => import("./pages/JobDetail"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+// Create a persistent QueryClient instance with optimized settings
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1, // Reduced retries for faster loading
+      staleTime: 300000, // 5 minutes
+      gcTime: 3600000, // 1 hour
+    },
+  },
+});
 
-const queryClient = new QueryClient();
+const farcasterConfig = {
+  rpcUrl: 'https://mainnet.optimism.io',
+  domain: 'recruitment.box',
+  siweUri: 'https://recruitment.box/login',
+};
 
-function App() {
+const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    // Faster loading with minimal timeout
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 50); // Reduced from 100ms
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Minimal loading screen for faster perceived performance
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <HelmetProvider>
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider>
-            <ThemeProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/recruitment.box/:ensName/" element={<TalentProfile />} />
-                        <Route path="/jobs" element={<Jobs />} />
-                        <Route path="/jobs/:jobId" element={<JobDetail />} />
-                        <Route path="/privacy" element={<PrivacyPolicy />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </Suspense>
-                    <WalletConnectModal />
+      <ThemeProvider>
+        <WagmiProvider config={config}>
+          <QueryClientProvider client={queryClient}>
+            <RainbowKitProvider
+              modalSize="compact"
+              initialChain={mainnet}
+              showRecentTransactions={true}
+            >
+              <AuthKitProvider config={farcasterConfig}>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                      <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+                      <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
+                      <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+                      <Route path="/404" element={<NotFound />} />
+                      <Route path="*" element={<Navigate to="/404" />} />
+                    </Routes>
                     <XmtpMessageModal />
-                  </div>
-                </BrowserRouter>
-              </TooltipProvider>
-            </ThemeProvider>
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
+                  </BrowserRouter>
+                </TooltipProvider>
+              </AuthKitProvider>
+            </RainbowKitProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
+      </ThemeProvider>
     </HelmetProvider>
   );
-}
+};
 
 export default App;
