@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import TalentScoreBanner from '../TalentScoreBanner';
 import SocialLinksSection from '../social/SocialLinksSection';
@@ -9,7 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Users, X } from 'lucide-react';
 import { getEnsLinks } from '@/utils/ens/ensLinks';
-
 interface MobileActivityColumnProps {
   passport: any;
   ensNameOrAddress?: string;
@@ -55,13 +53,11 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
     };
     fetchAllSocials();
   }, [ensNameOrAddress]);
-
   const handleOpenXmtpModal = () => {
     if (window.xmtpMessageModal) {
       window.xmtpMessageModal.showModal();
     }
   };
-
   return <div className="bg-gray-50 p-3 space-y-4 h-full py-[24px] px-[5px] mx-0 my-[4px]">
       {/* Follow Button - At the top, only show if not owner */}
       {!isOwner && passport.owner_address && <FollowButton targetAddress={passport.owner_address} />}
@@ -78,12 +74,8 @@ const MobileActivityColumn: React.FC<MobileActivityColumnProps> = ({
         {/* XMTP Messages Button */}
         <Card onClick={handleOpenXmtpModal} className="p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 bg-white hover:bg-gray-50">
           <div className="flex items-center justify-center gap-2">
-            <img 
-              src="https://raw.githubusercontent.com/xmtp/brand/main/assets/x-mark-red.png" 
-              alt="XMTP Messages" 
-              className="h-5 w-5"
-            />
-            <h3 className="text-gray-800 text-base font-light">Messages</h3>
+            
+            <h3 className="text-gray-800 font-light text-sm">Messages</h3>
           </div>
         </Card>
 
