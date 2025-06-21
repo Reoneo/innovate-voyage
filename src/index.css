@@ -73,40 +73,7 @@
   }
 }
 
-/* RainbowKit Modal Z-Index Override - Force modals to appear above everything */
-div[data-rk] {
-  z-index: 9999 !important;
-}
-
-/* RainbowKit modal overlay - Remove background and ensure proper positioning */
-div[data-rk] > div[style*="position: fixed"] {
-  z-index: 9999 !important;
-  background: rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: blur(4px) !important;
-}
-
-/* RainbowKit modal container - Ensure it's positioned correctly */
-div[data-rk] div[role="dialog"] {
-  z-index: 10000 !important;
-  position: fixed !important;
-  background: white !important;
-  border-radius: 16px 16px 0 0 !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  max-height: 90vh !important;
-  transform: none !important;
-  margin: 0 !important;
-  width: 100% !important;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Additional selectors for RainbowKit modal components */
-[data-rk] [role="presentation"] {
-  z-index: 10001 !important;
-}
-
-/* Mobile-specific RainbowKit modal styling */
+/* Mobile-specific overrides */
 @media (max-width: 768px) {
   html {
     -webkit-text-size-adjust: 100%;
@@ -130,47 +97,6 @@ div[data-rk] div[role="dialog"] {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
     max-width: 100vw;
-  }
-
-  /* Mobile-specific RainbowKit fixes - Bottom sheet style */
-  [data-rk] {
-    z-index: 9999 !important;
-  }
-  
-  /* Modal overlay for mobile */
-  [data-rk] > div[style*="position: fixed"] {
-    z-index: 9999 !important;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    background: rgba(0, 0, 0, 0.4) !important;
-    backdrop-filter: blur(4px) !important;
-  }
-
-  /* Modal content - Bottom sheet style */
-  [data-rk] div[role="dialog"] {
-    z-index: 10000 !important;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    background: white !important;
-    border-radius: 16px 16px 0 0 !important;
-    max-height: 85vh !important;
-    transform: none !important;
-    margin: 0 !important;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15) !important;
-    overflow-y: auto !important;
-  }
-
-  /* Ensure modal content is styled correctly */
-  [data-rk] div[role="dialog"] > div {
-    padding: 20px !important;
-    background: white !important;
   }
 }
 
@@ -376,3 +302,4 @@ body.generating-pdf {
 .github-calendar-dark .float-right {
   float: right !important;
 }
+
