@@ -1,100 +1,23 @@
 
-// In-memory/session storage for the encryption key
-let cryptoKey: CryptoKey | null = null;
-
-// Function to get or generate the encryption key, stored in sessionStorage to persist across reloads.
-const getKey = async (): Promise<CryptoKey> => {
-  if (cryptoKey) {
-    return cryptoKey;
-  }
-
-  const jwk = sessionStorage.getItem('cryptoKey');
-  if (jwk) {
-    try {
-      cryptoKey = await window.crypto.subtle.importKey(
-        'jwk',
-        JSON.parse(jwk),
-        { name: 'AES-GCM' },
-        true,
-        ['encrypt', 'decrypt']
-      );
-      return cryptoKey;
-    } catch (e) {
-      console.error('Failed to import key, generating new one.', e);
-      sessionStorage.removeItem('cryptoKey');
-    }
-  }
-
-  const newKey = await window.crypto.subtle.generateKey(
-    { name: 'AES-GCM', length: 256 },
-    true,
-    ['encrypt', 'decrypt']
-  );
-  const exportedKey = await window.crypto.subtle.exportKey('jwk', newKey);
-  sessionStorage.setItem('cryptoKey', JSON.stringify(exportedKey));
-  cryptoKey = newKey;
-  return cryptoKey;
-};
-
-// Helper to encrypt data using AES-GCM
-const encrypt = async (data: string): Promise<string> => {
-  const key = await getKey();
-  const iv = window.crypto.getRandomValues(new Uint8Array(12));
-  const encoded = new TextEncoder().encode(data);
-  
-  const encryptedContent = await window.crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv },
-    key,
-    encoded
-  );
-
-  const buffer = new Uint8Array(iv.length + encryptedContent.byteLength);
-  buffer.set(iv, 0);
-  buffer.set(new Uint8Array(encryptedContent), iv.length);
-  
-  return btoa(String.fromCharCode.apply(null, Array.from(buffer)));
-};
-
-// Helper to decrypt data
-const decrypt = async (encryptedData: string): Promise<string> => {
-  try {
-    const key = await getKey();
-    const buffer = new Uint8Array(Array.from(atob(encryptedData)).map(char => char.charCodeAt(0)));
-    
-    const iv = buffer.slice(0, 12);
-    const data = buffer.slice(12);
-
-    const decryptedContent = await window.crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv },
-      key,
-      data
-    );
-
-    return new TextDecoder().decode(decryptedContent);
-  } catch (error) {
-    console.error('Decryption failed. Data might be corrupt or from a different session.', error);
-    return '';
-  }
-};
-
 // Security utilities for handling sensitive data
 export const secureStorage = {
-  setItem: async (key: string, value: string) => {
+  setItem: (key: string, value: string) => {
     try {
-      const encrypted = await encrypt(value);
+      // Simple encryption for localStorage (in production, use proper encryption)
+      const encrypted = btoa(value);
       localStorage.setItem(key, encrypted);
     } catch (error) {
-      console.error('Failed to store secure item', error);
+      console.error('Failed to store secure item');
     }
   },
   
-  getItem: async (key: string): Promise<string | null> => {
+  getItem: (key: string): string | null => {
     try {
       const encrypted = localStorage.getItem(key);
       if (!encrypted) return null;
-      return await decrypt(encrypted);
+      return atob(encrypted);
     } catch (error) {
-      console.error('Failed to retrieve secure item', error);
+      console.error('Failed to retrieve secure item');
       return null;
     }
   },
@@ -105,8 +28,6 @@ export const secureStorage = {
   
   clear: () => {
     localStorage.clear();
-    sessionStorage.removeItem('cryptoKey');
-    cryptoKey = null;
   }
 };
 
@@ -121,8 +42,7 @@ export const validateInput = {
   },
   
   sanitizeString: (input: string): string => {
-    // Remove HTML tags and potentially harmful characters.
-    return input.replace(/<[^>]*>?/gm, '').replace(/[&<>"'/`=]/g, '');
+    return input.replace(/[<>'"&]/g, '');
   },
   
   isValidUrl: (url: string): boolean => {

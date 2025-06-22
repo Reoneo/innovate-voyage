@@ -13,6 +13,8 @@ const TalentProfile = () => {
     loadingTimeout,
     passport, 
     profileRef,
+    connectedWallet,
+    handleDisconnect,
     handleSaveChanges
   } = useProfilePage();
 
@@ -49,27 +51,6 @@ const TalentProfile = () => {
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     }
-
-    // Set viewport on mobile to prevent zooming, without disabling scroll globally
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) {
-      // Set viewport to prevent zooming
-      let viewport = document.querySelector('meta[name="viewport"]');
-      if (!viewport) {
-        viewport = document.createElement('meta');
-        viewport.setAttribute('name', 'viewport');
-        document.head.appendChild(viewport);
-      }
-      viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
-    }
-
-    return () => {
-      // Reset viewport when component unmounts
-      const viewport = document.querySelector('meta[name="viewport"]');
-      if (viewport) {
-        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
-      }
-    };
   }, [passport?.avatar_url, ensNameOrAddress, loading, loadingTimeout]);
 
   return (
@@ -77,7 +58,6 @@ const TalentProfile = () => {
       <Helmet>
         <title>{ensNameOrAddress || 'Profile'} | Recruitment.box</title>
         <meta name="description" content={`Profile of ${ensNameOrAddress || 'Web3 user'} on Recruitment.box - Decentralized CV & Recruitment Engine`} />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
         {passport?.avatar_url && (
           <>
             <link rel="icon" href={passport.avatar_url} type="image/png" />
@@ -105,10 +85,12 @@ const TalentProfile = () => {
         
         {/* Always show Navigation Bar */}
         <ProfileNavbar 
+          connectedWallet={connectedWallet}
+          onDisconnect={handleDisconnect}
           onSaveChanges={handleSaveChanges}
         />
         
-        <div className="container px-1 relative z-10" style={{ maxWidth: '98vw', height: '100vh' }}>
+        <div className="container px-1 relative z-10" style={{ maxWidth: '98vw' }}>
           {loading ? (
             /* Show detailed loading skeleton */
             <div className="pt-16">

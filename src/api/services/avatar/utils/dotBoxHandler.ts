@@ -1,9 +1,10 @@
-import { supabase } from '@/integrations/supabase/client';
+
 import { avatarCache } from '../../../utils/web3/index';
 import { fetchDotBoxAvatar } from '../../openseaService';
 import { ccipReadEnabled } from '../../../../utils/ens/ccipReadHandler';
 
-// Etherscan API key for .box domains is now in a proxy function
+// Etherscan API key for .box domains
+const OPTIMISM_ETHERSCAN_API_KEY = "MWRCM8Q9RIGEVBT6WJ1VUNDYPAHN4M91FU";
 
 export async function handleDotBoxAvatar(identity: string): Promise<string | null> {
   try {
@@ -32,23 +33,17 @@ export async function handleDotBoxAvatar(identity: string): Promise<string | nul
       return boxData.avatar;
     }
     
-    // Third, try Optimism Etherscan API to get metadata via proxy
-    const params = `module=account&action=txlist&address=${boxData?.address || identity}&startblock=0&endblock=99999999&sort=desc`;
+    // Third, try Optimism Etherscan API to get metadata
+    const etherscanUrl = `https://api-optimistic.etherscan.io/api?module=account&action=txlist&address=${boxData?.address || identity}&startblock=0&endblock=99999999&sort=desc&apikey=${OPTIMISM_ETHERSCAN_API_KEY}`;
     try {
-       const { data: etherscanData, error } = await supabase.functions.invoke('proxy-optimism-etherscan', {
-        body: { params }
-      });
-
-      if (error) {
-        throw error;
-      }
-      
-      if (etherscanData) {
+      const etherscanResponse = await fetch(etherscanUrl);
+      if (etherscanResponse.ok) {
+        const etherscanData = await etherscanResponse.json();
         console.log(`Got Optimism Etherscan data for ${identity}`);
         // Continue with other methods as we just want the transactions data for metadata
       }
     } catch (etherscanError) {
-      console.error("Error fetching from Optimism Etherscan proxy:", etherscanError);
+      console.error("Error fetching from Optimism Etherscan:", etherscanError);
     }
     
     // Fourth, try metadata.ens.domains for .box domains
