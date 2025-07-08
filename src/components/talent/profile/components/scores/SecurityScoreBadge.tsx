@@ -1,36 +1,39 @@
+
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getThreatColor } from './utils/scoreUtils';
 import { Shield } from 'lucide-react';
-import type { WebacyData, ScoreBadgeProps } from './types';
-interface SecurityScoreBadgeProps extends ScoreBadgeProps {
-  webacyData: WebacyData | null;
-}
+import type { ScoreBadgeProps } from './types';
+
+interface SecurityScoreBadgeProps extends ScoreBadgeProps {}
+
 const SecurityScoreBadge: React.FC<SecurityScoreBadgeProps> = ({
-  webacyData,
   onClick,
   isLoading
 }) => {
   if (isLoading) {
     return <Skeleton className="h-32 w-full rounded-2xl" />;
   }
-  const formattedScore = webacyData?.riskScore !== undefined ? Math.round(webacyData.riskScore) : 'N/A';
-  return <div onClick={onClick} className="cursor-pointer">
-      <div className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 h-full shadow-lg border border-green-200 px-0 py-[12px]">
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2">
-            <img src="https://img.cryptorank.io/coins/webacy1675847088001.png" alt="Webacy Logo" className="h-6 w-6" />
-            <h3 className="text-lg font-semibold text-gray-800">Risk Score</h3>
-          </div>
-          <div className={`text-4xl font-bold mb-1 ${getThreatColor(webacyData?.threatLevel)}`}>
-            {formattedScore}
-          </div>
-          <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
-            
-            <span>View Security Details</span>
-          </div>
+
+  return (
+    <div
+      onClick={onClick}
+      className="cursor-pointer group transition-transform duration-200"
+    >
+      <div className="flex flex-col items-center gap-2 p-6 bg-white/95 rounded-2xl shadow-md border border-gray-200 hover:shadow-lg hover:-translate-y-1 w-full min-h-[120px] transition-all">
+        <div className="flex items-center justify-center mb-2">
+          <Shield className="w-7 h-7 text-gray-400 group-hover:text-purple-500 transition-colors" />
+        </div>
+        <div className="text-center w-full">
+          <span className="text-2xl font-bold text-primary group-hover:text-purple-600 transition-colors">
+            Analyze
+          </span>
+          <p className="text-gray-500 font-medium text-sm">
+            Security Score
+          </p>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default SecurityScoreBadge;

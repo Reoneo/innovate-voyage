@@ -8,9 +8,9 @@ import { RefreshCw } from 'lucide-react';
 interface BlockchainActivityBadgeProps extends ScoreBadgeProps {
   walletAddress: string;
 }
-
 const BlockchainActivityBadge: React.FC<BlockchainActivityBadgeProps> = ({
-  walletAddress
+  walletAddress,
+  onClick
 }) => {
   const {
     data,
@@ -18,40 +18,48 @@ const BlockchainActivityBadge: React.FC<BlockchainActivityBadgeProps> = ({
     refetch
   } = useBlockchainActivity(walletAddress);
 
-  const hasEmptyData = !data.firstTransaction || 
-                      data.ethBalance === '0.0000' || 
-                      data.ethBalance === null ||
-                      data.outgoingTransactions === 0 ||
-                      data.outgoingTransactions === null;
+  const hasEmptyData =
+    !data.firstTransaction ||
+    data.ethBalance === '0.0000' ||
+    data.ethBalance === null ||
+    data.outgoingTransactions === 0 ||
+    data.outgoingTransactions === null;
 
   if (loading) {
     return <Skeleton className="h-32 w-full rounded-2xl" />;
   }
-
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
   return (
-    <div className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-blue-50 to-blue-100 h-32 rounded-2xl shadow-lg border border-blue-200 px-0 py-0 relative">
-      <div className="text-center space-y-2 w-full">
-        <div className="flex items-center justify-center gap-2">
-          <img src="https://socialbubbles.ae/wp-content/uploads/2024/08/etherscan-image.png" alt="Etherscan" className="h-5 w-5" />
-          <h3 className="text-lg font-semibold text-gray-800 px-0 py-[10px]">Onchain Activity</h3>
-          {hasEmptyData && (
-            <button
-              onClick={refetch}
-              className="ml-2 p-1 hover:bg-blue-200 rounded-full transition-colors"
-              title="Refresh data"
-            >
-              <RefreshCw className="h-4 w-4 text-gray-600" />
-            </button>
-          )}
+    <div
+      onClick={handleClick}
+      className="cursor-pointer group transition-transform duration-200"
+    >
+      <div className="flex flex-col items-center gap-2 p-6 bg-white/95 rounded-2xl shadow-md border border-gray-200 hover:shadow-lg hover:-translate-y-1 w-full min-h-[120px] transition-all">
+        <div className="text-center w-full">
+          <div className="text-2xl font-bold text-primary mb-2 group-hover:text-purple-600 transition-colors">
+            {data.outgoingTransactions ?? 0}
+          </div>
+          <p className="text-gray-500 font-medium text-sm">Transactions</p>
         </div>
-        <div className="text-sm text-gray-600 space-y-1">
-          {data.firstTransaction ? <div>First TX: {data.firstTransaction}</div> : <div>First TX: N/A</div>}
-          {data.ethBalance ? <div>ETH: {data.ethBalance}</div> : <div>ETH: 0</div>}
-          <div>TXs: {data.outgoingTransactions ?? 0}</div>
-        </div>
+        {hasEmptyData && (
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              refetch();
+            }}
+            className="mt-2 inline-flex items-center px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 text-xs font-semibold transition"
+            title="Refresh data"
+          >
+            <RefreshCw className="h-4 w-4 mr-1" />
+            Refresh
+          </button>
+        )}
       </div>
     </div>
   );
 };
-
 export default BlockchainActivityBadge;

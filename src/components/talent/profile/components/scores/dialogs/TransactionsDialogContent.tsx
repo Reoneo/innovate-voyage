@@ -12,7 +12,7 @@ interface TransactionsDialogContentProps {
 const TransactionsDialogContent: React.FC<TransactionsDialogContentProps> = ({ txCount, walletAddress }) => {
   return (
     <>
-      <DialogHeader>
+      <DialogHeader className="border-b border-gray-200 pb-3">
         <DialogTitle className="flex items-center gap-2">
           <SendHorizontal className="h-5 w-5 text-blue-500" />
           Transaction History

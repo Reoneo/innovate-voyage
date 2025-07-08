@@ -1,38 +1,35 @@
 
-// Polyfill Buffer first - before any other imports
+// Polyfill Buffer IMMEDIATELY - before any other imports
 import { Buffer } from 'buffer';
 
-// Make Buffer globally available
-if (typeof window !== 'undefined') {
-  window.Buffer = window.Buffer || Buffer;
-  console.log("Main: Buffer polyfill initialized:", !!window.Buffer);
+// Set up Buffer and process globally before anything else
+if (typeof globalThis !== 'undefined') {
+  (globalThis as any).Buffer = Buffer;
+  (globalThis as any).global = globalThis;
+  (globalThis as any).process = (globalThis as any).process || { env: {} };
 }
 
-import { createRoot } from 'react-dom/client';
-
-import App from './App.tsx';
-import './index.css';
+if (typeof window !== 'undefined') {
+  (window as any).Buffer = Buffer;
+  (window as any).global = globalThis;
+  (window as any).process = (window as any).process || { env: {} };
+}
 
 // Double-check Buffer is available
-if (typeof window !== 'undefined' && !window.Buffer) {
-  console.error("Buffer polyfill failed to load!");
-  // Try to set it one more time
-  window.Buffer = Buffer;
-  console.log("Main: Buffer retry result:", !!window.Buffer);
-} else {
-  console.log("Main: Buffer is available:", !!window.Buffer);
+if (typeof Buffer === 'undefined') {
+  throw new Error('Buffer polyfill failed to load');
 }
 
-// Workaround to make Buffer globally available for dependencies that use it
-// @ts-ignore - deliberately setting global object property
-if (typeof window !== 'undefined' && typeof global === 'undefined') {
-  // @ts-ignore - setting window.global
-  window.global = window;
-  // @ts-ignore - ensure global.Buffer exists too
-  if (window.global && !window.global.Buffer) {
-    window.global.Buffer = window.Buffer;
-  }
-}
+console.log("Buffer polyfill setup complete:", {
+  Buffer: typeof Buffer,
+  BufferFrom: typeof Buffer.from,
+  globalBuffer: !!(globalThis as any).Buffer,
+  windowBuffer: !!(window as any)?.Buffer,
+});
+
+import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
 
 const root = createRoot(document.getElementById("root")!);
 root.render(<App />);

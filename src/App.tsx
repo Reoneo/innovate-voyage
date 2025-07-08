@@ -10,6 +10,7 @@ import { AuthKitProvider } from '@farcaster/auth-kit';
 import '@farcaster/auth-kit/styles.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import Index from "./pages/Index";
+import Jobs from "./pages/Jobs";
 import TalentProfile from "./pages/TalentProfile";
 import NotFound from "./pages/NotFound";
 import XmtpMessageModal from "./components/wallet/XmtpMessageModal";
@@ -33,6 +34,30 @@ const farcasterConfig = {
   siweUri: 'https://recruitment.box/login',
 };
 
+const AppContent = () => {
+  return (
+    <AuthKitProvider config={farcasterConfig}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/jobs" element={<Jobs />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
+            <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
+            <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
+            <Route path="/404" element={<NotFound />} />
+            <Route path="*" element={<Navigate to="/404" />} />
+          </Routes>
+          <XmtpMessageModal />
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthKitProvider>
+  );
+};
+
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   
@@ -40,12 +65,11 @@ const App = () => {
     // Faster loading with minimal timeout
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 50); // Reduced from 100ms
+    }, 50);
     
     return () => clearTimeout(timer);
   }, []);
 
-  // Minimal loading screen for faster perceived performance
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -57,26 +81,9 @@ const App = () => {
   return (
     <HelmetProvider>
       <ThemeProvider>
-        <AuthKitProvider config={farcasterConfig}>
-          <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="/recruitment.box/:userId" element={<TalentProfile />} />
-                  <Route path="/recruitment.box/recruitment.box/:userId" element={<Navigate to="/recruitment.box/:userId" replace />} />
-                  <Route path="/:ensNameOrAddress" element={<TalentProfile />} />
-                  <Route path="/404" element={<NotFound />} />
-                  <Route path="*" element={<Navigate to="/404" />} />
-                </Routes>
-                <XmtpMessageModal />
-              </BrowserRouter>
-            </TooltipProvider>
-          </QueryClientProvider>
-        </AuthKitProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppContent />
+        </QueryClientProvider>
       </ThemeProvider>
     </HelmetProvider>
   );
